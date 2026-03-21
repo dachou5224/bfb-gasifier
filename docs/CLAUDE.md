@@ -228,6 +228,12 @@ CASE_LU_FLAT ≈ {
 
 ---
 
+## Cursor Agent 技能（可选）
+
+自定义技能与 gstack 技能激活说明见 **`docs/cursor_skills_playbook.md`**（`bfb-scientific-audit`、`bfb-phase-manager`、`bfb-numerical-guard` 及 `/plan-eng-review`、`/investigate`、`/qa` 的推荐用法）。
+
+---
+
 ## 当前已知缺口（不阻塞核心实现）
 
 1. R10/R11：已实现 Hamel Eq.5.59 / Table 5.4（气泡/悬浮 R11 分 Serio/Corella）；若与实验对标仍可调 `SolidProps.catalyst_solid_fraction` 等

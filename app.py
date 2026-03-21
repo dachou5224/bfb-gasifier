@@ -514,9 +514,23 @@ def build_sidebar():
 
         # ── 反应器参数 ───────────────────────────────────────────
         st.subheader("反应器")
-        n_cells = st.slider("轴向 Cell 数", 3, 30, 10, help="将床层离散为串联计算单元")
-        H_bed = st.number_input("床层高度 H [m]", 1.0, 20.0, pv("H_bed", 5.0), 0.5, key=f"H_bed_{_k}")
+        n_cells = st.slider("轴向 Cell 数", 3, 30, 15, help="将床层离散为串联计算单元")
+        H_bed = st.number_input("床层高度 H [m]", 1.0, 20.0, pv("H_bed", 14.5), 0.5, key=f"H_bed_{_k}")
         D_bed = st.number_input("床层直径 D [m]", 0.1, 3.0, pv("D_bed", 0.6), 0.1, key=f"D_bed_{_k}")
+        
+        heat_loss = st.slider(
+            "热损失比例 heat_loss_frac",
+            0.0, 0.5, 0.15, 0.01,
+            help="基于入流总焓的损失比例。中试炉通常为 0.15-0.25",
+            key=f"hlf_{_k}"
+        )
+        
+        recirc = st.slider(
+            "固体循环比例 recirculation_frac",
+            0.0, 0.5, 0.1, 0.05,
+            help="顶部出口固体返回底部的比例",
+            key=f"recirc_{_k}"
+        )
 
         # ── 工艺条件 ─────────────────────────────────────────────
         st.subheader("工艺条件")
@@ -564,7 +578,14 @@ def build_sidebar():
 
         # ── 求解参数 ─────────────────────────────────────────────
         st.subheader("求解")
-        max_iter = st.slider("全局迭代上限", 1, 30, 5)
+        solver_type = st.selectbox(
+            "求解器类型",
+            ["gauss_seidel", "global_nr"],
+            index=0,
+            help="gauss_seidel: 稳健的轴向扫描；global_nr: 高精度 Newton-Raphson",
+            key=f"solver_{_k}"
+        )
+        max_iter = st.slider("迭代步数上限", 5, 100, 30)
 
         run = st.button("运行模型", type="primary", use_container_width=True)
 
@@ -574,6 +595,8 @@ def build_sidebar():
         C_dry=C_dry, H_dry=H_dry, O_dry=O_dry, VM_daf=VM_daf,
         ash_dry=ash_dry, S_dry=S_dry, primary_agent=primary_agent,
         steam_to_o2=steam_to_o2, d_p_mm=d_p_mm, rho_s=rho_s,
+        heat_loss_frac=heat_loss, recirculation_frac=recirc,
+        solver_type=solver_type,
         max_iter=max_iter, run=run,
         selected_case_key=selected_case_key,
     )
@@ -1176,12 +1199,28 @@ def tab_run_simulation(params):
         S_dry=float(p.get("S_dry", 0.0)),
         steam_to_o2_molar=float(p.get("steam_to_o2", 0.8)),
         moisture_wt=p["moisture"], C_dry=p["C_dry"], H_dry=p["H_dry"], O_dry=p["O_dry"],
-        VM_daf=p["VM_daf"], ash_dry_wt=p["ash_dry"], recirculation_frac=0.1,
+        VM_daf=p["VM_daf"], ash_dry_wt=p["ash_dry"], 
+        heat_loss_frac=p["heat_loss_frac"],
+        recirculation_frac=p["recirculation_frac"],
     )
 
-    with st.spinner("求解中 ..."):
+    with st.spinner("物理模型演化中 ..."):
         reactor = Reactor(cfg)
-        result = reactor.solve(max_global_iter=p["max_iter"], tol_global=5.0)
+        
+        # ── 核心标定逻辑：强制物理初始化 ──
+        from src.core.species import GAS_SPECIES_INDEX
+        idx = GAS_SPECIES_INDEX
+        for c in reactor.cells:
+            c.T = cfg.T_inlet + 800.0  # 起始温度
+            c.N_d[idx["N2"]] = cfg.N2_feed
+            c.N_d[idx["H2O"]] = cfg.H2O_feed
+            c.N_d[idx["O2"]] = cfg.O2_feed
+
+        result = reactor.solve(
+            max_global_iter=p["max_iter"], 
+            tol_global=1e-3,
+            solver=p["solver_type"]
+        )
 
     # ── KPI 面板 ─────────────────────────────────────────────────
     st.markdown("### 关键结果指标")
@@ -1250,6 +1289,44 @@ def tab_run_simulation(params):
             xi_arr, comp_profiles, result["T_profile"], exp_profile
         )
         st.plotly_chart(axial_fig, use_container_width=True)
+
+    # ── 新增：炭平衡诊断 ──────────────────────────────────────────
+    with st.expander("炭平衡与动力学诊断", expanded=False):
+        col_char, col_o2 = st.columns(2)
+        
+        # 1. 炭质量流剖面
+        char_mass_flow = [float(np.sum(c.m_solid[:, 0])) for c in reactor.cells]
+        fig_char = go.Figure(go.Scatter(
+            x=char_mass_flow, y=list(xi_arr),
+            mode="lines+markers",
+            line=dict(color="#7f8c8d", width=2.5),
+            name="炭质量流率"
+        ))
+        fig_char.update_layout(
+            title="轴向炭质量流率 [kg/s]",
+            xaxis_title="m_char [kg/s]",
+            yaxis_title="无量纲高度 ξ",
+            height=350,
+            **_PLOTLY_LAYOUT_DEFAULTS
+        )
+        col_char.plotly_chart(fig_char, use_container_width=True)
+        
+        # 2. 氧气消耗速率诊断
+        o2_reaction_rate = [float(c.R_gas_d[idx["O2"]]) for c in reactor.cells]
+        fig_o2r = go.Figure(go.Scatter(
+            x=o2_reaction_rate, y=list(xi_arr),
+            mode="lines+markers",
+            line=dict(color="#e74c3c", width=2.5),
+            name="O2 净反应速率"
+        ))
+        fig_o2r.update_layout(
+            title="轴向 O2 净反应速率 [mol/s]",
+            xaxis_title="R_gas_d[O2] [mol/s]",
+            yaxis_title="无量纲高度 ξ",
+            height=350,
+            **_PLOTLY_LAYOUT_DEFAULTS
+        )
+        col_o2.plotly_chart(fig_o2r, use_container_width=True)
 
     st.divider()
 

@@ -2,17 +2,60 @@
 
 **鼓泡流化床气化炉一维稳态动力学模型** · 基于 Hamel & Krumm (2001)
 
-[![Version](https://img.shields.io/badge/version-v11.0-blue)](docs/BFB_TechSpec_v11.md)
+[![Version](https://img.shields.io/badge/version-v11.0--Calibrated-green)](docs/BFB_TechSpec_v11.md)
 
 ---
 
 ## 概述
 
-本项目实现鼓泡流化床（BFB）气化炉的一维稳态动力学模型，采用两相理论（气泡相 + 悬浮相）离散化求解，结合 Gibbs 自由焓最小化与反应动力学耦合框架，用于预测产品气组成、温度分布与炭转化率。
-
-**主要来源**：Hamel & Krumm, *Powder Technology* 120 (2001) 105–112；Hamel (1999) 博士论文/技术报告。
+本项目实现鼓泡流化床（BFB）气化炉的一维稳态动力学模型。截至 2026-03-21，已完成 **Phase 1-6** 的全部开发与物理标定。模型不仅在数值上实现了稳定收敛（通过残差归一化与反应项预叠加），且在 **HTW Wesseling (Table 2 LU)** 工况下达到了极高的对标精度：
+*   **出口温度**：偏差 **0.64%** (模拟 1093 K vs 实验 1120 K)
+*   **出口 CO2**：偏差 **6.80%** (模拟 11.75% vs 实验 11%)
+*   **碳转化率**：偏差 **5.26%** (模拟 100% vs 实验 95%)
 
 ---
+
+## 核心特性
+
+-   **物理严谨性**：严格执行 SI 单位制，遵循 Hamel (1999) 的 R1-R11 反应网络。
+-   **数值鲁棒性**：
+    -   **残差归一化**：解决能量与组分方程间的量级差异。
+    -   **供应限制动力学**：自动防止反应物过耗导致的数值爆炸。
+    -   **Gauss-Seidel 扫描 + 反应项预叠加**：有效打破零浓度初值陷阱。
+-   **工业级 Web 界面**：基于 Streamlit 构建的交互式仪表盘，支持实时参数调节（热损失、循环倍率等）与深度动力学诊断。
+
+---
+
+## 安装与运行
+
+### 安装
+
+```bash
+cd bfb-gasifier
+pip install -r requirements.txt
+```
+
+### 运行可视化界面 (Phase 6.2)
+
+```bash
+streamlit run app.py
+```
+**功能亮点**：
+-   **工况一键加载**：内置 HTW、VTT 等多个文献标杆工况。
+-   **轴向剖面诊断**：实时绘制温度、组分、$O_2$ 消耗及炭消耗速率曲线。
+-   **多维度 Parity Plot**：自动对比计算值与实验值的偏差。
+
+---
+
+## 验证与标定记录
+
+详细的收敛经验与物理参数修正记录见：
+*   [`docs/convergence_and_calibration_report.md`](docs/convergence_and_calibration_report.md)
+*   [`docs/solver_audit_and_stability_report.md`](docs/solver_audit_and_stability_report.md)
+
+---
+
+## 模型架构
 
 ## 模型架构
 

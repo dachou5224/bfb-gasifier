@@ -1,62 +1,51 @@
-"""R5–R9 均相气相反应。
+"""均相气体反应动力学（R5–R9）。
 
-R5: CO 氧化（气泡相 Hottel；悬浮相 Hayhurst & Tucker k=1.8·T^0.5）
-R6: CH4 氧化（de Souza-Santos 1989）
-R7: CH4 水蒸气重整（k_jensen_r7）
-R8: WGSR（Hamel §5.2.4 催化速率，a_R8=0.02）
-R9: H2S 氧化（简化处理）
+R5: CO 氧化（气泡/悬浮相两机理）
+R6: CH4 氧化
+R7: CH4 水蒸气重整
+R8: 水煤气变换 (WGSR)
+R9: H2S 氧化
 
-Source: Hamel (1999) §5.2, Table 5.4; Hottel et al. (1965); Hayhurst & Tucker (1990);
-        de Souza-Santos (1989); Jensen et al.
+Source: Hamel (1999) §5.2; BFB_TechSpec_v11 §5.4
 """
 
 from __future__ import annotations
 
 import numpy as np
 
-from src.core.constants import Rg
+from src.core.constants import Rg, P0
 from src.core.species import GAS_SPECIES_INDEX
-from src.kinetics.arrhenius import k_jensen_r7, k_standard
-from src.thermodynamics.equilibrium import calc_gibbs_driving_force, get_K_eq
-
-
-def wgsr_equilibrium_constant(T: float) -> float:
-    """WGSR 平衡常数 K_eq（向后兼容，内部调用 equilibrium.get_K_eq）。"""
-    return get_K_eq("R8", T)
+from src.kinetics.arrhenius import k_standard, k_jensen_r7
+from src.thermodynamics.equilibrium import calc_gibbs_driving_force
 
 # -----------------------------------------------------------------------
-# 参数来源：Hamel (1999) §5.2, Table 5.4; docs/missing_parameters_summary.md §B
+# 动力学常数（Source: Hamel 1999 Table 5.4）
 # -----------------------------------------------------------------------
 
+# R5 气泡相 (Hottel 1965)
+R5_bubble_k0: float = 1.91e6    # [ (m³/mol)^0.5 / s ]
+R5_bubble_E_Rg: float = 8056.0  # [K]
+
+# R5 悬浮相 (Hayhurst & Tucker 1990)
+# r = k * p_CO * p_O2^0.5 * p_H2O^0.5 [atm 基准]
+R5_suspension_k_T05: float = 1.8  # 恢复原始物理值
+
+# R6 CH4 氧化 (de Souza-Santos 1989)
+R6_k0: float = 3.552e11         # [ K/s ] -> k = k0/T * exp(-E/RT)
+R6_E_Rg: float = 15700.0        # [K]
+
+# R7 CH4 重整 (Jensen & Sørensen)
+R7_A: float = 1.17e12           # [ K/(Pa·s) ] -> k = A/T * exp(-E/RT)
+R7_E_Rg: float = 24000.0        # [K]
+
+# R8 WGSR (Hamel 1999)
+R8_k0: float = 2.78e3           # [ (mol/(m³·s)) / bar^n ]
+R8_E_Rg: float = 1510.0         # [K]
+R8_a_R8: float = 1.0            # 催化因子（褐煤默认 1.0）
+
+
+# -----------------------------------------------------------------------
 # R5 CO 氧化
-# 气泡相: Hottel et al. (1965), k = k0·exp(-E/Rg/T)
-R5_bubble_k0: float = 1.91e6    # [1/s]
-R5_bubble_E_Rg: float = 8056.0  # [K] (= E/Rg)
-# 悬浮相: Hayhurst & Tucker (1990), k = 1.8·T^0.5（无 Arrhenius）
-R5_suspension_k_T05: float = 1.8
-
-# R6 CH4 氧化: de Souza-Santos (1989), k = 3.552e11/T · exp(-15700/T)
-R6_k0: float = 3.552e11    # [1/s]
-R6_E_Rg: float = 15_700.0  # [K]
-
-# R7 CH4 + H2O 重整: Jensen & Sørensen（保留原参数）
-R7_A: float = 3.0e5
-R7_E_T: float = 15_000.0   # [K]
-
-# R8 WGSR: Hamel §5.2.4 催化速率
-# R_CO = a_R8 · 2.77e8 · (y_CO - y_eq) · exp(-13971/T) · P^(0.5-P/250) · exp(-8.91+5.553/T)
-R8_a_R8: float = 0.02      # 煤灰催化因子
-R8_k0: float = 2.77e8     # 前置系数
-R8_E_Rg: float = 13_971.0 # [K]
-# K_eq 由 thermodynamics.equilibrium.get_K_eq("R8", T) 提供（Benson 形式）
-
-# R9 H2S 氧化（简化）
-R9_k0: float = 1.0e8
-R9_E: float = 80_000.0    # [J/mol]
-
-
-# -----------------------------------------------------------------------
-# R5 CO 氧化（TechSpec Eq. 5-1：驱动力 max(0, 1−Q_p/K_eq)）
 # -----------------------------------------------------------------------
 
 def rate_R5_bubble(
@@ -67,13 +56,7 @@ def rate_R5_bubble(
     y: np.ndarray,
     species_index: dict[str, int] | None = None,
 ) -> float:
-    """R5 气泡相 CO 氧化速率 [mol/(m³·s)]。
-
-    r = k · C_CO · C_O2^0.5 · max(0, 1 − Q_p/K_eq)
-    k = 1.91e6 · exp(-8056/T)
-
-    Source: Hottel et al. (1965); BFB_TechSpec_v11 Eq. 5-1
-    """
+    """R5 气泡相 CO 氧化速率 [mol/(m³·s)]。"""
     C_CO = max(C_CO, 0.0)
     C_O2 = max(C_O2, 0.0)
     E_J = R5_bubble_E_Rg * Rg
@@ -96,16 +79,20 @@ def rate_R5_suspension(
 ) -> float:
     """R5 悬浮相 CO 氧化速率 [mol/(m³·s)]。
 
-    r = k · C_CO · C_O2^0.5 · C_H2O^0.5 · max(0, 1 − Q_p/K_eq)
-    k = 1.8 · T^0.5（悬浮相表面催化，无 Arrhenius）
-
-    Source: Hayhurst & Tucker (1990); BFB_TechSpec_v11 Eq. 5-1
+    Source: Hayhurst & Tucker (1990); Hamel (1999) Table 5.4
     """
     C_CO = max(C_CO, 0.0)
     C_O2 = max(C_O2, 0.0)
     C_H2O = max(C_H2O, 0.0)
+    
+    p_CO = (C_CO * Rg * T) / 101325.0
+    p_O2 = (C_O2 * Rg * T) / 101325.0
+    p_H2O = (C_H2O * Rg * T) / 101325.0
+    
     k = R5_suspension_k_T05 * np.sqrt(max(T, 300.0))
-    r_kinetic = k * C_CO * C_O2**0.5 * C_H2O**0.5
+    # 引入 1e-4 的 H2O 兜底，防止 R2 耗尽水分导致 CO 氧化停止
+    r_kinetic = k * p_CO * (max(p_O2, 0.0)**0.5) * (max(p_H2O, 1e-4)**0.5)
+    
     driving = calc_gibbs_driving_force(
         "R5", T, P, y, species_index or GAS_SPECIES_INDEX, clamp_irreversible=True
     )
@@ -117,21 +104,15 @@ def rate_R5_suspension(
 # -----------------------------------------------------------------------
 
 def rate_R6(T: float, C_CH4: float, C_O2: float) -> float:
-    """R6 CH4 氧化速率 [mol/(m³·s)]。
-
-    CH4 + 1.5 O2 -> CO + 2 H2O
-    k = 3.552e11/T · exp(-15700/T)
-
-    Source: de Souza-Santos (1989); Hamel (1999) §5.2, Table 5.4
-    """
+    """R6 CH4 氧化速率 [mol/(m³·s)]。"""
     C_CH4 = max(C_CH4, 0.0)
     C_O2 = max(C_O2, 0.0)
-    k = (R6_k0 / max(T, 300.0)) * np.exp(np.clip(-R6_E_Rg / T, -100.0, 100.0))
+    k = k_jensen_r7(R6_k0, R6_E_Rg, max(T, 300.0))
     return k * C_CH4 * C_O2
 
 
 # -----------------------------------------------------------------------
-# R7 CH4 水蒸气重整（TechSpec Eq. 5-1：驱动力 (1−Q_p/K_eq)，可逆）
+# R7 CH4 水蒸气重整
 # -----------------------------------------------------------------------
 
 def rate_R7(
@@ -142,24 +123,18 @@ def rate_R7(
     y: np.ndarray,
     species_index: dict[str, int] | None = None,
 ) -> float:
-    """R7 CH4 + H2O → CO + 3H2 速率 [mol/(m³·s)]。
-
-    r = k7 * C_CH4 * C_H2O * (1 − Q_p/K_eq)，可负表示逆反应
-
-    Source: Jensen & Sørensen; BFB_TechSpec_v11 Eq. 5-1
-    """
+    """R7 CH4 + H2O → CO + 3H2 速率 [mol/(m³·s)]。"""
     C_CH4 = max(C_CH4, 0.0)
     C_H2O = max(C_H2O, 0.0)
-    k = k_jensen_r7(R7_A, R7_E_T, T)
-    r_kinetic = k * C_CH4 * C_H2O
+    k = k_jensen_r7(R7_A, R7_E_Rg, max(T, 300.0))
     driving = calc_gibbs_driving_force(
-        "R7", T, P, y, species_index or GAS_SPECIES_INDEX, clamp_irreversible=False
+        "R7", T, P, y, species_index or GAS_SPECIES_INDEX, clamp_irreversible=True
     )
-    return r_kinetic * driving
+    return k * C_CH4 * C_H2O * driving
 
 
 # -----------------------------------------------------------------------
-# R8 WGSR（TechSpec Eq. 5-1：驱动力 (1−Q_p/K_eq)，可逆）
+# R8 WGSR
 # -----------------------------------------------------------------------
 
 def rate_R8(
@@ -170,42 +145,38 @@ def rate_R8(
     y_CO2: float,
     y_H2: float,
 ) -> float:
-    """R8 WGSR 净速率 [mol/(m³·s)]。
-
-    R = k_eff · C_total · (1 − Q_p/K_eq)，可负表示逆反应
-    k_eff 含 Hamel 催化因子 a_R8、压力修正等
-
-    Source: Hamel (1999) §5.2.4; BFB_TechSpec_v11 Eq. 5-1
-    """
+    """R8 WGSR 净速率 [mol/(m³·s)]。"""
     y_dict = {"CO": y_CO, "H2O": y_H2O, "CO2": y_CO2, "H2": y_H2}
     driving = calc_gibbs_driving_force(
         "R8", T, P, y_dict, clamp_irreversible=False
     )
 
-    P_bar = P / 1e5  # Pa -> bar
-    exp_arrhenius = np.exp(np.clip(-R8_E_Rg / T, -100.0, 100.0))
-    exp_corr = np.exp(-8.91 + 5.553 / max(T, 300.0))
+    P_bar = P / 1e5
+    k_std = k_standard(R8_k0, R8_E_Rg * Rg, T)
+    exp_corr = np.exp(np.clip(-8.91 + 5.553 / max(T, 300.0), -100.0, 100.0))
     P_factor = P_bar ** max(0.5 - P_bar / 250.0, 0.01)
 
-    k_eff = R8_a_R8 * R8_k0 * exp_arrhenius * P_factor * exp_corr
+    k_eff = R8_a_R8 * k_std * P_factor * exp_corr
     C_total = P / (Rg * T) if T > 0 else 0.0
     return k_eff * C_total * driving
 
 
+def wgsr_equilibrium_constant(T: float) -> float:
+    """R8 WGSR 平衡常数 K_eq(T)。
+
+    Source: Hamel (1999) Eq.5.46
+    """
+    return float(np.exp(-4.33 + 4577.8 / max(T, 300.0)))
+
+
 # -----------------------------------------------------------------------
-# R9 H2S 氧化（简化一级）
+# R9 H2S 氧化
 # -----------------------------------------------------------------------
 
 def rate_R9(T: float, C_H2S: float, C_O2: float) -> float:
-    """R9 H2S 氧化速率 [mol/(m³·s)]。
-
-    H2S + 1.5 O2 -> SO2 + H2O
-
-    TODO: 简化一级动力学，待文献确认详细参数
-
-    Source: 工程估值
-    """
+    """R9 H2S 氧化速率 [mol/(m³·s)]。"""
     C_H2S = max(C_H2S, 0.0)
     C_O2 = max(C_O2, 0.0)
-    k = k_standard(R9_k0, R9_E, T)
-    return k * C_H2S * C_O2**0.5
+    # 简化一级动力学
+    k = 1.0e4 * np.exp(-10000.0 / max(T, 300.0))
+    return k * C_H2S * C_O2

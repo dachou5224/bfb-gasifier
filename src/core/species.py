@@ -385,6 +385,49 @@ def configure_tar_components_by_fuel(fuel_type: TarFuelType) -> Dict[TarComponen
 
 
 # ---------------------------------------------------------------------------
+# 固体生成焓与热值 (Chemical Enthalpy)
+# ---------------------------------------------------------------------------
+
+HHV_C_MJ_KG: float = 32.76  # 纯碳(石墨)高位热值 [MJ/kg]
+
+
+def formation_enthalpy_dry_fuel(
+    C: float, H: float, O: float, S: float = 0.0, HHV_dry_MJ_kg: float = 20.0
+) -> float:
+    """计算干基燃料的标准生成焓 h_f,dry [J/kg]。
+
+    基于能量守恒：h_f,fuel + HHV = sum(产物 h_f)
+    h_f,dry = sum(x_i/M_i * h_f,prod,i) + HHV_dry
+
+    注意：HHV 为正，产物 h_f 为负。
+
+    Parameters
+    ----------
+    C, H, O, S : float
+        干基元素质量分数 [%]
+    HHV_dry_MJ_kg : float
+        干基高位热值 [MJ/kg]
+    """
+    # 转换为质量分率 [kg/kg]
+    xC, xH, xO, xS = C / 100.0, H / 100.0, O / 100.0, S / 100.0
+    hhv_j_kg = HHV_dry_MJ_kg * 1e6
+
+    # 燃烧产物生成焓 [J/mol]
+    hf_CO2 = formation_enthalpy_298("CO2")
+    hf_H2O_l = -285.83e3  # 液态水生成焓（HHV 基准） [J/mol]
+    hf_SO2 = formation_enthalpy_298("SO2")
+
+    # 每 kg 燃料产生的产物摩尔量 [mol/kg_fuel]
+    n_CO2 = xC / 0.012011
+    n_H2O = xH / 0.002016  # H2 计
+    n_SO2 = xS / 0.032065
+
+    # h_f,fuel = sum(n_i * h_f,i) + HHV
+    hf_fuel = (n_CO2 * hf_CO2 + n_H2O * hf_H2O_l + n_SO2 * hf_SO2) + hhv_j_kg
+    return float(hf_fuel)
+
+
+# ---------------------------------------------------------------------------
 # 混合气体物性（经典工程关联）
 # ---------------------------------------------------------------------------
 

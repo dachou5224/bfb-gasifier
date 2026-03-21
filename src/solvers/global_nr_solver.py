@@ -19,26 +19,33 @@ import numpy as np
 import scipy.sparse as sp
 from scipy.sparse.linalg import splu
 
-from src.core.cell import Cell
+from src.core.cell import Cell, N_SOLID_COMP
 from src.core.species import N_GAS
 
-_FD_EPS = np.sqrt(np.finfo(float).eps)
+_FD_EPS = 1e-6
 
 
 def n_var(cell: Cell) -> int:
-    """每格未知量：N_d + N_b + m_solid + T。"""
-    return 2 * N_GAS + cell.solid.n_size_classes + 1
+    """每格未知量：N_d + N_b + m_solid(nk*4) + T。"""
+    return 2 * N_GAS + cell.solid.n_size_classes * N_SOLID_COMP + 1
 
 
 def pack_cell(cell: Cell) -> np.ndarray:
-    return np.concatenate([cell.N_d, cell.N_b, cell.m_solid, np.array([cell.T], dtype=np.float64)])
+    return np.concatenate([
+        cell.N_d,
+        cell.N_b,
+        cell.m_solid.flatten(),
+        np.array([cell.T], dtype=np.float64)
+    ])
 
 
 def unpack_cell(x: np.ndarray, cell: Cell) -> None:
     nk = cell.solid.n_size_classes
+    nv_sol = nk * N_SOLID_COMP
     np.maximum(x[:N_GAS], 0.0, out=cell.N_d)
     np.maximum(x[N_GAS : 2 * N_GAS], 0.0, out=cell.N_b)
-    np.maximum(x[2 * N_GAS : 2 * N_GAS + nk], 0.0, out=cell.m_solid)
+    m_flat = np.maximum(x[2 * N_GAS : 2 * N_GAS + nv_sol], 0.0)
+    cell.m_solid[:] = m_flat.reshape((nk, N_SOLID_COMP))
     cell.T = float(np.clip(x[-1], 300.0, 2500.0))
 
 
@@ -94,10 +101,11 @@ def build_equation_scales(
     for cell in cells:
         nv = n_var(cell)
         nk = cell.solid.n_size_classes
+        nv_sol = nk * N_SOLID_COMP
         scale[offset : offset + N_GAS] = rg
         scale[offset + N_GAS : offset + 2 * N_GAS] = rg
-        scale[offset + 2 * N_GAS : offset + 2 * N_GAS + nk] = rs
-        scale[offset + 2 * N_GAS + nk] = re
+        scale[offset + 2 * N_GAS : offset + 2 * N_GAS + nv_sol] = rs
+        scale[offset + 2 * N_GAS + nv_sol] = re
         offset += nv
     return scale
 
@@ -115,24 +123,33 @@ def build_jacobian_fd(
     cols: List[int] = []
     vals: List[float] = []
 
-    x_base = x.copy()
     F0s = F0 / eq_scale
 
     for j in range(n_total):
-        h = _FD_EPS * max(1.0, abs(x_base[j]))
-        x_p = x_base.copy()
+        # 修正步长逻辑：对于微量组分，使用其绝对值相关的步长，而非硬编码的 max(1, abs(x))
+        xj = float(x[j])
+        h = _FD_EPS * (abs(xj) + 1e-12)
+        
+        x_p = x.copy()
         x_p[j] += h
-        F_p = global_residual(x_p, cells, apply_bc_fn)
-        dF = (F_p / eq_scale - F0s) / h
-        unpack_reactor(x_base, cells)
+        
+        # 只在扰动后更新状态并计算残差
+        unpack_reactor(x_p, cells)
         apply_bc_fn()
-        for i in range(n_total):
-            v = float(dF[i])
-            if abs(v) > 1e-14:
-                rows.append(i)
-                cols.append(j)
-                vals.append(v)
+        F_p = np.concatenate([c.residuals() for c in cells])
+        
+        dF = (F_p / eq_scale - F0s) / h
+        
+        # 快速寻找非零元并记录（稀疏矩阵构造）
+        indices = np.where(np.abs(dF) > 1e-14)[0]
+        for i in indices:
+            rows.append(int(i))
+            cols.append(j)
+            vals.append(float(dF[i]))
 
+    # 计算结束后恢复原始状态
+    unpack_reactor(x, cells)
+    apply_bc_fn()
     return sp.csr_matrix((vals, (rows, cols)), shape=(n_total, n_total))
 
 
@@ -149,25 +166,27 @@ def _clip_dx(
     ref_gas_mol_s: float,
     ref_solid_kg_s: float,
 ) -> np.ndarray:
-    """用绝对参考界限制 Newton 步，避免“小流量相对界”导致无法爬升。"""
-    rg = max(float(ref_gas_mol_s), 1e-9)
-    rs = max(float(ref_solid_kg_s), 1e-12)
+    """严格限制 Newton 步长，防止物理量跳变导致发散。"""
+    rg_limit = 0.2 * max(float(ref_gas_mol_s), 1.0)
+    rs_limit = 0.2 * max(float(ref_solid_kg_s), 0.1)
+    dT_limit = 50.0  # 单次迭代温度变化限制在 50K 以内
+
     out = dx.copy()
     offset = 0
     for cell in cells:
         nv = n_var(cell)
         nk = cell.solid.n_size_classes
+        nv_sol = nk * N_SOLID_COMP
+        # 气相
         out[offset : offset + 2 * N_GAS] = np.clip(
-            out[offset : offset + 2 * N_GAS],
-            -rg,
-            rg,
+            out[offset : offset + 2 * N_GAS], -rg_limit, rg_limit
         )
-        out[offset + 2 * N_GAS : offset + 2 * N_GAS + nk] = np.clip(
-            out[offset + 2 * N_GAS : offset + 2 * N_GAS + nk],
-            -rs,
-            rs,
+        # 固相
+        out[offset + 2 * N_GAS : offset + 2 * N_GAS + nv_sol] = np.clip(
+            out[offset + 2 * N_GAS : offset + 2 * N_GAS + nv_sol], -rs_limit, rs_limit
         )
-        out[offset + nv - 1] = float(np.clip(out[offset + nv - 1], -200.0, 200.0))
+        # 温度
+        out[offset + nv - 1] = float(np.clip(out[offset + nv - 1], -dT_limit, dT_limit))
         offset += nv
     return out
 
@@ -180,9 +199,9 @@ def solve_global_nr(
     ref_energy_W: float = 2e7,
     max_iter: int = 25,
     tol_rms: float = 0.01,
-    lambda_init: float = 0.7,
+    lambda_init: float = 0.1,  # 初始步长更为保守
     n_damp_halvings: int = 8,
-    lambda_min: float = 1.0 / 256.0,
+    lambda_min: float = 1.0 / 1024.0,
     verbose: bool = False,
 ) -> dict:
     """阻尼 Newton–Raphson：ĴΔx = −F̂（F̂ = F / 静态 eq_scale），再线搜索阻尼。
@@ -196,18 +215,15 @@ def solve_global_nr(
 
     n_total = len(F)
     n_gas = 2 * N_GAS * len(cells)
-    n_sol = sum(c.solid.n_size_classes for c in cells)
+    n_sol = sum(c.solid.n_size_classes * N_SOLID_COMP for c in cells)
     n_ene = len(cells)
-    assert n_gas + n_sol + n_ene == n_total, "残差维数与方程类型分块不一致"
 
     F_hat = F / scale
-    norm0 = _rms_norm(F_hat)
-    history: List[float] = [norm0]
+    norm_F = _rms_norm(F_hat)
+    history: List[float] = [norm_F]
     converged = False
 
     for it in range(max_iter):
-        F_hat = F / scale
-        norm_F = _rms_norm(F_hat)
         if verbose:
             gas_norm = float(np.sqrt(np.mean((F_hat[:n_gas]) ** 2)))
             sol_norm = float(np.sqrt(np.mean((F_hat[n_gas : n_gas + n_sol]) ** 2)))
@@ -216,62 +232,80 @@ def solve_global_nr(
                 f"  NR iter {it}: RMS={norm_F:.3e}  gas={gas_norm:.3e}  "
                 f"solid={sol_norm:.3e}  energy={ene_norm:.3e}"
             )
+
         if norm_F < tol_rms:
             converged = True
             break
 
+        # 构造 Jacobian。注意：这里 F 必须是与当前 x 对应的最新残差
         J = build_jacobian_fd(x, F, cells, apply_bc_fn, scale)
 
         try:
+            # 使用稀疏解法求解 Newton 方向 Δx
             lu = splu(J.tocsc())
             dx = lu.solve(-F_hat)
         except Exception:
+            # 退回到最小二乘法处理奇异矩阵
             Jd = J.toarray()
-            try:
-                dx = np.linalg.solve(Jd, -F_hat)
-            except np.linalg.LinAlgError:
-                dx, _, _, _ = np.linalg.lstsq(Jd, -F_hat, rcond=None)
+            dx, _, _, _ = np.linalg.lstsq(Jd, -F_hat, rcond=None)
 
-        dx = _clip_dx(dx, cells, ref_gas_mol_s, ref_solid_kg_s)
+        # 对 dx 进行物理约束下的步长剪切
+        dx_clipped = _clip_dx(dx, cells, ref_gas_mol_s, ref_solid_kg_s)
 
+        # --- 阻尼线搜索 (Damped Newton) ---
         lam = float(lambda_init)
-        x_trial = x.copy()
-        F_trial = F.copy()
         nt = norm_F
-
-        for _ in range(n_damp_halvings):
-            x_trial = x + lam * dx
+        found_step = False
+        
+        for damp_step in range(n_damp_halvings):
+            x_trial = x + lam * dx_clipped
+            
+            # 对尝试步进行物理边界保护（必须正值，且 T 在范围内）
             offset = 0
             for cell in cells:
                 nv = n_var(cell)
-                sl = slice(offset, offset + nv - 1)
-                x_trial[sl] = np.maximum(x_trial[sl], 0.0)
-                x_trial[offset + nv - 1] = float(
-                    np.clip(x_trial[offset + nv - 1], 300.0, 2500.0)
-                )
+                # 气/固质量流率 >= 0
+                x_trial[offset : offset + nv - 1] = np.maximum(x_trial[offset : offset + nv - 1], 0.0)
+                # 温度保护
+                x_trial[offset + nv - 1] = float(np.clip(x_trial[offset + nv - 1], 300.0, 2500.0))
                 offset += nv
 
+            # 计算尝试步的残差范数
             F_trial = global_residual(x_trial, cells, apply_bc_fn)
             F_hat_trial = F_trial / scale
             nt = _rms_norm(F_hat_trial)
-            if nt < norm_F or lam <= lambda_min:
+            
+            if nt < norm_F:
+                if verbose and damp_step > 0:
+                    print(f"    Line search OK at step {damp_step}: lam={lam:.4f}, norm={nt:.3e}")
+                found_step = True
+                x = x_trial
+                F = F_trial
+                F_hat = F_hat_trial
+                norm_F = nt
                 break
+            
             lam *= 0.5
+            if lam <= lambda_min:
+                break
 
-        x = x_trial.copy()
-        F = F_trial.copy()
-        history.append(nt)
+        if not found_step:
+            if verbose:
+                print(f"  NR iter {it}: Line search failed to reduce norm. Stopping.")
+            break
 
+        history.append(norm_F)
+
+    # 结果解包回反应器对象
     unpack_reactor(x, cells)
     apply_bc_fn()
     F_final = global_residual(x, cells, apply_bc_fn)
     final_norm = float(np.linalg.norm(F_final))
-    rms_scaled_final = _rms_norm(F_final / scale)
 
     return {
         "converged": converged,
         "n_iter": len(history),
         "residual": final_norm,
-        "rms_scaled_final": rms_scaled_final,
+        "rms_scaled_final": norm_F,
         "norm_history": history,
     }

@@ -106,6 +106,9 @@ R10_k0_OLEF: float = 59.8      # 烯烃/烷烃（如 C16H34）
 R10_E_Rg_OLEF: float = 12_200.0  # [K]
 
 
+from src.kinetics.arrhenius import k_hobbs
+from src.core.constants import Rg
+
 def _r10_single_class(
     T: float,
     C_tar: float,
@@ -117,12 +120,14 @@ def _r10_single_class(
     """单类 tar（芳香或烯烃/烷烃）的 R10 速率 [mol/(m³·s)]。"""
     C_tar = max(C_tar, 0.0)
     C_O2 = max(C_O2, 0.0)
-    k = (
-        k10
-        * np.exp(np.clip(-E_Rg / max(T, 300.0), -100.0, 100.0))
-        * max(T, 300.0)
-        * (P ** 0.3)
-    )
+    # k = (
+    #     k10
+    #     * np.exp(np.clip(-E_Rg / max(T, 300.0), -100.0, 100.0))
+    #     * max(T, 300.0)
+    #     * (P ** 0.3)
+    # )
+    # k_hobbs: k0 * T * exp(-E/(Rg*T)) -> E/Rg is input E_Rg
+    k = k_hobbs(k10, E_Rg * Rg, max(T, 300.0)) * (P ** 0.3)
     return k * (C_tar ** 0.5) * C_O2
 
 

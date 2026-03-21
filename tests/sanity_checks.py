@@ -159,16 +159,16 @@ def check_pyrolysis_elemental_allocator():
     assert nO_out <= nO_in + 1e-9
     assert all(v >= 0.0 for v in prod.values())
     print("PASS")
-
-
+from src.core.cell import Cell, SolidProps, S_CHAR, S_VM, S_MOISTURE, S_ASH
+...
 def check_drying_pyrolysis_source_hook():
     """Cell 源项链：干燥/热解应产生气相源项并扣减固相。"""
-    from src.core.cell import Cell, SolidProps
-
     c = Cell(solid=SolidProps())
     c.T = 1173.15
     c.P = 2.5e6
-    c.m_solid_zu[0] = 0.1  # 给定固体进料以触发源项
+    # 给定固相组分进料以触发源项
+    c.m_solid_zu[0, S_VM] = 0.05
+    c.m_solid_zu[0, S_MOISTURE] = 0.02
     src = c._calc_drying_pyrolysis_gas_source(tau_cell=5.0)
 
     src_sum = float(np.sum(np.maximum(src, 0.0)))
@@ -177,6 +177,7 @@ def check_drying_pyrolysis_source_hook():
     assert src_sum > 0.0, "drying/pyrolysis gas source should be positive"
     assert rs_sum < 0.0, "solid source should be negative (mass removed)"
     print("PASS")
+
 
 
 def main():

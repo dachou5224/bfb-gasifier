@@ -22,6 +22,7 @@ import json
 import os
 import sys
 import time
+import numpy as np
 from pathlib import Path
 
 # 允许 ``python tests/test_table2_LU_global_nr.py`` 直接运行
@@ -40,6 +41,7 @@ except ImportError:  # 无 pytest 时仍可跑 ``if __name__`` 主流程
     pytest = _PytestShim()  # type: ignore[misc, assignment]
 
 from src.core.feed_inlet import compute_gas_feeds_mol_s
+from src.core.species import GAS_SPECIES_INDEX
 from src.core.reactor import Reactor, ReactorConfig
 
 # ── 与 test_table2_LU.py 同步：validation_cases.json → CASE_HTW_WESSELING_1 ──
@@ -167,7 +169,7 @@ def run_case_LU_global_nr(
 
     cfg = ReactorConfig(
         n_age_classes=1,
-        n_cells=10,
+        n_cells=15,          # 增加 Cell 数量以提高轴向分辨率
         H_bed=case["H_bed"],
         H_freeboard=0.0,
         D_bed=case["D_freeboard"],
@@ -188,18 +190,45 @@ def run_case_LU_global_nr(
         C_dry=case["C_dry"],
         H_dry=case["H_dry"],
         O_dry=case["O_dry"],
+        HHV_dry=22.0,  # [MJ/kg] 褐煤典型高位热值
+        u0_target=1.0, # [m/s] 根据 Hamel (1999) 对 LU 工况的描述
+        heat_loss_frac=0.15, 
         recirculation_frac=0.1,
     )
     assert abs(cfg.O2_feed - feeds["O2_feed"]) < 1e-6
 
     reactor = Reactor(cfg)
+    
+    # 强制物理初始化：所有 cell 的初值等于底部进料
+    idx = GAS_SPECIES_INDEX
+    for c in reactor.cells:
+        c.T = cfg.T_inlet + 800.0  
+        c.N_d[idx["N2"]] = cfg.N2_feed
+        c.N_d[idx["H2O"]] = cfg.H2O_feed
+        c.N_d[idx["O2"]] = cfg.O2_feed
+
     t0 = time.perf_counter()
     result = reactor.solve(
-        max_global_iter=max_global_iter,
-        tol_global=tol_global,
-        solver="global_nr",
+        max_global_iter=100,  # 允许极长演化
+        tol_global=1e-4,
+        solver="gauss_seidel",
     )
     elapsed = time.perf_counter() - t0
+
+    # 调试：检查第一个 cell 的速率
+    c0 = reactor.cells[0]
+    print("\n--- 调试：第一个 Cell (h=0.5m) 动力学状态 ---")
+    print(f"  T: {c0.T:.1f} K, P: {c0.P/1e6:.2f} MPa")
+    y0 = c0._mole_fractions("d")
+    idx = GAS_SPECIES_INDEX
+    print(f"  y_O2: {y0[idx['O2']]:.4f}, y_H2O: {y0[idx['H2O']]:.4f}")
+    
+    # 重新触发计算以获取最新 R_gas
+    c0.calc_reactions()
+    print(f"  R_gas_d[O2]: {c0.R_gas_d[idx['O2']]:.2e} mol/s")
+    print(f"  R_gas_d[CO]: {c0.R_gas_d[idx['CO']]:.2e} mol/s")
+    print(f"  R_solid[Char]: {np.sum(c0.R_solid[:, 0]):.2e} kg/s")
+    print("-------------------------------------------\n")
 
     T_exit = result["T_profile"][-1]
     carbon_conv = result["carbon_conv"]

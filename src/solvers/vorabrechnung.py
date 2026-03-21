@@ -12,7 +12,7 @@ from typing import List
 
 import numpy as np
 
-from src.core.cell import Cell
+from src.core.cell import Cell, S_CHAR, S_VM, S_MOISTURE, S_ASH
 from src.core.species import GAS_SPECIES_INDEX
 from src.thermal.devolatilization import devolatilization_rate_for_cell
 
@@ -96,6 +96,9 @@ def generate_initial_x0(
     h_daf = h_dry * to_daf
     o_daf = o_dry * to_daf
 
+    w_vm_dry = vm_daf_frac * (1.0 - ash_frac)
+    w_char_dry = 1.0 - ash_frac - w_vm_dry
+
     daem_fuel = "brown_coal"
     if fuel_type in ("wood", "biomass"):
         daem_fuel = "wood"
@@ -155,7 +158,10 @@ def generate_initial_x0(
             cell.N_b[idx[sp]] = max(val * 0.3, 1e-12)
 
         cell.T = T_i
-        solid_frac = 0.3 + 0.7 * (1.0 - frac_height)
+        # 初始化 4 组分固相猜测 [char, vm, moisture, ash]
         nk = cell.solid.n_size_classes
-        for k in range(nk):
-            cell.m_solid[k] = max(fuel_feed_kg_s * solid_frac * 0.5 / max(nk, 1), 1e-12)
+        m_total_est = fuel_feed_kg_s * (0.3 + 0.7 * (1.0 - frac_height)) * 0.5
+        cell.m_solid[:, S_CHAR] = max(m_total_est * (1.0 - moisture_frac) * w_char_dry / nk, 1e-12)
+        cell.m_solid[:, S_VM] = max(m_total_est * (1.0 - moisture_frac) * w_vm_dry / nk, 1e-12)
+        cell.m_solid[:, S_MOISTURE] = max(m_total_est * moisture_frac / nk, 1e-12)
+        cell.m_solid[:, S_ASH] = max(m_total_est * (1.0 - moisture_frac) * ash_frac / nk, 1e-12)

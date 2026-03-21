@@ -10,11 +10,7 @@ from typing import Dict, List, Protocol
 
 import warnings
 
-import numpy as np
-from scipy.linalg import solve
-
-P0 = 101325.0  # [Pa] 标准压力
-R = 8.314     # [J/(mol·K)] 气体常数
+from src.core.constants import Rg, P0
 
 
 class SpeciesDB(Protocol):
@@ -73,7 +69,7 @@ class GibbsMinimizer:
         b = np.array([elements[e] for e in elem_names])
 
         mu0 = np.array([self.species_db.get_mu0(s, T) for s in candidates])
-        c = mu0 / (R * T) + np.log(P / P0)
+        c = mu0 / (Rg * T) + np.log(P / P0)
 
         lam = self._initial_guess(a, b, c, N_E)
         b_sum = max(float(np.sum(np.abs(b))), 1e-20)

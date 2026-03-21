@@ -58,6 +58,11 @@ def _gauss_hermite_nodes(n: int = 10) -> Tuple[np.ndarray, np.ndarray]:
 # DAEM 核心求解
 # -----------------------------------------------------------------------
 
+from src.core.constants import Rg
+from src.kinetics.arrhenius import k_standard
+
+# ... (other code)
+
 def _single_reaction_conversion(
     T_history: np.ndarray,
     t_history: np.ndarray,
@@ -72,15 +77,16 @@ def _single_reaction_conversion(
 
     Source: DAEM 理论; Pitt (1962); Anthony & Howard (1976)
     """
-    integrand = A * np.exp(np.clip(-E / (Rg * T_history), -200.0, 200.0))
-    integral = np.trapezoid(integrand, t_history)
-    return 1.0 - np.exp(-integral)
+    # integrand = A * np.exp(np.clip(-E / (Rg * T_history), -200.0, 200.0))
+    integrand = k_standard(A, E, T_history)
+    integral = np.trapz(integrand, t_history)
+    return 1.0 - np.exp(np.clip(-integral, -200.0, 0.0))
 
 
 def gaussian_energy_pdf(E: np.ndarray | float, E0: float, sigma: float) -> np.ndarray | float:
     """Gaussian 活化能分布函数 f(E)（Eq. 4.11）。"""
     coef = 1.0 / (sigma * np.sqrt(2.0 * np.pi))
-    return coef * np.exp(-((E - E0) ** 2) / (2.0 * sigma**2))
+    return coef * np.exp(np.clip(-((E - E0) ** 2) / (2.0 * sigma**2), -200.0, 0.0))
 
 
 def daem_conversion(
@@ -181,7 +187,7 @@ def daem_conversion_radial(
         return 0.0
 
     # Eq. 4.12: 3/R0^3 ∫ X(r) r^2 dr
-    integral = np.trapezoid(X_r * (r_nodes**2), r_nodes)
+    integral = np.trapz(X_r * (r_nodes**2), r_nodes)
     X_vol = 3.0 * integral / (R0**3)
     return float(np.clip(X_vol, 0.0, 1.0))
 
