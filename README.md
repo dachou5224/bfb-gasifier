@@ -36,7 +36,7 @@ flowchart TB
         C2["H2S/NH3/COS 平衡分布"]
     end
     subgraph L4["L4 输出"]
-        D[产品气组成 · T(h) · X_c · ΔP]
+        D["产品气组成 · T(h) · X_c · ΔP"]
     end
     L1 -->|"调用内层"| L2
     L2 -->|"每次迭代"| L3
@@ -66,7 +66,7 @@ flowchart LR
         B3[u_b 快]
     end
     subgraph exchange["相间传质"]
-        E["Ṅ_ex,bd = K_bd·V_b·(C_b−C_d)"]
+        E["Ṅ_ex,bd = K_bd·V_b·(C_b-C_d)"]
     end
     subgraph emul["🌫️ 悬浮相 Emulsion"]
         E1[气体 + 全部固体]
@@ -92,16 +92,16 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    S1[1. 初始化<br>T, P, 燃料元素分析, 气化剂]
-    S2[2. 流体力学<br>Ergun→u_mf, Hilligardt→u_b/d_b, Sit-Grace→K_bd]
-    S3[3. 相间气体交换<br>K_bd·V_b·(C_b−C_d)]
-    S4[4. 异相反应 R1-R4<br>炭燃烧/气化 SPM/SCM]
-    S5[5. 均相反应 R5-R11<br>Gibbs 驱动力 1−Qp/Keq]
-    S6[6. Gibbs 微量组分<br>H2S, SO2, COS, NH3, HCN, NO]
-    S7[7. 能量守恒 + 收敛判断]
+    S1["1. 初始化: T,P, 燃料分析, 气化剂"]
+    S2["2. 流体力学: Ergun, u_mf, u_b, K_bd"]
+    S3["3. 相间气体交换: K_bd V_b (C_b-C_d)"]
+    S4["4. 异相反应 R1-R4: SPM/SCM"]
+    S5["5. 均相 R5-R11: Gibbs 驱动力 1-Qp/Keq"]
+    S6["6. Gibbs 微量组分: H2S, SO2, COS, ..."]
+    S7["7. 能量守恒与收敛判断"]
     S1 --> S2 --> S3 --> S4 --> S5 --> S6 --> S7
-    S7 -->|"‖f‖ ≥ ε"| S2
-    S7 -->|"‖f‖ < ε"| OUT[输出]
+    S7 -->|未收敛| S2
+    S7 -->|已收敛| OUT["输出"]
 ```
 
 1. **初始化** — T, P，燃料元素分析，气化剂流量
