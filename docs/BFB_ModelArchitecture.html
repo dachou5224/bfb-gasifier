@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BFB 气化炉模型架构</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap');
+
+  :root {
+    --bg:       #080c14;
+    --bg2:      #0d1421;
+    --bg3:      #111927;
+    --border:   #1e2d45;
+    --text:     #c9d8ef;
+    --muted:    #4a6180;
+    --blue:     #4a9eff;
+    --green:    #3dd68c;
+    --amber:    #f4a82a;
+    --purple:   #b57bff;
+    --cyan:     #2dd4bf;
+    --rose:     #f06292;
+    --blue-dim: #0f2040;
+    --green-dim:#0a2218;
+    --amber-dim:#201408;
+    --purple-dim:#1a1030;
+    --cyan-dim: #081e1c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 28px 32px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .title-block {}
+  .title-block .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .title-block h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #e8f0ff;
+    line-height: 1.3;
+  }
+  .title-block .sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid;
+  }
+  .badge-v { border-color: var(--purple); color: var(--purple); background: var(--purple-dim); }
+
+  /* ── TABS ── */
+  nav {
+    display: flex;
+    gap: 2px;
+    padding: 12px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  .tab-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    color: var(--muted);
+    background: transparent;
+    transition: all 0.15s;
+  }
+  .tab-btn:hover { color: var(--text); border-color: var(--border); }
+  .tab-btn.active { color: var(--blue); border-color: var(--blue); background: var(--blue-dim); }
+
+  /* ── CONTENT AREA ── */
+  main { padding: 28px 32px; }
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  /* ────────────────────────────────────
+     VIEW 1  SOLVER HIERARCHY
+  ──────────────────────────────────── */
+  .hierarchy-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .h-layer {
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid;
+    padding: 16px 20px;
+    position: relative;
+  }
+  .h-layer .layer-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    opacity: 0.7;
+  }
+  .h-layer .layer-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .h-layer .layer-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .h-layer.L1 { border-color: var(--blue);   background: var(--blue-dim); }
+  .h-layer.L1 .layer-tag   { color: var(--blue); }
+  .h-layer.L1 .layer-title { color: var(--blue); }
+
+  .h-layer.L2 { border-color: var(--green);  background: var(--green-dim); width: calc(100% - 40px); }
+  .h-layer.L2 .layer-tag   { color: var(--green); }
+  .h-layer.L2 .layer-title { color: var(--green); }
+
+  .h-layer.L3 { border-color: var(--purple); background: var(--purple-dim); width: calc(100% - 80px); border-style: dashed; }
+  .h-layer.L3 .layer-tag   { color: var(--purple); }
+  .h-layer.L3 .layer-title { color: var(--purple); }
+
+  .h-layer.L4 { border-color: var(--amber);  background: var(--amber-dim); width: calc(100% - 120px); }
+  .h-layer.L4 .layer-tag   { color: var(--amber); }
+  .h-layer.L4 .layer-title { color: var(--amber); }
+
+  .h-arrow {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    height: 28px;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .h-arrow::before { content: ''; display: block; width: 1px; height: 8px; background: var(--border); }
+  .h-arrow span { font-size: 8px; color: var(--muted); margin: 1px 0; font-family: 'IBM Plex Mono', monospace; }
+  .h-arrow::after { content: '▼'; font-size: 8px; color: var(--muted); }
+
+  .coupling-note {
+    margin-top: 24px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--amber);
+    border-radius: 6px;
+    padding: 14px 18px;
+    font-size: 11px;
+    line-height: 1.8;
+    color: var(--muted);
+    max-width: 680px;
+    width: 100%;
+  }
+  .coupling-note strong { color: var(--text); }
+  .coupling-note code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--amber);
+    background: var(--amber-dim);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* ────────────────────────────────────
+     VIEW 2  TWO-PHASE CELL
+  ──────────────────────────────────── */
+  .cell-outer {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .cell-label {
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    padding: 6px 0;
+  }
+  .cell-border {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .cell-header {
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+  }
+  .phases-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+  }
+  .phase-col {
+    padding: 16px;
+  }
+  .phase-name {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .phase-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    gap: 8px;
+  }
+  .phase-row:last-child { border-bottom: none; }
+  .phase-row .pk { color: var(--muted); }
+  .phase-row .pv { font-weight: 600; font-family: 'IBM Plex Mono', monospace; font-size: 10px; }
+
+  .bubble-col { background: color-mix(in srgb, var(--blue-dim) 60%, var(--bg)); }
+  .bubble-col .phase-name { color: var(--blue); }
+  .bubble-col .pv { color: var(--blue); }
+
+  .emul-col { background: color-mix(in srgb, var(--green-dim) 60%, var(--bg)); }
+  .emul-col .phase-name { color: var(--green); }
+  .emul-col .pv { color: var(--green); }
+
+  .exchange-col {
+    width: 110px;
+    background: var(--bg3);
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 6px;
+  }
+  .ex-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: var(--amber);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .ex-arrow {
+    font-size: 18px;
+    color: var(--amber);
+  }
+  .ex-eq {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.6;
+  }
+  .ex-slow, .ex-fast {
+    font-size: 9px;
+    border-radius: 3px;
+    padding: 2px 6px;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .ex-slow { background: #0f1a10; color: var(--green); border: 1px solid var(--green); }
+  .ex-fast { background: #1a0f10; color: var(--rose);  border: 1px solid var(--rose); }
+
+  .energy-row {
+    background: var(--amber-dim);
+    border-top: 1px solid var(--amber);
+    padding: 12px 16px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .energy-row strong { color: var(--amber); }
+  .energy-row code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--amber);
+  }
+
+  /* ────────────────────────────────────
+     VIEW 3  CALC PIPELINE
+  ──────────────────────────────────── */
+  .pipeline {
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .pipe-item {
+    display: flex;
+    gap: 0;
+  }
+  .pipe-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 44px;
+    flex-shrink: 0;
+  }
+  .pipe-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .pipe-line {
+    width: 1px;
+    flex: 1;
+    min-height: 12px;
+    background: var(--border);
+    margin: 2px 0;
+  }
+  .pipe-body {
+    flex: 1;
+    border-radius: 6px;
+    border: 1px solid;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+  }
+  .pipe-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .pipe-detail {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .pipe-detail code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+  .pipe-sub {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+  .pipe-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    border: 1px solid;
+  }
+
+  /* Step colors */
+  .c-blue   { --c: var(--blue);   --cdim: var(--blue-dim); }
+  .c-green  { --c: var(--green);  --cdim: var(--green-dim); }
+  .c-amber  { --c: var(--amber);  --cdim: var(--amber-dim); }
+  .c-purple { --c: var(--purple); --cdim: var(--purple-dim); }
+  .c-cyan   { --c: var(--cyan);   --cdim: var(--cyan-dim); }
+  .c-rose   { --c: var(--rose);   --cdim: #1a0810; }
+
+  .pipe-num { border-color: var(--c); color: var(--c); background: var(--cdim); }
+  .pipe-body { border-color: var(--c); background: var(--cdim); }
+  .pipe-title { color: var(--c); }
+  .pipe-detail code { color: var(--c); background: color-mix(in srgb, var(--cdim) 80%, transparent); }
+  .pipe-tag { border-color: var(--c); color: var(--c); background: transparent; }
+
+  /* ────────────────────────────────────
+     VIEW 4  MODULE MAP
+  ──────────────────────────────────── */
+  .module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .mod-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-top: 2px solid;
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .mod-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .mod-icon { font-size: 14px; }
+  .mod-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .mod-new {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 8px;
+    padding: 1px 5px;
+    border-radius: 2px;
+    border: 1px solid var(--purple);
+    color: var(--purple);
+    margin-left: auto;
+  }
+  .mod-file {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 3px 6px;
+    margin: 2px 0;
+    border-radius: 3px;
+    display: block;
+    background: var(--bg);
+    color: var(--muted);
+  }
+  .mod-file.new-file { color: var(--purple); }
+  .mod-span { grid-column: 1 / -1; }
+
+  .mod-c-blue   { border-top-color: var(--blue);   }  .mod-c-blue .mod-name   { color: var(--blue); }
+  .mod-c-green  { border-top-color: var(--green);  }  .mod-c-green .mod-name  { color: var(--green); }
+  .mod-c-amber  { border-top-color: var(--amber);  }  .mod-c-amber .mod-name  { color: var(--amber); }
+  .mod-c-purple { border-top-color: var(--purple); }  .mod-c-purple .mod-name { color: var(--purple); }
+  .mod-c-cyan   { border-top-color: var(--cyan);   }  .mod-c-cyan .mod-name   { color: var(--cyan); }
+
+  .mod-legend {
+    max-width: 680px;
+    margin: 12px auto 0;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 10px;
+    color: var(--muted);
+    padding: 10px 14px;
+    background: var(--bg3);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .legend-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  /* ────────────────────────────────────
+     VIEW 5  GIBBS A1 SOLVER
+  ──────────────────────────────────── */
+  .gibbs-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .eq-block {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-left: 3px solid;
+    border-radius: 6px;
+    padding: 14px 18px;
+  }
+  .eq-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    opacity: 0.7;
+  }
+  .eq-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .eq-math {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin: 6px 0;
+    overflow-x: auto;
+    white-space: pre;
+    line-height: 1.8;
+  }
+  .eq-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-top: 6px;
+  }
+  .eq-desc code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+
+  .eq-block.eb { border-left-color: var(--blue); }
+  .eq-block.eb .eq-label, .eq-block.eb .eq-title { color: var(--blue); }
+  .eq-block.eb .eq-desc code { color: var(--blue); background: var(--blue-dim); }
+
+  .eq-block.eg { border-left-color: var(--green); }
+  .eq-block.eg .eq-label, .eq-block.eg .eq-title { color: var(--green); }
+
+  .eq-block.ea { border-left-color: var(--amber); }
+  .eq-block.ea .eq-label, .eq-block.ea .eq-title { color: var(--amber); }
+
+  .eq-block.ep { border-left-color: var(--purple); }
+  .eq-block.ep .eq-label, .eq-block.ep .eq-title { color: var(--purple); }
+
+  .eq-block.ec { border-left-color: var(--cyan); }
+  .eq-block.ec .eq-label, .eq-block.ec .eq-title { color: var(--cyan); }
+
+  /* ────────────────────────────────────
+     RESPONSIVE
+  ──────────────────────────────────── */
+  @media (max-width: 520px) {
+    header { padding: 16px; }
+    nav { padding: 10px 16px; overflow-x: auto; flex-wrap: nowrap; }
+    main { padding: 16px; }
+    .phases-row { grid-template-columns: 1fr; }
+    .exchange-col { width: 100%; border-left: none; border-right: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); flex-direction: row; flex-wrap: wrap; justify-content: center; padding: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-block">
+    <div class="eyebrow">BFB Gasifier 1D · Hamel &amp; Krumm (2001)</div>
+    <h1>鼓泡流化床气化炉<br>一维稳态动力学模型架构</h1>
+    <div class="sub">模型可视化 · Model Architecture Reference</div>
+  </div>
+  <div class="badge badge-v">v11.0</div>
+</header>
+
+<nav>
+  <button class="tab-btn active" onclick="showTab('hierarchy')">求解器层级</button>
+  <button class="tab-btn" onclick="showTab('cell')">两相 Cell 结构</button>
+  <button class="tab-btn" onclick="showTab('pipeline')">逐步计算流程</button>
+  <button class="tab-btn" onclick="showTab('modules')">Python 模块图</button>
+  <button class="tab-btn" onclick="showTab('gibbs')">Gibbs A1 推导</button>
+</nav>
+
+<main>
+
+<!-- ══════════════════════════
+     VIEW 1  SOLVER HIERARCHY
+══════════════════════════ -->
+<div id="tab-hierarchy" class="view active">
+  <div class="hierarchy-wrap">
+
+    <div class="h-layer L1">
+      <div class="layer-tag">外层 / Outer Loop</div>
+      <div class="layer-title">🔁 Newton-Raphson 全局迭代</div>
+      <div class="layer-desc">收敛判据：所有 cell 的摩尔守恒残差 ‖f‖ &lt; ε_tol<br>更新 Jacobian 矩阵，驱动全局温度与组成收敛</div>
+    </div>
+
+    <div class="h-arrow"><span>调用内层循环</span></div>
+
+    <div class="h-layer L2">
+      <div class="layer-tag">内层 / Inner Loop · 逐 cell 执行</div>
+      <div class="layer-title">⚙️ 动力学计算</div>
+      <div class="layer-desc">
+        ① 流体力学：u_mf → u_b → d_b(h) → ε_b → K_bd<br>
+        ② 相间交换：Ṅ_ex,bd = K_bd · V_b · (C_b − C_d)<br>
+        ③ 异相反应 R1–R4（炭燃烧/气化，SPM/SCM 模型）<br>
+        ④ 均相反应 R5–R11（含 Gibbs 驱动力修正）
+      </div>
+    </div>
+
+    <div class="h-arrow"><span>每次迭代调用</span></div>
+
+    <div class="h-layer L3">
+      <div class="layer-tag">子程序 / Sub-routine · 每次迭代均调用</div>
+      <div class="layer-title">🔬 Gibbs 自由焓最小化（附录 A1）</div>
+      <div class="layer-desc">
+        ① 提供 K_eq(T, P) → 计算驱动力修正项 (1 − Qp/Keq) · 防止热力学第二定律违背<br>
+        ② 对微量组分（H₂S、NH₃、COS）执行 Lagrange 乘子法 + NR 迭代求解平衡分布
+      </div>
+    </div>
+
+    <div class="h-arrow"><span>输出最终结果</span></div>
+
+    <div class="h-layer L4">
+      <div class="layer-tag">输出 / Output</div>
+      <div class="layer-title">✅ 收敛产品气组成</div>
+      <div class="layer-desc">CO · H₂ · CO₂ · CH₄ · H₂O（动力学主导） + H₂S · NH₃ · COS（热力学主导）<br>+ 温度分布 T(h) · 炭转化率 X_c · 压降 ΔP</div>
+    </div>
+
+  </div>
+
+  <div style="display:flex;justify-content:center;">
+    <div class="coupling-note">
+      <strong>核心耦合机制：</strong> 动力学决定碳转化"走多快"；Gibbs 决定气体"最终形态"。<br>
+      耦合方程（Eq. 5.45）：<code>R_net = R_kinetic × (1 − Qp/Keq)</code><br>
+      当气相远离平衡时驱动力 ≈ 1（全速）；趋近平衡时驱动力 → 0（自动制动）；超越平衡时驱动力 &lt; 0（逆反应回归）。
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════
+     VIEW 2  TWO-PHASE CELL
+══════════════════════════ -->
+<div id="tab-cell" class="view">
+  <div class="cell-outer">
+    <div class="cell-label">▲ 来自 cell i+1 的入口流（Ṅ_b,i+1 · Ṅ_d,i+1 · ṁ_auf,i+1）</div>
+
+    <div class="cell-border">
+      <div class="cell-header">
+        <span>Cell i · 高度区间 [h_i, h_{i+1}]</span>
+        <span>T_i = T_gas = T_solid（局部热平衡假设）</span>
+      </div>
+
+      <div class="phases-row">
+
+        <!-- 气泡相 -->
+        <div class="phase-col bubble-col">
+          <div class="phase-name">🫧 气泡相 (Bubble Phase)</div>
+          <div class="phase-row"><span class="pk">介质</span><span class="pv">纯气体，无固体</span></div>
+          <div class="phase-row"><span class="pk">反应</span><span class="pv">均相 R5–R11</span></div>
+          <div class="phase-row"><span class="pk">流速</span><span class="pv">u_b（快）</span></div>
+          <div class="phase-row"><span class="pk">体积分率</span><span class="pv">ε_b</span></div>
+          <div class="phase-row"><span class="pk">守恒方程</span><span class="pv">Eq. 2-2</span></div>
+          <div class="phase-row"><span class="pk">R5 (CO氧化)</span><span class="pv">专属动力学</span></div>
+        </div>
+
+        <!-- 相间交换 -->
+        <div class="exchange-col">
+          <div class="ex-title">相间<br>传质</div>
+          <div class="ex-arrow">⇄</div>
+          <div class="ex-eq">K_bd · V_b<br>× (C_b − C_d)<br>[Eq. 1-1]</div>
+          <div class="ex-slow">慢泡 α&lt;1<br>D-H 模型</div>
+          <div class="ex-fast">快泡 α&gt;1<br>Cloud修正</div>
+        </div>
+
+        <!-- 悬浮相 -->
+        <div class="phase-col emul-col">
+          <div class="phase-name">🌫️ 悬浮相 (Emulsion Phase)</div>
+          <div class="phase-row"><span class="pk">介质</span><span class="pv">气体 + 全部固体</span></div>
+          <div class="phase-row"><span class="pk">反应</span><span class="pv">均相 + 异相 R1–R11</span></div>
+          <div class="phase-row"><span class="pk">流速</span><span class="pv">u_mf（最小流化）</span></div>
+          <div class="phase-row"><span class="pk">固体</span><span class="pv">燃料/炭/惰性床料</span></div>
+          <div class="phase-row"><span class="pk">气相守恒</span><span class="pv">Eq. 2-1</span></div>
+          <div class="phase-row"><span class="pk">固相守恒</span><span class="pv">Eq. 2-3（含粒径迁移）</span></div>
+        </div>
+
+      </div>
+
+      <div class="energy-row">
+        <strong>🔥 全局能量守恒（Eq. 2-4）</strong>——气固合并计算，假设局部热力学平衡<br>
+        <code>0 = Ḣ_zu + Ḣ_rez + Ḣ_auf,i+1 + Ḣ_ab,i−1 − Ḣ_auf,i − Ḣ_ab,i − Ḣ_aus,i − Q̇_W − Q̇_WU</code><br>
+        <span style="font-size:10px;color:var(--muted);">焓值 h 必须包含标准生成焓，使化学反应热自动体现在守恒计算中。</span>
+      </div>
+    </div>
+
+    <div class="cell-label">▼ 流向 cell i−1 的出口流（Ṅ_b,i · Ṅ_d,i · ṁ_ab,i）</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════
+     VIEW 3  PIPELINE
+══════════════════════════ -->
+<div id="tab-pipeline" class="view">
+  <div class="pipeline">
+
+    <div class="pipe-item c-blue">
+      <div class="pipe-left"><div class="pipe-num">1</div><div class="pipe-line"></div></div>
+      <div class="pipe-body">
+        <div class="pipe-title">初始化</div>
+        <div class="pipe-detail">给定操作条件 T, P，燃料元素分析（工业/元素），气化剂流量；初始化所有 cell 的 <code>N_b, N_d, m_solid</code></div>
+      </div>
+    </div>
+
+    <div class="pipe-item c-green">
+      <div class="pipe-left"><div class="pipe-num">2</div><div class="pipe-line"></div></div>
+      <div class="pipe-body">
+        <div class="pipe-title">流体力学计算（逐 cell）</div>
+        <div class="pipe-detail">Ergun 方程 → <code>u_mf</code>；Hilligardt 模型 → <code>u_b, d_b(h), ε_b</code>；Sit &amp; Grace → <code>K_bd</code>；判别 <code>α_b = u_b/u_mf</code>（慢泡/快泡）</div>
+        <div class="pipe-sub">
+          <span class="pipe-tag">Eq. 4-2 (Ergun)</span>
+          <span class="pipe-tag">Eq. 4-4 (u_b)</span>
+          <span class="pipe-tag">Eq. 4-6 (d_b)</span>
+          <span class="pipe-tag">Eq. 4-12 (K_bd)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipe-item c-amber">
+      <div class="pipe-left"><div class="pipe-num">3</div><div class="pipe-line"></div></div>
+      <div class="pipe-body">
+        <div class="pipe-title">相间气体交换</div>
+        <div class="pipe-detail">计算 <code>Ṅ_ex,bd = K_bd · V_b · (C_b − C_d)</code>，更新气泡相与悬浮相的各组分摩尔浓度</div>
+        <div class="pipe-sub"><span class="pipe-tag">Eq. 1-1</span></div>
+      </div>
+    </div>
+
+    <div class="pipe-item c-rose">
+      <div class="pipe-left"><div class="pipe-num">4</div><div class="pipe-line"></div></div>
+      <div class="pipe-body">
+        <div class="pipe-title">异相反应 R1–R4（炭气化/燃烧）</div>
+        <div class="pipe-detail">R1 炭燃烧 → <code>SPM（收缩颗粒模型）</code>；R4 Boudouard → <code>SCM（收缩核模型）+ Langmuir-Hinshelwood</code>；更新固相粒径类守恒（含 ṁ_left/right 粒径迁移项）</div>
+        <div class="pipe-sub">
+          <span class="pipe-tag">R1 Hobbs 1992</span>
+          <span class="pipe-tag">R4 Weeda 1995</span>
+          <span class="pipe-tag">Eq. 2-3 (固相守恒)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipe-item c-purple">
+      <div class="pipe-left"><div class="pipe-num">5</div><div class="pipe-line"></div></div>
+      <div class="pipe-body">
+        <div class="pipe-title">均相反应 R5–R11 + Gibbs 驱动力修正</div>
+        <div class="pipe-detail">调用 Gibbs 子程序 → 获取 <code>K_eq(T,P)</code> → 计算 <code>(1 − Qp/Keq)</code> → 修正动力学速率；R5 CO氧化在气泡相/悬浮相使用不同动力学表达式</div>
+        <div class="pipe-sub">
+          <span class="pipe-tag">Eq. 5-1 驱动力修正</span>
+          <span class="pipe-tag">R8 Chen 1987 (WGSR)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipe-item c-cyan">
+      <div class="pipe-left"><div class="pipe-num">6</div><div class="pipe-line"></div></div>
+      <div class="pipe-body">
+        <div class="pipe-title">微量组分 Gibbs 最小化（附录 A1）</div>
+        <div class="pipe-detail">核算释放的 S、N 原子量 → 对候选组分 <code>{H₂S, SO₂, COS, NH₃, HCN, NO}</code> 执行 Lagrange 乘子法 + 带阻尼 NR 迭代 → 输出平衡摩尔分布并反馈</div>
+        <div class="pipe-sub">
+          <span class="pipe-tag">Eq. A1-9/A1-10</span>
+          <span class="pipe-tag">Eq. A1-11 (NR迭代)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipe-item c-green">
+      <div class="pipe-left"><div class="pipe-num">7</div></div>
+      <div class="pipe-body">
+        <div class="pipe-title">能量守恒 + 收敛判断</div>
+        <div class="pipe-detail">更新 cell 温度 T；计算全局摩尔守恒残差 ‖f‖；若 ‖f‖ &lt; ε → 输出；否则更新 Jacobian，返回步骤 2</div>
+        <div class="pipe-sub">
+          <span class="pipe-tag">Eq. 2-4 (能量)</span>
+          <span class="pipe-tag">Bild 2.2 (p.17)</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════
+     VIEW 4  MODULE MAP
+══════════════════════════ -->
+<div id="tab-modules" class="view">
+  <div class="module-grid">
+
+    <div class="mod-card mod-c-blue">
+      <div class="mod-header">
+        <span class="mod-icon">📦</span>
+        <span class="mod-name">core/</span>
+      </div>
+      <span class="mod-file">cell.py</span>
+      <span class="mod-file">species.py</span>
+    </div>
+
+    <div class="mod-card mod-c-green">
+      <div class="mod-header">
+        <span class="mod-icon">💧</span>
+        <span class="mod-name">physics/</span>
+      </div>
+      <span class="mod-file">hydrodynamics.py</span>
+      <span class="mod-file">entrainment.py</span>
+    </div>
+
+    <div class="mod-card mod-c-amber">
+      <div class="mod-header">
+        <span class="mod-icon">🔥</span>
+        <span class="mod-name">kinetics/</span>
+      </div>
+      <span class="mod-file">drying.py</span>
+      <span class="mod-file">devolatilization.py</span>
+      <span class="mod-file">char_reactions.py</span>
+      <span class="mod-file">gas_reactions.py</span>
+    </div>
+
+    <div class="mod-card mod-c-purple">
+      <div class="mod-header">
+        <span class="mod-icon">🔬</span>
+        <span class="mod-name">thermodynamics/</span>
+        <span class="mod-new">NEW v11</span>
+      </div>
+      <span class="mod-file new-file">gibbs_minimizer.py</span>
+      <span class="mod-file new-file">equilibrium.py</span>
+      <span class="mod-file new-file">minor_species.py</span>
+    </div>
+
+    <div class="mod-card mod-c-cyan mod-span">
+      <div class="mod-header">
+        <span class="mod-icon">⚙️</span>
+        <span class="mod-name">solvers/</span>
+        <span class="mod-new">NEW v11</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <span class="mod-file new-file" style="flex:1;">cell_solver.py</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="mod-legend">
+    <span><span class="legend-dot" style="background:var(--blue)"></span>core — 基础数据结构</span>
+    <span><span class="legend-dot" style="background:var(--green)"></span>physics — 流体力学</span>
+    <span><span class="legend-dot" style="background:var(--amber)"></span>kinetics — 反应动力学</span>
+    <span><span class="legend-dot" style="background:var(--purple)"></span>thermodynamics — 热力学平衡（新增）</span>
+    <span><span class="legend-dot" style="background:var(--cyan)"></span>solvers — 单 cell fsolve（多 cell 扫描见 core/reactor.py）</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════
+     VIEW 5  GIBBS A1
+══════════════════════════ -->
+<div id="tab-gibbs" class="view">
+  <div class="gibbs-wrap">
+
+    <div class="eq-block eb">
+      <div class="eq-label">Step 1 · 核心优化目标</div>
+      <div class="eq-title">最小化总吉布斯自由焓</div>
+      <div class="eq-math">G = Σⱼ μⱼ nⱼ  →  min
+
+约束（元素守恒）：  Σⱼ aᵢⱼ nⱼ − bᵢ = 0    (i = 1..N_E)</div>
+      <div class="eq-desc">
+        <code>nⱼ</code> 组分 j 的摩尔量（待求）；<code>aᵢⱼ</code> 组分 j 中元素 i 的原子数；<code>bᵢ</code> cell 内元素 i 的总摩尔量（守恒量）
+      </div>
+    </div>
+
+    <div class="eq-block eg">
+      <div class="eq-label">Step 2 · Lagrange 乘子法</div>
+      <div class="eq-title">构造拉格朗日函数 F</div>
+      <div class="eq-math">F = Σⱼ μⱼ nⱼ  +  Σᵢ λᵢ* ( Σⱼ aᵢⱼ nⱼ − bᵢ )
+
+理想气体化学势展开：
+μⱼ = μⱼ⁰(T)  +  RT ln(P/P₀)  +  RT ln(nⱼ/N)
+
+其中 N = Σⱼ nⱼ（气相总摩尔量）</div>
+    </div>
+
+    <div class="eq-block ea">
+      <div class="eq-label">Step 3 · 一阶最优性条件（Eq. A.14，p.165）</div>
+      <div class="eq-title">∂F/∂nⱼ = 0 → 非线性方程组</div>
+      <div class="eq-math">cⱼ  +  ln(nⱼ/N)  −  Σᵢ λᵢ aᵢⱼ  =  0
+
+无量纲化定义：
+  cⱼ  ≡  μⱼ⁰(T) / (RT)  +  ln(P/P₀)
+  λᵢ  ≡  −λᵢ* / (RT)
+
+显式解：  nⱼ = N · exp( Σₖ λₖ aₖⱼ − cⱼ )</div>
+      <div class="eq-desc">
+        将 N_s 个 nⱼ 未知量消去，问题降维为求解 <code>N_E + 1</code> 个未知量（λ₁…λ_NE 和 N）
+      </div>
+    </div>
+
+    <div class="eq-block ep">
+      <div class="eq-label">Step 4 · 最终求解方程组（N_E + 1 个方程）</div>
+      <div class="eq-title">元素守恒 + 摩尔分数归一化</div>
+      <div class="eq-math">【方程组 I】元素守恒（N_E 个）：
+fᵢ = Σⱼ aᵢⱼ [ N · exp(Σₖ λₖ aₖⱼ − cⱼ) ] − bᵢ = 0
+
+【方程组 II】归一化（第 N_E+1 个）：
+f_{NE+1} = Σⱼ exp(Σₖ λₖ aₖⱼ − cⱼ) − 1 = 0</div>
+    </div>
+
+    <div class="eq-block ec">
+      <div class="eq-label">Step 5 · 带阻尼 Newton-Raphson 迭代（Eq. A.27–A.30，p.167）</div>
+      <div class="eq-title">x^(k+1) = x^(k) − ω · J⁻¹ f(x^(k))</div>
+      <div class="eq-math">求解变量：  x = [λ₁, …, λ_NE, ln N]ᵀ
+阻尼因子：  ω ∈ (0, 1]  （防止迭代发散）
+
+Jacobian 解析表达式（避免数值差分）：
+  J_{i,i'} = ∂fᵢ/∂λᵢ' = Σⱼ aᵢⱼ · aᵢ'ⱼ · nⱼ
+  J_{i,NE+1} = ∂fᵢ/∂lnN = bᵢ   （直接由守恒量填充）
+
+初始值（Section A.1.2）：令 λ=0，Taylor 展开线性化得
+  [ Σⱼ aᵢⱼ aᵢ'ⱼ nⱼ⁰ ] δλᵢ' = bᵢ − Σⱼ aᵢⱼ nⱼ⁰</div>
+      <div class="eq-desc">
+        气化炉还原性气氛中，此数学框架强制将几乎所有 <code>b_S</code>（总硫量）分配至 <code>n_H₂S</code>，与实验观测一致。
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</main>
+
+<script>
+function showTab(key) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + key).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "_meta": {
+    "role": "compat_flat_snapshot",
+    "canonical_file": "validation_cases.json",
+    "canonical_case_key": "CASE_HTW_WESSELING_1",
+    "note": "新增或修改验证工况请以 validation_cases.json 为准；本文件 CASE_LU 为与 canonical 键等价的扁平副本。"
+  },
+  "CASE_LU": {
+    "_comment": "Table 7.1 Sim Nr.1 = Table 2 工况 LU, HTW Wesseling, Air/Steam, Hamel (1999)",
+    "reactor": "HTW_pressurised",
+    "fuel": "brown_coal_RB",
+    "P": 2500000.0,
+    "T_inlet": 293.0,
+    "fuel_feed": 3377.4,
+    "primary_agent": "air_steam",
+    "primary_agent_note": "Luft/Dampf (Air/Steam); N2 由干空气 79/21 配平，见 feed_inlet.compute_gas_feeds_mol_s",
+    "ER": 0.337,
+    "recirculation": true,
+    "H_bed": 14.5,
+    "D_freeboard": 0.6,
+    "bed_height_m": 6.0,
+    "moisture_wt": 16.9,
+    "ash_dry_wt":  11.41,
+    "VM_daf":      53.42,
+    "C_dry":       61.5,
+    "H_dry":       4.1,
+    "O_dry":       21.8,
+    "N_dry":       0.68,
+    "S_dry":       0.51,
+    "S_dry_note": "干基硫 [wt%]，参与化学计量氧与 ER 进料计算"
+  }
+}

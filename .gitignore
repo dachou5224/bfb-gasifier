@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+
+# 构建 / 安装元数据（勿提交到 src/）
+*.egg-info/
+dist/
+build/
+
+# 测试与工具
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# macOS / 系统
+.DS_Store
+
+# 密钥与本地配置（勿提交）
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# 可选大文件 / 模型权重（若以后加入）
+*.pth
+*.ckpt
+*.h5
+*.keras
