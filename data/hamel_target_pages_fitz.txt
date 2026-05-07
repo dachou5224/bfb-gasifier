@@ -1,0 +1,3092 @@
+
+
+===== PAGE 25 TEXT =====
+
+3 Strömungsmechanik
+3 Strömungsmechanik
+30,
+31
+3.1.3 Blasenbildende Wirbelschichten unter erhöhtem Druck
+Zum Einfluss eines höheren Druckes auf das Verhalten blasenbildender Wirbelschichten sind
+zahlreiche Untersuchungen durchgeführt worden, die jedoch teilweise widersprüchliche Er-
+gebnisse liefern. Hoffmann und Yates (1986), Yates (1983) und Sellakumar und Zakkay
+(1988) haben die Ergebnisse zahlreicher Untersuchungen zusammengestellt. Zusammenfas-
+send lauten die Aussagen zum Einfluss des erhöhten Systemdrucks auf blasenbildende Wir-
+belschichten:
+- Mit zunehmendem Druck sinkt die minimale Fluidisierungsgeschwindigkeit, das heißt,
+dass bei konstanter Leerrohrgeschwindigkeit die Überschussgeschwindigkeit mit stei-
+gendem Druck zunimmt. Deshalb erfolgt die Beschreibung des Verhaltens der blasen-
+bildenden Wirbelschicht im folgenden immer, sofern nicht anders angegeben, in Ab-
+hängigkeit der Überschussgeschwindigkeit uo - umf.
+- Das Verhalten der nach Geldart (1973) eingeteilten Partikelklassen nähert sich mit zu-
+nehmenden Druck dem Verhalten der nächstkleineren Geldart-Gruppe. Das heißt, dass
+sich das Verhalten von Gruppe-D-Partikeln mit steigendem Druck dem Verhalten von
+Gruppe-B-Partikeln annähert (Rowe et al. 1984) und Gruppe B Partikel sich dem Ver-
+halten von Geldart-Gruppe-A-Partikeln nähern (Botterill 1980 zitiert in Sellakumar und
+Zakkay 1988).
+- Die Blasen flachen mit zunehmendem Druck ab (Kawabata et al. 1981).
+- Die Blasenkoaleszenz und die Blasenteilung nimmt nach Beobachtungen von Hoffmann
+und Yates (1986) und Olowson und Almstedt (1992) mit steigendem Druck zu.
+- Während einerseits eine kontinuierliche Abnahme der Blasengröße mit zunehmenden
+Druck gemessen wird (Schweinzer und Molerus 1987, Chan et al. 1987), berichten
+Hoffmann und Yates (1986) bis zu einem Druck von etwa 1,6 MPa, Olowson und
+Almstedt (1990) bis etwa 0,4 MPa und Rowe et al. (1984) bis etwa 1,0 MPa zunächst
+von einer Zunahme der Blasengröße und danach von einer Abnahme der Blasengröße.
+Olowson und Almstedt (1992) fuhren den zunächst zu beobachtenden Anstieg und an-
+schließenden Rückgang der Blasengröße bei steigendem Druck auf die Konkurrenz zwi-
+schen zunehmendem Blasensplitting und zunehmender Blasenkoaleszenz zurück.
+- Die Blasenfrequenz steigt nach Messungen von Chan et al. (1987), Rowe et al. (1984)
+und Carsky et al. (1990) mit zunehmenden Druck. Gleichzeitig wird von Chan et al.
+(1987) ein Rückgang der Blasenfrequenz mit zunehmender Partikeldichte und -große
+beobachtet.
+- Für den Einfluss des Drucks auf die Blasensteiggeschwindigkeit ist anhand der veröf-
+fentlichten Ergebnisse in der Literatur keine einheitliche Tendenz festzustellen. Wäh-
+rend Kawabata et al. (1981) im untersuchten Bereich bis 0,8 MPa und Hoffmann und
+Yates (1986) bis 2,0 MPa einen Rückgang der Blasensteiggeschwindigkeit feststellen,
+berichten Schweinzer und Molerus (1987) und Olowson und Almstedt (1990) von einer
+Zunahme der Blasensteiggeschwindigkeit mit zunehmendem Druck.
+- Die Durchströmung der Blase nimmt nach Messungen von Olowson und Almstedt
+(1990, 1992) mit zunehmendem Druck ab.
+Zur Berechnung der Strömungsstruktur in der blasenbildenden Wirbelschicht einer unter
+Druck arbeitenden Wirbelschichtfeuerung oder eines Wirbelschichtvergasers reichen die in
+Kapitel 3.1 angegebenen Gleichungen nicht aus, da hier der Druck lediglich über die Gas-
+dichte und damit über die minimale Fluidisierungsgeschwindigkeit einfließt. Heinbockel
+(1995) hat zur Modellierung eines unter Druck arbeitenden Wirbelschichtwärmeübertragers
+durch Einfuhren von Potenzansätzen in die oben aufgeführten Gleichungen die aus Experi-
+menten von Olowson und Almstedt (1990) bekannten Ergebnisse berücksichtigt. Durch Er-
+weiterung der Gleichungen mit den gewählten Potenzansätzen wird sichergestellt, dass für
+atmosphärischen Druck das unveränderte Modell von Hilligardt (1986) Anwendung findet
+und gleichzeitig die experimentellen Ergebnisse für erhöhten Druck von Olowson und
+Almstedt (1990) qualitativ wiedergegeben werden können.
+Um die verstärkte Blasenkoaleszenz bei steigendem Druck zu berücksichtigen hat Heinbockel
+(1995) die Gleichung (3.33) folgendermaßen abgeändert:
+dd,
+dh
+o ) __________db
+113
+£l/3
+3-A b -ub
+(3.41)
+Die geringere Blasenstabilität und das erhöhte Blasensplitting wird nach Heinbockel (1995) in
+einer modifizierten Gleichung für die Lebensdauer der Blasen berücksichtigt. Die Gleichung
+(3.35) lautet in modifizierter Form:
+u 
+f ( pY
+0'7
+Ab = 280. 
+-\-\ 
+(3.42)
+8 
+V'oJ
+Trotz der mit steigendem Druck abnehmenden Blasengröße wird von Olowson und Almstedt
+(1990) ein Anstieg der Blasensteiggeschwindigkeit gemessen, was Heinbockel (1995) durch
+Einfuhren eines mit dem Druck ansteigenden Koeffizienten vor der Überschussgeschwindig-
+keit in Gleichung (3.13) berücksichtigt:
+Vf
+UJ
+\
+-7 +u Z)-u w
+(3-43)
+“b
+Dem Rückgang der Blasendurchströmung mit zunehmenden Druck (Olowson und Almstedt
+1990,1992) trägt Heinbockel (1995) durch Modifikation von Gleichung (3.23) in folgender
+Form Rechnung:
+
+
+===== PAGE 25 BLOCKS =====
+
+3 Strömungsmechanik
+3 Strömungsmechanik
+30,
+31
+3.1.3 Blasenbildende Wirbelschichten unter erhöhtem Druck
+Zum Einfluss eines höheren Druckes auf das Verhalten blasenbildender Wirbelschichten sind
+zahlreiche Untersuchungen durchgeführt worden, die jedoch teilweise widersprüchliche Er-
+gebnisse liefern. Hoffmann und Yates (1986), Yates (1983) und Sellakumar und Zakkay
+(1988) haben die Ergebnisse zahlreicher Untersuchungen zusammengestellt. Zusammenfas-
+send lauten die Aussagen zum Einfluss des erhöhten Systemdrucks auf blasenbildende Wir-
+belschichten:
+- Mit zunehmendem Druck sinkt die minimale Fluidisierungsgeschwindigkeit, das heißt,
+dass bei konstanter Leerrohrgeschwindigkeit die Überschussgeschwindigkeit mit stei-
+gendem Druck zunimmt. Deshalb erfolgt die Beschreibung des Verhaltens der blasen-
+bildenden Wirbelschicht im folgenden immer, sofern nicht anders angegeben, in Ab-
+hängigkeit der Überschussgeschwindigkeit uo - umf.
+- Das Verhalten der nach Geldart (1973) eingeteilten Partikelklassen nähert sich mit zu-
+nehmenden Druck dem Verhalten der nächstkleineren Geldart-Gruppe. Das heißt, dass
+sich das Verhalten von Gruppe-D-Partikeln mit steigendem Druck dem Verhalten von
+Gruppe-B-Partikeln annähert (Rowe et al. 1984) und Gruppe B Partikel sich dem Ver-
+halten von Geldart-Gruppe-A-Partikeln nähern (Botterill 1980 zitiert in Sellakumar und
+Zakkay 1988).
+- Die Blasen flachen mit zunehmendem Druck ab (Kawabata et al. 1981).
+- Die Blasenkoaleszenz und die Blasenteilung nimmt nach Beobachtungen von Hoffmann
+und Yates (1986) und Olowson und Almstedt (1992) mit steigendem Druck zu.
+- Während einerseits eine kontinuierliche Abnahme der Blasengröße mit zunehmenden
+Druck gemessen wird (Schweinzer und Molerus 1987, Chan et al. 1987), berichten
+Hoffmann und Yates (1986) bis zu einem Druck von etwa 1,6 MPa, Olowson und
+Almstedt (1990) bis etwa 0,4 MPa und Rowe et al. (1984) bis etwa 1,0 MPa zunächst
+von einer Zunahme der Blasengröße und danach von einer Abnahme der Blasengröße.
+Olowson und Almstedt (1992) fuhren den zunächst zu beobachtenden Anstieg und an-
+schließenden Rückgang der Blasengröße bei steigendem Druck auf die Konkurrenz zwi-
+schen zunehmendem Blasensplitting und zunehmender Blasenkoaleszenz zurück.
+- Die Blasenfrequenz steigt nach Messungen von Chan et al. (1987), Rowe et al. (1984)
+und Carsky et al. (1990) mit zunehmenden Druck. Gleichzeitig wird von Chan et al.
+(1987) ein Rückgang der Blasenfrequenz mit zunehmender Partikeldichte und -große
+beobachtet.
+- Für den Einfluss des Drucks auf die Blasensteiggeschwindigkeit ist anhand der veröf-
+fentlichten Ergebnisse in der Literatur keine einheitliche Tendenz festzustellen. Wäh-
+rend Kawabata et al. (1981) im untersuchten Bereich bis 0,8 MPa und Hoffmann und
+Yates (1986) bis 2,0 MPa einen Rückgang der Blasensteiggeschwindigkeit feststellen,
+berichten Schweinzer und Molerus (1987) und Olowson und Almstedt (1990) von einer
+Zunahme der Blasensteiggeschwindigkeit mit zunehmendem Druck.
+- Die Durchströmung der Blase nimmt nach Messungen von Olowson und Almstedt
+(1990, 1992) mit zunehmendem Druck ab.
+Zur Berechnung der Strömungsstruktur in der blasenbildenden Wirbelschicht einer unter
+Druck arbeitenden Wirbelschichtfeuerung oder eines Wirbelschichtvergasers reichen die in
+Kapitel 3.1 angegebenen Gleichungen nicht aus, da hier der Druck lediglich über die Gas-
+dichte und damit über die minimale Fluidisierungsgeschwindigkeit einfließt. Heinbockel
+(1995) hat zur Modellierung eines unter Druck arbeitenden Wirbelschichtwärmeübertragers
+durch Einfuhren von Potenzansätzen in die oben aufgeführten Gleichungen die aus Experi-
+menten von Olowson und Almstedt (1990) bekannten Ergebnisse berücksichtigt. Durch Er-
+weiterung der Gleichungen mit den gewählten Potenzansätzen wird sichergestellt, dass für
+atmosphärischen Druck das unveränderte Modell von Hilligardt (1986) Anwendung findet
+und gleichzeitig die experimentellen Ergebnisse für erhöhten Druck von Olowson und
+Almstedt (1990) qualitativ wiedergegeben werden können.
+Um die verstärkte Blasenkoaleszenz bei steigendem Druck zu berücksichtigen hat Heinbockel
+(1995) die Gleichung (3.33) folgendermaßen abgeändert:
+dd,
+dh
+o ) __________db
+113
+£l/3
+3-A b -ub
+(3.41)
+Die geringere Blasenstabilität und das erhöhte Blasensplitting wird nach Heinbockel (1995) in
+einer modifizierten Gleichung für die Lebensdauer der Blasen berücksichtigt. Die Gleichung
+(3.35) lautet in modifizierter Form:
+u 
+f ( pY
+0'7
+Ab = 280. 
+-\-\ 
+(3.42)
+8 
+V'oJ
+Trotz der mit steigendem Druck abnehmenden Blasengröße wird von Olowson und Almstedt
+(1990) ein Anstieg der Blasensteiggeschwindigkeit gemessen, was Heinbockel (1995) durch
+Einfuhren eines mit dem Druck ansteigenden Koeffizienten vor der Überschussgeschwindig-
+keit in Gleichung (3.13) berücksichtigt:
+Vf
+UJ
+\
+-7 +u Z)-u w
+(3-43)
+“b
+Dem Rückgang der Blasendurchströmung mit zunehmenden Druck (Olowson und Almstedt
+1990,1992) trägt Heinbockel (1995) durch Modifikation von Gleichung (3.23) in folgender
+Form Rechnung:
+
+
+===== PAGE 26 TEXT =====
+
+3 Strömungsmechanik
+32.
+3 Strömungsmechanik
+33
+Blasendurchmesser db
+0,4 j--------------
+in m
+Mess.
+“O-Umf
+0,1 m/s
+0,2 m/s
+0,3 m/s
+0,4 m/s
+0,6 m/s
+Berechnung für u0 - umf
+**** ’n------
+0,3
+ÖJrnfa
+0,2
+___T
+25 °C
+0,7 mm
+2600 kg/m:
+0,55 m
+0,1
+Pp
+h
+Messwerte nach Olowson und Almstedt 1990
+0,0 4-
+0,0
+0,5
+1,0 
+1,5
+Druck in MPa
+2,0
+2,5
+0-44)
+Da die Durchströmung der Blase maßgeblich für den Stoffaustausch zwischen Blasen- und
+Suspensionsphase verantwortlich ist, wurden die Exponenten in den Gleichungen (3.42) bis
+(3.44) ausgehend von der von Olowson und Almstedt (1990) gemessenen Blasendurchströ-
+mung ermittelt (Bild 3.3). Mit den von Heinbockel vorgeschlagenen Modifikationen des Mo-
+dells von Hilligardt (1986) können die Messwerte von Olowson und Almstedt (1990) zufrie-
+denstellend nachgebildet werden. Bild 3.4 und Bild 3.5 zeigen, dass der zunächst erfolgende
+Anstieg des Blasendurchmessers und der mit weiterer Druckerhöhung stattfindende Rückgang
+des Blasendurchmessers sowie der gleichzeitig gemessene Anstieg der Blasensteiggeschwin-
+digkeit von dem Modell wiedergegeben werden.
+Bild 3.4: Blasensteiggeschwindigkeit in Abhängigkeit des Drucks. Vergleich von Mess-
+werten nach Olowson und Almstedt (1990) mit den nach Gleichung (3.14) bis
+(3.44) berechneten Ergebnissen.
+Gasgeschwindigkeit ubr relativ zur Blase
+2,5
+in m/s
+2,0
+1.5
+T 
+= 25°C
+dP
+= 0,7 mm
+pp
+= 2600 kg/m3
+0,55 m
+h
+Messwerte nach
+Olowson und Almstedt 1990
+Berechnung für u0 -
+/0,1 m/s
+//0,2 m/s
+u0 -u mf
+Mess.
+0,1 m/s 
+•
+0,2 m/s 
+A
+0,3 m/s 
+o
+0,4 m/s 
+o
+0,6 m/s 
+o
+1,0
+0,5
+0,0
+0,0 
+0,5 
+1,0 
+1,5 
+2,0 
+2,5
+Druck in MPa
+0,4 m/s
+0,6 m/s
+Blasendurchmesser db
+0,4
+Mess.
+0,1 m/s
+0,2 m/s
+0,3 m/s
+0,4 m/s
+0,6 m/s
+Berechnung für u0 -
+0,3
+o
+0,2
+SilrrVs
+0,1 -----T
+= 25 °C
+= 0,7 mm
+= 2600 kg/m:
+= 0,55 m
+Pp
+( 
+[ Messwerte nach Olowson und Almstedt 1990
+0,0 
+0,5 
+1,0 
+1,5 
+2,0
+Druck in MPa
+0,0
+2,5
+in m
+Bild 3.3: 
+Geschwindigkeit der Blasendurchströmung in Abhängigkeit des Drucks. Ver-
+gleich von Messwerten nach Olowson und Almstedt (1990) mit den nach Glei-
+chung (3.44) berechneten Ergebnissen.
+Bild 3.5: Blasendurchmesser in Abhängigkeit des Drucks. Vergleich von Messwerten nach
+Olowson und Almstedt (1990) mit den nach Gleichung (3.14) bis (3.44) berech-
+neten Ergebnissen.
+
+
+===== PAGE 26 BLOCKS =====
+
+3 Strömungsmechanik
+32.
+3 Strömungsmechanik
+33
+Blasendurchmesser db
+0,4 j--------------
+in m
+Mess.
+“O-Umf
+0,1 m/s
+0,2 m/s
+0,3 m/s
+0,4 m/s
+0,6 m/s
+Berechnung für u0 - umf
+**** ’n------
+0,3
+ÖJrnfa
+0,2
+___T
+25 °C
+0,7 mm
+2600 kg/m:
+0,55 m
+0,1
+Pp
+h
+Messwerte nach Olowson und Almstedt 1990
+0,0 4-
+0,0
+0,5
+1,0 
+1,5
+Druck in MPa
+2,0
+2,5
+0-44)
+Da die Durchströmung der Blase maßgeblich für den Stoffaustausch zwischen Blasen- und
+Suspensionsphase verantwortlich ist, wurden die Exponenten in den Gleichungen (3.42) bis
+(3.44) ausgehend von der von Olowson und Almstedt (1990) gemessenen Blasendurchströ-
+mung ermittelt (Bild 3.3). Mit den von Heinbockel vorgeschlagenen Modifikationen des Mo-
+dells von Hilligardt (1986) können die Messwerte von Olowson und Almstedt (1990) zufrie-
+denstellend nachgebildet werden. Bild 3.4 und Bild 3.5 zeigen, dass der zunächst erfolgende
+Anstieg des Blasendurchmessers und der mit weiterer Druckerhöhung stattfindende Rückgang
+des Blasendurchmessers sowie der gleichzeitig gemessene Anstieg der Blasensteiggeschwin-
+digkeit von dem Modell wiedergegeben werden.
+Bild 3.4: Blasensteiggeschwindigkeit in Abhängigkeit des Drucks. Vergleich von Mess-
+werten nach Olowson und Almstedt (1990) mit den nach Gleichung (3.14) bis
+(3.44) berechneten Ergebnissen.
+Gasgeschwindigkeit ubr relativ zur Blase
+2,5
+in m/s
+2,0
+1.5
+T 
+= 25°C
+dP
+= 0,7 mm
+pp
+= 2600 kg/m3
+0,55 m
+h
+Messwerte nach
+Olowson und Almstedt 1990
+Berechnung für u0 -
+/0,1 m/s
+//0,2 m/s
+u0 -u mf
+Mess.
+0,1 m/s 
+•
+0,2 m/s 
+A
+0,3 m/s 
+o
+0,4 m/s 
+o
+0,6 m/s 
+o
+1,0
+0,5
+0,0
+0,0 
+0,5 
+1,0 
+1,5 
+2,0 
+2,5
+Druck in MPa
+0,4 m/s
+0,6 m/s
+Blasendurchmesser db
+0,4
+Mess.
+0,1 m/s
+0,2 m/s
+0,3 m/s
+0,4 m/s
+0,6 m/s
+Berechnung für u0 -
+0,3
+o
+0,2
+SilrrVs
+0,1 -----T
+= 25 °C
+= 0,7 mm
+= 2600 kg/m:
+= 0,55 m
+Pp
+( 
+[ Messwerte nach Olowson und Almstedt 1990
+0,0 
+0,5 
+1,0 
+1,5 
+2,0
+Druck in MPa
+0,0
+2,5
+in m
+Bild 3.3: 
+Geschwindigkeit der Blasendurchströmung in Abhängigkeit des Drucks. Ver-
+gleich von Messwerten nach Olowson und Almstedt (1990) mit den nach Glei-
+chung (3.44) berechneten Ergebnissen.
+Bild 3.5: Blasendurchmesser in Abhängigkeit des Drucks. Vergleich von Messwerten nach
+Olowson und Almstedt (1990) mit den nach Gleichung (3.14) bis (3.44) berech-
+neten Ergebnissen.
+
+
+===== PAGE 27 TEXT =====
+
+3 Strömungsmechanik
+3 Strömungsmechanik
+34
+35
+Kbd = 4,5- Z
+-
+d b
+3.1.4 Stoffaustausch zwischen Blasen- und Suspensionsphase
+Der Gasaustausch zwischen Blasen- und Suspensionsphase ist von dem die Blase umgeben-
+den Strömungsfeld beeinflusst. In Abhängigkeit der Blasensteiggeschwindigkeit und der Ge-
+schwindigkeit des die Suspensionsphase durchströmenden Gases, wird unter Zuhilfenahme
+der Blasenkennzahl 
+zwischen zwei Strömungsformen im Bereich der Blase unterschieden.
+Handelt es sich um eine langsame Blase (ab < 1), wird sie von Gas aus der Suspensionsphase
+durchströmt. Im Bereich langsamer Blasen findet aufgrund der Durchströmung ein nahezu
+ungehinderter Stoffaustausch zwischen Blase und Suspension statt, so dass kein Konzentrati-
+onsgradient auftritt. Im Gegensatz dazu bildet sich im Falle schneller Blasen mit ab > 1 eine
+Rezirkulationszone aus, die sich mit wachsender Blasenkennzahl weiter in das Blaseninnere
+verlagert (Davidson und Harrison, 1963) und den Stoffaustausch behindert. Für sehr große
+Blasenkennzahlen durchströmen die Blasen das Wirbelbett im Bypass. Der Austausch der
+Gaskomponente i zwischen Blase und Suspension, bezogen auf das BI äsenvolumen, ist defi-
+niert durch:
+<3 -45 >
+dt
+Für die Beschreibung des Gasaustauschs zwischen einer schnellen Blase und der Suspensi-
+onsphase findet häufig das von Kunii und Levenspiel (1977) vorgeschlagene Modell Anwen-
+dung, wonach der gesamte Stoffübergangskoeffizient durch die nacheinander auftretenden
+Widerstände des Gasaustauschs zwischen Blase und Blasenwolke („Cloud-zone“) und Bla-
+senwolke und Suspensionsphase folgendermaßen formuliert wird:
+Kbd = 
+;
+.. ...;
+(3-46)
+---------1---------
+bc 
+Kcd
+mit Kbc = 4,5 • 
++ 5,85 ■ 
+und Kcd = 6,78 ■ 
+(3.47)
+db
+db
+\ 
+db
+Sit und Grace (1981) schlagen einen ähnlichen Ansatz für koaleszierende Blasen vor:
+Kbd= L 
+L + 
+(34g)
+d b 
+\ 
+x-d b
+Der erste Summand im Term Kbc in Gleichung (3.47) und der erste Summand in Gleichung
+(3.48) beschreiben den konvektiven Stoffaustausch, hervorgerufen durch Blasendurchströ-
+mung. Die weiteren Terme beschreiben den diffusiven Stofftransport zwischen Blase und
+Suspension. Preto (1986), zitiert in Verweyen (1994), schlägt in Anlehnung an die Blasen-
+durchströmung folgenden Ansatz vor:
+(3-49)
+Der Parameter % berücksichtigt das Strömungsfeld um die Blase, so dass für langsame, durch-
+strömte Blasen der Parameter den Wert % = 1 annimmt. Für schnelle Blasen wird der Wert
+von % kleiner 1 wobei Preto (1986) einen minimalen Grenzwert von % = 0,1 angibt.
+In dieser Arbeit wird der konvektive Gasaustausch zwischen Blase und Suspension anhand
+der in Kapitel 4.1.3 beschriebenen Berechnung der Blasendurchströmung ermittelt. Somit soll
+insbesondere dem zu beobachtenden Rückgang der Blasendurchströmung mit steigendem
+Reaktordruck Rechnung getragen werden. Mit der Abschätzung des diffusiven Anteils am
+Stoffaustausch nach Sit und Grace (1981) ergibt sich für den Stoffaustauschkoeffizienten:
+K
+Jb.r, 
+p44 D~ 
+gV b
+3 ub
+[i4TD~7 
+b
+S hd -—-+\ ----------- 
++ l -----------S3------- 
+(3 -50 )
+\ 
+R'd b
+2 db
+y 
+' d b
+Bild 3.6 vergleicht die genannten Berechnungsgleichungen für den Stoffaustauschkoeffizien-
+ten in Abhängigkeit des Druckes. Deinert et al. (1986) berichtet von Werten für Kbd > 40 s'1
+für hohe Temperaturen, die mit den oben aufgefuhrten Gleichungen (3.46) bis (3.49) nicht
+berechnet werden können. Bei Extrapolation der Gleichung (3.50) und den in Kapitel 4.1 be-
+schriebenen Berechnungsgleichungen der Strömungsmechanik in der Wirbelschicht auf eine
+Wirbelschichttemperatur von 900°C berechnen sich Stoffaustauschkoeffizienten von Kbd « 33
+s'1 für kleine Blasendurchmesser.
+Stoffaustauschkoeffizient Blase-Suspension
+10
+in 1/s
+8
+6
+4
+2
+0
+Bild 3.6: Vergleich verschiedener Berechnungsgleichungen für den Stoffaustauschkoeffi-
+zienten zwischen Blase und Suspension.
+T/vs
+dp
+Pp
+uo-u mf =O )6 m/s
+db
+= 0,3 m
+= 298,15 K
+= 0,7 mm
+= 2600 kg/m3
+= 0,46
+= 0,8
+Kunii u. Levenspiel (1977)
+Sit u. Grace (1981)
+Preto (1986), x= 1
+Gl. (3.50) _____________
+0
+0,5
+1,0 
+1,5
+Druck in MPa
+2,0
+
+
+===== PAGE 27 BLOCKS =====
+
+3 Strömungsmechanik
+3 Strömungsmechanik
+34
+35
+Kbd = 4,5- Z
+-
+d b
+3.1.4 Stoffaustausch zwischen Blasen- und Suspensionsphase
+Der Gasaustausch zwischen Blasen- und Suspensionsphase ist von dem die Blase umgeben-
+den Strömungsfeld beeinflusst. In Abhängigkeit der Blasensteiggeschwindigkeit und der Ge-
+schwindigkeit des die Suspensionsphase durchströmenden Gases, wird unter Zuhilfenahme
+der Blasenkennzahl 
+zwischen zwei Strömungsformen im Bereich der Blase unterschieden.
+Handelt es sich um eine langsame Blase (ab < 1), wird sie von Gas aus der Suspensionsphase
+durchströmt. Im Bereich langsamer Blasen findet aufgrund der Durchströmung ein nahezu
+ungehinderter Stoffaustausch zwischen Blase und Suspension statt, so dass kein Konzentrati-
+onsgradient auftritt. Im Gegensatz dazu bildet sich im Falle schneller Blasen mit ab > 1 eine
+Rezirkulationszone aus, die sich mit wachsender Blasenkennzahl weiter in das Blaseninnere
+verlagert (Davidson und Harrison, 1963) und den Stoffaustausch behindert. Für sehr große
+Blasenkennzahlen durchströmen die Blasen das Wirbelbett im Bypass. Der Austausch der
+Gaskomponente i zwischen Blase und Suspension, bezogen auf das BI äsenvolumen, ist defi-
+niert durch:
+<3 -45 >
+dt
+Für die Beschreibung des Gasaustauschs zwischen einer schnellen Blase und der Suspensi-
+onsphase findet häufig das von Kunii und Levenspiel (1977) vorgeschlagene Modell Anwen-
+dung, wonach der gesamte Stoffübergangskoeffizient durch die nacheinander auftretenden
+Widerstände des Gasaustauschs zwischen Blase und Blasenwolke („Cloud-zone“) und Bla-
+senwolke und Suspensionsphase folgendermaßen formuliert wird:
+Kbd = 
+;
+.. ...;
+(3-46)
+---------1---------
+bc 
+Kcd
+mit Kbc = 4,5 • 
++ 5,85 ■ 
+und Kcd = 6,78 ■ 
+(3.47)
+db
+db
+\ 
+db
+Sit und Grace (1981) schlagen einen ähnlichen Ansatz für koaleszierende Blasen vor:
+Kbd= L 
+L + 
+(34g)
+d b 
+\ 
+x-d b
+Der erste Summand im Term Kbc in Gleichung (3.47) und der erste Summand in Gleichung
+(3.48) beschreiben den konvektiven Stoffaustausch, hervorgerufen durch Blasendurchströ-
+mung. Die weiteren Terme beschreiben den diffusiven Stofftransport zwischen Blase und
+Suspension. Preto (1986), zitiert in Verweyen (1994), schlägt in Anlehnung an die Blasen-
+durchströmung folgenden Ansatz vor:
+(3-49)
+Der Parameter % berücksichtigt das Strömungsfeld um die Blase, so dass für langsame, durch-
+strömte Blasen der Parameter den Wert % = 1 annimmt. Für schnelle Blasen wird der Wert
+von % kleiner 1 wobei Preto (1986) einen minimalen Grenzwert von % = 0,1 angibt.
+In dieser Arbeit wird der konvektive Gasaustausch zwischen Blase und Suspension anhand
+der in Kapitel 4.1.3 beschriebenen Berechnung der Blasendurchströmung ermittelt. Somit soll
+insbesondere dem zu beobachtenden Rückgang der Blasendurchströmung mit steigendem
+Reaktordruck Rechnung getragen werden. Mit der Abschätzung des diffusiven Anteils am
+Stoffaustausch nach Sit und Grace (1981) ergibt sich für den Stoffaustauschkoeffizienten:
+K
+Jb.r, 
+p44 D~ 
+gV b
+3 ub
+[i4TD~7 
+b
+S hd -—-+\ ----------- 
++ l -----------S3------- 
+(3 -50 )
+\ 
+R'd b
+2 db
+y 
+' d b
+Bild 3.6 vergleicht die genannten Berechnungsgleichungen für den Stoffaustauschkoeffizien-
+ten in Abhängigkeit des Druckes. Deinert et al. (1986) berichtet von Werten für Kbd > 40 s'1
+für hohe Temperaturen, die mit den oben aufgefuhrten Gleichungen (3.46) bis (3.49) nicht
+berechnet werden können. Bei Extrapolation der Gleichung (3.50) und den in Kapitel 4.1 be-
+schriebenen Berechnungsgleichungen der Strömungsmechanik in der Wirbelschicht auf eine
+Wirbelschichttemperatur von 900°C berechnen sich Stoffaustauschkoeffizienten von Kbd « 33
+s'1 für kleine Blasendurchmesser.
+Stoffaustauschkoeffizient Blase-Suspension
+10
+in 1/s
+8
+6
+4
+2
+0
+Bild 3.6: Vergleich verschiedener Berechnungsgleichungen für den Stoffaustauschkoeffi-
+zienten zwischen Blase und Suspension.
+T/vs
+dp
+Pp
+uo-u mf =O )6 m/s
+db
+= 0,3 m
+= 298,15 K
+= 0,7 mm
+= 2600 kg/m3
+= 0,46
+= 0,8
+Kunii u. Levenspiel (1977)
+Sit u. Grace (1981)
+Preto (1986), x= 1
+Gl. (3.50) _____________
+0
+0,5
+1,0 
+1,5
+Druck in MPa
+2,0
+
+
+===== PAGE 31 TEXT =====
+
+3 Strömun smechanik
+3 Strömzingsmechanik
+42_
+43
+Hamdullahpur und MacKay (1986) und Sciazko et al. (1988) folgen dagegen dem „Ghost-
+bubble“-Ansatz von Pemberton und Davidson (1984) und gehen zur Beschreibung der Gas-
+strömung im Freiraum von einer Weiterexistenz der Blasen aus. Für die Vorstellung der Wei-
+terexistenz der Blasen oder der Ausbildung von Ringwirbeln sprechen die experimentellen
+Beobachtungen sowie die Möglichkeit, die gemessenen Geschwindigkeitsfluktuationen im
+Freiraum mit den Bewegungsgleichungen für Blasen oder Wirbel nachrechnen zu können
+(Bürkle 1991). Die Lösung der Bewegungsgleichung, die aus der Bilanzierung der auf die
+Blase wirkenden Kräfte hervorgeht, kann auf folgende Funktion reduziert werden (Sciazko et
+al. 1988, Fung und Hamdullahpur 1993a):
+Ugb( h ) = «o+(
+u gb.o -««)■ e~ P* h
+(3.74)
+Die Abklingkonstante ß K kann nach Hamdullahpur und MacKay (1986) und Sciazko et al.
+(1988) unter Berücksichtigung der Messungen in Abhängigkeit des Blasendurchmessers an
+der Wirbelschichtoberfläche ausgedrückt werden:
+Die Varianz wird mit er = 0,6 angenommen und die mittlere Partikelstartgeschwindigkeit wird
+in Anlehnung an Martens (1984) berechnet:
+(3.73)
+up.o 
+1,53 -ub
+— — 
+"Roof'-Mechanismus 1
+— ----- "Wake* -Mechanismus J
+Einzelblase 
+1
+/////// 
+Blasenkoaleszenz 
+J
+---------- Demnich u. Bohnet 1978
+---------- Son et al. 1989,1988
+Pemberton u.
+Davidson 1986
+Hatano u.
+Ishida 1981
+Blasendurch- Mittlere Partikel-
+messer 
+startgeschwindig-
+db,ws in m
+keit öP0 in m/s
+1,0T
+25
+’ws = 1073 K
+0,1 MPa
+1,0 mm
+2200 kg/m3
+20? dp
+- Pp
+0,8;-
+b,WS
+0,6;-
+15
+0,4;-
+10
+0,2;-
+5
+0,0-*-
+0+-r
+0,0
+2,5
+3,0
+3,5
+2,0
+0,5
+1,0
+1,5
+In Anlehnung an Hamdullahpur und MacKay (1986) und Sciazko et al. (1988) wird für die
+Startgeschwindigkeit der „Ghost-bubbles“ die Blasensteiggeschwindigkeit der durch die Wir-
+belschicht aufgestiegenen Blasen an der Wirbelschichtoberfläche angenommen:
+u gb,o = u b,ws 
+(3.76)
+3.2.4 
+Berechnung der Partikelbewegung im Freiraum
+Grundlage der Bestimmung der Feststoffbewegung und des Feststoffkonzentrationsprofiles im
+Freiraum ist die Berechnung der Flugbahnen der aus der Wirbelschicht geschleuderten Parti-
+kel. Die Partikel werden an der Wirbelschichtoberfläche durch Blaseneruption in den Frei-
+raum geschleudert. Die Bewegungsgleichung eines Einzelpartikels erhält man aus der Bilan-
+zierung der am Partikel angreifenden Kräfte. Interpartikuläre Kräfte werden dabei vernachläs-
+sigt. Die Kräftebilanz für das Einzelpartikel unter Berücksichtigung der Trägheits-, Auftriebs-,
+Gewichts- und Widerstandskraft lautet :
+Ty + FA + FG 4- Fw ~ 0 
+(3.77)
+Mit den einzelnen auf das Partikel wirkenden Kräften
+r, 
+TZ 
+UP
+FT =-PP- V P~ 
+(3.78)
+FA =P g -Vp-g 
+(3.79)
+Fa =-pp - Fp-g
+(3.80)
+Blasensteiggeschwindigkeit ubWS in m/s
+Partikelstartgeschwindigkeit in Abhängigkeit der Blasengeschwindigkeit an der
+Wirbelschichtoberfläche. Blasendurchmesser und -geschwindigkeit sind entspre-
+chend der in Kapitel 3.1 vorgestellten Gleichungen berechnet.
+Bild 3.7:
+3.2.3 
+Gasbewegung im Freiraum
+Nach den Blaseneruptionen an der Wirbelschichtoberfläche vermischen sich Suspensions- und
+Blasengas nicht sofort, sondern das aus der zerplatzenden Blase austretende Gas bewegt sich
+zunächst geschlossen weiter. Diese Gasbewegung im Freiraum ist bei zahlreichen Untersu-
+chungen in Versuchsanlagen beobachtet worden, eine Übersicht gibt z. B. Bürkle (1991).
+Zenz und Weil (1958) schlagen vor, die Bewegung des Blasengases im Freiraum in Analogie
+zur Dissipation von Freistrahlen zu beschreiben. George und Grace (1978) und Horio et al.
+(1980) folgen bei der Korrelation ihrer Versuchsergebnisse der Vorstellung von Zenz und
+Weil (1958). Nach Untersuchungen von George und Grace (1978) bilden sich aus zerplatzten
+Blasen unstetige Freistrahlen (jets) aus, die mit zunehmender Höhe dissipieren.
+
+
+===== PAGE 31 BLOCKS =====
+
+3 Strömun smechanik
+3 Strömzingsmechanik
+42_
+43
+Hamdullahpur und MacKay (1986) und Sciazko et al. (1988) folgen dagegen dem „Ghost-
+bubble“-Ansatz von Pemberton und Davidson (1984) und gehen zur Beschreibung der Gas-
+strömung im Freiraum von einer Weiterexistenz der Blasen aus. Für die Vorstellung der Wei-
+terexistenz der Blasen oder der Ausbildung von Ringwirbeln sprechen die experimentellen
+Beobachtungen sowie die Möglichkeit, die gemessenen Geschwindigkeitsfluktuationen im
+Freiraum mit den Bewegungsgleichungen für Blasen oder Wirbel nachrechnen zu können
+(Bürkle 1991). Die Lösung der Bewegungsgleichung, die aus der Bilanzierung der auf die
+Blase wirkenden Kräfte hervorgeht, kann auf folgende Funktion reduziert werden (Sciazko et
+al. 1988, Fung und Hamdullahpur 1993a):
+Ugb( h ) = «o+(
+u gb.o -««)■ e~ P* h
+(3.74)
+Die Abklingkonstante ß K kann nach Hamdullahpur und MacKay (1986) und Sciazko et al.
+(1988) unter Berücksichtigung der Messungen in Abhängigkeit des Blasendurchmessers an
+der Wirbelschichtoberfläche ausgedrückt werden:
+Die Varianz wird mit er = 0,6 angenommen und die mittlere Partikelstartgeschwindigkeit wird
+in Anlehnung an Martens (1984) berechnet:
+(3.73)
+up.o 
+1,53 -ub
+— — 
+"Roof'-Mechanismus 1
+— ----- "Wake* -Mechanismus J
+Einzelblase 
+1
+/////// 
+Blasenkoaleszenz 
+J
+---------- Demnich u. Bohnet 1978
+---------- Son et al. 1989,1988
+Pemberton u.
+Davidson 1986
+Hatano u.
+Ishida 1981
+Blasendurch- Mittlere Partikel-
+messer 
+startgeschwindig-
+db,ws in m
+keit öP0 in m/s
+1,0T
+25
+’ws = 1073 K
+0,1 MPa
+1,0 mm
+2200 kg/m3
+20? dp
+- Pp
+0,8;-
+b,WS
+0,6;-
+15
+0,4;-
+10
+0,2;-
+5
+0,0-*-
+0+-r
+0,0
+2,5
+3,0
+3,5
+2,0
+0,5
+1,0
+1,5
+In Anlehnung an Hamdullahpur und MacKay (1986) und Sciazko et al. (1988) wird für die
+Startgeschwindigkeit der „Ghost-bubbles“ die Blasensteiggeschwindigkeit der durch die Wir-
+belschicht aufgestiegenen Blasen an der Wirbelschichtoberfläche angenommen:
+u gb,o = u b,ws 
+(3.76)
+3.2.4 
+Berechnung der Partikelbewegung im Freiraum
+Grundlage der Bestimmung der Feststoffbewegung und des Feststoffkonzentrationsprofiles im
+Freiraum ist die Berechnung der Flugbahnen der aus der Wirbelschicht geschleuderten Parti-
+kel. Die Partikel werden an der Wirbelschichtoberfläche durch Blaseneruption in den Frei-
+raum geschleudert. Die Bewegungsgleichung eines Einzelpartikels erhält man aus der Bilan-
+zierung der am Partikel angreifenden Kräfte. Interpartikuläre Kräfte werden dabei vernachläs-
+sigt. Die Kräftebilanz für das Einzelpartikel unter Berücksichtigung der Trägheits-, Auftriebs-,
+Gewichts- und Widerstandskraft lautet :
+Ty + FA + FG 4- Fw ~ 0 
+(3.77)
+Mit den einzelnen auf das Partikel wirkenden Kräften
+r, 
+TZ 
+UP
+FT =-PP- V P~ 
+(3.78)
+FA =P g -Vp-g 
+(3.79)
+Fa =-pp - Fp-g
+(3.80)
+Blasensteiggeschwindigkeit ubWS in m/s
+Partikelstartgeschwindigkeit in Abhängigkeit der Blasengeschwindigkeit an der
+Wirbelschichtoberfläche. Blasendurchmesser und -geschwindigkeit sind entspre-
+chend der in Kapitel 3.1 vorgestellten Gleichungen berechnet.
+Bild 3.7:
+3.2.3 
+Gasbewegung im Freiraum
+Nach den Blaseneruptionen an der Wirbelschichtoberfläche vermischen sich Suspensions- und
+Blasengas nicht sofort, sondern das aus der zerplatzenden Blase austretende Gas bewegt sich
+zunächst geschlossen weiter. Diese Gasbewegung im Freiraum ist bei zahlreichen Untersu-
+chungen in Versuchsanlagen beobachtet worden, eine Übersicht gibt z. B. Bürkle (1991).
+Zenz und Weil (1958) schlagen vor, die Bewegung des Blasengases im Freiraum in Analogie
+zur Dissipation von Freistrahlen zu beschreiben. George und Grace (1978) und Horio et al.
+(1980) folgen bei der Korrelation ihrer Versuchsergebnisse der Vorstellung von Zenz und
+Weil (1958). Nach Untersuchungen von George und Grace (1978) bilden sich aus zerplatzten
+Blasen unstetige Freistrahlen (jets) aus, die mit zunehmender Höhe dissipieren.
+
+
+===== PAGE 32 TEXT =====
+
+3 Strömungsmechanik
+44
+3 Strömungsmechanik
+45
+( U P 
+Ug )' \( U p 
+u g
+' 
+2
+~ CW ' Pg '
+zurück. Al Taweel et al. (1989) berücksichtigt sowohl den Einfluss der Form, als auch den
+Einfluss von intern im Partikelballen zirkulierendem Gas auf den Widerstandsbeiwert.
+Die Lösung der Partikelbewegungsgleichung (3.82) erfolgt mit dem Ziel, die Aufenthaltszei-
+ten jeder Partikelklasse im Freiraum zu ermitteln, um somit den Feststoffgehalt in den Bilanz-
+raumen berechnen zu können. Bürkle (1991) schlägt zur Lösung der Partikelbewegungsglei-
+chung die numerische Integration mit einem Runge-Kutta-Verfahren vor. Dies fuhrt bei der
+Berechnung der gesamten Feststoffbewegung mit hinreichender Genauigkeit, selbst bei leis-
+tungsfähigen Rechnern, zu unakzeptabel langen Rechenzeiten. Daher wird hier dem Vor-
+schlag von Wirsum (1998) gefolgt, der durch geeignete Wahl der Gleichung für den Wider-
+standsbeiwert die Partikelbewegungsgleichung in eine analytisch lösbare Form überfuhrt. Der
+Ansatz für den Widerstandsbeiwert lautet:
+(3-81)
+Fw
+Die Richtung der Widerstandskraft F& ist von der Relativgeschwindigkeit zwischen Partikel
+und Gas abhängig. Für den Fall, dass sich der Partikel schneller als das den Partikel umgeben-
+de Gas (up > Ug) bewegt oder der Partikel (up < 0) fallt, ist die Widerstandskraft der Trägheits-
+kraft Fr entgegengerichtet. Steigt ein Partikel jedoch auf, wobei er sich langsamer bewegt als
+das ihn umgebende Gas (uP > 0, uP < ug ), wirkt die Widerstandskraft als Schleppkraft. Durch
+Einsetzen der Gleichungen für die Einzelkräfte in die Kräftebilanz folgt die Differentialglei-
+chung für die Partikelbewegung im Freiraum
+dup 
+-3-c,y -Pg-n r | | (pp-Pg)-g
+dt 
+4 * p P ’ d P
+p p
+24
+cir = —
+Re
+(3.85)
+mit
+Dabei ist z der Wert von cw für sehr große Reynolds-Zahlen Re 
+der unter Zuhilfenahme der
+von Haider und Levenspiel (1989) vorgeschlagenen Gleichung (3.84) ermittelt wird.
+z = — 
+[/ +(s,l 716 -e- 4-0655
+)■ Re J0.0964+0. 
+s , 1 75,69
+Re + 5,378 -e6'2122
+(3.83)
+= u p -u g .
+Bei der Berechnung der Partikelflugbahnen wird in der Regel eine kugelförmige Form der
+Partikel vorausgesetzt, da sich für kugelförmige Einzelpartikel der Widerstandsbeiwert c w mit
+hoher Genauigkeit durch Formeln approximieren lässt. In der Literatur vorgestellte Berech-
+nungsgleichungen für den Widerstandsbeiwert im Falle der Einzelkugelumströmung sind in
+Tabelle 3.1 zusammengestellt. Die Berechnung des Widerstandsbeiwertes nicht-kugelför-
+miger Partikel mit den in Tabelle 3.1 aufgeführten Gleichungen stellt jedoch eine Vereinfa-
+chung dar. Martens (1984) schlägt vor, die von der Kugelgestalt abweichende Partikelform bei
+der Berechnung des Widerstandsbeiwertes durch einen Formfaktor zu berücksichtigen. Haider
+und Levenspiel (1989) fassen zahlreiche Untersuchungsergebnisse zum Widerstandsbeiwert
+sowohl kugelförmiger als auch nicht-kugelförmiger Partikel in Abhängigkeit der Partikel-
+Sphärizität zusammen. Die Sphärizität <j)s der Partikel ist definiert als das Verhältnis der Ober-
+fläche einer dem Partikel volumengleichen Kugel bezogen auf die tatsächliche Oberfläche des
+Partikels. Gleichung (3.84) repräsentiert die von Haider und Levenspiel (1989) vorgenomme-
+ne Parameteranpassung experimenteller Ergebnisse über Widerstandskoeffizienten von kugel-
+förmigen Partikeln mit <|>s = 1 bis zu scheibenförmigen Partikeln mit einer Sphärizität von 
+=
+0,026
+mit
+v z
+(3-87)
+Bild 3.8 zeigt den Vergleich der nach Haider und Levenspiel (1989) berechneten Wider-
+standsbeiwerte mit der Approximation durch Gleichung (3.85). Die Berechnung der Bahnkur-
+ven erfolgt im weiteren unter der Annahme einer Verteilung des Partikelformfaktors im Inter-
+vall 0,3 < & < 1,0. Der entsprechende Mittelwert der Sphärizität ist eine Eingabegröße des
+Simulationsprogramms, sind keine Angaben bekannt, wird den Berechnungen eine mittlere
+Sphärizität von </)s = 0,8 zugrundegelegt.
+Tabelle 3.1: 
+Berechnungsgleichungen für den Widerstandsbeiwert 
+eines kugelförmigen
+Einzelpartikels.
+\l + [8 ,1716- e - 4065
+)■ Re (0.0964+0M 
+>y TW-Rejgf 
+*
+Re 1 
+v
+’ 
+J
+Re4-5,378-e6'2' 22
+c w -
+24 
+4
+cnr
+-----h ~T== + 0’4
+Re 
+ÖRe
+Kaskas (1964)
+1 ( [72 
+, 1
+Martin (1984)
+Für die Beschreibung der Bewegung von Partikelgruppen oder -ballen im Freiraum mittels
+Gleichung (3.82) greifen Fung und Hamdullahpur (1993) auf die von Al Taweel et al. (1989)
+veröffentlichte Gleichung zur Berechnung des Widerstandsbeiwertes eines Partikelballens
+
+
+===== PAGE 32 BLOCKS =====
+
+3 Strömungsmechanik
+44
+3 Strömungsmechanik
+45
+( U P 
+Ug )' \( U p 
+u g
+' 
+2
+~ CW ' Pg '
+zurück. Al Taweel et al. (1989) berücksichtigt sowohl den Einfluss der Form, als auch den
+Einfluss von intern im Partikelballen zirkulierendem Gas auf den Widerstandsbeiwert.
+Die Lösung der Partikelbewegungsgleichung (3.82) erfolgt mit dem Ziel, die Aufenthaltszei-
+ten jeder Partikelklasse im Freiraum zu ermitteln, um somit den Feststoffgehalt in den Bilanz-
+raumen berechnen zu können. Bürkle (1991) schlägt zur Lösung der Partikelbewegungsglei-
+chung die numerische Integration mit einem Runge-Kutta-Verfahren vor. Dies fuhrt bei der
+Berechnung der gesamten Feststoffbewegung mit hinreichender Genauigkeit, selbst bei leis-
+tungsfähigen Rechnern, zu unakzeptabel langen Rechenzeiten. Daher wird hier dem Vor-
+schlag von Wirsum (1998) gefolgt, der durch geeignete Wahl der Gleichung für den Wider-
+standsbeiwert die Partikelbewegungsgleichung in eine analytisch lösbare Form überfuhrt. Der
+Ansatz für den Widerstandsbeiwert lautet:
+(3-81)
+Fw
+Die Richtung der Widerstandskraft F& ist von der Relativgeschwindigkeit zwischen Partikel
+und Gas abhängig. Für den Fall, dass sich der Partikel schneller als das den Partikel umgeben-
+de Gas (up > Ug) bewegt oder der Partikel (up < 0) fallt, ist die Widerstandskraft der Trägheits-
+kraft Fr entgegengerichtet. Steigt ein Partikel jedoch auf, wobei er sich langsamer bewegt als
+das ihn umgebende Gas (uP > 0, uP < ug ), wirkt die Widerstandskraft als Schleppkraft. Durch
+Einsetzen der Gleichungen für die Einzelkräfte in die Kräftebilanz folgt die Differentialglei-
+chung für die Partikelbewegung im Freiraum
+dup 
+-3-c,y -Pg-n r | | (pp-Pg)-g
+dt 
+4 * p P ’ d P
+p p
+24
+cir = —
+Re
+(3.85)
+mit
+Dabei ist z der Wert von cw für sehr große Reynolds-Zahlen Re 
+der unter Zuhilfenahme der
+von Haider und Levenspiel (1989) vorgeschlagenen Gleichung (3.84) ermittelt wird.
+z = — 
+[/ +(s,l 716 -e- 4-0655
+)■ Re J0.0964+0. 
+s , 1 75,69
+Re + 5,378 -e6'2122
+(3.83)
+= u p -u g .
+Bei der Berechnung der Partikelflugbahnen wird in der Regel eine kugelförmige Form der
+Partikel vorausgesetzt, da sich für kugelförmige Einzelpartikel der Widerstandsbeiwert c w mit
+hoher Genauigkeit durch Formeln approximieren lässt. In der Literatur vorgestellte Berech-
+nungsgleichungen für den Widerstandsbeiwert im Falle der Einzelkugelumströmung sind in
+Tabelle 3.1 zusammengestellt. Die Berechnung des Widerstandsbeiwertes nicht-kugelför-
+miger Partikel mit den in Tabelle 3.1 aufgeführten Gleichungen stellt jedoch eine Vereinfa-
+chung dar. Martens (1984) schlägt vor, die von der Kugelgestalt abweichende Partikelform bei
+der Berechnung des Widerstandsbeiwertes durch einen Formfaktor zu berücksichtigen. Haider
+und Levenspiel (1989) fassen zahlreiche Untersuchungsergebnisse zum Widerstandsbeiwert
+sowohl kugelförmiger als auch nicht-kugelförmiger Partikel in Abhängigkeit der Partikel-
+Sphärizität zusammen. Die Sphärizität <j)s der Partikel ist definiert als das Verhältnis der Ober-
+fläche einer dem Partikel volumengleichen Kugel bezogen auf die tatsächliche Oberfläche des
+Partikels. Gleichung (3.84) repräsentiert die von Haider und Levenspiel (1989) vorgenomme-
+ne Parameteranpassung experimenteller Ergebnisse über Widerstandskoeffizienten von kugel-
+förmigen Partikeln mit <|>s = 1 bis zu scheibenförmigen Partikeln mit einer Sphärizität von 
+=
+0,026
+mit
+v z
+(3-87)
+Bild 3.8 zeigt den Vergleich der nach Haider und Levenspiel (1989) berechneten Wider-
+standsbeiwerte mit der Approximation durch Gleichung (3.85). Die Berechnung der Bahnkur-
+ven erfolgt im weiteren unter der Annahme einer Verteilung des Partikelformfaktors im Inter-
+vall 0,3 < & < 1,0. Der entsprechende Mittelwert der Sphärizität ist eine Eingabegröße des
+Simulationsprogramms, sind keine Angaben bekannt, wird den Berechnungen eine mittlere
+Sphärizität von </)s = 0,8 zugrundegelegt.
+Tabelle 3.1: 
+Berechnungsgleichungen für den Widerstandsbeiwert 
+eines kugelförmigen
+Einzelpartikels.
+\l + [8 ,1716- e - 4065
+)■ Re (0.0964+0M 
+>y TW-Rejgf 
+*
+Re 1 
+v
+’ 
+J
+Re4-5,378-e6'2' 22
+c w -
+24 
+4
+cnr
+-----h ~T== + 0’4
+Re 
+ÖRe
+Kaskas (1964)
+1 ( [72 
+, 1
+Martin (1984)
+Für die Beschreibung der Bewegung von Partikelgruppen oder -ballen im Freiraum mittels
+Gleichung (3.82) greifen Fung und Hamdullahpur (1993) auf die von Al Taweel et al. (1989)
+veröffentlichte Gleichung zur Berechnung des Widerstandsbeiwertes eines Partikelballens
+
+
+===== PAGE 33 TEXT =====
+
+46
+3 Strömunzsmechanik
+3 Strömungsmechgnik
+47
+ct
+-[l + 0.15-Ren'687 )+ ----------- 
+-------—
+Re V
+’ 
+1+4,25 ■IO4 -Re' 116
+Do et al. (1972)
+„ 
+24 lunmn/t 
+. 
+0 
+1
+0,1806 ' R
+' 
+6880,95
+Re
+Turton u. Levenspiel
+zit. in Haider u. Levenspiel (1989)
+21,5 
+6,5 
+...
+Cuf — -------1— . 
++ 0,23
+Re 
+Re
+Muschelknautz (1988 )
+zit. in Hannes (1996)
+Widerstandsbeiwert
+1fr» 
+|
+------ GL (3.84) nach Haider und Levenspiel (1989)
+------ GL (3.85)
+103
+102
+101
+0,7 r 
+-
+. ------  (|)s = 0,85 E
+10°
+4>s= 1.0 —
+1fr 1 -I-
+1fr 2
+10°
+102
+104
+Reynolds-Zahl
+Bild 3.8: 
+Berechnete Widerstandsbeiwerte cw für Einzelpartikel in Abhängigkeit der Rey-
+nolds-Zahl unter Variation der Partikelsphärizität 
+Berechnungsansätze nach
+Haider und Levenspiel (1989) und nach Gleichung (3.85).
+Mit Gleichung (3.85) lässt sich die Differentialgleichung für die Partikelbewegung (3.82) in
+folgender Form schreiben:
+- 
+= A-uj, + B-u P +C 
+(3.88)
+mit den Koeffizienten
+A =-(+)-■ z — 
+(3.89)
+Pp 'dp
+(3.90)
+p P -dp 
+4 
+pp -dp 
+p P
+Pg
+(3.91)
+Bewegt sich ein Partikel langsamer als das ihn umgebende Gas oder fällt ein Partikel entgegen
+dem Gasstrom, so sind zur Berechnung der Koeffizienten A, B und C die in Klammem ste-
+henden Vorzeichen gültig. Ist die Partikelgeschwindigkeit größer als die Gasgeschwindigkeit
+gelten entsprechend die nicht in Klammem stehenden Vorzeichen. In Abhängigkeit des Aus-
+drucks
+A = 4AC-B 2
+(3.92)
+nimmt die Lösung der Differentialgleichung (3.88) zwei unterschiedliche Formen an
+(Bronstein 1989). Für den
+Fall V.A>0
+ergibt die Integration der Differentialgleichung (3.88) für die Partikelgeschwindigkeit als
+Funktion der Flugzeit
+Up (t) = ~ 
+tan
+(3-93)
+
+
+===== PAGE 33 BLOCKS =====
+
+46
+3 Strömunzsmechanik
+3 Strömungsmechgnik
+47
+ct
+-[l + 0.15-Ren'687 )+ ----------- 
+-------—
+Re V
+’ 
+1+4,25 ■IO4 -Re' 116
+Do et al. (1972)
+„ 
+24 lunmn/t 
+. 
+0 
+1
+0,1806 ' R
+' 
+6880,95
+Re
+Turton u. Levenspiel
+zit. in Haider u. Levenspiel (1989)
+21,5 
+6,5 
+...
+Cuf — -------1— . 
++ 0,23
+Re 
+Re
+Muschelknautz (1988 )
+zit. in Hannes (1996)
+Widerstandsbeiwert
+1fr» 
+|
+------ GL (3.84) nach Haider und Levenspiel (1989)
+------ GL (3.85)
+103
+102
+101
+0,7 r 
+-
+. ------  (|)s = 0,85 E
+10°
+4>s= 1.0 —
+1fr 1 -I-
+1fr 2
+10°
+102
+104
+Reynolds-Zahl
+Bild 3.8: 
+Berechnete Widerstandsbeiwerte cw für Einzelpartikel in Abhängigkeit der Rey-
+nolds-Zahl unter Variation der Partikelsphärizität 
+Berechnungsansätze nach
+Haider und Levenspiel (1989) und nach Gleichung (3.85).
+Mit Gleichung (3.85) lässt sich die Differentialgleichung für die Partikelbewegung (3.82) in
+folgender Form schreiben:
+- 
+= A-uj, + B-u P +C 
+(3.88)
+mit den Koeffizienten
+A =-(+)-■ z — 
+(3.89)
+Pp 'dp
+(3.90)
+p P -dp 
+4 
+pp -dp 
+p P
+Pg
+(3.91)
+Bewegt sich ein Partikel langsamer als das ihn umgebende Gas oder fällt ein Partikel entgegen
+dem Gasstrom, so sind zur Berechnung der Koeffizienten A, B und C die in Klammem ste-
+henden Vorzeichen gültig. Ist die Partikelgeschwindigkeit größer als die Gasgeschwindigkeit
+gelten entsprechend die nicht in Klammem stehenden Vorzeichen. In Abhängigkeit des Aus-
+drucks
+A = 4AC-B 2
+(3.92)
+nimmt die Lösung der Differentialgleichung (3.88) zwei unterschiedliche Formen an
+(Bronstein 1989). Für den
+Fall V.A>0
+ergibt die Integration der Differentialgleichung (3.88) für die Partikelgeschwindigkeit als
+Funktion der Flugzeit
+Up (t) = ~ 
+tan
+(3-93)
+
+
+===== PAGE 34 TEXT =====
+
+3 Strömungsmechanik
+3 Strömungsmechanik
+48_
+49
++ (2-A- u P0 4- B)
+*j~A 
+A —(2’ A'Up 0 + B)
+mit
+(3.99)
+2 
+2Au p Q + B
+CD = -7-— arctan ------—-----
+4Ä 
+i 
+_
+(3-94)
+gegeben. Für die Höhe des Partikels über der Wirbelbettoberfläche als Funktion der Zeit gilt:
+Mit Hilfe der Transformation uP dt = dh liefert die weitere Integration von Gleichung (3.93)
+die Höhe des Partikels über der Wirbelschichtoberfläche als Funktion der Zeit. Es gilt:
+hP(t) = hPfl - 
+ln\y + l\ i ------------ ----------- '(7 (f /«))-$■ 
+(3.100)
+A 
+A
+mit
+Y = exp]p4 Ä-(t-t n yr Ä\ 
+(3.101)
+und
+? = 
+ln\exp[p-4~A+i\ 
+\ 
+(3.102)
+A 
+A
+CD4Ä-~{t-t0 )4A
+— CO A |
+2 
+)
+hp(t)-h  P0 — —In cosl
+A 
+'
++ 
+ros!
+2A V
+A 
+I
+(3.95)
+Der Zusammenhang zwischen Höhe des Partikels und seiner Geschwindigkeit lautet:
+Aup 4- Bup +C
+B
+2Au P 4- B
+Au po + Bupo 4-C
+------=- arctan
+Ay/A
+42
+hp(up) -hp 0
+Die Gleichung der Partikelhöhe über der Wirbelschichtoberfläche in Abhängigkeit der Ge-
+schwindigkeit lautet:
+(3-96)
+2Au P,0
+4Ä
+B
++ — 7= arctan
+AJÄ
+hp(up) = hpo +-l-ln
+2A
+mit
+(3.103)
+(3.104)
+(3.105)
+Um die Bedingung A > 0 zu erfüllen, muss die Geschwindigkeit des Partikels größer sein als
+die Gasgeschwindigkeit und der Partikeldurchmesser muss größer sein als der Partikelgrenz-
+durchmesser. Für den Partikelgrenzdurchmesser gilt:
+108
+Y ~2-A-Up  0 +B
+(3.97)
+0 = 2- A-Up + B
+Innerhalb des Zellenmodells ist es zweckmäßig zunächst die Geschwindigkeit des Partikels an
+den Grenzen des betrachteten Bilanzraumes zu bestimmen, da über die Partikelgeschwindig-
+keit entschieden wird, ob die Lösung der Differentialgleichung für Fall 1 mit A > 0 oder für
+Fall 2 mit A < 0 angewendet werden muss.
+Bewegt sich ein Partikel langsamer als das ihn umgebende Gas, fällt ein Partikel zurück oder
+ist der Partikeldurchmesser kleiner als der Partikelgrenzdurchmesser, nimmt der Faktor A ei-
+nen Wert kleiner Null an. Damit tritt
+Fall 2:A<0
+Die Verwendung des hier vorgestellten, von Wirsum (1998) vorgeschlagenen, analytischen
+Berechnungsverfahrens für die Lösung der Partikelbewegungsgleichung erlaubt eine um den
+Faktor 50 schnellere Berechnung der Partikelflugbahnen als die Lösung durch numerische
+Integration mit Hilfe eines Runge-Kutta-Verfahrens. Durch die dadurch ermöglichte feinere
+Diskretisierung der Partikelgrößen-, Partikelstartgeschwindigkeits- und der Partikelsphärizi-
+tätsklassen lässt sich mit den Modellrechnungen eine bessere Approximation an reale Fest-
+stoffkonzentrationsprofile erreichen.
+ein. Die Geschwindigkeit des Partikels als Funktion der Zeit ist durch
+(3.98)
+2A
+mit
+
+
+===== PAGE 34 BLOCKS =====
+
+3 Strömungsmechanik
+3 Strömungsmechanik
+48_
+49
++ (2-A- u P0 4- B)
+*j~A 
+A —(2’ A'Up 0 + B)
+mit
+(3.99)
+2 
+2Au p Q + B
+CD = -7-— arctan ------—-----
+4Ä 
+i 
+_
+(3-94)
+gegeben. Für die Höhe des Partikels über der Wirbelbettoberfläche als Funktion der Zeit gilt:
+Mit Hilfe der Transformation uP dt = dh liefert die weitere Integration von Gleichung (3.93)
+die Höhe des Partikels über der Wirbelschichtoberfläche als Funktion der Zeit. Es gilt:
+hP(t) = hPfl - 
+ln\y + l\ i ------------ ----------- '(7 (f /«))-$■ 
+(3.100)
+A 
+A
+mit
+Y = exp]p4 Ä-(t-t n yr Ä\ 
+(3.101)
+und
+? = 
+ln\exp[p-4~A+i\ 
+\ 
+(3.102)
+A 
+A
+CD4Ä-~{t-t0 )4A
+— CO A |
+2 
+)
+hp(t)-h  P0 — —In cosl
+A 
+'
++ 
+ros!
+2A V
+A 
+I
+(3.95)
+Der Zusammenhang zwischen Höhe des Partikels und seiner Geschwindigkeit lautet:
+Aup 4- Bup +C
+B
+2Au P 4- B
+Au po + Bupo 4-C
+------=- arctan
+Ay/A
+42
+hp(up) -hp 0
+Die Gleichung der Partikelhöhe über der Wirbelschichtoberfläche in Abhängigkeit der Ge-
+schwindigkeit lautet:
+(3-96)
+2Au P,0
+4Ä
+B
++ — 7= arctan
+AJÄ
+hp(up) = hpo +-l-ln
+2A
+mit
+(3.103)
+(3.104)
+(3.105)
+Um die Bedingung A > 0 zu erfüllen, muss die Geschwindigkeit des Partikels größer sein als
+die Gasgeschwindigkeit und der Partikeldurchmesser muss größer sein als der Partikelgrenz-
+durchmesser. Für den Partikelgrenzdurchmesser gilt:
+108
+Y ~2-A-Up  0 +B
+(3.97)
+0 = 2- A-Up + B
+Innerhalb des Zellenmodells ist es zweckmäßig zunächst die Geschwindigkeit des Partikels an
+den Grenzen des betrachteten Bilanzraumes zu bestimmen, da über die Partikelgeschwindig-
+keit entschieden wird, ob die Lösung der Differentialgleichung für Fall 1 mit A > 0 oder für
+Fall 2 mit A < 0 angewendet werden muss.
+Bewegt sich ein Partikel langsamer als das ihn umgebende Gas, fällt ein Partikel zurück oder
+ist der Partikeldurchmesser kleiner als der Partikelgrenzdurchmesser, nimmt der Faktor A ei-
+nen Wert kleiner Null an. Damit tritt
+Fall 2:A<0
+Die Verwendung des hier vorgestellten, von Wirsum (1998) vorgeschlagenen, analytischen
+Berechnungsverfahrens für die Lösung der Partikelbewegungsgleichung erlaubt eine um den
+Faktor 50 schnellere Berechnung der Partikelflugbahnen als die Lösung durch numerische
+Integration mit Hilfe eines Runge-Kutta-Verfahrens. Durch die dadurch ermöglichte feinere
+Diskretisierung der Partikelgrößen-, Partikelstartgeschwindigkeits- und der Partikelsphärizi-
+tätsklassen lässt sich mit den Modellrechnungen eine bessere Approximation an reale Fest-
+stoffkonzentrationsprofile erreichen.
+ein. Die Geschwindigkeit des Partikels als Funktion der Zeit ist durch
+(3.98)
+2A
+mit
+
+
+===== PAGE 35 TEXT =====
+
+4 Trocknung und Pyrolyse des Brennstoffs
+50
+4 Trocknung und Pyrolyse des Brennstoffs
+51
+bedingungen wie Aufheizrate, Temperatur und Druck abhängig. Die Vielzahl der bei der Py-
+rolyse entstehenden Substanzen wird bei der Modellierung auf eine Anzahl repräsentativer
+Spezies reduziert, wobei gewährleistet sein muss, dass alle im Brennstoff enthaltenen Ele-
+mente mindestens in einer der Modellsubstanzen enthalten sind. Als Berechnungsgrundlagen
+für die Ausbeuten einzelner Substanzen werden sowohl die Elementarbilanz des Brennstoffs
+und seiner Pyrolyseprodukte, als auch experimentelle Ergebnisse und halbempirische Modelle
+zu Ausbeuten bestimmter Produkte herangezogen.
+4.1 
+Modellierung der Trocknung und Pyrolyse
+Um den teilweise zeitgleichen Ablauf von Trocknung und Pyrolyse, des in die Wirbelschicht
+eingebrachten Brennstoffs zu beschreiben, wird das von Agarwal et al. (1986) vorgeschlagene
+Modell verwendet, das auf folgenden Annahmen beruht:
+• 
+Die Partikel sind kugelförmig und behalten ihre Form und Abmessungen während des
+Trocknungs- und Pyrolysevorgangs bei. Schrumpfung, Abrieb oder Fragmentierung
+des Brennstoffpartikels während der Trocknung und Pyrolyse werden nicht berück-
+sichtigt.
+• 
+Feuchtigkeit und flüchtige Bestandteile sind innerhalb des Partikels homogen verteilt.
+• 
+Die Wärmeübertragung an das Partikel und die Wärmeleitung im Innern des Partikels
+sind die geschwindigkeitsbestimmenden Schritte für die Trocknung und die Entga-
+sung. Der Stofftransport läuft schnell ab im Vergleich zur Wärmeübertragung.
+• 
+Die Entgasung wird als thermisch neutral betrachtet.
+• 
+Sekundärreaktionen innerhalb des Partikels zwischen den Pyrolyseprodukten und der
+Feuchtigkeit und den Pyrolyseprodukten werden nicht berücksichtigt.
+• 
+Die Brennstoffpartikel trocknen entlang einer kugelförmigen Trocknungsfront von der
+Partikeloberfläche zur Mitte des Partikels.
+• 
+Der feuchte Partikelkem hat Verdampfungstemperatur.
+• 
+Die Pyrolyse kann durch einen Ansatz nach Anthony und Howard (1976) mit normal-
+verteilten Aktivierungsenergien beschrieben werden.
+Die Berechnung des Trocknungs- und Pyrolysevorgangs erfolgt in zwei Teilschritten. Zu-
+nächst können Trocknung und Pyrolyse gleichzeitig ablaufen, wobei der Durchmesser des
+feuchten Partikelkems mit fortschreitender Trocknung kleiner wird. Die Pyrolyse findet nur in
+der bereits getrockneten äußeren Schale des Partikels statt. Ist die Trocknung des Partikels
+abgeschlossen, findet die weitere Aufheizung und Pyrolyse statt. Bild 4.1 zeigt schematisch
+den Temperaturverlauf eines teilweise getrockneten Brennstoffpartikels.
+4 
+Trocknung und Pyrolyse des Brennstoffs
+Nach dem Eintrag des Brennstoffs in den Reaktor durchläuft dieser vor oder während der
+Verbrennung bzw. Vergasung eine Reihe von Teilprozessen. Diese sind die Trocknung mit
+oder ohne Schrumpfung der Partikel, die Pyrolyse und die Verbrennung bzw. Vergasung der
+flüchtigen und verbleibenden festen Pyrolyseprodukte. Diese Vorgänge laufen im allgemeinen
+in der genannten Reihenfolge ab, wobei allerdings in Abhängigkeit der Betriebsbedingungen
+und der Brennstoffparameter auch eine zeitliche Überlagerung der Teilprozesse stattfinden
+kann, das heißt, dass der nachfolgende Prozess bereits beginnt, obwohl der vorhergehende
+noch nicht abgeschlossen ist. Zur Berechnung der Aufheizung, Trocknung und der Pyrolyse
+des feuchten Brennstoffs wird auf das von Agarwal et al. (1986) vorgeschlagene Modell zu-
+rückgegriffen. Agarwal berechnet den alleinigen Verlauf der Trocknung mit einem “quasista-
+tionären” Modell. Die Berechnung der simultanen Trocknung und Entgasung erfolgt mit ei-
+nem “instationären” Modell. Mit Hilfe des instationären Modells wird innerhalb des bereits
+getrockneten Partikels das Temperaturprofil berechnet, mit welchem wiederum die Freiset-
+zungsrate von Pyrolyseprodukten ermittelt werden kann. Dieses Modell wurde von Fett et al.
+(1994) und Dersch (1994) erfolgreich zur Berechnung der Trocknung und Entgasung von
+feuchten Braunkohlen in zirkulierenden Wirbelschichten eingesetzt. Basierend auf dem insta-
+tionären Trocknungsmodell konnte Wirsum (1998) den Trocknungsverlauf von Klär-
+schlammklumpen in der Wirbelschicht modellieren.
+Der Berechnung der Kinetik der Flüchtigenfreisetzung liegt in dieser Arbeit, analog zu Dersch
+(1994), die Annahme zugrunde, dass die Pyrolyse durch eine große Anzahl von unabhängigen
+parallelen Einzelreaktionen erster Ordnung beschrieben werden kann (Hanbaba et al. 1968,
+Anthony und Howard 1976). Jede Entgasungsreaktion kann durch eine eigene Flüchtigenaus-
+beute und durch eigene reaktionskinetische Parameter, Frequenzfaktor und Aktivierungsener-
+gie charakterisiert werden. Zur mathematischen Beschreibung wird ferner angenommen, dass
+die Zahl der Reaktionen hinreichend groß ist, so dass die Aktivierungsenergie und der Fre-
+quenzfaktor durch eine kontinuierliche Verteilungsfunktion beschrieben werden können. Ver-
+einfachend wird nach Anthony und Howard (1976) fiir alle Reaktionen derselbe Frequenz-
+faktor angenommen, während für die Aktivierungsenergie eine Gaußsche Normalverteilung
+zugrundegelegt wird.
+Neben dem zeitlichen Verlauf der Massenabnahme des Brennstoffpartikels durch die Pyrolyse
+ist für die Modellierung die Zusammensetzung der flüchtigen Bestandteile von großer Be-
+deutung. Durch die während der Pyrolyse ablaufenden Reaktionen und Prozesse werden kom-
+plexe Moleküle in kleinere Moleküle und wasserstoffarme Pyrolyserückstände umgewandelt.
+Eine Übersicht zu experimentellen Daten, kinetischen Parametern und Mechanismen gibt
+z. B. Solomon et al. (1992). Die entstehenden Produktgruppen sind Permanentgase, darunter
+sind Substanzen, die bei Umgebungsbedingungen im gasförmigen Zustand vorliegen, zu ver-
+stehen, Öle und Teere sowie Restkoks. Die relative Ausbeute dieser Produktgruppen und de-
+ren Zusammensetzung ist von der Brennstoffzusammensetzung selbst und von den Pyrolyse-
+
+
+===== PAGE 35 BLOCKS =====
+
+4 Trocknung und Pyrolyse des Brennstoffs
+50
+4 Trocknung und Pyrolyse des Brennstoffs
+51
+bedingungen wie Aufheizrate, Temperatur und Druck abhängig. Die Vielzahl der bei der Py-
+rolyse entstehenden Substanzen wird bei der Modellierung auf eine Anzahl repräsentativer
+Spezies reduziert, wobei gewährleistet sein muss, dass alle im Brennstoff enthaltenen Ele-
+mente mindestens in einer der Modellsubstanzen enthalten sind. Als Berechnungsgrundlagen
+für die Ausbeuten einzelner Substanzen werden sowohl die Elementarbilanz des Brennstoffs
+und seiner Pyrolyseprodukte, als auch experimentelle Ergebnisse und halbempirische Modelle
+zu Ausbeuten bestimmter Produkte herangezogen.
+4.1 
+Modellierung der Trocknung und Pyrolyse
+Um den teilweise zeitgleichen Ablauf von Trocknung und Pyrolyse, des in die Wirbelschicht
+eingebrachten Brennstoffs zu beschreiben, wird das von Agarwal et al. (1986) vorgeschlagene
+Modell verwendet, das auf folgenden Annahmen beruht:
+• 
+Die Partikel sind kugelförmig und behalten ihre Form und Abmessungen während des
+Trocknungs- und Pyrolysevorgangs bei. Schrumpfung, Abrieb oder Fragmentierung
+des Brennstoffpartikels während der Trocknung und Pyrolyse werden nicht berück-
+sichtigt.
+• 
+Feuchtigkeit und flüchtige Bestandteile sind innerhalb des Partikels homogen verteilt.
+• 
+Die Wärmeübertragung an das Partikel und die Wärmeleitung im Innern des Partikels
+sind die geschwindigkeitsbestimmenden Schritte für die Trocknung und die Entga-
+sung. Der Stofftransport läuft schnell ab im Vergleich zur Wärmeübertragung.
+• 
+Die Entgasung wird als thermisch neutral betrachtet.
+• 
+Sekundärreaktionen innerhalb des Partikels zwischen den Pyrolyseprodukten und der
+Feuchtigkeit und den Pyrolyseprodukten werden nicht berücksichtigt.
+• 
+Die Brennstoffpartikel trocknen entlang einer kugelförmigen Trocknungsfront von der
+Partikeloberfläche zur Mitte des Partikels.
+• 
+Der feuchte Partikelkem hat Verdampfungstemperatur.
+• 
+Die Pyrolyse kann durch einen Ansatz nach Anthony und Howard (1976) mit normal-
+verteilten Aktivierungsenergien beschrieben werden.
+Die Berechnung des Trocknungs- und Pyrolysevorgangs erfolgt in zwei Teilschritten. Zu-
+nächst können Trocknung und Pyrolyse gleichzeitig ablaufen, wobei der Durchmesser des
+feuchten Partikelkems mit fortschreitender Trocknung kleiner wird. Die Pyrolyse findet nur in
+der bereits getrockneten äußeren Schale des Partikels statt. Ist die Trocknung des Partikels
+abgeschlossen, findet die weitere Aufheizung und Pyrolyse statt. Bild 4.1 zeigt schematisch
+den Temperaturverlauf eines teilweise getrockneten Brennstoffpartikels.
+4 
+Trocknung und Pyrolyse des Brennstoffs
+Nach dem Eintrag des Brennstoffs in den Reaktor durchläuft dieser vor oder während der
+Verbrennung bzw. Vergasung eine Reihe von Teilprozessen. Diese sind die Trocknung mit
+oder ohne Schrumpfung der Partikel, die Pyrolyse und die Verbrennung bzw. Vergasung der
+flüchtigen und verbleibenden festen Pyrolyseprodukte. Diese Vorgänge laufen im allgemeinen
+in der genannten Reihenfolge ab, wobei allerdings in Abhängigkeit der Betriebsbedingungen
+und der Brennstoffparameter auch eine zeitliche Überlagerung der Teilprozesse stattfinden
+kann, das heißt, dass der nachfolgende Prozess bereits beginnt, obwohl der vorhergehende
+noch nicht abgeschlossen ist. Zur Berechnung der Aufheizung, Trocknung und der Pyrolyse
+des feuchten Brennstoffs wird auf das von Agarwal et al. (1986) vorgeschlagene Modell zu-
+rückgegriffen. Agarwal berechnet den alleinigen Verlauf der Trocknung mit einem “quasista-
+tionären” Modell. Die Berechnung der simultanen Trocknung und Entgasung erfolgt mit ei-
+nem “instationären” Modell. Mit Hilfe des instationären Modells wird innerhalb des bereits
+getrockneten Partikels das Temperaturprofil berechnet, mit welchem wiederum die Freiset-
+zungsrate von Pyrolyseprodukten ermittelt werden kann. Dieses Modell wurde von Fett et al.
+(1994) und Dersch (1994) erfolgreich zur Berechnung der Trocknung und Entgasung von
+feuchten Braunkohlen in zirkulierenden Wirbelschichten eingesetzt. Basierend auf dem insta-
+tionären Trocknungsmodell konnte Wirsum (1998) den Trocknungsverlauf von Klär-
+schlammklumpen in der Wirbelschicht modellieren.
+Der Berechnung der Kinetik der Flüchtigenfreisetzung liegt in dieser Arbeit, analog zu Dersch
+(1994), die Annahme zugrunde, dass die Pyrolyse durch eine große Anzahl von unabhängigen
+parallelen Einzelreaktionen erster Ordnung beschrieben werden kann (Hanbaba et al. 1968,
+Anthony und Howard 1976). Jede Entgasungsreaktion kann durch eine eigene Flüchtigenaus-
+beute und durch eigene reaktionskinetische Parameter, Frequenzfaktor und Aktivierungsener-
+gie charakterisiert werden. Zur mathematischen Beschreibung wird ferner angenommen, dass
+die Zahl der Reaktionen hinreichend groß ist, so dass die Aktivierungsenergie und der Fre-
+quenzfaktor durch eine kontinuierliche Verteilungsfunktion beschrieben werden können. Ver-
+einfachend wird nach Anthony und Howard (1976) fiir alle Reaktionen derselbe Frequenz-
+faktor angenommen, während für die Aktivierungsenergie eine Gaußsche Normalverteilung
+zugrundegelegt wird.
+Neben dem zeitlichen Verlauf der Massenabnahme des Brennstoffpartikels durch die Pyrolyse
+ist für die Modellierung die Zusammensetzung der flüchtigen Bestandteile von großer Be-
+deutung. Durch die während der Pyrolyse ablaufenden Reaktionen und Prozesse werden kom-
+plexe Moleküle in kleinere Moleküle und wasserstoffarme Pyrolyserückstände umgewandelt.
+Eine Übersicht zu experimentellen Daten, kinetischen Parametern und Mechanismen gibt
+z. B. Solomon et al. (1992). Die entstehenden Produktgruppen sind Permanentgase, darunter
+sind Substanzen, die bei Umgebungsbedingungen im gasförmigen Zustand vorliegen, zu ver-
+stehen, Öle und Teere sowie Restkoks. Die relative Ausbeute dieser Produktgruppen und de-
+ren Zusammensetzung ist von der Brennstoffzusammensetzung selbst und von den Pyrolyse-
+
+
+===== PAGE 36 TEXT =====
+
+4 Trocknung und Pyrolyse des Brennsto ffs
+53
+4 Trocknung und Pyrolyse des Brennstoffs
+52_
+dr
+(4-5)
+Mit den Randbedingungen:
+T\r-.Rl) =T s
+und 
+T\ r=r =T e
+(4.6)
+und nach Einführung der dimensionslosen Größen:
+(4-7)
+Bi = a -R() / X s
+,
+(4.8)
+Temperatur T
+WS
+/Partikeloberfläche
+Trocknungsfront
+-feuchter Partikelkern
+Radius r
+kann Gleichung (4.5) integriert werden und liefert die Temperatur in Abhängigkeit von der
+dimensionslosen Position der Verdampfungsfront 
+Unter Berücksichtigung der Randbe-
+dingung (4.3) kann die Gesamttrocknungszeit rs nach dem quasistationären Modell berechnet
+werden. Mit Einführung der dimensionslosen Zeit 0S = t/ rs kann die Position der Verdamp-
+fungsfront bestimmt werden, womit dann die Oberflächentemperatur und der Wärmestrom an
+der Partikeloberfläche zu ermitteln sind.
+Nach Agarwal et al. (1984) ist eine gute Übereinstimmung zwischen Messung und Berech-
+nung der Trocknung von Partikeln zu erzielen. Da die Pyrolyse jedoch stark temperaturabhän-
+gig ist, schlägt Agarwal für die Berechnung der simultanen Trocknung und Pyrolyse ein insta-
+tionäres Modell vor um das Temperaturprofil im Partikel zu ermitteln. Durch Transformation
+der Gleichung (4.1), den aus dem quasistationären Modell bekannten Randbedingungen nach
+Gleichung (4.2) und (4.3) und der Annahme einer quadratischen Funktion für die Temperatur
+im Partikel kann das Temperaturprofil T = f(r,t) berechnet werden.
+Der Wärmeübergang von der Wirbelschicht auf den zu betrachtenden Partikel wird entspre-
+chend dem Vorschlag von Kunii und Levenspiel (1977) berechnet
+Nup = 2 + 1,2-Rell2 -Pr 113
+(4.9)
+Bild 4.1: 
+Schematischer Verlauf der Temperatur in einem teilweise getrockneten Brenn-
+stoffpartikel.
+Grundlage des Trocknungsmodells nach Agarwal et al. (1986) bildet die Fourier’sche Diffe-
+rentialgleichung der eindimensionalen Wärmeleitung mit konstanten Stoffwerten. In Kugel-
+koordinaten für die bereits getrocknete äußere Schale des Partikels gilt:
+-r-=— 
+-5- 
+für 
+re <r<rQ
+(4.1)
+dt 
+r2 dr 
+dr J
+Für die Randbedingung an der Partikeloberfläche gilt:
+A 
+I 
+~a
+fra 
+) = 40) 
+(4.2)
+An der Trocknungsfront liefert eine Energiebilanz:
+r
+h>0lrps 
+(4 -3)
+Die korrigierte Verdampfungsenthalpie 
+setzt sich zusammen aus der Verdampfungs-
+enthalpie des Wassers 
+und der Enthalpie die notwendig ist, um den Feststoff und das Was-
+ser im feuchten Kem des Partikels von der Anfangstemperatur 
+auf die Verdampfungs-
+temperatur Te aufzuheizen:
+Av = Av + 
+’ (f e ~ 0 ) 
+(4.4)
+Um die Oberflächentemperatur und den Wärmestrom an der Partikeloberfläche zu bestimmen,
+die für die Berechnung der Trocknung und Entgasung der Partikel notwendig sind, verwendet
+Agarwal et al. (1984) eine quasistationäre Näherung. Aus Gleichung (4.1) folgt:
+Im Entgasungsmodell nach Anthony und Howard (1976) wird der Massenanteil an Flüchtigen,
+der zur Zeit t noch nicht freigesetzt ist, nach folgender Gleichung bestimmt:
+mv -m v
+mv
+fexp
+0
+(4.10)
+0
+mit
+’' (£-£„)
+/(£)= cr£
+' -exp
+(4.11)
+Da die Temperatur T eine Funktion der Zeit t und des Radius r ist, gilt für den mittleren Ge-
+halt an flüchtigen Bestandteilen des Partikels:
+
+
+===== PAGE 36 BLOCKS =====
+
+4 Trocknung und Pyrolyse des Brennsto ffs
+53
+4 Trocknung und Pyrolyse des Brennstoffs
+52_
+dr
+(4-5)
+Mit den Randbedingungen:
+T\r-.Rl) =T s
+und 
+T\ r=r =T e
+(4.6)
+und nach Einführung der dimensionslosen Größen:
+(4-7)
+Bi = a -R() / X s
+,
+(4.8)
+Temperatur T
+WS
+/Partikeloberfläche
+Trocknungsfront
+-feuchter Partikelkern
+Radius r
+kann Gleichung (4.5) integriert werden und liefert die Temperatur in Abhängigkeit von der
+dimensionslosen Position der Verdampfungsfront 
+Unter Berücksichtigung der Randbe-
+dingung (4.3) kann die Gesamttrocknungszeit rs nach dem quasistationären Modell berechnet
+werden. Mit Einführung der dimensionslosen Zeit 0S = t/ rs kann die Position der Verdamp-
+fungsfront bestimmt werden, womit dann die Oberflächentemperatur und der Wärmestrom an
+der Partikeloberfläche zu ermitteln sind.
+Nach Agarwal et al. (1984) ist eine gute Übereinstimmung zwischen Messung und Berech-
+nung der Trocknung von Partikeln zu erzielen. Da die Pyrolyse jedoch stark temperaturabhän-
+gig ist, schlägt Agarwal für die Berechnung der simultanen Trocknung und Pyrolyse ein insta-
+tionäres Modell vor um das Temperaturprofil im Partikel zu ermitteln. Durch Transformation
+der Gleichung (4.1), den aus dem quasistationären Modell bekannten Randbedingungen nach
+Gleichung (4.2) und (4.3) und der Annahme einer quadratischen Funktion für die Temperatur
+im Partikel kann das Temperaturprofil T = f(r,t) berechnet werden.
+Der Wärmeübergang von der Wirbelschicht auf den zu betrachtenden Partikel wird entspre-
+chend dem Vorschlag von Kunii und Levenspiel (1977) berechnet
+Nup = 2 + 1,2-Rell2 -Pr 113
+(4.9)
+Bild 4.1: 
+Schematischer Verlauf der Temperatur in einem teilweise getrockneten Brenn-
+stoffpartikel.
+Grundlage des Trocknungsmodells nach Agarwal et al. (1986) bildet die Fourier’sche Diffe-
+rentialgleichung der eindimensionalen Wärmeleitung mit konstanten Stoffwerten. In Kugel-
+koordinaten für die bereits getrocknete äußere Schale des Partikels gilt:
+-r-=— 
+-5- 
+für 
+re <r<rQ
+(4.1)
+dt 
+r2 dr 
+dr J
+Für die Randbedingung an der Partikeloberfläche gilt:
+A 
+I 
+~a
+fra 
+) = 40) 
+(4.2)
+An der Trocknungsfront liefert eine Energiebilanz:
+r
+h>0lrps 
+(4 -3)
+Die korrigierte Verdampfungsenthalpie 
+setzt sich zusammen aus der Verdampfungs-
+enthalpie des Wassers 
+und der Enthalpie die notwendig ist, um den Feststoff und das Was-
+ser im feuchten Kem des Partikels von der Anfangstemperatur 
+auf die Verdampfungs-
+temperatur Te aufzuheizen:
+Av = Av + 
+’ (f e ~ 0 ) 
+(4.4)
+Um die Oberflächentemperatur und den Wärmestrom an der Partikeloberfläche zu bestimmen,
+die für die Berechnung der Trocknung und Entgasung der Partikel notwendig sind, verwendet
+Agarwal et al. (1984) eine quasistationäre Näherung. Aus Gleichung (4.1) folgt:
+Im Entgasungsmodell nach Anthony und Howard (1976) wird der Massenanteil an Flüchtigen,
+der zur Zeit t noch nicht freigesetzt ist, nach folgender Gleichung bestimmt:
+mv -m v
+mv
+fexp
+0
+(4.10)
+0
+mit
+’' (£-£„)
+/(£)= cr£
+' -exp
+(4.11)
+Da die Temperatur T eine Funktion der Zeit t und des Radius r ist, gilt für den mittleren Ge-
+halt an flüchtigen Bestandteilen des Partikels:
+
+
+===== PAGE 54 TEXT =====
+
+88
+5 Modellierung der chemischen Reaktionen
+5 Modellierung der chemischen Reaktionen
+89
+Der Einfluss der berechneten Partikeltemperatur aufgrund der Oberflächenreaktion mit Sauer-
+stoff kann innerhalb der hier betrachteten Vergaser als gering eingestuft werden. Simulations-
+ergebnisse deuten daraufhin, dass der Umsatz des Kokses im wesentlichen durch die Verga-
+sungsreaktionen R2 bis R4 bestimmt wird. Bei autothermer Betriebsweise des Vergasers wird
+üblicherweise Sauerstoff entsprechend eines stöchiometrischen Verhältnisses von etwa 0,2 <
+A02 
+0,45, meist zusätzlich in Abhängigkeit der Reaktorhöhe gestuft, zugegeben. Der in ge-
+ringen Mengen zugeführte Sauerstoff wird im wesentlichen durch Oxidation der gasförmigen
+Substanzen verzehrt. Die chemische Reaktionsgeschwindigkeitskonstante wird nach Hobbs et
+al. (1992) berechnet:
+kch.Ri = k n.R! ■ T ■ exp\ - 
+(5.23)
+k 
+K ’ 7
+Für die Kinetik der Verbrennungsreaktion RI gibt Hobbs et al. (1992) folgende Zusammen-
+stellung (Tabelle 5.2) für verschiedene Kohlen an. Im Falle der Rheinischen Braunkohle wer-
+den die kinetischen Parameter der Kohleart Lignite A verwendet. Eine Übersicht reaktionski-
+netischer Daten der Verbrennung für verschiedener Kohlen und Kohlekokse ist z.B. in Hannes
+(1996) zu finden.
+5.1.4 Boudouard-Reaktion
+Mit der Annahme, dass die Elementarreaktionen mit Hilfe eines Sauerstoff-Austauschmodells
+beschrieben werden können, ergibt sich für die Reaktionsgeschwindigkeit des Kohlenstoffs
+mit Kohlendioxid folgende Gleichung (Weeda 1995):
+kg ' P ?O2
+in 1/s
+(5.26)
+Rc 0 —1+ kb - PCO2 + kc • Pco
+Für die Frequenzfaktoren ka bis kc, deren Temperaturabhängigkeit jeweils nach Arrhenius
+beschrieben wird, sind nach den experimentellen Befunden, die mittels linearer Regression
+ermittelt wurden, folgende Werte von Weeda (1995) einzusetzen:
+ka.0 = 2,72 (Pa s)’1
+(5.27)
+kb.o = 8,31- IO’7 Pa'
+(5.28)
+kc.0 = 2,088- 10‘l4 Pa''
+(5-29)
+mit den zugehörigen Aktivierungsenergien
+Ea = 188.000 J/mol
+(5-30)
+Eb = -38.900 J/mol
+(5-31)
+Ec = -24.500 J/mol
+(5.32)
+Die von Weeda (1995) ermittelte Reaktionsgeschwindigkeit ist auf die Anfangsmasse der von
+ihm untersuchten Partikel bezogen. Der Einfluss der Partikelgröße wird vernachlässigt, so
+dass sich für die Reaktionsrate der im Simulationsmodell aktuell zu berechnenden Partikel-
+größenklasse k der Kokssorte j ergibt:
+* 
+m ik
+R C,0 - R C.O
+Mc
+in mol C/s
+(5.33)
+5.1.5 Hydrierende Vergasung
+Für die hydrierende Vergasung
+C + 2H 2
+CH4
+-74,9 kJ/mol C
+ist die Reaktionsgeschwindigkeitskonstante nach Hobbs et al. (1992)
+Ordnungen geringer als für die heterogene Wassergasreaktion.
+R C ~ A C 'k ch,R4 ' 
+H2
+um drei Größen-
+(5-34)
+Tabelle 5.2: Zusammenstellung reaktionskinetischer Parameter der Restkoksverbrennung
+für verschiedene Kohlen nach Hobbs et al. (1992)
+Kohle
+(ASTM-Klassifizierung)
+ko,Ri
+in m/(s K)
+E/Rg
+inK
+HVBA
+1,03
+9.010
+HVBC
+0,5
+6.310
+SUBC
+10,4
+11.200
+Lignite A
+1,22
+10.300
+alle Kohlen
+2,3
+11.100
+5.1.3 Heterogene Wassergasreaktion
+Die Reaktionsrate der heterogenen Wassergasreaktion
+C + H2O —>CO + H2
++131,4 kJ/mol C
+wird nach Hobbs et al. (1992) berechnet durch:
+R C = A C ' k ch,R2 ' C H2O 
+(5.24)
+mit
+k ch,R4= 3 >42 ' 10 ~3 -T‘exp(-1 5.600 /T)
+(535)
+k ch,R2 = 3 -42' T exp(- 15.600 / T) .
+(5.25)
+
+
+===== PAGE 54 BLOCKS =====
+
+88
+5 Modellierung der chemischen Reaktionen
+5 Modellierung der chemischen Reaktionen
+89
+Der Einfluss der berechneten Partikeltemperatur aufgrund der Oberflächenreaktion mit Sauer-
+stoff kann innerhalb der hier betrachteten Vergaser als gering eingestuft werden. Simulations-
+ergebnisse deuten daraufhin, dass der Umsatz des Kokses im wesentlichen durch die Verga-
+sungsreaktionen R2 bis R4 bestimmt wird. Bei autothermer Betriebsweise des Vergasers wird
+üblicherweise Sauerstoff entsprechend eines stöchiometrischen Verhältnisses von etwa 0,2 <
+A02 
+0,45, meist zusätzlich in Abhängigkeit der Reaktorhöhe gestuft, zugegeben. Der in ge-
+ringen Mengen zugeführte Sauerstoff wird im wesentlichen durch Oxidation der gasförmigen
+Substanzen verzehrt. Die chemische Reaktionsgeschwindigkeitskonstante wird nach Hobbs et
+al. (1992) berechnet:
+kch.Ri = k n.R! ■ T ■ exp\ - 
+(5.23)
+k 
+K ’ 7
+Für die Kinetik der Verbrennungsreaktion RI gibt Hobbs et al. (1992) folgende Zusammen-
+stellung (Tabelle 5.2) für verschiedene Kohlen an. Im Falle der Rheinischen Braunkohle wer-
+den die kinetischen Parameter der Kohleart Lignite A verwendet. Eine Übersicht reaktionski-
+netischer Daten der Verbrennung für verschiedener Kohlen und Kohlekokse ist z.B. in Hannes
+(1996) zu finden.
+5.1.4 Boudouard-Reaktion
+Mit der Annahme, dass die Elementarreaktionen mit Hilfe eines Sauerstoff-Austauschmodells
+beschrieben werden können, ergibt sich für die Reaktionsgeschwindigkeit des Kohlenstoffs
+mit Kohlendioxid folgende Gleichung (Weeda 1995):
+kg ' P ?O2
+in 1/s
+(5.26)
+Rc 0 —1+ kb - PCO2 + kc • Pco
+Für die Frequenzfaktoren ka bis kc, deren Temperaturabhängigkeit jeweils nach Arrhenius
+beschrieben wird, sind nach den experimentellen Befunden, die mittels linearer Regression
+ermittelt wurden, folgende Werte von Weeda (1995) einzusetzen:
+ka.0 = 2,72 (Pa s)’1
+(5.27)
+kb.o = 8,31- IO’7 Pa'
+(5.28)
+kc.0 = 2,088- 10‘l4 Pa''
+(5-29)
+mit den zugehörigen Aktivierungsenergien
+Ea = 188.000 J/mol
+(5-30)
+Eb = -38.900 J/mol
+(5-31)
+Ec = -24.500 J/mol
+(5.32)
+Die von Weeda (1995) ermittelte Reaktionsgeschwindigkeit ist auf die Anfangsmasse der von
+ihm untersuchten Partikel bezogen. Der Einfluss der Partikelgröße wird vernachlässigt, so
+dass sich für die Reaktionsrate der im Simulationsmodell aktuell zu berechnenden Partikel-
+größenklasse k der Kokssorte j ergibt:
+* 
+m ik
+R C,0 - R C.O
+Mc
+in mol C/s
+(5.33)
+5.1.5 Hydrierende Vergasung
+Für die hydrierende Vergasung
+C + 2H 2
+CH4
+-74,9 kJ/mol C
+ist die Reaktionsgeschwindigkeitskonstante nach Hobbs et al. (1992)
+Ordnungen geringer als für die heterogene Wassergasreaktion.
+R C ~ A C 'k ch,R4 ' 
+H2
+um drei Größen-
+(5-34)
+Tabelle 5.2: Zusammenstellung reaktionskinetischer Parameter der Restkoksverbrennung
+für verschiedene Kohlen nach Hobbs et al. (1992)
+Kohle
+(ASTM-Klassifizierung)
+ko,Ri
+in m/(s K)
+E/Rg
+inK
+HVBA
+1,03
+9.010
+HVBC
+0,5
+6.310
+SUBC
+10,4
+11.200
+Lignite A
+1,22
+10.300
+alle Kohlen
+2,3
+11.100
+5.1.3 Heterogene Wassergasreaktion
+Die Reaktionsrate der heterogenen Wassergasreaktion
+C + H2O —>CO + H2
++131,4 kJ/mol C
+wird nach Hobbs et al. (1992) berechnet durch:
+R C = A C ' k ch,R2 ' C H2O 
+(5.24)
+mit
+k ch,R4= 3 >42 ' 10 ~3 -T‘exp(-1 5.600 /T)
+(535)
+k ch,R2 = 3 -42' T exp(- 15.600 / T) .
+(5.25)
+
+
+===== PAGE 55 TEXT =====
+
+5 Modellierung der chemischen Reaktionen
+90
+5 Modellierung der chemischen Reaktionen
+91
+5.2 
+Berechnung der homogenen Reaktionen in der Gasphase
+Während die heterogenen Umsatzreaktionen des Kokses per Definition nur in der Suspensi-
+onsphase berücksichtigt werden, können die Gasphasenreaktionen sowohl im Gasraum der
+Suspensionsphase als auch in der Blase auftreten. Untersuchungen zur Verbrennung gasför-
+miger Stoffe in der Wirbelschicht zeigen, dass die Reaktionsraten innerhalb der Suspensions-
+phase stark reduziert werden. Dies wird auf die Adsorption von für den Reaktionsfortschritt
+notwendigen Brennstoffradikalen an der Oberfläche des Wirbelbettmaterials (z.B. Dennis et
+al. 1982) bei gleichzeitig sehr guter Wärmeabfuhr innerhalb der Suspensionsphase zurückge-
+fuhrt (van der Vaart 1988). Im Gegensatz dazu katalysiert der Feststoff die homogene Was-
+sergasreaktion und die Methanreformierung innerhalb der Wirbelschicht, deren rein homoge-
+ne Reaktionsraten dagegen gering sind.
+Tabelle 5.3: Zusammenstellung der im Simulationsmodell verwendeten reaktionskine-
+tischen Parameter der Kohlenmonoxodoxidation
+in |
+ko,R5
+) 
+s
+E/Rg
+inK
+a
+(-)
+ß
+(-)
+Y
+(-)
+Quelle
+Blase
+1,91- 106
+8.056
+1
+0,3
+0,5
+Hottel et al. 1965
+Suspension
+1,8 -T0'5
+-
+1
+0,5
+-
+Hayhurst und Tucker 1990
+5.2.2 Wasserstoff-Oxidation
+Die Oxidation des Wasserstoffs
+H2+I/2O2 -> H2O 
+- 241,9 kJ/mol H2
+wird in Anlehnung an Jensen et al. (1995) folgendermaßen berechnet:
+tZC/y 
+3/
+-~ 
+= kchM -C H\-C O2
+(5.38)
+mit 
+kchM = 1,631 ■ 109 -T 3/2
+-exp{-~ 
+\ 
+(5.39)
+5.2.1 Kohlenmonoxid-Oxidation
+Zur Oxidation des Kohlenmonoxids
+-283 kJ/mol CO
+CO+1/2O2
+-> CO2
+sind zahlreiche kinetische Ansätze bekannt, die zum Teil aus Experimenten in Flammen ge-
+wonnen wurden, in denen sehr viel höhere Temperaturen als in der Wirbelschicht herrschen,
+und daher nicht ohne weiteres auf niedrige Temperaturen übertragen werden dürfen. Weiter-
+hin sind zahlreiche Kinetiken, die durch Anpassungen an Messungen in Wirbelschichtfeue-
+rungsanlagen bestimmt wurden, bekannt, deren Übertragbarkeit ebenfalls im Einzelfall ge-
+prüft werden muss. Hannes (1996) gibt eine Übersicht der in der Modellierung von Wirbel-
+schichtfeuerungsanlagen verwendeten kinetischen Ansätze. In dieser Arbeit findet der Ansatz
+von Hayhurst und Tucker (1990) für die Oxidation innerhalb der Suspensionsphase und der
+Ansatz von Hottei et al. (1965) für die Reaktion in der feststoffreien Blasenphase Verwen-
+dung. Die kinetischen Parameter sind in Tabelle 5.3 aufgeführt. Die Reaktionsrate ist definiert
+durch:
+= 
+(5.36)
+5.2.3 Methan-Oxidation
+Nach dem von de Souza-Santos (1989) verwendeten Ansatz wird die Verbrennung des Me-
+thans
+CH4 + 3/2 O2
+CO + 2 H2O 
+-519,4 kJ/mol CH4
+berechnet:
+dC u
+- 
+= kch.R7 -CCHj -CO2
+(5.40)
+at
+, 
+3.552-1011
+( 15.700} 
+.....
+mit 
+*Cft.R7= ------ -------«Pl -----yr-l 
+(5.41)
+, 
+, 
+E
+*ch.R5 = k 0.R5 ' ex P\ — -
+(5-37)
+mit
+5.2.4 Homogene Wassergasreaktion
+In der Literatur sind für die homogene Wassergasreaktion, Gl. (5.42), widersprüchliche An-
+nahmen über die Vollständigkeit der Gleichgewichtseinstellung in technischen Vergasungsre-
+aktoren zu finden.
+
+
+===== PAGE 55 BLOCKS =====
+
+5 Modellierung der chemischen Reaktionen
+90
+5 Modellierung der chemischen Reaktionen
+91
+5.2 
+Berechnung der homogenen Reaktionen in der Gasphase
+Während die heterogenen Umsatzreaktionen des Kokses per Definition nur in der Suspensi-
+onsphase berücksichtigt werden, können die Gasphasenreaktionen sowohl im Gasraum der
+Suspensionsphase als auch in der Blase auftreten. Untersuchungen zur Verbrennung gasför-
+miger Stoffe in der Wirbelschicht zeigen, dass die Reaktionsraten innerhalb der Suspensions-
+phase stark reduziert werden. Dies wird auf die Adsorption von für den Reaktionsfortschritt
+notwendigen Brennstoffradikalen an der Oberfläche des Wirbelbettmaterials (z.B. Dennis et
+al. 1982) bei gleichzeitig sehr guter Wärmeabfuhr innerhalb der Suspensionsphase zurückge-
+fuhrt (van der Vaart 1988). Im Gegensatz dazu katalysiert der Feststoff die homogene Was-
+sergasreaktion und die Methanreformierung innerhalb der Wirbelschicht, deren rein homoge-
+ne Reaktionsraten dagegen gering sind.
+Tabelle 5.3: Zusammenstellung der im Simulationsmodell verwendeten reaktionskine-
+tischen Parameter der Kohlenmonoxodoxidation
+in |
+ko,R5
+) 
+s
+E/Rg
+inK
+a
+(-)
+ß
+(-)
+Y
+(-)
+Quelle
+Blase
+1,91- 106
+8.056
+1
+0,3
+0,5
+Hottel et al. 1965
+Suspension
+1,8 -T0'5
+-
+1
+0,5
+-
+Hayhurst und Tucker 1990
+5.2.2 Wasserstoff-Oxidation
+Die Oxidation des Wasserstoffs
+H2+I/2O2 -> H2O 
+- 241,9 kJ/mol H2
+wird in Anlehnung an Jensen et al. (1995) folgendermaßen berechnet:
+tZC/y 
+3/
+-~ 
+= kchM -C H\-C O2
+(5.38)
+mit 
+kchM = 1,631 ■ 109 -T 3/2
+-exp{-~ 
+\ 
+(5.39)
+5.2.1 Kohlenmonoxid-Oxidation
+Zur Oxidation des Kohlenmonoxids
+-283 kJ/mol CO
+CO+1/2O2
+-> CO2
+sind zahlreiche kinetische Ansätze bekannt, die zum Teil aus Experimenten in Flammen ge-
+wonnen wurden, in denen sehr viel höhere Temperaturen als in der Wirbelschicht herrschen,
+und daher nicht ohne weiteres auf niedrige Temperaturen übertragen werden dürfen. Weiter-
+hin sind zahlreiche Kinetiken, die durch Anpassungen an Messungen in Wirbelschichtfeue-
+rungsanlagen bestimmt wurden, bekannt, deren Übertragbarkeit ebenfalls im Einzelfall ge-
+prüft werden muss. Hannes (1996) gibt eine Übersicht der in der Modellierung von Wirbel-
+schichtfeuerungsanlagen verwendeten kinetischen Ansätze. In dieser Arbeit findet der Ansatz
+von Hayhurst und Tucker (1990) für die Oxidation innerhalb der Suspensionsphase und der
+Ansatz von Hottei et al. (1965) für die Reaktion in der feststoffreien Blasenphase Verwen-
+dung. Die kinetischen Parameter sind in Tabelle 5.3 aufgeführt. Die Reaktionsrate ist definiert
+durch:
+= 
+(5.36)
+5.2.3 Methan-Oxidation
+Nach dem von de Souza-Santos (1989) verwendeten Ansatz wird die Verbrennung des Me-
+thans
+CH4 + 3/2 O2
+CO + 2 H2O 
+-519,4 kJ/mol CH4
+berechnet:
+dC u
+- 
+= kch.R7 -CCHj -CO2
+(5.40)
+at
+, 
+3.552-1011
+( 15.700} 
+.....
+mit 
+*Cft.R7= ------ -------«Pl -----yr-l 
+(5.41)
+, 
+, 
+E
+*ch.R5 = k 0.R5 ' ex P\ — -
+(5-37)
+mit
+5.2.4 Homogene Wassergasreaktion
+In der Literatur sind für die homogene Wassergasreaktion, Gl. (5.42), widersprüchliche An-
+nahmen über die Vollständigkeit der Gleichgewichtseinstellung in technischen Vergasungsre-
+aktoren zu finden.
+
+
+===== PAGE 56 TEXT =====
+
+5 Modellierung der chemischen Reaktionen
+92
+5 Modellierung der chemischen Reaktionen
+93
+Rhein.
+Braunkohle Torf Holz
+Wirbelschicht
+H
+D
+p
+VM
+A
+■
+•
+Kurkela u. Stahlberg (1992) 3,7 m 0,25 m 4-10 bar Luft/H2O
+—
+□
+— Leppälahti u. Kurkela (1991) 3,6 m 0,16 m
+1 bar
+Luft
+—
+—
+© de Souza - Santos (1994)
+6,15 m 0,45 m 21,7 bar O H.O
+—
+—
+0
+Narvaez et al. (1996)
+k. A.
+0,06 m
+1 bar
+Luft
+CO + H2O 
+H2 + CO2 
+-41,1 kJ/molCO 
+(5.42)
+Einige Autoren nehmen bei der Modellierung von technischen Vergasern die Einstellung des
+chemischen Gleichgewichtes der homogenen Wassergasreaktion an (Rhinehart 1987, Sett
+1988, Sowa 1991, Gockel 1994, Heil et al. 1995). Andere Autoren unterstellen eine unvoll-
+ständige Gleichgewichtseinstellung und benutzen zur Berechnung kinetische Ansätze (Wen
+und Chaung 1979, Govind und Shah 1984, Neogi et al. 1986, Weimer und Clough 1981). Ex-
+perimentelle Untersuchungen zur Vergasung von Kohlen und Biomassen in der Wirbelschicht
+zeigen, dass die Annahme des chemischen Gleichgewichtes unter Wirbelschichtbedingungen
+nur bedingt zulässig ist. Um die Gaszusammensetzung mit der Gleichgewichtslage der homo-
+genen Wassergasreaktion zu vergleichen, ist die Gleichgewichtskonstante Keq für ideales Gas,
+o
+Keq
+0,8
+0,6
+0,4
+—o
+o
+0,2
+0,0 +
+0
+1.050 
+1.100
+1.150 
+1.200 
+1.250
+Gleichgewichts-
+konstante
+Keq und Kexp
+der homogenen
+Wassergasreaktion
+r
+exp - 
+-------
+RT
+(5.43)
+K «,= K P
+im Vergleich zum experimentell ermittelten Verhältnis Kexp
+?CO • ?H 2O
+(5.44)
+in Bild 5.11 dargestellt. Die experimentell ermittelten K -Werte aus den jeweils angegebe-
+nen 
+Freiraumtemperaturen 
+und 
+den 
+Austrittsgaskonzentrationen 
+der 
+Luft-/Wasser-
+dampfvergasung von Braunkohle, Torf und Holz in der Druckwirbelschicht (Kurkela und
+Stahlberg 1992), der atmosphärischen Luftvergasung von Torf (Leppälahti und Kurkela 1991),
+Holz (Narvaez et al. 1996) sowie der Sauerstoff-/Wasserdampfvergasung von Holz (de Souza-
+Santos 1994) zeigen, dass die Gleichgewichtslage in der überwiegenden Zahl der dargestellten
+Fälle nicht erreicht wird. Insbesondere fallt auf, dass die 
+Werte der Torfvergasung ten-
+denziell oberhalb der berechneten Gleichgewichtskonstanten liegen, während im Fall der
+Holzvergasung alle eingetragenen Messpunkte unterhalb der berechneten Gleichgewichtskon-
+stanten liegen. Die Luft-/Wasserdampfvergasung von Rheinischer Braunkohle liefert dagegen
+Werte für Kexp, die deutlich oberhalb der Gleichgewichtslage zu finden sind. Dieses Verhalten
+wird auf die unterschiedliche Pyrolyse von Braunkohlen und Torf und auf deren katalytisch
+aktive Bestandteile im Gegensatz zur Biomasse erklärt (Kurkela und Stahlberg 1992). Schoe-
+ters et al. (1989) stellt bei Experimenten zur Holzvergasung in der Wirbelschicht fest, dass die
+Werte für Kexp ebenfalls deutlich unterhalb der theoretisch berechneten Gleichgewichtskon-
+stante liegen, sich mit zunehmender Temperatur aber dieser annähem.
+Freiraumtemperatur in K
+Bild 5.11: Berechnete Gleichgewichtskonstante der homogenen Wassergasreaktion und aus
+der Vergasung in der Wirbelschicht experimentell ermitteltes Verhältnis Kexp ver-
+schiedener Autoren in Abhängigkeit der Freiraumtemperatur.
+Auf der Basis eigener Untersuchungen zur Reaktion der homogenen Wassergasreaktion in
+Kontakt mit einem Hochtemperatur-Katalysator schlagen Singh und Saraf (1977) zur Berech-
+nung der Reaktionsrate eine Gleichung vor, die den Einfluss von Druck, Temperatur, Schwe-
+felwasserstoffkonzentration und Alter des Katalysators erfasst und die eigenen experimentel-
+len Ergebnisse gut wiedergibt. Das Modell von Singh und Saraf (1977) wurde von zahlreichen
+Autoren, die Reaktoren zur Vergasung von Kohle modellierten, übernommen. Lediglich der
+präexponentielle Faktor der Reaktionskinetik wurde zur Anpassung an eigene Ergebnisse als
+eine die unterschiedliche katalytische Aktivität des jeweiligen Feststoffs beschreibende Größe
+interpretiert (Wen und Chaung 1979, Govind und Shah 1984). Wen und Chaung (1979) geben
+für die homogene Wassergasreaktion die folgende Reaktionsrate in mol CO/(s kgAsche) an:
+
+
+===== PAGE 56 BLOCKS =====
+
+5 Modellierung der chemischen Reaktionen
+92
+5 Modellierung der chemischen Reaktionen
+93
+Rhein.
+Braunkohle Torf Holz
+Wirbelschicht
+H
+D
+p
+VM
+A
+■
+•
+Kurkela u. Stahlberg (1992) 3,7 m 0,25 m 4-10 bar Luft/H2O
+—
+□
+— Leppälahti u. Kurkela (1991) 3,6 m 0,16 m
+1 bar
+Luft
+—
+—
+© de Souza - Santos (1994)
+6,15 m 0,45 m 21,7 bar O H.O
+—
+—
+0
+Narvaez et al. (1996)
+k. A.
+0,06 m
+1 bar
+Luft
+CO + H2O 
+H2 + CO2 
+-41,1 kJ/molCO 
+(5.42)
+Einige Autoren nehmen bei der Modellierung von technischen Vergasern die Einstellung des
+chemischen Gleichgewichtes der homogenen Wassergasreaktion an (Rhinehart 1987, Sett
+1988, Sowa 1991, Gockel 1994, Heil et al. 1995). Andere Autoren unterstellen eine unvoll-
+ständige Gleichgewichtseinstellung und benutzen zur Berechnung kinetische Ansätze (Wen
+und Chaung 1979, Govind und Shah 1984, Neogi et al. 1986, Weimer und Clough 1981). Ex-
+perimentelle Untersuchungen zur Vergasung von Kohlen und Biomassen in der Wirbelschicht
+zeigen, dass die Annahme des chemischen Gleichgewichtes unter Wirbelschichtbedingungen
+nur bedingt zulässig ist. Um die Gaszusammensetzung mit der Gleichgewichtslage der homo-
+genen Wassergasreaktion zu vergleichen, ist die Gleichgewichtskonstante Keq für ideales Gas,
+o
+Keq
+0,8
+0,6
+0,4
+—o
+o
+0,2
+0,0 +
+0
+1.050 
+1.100
+1.150 
+1.200 
+1.250
+Gleichgewichts-
+konstante
+Keq und Kexp
+der homogenen
+Wassergasreaktion
+r
+exp - 
+-------
+RT
+(5.43)
+K «,= K P
+im Vergleich zum experimentell ermittelten Verhältnis Kexp
+?CO • ?H 2O
+(5.44)
+in Bild 5.11 dargestellt. Die experimentell ermittelten K -Werte aus den jeweils angegebe-
+nen 
+Freiraumtemperaturen 
+und 
+den 
+Austrittsgaskonzentrationen 
+der 
+Luft-/Wasser-
+dampfvergasung von Braunkohle, Torf und Holz in der Druckwirbelschicht (Kurkela und
+Stahlberg 1992), der atmosphärischen Luftvergasung von Torf (Leppälahti und Kurkela 1991),
+Holz (Narvaez et al. 1996) sowie der Sauerstoff-/Wasserdampfvergasung von Holz (de Souza-
+Santos 1994) zeigen, dass die Gleichgewichtslage in der überwiegenden Zahl der dargestellten
+Fälle nicht erreicht wird. Insbesondere fallt auf, dass die 
+Werte der Torfvergasung ten-
+denziell oberhalb der berechneten Gleichgewichtskonstanten liegen, während im Fall der
+Holzvergasung alle eingetragenen Messpunkte unterhalb der berechneten Gleichgewichtskon-
+stanten liegen. Die Luft-/Wasserdampfvergasung von Rheinischer Braunkohle liefert dagegen
+Werte für Kexp, die deutlich oberhalb der Gleichgewichtslage zu finden sind. Dieses Verhalten
+wird auf die unterschiedliche Pyrolyse von Braunkohlen und Torf und auf deren katalytisch
+aktive Bestandteile im Gegensatz zur Biomasse erklärt (Kurkela und Stahlberg 1992). Schoe-
+ters et al. (1989) stellt bei Experimenten zur Holzvergasung in der Wirbelschicht fest, dass die
+Werte für Kexp ebenfalls deutlich unterhalb der theoretisch berechneten Gleichgewichtskon-
+stante liegen, sich mit zunehmender Temperatur aber dieser annähem.
+Freiraumtemperatur in K
+Bild 5.11: Berechnete Gleichgewichtskonstante der homogenen Wassergasreaktion und aus
+der Vergasung in der Wirbelschicht experimentell ermitteltes Verhältnis Kexp ver-
+schiedener Autoren in Abhängigkeit der Freiraumtemperatur.
+Auf der Basis eigener Untersuchungen zur Reaktion der homogenen Wassergasreaktion in
+Kontakt mit einem Hochtemperatur-Katalysator schlagen Singh und Saraf (1977) zur Berech-
+nung der Reaktionsrate eine Gleichung vor, die den Einfluss von Druck, Temperatur, Schwe-
+felwasserstoffkonzentration und Alter des Katalysators erfasst und die eigenen experimentel-
+len Ergebnisse gut wiedergibt. Das Modell von Singh und Saraf (1977) wurde von zahlreichen
+Autoren, die Reaktoren zur Vergasung von Kohle modellierten, übernommen. Lediglich der
+präexponentielle Faktor der Reaktionskinetik wurde zur Anpassung an eigene Ergebnisse als
+eine die unterschiedliche katalytische Aktivität des jeweiligen Feststoffs beschreibende Größe
+interpretiert (Wen und Chaung 1979, Govind und Shah 1984). Wen und Chaung (1979) geben
+für die homogene Wassergasreaktion die folgende Reaktionsrate in mol CO/(s kgAsche) an:
+
+
+===== PAGE 57 TEXT =====
+
+5 Modellierung der chemischen Reaktionen
+94
+5 Modellierung der chemischen Reaktionen
+95
+Rpo = a R8 -2,77-108 -(yco
+p ' 
+-exj -8,91+ 5-55
+(5.45)
+mol
+s ’ 
+Asche
+D
+" 137.327
+RCH4 = -6,113-10 
+-exp 
+- 
+-
+l Rg' 1
+* ?CH4
+(5.51)
+Da die Methanreformierung nur durch die katalytische Wirksamkeit des Feststoffs nennens-
+werte Reaktionsgeschwindigkeiten erreicht, wird die Reaktion im Simulationsprogramm nur
+in der feststoffbeladenen Suspensionsphase berücksichtigt.
+Die Korrektur des Kohlenmonoxidanteils in Gleichung (5.45) berücksichtigt die Gleich-
+gewichtslage für diese Reaktion.
+yco 2 ‘ yu 2
+keq,R8 * yn 2O
+(5.46)
+y&q.co
+5.2.6 Umsetzung der Teere
+Unter der Umsetzung der Teere werden hier die Sekundärreaktionen verstanden, denen der
+Teer, der aus der Pyrolyse der Brennstoffpartikel freigesetzt wurde, im Reaktor unterliegt. Der
+Teer, im Modell durch ausgewählte höhere Kohlenwasserstoffe repräsentiert, kann weiterer
+thermischer Zersetzung und Pyrolyse unterliegen oder mit Sauerstoff, Wasserdampf oder
+Kohlendioxid umgesetzt werden. Im Simulationsprogramm werden die Teere, die tatsächlich
+ein Gemisch aus zahlreichen höheren Kohlenwasserstoffen darstellen, durch zwei Substanzen
+repräsentiert. Das Verhältnis der zwei Teerrepräsentanten wird so eingestellt, dass das H/C-
+Verhältnis des Gesamtteers nachgebildet wird. Für den Fall der Vergasung Rheinischer
+Braunkohle wurden die Substanzen Benzol und Naphtalin ausgewählt, da das molare H/C-
+Verhältnis des Teeres mit Hilfe dieser Modellsubstanzen abgebildet werden kann. Im Fall der
+Biomasse wurde neben Naphtalin als zweiter Modellteer anstatt Benzol Hexadekan C16H34
+verwendet. Dies ist notwendig, da beispielsweise beim in Kapitel 6 verwendeten Holz ein
+molares H/C-Verhältnis von etwa 1,364 vorliegt, was durch die Kombination von Naphtalin
+und Benzol nicht nachgebildet werden kann. Im Vergleich dazu hat die im Kapitel 6 beschrie-
+bene Braunkohle ein molares H/C-Verhältnis von 0,856.
+Die zugrundegelegten stöchiometrischen Gleichungen zur Oxidation der genannten Teerreprä-
+keq ,R8 =exp{- 36.893+ 4.019 /T g ) 
+(5.47)
+Als Faktor, der die katalytische Aktivität der Kohlenasche bzw. des Kokses beinhaltet, ver-
+wenden Wen und Chaung für die eigene Simulation eines Flugstrom-Kohlevergasers
+aR8 =0,02. 
+(5.48)
+Chen et al. (1987) untersuchten die katalytische Wirksamkeit von Kohleasche auf die homo-
+gene Wassergasreaktion und die Methanisierung in der Wirbelschicht. Die Reaktionsrate der
+homogenen Wassergasreaktion in einem Wirbelbett aus Asche der Kohle „Ohio Clarion 4A“
+ist etwa eine Größenordnung schneller als in vergleichbaren Experimenten mit einem Wirbel-
+bett aus Sand. Ein weiterer Vergleich seiner eigenen Befunde mit in der Literatur zugängli-
+chen Messungen zur Kinetik der homogenen Wassergasreaktion über einem kommerziellen
+Katalysator zeigen, dass die Reaktion über dem Katalysator um nahezu zwei Größenordnun-
+gen schneller als im Wirbelbett mit Kohleasche abläuft. Zur Korrelation seiner Ergebnisse in
+einem atmosphärischen Wirbelbett aus Kohlenasche schlagen Chen et al. (1987) folgenden
+reaktionskinetischen Ansatz vor. Umgerechnet auf SI-Einheiten ergibt sich:
+n 
+o on m-7 
+90.853 | 
+_ 
+„ 
+PH2 ' PCO2
+. 
+mol 
+...
+Rco -—8,82-10 
+-exp —— 
+‘ 
+CO' PH2O -----7— — 
+in — ------- (5.49)
+Rg'Tg 
+) 
+keq,R8 
+s ' kg Asche
+sentanten mit Sauerstoff (Reaktion RIO) lauten:
+C6H6 + 3O 2
+~ 6CO + 3H 2
+(5.52)
+Cl0H8 + 5 O2
+—>10CO + 4H 2
+(5.53)
+C /6H34 + 8 O2
+16 CO + 17 H2
+(5.54)
+und die zur Umsetzung in Gegenwart von Wasserdampf (Reformierung RI 1) lauten:
+C6H6 + 9/2 H2O 
+-> 9/2 CO + 9/2 H2 + 3/2 CH4
+(5.55)
+C /0H8 + 23/3 H2O 
+23/3 CO + 7 H2 + 7/3 CH4
+(5.56)
+Ci6H34 + 21/2 H2O -> 21/2 CO + 33/2 H2 + 11/2 CH4
+(5.57)
+5.2.5 Methan-Reformierung
+Aus Ergebnissen der kinetischen Untersuchungen zur Methan-Reformierung, Gleichung
+(5.50), in einem Wirbelbett aus Kohleasche (siehe auch Kapitel 5.2.4) stellen Chen et al.
+(1987) fest, dass die Reaktionsgeschwindigkeit der Methan-Reformierung in einem Wirbel-
+bett aus Kohlenasche etwa um zwei Größenordnungen langsamer ist, als über einem kommer-
+ziellen Katalysator, jedoch trotzdem noch etwa eine Größenordnung schneller als in einem
+leeren Reaktor abläuft.
+Zur Modellierung der Oxidation der Teere mit Sauerstoff (RIO) wird folgende globale Reakti-
+onsgleichung angewendet:
+CH4 + H2O 
+CO + 3 H2
++206,3 kJ/mol CH4
+(5.50)
+Chen et al. (1987) schlagen folgende Reaktionskinetik, die in einer atmosphärischen Wirbel-
+schicht in einem Temperaturbereich von 770 °C bis 920 °C, ermittelt wurde, vor:
+
+
+===== PAGE 57 BLOCKS =====
+
+5 Modellierung der chemischen Reaktionen
+94
+5 Modellierung der chemischen Reaktionen
+95
+Rpo = a R8 -2,77-108 -(yco
+p ' 
+-exj -8,91+ 5-55
+(5.45)
+mol
+s ’ 
+Asche
+D
+" 137.327
+RCH4 = -6,113-10 
+-exp 
+- 
+-
+l Rg' 1
+* ?CH4
+(5.51)
+Da die Methanreformierung nur durch die katalytische Wirksamkeit des Feststoffs nennens-
+werte Reaktionsgeschwindigkeiten erreicht, wird die Reaktion im Simulationsprogramm nur
+in der feststoffbeladenen Suspensionsphase berücksichtigt.
+Die Korrektur des Kohlenmonoxidanteils in Gleichung (5.45) berücksichtigt die Gleich-
+gewichtslage für diese Reaktion.
+yco 2 ‘ yu 2
+keq,R8 * yn 2O
+(5.46)
+y&q.co
+5.2.6 Umsetzung der Teere
+Unter der Umsetzung der Teere werden hier die Sekundärreaktionen verstanden, denen der
+Teer, der aus der Pyrolyse der Brennstoffpartikel freigesetzt wurde, im Reaktor unterliegt. Der
+Teer, im Modell durch ausgewählte höhere Kohlenwasserstoffe repräsentiert, kann weiterer
+thermischer Zersetzung und Pyrolyse unterliegen oder mit Sauerstoff, Wasserdampf oder
+Kohlendioxid umgesetzt werden. Im Simulationsprogramm werden die Teere, die tatsächlich
+ein Gemisch aus zahlreichen höheren Kohlenwasserstoffen darstellen, durch zwei Substanzen
+repräsentiert. Das Verhältnis der zwei Teerrepräsentanten wird so eingestellt, dass das H/C-
+Verhältnis des Gesamtteers nachgebildet wird. Für den Fall der Vergasung Rheinischer
+Braunkohle wurden die Substanzen Benzol und Naphtalin ausgewählt, da das molare H/C-
+Verhältnis des Teeres mit Hilfe dieser Modellsubstanzen abgebildet werden kann. Im Fall der
+Biomasse wurde neben Naphtalin als zweiter Modellteer anstatt Benzol Hexadekan C16H34
+verwendet. Dies ist notwendig, da beispielsweise beim in Kapitel 6 verwendeten Holz ein
+molares H/C-Verhältnis von etwa 1,364 vorliegt, was durch die Kombination von Naphtalin
+und Benzol nicht nachgebildet werden kann. Im Vergleich dazu hat die im Kapitel 6 beschrie-
+bene Braunkohle ein molares H/C-Verhältnis von 0,856.
+Die zugrundegelegten stöchiometrischen Gleichungen zur Oxidation der genannten Teerreprä-
+keq ,R8 =exp{- 36.893+ 4.019 /T g ) 
+(5.47)
+Als Faktor, der die katalytische Aktivität der Kohlenasche bzw. des Kokses beinhaltet, ver-
+wenden Wen und Chaung für die eigene Simulation eines Flugstrom-Kohlevergasers
+aR8 =0,02. 
+(5.48)
+Chen et al. (1987) untersuchten die katalytische Wirksamkeit von Kohleasche auf die homo-
+gene Wassergasreaktion und die Methanisierung in der Wirbelschicht. Die Reaktionsrate der
+homogenen Wassergasreaktion in einem Wirbelbett aus Asche der Kohle „Ohio Clarion 4A“
+ist etwa eine Größenordnung schneller als in vergleichbaren Experimenten mit einem Wirbel-
+bett aus Sand. Ein weiterer Vergleich seiner eigenen Befunde mit in der Literatur zugängli-
+chen Messungen zur Kinetik der homogenen Wassergasreaktion über einem kommerziellen
+Katalysator zeigen, dass die Reaktion über dem Katalysator um nahezu zwei Größenordnun-
+gen schneller als im Wirbelbett mit Kohleasche abläuft. Zur Korrelation seiner Ergebnisse in
+einem atmosphärischen Wirbelbett aus Kohlenasche schlagen Chen et al. (1987) folgenden
+reaktionskinetischen Ansatz vor. Umgerechnet auf SI-Einheiten ergibt sich:
+n 
+o on m-7 
+90.853 | 
+_ 
+„ 
+PH2 ' PCO2
+. 
+mol 
+...
+Rco -—8,82-10 
+-exp —— 
+‘ 
+CO' PH2O -----7— — 
+in — ------- (5.49)
+Rg'Tg 
+) 
+keq,R8 
+s ' kg Asche
+sentanten mit Sauerstoff (Reaktion RIO) lauten:
+C6H6 + 3O 2
+~ 6CO + 3H 2
+(5.52)
+Cl0H8 + 5 O2
+—>10CO + 4H 2
+(5.53)
+C /6H34 + 8 O2
+16 CO + 17 H2
+(5.54)
+und die zur Umsetzung in Gegenwart von Wasserdampf (Reformierung RI 1) lauten:
+C6H6 + 9/2 H2O 
+-> 9/2 CO + 9/2 H2 + 3/2 CH4
+(5.55)
+C /0H8 + 23/3 H2O 
+23/3 CO + 7 H2 + 7/3 CH4
+(5.56)
+Ci6H34 + 21/2 H2O -> 21/2 CO + 33/2 H2 + 11/2 CH4
+(5.57)
+5.2.5 Methan-Reformierung
+Aus Ergebnissen der kinetischen Untersuchungen zur Methan-Reformierung, Gleichung
+(5.50), in einem Wirbelbett aus Kohleasche (siehe auch Kapitel 5.2.4) stellen Chen et al.
+(1987) fest, dass die Reaktionsgeschwindigkeit der Methan-Reformierung in einem Wirbel-
+bett aus Kohlenasche etwa um zwei Größenordnungen langsamer ist, als über einem kommer-
+ziellen Katalysator, jedoch trotzdem noch etwa eine Größenordnung schneller als in einem
+leeren Reaktor abläuft.
+Zur Modellierung der Oxidation der Teere mit Sauerstoff (RIO) wird folgende globale Reakti-
+onsgleichung angewendet:
+CH4 + H2O 
+CO + 3 H2
++206,3 kJ/mol CH4
+(5.50)
+Chen et al. (1987) schlagen folgende Reaktionskinetik, die in einer atmosphärischen Wirbel-
+schicht in einem Temperaturbereich von 770 °C bis 920 °C, ermittelt wurde, vor:
+
+
+===== PAGE 58 TEXT =====
+
+5 Modellierung der chemischen Reaktionen
+%
+5 Modellierung der chemischen Reaktionen
+97
+Cm H„ + ™O2 ->m-CO + yH
+2
+(5.58)
+Die Kinetik dieser Reaktion berechnet sich nach Siminski et al. (1972) zitiert in Smoot und
+Smoot und Smith (1985) zu:
+Rc
+= 
+(559)
+mit dem Frequenzfaktor und der Aktivierungsenergie für
+/.5
+Oiefine: 
+k }0 =59,8 -----—----------7~— 
+(5.60)
+mol0 -5 -K-Pa 0J
+s
+E/Rg = 12.200 K
+m 1,5
+Aromaten: 
+k l0 = 20.700 -----—---------- — 
+(5.61)
+mol0,5 ■ K ■ Pa0,3 ■ s
+E/Rg= 9.650 K
+Die Umsetzung des Teeres in Form von Sekundärpyrolyse oder Dampfreformierung wird zu-
+sammenfassend durch die stöchiometrischen Reaktionsgleichungen (5.55) und (5.56) be-
+schrieben. Der Vorgang des thermischen Crackens und der Dampfreformierung von höheren
+Kohlenwasserstoffen wird durch die Gegenwart von Feststoffen katalysiert. Tabelle 5.4 fasst
+die von verschiedenen Autoren ermittelten kinetischen Parameter der homogenen und der
+heterogen katalysierten Sekundärpyrolyse von Teeren aus Kohlen und Biomasse zusammen.
+Alle Parameter beziehen sich dabei auf die Annahme einer Einzelreaktion erster Ordnung. Die
+mit der Annahme einer Einzelreaktion erster Ordnung von Serio et al. (1983, 1987) ermittel-
+ten kinetischen Parameter der Teerpyrolyse erscheinen gering im Vergleich zu Ergebnissen
+von Kohlenwasserstoffen. Ein daraufhin von Serio et al. (1983, 1987) angewendetes 3-
+Komponenten-Modell liefert deutlich höhere Werte für die kinetischen Parameter. Dabei wur-
+de angenommen, dass sich der Teer aus drei Komponenten mit unterschiedlicher Reaktivität
+zusammensetzt, wobei die dritte Komponente unter den Versuchsbedingungen als nicht um-
+setzbar betrachtet wird.
+Wen und Cain (1984) nehmen dagegen zur Korrelation ihrer eigenen Versuchergebnisse eine
+Vielzahl paralleler Reaktionen erster Ordnung an, die mit einer Gauß-Verteilung der Aktivie-
+rungsenergie beschrieben werden können.
+Experimentelle Ergebnisse von Corella et al. (1991) zur Sekundärpyrolyse von Biomassetee-
+ren in einem Wirbelbett aus Sand deuten ebenfalls daraufhin, dass die Teere aus Fraktionen
+unterschiedlicher Reaktivität bestehen. Corella et al. (1991) geben für eine Einzelreaktion
+erster Ordnung als Ergebnis ihrer Messungen schließlich zwei Aktivierungsenergien für unter-
+schiedliche Temperaturintervalle an.
+Da in der Regel keine Informationen über die Zusammensetzung oder zur Reaktivität der Tee-
+re aus den Stoffen, deren Vergasung simuliert werden soll, bekannt sind, wird im Rahmen
+dieser Arbeit zur Abschätzung der Sekundärreaktionen und der Sekundärpyrolyse des Teers
+auf die von Corella et al. (1991) und Serio et al. (1987) ermittelten kinetischen Parameter zu-
+rückgegriffen. Die Ergebnisse von Serio et al. (1987) zur homogenen Teerpyrolyse werden
+dabei für die feststofffreie Blasenphase und die in der Wirbelschicht ermittelten Parameter
+von Corella et al. (1991) in der Suspensionsphase zugrundegelegt.
+Tabelle 5.4: Ergebnisse zur Pyrolyse und katalytischen Umsetzung von Teeren aus der
+Pyrolyse und Vergasung von Kohlen und Biomassen. Die kinetischen
+Parameter gelten jeweils für eine Einzelreakion erster Ordnung.
+Stoff
+Reaktor
+Temp.-
+intervall
+°C
+Frequenz-
+faktor
+1/s
+Aktivierungs-
+energie
+kJ/mol **
+Bettmaterial
+Gas
+Quelle
+Teer aus der
+Pyrolyse von
+Pittsburgh #8
+FB
+550-850
+8,18-IO3
+86,3
+Quarz
+He
+Wen und Cain
+1984
+' Teer aus der
+Pyrolyse von
+Biomasse
+LR
+FB
+FB
+600-800
+- 
+’
+90,0
+77,0
+46,1
+Sand
+Dolomit
+Rohgas/He
+Rohgas/He
+Rohgas/He
+Donnot et al.
+1985
+Teer aus der
+Pyrolyse von
+Pittsburgh #8
+LR
+500-900
+5,42*104
+9,96-102
+100,5
+64,5
+-
+He
+He
+Serio et al.
+1987
+Teer aus der
+Vergasung von
+Biomasse
+WS
+600-740
+740-900
+7,5-10"4
+0,7 **>
+5,9
+63,1
+Sand
+Sand
+Rohgas
+Rohgas
+Corella et al.
+1991
+Teer aus der
+Vergasung
+FB
+550-950
+1,510'°
+252,0
+Dolomit
+Rohgas
+Simell 1996
+WS = Wirbelschicht, FB = Festbett, LR = leerer Reaktor
+** Gültig für eine Reaktion erster Ordnung, bezogen auf das Reaktionsvolumen (R eeo in mol-(s-m’)*1 ).
+Gültig für eine Reaktion erster Ordnung, bezogen auf die Masse des Katalysators ( R_<Tccjj in mol(s-kg Kat)*' )•
+Der Frequenzfaktor hat die Einheit m3-(s kg ut)"’
+
+
+===== PAGE 58 BLOCKS =====
+
+5 Modellierung der chemischen Reaktionen
+%
+5 Modellierung der chemischen Reaktionen
+97
+Cm H„ + ™O2 ->m-CO + yH
+2
+(5.58)
+Die Kinetik dieser Reaktion berechnet sich nach Siminski et al. (1972) zitiert in Smoot und
+Smoot und Smith (1985) zu:
+Rc
+= 
+(559)
+mit dem Frequenzfaktor und der Aktivierungsenergie für
+/.5
+Oiefine: 
+k }0 =59,8 -----—----------7~— 
+(5.60)
+mol0 -5 -K-Pa 0J
+s
+E/Rg = 12.200 K
+m 1,5
+Aromaten: 
+k l0 = 20.700 -----—---------- — 
+(5.61)
+mol0,5 ■ K ■ Pa0,3 ■ s
+E/Rg= 9.650 K
+Die Umsetzung des Teeres in Form von Sekundärpyrolyse oder Dampfreformierung wird zu-
+sammenfassend durch die stöchiometrischen Reaktionsgleichungen (5.55) und (5.56) be-
+schrieben. Der Vorgang des thermischen Crackens und der Dampfreformierung von höheren
+Kohlenwasserstoffen wird durch die Gegenwart von Feststoffen katalysiert. Tabelle 5.4 fasst
+die von verschiedenen Autoren ermittelten kinetischen Parameter der homogenen und der
+heterogen katalysierten Sekundärpyrolyse von Teeren aus Kohlen und Biomasse zusammen.
+Alle Parameter beziehen sich dabei auf die Annahme einer Einzelreaktion erster Ordnung. Die
+mit der Annahme einer Einzelreaktion erster Ordnung von Serio et al. (1983, 1987) ermittel-
+ten kinetischen Parameter der Teerpyrolyse erscheinen gering im Vergleich zu Ergebnissen
+von Kohlenwasserstoffen. Ein daraufhin von Serio et al. (1983, 1987) angewendetes 3-
+Komponenten-Modell liefert deutlich höhere Werte für die kinetischen Parameter. Dabei wur-
+de angenommen, dass sich der Teer aus drei Komponenten mit unterschiedlicher Reaktivität
+zusammensetzt, wobei die dritte Komponente unter den Versuchsbedingungen als nicht um-
+setzbar betrachtet wird.
+Wen und Cain (1984) nehmen dagegen zur Korrelation ihrer eigenen Versuchergebnisse eine
+Vielzahl paralleler Reaktionen erster Ordnung an, die mit einer Gauß-Verteilung der Aktivie-
+rungsenergie beschrieben werden können.
+Experimentelle Ergebnisse von Corella et al. (1991) zur Sekundärpyrolyse von Biomassetee-
+ren in einem Wirbelbett aus Sand deuten ebenfalls daraufhin, dass die Teere aus Fraktionen
+unterschiedlicher Reaktivität bestehen. Corella et al. (1991) geben für eine Einzelreaktion
+erster Ordnung als Ergebnis ihrer Messungen schließlich zwei Aktivierungsenergien für unter-
+schiedliche Temperaturintervalle an.
+Da in der Regel keine Informationen über die Zusammensetzung oder zur Reaktivität der Tee-
+re aus den Stoffen, deren Vergasung simuliert werden soll, bekannt sind, wird im Rahmen
+dieser Arbeit zur Abschätzung der Sekundärreaktionen und der Sekundärpyrolyse des Teers
+auf die von Corella et al. (1991) und Serio et al. (1987) ermittelten kinetischen Parameter zu-
+rückgegriffen. Die Ergebnisse von Serio et al. (1987) zur homogenen Teerpyrolyse werden
+dabei für die feststofffreie Blasenphase und die in der Wirbelschicht ermittelten Parameter
+von Corella et al. (1991) in der Suspensionsphase zugrundegelegt.
+Tabelle 5.4: Ergebnisse zur Pyrolyse und katalytischen Umsetzung von Teeren aus der
+Pyrolyse und Vergasung von Kohlen und Biomassen. Die kinetischen
+Parameter gelten jeweils für eine Einzelreakion erster Ordnung.
+Stoff
+Reaktor
+Temp.-
+intervall
+°C
+Frequenz-
+faktor
+1/s
+Aktivierungs-
+energie
+kJ/mol **
+Bettmaterial
+Gas
+Quelle
+Teer aus der
+Pyrolyse von
+Pittsburgh #8
+FB
+550-850
+8,18-IO3
+86,3
+Quarz
+He
+Wen und Cain
+1984
+' Teer aus der
+Pyrolyse von
+Biomasse
+LR
+FB
+FB
+600-800
+- 
+’
+90,0
+77,0
+46,1
+Sand
+Dolomit
+Rohgas/He
+Rohgas/He
+Rohgas/He
+Donnot et al.
+1985
+Teer aus der
+Pyrolyse von
+Pittsburgh #8
+LR
+500-900
+5,42*104
+9,96-102
+100,5
+64,5
+-
+He
+He
+Serio et al.
+1987
+Teer aus der
+Vergasung von
+Biomasse
+WS
+600-740
+740-900
+7,5-10"4
+0,7 **>
+5,9
+63,1
+Sand
+Sand
+Rohgas
+Rohgas
+Corella et al.
+1991
+Teer aus der
+Vergasung
+FB
+550-950
+1,510'°
+252,0
+Dolomit
+Rohgas
+Simell 1996
+WS = Wirbelschicht, FB = Festbett, LR = leerer Reaktor
+** Gültig für eine Reaktion erster Ordnung, bezogen auf das Reaktionsvolumen (R eeo in mol-(s-m’)*1 ).
+Gültig für eine Reaktion erster Ordnung, bezogen auf die Masse des Katalysators ( R_<Tccjj in mol(s-kg Kat)*' )•
+Der Frequenzfaktor hat die Einheit m3-(s kg ut)"’

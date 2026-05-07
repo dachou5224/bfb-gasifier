@@ -13,16 +13,36 @@ from __future__ import annotations
 
 import numpy as np
 
+from src.core.constants import MMHG_TO_PA, P0
+
 
 # -----------------------------------------------------------------------
-# 物性参数（TODO: 待用户提供或从 feedstock 数据确定）
+# 物性参数（Hamel Tabelle 4.1，Dersch 1994，褐煤干燥颗粒）
 # -----------------------------------------------------------------------
-LAMBDA_W: float = 0.6      # [W/(m·K)] 湿颗粒导热系数（褐煤典型值）
-RHO_W: float = 1200.0      # [kg/m³]   湿颗粒密度
-CP_W: float = 2000.0       # [J/(kg·K)] 湿颗粒比热容
+RHO_W: float = 1250.0      # [kg/m³]   论文表 rho_T
+CP_W: float = 1256.0       # [J/(kg·K)] 论文表 c_T
+LAMBDA_W: float = 0.157    # [W/(m·K)] 由 a=0.1e-6 m²/s = lambda/(rho*c) 反算
 H_EVAP: float = 2.26e6     # [J/kg]    水蒸发潜热（100°C）
 T_EVAP: float = 373.15     # [K]       常压蒸发温度
 C_WATER: float = 4_180.0   # [J/(kg·K)] 液态水比热
+
+
+def saturation_temperature_water(pressure_pa: float) -> float:
+    """水饱和温度 [K]（由压力决定）。
+
+    采用 Antoine 经验式的两段参数，满足 Hamel 口径中“Te 取该压力下沸点，
+    不再额外经验修正”的实现需求。
+    """
+    p = float(np.clip(pressure_pa, 611.0, 22.064e6))
+    # Antoine 公式使用 mmHg、T[°C]
+    p_mmhg = p / MMHG_TO_PA
+    # 低温段/高温段切换（100°C 左右）
+    if p <= P0:
+        a, b, c = 8.07131, 1730.63, 233.426
+    else:
+        a, b, c = 8.14019, 1810.94, 244.485
+    t_c = b / max(a - np.log10(max(p_mmhg, 1e-12)), 1e-12) - c
+    return float(np.clip(t_c + 273.15, 273.15, 647.096))
 
 
 def thermal_diffusivity() -> float:
@@ -87,6 +107,7 @@ def solve_drying_CN(
     mu_g: float = 4.0e-5,
     cp_g: float = 1200.0,
     lambda_g: float = 0.08,
+    pressure_pa: float = P0,
     return_history: bool = False,
 ) -> dict:
     """Crank-Nicolson 求解球形颗粒径向温度场与干燥进度。
@@ -153,13 +174,16 @@ def solve_drying_CN(
     # d(r²·dT/dr)/dr / r² = (1/alpha) dT/dt
     sigma = alpha * dt / (2.0 * dr**2)
 
-    moisture_mass = moisture_wt / 100.0  # 初始质量分数
+    moisture_mass = moisture_wt / 100.0  # 湿基初始质量分数
+    # Hamel Eq. 4.4: w0_tr 为“干基初始含水率”，不是当前湿基含水率。
+    w0_tr = moisture_mass / max(1.0 - moisture_mass, 1e-12)
+    t_evap = saturation_temperature_water(pressure_pa)
     h_evap_corr = corrected_evaporation_enthalpy(
         h_v=H_EVAP,
         c_w=C_WATER,
         c_s=CP_W,
-        w0_tr=moisture_mass,
-        T_e=T_EVAP,
+        w0_tr=w0_tr,
+        T_e=t_evap,
         T0=T_init,
     )
     total_water = moisture_mass * RHO_W * (4.0 / 3.0 * np.pi * R**3)
@@ -208,12 +232,12 @@ def solve_drying_CN(
         # 蒸发处理：当 T > T_evap 时，该节点水分蒸发，温度锁定在 T_evap
         # 按 Eq. 4.3 使用修正蒸发焓 h_v' 计算等效蒸发量
         for i in range(Nr, -1, -1):
-            if T_new[i] >= T_EVAP and r_evap[n] > r[i]:
+            if T_new[i] >= t_evap and r_evap[n] > r[i]:
                 shell_vol = (4.0 / 3.0 * np.pi) * (r_evap[n]**3 - r[i]**3)
-                dE = RHO_W * CP_W * shell_vol * (T_new[i] - T_EVAP)
+                dE = RHO_W * CP_W * shell_vol * (T_new[i] - t_evap)
                 dm_evap = dE / max(h_evap_corr, 1e-12)
                 evaporated += dm_evap
-                T_new[i] = T_EVAP
+                T_new[i] = t_evap
                 if total_water > 0:
                     r_evap[n + 1] = r[i]
 

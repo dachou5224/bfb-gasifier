@@ -1,0 +1,63 @@
+%%{init: {'theme': 'base', 'flowchart': {'htmlLabels': true, 'curve': 'basis'}}}%%
+%% 代码映射：src/workflow/simulation_runner.py::describe_hamel_flowchart_mapping()
+%% 与论文分层对齐的命名空间别名：src/gasifier/workflow、src/gasifier/solvers（重导出；单一实现仍在 src/workflow、src/solvers）
+flowchart TD
+
+Start(["<b>Start Vergasermodell</b><br/>开始 气化炉模型<br/><i>Start: Gasifier Model</i>"])
+
+subgraph CONFIG["📋 Konfiguration · 配置 · Configuration"]
+direction TB
+Read[/"<b>Einlesen · 读入 · Read Input</b><br/>• Allgemeiner Vorgaben für die Simulation<br/>　仿真通用设置 / General simulation settings<br/>　(Ein-/Ausgabedateien · 输入/输出文件 · I/O files,<br/>　 Abbruchkriterium · 终止准则 · stop criterion,<br/>　 Startwert · 初始值 · initial values)<br/>• Anlagendaten (Tab. 3.1) · 设备数据 · Equipment data<br/>• Betriebsdaten (Tab. 3.2) · 操作数据 · Operating data<br/>• Modellvariablen (z.B. Zellenzahl je Anlagensegment)<br/>　模型变量（每段单元格数）/ Model variables (cells per segment)"/]
+Init["<b>Initialisierung · 初始化 · Initialize</b><br/>• Zusammensetzung der zu bilanzierenden Feststoffe und Gase<br/>　待平衡固体和气体的组成 / Composition of solids &amp; gases to balance<br/>• Anzahl der Partikelgrößenklassen aller bilanzierten aktiven Feststoffe<br/>　所有活性固体的粒径级数 / Particle size classes of active solids<br/>• Anzahl der Partikelgrößenklassen des inerten Bettmaterials<br/>　惰性床料的粒径级数 / Particle size classes of inert bed material<br/>• Ermittlung der zu berücksichtigenden chemischen Reaktionen<br/>　需考虑的化学反应 / Chemical reactions to consider<br/>• Bestimmung der Verknüpfung zwischen den Bilanzräumen<br/>　平衡空间的连接关系 / Links between balance domains"]
+InitVal["<b>Belegung der Startwerte · 赋初始值 · Set Initial Values</b><br/>a) Generierung der Startwerte für einen neuen Simulationsfall<br/>　 生成新工况初始值 / Generate start values for new simulation case<br/>b) Verwendung von Ergebnissen vorangegangener Simulationen<br/>　 使用前次仿真结果 / Use results from previous simulations"]
+end
+
+NodeA((" A "))
+
+subgraph PRECALC["⚙️ Vorabrechnung · 预计算 · Pre-calculation"]
+direction TB
+Flow["Strömungsmechanik (s. Kap. 4)<br/>流体力学（见第4章）/ Flow Mechanics (Ch.4)"]
+Pyro["Trocknung und Pyrolyse des Brennstoffs (s. Kap. 5)<br/>燃料干燥与热解（见第5章）/ Drying &amp; Pyrolysis of Fuel (Ch.5)"]
+Inert["Abgleich der Inertmaterialbilanz<br/>惰性物料衡算校验 / Inert Material Balance Check"]
+end
+
+NodeB((" B "))
+
+subgraph CELL["🔬 Zellenmodell · 单元模型 · Cell Model"]
+direction TB
+React["<b>Berechnung der Umsätze aller chemischen Reaktionen (s. Kap. 6)</b><br/>计算所有化学反应转化率（见第6章）<br/><i>Calculate Reaction Conversions for All Reactions (Ch.6)</i>"]
+Heat["Berechnung der Wärmeübertragung<br/>计算传热 / Calculate Heat Transfer"]
+Balance["<b>Formulierung der Bilanzgleichungen aller Zellen</b><br/>建立所有单元的衡算方程组 / Formulate Balance Equations for All Cells<br/>• Stoffstrombilanzen der gasförmigen Substanzen in Blase und Suspension<br/>　气泡与悬浮相气态物质物料衡算 / Gas mass balance in bubble &amp; suspension phase<br/>• Feststoffmassenstrombilanzen aller Feststoffe und Partikelgrößenklassen<br/>　所有固体及粒径级别的固体质量流衡算 / Solid mass flow balance for all solids &amp; size classes<br/>• Energiestrombilanzen<br/>　能量流衡算 / Energy flow balance"]
+NR["Newton-Raphson-Iteration<br/>牛顿-拉夫森迭代 / Newton-Raphson Iteration"]
+Check1{{"Lösung für alle Bilanzgleichungen gefunden?<br/>所有衡算方程是否求解？<br/><i>Solution found for all balance equations?</i>"}}
+Check2{{"Abgleich zwischen Vorabrechnung und Zellenmodell?<br/>预计算与单元模型是否一致？<br/><i>Alignment: pre-calculation vs. cell model?</i>"}}
+Output["Ausgabe der Simulationsergebnisse und aller Anlagen- und Betriebsdaten<br/>输出仿真结果及所有设备与操作数据<br/><i>Output Simulation Results &amp; All Equipment / Operating Data</i>"]
+end
+
+End(["<b>Ende Vergasermodell</b><br/>结束 气化炉模型<br/><i>End: Gasifier Model</i>"])
+
+Start --> Read
+Read --> Init
+Init --> InitVal
+InitVal --> NodeA
+NodeA --> Flow
+Flow --> Pyro
+Pyro --> Inert
+Inert --> NodeB
+NodeB --> React
+React --> Heat
+Heat --> Balance
+Balance --> NR
+NR --> Check1
+Check1 -- "nein 否 No" --> NR
+Check1 -- "ja 是 Yes" --> Check2
+Check2 -- "nein 否 No" --> NodeA
+Check2 -- "ja 是 Yes" --> Output
+Output --> End
+
+style Start fill:#d1fae5,stroke:#059669,color:#064e3b
+style End   fill:#d1fae5,stroke:#059669,color:#064e3b
+style NodeA fill:#fef3c7,stroke:#d97706,color:#78350f,font-weight:bold
+style NodeB fill:#fef3c7,stroke:#d97706,color:#78350f,font-weight:bold
+style Check1 fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+style Check2 fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
