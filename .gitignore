@@ -18,6 +18,10 @@ build/
 .coverage
 htmlcov/
 
+# 本地 benchmark / profile 输出
+data/bench_nr_init_*.json
+data/validation_profile_result_profile.json
+
 # IDE
 .idea/
 .vscode/
