@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import numpy as np
 
-Rg: float = 8.314  # [J/(mol·K)]
+from src.core.constants import Rg
 
 
 def k_hobbs(k0: float, E: float, T: float) -> float:

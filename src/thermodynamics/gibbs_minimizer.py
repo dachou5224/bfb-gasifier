@@ -6,9 +6,11 @@ Hamel 附录 A1（pp. 163–168）/ TechSpec §5.6。
 
 from __future__ import annotations
 
-from typing import Dict, List, Protocol
+from typing import Any, Dict, List, Protocol
 
 import warnings
+
+import numpy as np
 
 from src.core.constants import Rg, P0
 
@@ -40,7 +42,11 @@ class GibbsMinimizer:
         tol: float = 1e-10,
         max_iter: int = 100,
         omega: float = 1.0,
-    ) -> Dict[str, float]:
+        lambda0: np.ndarray | None = None,
+        ln_N0: float | None = None,
+        eta_strategy: str = "feasible_backtracking",
+        return_diag: bool = False,
+    ) -> Dict[str, float] | tuple[Dict[str, float], Dict[str, Any]]:
         """主求解入口。
 
         Parameters
@@ -54,7 +60,13 @@ class GibbsMinimizer:
         candidates : list
             候选气相组分名
         tol, max_iter, omega
-            收敛容差、最大迭代次数、阻尼因子
+            收敛容差、最大迭代次数、初始阻尼因子
+        lambda0, ln_N0
+            可选 warm-start 初值（拉格朗日乘子与 ln(N)）
+        eta_strategy
+            阻尼策略：`feasible_backtracking`（默认）或 `legacy_half`
+        return_diag
+            True 时返回 (result, diagnostics)
 
         Returns
         -------
@@ -72,37 +84,86 @@ class GibbsMinimizer:
         c = mu0 / (Rg * T) + np.log(P / P0)
 
         lam = self._initial_guess(a, b, c, N_E)
+        if lambda0 is not None:
+            lam0 = np.asarray(lambda0, dtype=np.float64).reshape(-1)
+            if lam0.size == N_E and np.all(np.isfinite(lam0)):
+                lam = lam0.copy()
         b_sum = max(float(np.sum(np.abs(b))), 1e-20)
-        ln_N = np.log(b_sum)
+        ln_N = np.log(b_sum) if ln_N0 is None else float(np.clip(ln_N0, -50.0, 50.0))
 
-        for _ in range(max_iter):
+        diag: Dict[str, Any] = {
+            "n_iter": 0,
+            "converged": False,
+            "n_backtracks": 0,
+            "eta_strategy": eta_strategy,
+            "final_residual": np.inf,
+            "lambda": None,
+            "ln_N": None,
+        }
+        omega0 = float(np.clip(omega, 1e-6, 1.0))
+
+        for it in range(max_iter):
+            diag["n_iter"] = int(it + 1)
             n, N = self._calc_moles(lam, ln_N, c, a, N_s)
             if not np.all(np.isfinite(n)) or N <= 0 or not np.isfinite(N):
-                omega *= 0.5
-                if omega < 0.01:
+                omega0 *= 0.5
+                if omega0 < 1e-3:
                     break
                 continue
             f = self._residuals(n, N, a, b, N_E)
-            if np.linalg.norm(f) < tol:
+            fnorm = float(np.linalg.norm(f))
+            diag["final_residual"] = fnorm
+            if fnorm < tol:
+                diag["converged"] = True
                 break
             J = self._jacobian(n, N, a, b, N_E)
             if not np.all(np.isfinite(J)):
-                omega *= 0.5
+                omega0 *= 0.5
                 continue
             try:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
-                    dx = solve(J, -f)
+                    dx = np.linalg.solve(J, -f)
             except np.linalg.LinAlgError:
-                omega *= 0.5
+                omega0 *= 0.5
                 continue
-            lam_new = lam + omega * dx[:N_E]
-            ln_N_new = ln_N + omega * dx[N_E]
-            ln_N_new = np.clip(ln_N_new, -50.0, 50.0)
-            lam, ln_N = lam_new, ln_N_new
+
+            if eta_strategy == "legacy_half":
+                lam_new = lam + omega0 * dx[:N_E]
+                ln_N_new = float(np.clip(ln_N + omega0 * dx[N_E], -50.0, 50.0))
+                lam, ln_N = lam_new, ln_N_new
+                continue
+
+            # Holub/Vonka 风格：在可行域内回溯 eta，确保残差下降。
+            eta = omega0
+            accepted = False
+            for _ in range(12):
+                lam_try = lam + eta * dx[:N_E]
+                ln_N_try = float(np.clip(ln_N + eta * dx[N_E], -50.0, 50.0))
+                n_try, N_try = self._calc_moles(lam_try, ln_N_try, c, a, N_s)
+                if np.all(np.isfinite(n_try)) and np.all(n_try > 0.0) and np.isfinite(N_try) and N_try > 0.0:
+                    f_try = self._residuals(n_try, N_try, a, b, N_E)
+                    fn_try = float(np.linalg.norm(f_try))
+                    if np.isfinite(fn_try) and fn_try <= fnorm * (1.0 - 1e-4 * eta):
+                        lam, ln_N = lam_try, ln_N_try
+                        accepted = True
+                        break
+                eta *= 0.5
+                diag["n_backtracks"] = int(diag["n_backtracks"]) + 1
+                if eta < 1e-6:
+                    break
+            if not accepted:
+                omega0 *= 0.5
+                if omega0 < 1e-3:
+                    break
 
         n_final, _ = self._calc_moles(lam, ln_N, c, a, N_s)
-        return {species: float(n_final[j]) for j, species in enumerate(candidates)}
+        result = {species: float(n_final[j]) for j, species in enumerate(candidates)}
+        diag["lambda"] = np.array(lam, dtype=np.float64)
+        diag["ln_N"] = float(ln_N)
+        if return_diag:
+            return result, diag
+        return result
 
     def _calc_moles(
         self, lam: np.ndarray, ln_N: float, c: np.ndarray, a: np.ndarray, N_s: int

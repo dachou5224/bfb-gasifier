@@ -6,8 +6,9 @@ Source: BFB_TechSpec_v11 §5.2, §5.5
 
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
+import numpy as np
 import src.core.species as species_module
 from src.thermodynamics.gibbs_minimizer import GibbsMinimizer
 
@@ -44,11 +45,22 @@ def solve_sulfur_distribution(
     P: float,
     elements: Dict[str, float],
     candidates: List[str] | None = None,
-) -> Dict[str, float]:
+    lambda0: list[float] | None = None,
+    ln_N0: float | None = None,
+    return_diag: bool = False,
+) -> Dict[str, float] | tuple[Dict[str, float], Dict[str, Any]]:
     """求解硫系微量组分（H2S、SO2、COS）的 Gibbs 平衡分布。"""
     minimizer = _get_minimizer()
     cand = candidates or SULFUR_CANDIDATES
-    return minimizer.solve(T, P, elements, cand)
+    return minimizer.solve(
+        T,
+        P,
+        elements,
+        cand,
+        lambda0=None if lambda0 is None else np.array(lambda0, dtype=float),
+        ln_N0=ln_N0,
+        return_diag=return_diag,
+    )
 
 
 def solve_nitrogen_distribution(
@@ -56,11 +68,22 @@ def solve_nitrogen_distribution(
     P: float,
     elements: Dict[str, float],
     candidates: List[str] | None = None,
-) -> Dict[str, float]:
+    lambda0: list[float] | None = None,
+    ln_N0: float | None = None,
+    return_diag: bool = False,
+) -> Dict[str, float] | tuple[Dict[str, float], Dict[str, Any]]:
     """求解氮系微量组分（NH3、HCN、NO）的 Gibbs 平衡分布。"""
     minimizer = _get_minimizer()
     cand = candidates or NITROGEN_CANDIDATES
-    return minimizer.solve(T, P, elements, cand)
+    return minimizer.solve(
+        T,
+        P,
+        elements,
+        cand,
+        lambda0=None if lambda0 is None else np.array(lambda0, dtype=float),
+        ln_N0=ln_N0,
+        return_diag=return_diag,
+    )
 
 
 def solve_minor_species(
@@ -68,6 +91,17 @@ def solve_minor_species(
     P: float,
     elements: Dict[str, float],
     candidates: List[str],
-) -> Dict[str, float]:
+    lambda0: list[float] | None = None,
+    ln_N0: float | None = None,
+    return_diag: bool = False,
+) -> Dict[str, float] | tuple[Dict[str, float], Dict[str, Any]]:
     """通用微量组分 Gibbs 最小化求解。"""
-    return _get_minimizer().solve(T, P, elements, candidates)
+    return _get_minimizer().solve(
+        T,
+        P,
+        elements,
+        candidates,
+        lambda0=None if lambda0 is None else np.array(lambda0, dtype=float),
+        ln_N0=ln_N0,
+        return_diag=return_diag,
+    )

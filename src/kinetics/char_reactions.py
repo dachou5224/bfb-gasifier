@@ -22,7 +22,7 @@ R1_HAMEL_E_COAL: float = 50_000.0
 R1_HAMEL_K0_BIOMASS: float = 0.6    
 R1_HAMEL_E_BIOMASS: float = 53_000.0
 
-R2_k0: float = 0.15       
+R2_k0: float = 15.0       
 R2_E: float = 129_700.0   
 
 R3_k0: float = 3.42e-5    
@@ -63,8 +63,8 @@ def _k_diff_sphere(D_g: float, d_p: float, Sh: float = 2.0) -> float:
 def rate_R1(T: float, C_O2: float, d_p: float, D_g: float, d_core: float | None = None, fuel: CharFuelForR1 = "coal") -> tuple[float, float]:
     C_O2 = max(C_O2, 0.0); P_O2 = C_O2 * Rg * T
     d_c = d_p if d_core is None else max(min(d_core, d_p), 1e-9)
-    # 强制工程常用值 phi = 1.8 (alpha = 0.55)，偏向 CO 生成
-    phi = 1.8; alpha = 0.55
+    # 使用动态机理因子 phi_c (Hamel 1999)
+    phi = phi_c(d_c, T); alpha = 1.0 / phi
     k0_r1, e_r1 = r1_hamel_kinetic_constants(fuel)
     k_ch = k_hobbs(k0_r1, e_r1, T); RT = Rg * T
     k_d_g_p = _k_diff_sphere(D_g, d_p) / RT; D_d_A_p = D_d_A(D_A_ref, 2.0, d_p, d_c) / RT

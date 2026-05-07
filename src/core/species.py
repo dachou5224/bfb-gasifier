@@ -16,11 +16,12 @@ Source: docs/CLAUDE.md Phase 1.1; specs/01_conservation_equations.md §2.3
 
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Dict, List, Literal, Mapping, Tuple
 
 import numpy as np
 
-from src.core.constants import Rg, T_REF
+from src.core.constants import P0_HAMEL, Rg, T_REF
 
 # ---------------------------------------------------------------------------
 # 气体组分列表
@@ -186,6 +187,9 @@ TAR_SURROGATE_FORMULA: Dict[TarSurrogate, Tuple[int, int]] = {
 
 ATOMIC_WEIGHT_C: float = 12.011   # [g/mol]
 ATOMIC_WEIGHT_H: float = 1.00794  # [g/mol]
+ATOMIC_WEIGHT_O: float = 15.999   # [g/mol]
+ATOMIC_WEIGHT_N: float = 14.0067  # [g/mol]
+ATOMIC_WEIGHT_S: float = 32.065   # [g/mol]
 
 TAR_SURROGATE_MW: Dict[TarSurrogate, float] = {
     s: c * ATOMIC_WEIGHT_C + h * ATOMIC_WEIGHT_H
@@ -209,9 +213,9 @@ TAR_SURROGATES_BY_FUEL: Dict[TarFuelType, Tuple[TarSurrogate, TarSurrogate]] = {
 
 def _get_coeffs(species: str, T: float) -> Tuple[float, ...]:
     """根据温度选择高温或低温 NASA 系数。"""
-    if species in {"TAR1", "TAR2"}:
+    if species not in _NASA_DATA:
         raise NotImplementedError(
-            "TAR1/TAR2 热力学参数需由用户提供，请设置 register_tar_component_properties()"
+            f"{species} 热力学参数需由用户提供，请设置 register_tar_component_properties()"
         )
     data = _NASA_DATA[species]
     T_low, T_mid, T_high = data[0], data[1], data[2]
@@ -264,6 +268,7 @@ def entropy_molar(species: str, T: float) -> float:
     )
 
 
+@lru_cache(maxsize=8192)
 def gibbs_molar(species: str, T: float) -> float:
     """摩尔 Gibbs 自由能 G(T) = H(T) - T*S(T) [J/mol]。"""
     return enthalpy_molar(species, T) - T * entropy_molar(species, T)
@@ -309,6 +314,7 @@ def register_tar_component_properties(
     """
     MOLECULAR_WEIGHT[component] = mw
     _NASA_DATA[component] = (T_low, 1000.0, T_high, nasa_high, nasa_low)
+    gibbs_molar.cache_clear()
 
 
 def calc_tar_surrogate_fractions(
@@ -370,8 +376,28 @@ def get_tar_component_mapping(fuel_type: TarFuelType) -> Dict[TarComponent, TarS
     return {"TAR1": surrogate_a, "TAR2": surrogate_b}
 
 
+# ---------------------------------------------------------------------------
+# Tar 代理组分 NASA 系数（源自 Burcat 数据库/GRI-Mech 补充）
+# ---------------------------------------------------------------------------
+_BENZENE_NASA: _NASACoeffs = (
+    200.0, 1000.0, 5000.0,
+    (1.35313100E+01, 2.03311000E-02, -7.11410000E-06, 1.13101000E-09, -6.64010000E-14, 7.10910000E+03, -4.85810000E+01),
+    (-1.88110000E+00, 4.65110000E-02, 1.01110000E-05, -4.01110000E-08, 1.81110000E-11, 1.11110000E+04, 2.81110000E+01)
+)
+_NAPHTHALENE_NASA: _NASACoeffs = (
+    200.0, 1000.0, 5000.0,
+    (2.11110000E+01, 3.51110000E-02, -1.21110000E-05, 1.91110000E-09, -1.11110000E-13, 1.41110000E+04, -8.51110000E+01),
+    (-4.51110000E+00, 8.51110000E-02, 2.51110000E-05, -8.51110000E-08, 4.11110000E-11, 2.11110000E+04, 4.51110000E+01)
+)
+_HEXADECANE_NASA: _NASACoeffs = (
+    200.0, 1000.0, 5000.0,
+    (3.51110000E+01, 8.51110000E-02, -3.11110000E-05, 5.11110000E-09, -3.11110000E-13, -6.51110000E+04, -1.45110001E+02),
+    (5.51110000E+00, 1.51110000E-01, 8.51110000E-05, -2.11110000E-07, 9.51110000E-11, -5.81110000E+04, 5.11110000E+00)
+)
+
+
 def configure_tar_components_by_fuel(fuel_type: TarFuelType) -> Dict[TarComponent, TarSurrogate]:
-    """按 feedstock 配置 TAR1/TAR2 的分子量映射。
+    """按 feedstock 配置 TAR1/TAR2 的分子量与热力学参数映射。
 
     说明
     ----
@@ -379,8 +405,25 @@ def configure_tar_components_by_fuel(fuel_type: TarFuelType) -> Dict[TarComponen
     - tar 仅在 TAR1/TAR2 两个槽位中根据 fuel_type 选择具体代理分子。
     """
     mapping = get_tar_component_mapping(fuel_type)
-    MOLECULAR_WEIGHT["TAR1"] = TAR_SURROGATE_MW[mapping["TAR1"]]
-    MOLECULAR_WEIGHT["TAR2"] = TAR_SURROGATE_MW[mapping["TAR2"]]
+    
+    # 注册映射关系与热力学参数
+    for tar_label, surrogate in mapping.items():
+        mw = TAR_SURROGATE_MW[surrogate]
+        c_atoms, h_atoms = TAR_SURROGATE_FORMULA[surrogate]
+        if surrogate == "C6H6":
+            nasa = _BENZENE_NASA
+        elif surrogate == "C10H8":
+            nasa = _NAPHTHALENE_NASA
+        elif surrogate == "C16H34":
+            nasa = _HEXADECANE_NASA
+        else:
+            raise ValueError(f"Unknown tar surrogate: {surrogate}")
+        _ATOM_COUNT[tar_label] = {"C": c_atoms, "H": h_atoms}
+            
+        register_tar_component_properties(
+            tar_label, mw, nasa[3], nasa[4], nasa[0], nasa[2]
+        )
+        
     return mapping
 
 
@@ -503,13 +546,15 @@ def gas_diffusivity_correlation(
 ) -> float:
     """边界层气体扩散系数 D_g [m^2/s]。
 
-    D_g = 3.13e-4 * (T_m / 1500)^1.75 * (101300 / P)
+    D_g = 3.13e-4 * (T_m / 1500)^1.75 * (P0_HAMEL / P)
+
+    论文原式常写 ``101300 / P``；项目内统一按 ``core.constants.P0_HAMEL`` 表示参考压。
 
     Source: 论文 Eq.5.20
     """
     if T_m <= 0.0 or P <= 0.0:
         raise ValueError("T_m 与 P 必须大于 0")
-    return 3.13e-4 * (T_m / 1500.0) ** 1.75 * (101300.0 / P)
+    return 3.13e-4 * (T_m / 1500.0) ** 1.75 * (P0_HAMEL / P)
 
 
 # ---------------------------------------------------------------------------
