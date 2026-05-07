@@ -1,6 +1,7 @@
 ---
 name: BFB Gasifier Execution
 overview: 按 CLAUDE.md 定义的 Phase 1-6 严格顺序实现 BFB 一维稳态气化炉模型，每个步骤包含实现、单元验证和集成门控，遇到参数/方程缺口时暂停并提示用户输入。
+numbering_note: 本计划生成时使用的是早期 legacy implementation labels；当前阅读应以 Hamel (1999) thesis 编号为准，映射见 docs/reaction_numbering.md。
 todos:
   - id: phase1-species
     content: "Phase 1.1: 实现 species.py（NASA 多项式 + 标准生成焓），PAUSE-1 等待组分列表确认"
@@ -420,6 +421,5 @@ flowchart TD
     P5_gate --> P6_1["6.1 test_table2_LU 端到端"]
     P6_1 --> P6_2["6.2 app.py Streamlit"]
 ```
-
 
 
