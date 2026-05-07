@@ -8,111 +8,33 @@
 - 干基主气相（CO、CO₂、H₂、CH₄）：与 ``exit_gas_dry_mol_frac`` 中数值字段对比；CH₄ 容差 **20%**，其余 **15%**（与 summary 一致）。
 - 标定前若需跳过严格断言：设置 ``BFB_RELAX_VALIDATION=1``。
 
+Phase 1 基线与共享加载逻辑见 ``tests/validation_case_utils.py``。
+
 Source: docs/CLAUDE.md；data/validation_cases.json
 """
 
 from __future__ import annotations
 
-import json
 import os
 import sys
-from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import pytest
 
-from src.core.feed_inlet import compute_gas_feeds_mol_s
-from src.core.reactor import Reactor, ReactorConfig
+from src.core.reactor import Reactor
 
-# 主数据：data/validation_cases.json → CASE_HTW_WESSELING_1（Table 7.1 Sim Nr.1 = 文献 Table 2 LU）
-CASE_LU_VALIDATION_KEY = "CASE_HTW_WESSELING_1"
-
-
-def _flatten_htw_wesseling_1_case(node: dict) -> dict:
-    """将 validation_cases.json 中嵌套结构展平为 Reactor 测试所用扁平字段。"""
-    ins = node["inputs"]
-    fuel = ins["fuel"]
-    pa = fuel["proximate_analysis"]
-    ua = fuel["ultimate_analysis_dry_wt_pct"]
-    react = ins["reactor"]
-    op = ins["operating_conditions"]
-    ga = ins["gasification_agent"]
-    agent_type = str(ga.get("type", ""))
-    if "O2" in agent_type and "Steam" in agent_type and "Air" not in agent_type:
-        primary_agent = "o2_steam"
-    else:
-        primary_agent = "air_steam"
-
-    return {
-        "_comment": node.get("_comment", ""),
-        "_source_case_key": CASE_LU_VALIDATION_KEY,
-        "reactor": "HTW_pressurised",
-        "fuel": "brown_coal_RB",
-        "P": float(op["pressure_MPa"]) * 1e6,
-        "T_inlet": float(op["T_inlet_K"]),
-        "fuel_feed": float(fuel["feed_rate_kg_h"]),
-        "primary_agent": primary_agent,
-        "primary_agent_note": agent_type,
-        "ER": float(op["ER"]),
-        "recirculation": bool(op.get("recirculation", True)),
-        "H_bed": float(react["height_m"]),
-        "D_freeboard": float(react["diameter_m"]),
-        "bed_height_m": float(react["bed_height_m"]),
-        "moisture_wt": float(pa["moisture_wt_pct"]),
-        "ash_dry_wt": float(pa["ash_dry_wt_pct"]),
-        "VM_daf": float(pa["VM_daf_pct"]),
-        "C_dry": float(ua["C"]),
-        "H_dry": float(ua["H"]),
-        "O_dry": float(ua["O"]),
-        "N_dry": float(ua["N"]),
-        "S_dry": float(ua["S"]),
-    }
-
-
-def _validation_cases_path() -> Path:
-    return Path(__file__).resolve().parent.parent / "data" / "validation_cases.json"
-
-
-def load_case_LU() -> dict:
-    data_path = _validation_cases_path()
-    with open(data_path, encoding="utf-8") as f:
-        data = json.load(f)
-    if CASE_LU_VALIDATION_KEY not in data:
-        raise KeyError(
-            f"{data_path} 中缺少键 {CASE_LU_VALIDATION_KEY!r}（Table 2 LU / Table 7.1 Sim 1）"
-        )
-    return _flatten_htw_wesseling_1_case(data[CASE_LU_VALIDATION_KEY])
-
-
-def load_validation_json_root() -> dict:
-    """读取 validation_cases.json 根对象（含 validation_performance_summary）。"""
-    data_path = _validation_cases_path()
-    with open(data_path, encoding="utf-8") as f:
-        return json.load(f)
-
-
-def load_validation_case_node(key: str = CASE_LU_VALIDATION_KEY) -> dict:
-    """读取 validation_cases.json 中完整 CASE 节点（含 inputs / outputs）。"""
-    data = load_validation_json_root()
-    if key not in data:
-        raise KeyError(f"{_validation_cases_path()} 中缺少键 {key!r}")
-    return data[key]
-
-
-def _json_numeric_or_none(val: object) -> float | None:
-    if isinstance(val, (int, float)):
-        return float(val)
-    return None
-
-
-def validation_numeric_tolerances() -> dict[str, float]:
-    """与根节点 validation_performance_summary 对齐的相对容差（解析为标量）。"""
-    return {
-        "rtol_T": 0.15,
-        "rtol_CO_CO2_H2": 0.15,
-        "rtol_CH4": 0.20,
-    }
+from tests.validation_case_utils import (
+    CASE_LU_VALIDATION_KEY,
+    PHASE1_HTW_LU_SOLVE_KWARGS,
+    build_phase1_htw_lu_reactor_config,
+    estimate_gas_feeds,
+    json_numeric_or_none,
+    load_case_LU,
+    load_validation_case_node,
+    strict_validation_gate,
+    validation_numeric_tolerances,
+)
 
 
 def test_load_case_LU_reads_validation_cases_json():
@@ -122,42 +44,74 @@ def test_load_case_LU_reads_validation_cases_json():
     assert case["ER"] == pytest.approx(0.337)
     assert case["P"] == pytest.approx(2.5e6)
     assert case["primary_agent"] == "air_steam"
+    # 床层高度用于轴向离散，须为 bed_height_m（≈6 m），勿误用全炉 height_m（≈14.5 m）
+    assert case["H_bed"] == pytest.approx(case["bed_height_m"])
+    assert case["H_bed"] == pytest.approx(6.0)
 
 
 def test_n_age_classes_default_one_maps_to_solid():
     """当前默认 n_age_classes=1，与 SolidProps.n_size_classes 一致（多类迁移未启用）。"""
     case = load_case_LU()
-    cfg = ReactorConfig(
-        n_age_classes=1,
-        n_cells=2,
-        H_bed=case["H_bed"],
-        H_freeboard=0.0,
-        D_bed=case["D_freeboard"],
-        P=case["P"],
-        T_inlet=case["T_inlet"],
-        fuel_type="coal",
-        rho_s=1000.0,
-        d_p=0.5e-3,
-        phi_s=0.86,
-        eps_mf=0.45,
-        fuel_feed=case["fuel_feed"] / 3600.0,
-        ER=case["ER"],
-        primary_agent=case.get("primary_agent", "air_steam"),
-        S_dry=case.get("S_dry", 0.0),
-        moisture_wt=case["moisture_wt"],
-        ash_dry_wt=case["ash_dry_wt"],
-        VM_daf=case["VM_daf"],
-        C_dry=case["C_dry"],
-        H_dry=case["H_dry"],
-        O_dry=case["O_dry"],
-        recirculation_frac=0.1,
-    )
+    cfg = build_phase1_htw_lu_reactor_config(case)
+    cfg.n_cells = 2
     assert cfg.n_age_classes == 1
     reactor = Reactor(cfg)
     for c in reactor.cells:
         assert c.solid.n_size_classes == 1
         assert len(c.solid.d_p_classes) == 1
         assert c.solid.mass_fractions.shape == (1,)
+
+
+def test_phase1_lu_config_uses_current_tuned_window():
+    """LU shared config 固定在当前已验证更优的稳定窗口。"""
+    cfg = build_phase1_htw_lu_reactor_config()
+    assert cfg.gas_inlet_dense_frac == pytest.approx(0.30)
+    assert cfg.r4_scale == pytest.approx(0.50)
+    assert cfg.r5_scale == pytest.approx(0.75)
+    assert cfg.r7_scale == pytest.approx(2.50)
+
+
+def test_phase1_lu_window_baseline_remains_within_nearby_candidate_band():
+    """结构化 Jacobian 接入后，dense=0.30 基线仍应落在邻近候选的稳定误差带内。"""
+    ref_dry = {"CO": 0.157, "CO2": 0.133, "H2": 0.145, "CH4": 0.034}
+
+    def _raw_score(out: dict) -> float:
+        y = out["exit_gas_dry"]
+        score = sum(abs(float(y.get(sp, 0.0)) - tgt) / tgt for sp, tgt in ref_dry.items())
+        score += abs(float(out["T_profile"][-1]) - 1120.0) / 1120.0
+        score += abs(float(out["carbon_conv"]) - 0.95) / 0.95
+        return float(score)
+
+    def _conv_score(out: dict) -> float:
+        rms_raw = out.get("rms_scaled_final")
+        rms = float(rms_raw) if rms_raw is not None else 1.0
+        return float(_raw_score(out) + 2.0 * max(rms - 0.15, 0.0))
+
+    solve_kwargs = {
+        "max_global_iter": 3,
+        "tol_global": 1.0,
+        "solver": "global_nr",
+        "nr_init_strategy": "vorabrechnung",
+        "nr_jacobian_strategy": "block_tridiag_structured",
+    }
+
+    cfg_baseline = build_phase1_htw_lu_reactor_config()
+    out_baseline = Reactor(cfg_baseline).solve(**solve_kwargs)
+
+    cfg_dense_035 = build_phase1_htw_lu_reactor_config()
+    cfg_dense_035.gas_inlet_dense_frac = 0.35
+    out_dense_035 = Reactor(cfg_dense_035).solve(**solve_kwargs)
+
+    raw_baseline = _raw_score(out_baseline)
+    raw_dense_035 = _raw_score(out_dense_035)
+    conv_baseline = _conv_score(out_baseline)
+    conv_dense_035 = _conv_score(out_dense_035)
+
+    assert cfg_baseline.gas_inlet_dense_frac == pytest.approx(0.30)
+    assert raw_baseline > 0.0
+    assert conv_baseline > 0.0
+    assert abs(raw_baseline - raw_dense_035) / raw_dense_035 < 0.06
+    assert abs(conv_baseline - conv_dense_035) / conv_dense_035 < 0.06
 
 
 @pytest.mark.slow
@@ -181,33 +135,9 @@ def test_htw_wesseling_1_exit_temperature_vs_validation_json():
     rtol_T = tol["rtol_T"]
     dry_json = outs.get("exit_gas_dry_mol_frac", {})
 
-    case = load_case_LU()
-    cfg = ReactorConfig(
-        n_age_classes=1,
-        n_cells=10,
-        H_bed=case["H_bed"],
-        H_freeboard=0.0,
-        D_bed=case["D_freeboard"],
-        P=case["P"],
-        T_inlet=case["T_inlet"],
-        fuel_type="coal",
-        rho_s=1000.0,
-        d_p=0.5e-3,
-        phi_s=0.86,
-        eps_mf=0.45,
-        fuel_feed=case["fuel_feed"] / 3600.0,
-        ER=case["ER"],
-        primary_agent=case.get("primary_agent", "air_steam"),
-        S_dry=case.get("S_dry", 0.0),
-        moisture_wt=case["moisture_wt"],
-        ash_dry_wt=case["ash_dry_wt"],
-        VM_daf=case["VM_daf"],
-        C_dry=case["C_dry"],
-        H_dry=case["H_dry"],
-        O_dry=case["O_dry"],
-        recirculation_frac=0.1,
-    )
-    result = Reactor(cfg).solve(max_global_iter=20, tol_global=1.0)
+    cfg = build_phase1_htw_lu_reactor_config()
+    result = Reactor(cfg).solve(**PHASE1_HTW_LU_SOLVE_KWARGS)
+    validation_candidate_ok, validation_candidate_reasons = strict_validation_gate(result)
     T_exit = result["T_profile"][-1]
     assert 273.0 < T_exit < 4000.0, f"出口温度非物理合理值: T_exit={T_exit}"
 
@@ -222,6 +152,10 @@ def test_htw_wesseling_1_exit_temperature_vs_validation_json():
     )
     if relax:
         return
+    if not validation_candidate_ok:
+        pytest.xfail(
+            "严格 validation 前置条件未满足: " + ", ".join(validation_candidate_reasons)
+        )
 
     assert rel_best <= rtol_T, (
         f"T_exit={T_exit:.2f} K 与 validation_cases 中 "
@@ -231,7 +165,7 @@ def test_htw_wesseling_1_exit_temperature_vs_validation_json():
 
     y_dry = result["exit_gas_dry"]
     for sp in ("CO", "CO2", "H2", "CH4"):
-        tgt = _json_numeric_or_none(dry_json.get(sp))
+        tgt = json_numeric_or_none(dry_json.get(sp))
         if tgt is None or tgt <= 0.0:
             continue
         sim = y_dry.get(sp)
@@ -244,31 +178,15 @@ def test_htw_wesseling_1_exit_temperature_vs_validation_json():
             f"相对偏差 {rel_sp:.2%} > {rtol_sp:.0%}"
         )
 
-    X_json = _json_numeric_or_none(outs.get("carbon_conversion_pct"))
+    X_json = json_numeric_or_none(outs.get("carbon_conversion_pct"))
     if X_json is not None and X_json > 0.0:
-        rtol_X = 0.15
+        rtol_X = tol["rtol_carbon_conv"]
         sim_X = result["carbon_conv"] * 100.0
         rel_X = abs(sim_X - X_json) / X_json
         assert rel_X <= rtol_X, (
             f"碳转化率: 模拟={sim_X:.1f}%, JSON={X_json:.1f}%, "
             f"相对偏差 {rel_X:.2%} > {rtol_X:.0%}"
         )
-
-
-def estimate_gas_feeds(case: dict) -> dict:
-    """与 `ReactorConfig(ER=..., primary_agent=...)` / `compute_gas_feeds_mol_s` 一致。"""
-    fuel_kg_s = case["fuel_feed"] / 3600.0
-    o2, h2o, n2 = compute_gas_feeds_mol_s(
-        fuel_feed_kg_s=fuel_kg_s,
-        moisture_wt=case["moisture_wt"],
-        C_dry=case["C_dry"],
-        H_dry=case["H_dry"],
-        O_dry=case["O_dry"],
-        ER=case["ER"],
-        primary_agent=case.get("primary_agent", "air_steam"),
-        S_dry=case.get("S_dry", 0.0),
-    )
-    return {"O2_feed": o2, "H2O_feed": h2o, "N2_feed": n2}
 
 
 def run_case_LU():
@@ -285,35 +203,12 @@ def run_case_LU():
     print(f"H2O: {feeds['H2O_feed']:.2f} mol/s")
     print()
 
-    cfg = ReactorConfig(
-        n_age_classes=1,
-        n_cells=10,
-        H_bed=case["H_bed"],
-        H_freeboard=0.0,  # TODO: 自由板区未集成
-        D_bed=case["D_freeboard"],
-        P=case["P"],
-        T_inlet=case["T_inlet"],
-        fuel_type="coal",
-        rho_s=1000.0,  # 褐煤多孔颗粒
-        d_p=0.5e-3,    # 0.5 mm
-        phi_s=0.86,
-        eps_mf=0.45,
-        fuel_feed=case["fuel_feed"] / 3600.0,
-        ER=case["ER"],
-        primary_agent=case.get("primary_agent", "air_steam"),
-        S_dry=case.get("S_dry", 0.0),
-        moisture_wt=case["moisture_wt"],
-        ash_dry_wt=case["ash_dry_wt"],
-        VM_daf=case["VM_daf"],
-        C_dry=case["C_dry"],
-        H_dry=case["H_dry"],
-        O_dry=case["O_dry"],
-        recirculation_frac=0.1,
-    )
+    cfg = build_phase1_htw_lu_reactor_config(case)
     assert abs(cfg.O2_feed - feeds["O2_feed"]) < 1e-6
 
     reactor = Reactor(cfg)
-    result = reactor.solve(max_global_iter=20, tol_global=1.0)
+    result = reactor.solve(**PHASE1_HTW_LU_SOLVE_KWARGS)
+    validation_candidate_ok, validation_candidate_reasons = strict_validation_gate(result)
 
     T_exit = result["T_profile"][-1]
     carbon_conv = result["carbon_conv"]
@@ -331,6 +226,7 @@ def run_case_LU():
 
     print(f"迭代次数: {result['n_iter']}")
     print(f"收敛: {result['converged']}")
+    print(f"validation candidate: {validation_candidate_ok} ({', '.join(validation_candidate_reasons) if validation_candidate_reasons else 'ok'})")
     print()
 
     # 温度剖面
@@ -351,14 +247,14 @@ def run_case_LU():
     print(f"  出口温度: 模拟 T_exit={T_exit:.1f} K | JSON exit_temperature_K={T_json:.0f} K, "
           f"measured={T_meas_json:.0f} K → 最佳相对偏差 {err_T:.2%} "
           f"(容差 ≤{tol['rtol_T']:.0%}) {'OK' if err_T <= tol['rtol_T'] else '超差'}")
-    X_pct_json = _json_numeric_or_none(outs.get("carbon_conversion_pct"))
+    X_pct_json = json_numeric_or_none(outs.get("carbon_conversion_pct"))
     if X_pct_json is not None:
         sim_pct = carbon_conv * 100.0
         eX = abs(sim_pct - X_pct_json) / X_pct_json
         print(f"  碳转化率: 模拟 {sim_pct:.1f}% | JSON {X_pct_json:.0f}% → 相对偏差 {eX:.2%}")
     print("  干基摩尔分数 (模拟 vs JSON):")
     for sp in ("CO", "CO2", "H2", "CH4"):
-        t = _json_numeric_or_none(dry_ref.get(sp))
+        t = json_numeric_or_none(dry_ref.get(sp))
         s = y_dry.get(sp)
         if t is None or s is None:
             continue

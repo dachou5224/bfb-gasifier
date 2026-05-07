@@ -1,0 +1,86 @@
+{
+  "gate_00": {
+    "schema_version": 1,
+    "description": "Phase-0 frozen baseline for staged structural and elemental revisions.",
+    "cell_fixture_name": "standard_cell_audit_fixture_v1",
+    "reactor_fixture_name": "case_htw_wesseling_1_phase1_lu_v1",
+    "cell_snapshot": {
+      "T_K": 1150.0,
+      "P_Pa": 2500000.0,
+      "u0_m_s": 0.4423063988724143,
+      "u_mf_m_s": 0.06292404472376112,
+      "u_b_m_s": 1.0317634373365547,
+      "d_b_m": 0.1114487710005502,
+      "eps_b": 0.3677028477845751,
+      "eps_d": 0.6322971522154248,
+      "K_bd_1_s": 3.4915632962265035,
+      "V_b_m3": 0.10396553087736604,
+      "V_d_m3": 0.17877780794571532,
+      "N_ex_l1": 4.311190775459132,
+      "N_ex_sum": -1.1879386363489175e-14,
+      "N_ex_O2": -0.9438961473764932,
+      "R_gas_b_l1": 4.695883333198053,
+      "R_gas_d_l1": 0.16798093675181175,
+      "R_solid_l1": 0.003142752947950914,
+      "residual_l2": 253387.33708573613,
+      "residual_linf": 253387.33620135015
+    },
+    "reactor_snapshot": {
+      "case_key": "CASE_HTW_WESSELING_1",
+      "solver": "gauss_seidel",
+      "solve_kwargs": {
+        "max_global_iter": 20,
+        "tol_global": 1.0,
+        "solver": "gauss_seidel"
+      },
+      "T_exit_K": 1139.6987533905456,
+      "carbon_conv": 0.9030455479737296,
+      "n_iter": 3,
+      "converged": false,
+      "residual_gs": 295473.5248651095,
+      "rms_scaled_gs": 0.1650961674208641,
+      "runtime_s": 48.471717162000004,
+      "exit_gas_dry": {
+        "CO": 0.19917479782617592,
+        "CO2": 0.08573698984649591,
+        "H2": 0.13326661747533478,
+        "CH4": 0.023513858975964246,
+        "O2": 0.0018422034469123914,
+        "N2": 0.5553276200036366,
+        "H2S": 0.00045909699818523573,
+        "NH3": 0.000678815427295076
+      }
+    },
+    "tolerances": {
+      "cell_relative": {
+        "u0_m_s": 1e-06,
+        "u_mf_m_s": 1e-06,
+        "u_b_m_s": 1e-06,
+        "d_b_m": 1e-06,
+        "eps_b": 1e-06,
+        "eps_d": 1e-06,
+        "K_bd_1_s": 1e-06,
+        "V_b_m3": 1e-06,
+        "V_d_m3": 1e-06,
+        "N_ex_l1": 1e-06,
+        "N_ex_O2": 1e-06,
+        "R_gas_b_l1": 1e-06,
+        "R_gas_d_l1": 1e-06,
+        "R_solid_l1": 1e-06,
+        "residual_l2": 1e-06,
+        "residual_linf": 1e-06
+      },
+      "cell_absolute": {
+        "N_ex_sum": 1e-09
+      },
+      "reactor_relative": {
+        "T_exit_K": 0.002,
+        "carbon_conv": 0.01,
+        "residual_gs": 0.1,
+        "rms_scaled_gs": 0.1,
+        "dry_species": 0.05
+      },
+      "runtime_warn_factor": 2.0
+    }
+  }
+}
