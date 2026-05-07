@@ -96,45 +96,38 @@ def daem_conversion(
     E0: float = E0_DAEM,
     sigma: float = SIGMA_DAEM,
     n_quad: int = 10,
-) -> float:
-    """DAEM 整体挥发分转化率 X_VM [-]。
-
-    X_VM = integral_{-inf}^{+inf} X(E) * f(E) dE
-
-    其中 f(E) = 1/(sigma*sqrt(2*pi)) * exp(-(E-E0)^2/(2*sigma^2))
-    用 Gauss-Hermite 积分：E_j = E0 + sqrt(2)*sigma*xi_j
-
-    Parameters
-    ----------
-    T_history : 温度历史数组 [K]
-    t_history : 时间历史数组 [s]
-    A         : 频率因子 [1/s]
-    E0        : 平均活化能 [J/mol]
-    sigma     : 活化能标准差 [J/mol]
-    n_quad    : Gauss-Hermite 积分阶数
-
-    Returns
-    -------
-    X_VM : 0-1 之间的挥发分释放率
-
-    Source: specs/03_drying_devolatilization.md §2; Anthony & Howard (1976)
-    """
+) -> float | np.ndarray:
+    """DAEM 整体挥发分转化率 X_VM [-]。支持向量化（T_history 为 2D 时）。"""
     xi, wi = _gauss_hermite_nodes(n_quad)
-
-    # hermegauss 返回概率论 Hermite 节点/权重：
-    # ∫ f(x) exp(-x²/2) dx ≈ Σ w_j f(x_j)
-    # 令 E = E0 + sigma*x => f(E) dE = (1/sqrt(2π)) exp(-x²/2) dx
-    X_total = 0.0
+    
+    T_history = np.asarray(T_history)
+    t_history = np.asarray(t_history)
+    
+    # 维度处理：若 T_history 是 1D，扩展为 (1, Nt)
+    is_1d = (T_history.ndim == 1)
+    if is_1d:
+        T_history = T_history[np.newaxis, :]
+    
+    Nr, Nt = T_history.shape
+    X_total = np.zeros(Nr)
+    
     for j in range(n_quad):
         E_j = E0 + sigma * xi[j]
         if E_j < 0:
-            X_j = 1.0
+            X_j = np.ones(Nr)
         else:
-            X_j = _single_reaction_conversion(T_history, t_history, E_j, A)
+            # 向量化计算 k(t)
+            # k = A * exp(-E_j / (Rg * T_history))
+            k = k_standard(A, E_j, T_history) # shape (Nr, Nt)
+            # 梯形积分
+            integral = np.trapz(k, t_history, axis=1) # shape (Nr,)
+            X_j = 1.0 - np.exp(np.clip(-integral, -200.0, 0.0))
+        
         X_total += wi[j] * X_j
 
     X_total /= np.sqrt(2.0 * np.pi)
-    return float(np.clip(X_total, 0.0, 1.0))
+    res = np.clip(X_total, 0.0, 1.0)
+    return float(res[0]) if is_1d else res
 
 
 def daem_conversion_radial(
@@ -146,41 +139,14 @@ def daem_conversion_radial(
     sigma: float = SIGMA_DAEM,
     n_quad: int = 10,
 ) -> float:
-    """带径向体积分的 DAEM 挥发分释放率（Eq. 4.12）。
-
-    Parameters
-    ----------
-    T_history_rt : shape=(Nr, Nt) 的温度历史矩阵 [K]
-    t_history    : 时间数组 [s]，长度 Nt
-    r_nodes      : 半径节点 [m]，长度 Nr
-    """
+    """带径向体积分的 DAEM 挥发分释放率（Eq. 4.12）。向量化版本。"""
     T_history_rt = np.asarray(T_history_rt, dtype=float)
     t_history = np.asarray(t_history, dtype=float)
     r_nodes = np.asarray(r_nodes, dtype=float)
 
-    if T_history_rt.ndim != 2:
-        raise ValueError("T_history_rt 必须为二维数组 (Nr, Nt)")
-    if T_history_rt.shape[1] != t_history.size:
-        raise ValueError("T_history_rt 的时间维必须与 t_history 一致")
-    if T_history_rt.shape[0] != r_nodes.size:
-        raise ValueError("T_history_rt 的径向维必须与 r_nodes 一致")
-    if r_nodes.size < 2:
-        raise ValueError("r_nodes 至少包含两个节点")
-
-    # 逐半径点求局部 X_VM(r)
-    X_r = np.array(
-        [
-            daem_conversion(
-                T_history=T_history_rt[i, :],
-                t_history=t_history,
-                A=A,
-                E0=E0,
-                sigma=sigma,
-                n_quad=n_quad,
-            )
-            for i in range(r_nodes.size)
-        ]
-    )
+    # 直接调用向量化的 daem_conversion
+    X_r = daem_conversion(T_history_rt, t_history, A, E0, sigma, n_quad)
+    assert isinstance(X_r, np.ndarray)
 
     R0 = float(np.max(r_nodes))
     if R0 <= 0:

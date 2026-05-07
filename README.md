@@ -17,11 +17,11 @@
 
 ## 核心特性
 
--   **物理严谨性**：严格执行 SI 单位制，遵循 Hamel (1999) 的 R1-R11 反应网络。
+-   **物理严谨性**：严格执行 SI 单位制，遵循 Hamel (1999) 的 R1–R11 反应网络（`Cell.calc_reactions` 已接入 R5–R8、R9/R10/R11 及炭反应；R9 与 Gibbs 微量组分二选一，见 `docs/gibbs_kinetics_coupling.md`）。
 -   **数值鲁棒性**：
     -   **残差归一化**：解决能量与组分方程间的量级差异。
     -   **供应限制动力学**：自动防止反应物过耗导致的数值爆炸。
-    -   **Gauss-Seidel 扫描 + 反应项预叠加**：有效打破零浓度初值陷阱。
+    -   **全域 Newton–Raphson（`solver="global_nr"`）**：与 Hamel 论文主路径一致；GS 选项已移除（NR-only）。
 -   **工业级 Web 界面**：基于 Streamlit 构建的交互式仪表盘，支持实时参数调节（热损失、循环倍率等）与深度动力学诊断。
 
 ---
@@ -34,6 +34,9 @@
 cd bfb-gasifier
 pip install -r requirements.txt
 ```
+
+- Python 版本：`>=3.8`（当前 `pyproject.toml` 一致）。
+- 依赖口径：`pyproject.toml` 与 `requirements.txt` 保持同步（`numpy/scipy/streamlit/plotly`）。
 
 ### 运行可视化界面 (Phase 6.2)
 
@@ -96,6 +99,10 @@ flowchart TB
 **核心耦合机制**：动力学决定碳转化“走多快”；Gibbs 决定气体“最终形态”。
 
 $$R_{net} = R_{kinetic} \times (1 - Q_p/K_{eq})$$
+
+**实现说明（与 Hamel 全局联立 NR 的区别）**：热力学子模块（`src/thermodynamics/`）与 `Cell` 内 Gibbs 接口已集成；当前主线为 **outer Abgleich + inner global NR**，并支持 thesis 严格口径的 **Vorabrechnung 单次源项预算**（`thesis_vorab_sources_single_shot=True`，内层冻结）。与论文 Fortran 的单次全局 Jacobian 同构实现仍不完全等价——详见 `docs/BFB_TechSpec_v11.md` §5.6 与 `docs/validation_gap_analysis.md`。
+
+**与论文流程图对照（CONFIG → Vorabrechnung → Zellenmodell → Check1 / Check2）**：[`docs/gasifier_model_flowchart_trilingual.mmd`](docs/gasifier_model_flowchart_trilingual.mmd)。节点到 Python 模块的静态映射见 `src/workflow/simulation_runner.py` 中的 `describe_hamel_flowchart_mapping()`；`src.gasifier.workflow` / `src.gasifier.solvers` 为与分层目录一致的 **重导出别名**（实现仍在 `src/workflow`、`src/solvers`）。
 
 ---
 
@@ -221,9 +228,9 @@ graph LR
 
 **实现要点（与 `src/` 对照）**
 
-1. **外层反馈（Bild 2.2）**：干燥/热解速率（Module 2）依赖局部温度，温度在 Module 3 / Newton 收敛后才更新 → 对应代码中 **Vorabrechnung（`compute_vorabrechnung`）与扫描或全局 NR 的外层迭代**。
+1. **外层反馈（Bild 2.2）**：Vorabrechnung 与 Zellenmodell 通过 outer Abgleich 交替；在 thesis 严格模式下，干燥/DAEM 源项按平均床温单次预算并在 inner NR 冻结，outer 仅刷新水动力。
 2. **相间交换（Bild 2.3，Eq. 3.50）**：$K_{bd}$ 驱动的气泡–悬浮传质在守恒方程中为一相源、另一相等价汇 → 见 **`physics/mass_transfer.py`** 与 **`cell.py`** 中 $\dot{N}_{ex,bd}$ 项。
-3. **Newton–Raphson**：论文强调块三对角 / 全局联立；本仓库 **`solver="global_nr"`** 使用全局残差 + 有限差分 Jacobian（`global_nr_solver.py`），**默认 `gauss_seidel`** 则为逐格 `fsolve` + 外迭代。
+3. **Newton–Raphson**：论文强调块三对角 / 全局联立；本仓库采用 **NR-only**（`solver="global_nr"`，`global_nr_solver.py`，全域残差 + Jacobian）。
 
 更细的 Fortran/Python 对照见 [`docs/hamel_dissertation_vs_python_architecture.md`](docs/hamel_dissertation_vs_python_architecture.md)。
 
@@ -290,7 +297,7 @@ bfb-gasifier/
 │   ├── validation_cases.json       # 验证工况主数据（Table 2 LU ↔ CASE_HTW_WESSELING_1）
 │   └── test_cases.json             # 兼容：扁平 CASE_LU，与上键等价；**改工况以 validation_cases.json 为准**
 ├── tests/
-│   ├── sanity_checks.py            # 11 项 sanity 检查
+│   ├── sanity_checks.py            # 17 项 sanity 检查
 │   └── test_thermodynamics.py      # 热力学单元测试
 ├── app.py              # Streamlit 可视化界面
 └── specs/              # 规格文档
@@ -366,10 +373,24 @@ pytest tests/ -v
 pytest tests/ -v -m "not slow"
 ```
 
+**分阶段主链（推荐）**：
+
+```bash
+python3 scripts/run_test_sequence.py
+```
+
+- 新链路顺序：`00 -> 10 -> 15(module audits) -> 20 -> 30 -> 35(convergence ladder) -> 40 -> 50`（可选 `60_slow_lu`）。
+- 模块审计可单独执行：`python3 scripts/run_module_audits.py`
+- `50_whole_model` 默认受 promotion gate 保护：前置阶段未全部通过时，不允许直接进入整机回归。
+- 调试时可手动绕过（不推荐）：`python3 scripts/run_test_sequence.py --only-stage 50_whole_model --allow-direct-whole-model`
+- whole-model 后可生成验证性能基线（稳定性/精度/耗时）：`python3 scripts/validation_performance_report.py --output data/validation_performance_latest.json`
+
 - **`ReactorConfig.n_age_classes`** 默认 **1**（单粒径/龄期类）。
 - **`tests/test_table2_LU.py`**：slow 用例**默认**将模拟结果与 **`data/validation_cases.json`**（`CASE_HTW_WESSELING_1.outputs`）对比（温度 ±15%、主气相干基 ±15%、CH₄ ±20%、碳转化率 ±15%）。标定前若需**跳过**与 JSON 的数值断言：`export BFB_RELAX_VALIDATION=1`。
 - 该 slow 用例当前带 **`@pytest.mark.xfail`**（模型未完全对齐时记为 **XFAIL**，`pytest` 仍返回 0）；**标定后请删除 xfail**，使通过时变为 **XPASS** 并真正门控回归。
 - 端到端打印对比：`python3 tests/test_table2_LU.py`（与同一 JSON 对齐）。
+- **Phase 1 审计脚本**（出口温度 + 干基主气相，含进料/O₂ 自检与 `--strict`）：`python3 scripts/audit_phase1_htw_lu.py`；基线配置见 `tests/validation_case_utils.py`。
+- **脚本索引与迁移说明**：见 `scripts/SCRIPTS_INDEX.md`（历史脚本已迁移到 `scripts/_deprecated/`）。
 
 ---
 

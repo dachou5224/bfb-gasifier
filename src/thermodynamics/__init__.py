@@ -13,6 +13,7 @@ from src.thermodynamics.equilibrium import (
     get_K_eq,
 )
 from src.thermodynamics.gibbs_minimizer import GibbsMinimizer
+from src.thermodynamics.gibbs_hamel_reduced import ReducedHamelGibbsSolver
 from src.thermodynamics.minor_species import (
     solve_minor_species,
     solve_nitrogen_distribution,
@@ -24,6 +25,7 @@ __all__ = [
     "calc_reaction_quotient",
     "calc_gibbs_driving_force",
     "GibbsMinimizer",
+    "ReducedHamelGibbsSolver",
     "solve_sulfur_distribution",
     "solve_nitrogen_distribution",
     "solve_minor_species",
