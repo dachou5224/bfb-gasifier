@@ -15,7 +15,41 @@ from typing import Tuple
 import numpy as np
 from scipy.integrate import solve_ivp
 
-from src.core.constants import g, P0
+from src.core.constants import P0_HAMEL, g, n_B_coalescence, n_b
+
+
+def bubble_interaction_factor(
+    u_mf: float | None = None,
+    *,
+    strategy: str = "technical_distributor",
+) -> float:
+    """Bubble interaction factor ``psi_b``.
+
+    Supported strategies
+    --------------------
+    - ``technical_distributor``:
+      Hamel (1999) Eq.3.14, p.28 for technical gas distributors
+        psi_b = 0.76
+    - ``porous_plate``:
+      Hamel (1999) Eq.3.14, p.28 for porous plates
+        psi_b = 0.67
+    - ``wein_1992``:
+      Hamel (1999) Eq.3.15, p.28
+        psi_b = 0.17 * u_mf^(-0.33)
+    """
+    name = str(strategy).strip().lower()
+    if name == "technical_distributor":
+        return 0.76
+    if name == "porous_plate":
+        return 0.67
+    if name == "wein_1992":
+        if u_mf is None or u_mf <= 0.0:
+            raise ValueError("bubble_interaction_factor(strategy='wein_1992') requires positive u_mf")
+        return 0.17 * float(u_mf) ** (-0.33)
+    raise ValueError(
+        "Unsupported psi_b strategy={!r}; expected 'technical_distributor', "
+        "'porous_plate', or 'wein_1992'".format(strategy)
+    )
 
 
 # -----------------------------------------------------------------------
@@ -112,7 +146,8 @@ def mori_wen_bubble_diameter(
     d_bm = max_bubble_diameter(u0, u_mf, D_bed)
     if d_b0 is None:
         d_b0 = initial_bubble_diameter(u0, u_mf, A_bed, N_or)
-    return d_bm - (d_bm - d_b0) * np.exp(-0.3 * h / D_bed)
+    exp_arg = np.clip(-0.3 * h / max(D_bed, 1e-12), -200.0, 200.0)
+    return d_bm - (d_bm - d_b0) * np.exp(exp_arg)
 
 
 # -----------------------------------------------------------------------
@@ -135,39 +170,76 @@ def bubble_rise_velocity(
     u_mf: float,
     d_b: float,
     psi_b: float = 0.76,
+    *,
+    P: float | None = None,
+    strategy: str = "hilligardt_eq313",
 ) -> float:
     """气泡上升速度 u_b [m/s]（Hilligardt 模型）。
 
-    u_b = psi_b * (u0 - u_mf) + u_b,single(d_b)
+    Supported strategies
+    --------------------
+    - ``hilligardt_eq313``:
+        u_b = psi_b * (u0 - u_mf) + u_b,i
+    - ``heinbockel_eq343``:
+        Hamel (1999) Eq.3.43:
+        u_b = psi_b * (u0 - u_mf) * ((P/P0)^0.2 - 1) + v_b * u_b,l
+    - ``heinbockel_eq343_legacy_2p14_p07``:
+        previously used aggressive pressure form kept only for audit contrast
+    - ``heinbockel_eq343_legacy_plus``:
+        previous project audit form kept for regression contrast
 
     Parameters
     ----------
     u0    : 表观气速 [m/s]
     u_mf  : 最小流化速度 [m/s]
     d_b   : 气泡直径 [m]
-    psi_b : 气泡相互作用因子 [-]，工业分布板默认 0.76
+    psi_b : 气泡相互作用因子 [-]，技术气体分布板默认 0.76；
+            原文还给出 porous plate = 0.67、Wein(1992) 关联式
 
-    Source: specs/02_hydrodynamics.md §2, Eq.4.4; Hilligardt (1986)
+    Source: Hamel (1999) Eq.3.13-3.15, p.28; Eq.3.43 p.31; Hilligardt (1986); Wein (1992); Heinbockel (1995)
     """
+    name = str(strategy).strip().lower()
     u_bs = single_bubble_velocity(d_b)
-    return psi_b * max(u0 - u_mf, 0.0) + u_bs
+    excess = max(u0 - u_mf, 0.0)
+    if name == "hilligardt_eq313":
+        return psi_b * excess + u_bs
+    if name == "heinbockel_eq343":
+        if P is None or P <= 0.0:
+            raise ValueError("bubble_rise_velocity(strategy='heinbockel_eq343') requires positive P")
+        pressure_term = (P / P0_HAMEL) ** 0.2 - 1.0
+        return psi_b * excess * pressure_term + u_bs
+    if name == "heinbockel_eq343_legacy_plus":
+        if P is None or P <= 0.0:
+            raise ValueError("bubble_rise_velocity(strategy='heinbockel_eq343_legacy_plus') requires positive P")
+        return psi_b * excess * ((P / P0_HAMEL) ** 0.2 + 1.0) + u_bs
+    if name == "heinbockel_eq343_legacy_2p14_p07":
+        if P is None or P <= 0.0:
+            raise ValueError(
+                "bubble_rise_velocity(strategy='heinbockel_eq343_legacy_2p14_p07') requires positive P"
+            )
+        return psi_b * (2.14 * (P / P0_HAMEL) ** 0.7 * excess + u_bs)
+    raise ValueError(
+        f"Unsupported bubble velocity strategy={strategy!r}; "
+        "expected 'hilligardt_eq313', 'heinbockel_eq343', "
+        "'heinbockel_eq343_legacy_plus', or 'heinbockel_eq343_legacy_2p14_p07'"
+    )
 
 
 # -----------------------------------------------------------------------
 # 慢泡 / 快泡 判别
 # -----------------------------------------------------------------------
 
-def classify_bubble_regime(u_b: float, u_mf: float) -> str:
-    """根据 alpha_b = u_b / u_mf 判别慢泡或快泡状态。
+def classify_bubble_regime(u_b: float, u_d: float) -> str:
+    """根据 alpha_b = u_b / u_d 判别慢泡或快泡状态。
 
     alpha_b < 1 => 慢泡 (slow)
     alpha_b >= 1 => 快泡 (fast)
 
-    Source: specs/02_hydrodynamics.md §2; Hamel (1999) Eq.1.2
+    Source: Hamel (1999) Chapter 3.1.2, p.26-27, Eq.3.34 context
     """
-    if u_mf <= 0:
+    if u_d <= 0:
         return "fast"
-    alpha_b = u_b / u_mf
+    alpha_b = u_b / u_d
     return "slow" if alpha_b < 1.0 else "fast"
 
 
@@ -179,18 +251,36 @@ def bubble_lifetime(
     d_b: float,
     u_b: float,
     P: float,
-    P0_ref: float = P0,
+    P0_ref: float = P0_HAMEL,
+    *,
+    strategy: str = "hamel_280",
+    u_mf: float | None = None,
 ) -> float:
     """气泡平均寿命 lambda_b [s]（含加压修正）。
 
-    Hilligardt (1986) 简化形式：
-      lambda_b = d_b / (0.5 * u_b) * (P / P0)^(-0.2)
+    Supported strategies
+    --------------------
+    - ``hamel_280``:
+      Hamel (1999) Eq.3.35 / Eq.3.42, 引 Heinbockel (1995)：
+        lambda_b = 280 * u_mf / g * (P / P0)^(-0.7)
+    - ``current``:
+      旧项目保留的 legacy 口径（非 Hamel 原文默认）：
+        lambda_b = d_b / (0.5 * u_b) * (P / P0)^(-0.2)
 
-    Source: Hilligardt (1986); Hamel (1999) Eq.4.6 参数
+    Source: Hamel (1999) Eq.3.35 p.30; Eq.3.42 p.32; Heinbockel (1995)
     """
-    if u_b <= 0:
+    name = str(strategy).strip().lower()
+    if name == "hamel_280":
+        if u_mf is None:
+            raise ValueError("bubble_lifetime(strategy='hamel_280') requires u_mf")
+        return 280.0 * max(float(u_mf), 0.0) / g * (P / P0_ref) ** (-0.7)
+    if u_b <= 0 and name == "current":
         return 1e10
-    return (d_b / (0.5 * u_b)) * (P / P0_ref)**(-0.2)
+    if name == "current":
+        return (d_b / (0.5 * u_b)) * (P / P0_ref) ** (-0.2)
+    raise ValueError(
+        f"Unsupported lambda strategy={strategy!r}; expected 'current' or 'hamel_280'"
+    )
 
 
 # -----------------------------------------------------------------------
@@ -203,36 +293,107 @@ def bubble_diameter_ode(
     u0: float,
     u_mf: float,
     P: float,
+    u_d: float | None = None,
     psi_b: float = 0.76,
     xi_b: float = 0.35,
+    lambda_strategy: str = "hamel_280",
+    xi_strategy: str = "hamel_regime",
+    velocity_strategy: str = "hilligardt_eq313",
+    ode_strategy: str = "hilligardt_eq333",
+    d_b_max: float | None = None,
 ) -> np.ndarray:
     """气泡直径沿高度变化的微分方程 dd_b/dh。
 
-    dd_b/dh = [2/(9*pi) * eps_b^(1/3) / (1 - xi_b*(6/pi)^(1/3)*eps_b^(1/3))]
-              - d_b / (3 * lambda_b * u_b)
+    两种 ODE 策略共享相同的 growth - decay 结构：
 
-    NOTE: 此 ODE 的 lambda_b 参数在高压（>1 MPa）下需要额外标定，
-    建议优先使用 mori_wen_bubble_diameter() 或 darton_bubble_diameter()。
+    ``hilligardt_eq333`` (常压 Hilligardt 1986)：
+        growth = 2/(9π) * ε_b^(1/3) / (1 - ξ_b*(6/π)^(1/3)*ε_b^(1/3))
+        decay  = d_b / (3 * λ_b * u_b)
+        dd_b/dh = growth - decay
 
-    Source: specs/02_hydrodynamics.md §2, Eq.4.6; Hamel (1999)
+    ``heinbockel_eq341`` (高压 Heinbockel 1995, via Hamel 1999)：
+        dd_b/dh = ((2/(9π))^(1/3) * ε_b^(1/3) * (P/P0)^(P0/P))
+                  / (1 - ε_b * (P/P0)^(1/3) * ε_b^(1/3))
+                  * d_b / (3 * λ_b * u_b)
+
+    Eq.3.42 provides λ_b = 280*u_mf/g*(P/P0)^(-0.7). At high pressure (P >> P0),
+    λ_b is very short, making the decay term dominant and capping d_b growth.
+    This is physically correct: high pressure suppresses bubble coalescence.
+
+    NOTE: `lambda_strategy='hamel_280'` 是两个分支共用的默认 Eq.3.42 实现。
+    IMPORTANT: `chi` 属于 Preto 质量传递模型，不属于本 ODE 的 growth term。
+
+    ``d_b_max`` (slug flow cap)：
+        当 d_b ≥ d_b_max 时，强制 dd_b/dh = min(dd_dh, 0) 防止进入段塞流区域。
+        Hamel 两相泡流模型在 d_b > 0.6·D_bed（段塞流判据）时物理失效。
+        建议取 d_b_max = 0.6 * D_bed（Broadhurst & Becker 1975 段塞流判据）。
+
+    Source: Hamel (1999) Eq.3.33/3.34/3.35/3.41/3.42/3.43/3.44
     """
     d_b = max(y[0], 1e-4)
 
-    u_b = bubble_rise_velocity(u0, u_mf, d_b, psi_b)
+    u_b = bubble_rise_velocity(u0, u_mf, d_b, psi_b, P=P, strategy=velocity_strategy)
     excess = max(u0 - u_mf, 1e-10)
-    eps_b = np.clip(excess / u_b, 1e-6, 0.8)
+    u_d_eff = float(max(u_d if u_d is not None else u_mf, 1e-12))
+    eps_b = np.clip(excess / u_b, 1e-6, 0.95)
 
-    eps_b_13 = eps_b**(1.0 / 3.0)
-    coeff_6pi = (6.0 / np.pi)**(1.0 / 3.0)
-    denom = max(1.0 - xi_b * coeff_6pi * eps_b_13, 0.01)
-    growth = (2.0 / (9.0 * np.pi)) * eps_b_13 / denom
+    name = str(ode_strategy).strip().lower()
+    if name == "hilligardt_eq333":
+        alpha_b = u_b / u_d_eff
+        xi_b = resolve_xi_b(alpha_b, strategy=xi_strategy, default_xi=xi_b)
 
-    lam_b = bubble_lifetime(d_b, u_b, P)
-    decay = d_b / (3.0 * max(lam_b * u_b, 1e-10))
+        eps_b_13 = eps_b**(1.0 / 3.0)
+        coeff_6pi = (6.0 / np.pi)**(1.0 / 3.0)
+        denom = max(1.0 - xi_b * coeff_6pi * eps_b_13, 0.01)
+        growth = (2.0 / (9.0 * np.pi)) * eps_b_13 / denom
 
-    dd_dh = growth - decay
+        lam_b = bubble_lifetime(d_b, u_b, P, strategy=lambda_strategy, u_mf=u_mf)
+        decay = d_b / (3.0 * max(lam_b * u_b, 1e-10))
+        dd_dh = growth - decay
+    elif name == "heinbockel_eq341":
+        # Hamel (1999) Eq.3.41 as transcribed in docs/hamel_submodels/03.
+        eps_b_13 = eps_b ** (1.0 / 3.0)
+        pressure_ratio = max(P / P0_HAMEL, 1e-12)
+        denom = 1.0 - eps_b * (pressure_ratio ** (1.0 / 3.0)) * eps_b_13
+        denom = float(np.sign(denom) * max(abs(denom), 1e-3))
+        lam_b = bubble_lifetime(d_b, u_b, P, strategy=lambda_strategy, u_mf=u_mf)
+        dd_dh = (
+            ((2.0 / (9.0 * np.pi)) ** (1.0 / 3.0))
+            * eps_b_13
+            * (pressure_ratio ** (P0_HAMEL / max(P, 1e-12)))
+            / denom
+            * d_b
+            / (3.0 * max(lam_b * u_b, 1e-10))
+        )
+    elif name == "heinbockel_eq341_legacy_growth_decay":
+        # Previous project audit branch retained for regression contrast.
+        u_br = n_b * u_d_eff * (P0_HAMEL / P) ** 0.15
+        growth = (
+            (1.0 / 3.0)
+            * (psi_b * max(u0 - u_mf, 0.0) + u_br)
+            / max(n_B_coalescence * u_b, 1e-12)
+            * (P / P0_HAMEL) ** 0.4
+            * (eps_b ** (1.0 / 3.0))
+            / max(d_b ** (1.0 / 3.0), 1e-12)
+        )
+        lam_b = bubble_lifetime(d_b, u_b, P, strategy=lambda_strategy, u_mf=u_mf)
+        decay = d_b / (3.0 * max(lam_b * u_b, 1e-10))
+        dd_dh = growth - decay
+    else:
+        raise ValueError(
+            f"Unsupported bubble ODE strategy={ode_strategy!r}; "
+            "expected 'hilligardt_eq333', 'heinbockel_eq341', "
+            "or 'heinbockel_eq341_legacy_growth_decay'"
+        )
+
     if y[0] < 1e-4 and dd_dh < 0:
         dd_dh = 0.0
+
+    # Slug flow cap: when d_b reaches d_b_max, suppress further growth
+    # (Broadhurst & Becker 1975: slug flow onset at d_b > 0.6*D_bed)
+    if d_b_max is not None and d_b >= d_b_max and dd_dh > 0:
+        dd_dh = 0.0
+
     return np.array([dd_dh])
 
 
@@ -245,10 +406,16 @@ def integrate_bubble_diameter(
     u_mf: float,
     P: float,
     H_bed: float,
+    u_d: float | None = None,
     D_bed: float = 0.6,
     d_b0: float | None = None,
     n_points: int = 100,
     method: str = "mori_wen",
+    lambda_strategy: str = "hamel_280",
+    xi_strategy: str = "hamel_regime",
+    velocity_strategy: str = "hilligardt_eq313",
+    ode_strategy: str = "hilligardt_eq333",
+    psi_b: float = 0.76,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """沿轴向计算气泡直径 d_b(h)。
 
@@ -258,10 +425,16 @@ def integrate_bubble_diameter(
     u_mf    : 最小流化速度 [m/s]
     P       : 压力 [Pa]（仅 ODE 方法使用）
     H_bed   : 床层高度 [m]
+    u_d     : Suspensionsphase 内实际气速 [m/s]；仅 ODE/Hamel-regime 使用
     D_bed   : 床层直径 [m]
     d_b0    : 初始气泡直径 [m]，None 则用 Darton 公式
     n_points : 输出点数
     method  : "mori_wen"（默认）或 "darton" 或 "hilligardt_ode"
+    lambda_strategy : ODE 模式下的 `lambda_b` 口径（默认 `hamel_280`）
+    xi_strategy : ODE 模式下的 `xi_b` 口径（默认 `hamel_regime`）
+    velocity_strategy : ODE 模式下的 `u_b` 口径（默认 `hilligardt_eq313`）
+    ode_strategy : ODE 主体形式（默认 `hilligardt_eq333`）
+    psi_b   : 气泡相互作用因子 [-]，须与 cell 层一致（默认 0.76）
 
     Returns
     -------
@@ -288,8 +461,23 @@ def integrate_bubble_diameter(
         ])
     elif method == "hilligardt_ode":
         d_b0 = max(d_b0, 1e-3)
+        # Slug flow prevention cap: d_b ≤ 0.6*D_bed (Broadhurst & Becker 1975)
+        d_b_max = 0.6 * D_bed
         sol = solve_ivp(
-            fun=lambda h, y: bubble_diameter_ode(h, y, u0, u_mf, P),
+            fun=lambda h, y: bubble_diameter_ode(
+                h,
+                y,
+                u0,
+                u_mf,
+                P,
+                u_d=u_d,
+                psi_b=psi_b,
+                lambda_strategy=lambda_strategy,
+                xi_strategy=xi_strategy,
+                velocity_strategy=velocity_strategy,
+                ode_strategy=ode_strategy,
+                d_b_max=d_b_max,
+            ),
             t_span=(0, H_bed),
             y0=[d_b0],
             t_eval=h_arr,
@@ -299,8 +487,39 @@ def integrate_bubble_diameter(
         )
         if not sol.success:
             raise RuntimeError(f"气泡直径 ODE 积分失败: {sol.message}")
-        db_arr = np.maximum(sol.y[0], 1e-4)
+        db_arr = np.minimum(np.maximum(sol.y[0], 1e-4), d_b_max)
     else:
         raise ValueError(f"未知方法: {method}")
 
     return h_arr, db_arr
+
+
+def resolve_xi_b(
+    alpha_b: float,
+    *,
+    strategy: str = "fixed_035",
+    default_xi: float = 0.35,
+) -> float:
+    """Resolve Hilligardt ODE shape factor `xi_b`.
+
+    Strategies
+    ----------
+    - ``fixed_035``:
+      keep the current project default / tuning placeholder
+    - ``hamel_regime``:
+      use Hamel (1999) Chapter 3.1.2, Eq.3.34 with
+        alpha_b = u_b / u_d
+        xi_b = 1 - alpha_b^3  for 0 < alpha_b < 1
+        xi_b = 0              for alpha_b > 1
+    """
+    name = str(strategy).strip().lower()
+    alpha_b = float(max(alpha_b, 0.0))
+    if name == "fixed_035":
+        return float(default_xi)
+    if name == "hamel_regime":
+        if alpha_b <= 1.0:
+            return float(max(0.0, 1.0 - alpha_b**3))
+        return 0.0
+    raise ValueError(
+        f"Unsupported xi strategy={strategy!r}; expected 'fixed_035' or 'hamel_regime'"
+    )
