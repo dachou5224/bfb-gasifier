@@ -49,17 +49,23 @@ def test_load_case_LU_reads_validation_cases_json():
     assert case["H_bed"] == pytest.approx(6.0)
 
 
-def test_n_age_classes_default_one_maps_to_solid():
-    """当前默认 n_age_classes=1，与 SolidProps.n_size_classes 一致（多类迁移未启用）。"""
+def test_lu_particle_size_classes_map_to_solid():
+    """CASE_LU 粒径范围按 JSON 的 10 个离散类映射到 SolidProps。"""
     case = load_case_LU()
     cfg = build_phase1_htw_lu_reactor_config(case)
     cfg.n_cells = 2
-    assert cfg.n_age_classes == 1
+    assert cfg.n_age_classes == 10
+    assert cfg.d_p == pytest.approx(2.25e-3)
+    assert cfg.d_p_min == pytest.approx(1.5e-3)
+    assert cfg.d_p_max == pytest.approx(3.0e-3)
     reactor = Reactor(cfg)
     for c in reactor.cells:
-        assert c.solid.n_size_classes == 1
-        assert len(c.solid.d_p_classes) == 1
-        assert c.solid.mass_fractions.shape == (1,)
+        assert c.solid.n_size_classes == 10
+        assert len(c.solid.d_p_classes) == 10
+        assert c.solid.d_p_classes[0] == pytest.approx(1.5e-3)
+        assert c.solid.d_p_classes[-1] == pytest.approx(3.0e-3)
+        assert c.solid.mass_fractions.shape == (10,)
+        assert float(c.solid.mass_fractions.sum()) == pytest.approx(1.0)
 
 
 def test_phase1_lu_config_uses_current_tuned_window():
@@ -71,8 +77,8 @@ def test_phase1_lu_config_uses_current_tuned_window():
     assert cfg.r7_scale == pytest.approx(2.50)
 
 
-def test_phase1_lu_window_baseline_remains_within_nearby_candidate_band():
-    """结构化 Jacobian 接入后，dense=0.30 基线仍应落在邻近候选的稳定误差带内。"""
+def test_phase1_lu_window_reports_finite_dense_sensitivity_after_particle_remap():
+    """文献粒径映射后，旧 dense tuning window 只保留为有限性/敏感性监测。"""
     ref_dry = {"CO": 0.157, "CO2": 0.133, "H2": 0.145, "CH4": 0.034}
 
     def _raw_score(out: dict) -> float:
@@ -110,8 +116,15 @@ def test_phase1_lu_window_baseline_remains_within_nearby_candidate_band():
     assert cfg_baseline.gas_inlet_dense_frac == pytest.approx(0.30)
     assert raw_baseline > 0.0
     assert conv_baseline > 0.0
-    assert abs(raw_baseline - raw_dense_035) / raw_dense_035 < 0.06
-    assert abs(conv_baseline - conv_dense_035) / conv_dense_035 < 0.06
+    assert raw_dense_035 > 0.0
+    assert conv_dense_035 > 0.0
+    assert out_baseline["exit_gas_dry"]
+    assert out_dense_035["exit_gas_dry"]
+    # The Hamel particle-size remap intentionally invalidates the old
+    # dense=0.30≈0.35 tuned-window equivalence; keep this as a drift monitor
+    # rather than a calibration lock.
+    assert abs(raw_baseline - raw_dense_035) / raw_dense_035 < 0.50
+    assert abs(conv_baseline - conv_dense_035) / conv_dense_035 < 0.50
 
 
 @pytest.mark.slow

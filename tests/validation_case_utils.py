@@ -405,7 +405,7 @@ def build_phase1_htw_lu_reactor_config(case: dict | None = None) -> ReactorConfi
     if case is None:
         case = load_case_LU()
     return ReactorConfig(
-        n_age_classes=1,
+        n_age_classes=int(case.get("n_size_classes", 10)),
         n_cells=10,
         H_bed=case["H_bed"],
         H_freeboard=0.0,
@@ -413,13 +413,13 @@ def build_phase1_htw_lu_reactor_config(case: dict | None = None) -> ReactorConfi
         P=case["P"],
         T_inlet=case["T_inlet"],
         fuel_type="coal",
-        # 2026-04-14: updated from 0.5mm→1.0mm (char diameter after coal
-        # devolatilization shrinkage ~0.65× of feed 1.5–3.0mm);
-        # rho_s 1000→1200 (lignite char true density) and phi_s 0.86→0.75
-        # (irregular char morphology) → u_mf ≈ 0.145 m/s at 2.5 MPa/1200 K,
-        # matching Hamel (1999) Table 7.1 reference u_mf ≈ 0.15 m/s.
+        # CASE_HTW_WESSELING_1 / Table A.2.1.1 gives 1.5-3.0 mm with
+        # 10 discrete size classes.  d_p is the midpoint used by scalar
+        # closures; d_p_min/d_p_max populate the per-class grid.
         rho_s=1200.0,
-        d_p=1.0e-3,
+        d_p=0.5 * sum(case.get("particle_diameter_mm_range", (1.5, 3.0))) * 1.0e-3,
+        d_p_min=float(case.get("particle_diameter_mm_range", (1.5, 3.0))[0]) * 1.0e-3,
+        d_p_max=float(case.get("particle_diameter_mm_range", (1.5, 3.0))[1]) * 1.0e-3,
         phi_s=0.75,
         eps_mf=0.45,
         fuel_feed=case["fuel_feed"] / 3600.0,
@@ -554,7 +554,7 @@ def build_phase1_htw_lu_refined_config(
     n_cells = n_fine + n_upper
 
     return ReactorConfig(
-        n_age_classes=1,
+        n_age_classes=int(case.get("n_size_classes", 10)),
         n_cells=n_cells,
         H_bed=H_bed,
         H_freeboard=0.0,
@@ -563,7 +563,9 @@ def build_phase1_htw_lu_refined_config(
         T_inlet=case["T_inlet"],
         fuel_type="coal",
         rho_s=1200.0,
-        d_p=1.0e-3,
+        d_p=0.5 * sum(case.get("particle_diameter_mm_range", (1.5, 3.0))) * 1.0e-3,
+        d_p_min=float(case.get("particle_diameter_mm_range", (1.5, 3.0))[0]) * 1.0e-3,
+        d_p_max=float(case.get("particle_diameter_mm_range", (1.5, 3.0))[1]) * 1.0e-3,
         phi_s=0.75,
         eps_mf=0.45,
         fuel_feed=case["fuel_feed"] / 3600.0,
