@@ -12,6 +12,9 @@ if str(REPO_ROOT) not in sys.path:
 SCRIPTS_DIR = Path(__file__).resolve().parent
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
+DEPRECATED_CELL_AUDITS_DIR = SCRIPTS_DIR / "_deprecated" / "cell"
+if str(DEPRECATED_CELL_AUDITS_DIR) not in sys.path:
+    sys.path.insert(0, str(DEPRECATED_CELL_AUDITS_DIR))
 
 from src.core.reactor import Reactor
 from _nr_monitor import print_nr_monitor, solve_with_nr_monitor
