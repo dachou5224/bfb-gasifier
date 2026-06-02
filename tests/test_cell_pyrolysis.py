@@ -71,6 +71,40 @@ def test_calc_drying_pyrolysis_sources_returns_consistent_signs() -> None:
     assert 0.0 <= bundle.x_vm <= 1.0
 
 
+def test_calc_drying_pyrolysis_sources_preserves_total_sink_across_size_classes() -> None:
+    bundle = calc_drying_pyrolysis_sources(
+        tau=5.0,
+        T=1173.15,
+        P=2.5e6,
+        d_p=1.0e-3,
+        moisture_wt=16.9,
+        ash_dry_wt=11.41,
+        C_dry=61.5,
+        H_dry=4.1,
+        O_dry=21.8,
+        nitrogen_fraction=0.6,
+        sulfur_fraction=0.01,
+        sulfur_volatile_frac=0.5,
+        pyrolysis_tar_carbon_frac=0.2,
+        fuel_type="coal",
+        m_vm_in=0.05,
+        m_moist_in=0.02,
+        solid_shape=(4, 4),
+        m_vm_in_classes=np.array([0.02, 0.01, 0.015, 0.005], dtype=float),
+        m_moist_in_classes=np.array([0.01, 0.005, 0.003, 0.002], dtype=float),
+        char_index=0,
+        vm_index=1,
+        moisture_index=2,
+    )
+
+    vm_release = -float(np.sum(bundle.solid_sink[:, 1]))
+    moist_release = -float(np.sum(bundle.solid_sink[:, 2]))
+    assert vm_release <= 0.05 + 1e-9
+    assert moist_release <= 0.02 + 1e-9
+    assert bundle.solid_sink[0, 1] < bundle.solid_sink[-1, 1]
+    assert bundle.solid_sink[0, 2] < bundle.solid_sink[-1, 2]
+
+
 def test_calc_drying_pyrolysis_sources_short_circuits_when_no_vm_or_moisture(monkeypatch: pytest.MonkeyPatch) -> None:
     def _should_not_run(*args, **kwargs):
         raise AssertionError("solve_drying_CN should not run when there is no VM/moisture feed")

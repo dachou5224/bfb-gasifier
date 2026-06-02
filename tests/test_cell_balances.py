@@ -14,6 +14,7 @@ from src.core.cell_balances import (
 from src.core.cell_hydrodynamics import calc_cell_hydrodynamics, calc_phase_exchange
 from src.core.species import configure_tar_components_by_fuel
 from src.physics.freeboard import calc_beta_a, calc_u_gb
+from src.physics.phase_fractions import calc_visible_bubble_fraction
 
 
 def test_gas_balance_uses_shared_exchange_with_opposite_sign() -> None:
@@ -70,6 +71,7 @@ def test_size_migration_transfers_mass_from_larger_to_smaller_class() -> None:
     assert np.sum(res[-1]) < 0.0
     assert res[0, 0] > 0.0
     assert res[-1, 0] < 0.0
+    np.testing.assert_allclose(np.sum(res, axis=0), 0.0, atol=1e-12)
 
 
 def test_solid_balance_adds_migration_and_sources() -> None:
@@ -210,6 +212,49 @@ def test_energy_balance_zero_for_matched_inlet_and_outlet_streams() -> None:
                 species_mod._NASA_DATA[key] = saved_nasa[key]  # type: ignore[attr-defined]
 
 
+def test_energy_balance_counts_axial_solid_transport_enthalpy() -> None:
+    configure_tar_components_by_fuel("coal")
+    gas = np.zeros(11, dtype=np.float64)
+    gas[0] = 1.5
+    gas[4] = 2.0
+    solid_out = np.array([[0.4, 0.2, 0.1, 0.3]], dtype=np.float64)
+    m_zu = solid_out * 0.5
+    m_auf = solid_out * 0.3
+    m_ab = solid_out * 0.2
+
+    residual = calc_energy_balance_residual(
+        N_b_in=gas * 0.3,
+        N_d_in=gas * 0.7,
+        T_in_gas=1100.0,
+        N_zu_b=np.zeros_like(gas),
+        N_zu_d=np.zeros_like(gas),
+        T_zu_gas=1100.0,
+        N_rez_b=np.zeros_like(gas),
+        N_rez_d=np.zeros_like(gas),
+        T_rez_gas=1100.0,
+        m_solid_rez=np.zeros_like(solid_out),
+        T_rez_solid=1100.0,
+        m_solid_in=np.zeros_like(solid_out),
+        T_in_solid=1100.0,
+        m_solid_zu=m_zu,
+        T_zu_solid=1100.0,
+        m_solid_auf_in=m_auf,
+        T_solid_auf_in=1100.0,
+        m_solid_ab_in=m_ab,
+        T_solid_ab_in=1100.0,
+        N_b=gas * 0.3,
+        N_d=gas * 0.7,
+        m_solid=solid_out,
+        T=1100.0,
+        heat_loss_frac=0.0,
+        ash_dry_wt=11.41,
+        VM_daf=53.42,
+        h_f_dry=-5.0e5,
+        h_cache={},
+    )
+    assert abs(residual) < 1e-9
+
+
 def test_assemble_cell_residual_vector_packs_sections() -> None:
     out = np.zeros(8, dtype=np.float64)
     packed = assemble_cell_residual_vector(
@@ -252,7 +297,7 @@ def test_hydrodynamics_bundle_stays_in_physical_bounds() -> None:
     assert bundle.K_bd > 0.0
 
 
-def test_ud_closure_alternatives_prevent_visible_bubble_collapse() -> None:
+def test_ud_closure_alternatives_change_visible_bubble_fraction_but_keep_ud_invariants() -> None:
     N_d = np.zeros(11, dtype=np.float64)
     N_b = np.zeros(11, dtype=np.float64)
     N_d[5] = 1.5
@@ -341,10 +386,16 @@ def test_ud_closure_alternatives_prevent_visible_bubble_collapse() -> None:
         u_d_closure="wein_1992_eq312",
     )
 
-    assert np.isclose(bundle_current.eps_b, bundle_umf.eps_b)
-    assert np.isclose(bundle_current.eps_b, bundle_hilligardt.eps_b)
-    assert np.isclose(bundle_current.eps_b, bundle_wein.eps_b)
-    assert np.isclose(bundle_backsolve.eps_b, bundle_current.eps_b)
+    assert np.isclose(
+        bundle_current.eps_b,
+        np.clip(calc_visible_bubble_fraction(bundle_current.u0, bundle_current.u_b, bundle_current.u_d), 0.01, 0.7),
+    )
+    assert np.isclose(
+        bundle_wein.eps_b,
+        np.clip(calc_visible_bubble_fraction(bundle_wein.u0, bundle_wein.u_b, bundle_wein.u_d), 0.01, 0.7),
+    )
+    assert bundle_current.eps_b < bundle_hilligardt.eps_b < bundle_umf.eps_b < bundle_wein.eps_b
+    assert bundle_wein.eps_b < bundle_backsolve.eps_b
     assert bundle_umf.eps_d_voidage < bundle_current.eps_d_voidage
     assert bundle_hilligardt.u_d > bundle_wein.u_d
     assert np.isclose(bundle_wein.u_d, 1.45 * bundle_wein.u_mf)

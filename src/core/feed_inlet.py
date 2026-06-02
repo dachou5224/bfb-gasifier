@@ -3,7 +3,8 @@
 与 Hamel Table 2 / CASE_LU 一致：化学计量氧按干基燃料完全氧化至 CO2/H2O/SO2，
 再按当量比 ER 缩放；**空气** 工况下 N2 随 O2 按体积比 79/21 配平。
 
-Source: docs/CLAUDE.md 边界条件；data/validation_cases.json CASE_HTW_WESSELING_1（Table 2 LU）
+Source: ``docs/hamel_submodels/00_readme_and_citation_rules.md``;
+``data/validation_cases.json`` CASE_HTW_WESSELING_1（Table 7.1 / LU）
 """
 
 from __future__ import annotations

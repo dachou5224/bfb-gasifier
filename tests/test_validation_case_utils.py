@@ -39,3 +39,16 @@ def test_strict_validation_gate_rejects_high_rms_even_when_marked_converged():
     )
     assert ok is False
     assert "rms_scaled_final>0.150" in reasons
+
+
+def test_strict_validation_gate_rejects_sparse_large_residual_even_when_rms_is_low():
+    ok, reasons = strict_validation_gate(
+        {
+            "converged_fully": True,
+            "rms_scaled_final": 0.01,
+            "max_abs_scaled_final": 0.25,
+        },
+        rms_max=0.15,
+    )
+    assert ok is False
+    assert "max_abs_scaled_final>0.150" in reasons

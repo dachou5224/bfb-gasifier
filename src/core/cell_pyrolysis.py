@@ -142,6 +142,8 @@ def calc_drying_pyrolysis_sources(
     m_vm_in: float,
     m_moist_in: float,
     solid_shape: tuple[int, int],
+    m_vm_in_classes: np.ndarray | None = None,
+    m_moist_in_classes: np.ndarray | None = None,
     char_index: int | None = None,
     vm_index: int,
     moisture_index: int,
@@ -215,6 +217,22 @@ def calc_drying_pyrolysis_sources(
         gas_source[GAS_SPECIES_INDEX[sp]] += float(value)
 
     solid_sink = np.zeros(solid_shape, dtype=np.float64)
+    nk = int(solid_shape[0])
+    uniform_class_frac = np.full(nk, 1.0 / max(nk, 1), dtype=np.float64)
+    if m_vm_in_classes is None:
+        vm_class_frac = uniform_class_frac
+    else:
+        vm_classes = np.asarray(m_vm_in_classes, dtype=np.float64)
+        assert vm_classes.shape == (nk,), f"m_vm_in_classes shape mismatch: expected {(nk,)}, got {vm_classes.shape}"
+        vm_total = float(np.sum(np.maximum(vm_classes, 0.0)))
+        vm_class_frac = np.maximum(vm_classes, 0.0) / max(vm_total, 1e-12) if vm_total > 1e-12 else uniform_class_frac
+    if m_moist_in_classes is None:
+        moist_class_frac = uniform_class_frac
+    else:
+        moist_classes = np.asarray(m_moist_in_classes, dtype=np.float64)
+        assert moist_classes.shape == (nk,), f"m_moist_in_classes shape mismatch: expected {(nk,)}, got {moist_classes.shape}"
+        moist_total = float(np.sum(np.maximum(moist_classes, 0.0)))
+        moist_class_frac = np.maximum(moist_classes, 0.0) / max(moist_total, 1e-12) if moist_total > 1e-12 else uniform_class_frac
     carbon_to_gas = (
         float(prod.get("CO", 0.0))
         + float(prod.get("CO2", 0.0))
@@ -227,9 +245,9 @@ def calc_drying_pyrolysis_sources(
         carbon_to_gas += c_tar * float(prod.get(tar_label, 0.0))
     carbon_to_char = max(vm_atoms["C"] - carbon_to_gas, 0.0)
     if char_index is not None:
-        solid_sink[:, char_index] += carbon_to_char * ATOMIC_MASS_KG_PER_MOL["C"]
-    solid_sink[:, moisture_index] -= float(m_moist_in) * float(dry["X_dry"][-1])
-    solid_sink[:, vm_index] -= m_vm_rel
+        solid_sink[:, char_index] += carbon_to_char * ATOMIC_MASS_KG_PER_MOL["C"] * vm_class_frac
+    solid_sink[:, moisture_index] -= float(m_moist_in) * float(dry["X_dry"][-1]) * moist_class_frac
+    solid_sink[:, vm_index] -= m_vm_rel * vm_class_frac
 
     return PyrolysisSourceBundle(
         gas_source=gas_source,

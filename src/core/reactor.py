@@ -143,6 +143,8 @@ class ReactorConfig:
     # 固体属性
     rho_s: float = 1400.0         # [kg/m³]
     d_p: float = 0.00225          # [m]  文献范围 1.5–3.0 mm，取中值
+    d_p_min: float | None = None  # [m]  可选粒径离散下限
+    d_p_max: float | None = None  # [m]  可选粒径离散上限
     phi_s: float = 0.86
     eps_mf: float = 0.45
     n_age_classes: int = 10
@@ -285,7 +287,12 @@ class Reactor:
         cfg = self.config
         dh = cfg.H_bed / cfg.n_cells
         nk = max(1, int(cfg.n_age_classes))
-        d_p_classes = np.full(nk, float(cfg.d_p), dtype=np.float64)
+        if nk > 1 and cfg.d_p_min is not None and cfg.d_p_max is not None:
+            d_min = float(min(cfg.d_p_min, cfg.d_p_max))
+            d_max = float(max(cfg.d_p_min, cfg.d_p_max))
+            d_p_classes = np.linspace(d_min, d_max, nk, dtype=np.float64)
+        else:
+            d_p_classes = np.full(nk, float(cfg.d_p), dtype=np.float64)
         mass_fractions = np.ones(nk, dtype=np.float64) / float(nk)
 
         solid = SolidProps(

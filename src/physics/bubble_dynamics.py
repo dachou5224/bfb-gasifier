@@ -2,10 +2,12 @@
 
 提供两套气泡直径模型：
   1) Darton (1977) / Mori-Wen (1975) 经验公式（默认，广泛验证）
-  2) Hilligardt (1986) ODE（需要参数 xi_b / lambda_b 标定，保留为备用）
+  2) Hilligardt (1986) ODE（需要参数 ``xi_b / lambda_b`` 标定）
 
-Source: specs/02_hydrodynamics.md §2; Hamel (1999) Eq.4.4-4.6;
-        Hilligardt (1986); Darton et al. (1977); Mori & Wen (1975)
+Source of truth:
+- ``docs/hamel_submodels/03_hydrodynamics_core_chain.md``
+- Hamel (1999) Eq. 3.14, 3.15, 3.23, 3.41-3.44
+- Hilligardt (1986); Heinbockel (1995); Darton et al. (1977); Mori & Wen (1975)
 """
 
 from __future__ import annotations
@@ -441,7 +443,7 @@ def integrate_bubble_diameter(
     h_arr  : 高度数组 [m]
     db_arr : 气泡直径数组 [m]
 
-    Source: specs/02_hydrodynamics.md §2
+    Source: ``docs/hamel_submodels/03_hydrodynamics_core_chain.md``
     """
     A_bed = np.pi / 4.0 * D_bed**2
     if d_b0 is None:

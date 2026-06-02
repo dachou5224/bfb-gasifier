@@ -1,6 +1,7 @@
 """Cell 热力学辅助：气相摩尔分数、浓度与焓流（与 cell_balances 一致）。
 
-Source: specs/01_conservation_equations.md; Hamel (1999) Eq. 2.5, Eq. 2.7
+Source: ``docs/hamel_submodels/02_cell_balances_and_exchange.md``;
+Hamel (1999) Eq. 2.5, 2.7
 """
 
 from __future__ import annotations

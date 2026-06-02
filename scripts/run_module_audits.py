@@ -49,7 +49,7 @@ MODULE_AUDITS: tuple[ModuleAudit, ...] = (
             "python3 scripts/audit_r10_pressure_correction.py",
             "python3 scripts/verify_r10_correction.py",
         ),
-        pass_rule="pytest 全通过，R10 校正审计与校正验证均退出码为 0",
+        pass_rule="pytest 全通过，R10 压力口径审计与当前实现验证均退出码为 0",
         triage_hint="src/kinetics/*, src/core/cell_kinetics.py",
     ),
     ModuleAudit(
