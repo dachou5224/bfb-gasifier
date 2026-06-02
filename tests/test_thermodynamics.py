@@ -105,6 +105,15 @@ class TestGasReactionsDrivingForce:
         r = rate_R5_bubble(1200.0, 1.0, 0.5, 2.5e6, y, GAS_SPECIES_INDEX)
         assert np.isfinite(r) and r >= 0
 
+    def test_rate_r5_suspension_vanishes_without_steam(self):
+        from src.kinetics.gas_reactions import rate_R5_suspension
+        from src.core.species import GAS_SPECIES_INDEX
+
+        y = np.zeros(11)
+        r = rate_R5_suspension(1200.0, 1.0, 0.5, 0.0, 2.5e6, y, GAS_SPECIES_INDEX)
+
+        assert r == pytest.approx(0.0)
+
     def test_rate_r7_is_forward_only_under_product_rich_state(self):
         from src.kinetics.gas_reactions import rate_R7
 
@@ -131,6 +140,36 @@ class TestGasReactionsDrivingForce:
         # 高 CO2、H2，低 CO、H2O -> Q_p 大，驱动力可负
         r = rate_R8(1200.0, 2.5e6, 0.01, 0.01, 0.3, 0.3)
         assert np.isfinite(r)
+
+
+class TestCharReactionsHamel51:
+    """Hamel 5.1 异相炭反应的速率常数口径。"""
+
+    def test_r1_constants_follow_hamel_table_52(self):
+        from src.kinetics.char_reactions import r1_hamel_kinetic_constants
+        from src.core.constants import Rg
+
+        k0_coal, e_coal = r1_hamel_kinetic_constants("coal")
+        k0_fallback, e_fallback = r1_hamel_kinetic_constants("biomass")
+
+        assert k0_coal == pytest.approx(1.2)
+        assert e_coal == pytest.approx(10_300.0 * Rg)
+        assert k0_fallback == pytest.approx(2.3)
+        assert e_fallback == pytest.approx(11_100.0 * Rg)
+
+    def test_r4_boudouard_constants_follow_weeda_1995(self):
+        from src.kinetics.char_reactions import rate_R4
+        from src.kinetics.arrhenius import k_standard
+
+        T = 1073.0
+        p_co2 = 5.0e4
+        p_co = 1.0e4
+        expected = (
+            k_standard(2.72, 188_000.0, T) * p_co2
+            / (1.0 + k_standard(8.31e-7, -38_900.0, T) * p_co2 + k_standard(2.088e-14, -24_500.0, T) * p_co)
+        )
+
+        assert rate_R4(T, p_co2, p_co) == pytest.approx(expected)
 
 
 # ===== Cell 集成 =====

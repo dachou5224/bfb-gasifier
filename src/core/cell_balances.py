@@ -109,6 +109,10 @@ def calc_size_migration(
 
     m_bed = M_inv_total * (m_solid_arr / m_out_total)
     m_left = f_mig[:, None] * m_bed
+    # The modeled size grid has no class below the smallest bin. Char
+    # disappearance is already represented by R_solid; migration only
+    # redistributes remaining particle mass between size classes.
+    m_left[0, :] = 0.0
 
     res = -m_left
     res[:-1, :] += m_left[1:, :]
@@ -131,7 +135,7 @@ def calc_solid_balance_residual(
 ) -> npt.NDArray[np.float64]:
     """组装固相质量守恒残差。
 
-    Ref: Hamel (1999) Eq. 2.3
+    Ref: Hamel (1999) Eq. 2-6
     """
     m_solid_arr = np.asarray(m_solid, dtype=np.float64)
     shape = m_solid_arr.shape
@@ -236,7 +240,7 @@ def calc_gas_enthalpy_flow(
                 first_key = next(iter(h_cache.keys()))
                 h_cache.pop(first_key, None)
             h_cache[T_key] = h_vec
-    return float(np.dot(np.nan_to_num(N_arr), h_vec))
+    return float(np.dot(N_arr, h_vec))
 
 
 def calc_solid_enthalpy_flow(
@@ -260,7 +264,9 @@ def calc_solid_enthalpy_flow(
     w_vm = (float(VM_daf) / 100.0) * (1.0 - w_ash)
     hf = np.array([0.0, float(h_f_dry) / max(w_vm, 1e-9), -15.866e6, 0.0], dtype=np.float64)
     cp_mix = 0.3 * float(cp_char_fn(T)) + 0.3 * float(cp_ash_fn(T)) + 0.4 * float(cp_sand_fn(T))
-    return float(np.dot(np.sum(np.nan_to_num(m_arr), axis=0), hf) + np.sum(m_arr) * cp_mix * (float(T) - T_REF))
+    m_comp = np.sum(m_arr, axis=0)
+    m_total = float(np.sum(m_arr))
+    return float(np.dot(m_comp, hf) + m_total * cp_mix * (float(T) - T_REF))
 
 
 def calc_energy_balance_residual(
@@ -289,6 +295,10 @@ def calc_energy_balance_residual(
     VM_daf: float,
     h_f_dry: float,
     h_cache: Dict[float, npt.NDArray[np.float64]] | None = None,
+    m_solid_auf_in: npt.ArrayLike | None = None,
+    T_solid_auf_in: float | None = None,
+    m_solid_ab_in: npt.ArrayLike | None = None,
+    T_solid_ab_in: float | None = None,
 ) -> float:
     """组装全床能量守恒残差。
 
@@ -311,6 +321,26 @@ def calc_energy_balance_residual(
         + calc_solid_enthalpy_flow(
             m_solid_in,
             T_in_solid,
+            ash_dry_wt=ash_dry_wt,
+            VM_daf=VM_daf,
+            h_f_dry=h_f_dry,
+            cp_char_fn=cp_char,
+            cp_ash_fn=cp_ash,
+            cp_sand_fn=cp_sand,
+        )
+        + calc_solid_enthalpy_flow(
+            np.zeros_like(np.asarray(m_solid_in, dtype=np.float64)) if m_solid_auf_in is None else m_solid_auf_in,
+            T_in_solid if T_solid_auf_in is None else float(T_solid_auf_in),
+            ash_dry_wt=ash_dry_wt,
+            VM_daf=VM_daf,
+            h_f_dry=h_f_dry,
+            cp_char_fn=cp_char,
+            cp_ash_fn=cp_ash,
+            cp_sand_fn=cp_sand,
+        )
+        + calc_solid_enthalpy_flow(
+            np.zeros_like(np.asarray(m_solid_in, dtype=np.float64)) if m_solid_ab_in is None else m_solid_ab_in,
+            T_in_solid if T_solid_ab_in is None else float(T_solid_ab_in),
             ash_dry_wt=ash_dry_wt,
             VM_daf=VM_daf,
             h_f_dry=h_f_dry,

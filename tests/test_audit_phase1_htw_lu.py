@@ -50,3 +50,61 @@ def test_overall_validation_pass_relax_mode_overrides_failures():
         relax=True,
     )
     assert ok is True
+
+
+def test_char_mass_ledger_reasons_gate_large_residual():
+    mod = _load_audit_module()
+    reasons = mod._char_mass_ledger_reasons(
+        {
+            "fresh_char_kg_s": 1.0,
+            "residual_char_kg_s": 0.05,
+            "size_migration_char_kg_s": 0.0,
+        }
+    )
+    assert reasons == ["char_mass_residual>2.0%_fresh"]
+
+
+def test_char_mass_ledger_reasons_accept_conservative_small_residual():
+    mod = _load_audit_module()
+    reasons = mod._char_mass_ledger_reasons(
+        {
+            "fresh_char_kg_s": 1.0,
+            "residual_char_kg_s": 0.001,
+            "size_migration_char_kg_s": 0.0,
+        }
+    )
+    assert reasons == []
+
+
+def test_char_mass_ledger_reasons_prefers_bed_transport_summary_when_available():
+    mod = _load_audit_module()
+    reasons = mod._char_mass_ledger_reasons(
+        {
+            "fresh_char_kg_s": 1.0,
+            "residual_char_kg_s": 0.5,
+            "size_migration_char_kg_s": 0.0,
+        },
+        bed_transport_summary={
+            "max_cell_char_residual_norm_local": 0.05,
+            "max_abs_auf_in_gap_vs_below_kg_s": 0.0,
+            "max_abs_ab_in_gap_vs_above_kg_s": 0.0,
+        },
+    )
+    assert reasons == []
+
+
+def test_char_mass_ledger_reasons_flags_large_bed_transport_residual():
+    mod = _load_audit_module()
+    reasons = mod._char_mass_ledger_reasons(
+        {
+            "fresh_char_kg_s": 1.0,
+            "residual_char_kg_s": 0.001,
+            "size_migration_char_kg_s": 0.0,
+        },
+        bed_transport_summary={
+            "max_cell_char_residual_norm_local": 0.12,
+            "max_abs_auf_in_gap_vs_below_kg_s": 0.0,
+            "max_abs_ab_in_gap_vs_above_kg_s": 0.0,
+        },
+    )
+    assert reasons == ["bed_char_cell_residual>10.0%_local_transport"]

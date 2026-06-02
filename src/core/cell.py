@@ -105,6 +105,7 @@ class Cell:
         self.r5_scale = 1.0
         self.r6_scale = 1.0
         self.r7_scale = 1.0
+        self.nr_reaction_rate_multiplier = 1.0
         self.N_b, self.N_d, self.N_b_in, self.N_d_in = np.zeros(N_GAS), np.zeros(N_GAS), np.zeros(N_GAS), np.zeros(N_GAS)
         self.N_zu_b, self.N_zu_d, self.N_rez_b, self.N_rez_d = np.zeros(N_GAS), np.zeros(N_GAS), np.zeros(N_GAS), np.zeros(N_GAS)
         nk = self.solid.n_size_classes
@@ -113,12 +114,15 @@ class Cell:
         self.m_solid_rez = np.zeros((nk, N_SOLID_COMP))
         self.m_solid_auf_in = np.zeros((nk, N_SOLID_COMP))
         self.m_solid_ab_in = np.zeros((nk, N_SOLID_COMP))
+        self.T_solid_auf_in = 293.15
+        self.T_solid_ab_in = 293.15
         self.K_solid_auf = np.zeros((nk, N_SOLID_COMP))
         self.K_solid_ab = np.zeros((nk, N_SOLID_COMP))
         self.u_mf = self.u_b = self.d_b = self.eps_b = self.eps_d = self.K_bd = self.V_b = self.V_d = self.u0 = 0.0
         self.u_d = 0.0
         self.n_rz = 0.0
         self.eps_d_voidage = 0.0
+        self._vorab_bottom_gas_inlet_dense_frac = np.nan
         self.R_gas_b, self.R_gas_d = np.zeros(N_GAS), np.zeros(N_GAS); self.R_solid = np.zeros((nk, N_SOLID_COMP))
         self._vm_gas_source_cache = np.zeros(N_GAS); self._vm_solid_sink_cache = np.zeros((nk, N_SOLID_COMP)); self._vm_cache_valid = False
         self._vm_cache_T = np.nan; self._vm_cache_tau = np.nan
@@ -382,6 +386,7 @@ class Cell:
             solid_sink_vm=solid_sink_vm,
             areas=areas,
             solid_d_p=self.solid.d_p,
+            solid_d_p_classes=self.solid.d_p_classes,
             D_g=D_g,
             char_conversion=self._compute_char_conversion(),
             rho_cat=self._catalyst_bulk_density(),
@@ -414,10 +419,14 @@ class Cell:
         legacy_stream 模式下，床层稳态炭存量估计：M_bed * char_mass_fraction，
         其中 M_bed = rho_s * (1 - eps_mf) * V_d（悬浮相固体总量），
         char_mass_fraction = m_char_flow / m_total_flow（流率比 = 存量比，假设稳态）。
-        holdup_transport 模式下，m_solid 已是 cell 内 holdup [kg]，直接按各粒径类
-        char holdup 占总 holdup 的比值分配床层悬浮相总固体存量。
+        holdup_transport/freeboard_closure 模式下，m_solid 已是 cell 内 fuel-solid
+        holdup [kg]，不能再乘以包含 inert bed material 的总床料库存。
         比表面积 A = 6 * M_char_inventory / (rho_s * d_p)
         """
+        m_char_state = np.maximum(self.m_solid[:, S_CHAR], 0.0)
+        if str(self.solid_state_model) in {"holdup_transport", "freeboard_closure"}:
+            return m_char_state * 6.0 / (self.solid.rho_s * self.solid.d_p_classes)
+
         V_cell = (np.pi / 4.0 * self.geo.D_bed**2) * self.geo.dh
         V_d_safe = max(self.V_d, 0.05 * V_cell)
         # 床层悬浮相固体总存量 [kg]（稳态值）
@@ -427,7 +436,6 @@ class Cell:
         if m_solid_total < 1e-10:
             return np.zeros(self.solid.n_size_classes)
 
-        m_char_state = np.maximum(self.m_solid[:, S_CHAR], 0.0)
         char_frac = m_char_state / m_solid_total
         # 各粒径类炭床层存量 [kg]
         m_char_inventory = M_bed * char_frac  # [kg]
@@ -458,7 +466,12 @@ class Cell:
             return 0.0
         m_in = np.sum(np.maximum(self.m_solid_zu[:, S_CHAR] + self.m_solid_in[:, S_CHAR] + self.m_solid_rez[:, S_CHAR], 0.0))
         m_char_out = float(np.sum(self._solid_outflow_rates()[:, S_CHAR]))
-        return float(np.clip(1.0 - m_char_out / max(m_in, 1e-12), 0.0, 1.0))
+        x_char = 1.0 - m_char_out / max(float(m_in), 1e-12)
+        if x_char < 0.0:
+            return 0.0
+        if x_char > 1.0:
+            return 1.0
+        return float(x_char)
 
     def calc_gas_balance(self) -> npt.NDArray[np.float64]:
         """气相摩尔守恒残差向量。
@@ -521,6 +534,8 @@ class Cell:
         
         Ref: Hamel (1999) Eq. 2.7
         """
+        if self.cell_type in {"cyclone", "return_leg"}:
+            return self._calc_side_temperature_closure_residual()
         return calc_energy_balance_residual(
             N_b_in=self.N_b_in,
             N_d_in=self.N_d_in,
@@ -535,6 +550,10 @@ class Cell:
             T_rez_solid=self.T_rez_solid,
             m_solid_in=self.m_solid_in,
             T_in_solid=self.T_in_solid,
+            m_solid_auf_in=self.m_solid_auf_in,
+            T_solid_auf_in=self.T_solid_auf_in,
+            m_solid_ab_in=self.m_solid_ab_in,
+            T_solid_ab_in=self.T_solid_ab_in,
             m_solid_zu=self.m_solid_zu,
             T_zu_solid=self.T_zu_solid,
             N_b=self.N_b,
@@ -560,8 +579,46 @@ class Cell:
             h_f_dry=self.solid.h_f_dry,
         )
 
-    def residuals(self, rate_multiplier: float = 1.0) -> npt.NDArray[np.float64]:
-        return execute_cell_residual_pipeline(self, rate_multiplier=rate_multiplier)
+    def _calc_side_temperature_closure_residual(self) -> float:
+        """Side-element temperature closure residual [W-equivalent].
+
+        Cyclone / return-leg blocks are separators and recycle topology elements,
+        not reactive bubbling-bed cells.  Their NR temperature row therefore
+        enforces pass-through thermal closure instead of a full cell energy
+        balance with reaction/phase terms.
+        """
+        if self.cell_type == "cyclone" and float(np.sum(np.maximum(self.N_b_in + self.N_d_in, 0.0))) > 1e-12:
+            T_ref = float(self.T_in_gas)
+        else:
+            solid_ab = float(np.sum(np.maximum(self.m_solid_ab_in, 0.0)))
+            solid_auf = float(np.sum(np.maximum(self.m_solid_auf_in, 0.0)))
+            if solid_ab > 1e-12:
+                T_ref = float(self.T_solid_ab_in)
+            elif solid_auf > 1e-12:
+                T_ref = float(self.T_solid_auf_in)
+            else:
+                T_ref = float(self.T_in_solid)
+
+        gas_in = np.maximum(self.N_b_in + self.N_d_in, 0.0)
+        solid_in = np.maximum(self.m_solid_in + self.m_solid_auf_in + self.m_solid_ab_in, 0.0)
+        dT = 1.0
+        cp_dot = 0.0
+        if float(np.sum(gas_in)) > 1e-12:
+            cp_dot += abs(
+                self._calc_gas_enthalpy_flow(gas_in, T_ref + dT)
+                - self._calc_gas_enthalpy_flow(gas_in, T_ref)
+            ) / dT
+        if float(np.sum(solid_in)) > 1e-12:
+            cp_dot += abs(
+                self._calc_solid_enthalpy_flow(solid_in, T_ref + dT)
+                - self._calc_solid_enthalpy_flow(solid_in, T_ref)
+            ) / dT
+        cp_dot = max(float(cp_dot), 1.0e3)
+        return cp_dot * (T_ref - float(self.T))
+
+    def residuals(self, rate_multiplier: float | None = None) -> npt.NDArray[np.float64]:
+        rm = self.nr_reaction_rate_multiplier if rate_multiplier is None else float(rate_multiplier)
+        return execute_cell_residual_pipeline(self, rate_multiplier=rm)
 
     def _calc_drying_pyrolysis_gas_source(self, tau: float) -> npt.NDArray[np.float64]:
         bundle = calc_drying_pyrolysis_sources(
@@ -583,6 +640,8 @@ class Cell:
             m_vm_in=float(np.sum(self.m_solid_zu[:, S_VM] + self.m_solid_in[:, S_VM])),
             m_moist_in=float(np.sum(self.m_solid_zu[:, S_MOISTURE] + self.m_solid_in[:, S_MOISTURE])),
             solid_shape=self.R_solid.shape,
+            m_vm_in_classes=np.maximum(self.m_solid_zu[:, S_VM] + self.m_solid_in[:, S_VM], 0.0),
+            m_moist_in_classes=np.maximum(self.m_solid_zu[:, S_MOISTURE] + self.m_solid_in[:, S_MOISTURE], 0.0),
             char_index=S_CHAR,
             vm_index=S_VM,
             moisture_index=S_MOISTURE,

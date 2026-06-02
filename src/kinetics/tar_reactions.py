@@ -11,6 +11,7 @@ Source:
 
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Dict, Literal
 
 import numpy as np
@@ -44,17 +45,30 @@ _TAR_STOICH_TABLE: Dict[TarReactionId, Dict[TarSurrogate, Dict[str, float]]] = {
 }
 
 
+@lru_cache(maxsize=8)
+def _r10_weighted_classes(fuel_type: TarFuelType) -> tuple[tuple[float, float, float], ...]:
+    """Cached (weight, k10, E/Rg) classes for default-fuel R10 calls."""
+    classes: list[tuple[float, float, float]] = []
+    for surr, weight in calc_tar_surrogate_fractions(fuel_type).items():
+        if weight <= 0.0:
+            continue
+        arom = surr in ("C6H6", "C10H8")
+        k10, e_rg = (R10_k0_AROM, R10_E_Rg_AROM) if arom else (R10_k0_OLEF, R10_E_Rg_OLEF)
+        classes.append((float(weight), float(k10), float(e_rg)))
+    return tuple(classes)
+
+
 def get_tar_stoichiometry(reaction_id: TarReactionId, surrogate: TarSurrogate) -> Dict[str, float]:
     """获取单一 tar 代理分子的反应化学计量系数。"""
     return dict(_TAR_STOICH_TABLE[reaction_id][surrogate])
 
 
-def get_lumped_tar_stoichiometry(
+@lru_cache(maxsize=32)
+def _lumped_tar_stoichiometry_items(
     reaction_id: TarReactionId,
     fuel_type: TarFuelType,
     target_hc_ratio: float | None = None,
-) -> Dict[str, float]:
-    """将两组分 tar 代理按 H/C 配比折算为 lumped tar 的等效化学计量。"""
+) -> tuple[tuple[str, float], ...]:
     fractions = calc_tar_surrogate_fractions(fuel_type, target_hc_ratio=target_hc_ratio)
     table = _TAR_STOICH_TABLE[reaction_id]
 
@@ -69,7 +83,16 @@ def get_lumped_tar_stoichiometry(
             continue
         for species, nu in table[surrogate].items():
             lumped[species] = lumped.get(species, 0.0) + x_s * nu
-    return lumped
+    return tuple(lumped.items())
+
+
+def get_lumped_tar_stoichiometry(
+    reaction_id: TarReactionId,
+    fuel_type: TarFuelType,
+    target_hc_ratio: float | None = None,
+) -> Dict[str, float]:
+    """将两组分 tar 代理按 H/C 配比折算为 lumped tar 的等效化学计量。"""
+    return dict(_lumped_tar_stoichiometry_items(reaction_id, fuel_type, target_hc_ratio))
 
 
 def get_tar_component_stoichiometry(
@@ -144,13 +167,8 @@ def rate_R10(
 
     Source: Hamel (1999) §5.2.6, Table 5.4
     """
-    frac = calc_tar_surrogate_fractions(fuel_type)
     r = 0.0
-    for surr, w in frac.items():
-        if w <= 0.0:
-            continue
-        arom = surr in ("C6H6", "C10H8")
-        k10, e_rg = (R10_k0_AROM, R10_E_Rg_AROM) if arom else (R10_k0_OLEF, R10_E_Rg_OLEF)
+    for w, k10, e_rg in _r10_weighted_classes(fuel_type):
         r += w * _r10_single_class(T, C_tar, C_O2, P, k10, e_rg)
     return r
 

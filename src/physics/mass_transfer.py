@@ -1,7 +1,17 @@
 """相间质量传递系数。
 
-Hamel (1999): Gl. 3.44（p. 32）\(u_{b,r}\)（代码 u_br）；Gl. 3.50（p. 35）\(K_{bd}\)（Sit & Grace 1981）。
-详见 specs/02_hydrodynamics.md §4。
+Source of truth:
+- ``docs/hamel_submodels/03_hydrodynamics_core_chain.md``
+- Hamel (1999) Eq. 3.44, 3.50
+
+Note
+----
+``03_hydrodynamics_core_chain.md`` 对 `(3.50)` 首项的 OCR 转录保留了量纲警告。
+当前实现采用项目已锁定的一致性口径：
+
+    K_bd = 3*u_br/(2*d_b) + sqrt(144*D_g*eps_mf*u_b/(pi*d_b^3))
+
+其中 ``u_br`` 严格按 Eq. 3.44 含压力修正计算。
 """
 
 from __future__ import annotations
@@ -16,7 +26,7 @@ def calc_u_br(u_d: float, P: float, n_b_factor: float = n_b, p_ref: float = P0_H
 
     u_{b,r} = n_b * u_d * (P / P0)^(-0.15)
 
-    Source: specs/02_hydrodynamics.md §4; Hamel Gl. 3.44 p.32
+    Source: ``docs/hamel_submodels/03_hydrodynamics_core_chain.md``; Hamel Eq. 3.44
     """
     assert u_d >= 0.0, "u_d 必须非负 [m/s]"
     assert P > 0.0 and p_ref > 0.0, "P 与 P0 必须大于 0 [Pa]"
@@ -38,7 +48,7 @@ def calc_kbd(
     对流项：穿流（u_br 即论文符号 u_{b,r}，由 Gl. 3.44 含压力修正）。
     扩散项：Sit & Grace (1981) 渗透理论形式。
 
-    Source: specs/02_hydrodynamics.md §4; Hamel (1999) Gleichung 3.50
+    Source: ``docs/hamel_submodels/03_hydrodynamics_core_chain.md``; Hamel Eq. 3.50
     """
     assert u_br >= 0.0, "u_br 必须非负 [m/s]"
     assert d_b > 0.0, "d_b 必须大于 0 [m]"

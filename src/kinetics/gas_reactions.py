@@ -6,11 +6,13 @@ R7: CH4 水蒸气重整
 R8: 水煤气变换 (WGSR)
 R9: H2S 氧化
 
-Source: Hamel (1999) Eq. 5.36, 5.45-5.47, 5.51; BFB_TechSpec_v11 §5.4
+Source: ``docs/hamel_submodels/06_kinetics_r1_r11_and_equilibrium_driving.md``;
+Hamel (1999) Eq. 5.36, 5.45-5.47, 5.51
 """
 
 from __future__ import annotations
 
+import math
 import numpy as np
 
 from src.core.constants import BAR_PA, P0, Rg
@@ -52,6 +54,15 @@ R9_E_Rg: float = 10_000.0
 # R12 H2 oxidation (代码扩展，不在严格 R1-R11 基线内)
 R12_k0: float = 2.0e7
 R12_E_Rg: float = 15_000.0
+
+
+def _clamp_exp_arg(x: float) -> float:
+    val = float(x)
+    if val < -100.0:
+        return -100.0
+    if val > 100.0:
+        return 100.0
+    return val
 
 
 # -----------------------------------------------------------------------
@@ -96,6 +107,7 @@ def rate_R5_suspension(
 
     Hamel 原始论文对 CO 氧化写成纯正向动力学，不附加通用
     ``(1 - Q_p/K_eq)`` 热力学壳。保留 ``P/y/species_index`` 仅为兼容旧接口。
+    论文原式显式依赖 ``p_H2O^0.5``；此处不再保留项目历史上的蒸汽分压 floor。
     """
     _ = (P, y, species_index)
     C_CO = max(C_CO, 0.0)
@@ -107,8 +119,7 @@ def rate_R5_suspension(
     p_H2O = (C_H2O * Rg * T) / P0
     
     k = R5_suspension_k_T05 * np.sqrt(max(T, 300.0))
-    # 引入 1e-4 的 H2O 兜底，防止 R2 耗尽水分导致 CO 氧化停止
-    return k * p_CO * (max(p_O2, 0.0)**0.5) * (max(p_H2O, 1e-4)**0.5)
+    return k * p_CO * (max(p_O2, 0.0)**0.5) * (max(p_H2O, 0.0)**0.5)
 
 
 # -----------------------------------------------------------------------
@@ -173,7 +184,7 @@ def rate_R8(
 
     P_bar = P / BAR_PA
     k_std = k_standard(R8_k0, R8_E_Rg * Rg, T_safe)
-    exp_corr = np.exp(np.clip(-8.91 + 5.553 / T_safe, -100.0, 100.0))
+    exp_corr = math.exp(_clamp_exp_arg(-8.91 + 5.553 / T_safe))
     P_factor = P_bar ** max(0.5 - P_bar / 250.0, 0.01)
     k_fwd = R8_a_R8 * k_std * P_factor * exp_corr  # [m³/(mol·s)] 校准值
 
@@ -192,8 +203,8 @@ def wgsr_equilibrium_constant(T: float) -> float:
 
     Ref: Hamel (1999) Eq. 5.47
     """
-    exponent = np.clip(-3.6893 + 4019.0 / max(T, 300.0), -100.0, 100.0)
-    return float(np.exp(exponent))
+    exponent = _clamp_exp_arg(-3.6893 + 4019.0 / max(T, 300.0))
+    return float(math.exp(exponent))
 
 
 def wgsr_equilibrium_y_co(y_H2O: float, y_CO2: float, y_H2: float, K_eq: float) -> float:
