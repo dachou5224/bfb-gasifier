@@ -1,0 +1,42 @@
+{
+  "source_image": "docs/charts/result-profile.png",
+  "method": "manual digitization from enlarged panel crops using visible grid lines",
+  "confidence": {
+    "temperature_profile": "medium",
+    "concentration_profile": "low"
+  },
+  "axis_mapping": {
+    "height_xi": [0.0, 1.0],
+    "temperature_C_assumed": [500.0, 1300.0],
+    "concentration_mol_per_mol": [0.0, 0.5]
+  },
+  "temperature_profile_experiment": [
+    { "xi": 0.97, "temperature_C": 885.0 },
+    { "xi": 0.58, "temperature_C": 900.0 },
+    { "xi": 0.33, "temperature_C": 830.0 },
+    { "xi": 0.23, "temperature_C": 790.0 }
+  ],
+  "temperature_profile_simulation": [
+    { "xi": 0.98, "temperature_C": 830.0 },
+    { "xi": 0.80, "temperature_C": 845.0 },
+    { "xi": 0.70, "temperature_C": 870.0 },
+    { "xi": 0.64, "temperature_C": 895.0 },
+    { "xi": 0.58, "temperature_C": 915.0 },
+    { "xi": 0.50, "temperature_C": 945.0 },
+    { "xi": 0.45, "temperature_C": 970.0 },
+    { "xi": 0.40, "temperature_C": 1000.0 },
+    { "xi": 0.34, "temperature_C": 840.0 },
+    { "xi": 0.30, "temperature_C": 800.0 },
+    { "xi": 0.26, "temperature_C": 735.0 },
+    { "xi": 0.22, "temperature_C": 780.0 },
+    { "xi": 0.18, "temperature_C": 885.0 },
+    { "xi": 0.13, "temperature_C": 895.0 },
+    { "xi": 0.08, "temperature_C": 845.0 },
+    { "xi": 0.03, "temperature_C": 810.0 }
+  ],
+  "concentration_profile_notes": [
+    "Left panel can be axis-calibrated, but the annotation box and legend hide a large fraction of the curves.",
+    "Only partial top markers and lower visible curve segments can be read by eye from the PNG.",
+    "This image is sufficient for approximate temperature-profile validation, but not for high-confidence full-species profile regression."
+  ]
+}
