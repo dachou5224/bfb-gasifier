@@ -27,6 +27,7 @@ def run_outer_abgleich_for_global_nr(
     snapshot_signature_fn: Callable[[], str],
     solve_inner_fn: Callable[[int, float, str, int], dict],
     outer_convergence: "OuterConvergence | None" = None,
+    strict_check1_before_refresh: bool = False,
 ) -> OuterLoopResult:
     """外层对齐循环：刷新 Vorabrechnung → 内层 NR → 检查轴向温度对齐。"""
     return run_global_nr_outer_abgleich(
@@ -41,4 +42,5 @@ def run_outer_abgleich_for_global_nr(
         snapshot_signature_fn=snapshot_signature_fn,
         solve_inner_fn=solve_inner_fn,
         outer_convergence=outer_convergence,
+        strict_check1_before_refresh=strict_check1_before_refresh,
     )

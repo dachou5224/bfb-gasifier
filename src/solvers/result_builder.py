@@ -21,10 +21,62 @@ from src.core.freeboard_segment import simulate_freeboard
 def compute_carbon_conversion(reactor, cell_solid_outflow_component_fn) -> float:
     bot = reactor.cells[0]
     top = reactor.cells[-1]
-    m_char_in = float(np.sum(bot.m_solid_zu[:, S_CHAR] + bot.m_solid_in[:, S_CHAR]))
-    m_char_out = cell_solid_outflow_component_fn(top, S_CHAR, direction="up")
+    m_char_in = float(
+        np.sum(
+            np.maximum(
+                bot.m_solid_zu[:, S_CHAR] + bot.m_solid_in[:, S_CHAR],
+                0.0,
+            )
+        )
+    )
+    if reactor._use_explicit_side_block_cells() and reactor.cyclone_cell is not None:
+        m_char_out = float(cell_solid_outflow_component_fn(reactor.cyclone_cell, S_CHAR, direction="up"))
+    else:
+        top_up_char = float(cell_solid_outflow_component_fn(top, S_CHAR, direction="up"))
+        recycle_char = float(np.sum(np.maximum(bot.m_solid_rez[:, S_CHAR], 0.0)))
+        m_char_out = max(top_up_char - recycle_char, 0.0)
     carbon_conv = 1.0 - (m_char_out / max(m_char_in, 1e-12))
     return float(np.clip(carbon_conv, 0.0, 1.0))
+
+
+def refresh_explicit_freeboard_closure_for_result(reactor) -> dict:
+    """Report explicit freeboard closure freshness without mutating NR state."""
+    if not reactor._use_explicit_freeboard_solver_graph():
+        return {
+            "freeboard_result_closure_refreshed": False,
+            "freeboard_result_closure_refresh_reason": "not_explicit_freeboard_graph",
+        }
+    if not getattr(reactor, "freeboard_cells", None):
+        return {
+            "freeboard_result_closure_refreshed": False,
+            "freeboard_result_closure_refresh_reason": "no_freeboard_cells",
+        }
+
+    current_bed_top_initial = float(np.sum(np.maximum(reactor.cells[-1]._solid_upflow_rates()[:, S_CHAR], 0.0)))
+    previous_fb = getattr(reactor, "_last_explicit_freeboard_closure", None)
+    previous_bed_top = (
+        float(previous_fb.get("bed_top_up_char_kg_s", current_bed_top_initial))
+        if isinstance(previous_fb, dict)
+        else current_bed_top_initial
+    )
+    # Do not refresh/sync the closure here. The NR solver has just produced a
+    # self-consistent state vector; mutating explicit freeboard/side solid states
+    # during result assembly invalidates the final residual metrics and can turn
+    # side-element solid DOFs into apparent post-solve residual spikes.
+    final_bed_top = current_bed_top_initial
+    closure_gap = current_bed_top_initial - previous_bed_top
+    return {
+        "freeboard_result_closure_refreshed": False,
+        "freeboard_result_boundary_refreshed": False,
+        "freeboard_result_closure_refresh_reason": "diagnostic_only_no_state_mutation",
+        "freeboard_pre_result_refresh_bed_top_up_char_kg_s": previous_bed_top,
+        "freeboard_pre_result_refresh_current_bed_top_up_char_kg_s": current_bed_top_initial,
+        "freeboard_current_bed_top_up_char_kg_s": final_bed_top,
+        "freeboard_pre_result_refresh_gap_current_bed_top_kg_s": closure_gap,
+        "freeboard_post_result_refresh_bed_top_up_char_kg_s": previous_bed_top,
+        "freeboard_post_result_refresh_gap_current_bed_top_kg_s": closure_gap,
+        "freeboard_result_closure_refresh_iters": 0,
+    }
 
 
 def build_exit_summary(
@@ -80,6 +132,19 @@ def build_exit_summary(
         "thesis_connectivity_topology": None,
         "side_block_active": bool(reactor._use_explicit_side_block_cells()),
     }
+    bot = reactor.cells[0]
+    summary.update(
+        {
+            "bed0_energy_residual_W": float(bot.calc_energy_balance()),
+            "bed0_recycle_solid_char_kg_s": float(np.sum(np.maximum(bot.m_solid_rez[:, S_CHAR], 0.0))),
+            "bed0_recycle_solid_ash_kg_s": float(np.sum(np.maximum(bot.m_solid_rez[:, S_ASH], 0.0))),
+            "bed0_recycle_solid_T_K": float(bot.T_rez_solid),
+            "bed0_recycle_solid_enthalpy_W": float(bot._calc_solid_enthalpy_flow(bot.m_solid_rez, bot.T_rez_solid)),
+            "bed0_fresh_solid_enthalpy_W": float(bot._calc_solid_enthalpy_flow(bot.m_solid_zu, bot.T_zu_solid)),
+            "bed_top_downflow_solid_enthalpy_W": float(top._calc_solid_enthalpy_flow(top.m_solid_ab_in, top.T_solid_ab_in)),
+            "bed_top_downflow_solid_T_K": float(top.T_solid_ab_in),
+        }
+    )
 
     def _explicit_freeboard_reaction_bundle(cell):
         if getattr(cell, "cell_type", "") != "freeboard":
@@ -302,6 +367,24 @@ def build_exit_summary(
             float(before / max(reactor_bed_char_inventory, 1e-12))
             for before in freeboard_hold_char_before
         ]
+        trajectory_coeff_diag = dict(fb.get("trajectory_coeff_diag", {}))
+        d_p_input_arr = np.asarray(fb.get("bed_top_d_p_input_m", freeboard_bed_top_proxy["d_p_input"]), dtype=np.float64)
+        d_p_eff_arr = np.asarray(fb.get("bed_top_d_p_eff_m", freeboard_d_p_eff_bed_top), dtype=np.float64)
+        d_p_eff_min = float(np.min(d_p_eff_arr)) if d_p_eff_arr.size else 0.0
+        d_p_eff_max = float(np.max(d_p_eff_arr)) if d_p_eff_arr.size else 0.0
+        d_p_input_min = float(np.min(d_p_input_arr)) if d_p_input_arr.size else 0.0
+        exact_dp_grav_max = float(trajectory_coeff_diag.get("exact_dp_grav_max", 0.0) or 0.0)
+        exact_dp_grav_min = float(trajectory_coeff_diag.get("exact_dp_grav_min", 0.0) or 0.0)
+        required_dp_scale = (
+            float(exact_dp_grav_max / d_p_eff_min)
+            if d_p_eff_min > 0.0 and exact_dp_grav_max > 0.0
+            else 0.0
+        )
+        required_spm_conversion = (
+            float(np.clip(1.0 - (exact_dp_grav_max / d_p_input_min) ** 3, 0.0, 1.0))
+            if d_p_input_min > 0.0 and exact_dp_grav_max > 0.0
+            else 0.0
+        )
         summary.update(
             {
                 "freeboard_active": True,
@@ -323,6 +406,13 @@ def build_exit_summary(
                 "freeboard_trajectory_solver": str(fb.get("trajectory_solver", "unknown")),
                 "freeboard_trajectory_coeff_model": str(fb.get("trajectory_coeff_model", "unknown")),
                 "freeboard_trajectory_diag": dict(fb.get("trajectory_diag", {})),
+                "freeboard_trajectory_coeff_diag": trajectory_coeff_diag,
+                "freeboard_exact_dp_grav_min_m": exact_dp_grav_min,
+                "freeboard_exact_dp_grav_max_m": exact_dp_grav_max,
+                "freeboard_bed_top_d_p_eff_min_m": d_p_eff_min,
+                "freeboard_bed_top_d_p_eff_max_m": d_p_eff_max,
+                "freeboard_required_dp_scale_for_smallest_eff_to_grav": required_dp_scale,
+                "freeboard_required_spm_conversion_for_smallest_input_to_grav": required_spm_conversion,
                 "freeboard_secondary_injection_applied": bool(fb["secondary_injection_applied"]),
                 "freeboard_secondary_injection_segment": fb["secondary_injection_segment"],
                 "freeboard_secondary_local_refine": int(fb["secondary_local_refine"]),
@@ -359,14 +449,17 @@ def build_exit_summary(
                 "freeboard_bed_top_char_conversion_local": float(fb.get("bed_top_char_conversion_local", freeboard_bed_top_proxy["top_local_char_conversion"])),
                 "freeboard_bed_top_char_conversion_proxy_total": float(fb.get("bed_top_char_conversion_proxy_total", freeboard_bed_top_proxy["bed_total_char_conversion_proxy"])),
                 "freeboard_bed_top_combustion_share_proxy": float(fb.get("bed_top_combustion_share_proxy", freeboard_bed_top_proxy["bed_combustion_share_proxy"])),
+                "freeboard_bed_top_combustion_conversion_proxy": float(fb.get("bed_top_combustion_conversion_proxy", freeboard_bed_top_proxy["bed_combustion_conversion_proxy"])),
+                "freeboard_bed_top_gasification_age_proxy": float(fb.get("bed_top_gasification_age_proxy", freeboard_bed_top_proxy["bed_gasification_age_proxy"])),
+                "freeboard_bed_top_age_quadrature_diag": dict(fb.get("bed_top_age_quadrature_diag", {})),
                 "freeboard_bed_top_r1_char_consumption_kg_s": float(fb.get("bed_top_r1_char_consumption_kg_s", freeboard_bed_top_proxy["bed_r1_char_consumption_kg_s"])),
                 "freeboard_bed_top_hetero_char_consumption_kg_s": float(fb.get("bed_top_hetero_char_consumption_kg_s", freeboard_bed_top_proxy["bed_hetero_char_consumption_kg_s"])),
                 "freeboard_bed_top_up_char_kg_s": float(fb.get("bed_top_up_char_kg_s", freeboard_bed_top_proxy["bed_top_up_char_kg_s"])),
                 "freeboard_bed_top_d_p_input_m": [
-                    float(v) for v in np.asarray(fb.get("bed_top_d_p_input_m", freeboard_bed_top_proxy["d_p_input"]), dtype=np.float64)
+                    float(v) for v in d_p_input_arr
                 ],
                 "freeboard_bed_top_d_p_eff_m": [
-                    float(v) for v in np.asarray(fb.get("bed_top_d_p_eff_m", freeboard_d_p_eff_bed_top), dtype=np.float64)
+                    float(v) for v in d_p_eff_arr
                 ],
                 "freeboard_entrained_exit_char_kg_s": entrained_exit_char,
                 "freeboard_entrained_exit_ash_kg_s": entrained_exit_ash,
@@ -451,6 +544,13 @@ def build_exit_summary(
                 "freeboard_trajectory_solver": None,
                 "freeboard_trajectory_coeff_model": None,
                 "freeboard_trajectory_diag": {},
+                "freeboard_trajectory_coeff_diag": {},
+                "freeboard_exact_dp_grav_min_m": 0.0,
+                "freeboard_exact_dp_grav_max_m": 0.0,
+                "freeboard_bed_top_d_p_eff_min_m": 0.0,
+                "freeboard_bed_top_d_p_eff_max_m": 0.0,
+                "freeboard_required_dp_scale_for_smallest_eff_to_grav": 0.0,
+                "freeboard_required_spm_conversion_for_smallest_input_to_grav": 0.0,
                 "freeboard_secondary_injection_applied": False,
                 "freeboard_secondary_injection_segment": None,
                 "freeboard_secondary_local_refine": 1,
@@ -544,6 +644,7 @@ def finalize_global_nr_result(
     resolve_axial_heat_loss_distribution_fn,
     cell_solid_outflow_component_fn,
 ) -> dict:
+    freeboard_result_refresh = refresh_explicit_freeboard_closure_for_result(reactor)
     carbon_conv = compute_carbon_conversion(reactor, cell_solid_outflow_component_fn)
     exit_summary = build_exit_summary(
         reactor,
@@ -556,6 +657,18 @@ def finalize_global_nr_result(
         "converged_inner_nr": nr_result.get("converged_inner_nr"),
         "converged_fully": nr_result.get("converged_outer") and nr_result.get("converged_inner_nr"),
         "rms_scaled_final": nr_result.get("rms_scaled_final"),
+        "rms_scaled_gas_final": nr_result.get("rms_scaled_gas_final"),
+        "rms_scaled_solid_final": nr_result.get("rms_scaled_solid_final"),
+        "rms_scaled_energy_final": nr_result.get("rms_scaled_energy_final"),
+        "rms_scaled_gas_combined_final": nr_result.get("rms_scaled_gas_combined_final"),
+        "rms_scaled_gas_phase_split_final": nr_result.get("rms_scaled_gas_phase_split_final"),
+        "rms_scaled_component_max_final": nr_result.get("rms_scaled_component_max_final"),
+        "max_abs_scaled_gas_final": nr_result.get("max_abs_scaled_gas_final"),
+        "max_abs_scaled_solid_final": nr_result.get("max_abs_scaled_solid_final"),
+        "max_abs_scaled_energy_final": nr_result.get("max_abs_scaled_energy_final"),
+        "max_abs_scaled_gas_combined_final": nr_result.get("max_abs_scaled_gas_combined_final"),
+        "max_abs_scaled_gas_phase_split_final": nr_result.get("max_abs_scaled_gas_phase_split_final"),
+        "max_abs_scaled_final": nr_result.get("max_abs_scaled_final"),
         "n_iter": nr_result["n_iter"],
         "residual": nr_result.get("residual", 0.0),
         "norm_history": nr_result.get("norm_history", []),
@@ -570,6 +683,7 @@ def finalize_global_nr_result(
         "nr_vorabrechnung_signatures": nr_result.get("nr_vorabrechnung_signatures", []),
         "nr_inner_tol_rms": nr_result.get("nr_inner_tol_rms"),
         "nr_jacobian_strategy": nr_result.get("nr_jacobian_strategy", nr_result.get("jacobian_strategy")),
+        "nr_layout_audit": nr_result.get("nr_layout_audit", []),
         "nr_jacobian_structure": nr_result.get("jacobian_structure"),
         "nr_linear_solver_backend": nr_result.get("nr_linear_solver_backend", nr_result.get("linear_solver_backend")),
         "nr_linear_solver_backend_last": nr_result.get("linear_solver_backend_last"),
@@ -579,6 +693,9 @@ def finalize_global_nr_result(
         "nr_linear_fallback_used": bool((nr_result.get("counts") or {}).get("structured_fallbacks", 0)),
         "nr_schur_size": (nr_result.get("counts") or {}).get("nr_schur_size_last"),
         "nr_jacobian_lag_steps": nr_result.get("nr_jacobian_lag_steps", 1),
+        "nr_reaction_continuation_active": nr_result.get("nr_reaction_continuation_active", False),
+        "nr_reaction_continuation_stages": nr_result.get("nr_reaction_continuation_stages", [1.0]),
+        "nr_reaction_continuation_target_cells": nr_result.get("nr_reaction_continuation_target_cells", 0),
         "nr_gs_warmup_s": nr_result.get("nr_gs_warmup_s", 0.0),
         "nr_outer_refresh_s_total": nr_result.get("nr_outer_refresh_s_total"),
         "nr_inner_solve_s_total": nr_result.get("nr_inner_solve_s_total"),
@@ -592,4 +709,5 @@ def finalize_global_nr_result(
         "nr_clip_history": nr_result.get("clip_history", []),
         "carbon_conv": carbon_conv,
         **exit_summary,
+        **freeboard_result_refresh,
     }

@@ -71,6 +71,24 @@ def _restore_macro_hydrodynamics_seed(
         cell.u0_target = original_u0
 
 
+def _install_temperature_fence_from_vorabrechnung(reactor: "Reactor", T_est: np.ndarray) -> None:
+    """Attach per-cell NR temperature bounds centered on Vorabrechnung estimates."""
+    cfg = reactor.config
+    enabled = bool(getattr(cfg, "nr_temperature_fence_enabled_thesis", True))
+    lower_margin = float(max(getattr(cfg, "nr_temperature_fence_lower_margin_K_thesis", 150.0), 0.0))
+    upper_margin = float(max(getattr(cfg, "nr_temperature_fence_upper_margin_K_thesis", 350.0), 0.0))
+    for i, cell in enumerate(reactor.cells):
+        if i >= len(T_est) or not enabled:
+            for attr in ("_vorab_temperature_estimate_K", "_nr_temperature_min_K", "_nr_temperature_max_K"):
+                if hasattr(cell, attr):
+                    delattr(cell, attr)
+            continue
+        t_ref = float(T_est[i])
+        cell._vorab_temperature_estimate_K = t_ref
+        cell._nr_temperature_min_K = float(max(300.0, t_ref - lower_margin))
+        cell._nr_temperature_max_K = float(min(2500.0, t_ref + upper_margin))
+
+
 def run_init_and_precalc_for_global_nr(
     reactor: "Reactor",
     *,
@@ -79,6 +97,11 @@ def run_init_and_precalc_for_global_nr(
 ) -> GlobalNRInitPrecalcResult:
     """执行轴向温度估计、进料/上游传播、初值 x0、水动力冻结与 thesis 单次源项初始化。"""
     from src.core.reactor import _resolve_nr_init_strategy
+    from src.core.connectivity import (
+        preproject_bottom_major_gas_state_to_local_balance,
+        preproject_bottom_primary_gas_state_to_exchange_closure,
+        preproject_bottom_total_gas_and_temperature_to_energy_closure,
+    )
     from src.solvers.vorabrechnung import estimate_axial_T_profile, generate_initial_x0
 
     cfg = reactor.config
@@ -100,6 +123,7 @@ def run_init_and_precalc_for_global_nr(
     )
     for i, cell in enumerate(reactor.cells):
         cell.T = float(T_est[i])
+    _install_temperature_fence_from_vorabrechnung(reactor, T_est)
     reactor._set_bottom_cell_feeds()
     for i in range(len(reactor.cells)):
         reactor._propagate_upstream(i)
@@ -107,6 +131,10 @@ def run_init_and_precalc_for_global_nr(
     try:
         for cell in reactor.cells:
             cell.calc_hydrodynamics()
+        reactor._snapshot_bottom_gas_inlet_split_from_vorabrechnung()
+        reactor._set_bottom_cell_feeds()
+        for i in range(len(reactor.cells)):
+            reactor._propagate_upstream(i)
 
         generate_initial_x0(
             cells=reactor.cells,
@@ -134,10 +162,17 @@ def run_init_and_precalc_for_global_nr(
     # Refresh BC first so particle-trace solids become real freeboard holdup
     # instead of being silently dropped during the first closure sync.
     reactor._apply_all_bc_for_nr()
+    reactor._seed_initialized_holdup_chain_for_nr()
+    reactor._apply_all_bc_for_nr()
+    preproject_bottom_primary_gas_state_to_exchange_closure(reactor.cells, cfg)
+    preproject_bottom_major_gas_state_to_local_balance(reactor.cells, cfg)
     reactor._refresh_explicit_freeboard_transport_from_closure()
     reactor._initialize_explicit_side_block_states()
-    reactor._initialize_nr_hydrodynamics_freeze_cache()
     reactor._initialize_thesis_single_shot_vorab_sources()
+    reactor._apply_all_bc_for_nr()
+    preproject_bottom_total_gas_and_temperature_to_energy_closure(reactor.cells, cfg)
+    reactor._apply_all_bc_for_nr()
+    reactor._initialize_nr_hydrodynamics_freeze_cache()
     nr_vorabrechnung_s = perf_counter() - vorab_started
     nr_init_s_total = perf_counter() - init_started
 

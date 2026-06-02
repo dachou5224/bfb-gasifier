@@ -62,7 +62,6 @@ def affected_nr_residual_cells(
             return tuple(sorted(neighbors))
 
         if cyclone_idx is not None and idx == cyclone_idx:
-            neighbors.update(range(int(n_bed)))
             if last_freeboard_idx is not None:
                 neighbors.add(last_freeboard_idx)
             elif int(n_bed) > 0:
@@ -71,16 +70,15 @@ def affected_nr_residual_cells(
                 neighbors.add(return_leg_idx)
             if int(n_bed) > 0:
                 neighbors.add(0)
+                neighbors.add(top_bed_idx)
             if int(n_bed) > 1:
                 neighbors.add(1)
             return tuple(sorted(neighbors))
 
         if return_leg_idx is not None and idx == return_leg_idx:
-            neighbors.update(range(int(n_bed)))
-            if cyclone_idx is not None:
-                neighbors.add(cyclone_idx)
             if int(n_bed) > 0:
                 neighbors.add(0)
+                neighbors.add(top_bed_idx)
             if int(n_bed) > 1:
                 neighbors.add(1)
 
@@ -90,6 +88,8 @@ def affected_nr_residual_cells(
         if n_bed <= 0:
             return tuple()
         affected: list[int] = []
+        if idx == 0:
+            affected.extend(range(n_bed))
         if idx > 0:
             affected.append(idx - 1)
         if 0 <= idx < n_bed:

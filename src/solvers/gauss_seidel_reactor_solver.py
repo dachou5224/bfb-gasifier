@@ -65,8 +65,11 @@ def solve_gauss_seidel_reactor(
     exit_gas = {sp: float(y_exit[j]) for j, sp in enumerate(GAS_SPECIES)}
     
     bot = cells[0]
-    m_char_in = float(np.sum(bot.m_solid_zu[:, S_CHAR] + bot.m_solid_in[:, S_CHAR]))
-    m_char_out = float(np.sum(top.m_solid[:, S_CHAR]))
+    m_char_in = float(np.sum(np.maximum(bot.m_solid_zu[:, S_CHAR] + bot.m_solid_in[:, S_CHAR], 0.0)))
+    m_char_out = max(
+        float(np.sum(np.maximum(top.m_solid[:, S_CHAR], 0.0))) - float(np.sum(np.maximum(bot.m_solid_rez[:, S_CHAR], 0.0))),
+        0.0,
+    )
     carbon_conv = 1.0 - (m_char_out / max(m_char_in, 1e-12))
     
     # 额外评估状态（用于测试对标）

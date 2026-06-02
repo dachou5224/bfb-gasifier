@@ -8,11 +8,500 @@ from dataclasses import asdict, dataclass
 import numpy as np
 
 from src.core.cell import Cell, S_ASH, S_CHAR, S_MOISTURE, S_VM
+from src.core.cell_balances import calc_gas_enthalpy_flow, calc_solid_enthalpy_flow
 from src.core.constants import Rg
-from src.core.species import GAS_SPECIES_INDEX
+from src.core.species import GAS_SPECIES_INDEX, cp_ash, cp_char, cp_sand
 
 _F_W = 0.25
 _ZETA_W = 0.40
+
+
+def _bottom_hydrodynamic_gas_inlet_dense_fraction(cell: Cell) -> float | None:
+    """Return dense-phase superficial flux share from current hydrodynamics."""
+    u0 = float(getattr(cell, "u0", 0.0))
+    u_d = float(getattr(cell, "u_d", 0.0))
+    eps_b = float(getattr(cell, "eps_b", 0.0))
+    dense_flux = max(u_d, 0.0) * max(1.0 - eps_b, 0.0)
+    if not np.isfinite(u0) or not np.isfinite(dense_flux) or u0 <= 1e-12:
+        return None
+    return float(np.clip(dense_flux / u0, 0.0, 1.0))
+
+
+def snapshot_bottom_gas_inlet_split_from_vorabrechnung(cells: list[Cell], cfg: Any) -> None:
+    """Freeze the bottom gas split after Vorabrechnung hydrodynamics has been refreshed."""
+    if not cells:
+        return
+    cell = cells[0]
+    strategy = str(getattr(cfg, "gas_inlet_split_strategy", "fixed")).strip().lower()
+    if strategy not in {
+        "precalc_hydrodynamic_flux",
+        "hydrodynamic_flux",
+        "vorabrechnung_hydrodynamic_flux",
+    }:
+        cell._vorab_bottom_gas_inlet_dense_frac = np.nan
+        return
+    frac = _bottom_hydrodynamic_gas_inlet_dense_fraction(cell)
+    if frac is not None:
+        cell._vorab_bottom_gas_inlet_dense_frac = float(frac)
+
+
+def align_bottom_primary_gas_state_to_inlet_split(cells: list[Cell], cfg: Any) -> None:
+    """Align bottom-cell primary gas inventory split with the frozen inlet split.
+
+    This preserves each primary species' total molar flow and only changes the
+    dense/bubble partition.  It prevents outer Vorabrechnung refresh from moving
+    the bottom inlet split while leaving the accepted state on an obsolete split.
+    """
+    if not cells:
+        return
+    cell = cells[0]
+    dense_frac = resolve_bottom_gas_inlet_dense_fraction(cell, cfg)
+    idx = GAS_SPECIES_INDEX
+    for sp in ("O2", "H2O", "N2"):
+        j = idx[sp]
+        total = float(max(cell.N_d[j] + cell.N_b[j], 0.0))
+        cell.N_d[j] = max(total * dense_frac, 1e-12)
+        cell.N_b[j] = max(total * (1.0 - dense_frac), 1e-12)
+
+
+def preproject_bottom_primary_gas_state_to_exchange_closure(
+    cells: list[Cell],
+    cfg: Any,
+    *,
+    improvement_factor: float = 0.75,
+) -> bool:
+    """Preproject bed0 primary gas split against the local K_bd exchange closure.
+
+    Hamel gives the Vorabrechnung module responsibility for hydrodynamics and
+    the outer Abgleich with the cell model, but does not prescribe an explicit
+    start-value projection.  This bridge is therefore deliberately narrow:
+    only O2/H2O/N2 in the bottom bed cell are repartitioned, each species'
+    total molar flow is conserved, and reaction products are left untouched.
+    """
+    if not cells:
+        return False
+    cell = cells[0]
+    if str(getattr(cell, "cell_type", "bed")) != "bed":
+        return False
+
+    idxs = [GAS_SPECIES_INDEX[sp] for sp in ("O2", "H2O", "N2")]
+    totals = np.array([float(max(cell.N_d[j] + cell.N_b[j], 0.0)) for j in idxs], dtype=np.float64)
+    if np.any(~np.isfinite(totals)) or np.any(totals <= 1e-10):
+        return False
+
+    original_d = cell.N_d.copy()
+    original_b = cell.N_b.copy()
+
+    def _invalidate_gas_state_cache() -> None:
+        cell._thermo_cache_valid = False
+        cell._hydro_cache_valid = False
+
+    def _set_dense_values(values: np.ndarray) -> None:
+        clipped = np.clip(np.asarray(values, dtype=np.float64), 1e-12, totals - 1e-12)
+        for value, total, j in zip(clipped, totals, idxs):
+            cell.N_d[j] = float(value)
+            cell.N_b[j] = float(total - value)
+        _invalidate_gas_state_cache()
+
+    def _primary_dense_residual(values: np.ndarray) -> np.ndarray:
+        _set_dense_values(values)
+        res = np.asarray(cell.residuals(), dtype=np.float64)
+        return res[idxs].copy()
+
+    x0 = np.array([float(cell.N_d[j]) for j in idxs], dtype=np.float64)
+    initial_res = _primary_dense_residual(x0)
+    initial_norm = float(np.linalg.norm(initial_res, ord=2))
+    if not np.isfinite(initial_norm) or initial_norm <= 1e-12:
+        cell.N_d[:] = original_d
+        cell.N_b[:] = original_b
+        _invalidate_gas_state_cache()
+        return False
+
+    try:
+        from scipy.optimize import least_squares
+
+        sol = least_squares(
+            _primary_dense_residual,
+            x0=np.clip(x0, 1e-12, totals - 1e-12),
+            bounds=(np.full_like(totals, 1e-12), totals - 1e-12),
+            max_nfev=12,
+            xtol=1e-10,
+            ftol=1e-10,
+            gtol=1e-10,
+        )
+        candidate = np.asarray(sol.x, dtype=np.float64)
+        final_res = _primary_dense_residual(candidate)
+    except Exception:
+        cell.N_d[:] = original_d
+        cell.N_b[:] = original_b
+        _invalidate_gas_state_cache()
+        cell.residuals()
+        return False
+
+    final_norm = float(np.linalg.norm(final_res, ord=2))
+    if np.isfinite(final_norm) and final_norm <= improvement_factor * initial_norm:
+        _set_dense_values(candidate)
+        cell.residuals()
+        return True
+
+    cell.N_d[:] = original_d
+    cell.N_b[:] = original_b
+    _invalidate_gas_state_cache()
+    cell.residuals()
+    return False
+
+
+def preproject_bottom_major_gas_state_to_local_balance(
+    cells: list[Cell],
+    cfg: Any,
+    *,
+    improvement_factor: float = 0.75,
+) -> bool:
+    """Preproject bed0 major gas x0 against the local two-phase gas balances.
+
+    This is a start-value bridge for the bottom oxidation/devolatilization zone:
+    primary species totals (O2/H2O/N2) remain fixed, while major kinetic products
+    (CO/H2/CH4/CO2) may receive dense and bubble outlet support.  Tar species are
+    intentionally excluded because the current tar source is a separate lumped
+    pyrolysis carrier and including it worsened the O2/H2O split in static probes.
+    """
+    if not cells:
+        return False
+    cell = cells[0]
+    if str(getattr(cell, "cell_type", "bed")) != "bed":
+        return False
+
+    primary_names = ("O2", "H2O", "N2")
+    product_names = ("CO", "H2", "CH4", "CO2")
+    primary_idxs = [GAS_SPECIES_INDEX[sp] for sp in primary_names]
+    product_idxs = [GAS_SPECIES_INDEX[sp] for sp in product_names]
+    objective_idxs = primary_idxs + product_idxs
+    objective_rows = objective_idxs + [j + cell.N_d.shape[0] for j in objective_idxs]
+    primary_totals = np.array(
+        [float(max(cell.N_d[j] + cell.N_b[j], 0.0)) for j in primary_idxs],
+        dtype=np.float64,
+    )
+    if np.any(~np.isfinite(primary_totals)) or np.any(primary_totals <= 1e-10):
+        return False
+
+    original_d = cell.N_d.copy()
+    original_b = cell.N_b.copy()
+
+    def _invalidate_gas_state_cache() -> None:
+        cell._thermo_cache_valid = False
+        cell._hydro_cache_valid = False
+
+    def _set_values(values: np.ndarray) -> None:
+        x = np.asarray(values, dtype=np.float64)
+        k = 0
+        for value, total, j in zip(x[k : k + len(primary_idxs)], primary_totals, primary_idxs):
+            dense = float(np.clip(value, 1e-12, total - 1e-12))
+            cell.N_d[j] = dense
+            cell.N_b[j] = float(total - dense)
+        k += len(primary_idxs)
+        for value, j in zip(x[k : k + len(product_idxs)], product_idxs):
+            cell.N_d[j] = max(float(value), 1e-12)
+        k += len(product_idxs)
+        for value, j in zip(x[k : k + len(product_idxs)], product_idxs):
+            cell.N_b[j] = max(float(value), 1e-12)
+        _invalidate_gas_state_cache()
+
+    def _residual_objective(values: np.ndarray) -> np.ndarray:
+        _set_values(values)
+        res = np.asarray(cell.residuals(), dtype=np.float64)
+        return res[objective_rows].copy()
+
+    initial_res = np.asarray(cell.residuals(), dtype=np.float64)
+    initial_gas_max = float(
+        max(
+            np.max(np.abs(initial_res[: cell.N_d.shape[0]])),
+            np.max(np.abs(initial_res[cell.N_d.shape[0] : 2 * cell.N_d.shape[0]])),
+        )
+    )
+    if not np.isfinite(initial_gas_max) or initial_gas_max <= 1e-12:
+        return False
+
+    x0 = np.concatenate(
+        (
+            np.array([float(cell.N_d[j]) for j in primary_idxs], dtype=np.float64),
+            np.array([max(float(cell.N_d[j]), 1e-9) for j in product_idxs], dtype=np.float64),
+            np.array([max(float(cell.N_b[j]), 1e-9) for j in product_idxs], dtype=np.float64),
+        )
+    )
+    lower = np.full_like(x0, 1e-12)
+    upper = np.concatenate(
+        (
+            primary_totals - 1e-12,
+            np.full(len(product_idxs), 80.0, dtype=np.float64),
+            np.full(len(product_idxs), 80.0, dtype=np.float64),
+        )
+    )
+
+    try:
+        from scipy.optimize import least_squares
+
+        sol = least_squares(
+            _residual_objective,
+            x0=np.clip(x0, lower, upper),
+            bounds=(lower, upper),
+            max_nfev=20,
+            xtol=1e-10,
+            ftol=1e-10,
+            gtol=1e-10,
+        )
+        candidate = np.asarray(sol.x, dtype=np.float64)
+        _set_values(candidate)
+        final_res = np.asarray(cell.residuals(), dtype=np.float64)
+    except Exception:
+        cell.N_d[:] = original_d
+        cell.N_b[:] = original_b
+        _invalidate_gas_state_cache()
+        cell.residuals()
+        return False
+
+    final_gas_max = float(
+        max(
+            np.max(np.abs(final_res[: cell.N_d.shape[0]])),
+            np.max(np.abs(final_res[cell.N_d.shape[0] : 2 * cell.N_d.shape[0]])),
+        )
+    )
+    if np.isfinite(final_gas_max) and final_gas_max <= improvement_factor * initial_gas_max:
+        return True
+
+    cell.N_d[:] = original_d
+    cell.N_b[:] = original_b
+    _invalidate_gas_state_cache()
+    cell.residuals()
+    return False
+
+
+def preproject_bottom_total_gas_and_temperature_to_energy_closure(
+    cells: list[Cell],
+    cfg: Any,
+    *,
+    gas_relax: float = 1.0,
+    temperature_bounds_K: tuple[float, float] = (650.0, 1600.0),
+    improvement_factor: float = 0.75,
+) -> bool:
+    """Joint bed0 x0 projection for total gas closure and energy accessibility.
+
+    This is an initialization-only bridge for the bottom devolatilization /
+    oxidation stiffness.  It does not modify reaction sources and does not put
+    drying/pyrolysis gas into the bubble source.  Instead:
+
+    - major gas dense/bubble outlet values are solved with bounded least squares
+      against total gas closure, phase residuals, and energy closure;
+    - TAR/NH3 source support is added only to dense outlet variables because the
+      direct pyrolysis source remains a suspension-phase source;
+    - temperature is bounded to keep the projection in a plausible x0 range.
+    """
+    if not cells:
+        return False
+    cell = cells[0]
+    if str(getattr(cell, "cell_type", "bed")) != "bed":
+        return False
+
+    original_d = cell.N_d.copy()
+    original_b = cell.N_b.copy()
+    original_T = float(cell.T)
+
+    def _invalidate_state_cache() -> None:
+        cell._thermo_cache_valid = False
+        cell._hydro_cache_valid = False
+
+    def _gas_max(res: np.ndarray) -> float:
+        n = cell.N_d.shape[0]
+        return float(max(np.max(np.abs(res[:n])), np.max(np.abs(res[n : 2 * n]))))
+
+    def _combined_gas_max(res: np.ndarray) -> float:
+        n = cell.N_d.shape[0]
+        return float(np.max(np.abs(res[:n] + res[n : 2 * n])))
+
+    initial_res = np.asarray(cell.residuals(), dtype=np.float64)
+    initial_energy_abs = abs(float(initial_res[-1]))
+    initial_gas_max = _gas_max(initial_res)
+    initial_combined_gas_max = _combined_gas_max(initial_res)
+    if not np.isfinite(initial_energy_abs) or initial_energy_abs <= 1e-9:
+        return False
+
+    n_gas = cell.N_d.shape[0]
+    projection_omega = float(np.clip(gas_relax, 0.0, 1.0))
+    major_names = ("CO", "CO2", "H2", "H2O", "CH4", "O2", "N2")
+    major_idxs = [GAS_SPECIES_INDEX[sp] for sp in major_names]
+    dense_only_source_names = ("NH3", "TAR1", "TAR2")
+
+    fixed_dense_support = original_d.copy()
+    fixed_bubble_support = original_b.copy()
+    for sp in dense_only_source_names:
+        j = GAS_SPECIES_INDEX[sp]
+        dense_support = max(float(initial_res[j]), 0.0)
+        fixed_dense_support[j] = max(float(fixed_dense_support[j] + projection_omega * dense_support), 0.0)
+        # Keep bubble untouched: direct drying/pyrolysis source remains dense-only.
+        fixed_bubble_support[j] = max(float(fixed_bubble_support[j]), 0.0)
+
+    def _h_gas(flow: np.ndarray, temperature: float) -> float:
+        return calc_gas_enthalpy_flow(np.asarray(flow, dtype=np.float64), float(temperature), cell._h_cache)
+
+    def _h_solid(flow: np.ndarray, temperature: float) -> float:
+        return calc_solid_enthalpy_flow(
+            np.asarray(flow, dtype=np.float64),
+            float(temperature),
+            ash_dry_wt=cell.solid.ash_dry_wt,
+            VM_daf=cell.solid.VM_daf,
+            h_f_dry=cell.solid.h_f_dry,
+            cp_char_fn=cp_char,
+            cp_ash_fn=cp_ash,
+            cp_sand_fn=cp_sand,
+        )
+
+    attr_lo = float(getattr(cell, "_nr_temperature_min_K", temperature_bounds_K[0]))
+    attr_hi = float(getattr(cell, "_nr_temperature_max_K", temperature_bounds_K[1]))
+    if not np.isfinite(attr_lo):
+        attr_lo = float(temperature_bounds_K[0])
+    if not np.isfinite(attr_hi):
+        attr_hi = float(temperature_bounds_K[1])
+    t_lo = max(float(temperature_bounds_K[0]), attr_lo, 300.0)
+    t_hi = min(float(temperature_bounds_K[1]), attr_hi, 2500.0)
+    t_hi = max(t_hi, t_lo + 1.0)
+
+    def _set_candidate(x: np.ndarray) -> None:
+        arr = np.asarray(x, dtype=np.float64)
+        cell.N_d[:] = fixed_dense_support
+        cell.N_b[:] = fixed_bubble_support
+        for value, j in zip(arr[: len(major_idxs)], major_idxs):
+            cell.N_d[j] = max(float(value), 1e-12)
+        for value, j in zip(arr[len(major_idxs) : 2 * len(major_idxs)], major_idxs):
+            cell.N_b[j] = max(float(value), 1e-12)
+        cell.T = float(np.clip(arr[-1], t_lo, t_hi))
+        _invalidate_state_cache()
+
+    ref_gas = max(
+        float(
+            np.sum(
+                np.maximum(
+                    cell.N_zu_d
+                    + cell.N_zu_b
+                    + cell.N_d_in
+                    + cell.N_b_in
+                    + cell.N_rez_d
+                    + cell.N_rez_b,
+                    0.0,
+                )
+            )
+        ),
+        1.0,
+    )
+    ref_energy = max(abs(float(getattr(cfg, "fuel_feed", 1.0))) * 20.0e6, 1.0e6)
+
+    def _objective(x: np.ndarray) -> np.ndarray:
+        _set_candidate(x)
+        res = np.asarray(cell.residuals(), dtype=np.float64)
+        combined = (res[major_idxs] + res[[n_gas + j for j in major_idxs]]) / ref_gas
+        phase = np.concatenate((res[major_idxs], res[[n_gas + j for j in major_idxs]])) / ref_gas
+        energy = np.array([float(res[-1]) / ref_energy], dtype=np.float64)
+        # Total closure is the priority; phase rows remain in the objective so
+        # the projection cannot "solve" total gas by destroying two-phase balance.
+        return np.concatenate((combined, 0.4 * phase, 3.0 * energy))
+
+    x0 = np.concatenate(
+        (
+            np.array([max(float(original_d[j]), 1e-12) for j in major_idxs], dtype=np.float64),
+            np.array([max(float(original_b[j]), 1e-12) for j in major_idxs], dtype=np.float64),
+            np.array([float(np.clip(original_T, t_lo, t_hi))], dtype=np.float64),
+        )
+    )
+    lower = np.full_like(x0, 1e-12)
+    upper = np.full_like(x0, 120.0)
+    lower[-1] = t_lo
+    upper[-1] = t_hi
+    try:
+        from scipy.optimize import least_squares
+
+        sol = least_squares(
+            _objective,
+            x0=np.clip(x0, lower, upper),
+            bounds=(lower, upper),
+            max_nfev=40,
+            xtol=1e-8,
+            ftol=1e-8,
+            gtol=1e-8,
+        )
+        raw_candidate = np.asarray(sol.x, dtype=np.float64)
+        # Use the bounded LSQ result as a direction, not as a hidden local solve.
+        # A full projection closes bed0 aggressively but can simply push an
+        # enthalpy shock into bed1/bed2.  Relaxing the state move keeps this as a
+        # start-value preconditioner.
+        relaxed_candidate = np.asarray(x0 + projection_omega * (raw_candidate - x0), dtype=np.float64)
+        _set_candidate(relaxed_candidate)
+        final_res = np.asarray(cell.residuals(), dtype=np.float64)
+    except Exception:
+        cell.N_d[:] = original_d
+        cell.N_b[:] = original_b
+        cell.T = original_T
+        _invalidate_state_cache()
+        cell.residuals()
+        return False
+
+    final_energy_abs = abs(float(final_res[-1]))
+    final_combined_gas_max = _combined_gas_max(final_res)
+    final_gas_max = _gas_max(final_res)
+
+    energy_improved = np.isfinite(final_energy_abs) and final_energy_abs <= improvement_factor * initial_energy_abs
+    gas_improved = (
+        np.isfinite(final_combined_gas_max)
+        and final_combined_gas_max <= improvement_factor * max(initial_combined_gas_max, 1e-9)
+        and np.isfinite(final_gas_max)
+        and final_gas_max <= max(initial_gas_max, 1e-9)
+    )
+    if energy_improved and gas_improved:
+        cell._bottom_joint_preprojection_diag = {
+            "initial_energy_abs_W": float(initial_energy_abs),
+            "final_energy_abs_W": float(final_energy_abs),
+            "initial_gas_max_mol_s": float(initial_gas_max),
+            "final_gas_max_mol_s": float(final_gas_max),
+            "initial_combined_gas_max_mol_s": float(initial_combined_gas_max),
+            "final_combined_gas_max_mol_s": float(final_combined_gas_max),
+            "candidate_temperature_K": float(cell.T),
+        }
+        return True
+
+    cell.N_d[:] = original_d
+    cell.N_b[:] = original_b
+    cell.T = original_T
+    _invalidate_state_cache()
+    cell.residuals()
+    return False
+
+
+def resolve_bottom_gas_inlet_dense_fraction(cell: Cell, cfg: Any) -> float:
+    """Resolve bottom gas split from fixed config or Vorabrechnung hydrodynamic flux.
+
+    Ref: Hamel (1999) Kapitel 2.1 Vorabrechnung and Kapitel 3.1.2 Eq.3.7-3.10.
+    The suspension-phase share follows the dense-phase superficial flux
+    ``u_d * (1 - eps_b)`` divided by the total superficial velocity ``u0``.
+    """
+    fallback = float(np.clip(getattr(cfg, "gas_inlet_dense_frac", 0.0), 0.0, 1.0))
+    strategy = str(getattr(cfg, "gas_inlet_split_strategy", "fixed")).strip().lower()
+    if strategy in {"", "fixed", "legacy_fixed"}:
+        return fallback
+    if strategy not in {
+        "precalc_hydrodynamic_flux",
+        "hydrodynamic_flux",
+        "vorabrechnung_hydrodynamic_flux",
+    }:
+        raise ValueError(
+            "Unsupported gas_inlet_split_strategy="
+            f"{getattr(cfg, 'gas_inlet_split_strategy', None)!r}; "
+            "expected 'fixed' or 'precalc_hydrodynamic_flux'."
+        )
+
+    frozen = float(getattr(cell, "_vorab_bottom_gas_inlet_dense_frac", np.nan))
+    if np.isfinite(frozen):
+        return float(np.clip(frozen, 0.0, 1.0))
+    live = _bottom_hydrodynamic_gas_inlet_dense_fraction(cell)
+    if live is not None:
+        return live
+    return fallback
 
 
 @dataclass(frozen=True)
@@ -70,9 +559,10 @@ def propagated_solid_stream_from_cell(
     routed = propagated_solid_stream(upflow, frac=frac, include_reactive=False)
     if include_reactive:
         if str(getattr(cell, "solid_state_model", "legacy_stream")) in {"holdup_transport", "freeboard_closure"}:
-            # Keep units consistent ([kg/s]): propagate fresh-feed reactive inlet support
-            # rather than holdup inventory ([kg]).
-            reactive_source = np.maximum(cell.m_solid_zu + cell.m_solid_in + cell.m_solid_rez, 0.0)
+            # Propagate the remaining resident reactive stock, not the original
+            # fresh/source support. Reusing m_solid_zu + m_solid_in would count
+            # the same VM/moisture budget again in every lower-bed cell.
+            reactive_source = np.maximum(cell.m_solid, 0.0)
         else:
             reactive_source = np.maximum(upflow, 0.0)
         routed[:, S_VM] = reactive_source[:, S_VM] * float(frac)
@@ -144,6 +634,7 @@ def update_bed_solid_transport_coefficients(
     cfg: Any,
     *,
     top_downflow_total: float = 0.0,
+    top_downflow_components: np.ndarray | None = None,
 ) -> None:
     """Update frozen bed ``K_auf`` / ``K_ab`` transport coefficients.
 
@@ -166,25 +657,41 @@ def update_bed_solid_transport_coefficients(
     )
     m_auf_totals = k_auf_vals * holdups
 
-    m_ab_from_above = float(max(top_downflow_total, 0.0))
+    m_ab_from_above_total = float(max(top_downflow_total, 0.0))
+    m_ab_from_above_components = np.zeros(2, dtype=np.float64)
+    if isinstance(top_downflow_components, np.ndarray) and top_downflow_components.shape[0] >= 2:
+        m_ab_from_above_components[:] = np.maximum(top_downflow_components[:2], 0.0)
+    elif m_ab_from_above_total > 0.0:
+        m_ab_from_above_components[:] = 0.5 * m_ab_from_above_total
+
     for i in range(len(bed_cells) - 1, -1, -1):
         cell = bed_cells[i]
         up_in = float(m_auf_totals[i - 1]) if i > 0 else 0.0
-        # Keep K_ab reconstruction consistent with the solid Eq.2.6 residual terms:
-        # include side-feed/recycle and any explicit solid inlet source.
-        ext_in = float(np.sum(np.maximum(cell.m_solid_zu + cell.m_solid_rez + cell.m_solid_in, 0.0)))
-        reaction_total = float(np.sum(np.asarray(cell.R_solid, dtype=np.float64)))
-        m_ab_total = max(up_in - float(m_auf_totals[i]) + m_ab_from_above + ext_in + reaction_total, 0.0)
-        k_ab = m_ab_total / max(float(holdups[i]), 1e-12) if holdups[i] > 1e-12 else 0.0
+        ext_in_char = float(np.sum(np.maximum(cell.m_solid_zu[:, S_CHAR] + cell.m_solid_rez[:, S_CHAR] + cell.m_solid_in[:, S_CHAR], 0.0)))
+        ext_in_ash = float(np.sum(np.maximum(cell.m_solid_zu[:, S_ASH] + cell.m_solid_rez[:, S_ASH] + cell.m_solid_in[:, S_ASH], 0.0)))
+        reaction_char = float(np.sum(np.asarray(cell.R_solid[:, S_CHAR], dtype=np.float64)))
+        reaction_ash = float(np.sum(np.asarray(cell.R_solid[:, S_ASH], dtype=np.float64)))
+        # Bed axial upflow remains hydrodynamics-driven (shared ``K_auf``), while the
+        # top-down closure for ``K_ab`` keeps char/ash source terms separated.
+        m_ab_total = max(
+            up_in - float(m_auf_totals[i]) + m_ab_from_above_total + ext_in_char + ext_in_ash + reaction_char + reaction_ash,
+            0.0,
+        )
+        m_ab_char = max(up_in - float(m_auf_totals[i]) + m_ab_from_above_components[0] + ext_in_char + reaction_char, 0.0)
+        m_ab_ash = max(up_in - float(m_auf_totals[i]) + m_ab_from_above_components[1] + ext_in_ash + reaction_ash, 0.0)
+        k_ab_char = m_ab_char / max(float(holdups[i]), 1e-12) if holdups[i] > 1e-12 else 0.0
+        k_ab_ash = m_ab_ash / max(float(holdups[i]), 1e-12) if holdups[i] > 1e-12 else 0.0
 
         cell.K_solid_auf.fill(0.0)
         cell.K_solid_ab.fill(0.0)
         # Thesis holdup transport: only char/ash are transported across cells.
         cell.K_solid_auf[:, S_CHAR] = float(k_auf_vals[i])
         cell.K_solid_auf[:, S_ASH] = float(k_auf_vals[i])
-        cell.K_solid_ab[:, S_CHAR] = float(k_ab)
-        cell.K_solid_ab[:, S_ASH] = float(k_ab)
-        m_ab_from_above = m_ab_total
+        cell.K_solid_ab[:, S_CHAR] = float(k_ab_char)
+        cell.K_solid_ab[:, S_ASH] = float(k_ab_ash)
+        m_ab_from_above_total = m_ab_total
+        m_ab_from_above_components[0] = m_ab_char
+        m_ab_from_above_components[1] = m_ab_ash
 
 
 def update_bed_solid_transport_inflows(bed_cells: list[Cell]) -> None:
@@ -202,16 +709,21 @@ def update_bed_solid_transport_inflows_from_above(
     for cell in bed_cells:
         cell.m_solid_auf_in.fill(0.0)
         cell.m_solid_ab_in.fill(0.0)
+        cell.T_solid_auf_in = float(cell.T)
+        cell.T_solid_ab_in = float(cell.T)
 
     for i, cell in enumerate(bed_cells):
         if i > 0:
             below = bed_cells[i - 1]
             cell.m_solid_auf_in[:, :] = below.K_solid_auf * np.maximum(below.m_solid, 0.0)
+            cell.T_solid_auf_in = float(below.T)
         if i + 1 < len(bed_cells):
             above = bed_cells[i + 1]
             cell.m_solid_ab_in[:, :] = above.K_solid_ab * np.maximum(above.m_solid, 0.0)
+            cell.T_solid_ab_in = float(above.T)
         elif top_above_cell is not None:
             cell.m_solid_ab_in[:, :] = np.maximum(top_above_cell._solid_downflow_rates(), 0.0)
+            cell.T_solid_ab_in = float(top_above_cell.T)
         # Guardrail: axial transport channels carry only char/ash in thesis holdup mode.
         cell.m_solid_auf_in[:, S_VM] = 0.0
         cell.m_solid_auf_in[:, S_MOISTURE] = 0.0
@@ -233,20 +745,34 @@ def propagate_explicit_freeboard_chain(
         prev = cell
 
 
+def _set_degenerate_single_phase_gas_inlet(prev: Cell, cell: Cell) -> None:
+    """Route upstream total gas into the suspension channel of degenerate segments."""
+    prev_kind = str(getattr(prev, "cell_type", "bed")).strip().lower()
+    prev_total = prev.N_d if prev_kind in {"freeboard", "cyclone", "return_leg"} else prev.N_d + prev.N_b
+    cell.N_d_in[:] = np.maximum(prev_total, 0.0)
+    cell.N_b_in.fill(0.0)
+
+
 def _set_explicit_freeboard_inlet_from_prev(prev: Cell, cell: Cell) -> None:
     """Refresh one explicit freeboard cell inlet from its upstream source cell."""
-    cell.N_b_in[:] = np.maximum(prev.N_b, 0.0)
-    cell.N_d_in[:] = np.maximum(prev.N_d, 0.0)
+    _set_degenerate_single_phase_gas_inlet(prev, cell)
     cell.T_in_gas = float(prev.T)
+    cell.T_in_solid = float(prev.T)
     cell.m_solid_in.fill(0.0)
-    if str(getattr(cell, "solid_state_model", "legacy_stream")) != "freeboard_closure":
-        cell.m_solid_in[:] = propagated_solid_stream_from_cell(prev, include_reactive=False)
+    # Freeboard-closure solids remain outside the NR solid residual, but their
+    # entrained char/ash stream still carries sensible/formation enthalpy into
+    # the freeboard energy residual.
+    cell.m_solid_in[:] = propagated_solid_stream_from_cell(prev, include_reactive=False)
     active_mask = getattr(cell, "_freeboard_active_char_ash_mask", None)
-    if isinstance(active_mask, np.ndarray) and active_mask.shape[0] == cell.solid.n_size_classes:
+    if (
+        str(getattr(cell, "solid_state_model", "legacy_stream")) != "freeboard_closure"
+        and isinstance(active_mask, np.ndarray)
+        and active_mask.shape[0] == cell.solid.n_size_classes
+    ):
         mask = np.maximum(active_mask, 0.0).reshape(-1)
         cell.m_solid_in[:, S_CHAR] *= mask
         cell.m_solid_in[:, S_ASH] *= mask
-    if str(getattr(cell, "solid_state_model", "legacy_stream")) in {"holdup_transport", "freeboard_closure"}:
+    if str(getattr(cell, "solid_state_model", "legacy_stream")) == "holdup_transport":
         vm_col = np.maximum(cell.m_solid_in[:, S_VM], 0.0)
         moist_col = np.maximum(cell.m_solid_in[:, S_MOISTURE], 0.0)
         cell.m_solid_in.fill(0.0)
@@ -271,16 +797,21 @@ def update_freeboard_solid_transport_inflows(
     for i, cell in enumerate(freeboard_cells):
         cell.m_solid_auf_in.fill(0.0)
         cell.m_solid_ab_in.fill(0.0)
+        cell.T_solid_auf_in = float(cell.T)
+        cell.T_solid_ab_in = float(cell.T)
         if str(getattr(cell, "solid_state_model", "legacy_stream")) == "freeboard_closure":
             continue
         if i == 0:
             cell.m_solid_auf_in[:, :] = np.maximum(bottom_below_cell._solid_upflow_rates(), 0.0)
+            cell.T_solid_auf_in = float(bottom_below_cell.T)
         else:
             below = freeboard_cells[i - 1]
             cell.m_solid_auf_in[:, :] = np.maximum(below._solid_upflow_rates(), 0.0)
+            cell.T_solid_auf_in = float(below.T)
         if i + 1 < len(freeboard_cells):
             above = freeboard_cells[i + 1]
             cell.m_solid_ab_in[:, :] = np.maximum(above._solid_downflow_rates(), 0.0)
+            cell.T_solid_ab_in = float(above.T)
         # Guardrail: freeboard axial transport carries only char/ash.
         cell.m_solid_auf_in[:, S_VM] = 0.0
         cell.m_solid_auf_in[:, S_MOISTURE] = 0.0
@@ -303,16 +834,21 @@ def _refresh_freeboard_solid_transport_inflows_for_indices(
         cell = freeboard_cells[i]
         cell.m_solid_auf_in.fill(0.0)
         cell.m_solid_ab_in.fill(0.0)
+        cell.T_solid_auf_in = float(cell.T)
+        cell.T_solid_ab_in = float(cell.T)
         if str(getattr(cell, "solid_state_model", "legacy_stream")) == "freeboard_closure":
             continue
         if i == 0:
             cell.m_solid_auf_in[:, :] = np.maximum(bottom_below_cell._solid_upflow_rates(), 0.0)
+            cell.T_solid_auf_in = float(bottom_below_cell.T)
         else:
             below = freeboard_cells[i - 1]
             cell.m_solid_auf_in[:, :] = np.maximum(below._solid_upflow_rates(), 0.0)
+            cell.T_solid_auf_in = float(below.T)
         if i + 1 < n:
             above = freeboard_cells[i + 1]
             cell.m_solid_ab_in[:, :] = np.maximum(above._solid_downflow_rates(), 0.0)
+            cell.T_solid_ab_in = float(above.T)
         cell.m_solid_auf_in[:, S_VM] = 0.0
         cell.m_solid_auf_in[:, S_MOISTURE] = 0.0
         cell.m_solid_ab_in[:, S_VM] = 0.0
@@ -387,18 +923,69 @@ def update_side_block_solid_transport_coefficients(
         return_leg_cell.K_solid_ab[:, comp_idx] = K_leg
 
 
-def seed_side_block_holdup_from_inflows(cell: Cell) -> None:
-    """Seed a side-block holdup state from its current thesis inflows and frozen ``K``."""
+def seed_holdup_from_inflows(cell: Cell) -> bool:
+    """Seed one holdup state from current transport inflows and ``K`` coefficients.
+
+    For thesis ``holdup_transport`` states, upper bed cells depend on lower-cell
+    ``K_auf * m_solid`` transport. During initialization this creates a one-way
+    dependency chain: bed0 is known from fresh feed, bed1 depends on bed0, bed2
+    depends on bed1, and so on. This helper raises under-filled holdup states
+    toward their current steady ``inflow / K`` support without lowering existing
+    inventory, so it is safe as an initialization sweep before NR updates.
+    """
     if str(cell.solid_state_model) not in {"holdup_transport", "freeboard_closure"}:
-        return
-    if float(np.sum(np.maximum(cell.m_solid, 0.0))) > 1e-12:
-        return
-    inflow = np.maximum(cell.m_solid_zu + cell.m_solid_rez + cell.m_solid_in + cell.m_solid_auf_in + cell.m_solid_ab_in, 0.0)
+        return False
+    inflow = np.maximum(
+        cell.m_solid_zu
+        + cell.m_solid_rez
+        + cell.m_solid_in
+        + cell.m_solid_auf_in
+        + cell.m_solid_ab_in,
+        0.0,
+    )
+    # Eq.2-6 steady holdup must also carry positive local solid formation terms
+    # such as char generated from devolatilization. Negative reaction terms remain
+    # sinks and are intentionally not used to seed resident inventory.
+    inflow = inflow + np.maximum(cell.R_solid, 0.0)
     K_total = np.maximum(cell.K_solid_auf + cell.K_solid_ab, 0.0)
     seeded = np.zeros_like(cell.m_solid)
     mask = K_total > 1e-12
+    if not np.any(mask):
+        return False
     seeded[mask] = inflow[mask] / K_total[mask]
-    cell.m_solid[:, :] = seeded
+    underfilled_mask = mask & (np.maximum(cell.m_solid, 0.0) < seeded) & (seeded > 0.0)
+    if not np.any(underfilled_mask):
+        return False
+    cell.m_solid[underfilled_mask] = seeded[underfilled_mask]
+    return True
+
+
+def seed_bed_holdup_chain_from_transport(
+    bed_cells: list[Cell],
+    *,
+    top_above_cell: Cell | None = None,
+) -> bool:
+    """Propagate thesis bed holdup seeding bottom→top from current transport states.
+
+    Hamel Eq. 2.6 transport uses neighboring solid holdup to define axial inflow
+    terms. After switching x0 to active-solid-only semantics, upper bed cells can
+    remain empty unless we explicitly walk this dependency chain once during
+    initialization. This sweep seeds only empty cells and then refreshes inflow
+    terms from the newly created resident holdups.
+    """
+    if not bed_cells:
+        return False
+    changed_any = False
+    for _ in range(max(3 * len(bed_cells), 1)):
+        update_bed_solid_transport_inflows_from_above(bed_cells, top_above_cell)
+        changed = False
+        for cell in bed_cells:
+            changed |= seed_holdup_from_inflows(cell)
+        changed_any |= changed
+        if not changed:
+            break
+    update_bed_solid_transport_inflows_from_above(bed_cells, top_above_cell)
+    return changed_any
 
 
 def apply_frozen_bed_solid_transport_coefficients(bed_cells: list[Cell]) -> bool:
@@ -435,7 +1022,7 @@ def set_bottom_cell_feeds(cells: list[Cell], cfg: Any) -> None:
     cell.N_zu_b.fill(0.0)
     cell.m_solid_zu.fill(0.0)
 
-    dense_frac = float(np.clip(cfg.gas_inlet_dense_frac, 0.0, 1.0))
+    dense_frac = resolve_bottom_gas_inlet_dense_fraction(cell, cfg)
     bubble_frac = 1.0 - dense_frac
     cell.N_zu_d[idx["O2"]] = float(cfg.O2_feed) * dense_frac
     cell.N_zu_d[idx["H2O"]] = float(cfg.H2O_feed) * dense_frac
@@ -549,21 +1136,19 @@ def propagate_upstream(cells: list[Cell], cfg: Any, i: int) -> None:
         upper_frac = 1.0 - lower_frac
         above_solid = propagated_solid_stream_from_cell(above, include_reactive=reactive_inlet_allowed)
         lower_solid = propagated_solid_stream_from_cell(prev, include_reactive=reactive_inlet_allowed)
-        above_empty = float(np.sum(above_solid)) <= 1e-12
-        above_reactive_empty = float(
-            np.sum(np.maximum(above_solid[:, S_VM] + above_solid[:, S_MOISTURE], 0.0))
-        ) <= 1e-12
-        if above_empty:
-            above_solid = lower_solid
-            above_T = prev.T
-        elif reactive_inlet_allowed and above_reactive_empty:
-            # Keep counter-current char/ash routing from above, but pull reactive fresh-feed
-            # support from lower cell so lower-zone VM/moisture release can continue.
-            above_solid[:, S_VM] = lower_solid[:, S_VM]
-            above_solid[:, S_MOISTURE] = lower_solid[:, S_MOISTURE]
-            above_T = above.T
-        else:
-            above_T = above.T
+        # Reactive component seeding: if above has no VM/moisture but seeding is needed,
+        # pull from lower cell. This is a smooth update (no hard switch on solid amount).
+        if reactive_inlet_allowed:
+            above_reactive_empty = float(
+                np.sum(np.maximum(above_solid[:, S_VM] + above_solid[:, S_MOISTURE], 0.0))
+            ) <= 1e-12
+            if above_reactive_empty:
+                above_solid[:, S_VM] = lower_solid[:, S_VM]
+                above_solid[:, S_MOISTURE] = lower_solid[:, S_MOISTURE]
+        # Temperature: use above cell T only if above supplies any char/ash, else use prev T.
+        # This avoids a hard binary switch on total solid that caused Jacobian discontinuity.
+        above_char_ash = float(np.sum(np.maximum(above_solid[:, S_CHAR] + above_solid[:, S_ASH], 0.0)))
+        above_T = above.T if above_char_ash > 1e-12 else prev.T
         curr.m_solid_in[:] = (
             upper_frac * above_solid
             + lower_frac * lower_solid
@@ -598,13 +1183,14 @@ def route_auxiliary_side_blocks(
     if not source_cells:
         return
     top = source_cells[-1]
-    cyclone_cell.N_b_in[:] = top.N_b
-    cyclone_cell.N_d_in[:] = top.N_d
+    _set_degenerate_single_phase_gas_inlet(top, cyclone_cell)
     cyclone_cell.T_in_gas = float(top.T)
     cyclone_cell.m_solid_in.fill(0.0)
     cyclone_cell.m_solid_auf_in[:, :] = propagated_solid_stream_from_cell(top, include_reactive=False)
     cyclone_cell.m_solid_ab_in.fill(0.0)
     cyclone_cell.T_in_solid = float(top.T)
+    cyclone_cell.T_solid_auf_in = float(top.T)
+    cyclone_cell.T_solid_ab_in = float(cyclone_cell.T)
     cyclone_cell.N_zu_b.fill(0.0)
     cyclone_cell.N_zu_d.fill(0.0)
     cyclone_cell.N_rez_b.fill(0.0)
@@ -623,6 +1209,8 @@ def route_auxiliary_side_blocks(
     return_leg_cell.m_solid_auf_in.fill(0.0)
     return_leg_cell.m_solid_ab_in.fill(0.0)
     return_leg_cell.T_in_solid = float(cyclone_cell.T)
+    return_leg_cell.T_solid_auf_in = float(return_leg_cell.T)
+    return_leg_cell.T_solid_ab_in = float(cyclone_cell.T)
     return_leg_cell.N_zu_b.fill(0.0)
     return_leg_cell.N_zu_d.fill(0.0)
     return_leg_cell.N_rez_b.fill(0.0)
@@ -643,10 +1231,24 @@ def _refresh_bed_transport_boundary_data(
 ) -> None:
     """Refresh bed-side transport coefficients and axial inflow terms."""
     top_downflow_total = 0.0
+    top_downflow_components: np.ndarray | None = None
     if freeboard_cells:
-        top_downflow_total = float(np.sum(np.maximum(freeboard_cells[0]._solid_downflow_rates(), 0.0)))
+        top_downflow_matrix = np.maximum(freeboard_cells[0]._solid_downflow_rates(), 0.0)
+        top_downflow_total = float(np.sum(top_downflow_matrix))
+        top_downflow_components = np.array(
+            [
+                float(np.sum(top_downflow_matrix[:, S_CHAR])),
+                float(np.sum(top_downflow_matrix[:, S_ASH])),
+            ],
+            dtype=np.float64,
+        )
     if not apply_frozen_bed_solid_transport_coefficients(cells):
-        update_bed_solid_transport_coefficients(cells, cfg, top_downflow_total=top_downflow_total)
+        update_bed_solid_transport_coefficients(
+            cells,
+            cfg,
+            top_downflow_total=top_downflow_total,
+            top_downflow_components=top_downflow_components,
+        )
     update_bed_solid_transport_inflows_from_above(cells, freeboard_cells[0] if freeboard_cells else None)
 
 
@@ -660,27 +1262,20 @@ def _refresh_side_block_boundary_data(
 ) -> None:
     """Refresh explicit cyclone/return-leg routing and bottom recycle."""
     route_auxiliary_side_blocks(freeboard_cells if freeboard_cells else cells, cyclone_cell, return_leg_cell, cfg)
-    if float(np.sum(np.maximum(cyclone_cell.N_d + cyclone_cell.N_b, 0.0))) <= 1e-12:
-        cyclone_cell.N_d[:] = np.maximum(cyclone_cell.N_d_in, 0.0)
-        cyclone_cell.N_b[:] = np.maximum(cyclone_cell.N_b_in, 0.0)
-        cyclone_cell.T = float(cyclone_cell.T_in_gas)
+    cyclone_cell.N_d[:] = np.maximum(cyclone_cell.N_d_in, 0.0)
+    cyclone_cell.N_b.fill(0.0)
+    cyclone_cell.T = float(cyclone_cell.T_in_gas)
     side_transport_frozen = apply_frozen_side_block_solid_transport_coefficients(cyclone_cell, return_leg_cell)
     if not side_transport_frozen:
         update_side_block_solid_transport_coefficients(cyclone_cell, return_leg_cell, cfg)
-    seed_side_block_holdup_from_inflows(cyclone_cell)
-    # Do not overwrite the side-block temperature state during NR boundary updates.
-    # Cyclone / return-leg T are packed in the Newton vector and must remain free
-    # to move under their own energy residuals; forcing T := T_in_* here creates
-    # dead temperature DOFs and Jacobian zero columns.
-    if float(np.sum(np.maximum(cyclone_cell.m_solid, 0.0))) <= 1e-12 and float(
-        np.sum(np.maximum(cyclone_cell.N_d + cyclone_cell.N_b, 0.0))
-    ) <= 1e-12:
-        cyclone_cell.T = float(cyclone_cell.T_in_solid)
+    seed_holdup_from_inflows(cyclone_cell)
     return_leg_cell.m_solid_ab_in[:, :] = np.maximum(cyclone_cell._solid_downflow_rates(), 0.0)
     return_leg_cell.T_in_solid = float(cyclone_cell.T)
+    return_leg_cell.T_solid_ab_in = float(cyclone_cell.T)
+    return_leg_cell.T = float(cyclone_cell.T)
     if not side_transport_frozen:
         update_side_block_solid_transport_coefficients(cyclone_cell, return_leg_cell, cfg)
-    seed_side_block_holdup_from_inflows(return_leg_cell)
+    seed_holdup_from_inflows(return_leg_cell)
     apply_bottom_recycle_from_return_leg(cells, return_leg_cell, cfg, relax=None)
     project_zero_source_solid_components(cyclone_cell)
     project_zero_source_solid_components(return_leg_cell)
@@ -807,7 +1402,6 @@ def apply_local_nr_boundary_data(
                 bottom_below_cell=cells[-1],
                 indices=set(),
             )
-
         if touched_side and cyclone_cell is not None and return_leg_cell is not None:
             _refresh_side_block_boundary_data(
                 cells,
@@ -833,6 +1427,15 @@ def apply_local_nr_boundary_data(
     set_bottom_cell_feeds(cells, cfg)
     cells[-1].m_solid_in[:] = 0.0
     apply_bottom_recycle(cells, cfg, relax=None)
+    if int(changed_cell_idx) == 0:
+        for i in range(len(cells)):
+            propagate_upstream(cells, cfg, i)
+        if not apply_frozen_bed_solid_transport_coefficients(cells):
+            update_bed_solid_transport_coefficients(cells, cfg)
+        update_bed_solid_transport_inflows(cells)
+        for cell in cells:
+            project_zero_source_solid_components(cell)
+        return
     project_zero_source_solid_components(cells[0])
 
     touched = {int(changed_cell_idx)}

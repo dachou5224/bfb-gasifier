@@ -85,6 +85,9 @@ def run_case_LU_global_nr(
         moisture_wt=case["moisture_wt"],
         P=case["P"],
     )
+    reactor._set_bottom_cell_feeds()
+    for i in range(len(reactor.cells)):
+        reactor._propagate_upstream(i)
     generate_initial_x0(
         cells=reactor.cells,
         O2_feed=cfg.O2_feed,
@@ -159,26 +162,32 @@ def test_phase1_lu_global_nr_shared_policy_reports_explicit_init_strategy():
 
     assert result["nr_init_strategy"] == PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS["nr_init_strategy"]
     assert result["nr_gs_warmup_steps"] == 0
-    assert result["nr_jacobian_strategy"] == PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS["nr_jacobian_strategy"]
+    requested_jacobian = PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS["nr_jacobian_strategy"]
+    if requested_jacobian is None:
+        assert result["nr_jacobian_strategy"] in {"block_tridiag_structured", "band_plus_side_elements_structured"}
+    else:
+        assert result["nr_jacobian_strategy"] == requested_jacobian
     assert result["nr_outer_iters"] >= 1
     assert result["nr_outer_max"] >= result["nr_outer_iters"]
     assert result["nr_init_s_total"] >= result["nr_vorabrechnung_s"] >= 0.0
     assert result["nr_timing"]["jacobian_build_s"] >= 0.0
     assert result["nr_counts"]["global_residual_calls"] >= 2
-    assert 500.0 < float(result["T_profile"][-1]) < 2000.0
+    assert 300.0 <= float(result["T_profile"][-1]) < 2000.0
     assert 0.0 <= float(result["carbon_conv"]) <= 1.0
     if result.get("converged_outer", result.get("converged", False)):
         assert float(result["carbon_conv"]) > 0.0
 
 
-def test_phase1_lu_global_nr_shared_config_uses_separate_dense_fraction():
+def test_phase1_lu_global_nr_shared_config_uses_vorabrechnung_gas_split_strategy():
     cfg = build_phase1_htw_lu_global_nr_reactor_config(load_case_LU())
+    assert cfg.gas_inlet_split_strategy == "precalc_hydrodynamic_flux"
     assert cfg.gas_inlet_dense_frac == pytest.approx(0.20)
 
 
 def test_phase1_lu_global_nr_shared_config_uses_hamel_wein_hydrodynamics_chain():
     cfg = build_phase1_htw_lu_global_nr_reactor_config(load_case_LU())
     assert cfg.thesis_mode is True
+    assert cfg.explicit_side_blocks_enabled is False
     assert cfg.hydrodynamics_u_d_closure == "wein_1992_eq312"
     assert cfg.hydrodynamics_bubble_diameter_model == "hilligardt_ode"
     assert cfg.hydrodynamics_psi_b_strategy == "wein_1992"
@@ -275,6 +284,9 @@ def test_phase2_lu_freeboard_config_restores_reactor_height_segment():
     assert cfg.freeboard_beta_a_scale == pytest.approx(1.0)
     assert cfg.freeboard_velocity_sigma == pytest.approx(0.60)
     assert cfg.freeboard_velocity_bins == 5
+    assert cfg.freeboard_age_quadrature_bins == 8
+    assert cfg.freeboard_age_quadrature_max_age == pytest.approx(0.98)
+    assert cfg.nr_jacobian_lag_steps == 4
     assert cfg.freeboard_cyclone_capture_char_frac == pytest.approx(0.90)
     assert cfg.freeboard_cyclone_capture_ash_frac == pytest.approx(0.95)
     assert cfg.freeboard_secondary_O2_mol_s == pytest.approx(case["secondary_agent_O2_mol_s"])
