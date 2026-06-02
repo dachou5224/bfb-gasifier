@@ -16,6 +16,7 @@ from src.core.cell import Cell, S_CHAR, S_VM, S_MOISTURE, S_ASH
 from src.core.connectivity import cell_total_solid_holdup
 from src.core.species import GAS_SPECIES_INDEX, get_atom_count, gibbs_molar
 from src.thermal.devolatilization import devolatilization_rate_for_cell
+from src.thermal.drying import solve_drying_CN
 from src.thermodynamics.gibbs_hamel_reduced import ReducedHamelGibbsSolver
 from src.thermodynamics.gibbs_minimizer import GibbsMinimizer
 
@@ -310,8 +311,18 @@ def estimate_axial_T_profile(
 
 
 def vorabrechnung_tau_for_cell(cell: Cell) -> float:
-    """Vorabrechnung 使用的单格停留时间尺度 [s]。"""
-    return float(cell.geo.dh / max(float(cell.u_mf), 1e-3))
+    """Vorabrechnung 使用的固相停留时间尺度 [s]。
+
+    使用全床高度除以 u_mf 作为固相停留时间估计，确保干燥和热解在
+    Vorabrechnung 预计算时接近完全（Hamel 单次预算语义）。
+    非均匀床层网格必须使用显式 ``_vorab_bed_height``；``n_cells * dh``
+    仅作为旧 uniform-mesh fallback。
+    """
+    bed_height = getattr(cell, "_vorab_bed_height", None)
+    if bed_height is None:
+        n = int(getattr(cell, "_n_vorab_cells", 1))
+        bed_height = float(cell.geo.dh) * max(n, 1)
+    return float(max(float(bed_height), float(cell.geo.dh)) / max(float(cell.u_mf), 1e-3))
 
 
 def refresh_cell_vorabrechnung(cell: Cell, *, force: bool = False) -> None:
@@ -439,6 +450,7 @@ def generate_initial_x0(
     for i, cell in enumerate(cells):
         T_i = float(T_profile[i])
         frac_height = (i + 0.5) / max(n, 1)
+        solid_T_init = max(float(getattr(cell, "T_in_solid", T_profile[0])), 293.15)
 
         o2_consumed_frac = min(1.0 - np.exp(-5.0 * frac_height), 1.0)
         o2_remaining = O2_feed * max(1.0 - o2_consumed_frac, 0.0)
@@ -447,7 +459,7 @@ def generate_initial_x0(
         X_vm, _ = devolatilization_rate_for_cell(
             T_bed=T_i,
             tau_cell=tau_est,
-            T_init=max(float(T_profile[0]) * 0.3, 400.0),
+            T_init=solid_T_init,
             VM_daf=vm_daf_frac,
             fuel_type=daem_fuel,
         )
@@ -563,6 +575,16 @@ def generate_initial_x0(
             cell.N_d[idx[sp]] = max(val * dense_share, 1e-12)
             cell.N_b[idx[sp]] = max(val * bubble_share, 1e-12)
 
+        if i == 0:
+            bottom_dense_frac = float(getattr(cell, "_vorab_bottom_gas_inlet_dense_frac", np.nan))
+            if np.isfinite(bottom_dense_frac):
+                bottom_dense_frac = float(np.clip(bottom_dense_frac, 0.0, 1.0))
+                for sp in ("O2", "H2O", "N2"):
+                    j = idx[sp]
+                    total_sp = float(max(cell.N_d[j] + cell.N_b[j], 0.0))
+                    cell.N_d[j] = max(total_sp * bottom_dense_frac, 1e-12)
+                    cell.N_b[j] = max(total_sp * (1.0 - bottom_dense_frac), 1e-12)
+
         cell.T = T_i
         # 初始化 4 组分固相猜测 [char, vm, moisture, ash]
         nk = cell.solid.n_size_classes
@@ -570,7 +592,51 @@ def generate_initial_x0(
         if str(getattr(cell, "solid_state_model", "legacy_stream")) in {"holdup_transport", "freeboard_closure"}:
             cell.calc_hydrodynamics()
             m_total_est = max(cell_total_solid_holdup(cell), 1e-12)
-        cell.m_solid[:, S_CHAR] = max(m_total_est * (1.0 - moisture_frac) * w_char_dry / nk, 1e-12)
-        cell.m_solid[:, S_VM] = max(m_total_est * (1.0 - moisture_frac) * w_vm_dry / nk, 1e-12)
-        cell.m_solid[:, S_MOISTURE] = max(m_total_est * moisture_frac / nk, 1e-12)
-        cell.m_solid[:, S_ASH] = max(m_total_est * (1.0 - moisture_frac) * ash_frac / nk, 1e-12)
+            dry_diag = solve_drying_CN(
+                cell.solid.d_p,
+                T_i,
+                solid_T_init,
+                moisture_wt,
+                max(float(tau_est), 0.05),
+                Nr=12,
+                Nt=80,
+                pressure_pa=float(cell.P),
+                return_history=True,
+            )
+            x_dry_cum = min(float(dry_diag["X_dry"][-1]) * (frac_height + 0.1), 1.0)
+            active_seed = np.maximum(cell.m_solid_zu + cell.m_solid_rez + cell.m_solid_in, 0.0)
+            char_seed = float(np.sum(active_seed[:, S_CHAR]))
+            vm_seed = float(np.sum(active_seed[:, S_VM]))
+            moist_seed = float(np.sum(active_seed[:, S_MOISTURE]))
+            ash_seed = float(np.sum(active_seed[:, S_ASH]))
+
+            def _class_fraction(comp_idx: int) -> np.ndarray:
+                col = np.maximum(active_seed[:, comp_idx], 0.0)
+                total = float(np.sum(col))
+                if total <= 1e-12:
+                    return np.full(nk, 1.0 / max(nk, 1), dtype=np.float64)
+                return col / total
+
+            char_frac = _class_fraction(S_CHAR)
+            vm_frac = _class_fraction(S_VM)
+            moist_frac = _class_fraction(S_MOISTURE)
+            ash_frac_classes = _class_fraction(S_ASH)
+
+            # Hamel distinguishes active fuel solids from the inert bed inventory.
+            # Without an explicit inert-material state in ``m_solid``, seed only the
+            # active fuel inventory from mapped solid inflows; keep total bed holdup
+            # for hydrodynamics / transport coefficients only.
+            moist_mass = max(moist_seed * (1.0 - x_dry_cum), 0.0)
+            vm_mass = max(vm_seed * (1.0 - X_vm_cum), 0.0)
+            ash_mass = max(ash_seed, 0.0)
+            char_mass = max(char_seed, 0.0)
+
+            cell.m_solid[:, S_CHAR] = char_mass * char_frac
+            cell.m_solid[:, S_VM] = vm_mass * vm_frac
+            cell.m_solid[:, S_MOISTURE] = moist_mass * moist_frac
+            cell.m_solid[:, S_ASH] = ash_mass * ash_frac_classes
+        else:
+            cell.m_solid[:, S_CHAR] = max(m_total_est * (1.0 - moisture_frac) * w_char_dry / nk, 1e-12)
+            cell.m_solid[:, S_VM] = max(m_total_est * (1.0 - moisture_frac) * w_vm_dry / nk, 1e-12)
+            cell.m_solid[:, S_MOISTURE] = max(m_total_est * moisture_frac / nk, 1e-12)
+            cell.m_solid[:, S_ASH] = max(m_total_est * (1.0 - moisture_frac) * ash_frac / nk, 1e-12)

@@ -36,6 +36,23 @@ def test_cell_residuals_pass_rate_multiplier_through_reaction_stage(monkeypatch)
     assert order == ["hyd", "exchange", "reactions", "gas", "solid", "energy"]
 
 
+def test_cell_residuals_default_to_nr_reaction_multiplier(monkeypatch):
+    cell = Cell()
+    cell.nr_reaction_rate_multiplier = 0.4
+    seen: list[float] = []
+
+    monkeypatch.setattr(cell, "calc_hydrodynamics", lambda: None)
+    monkeypatch.setattr(cell, "calc_exchange", lambda: None)
+    monkeypatch.setattr(cell, "calc_reactions", lambda rate_multiplier=1.0: seen.append(rate_multiplier))
+    monkeypatch.setattr(cell, "calc_gas_balance", lambda: np.zeros(2 * N_GAS))
+    monkeypatch.setattr(cell, "calc_solid_balance", lambda: np.zeros_like(cell.m_solid))
+    monkeypatch.setattr(cell, "calc_energy_balance", lambda: 0.0)
+
+    cell.residuals()
+
+    assert seen == [0.4]
+
+
 def test_drying_pyrolysis_source_overwrites_solid_sink_instead_of_accumulating(monkeypatch):
     cell = Cell()
     cell.R_solid[:, :] = 5.0
@@ -256,8 +273,7 @@ def test_char_surface_area_uses_holdup_state_distribution_under_holdup_transport
 
     areas = cell._calc_char_surface_area_per_class()
 
-    m_bed = cell.solid.rho_s * (1.0 - cell.solid.eps_mf) * cell.V_d
-    expected_inventory = m_bed * np.array([2.0, 1.0], dtype=float) / 4.0
+    expected_inventory = np.array([2.0, 1.0], dtype=float)
     expected_areas = expected_inventory * 6.0 / (cell.solid.rho_s * cell.solid.d_p_classes)
     np.testing.assert_allclose(areas, expected_areas)
 

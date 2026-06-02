@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+import importlib.util
+from pathlib import Path
+from types import SimpleNamespace
+
 import numpy as np
+import pytest
 
 from src.core.connectivity import (
     _set_explicit_freeboard_inlet_from_prev,
     cell_total_solid_holdup,
+    seed_holdup_from_inflows,
     update_bed_solid_transport_coefficients,
     update_bed_solid_transport_inflows,
     update_freeboard_solid_transport_inflows,
@@ -12,6 +18,16 @@ from src.core.connectivity import (
 from src.core.cell import S_ASH, S_CHAR, S_MOISTURE, S_VM
 from src.core.freeboard_segment import simulate_freeboard
 from src.core.reactor import GAS_SPECIES, GAS_SPECIES_INDEX, Reactor, ReactorConfig, _propagated_solid_stream, _recycled_solid_stream
+from src.solvers.vorabrechnung import vorabrechnung_tau_for_cell
+
+
+def _load_char_audit_summary_fn():
+    path = Path(__file__).resolve().parent.parent / "scripts" / "audit_char_mass_conservation_lu.py"
+    spec = importlib.util.spec_from_file_location("audit_char_mass_conservation_lu", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.summarize_reactor_char_ledger
 
 
 def test_recycled_solid_stream_keeps_only_char_and_ash():
@@ -102,8 +118,8 @@ def test_propagate_upstream_allows_reactive_components_in_holdup_mode_lower_zone
             reactive_solid_cutoff_xi=0.5,
         )
     )
-    reactor.cells[0].m_solid_zu[0, S_VM] = 2.0
-    reactor.cells[0].m_solid_zu[0, S_MOISTURE] = 3.0
+    reactor.cells[0].m_solid[0, S_VM] = 2.0
+    reactor.cells[0].m_solid[0, S_MOISTURE] = 3.0
     reactor.cells[2].m_solid[0, :] = np.array([5.0, 0.0, 0.0, 6.0], dtype=float)
     reactor.cells[2].K_solid_auf[0, S_CHAR] = 0.2
     reactor.cells[2].K_solid_auf[0, S_ASH] = 0.2
@@ -114,6 +130,27 @@ def test_propagate_upstream_allows_reactive_components_in_holdup_mode_lower_zone
         reactor.cells[1].m_solid_in[0, :],
         np.array([0.0, 2.0, 3.0, 0.0], dtype=float),
     )
+
+
+def test_holdup_mode_reactive_propagation_does_not_duplicate_fresh_support():
+    reactor = Reactor(
+        ReactorConfig(
+            n_cells=3,
+            H_bed=3.0,
+            thesis_mode=True,
+            solid_lower_inlet_frac=1.0,
+            reactive_solid_cutoff_xi=1.0,
+        )
+    )
+    reactor.cells[0].m_solid_zu[0, S_VM] = 2.0
+    reactor.cells[0].m_solid_zu[0, S_MOISTURE] = 3.0
+    reactor.cells[0].m_solid[0, S_VM] = 0.5
+    reactor.cells[0].m_solid[0, S_MOISTURE] = 0.25
+
+    reactor._propagate_upstream(1)
+
+    assert reactor.cells[1].m_solid_in[0, S_VM] == 0.5
+    assert reactor.cells[1].m_solid_in[0, S_MOISTURE] == 0.25
 
 
 def test_reactor_init_applies_thesis_reactive_defaults_when_mode_enabled_late():
@@ -175,6 +212,23 @@ def test_thesis_mode_with_freeboard_builds_full_solver_graph_when_no_local_refin
     assert len(reactor._solver_cells_for_nr()) == len(reactor.cells) + len(reactor.freeboard_cells) + len(reactor.side_cells)
 
 
+def test_closure_owned_freeboard_keeps_side_blocks_in_boundary_path():
+    reactor = Reactor(
+        ReactorConfig(
+            n_cells=2,
+            thesis_mode=True,
+            H_freeboard=2.0,
+            n_freeboard_cells=2,
+            explicit_freeboard_solver_graph_enabled=False,
+        )
+    )
+
+    assert reactor._use_explicit_freeboard_cells() is True
+    assert reactor._use_explicit_freeboard_solver_graph() is False
+    assert reactor._use_side_blocks_in_nr_boundary_path() is True
+    assert len(reactor._solver_cells_for_nr()) == len(reactor.cells) + len(reactor.side_cells)
+
+
 def test_explicit_return_leg_recycle_keeps_gas_zero_and_solid_only():
     reactor = Reactor(ReactorConfig(n_cells=2, thesis_mode=True, n_freeboard_cells=0, recirculation_frac=0.25))
     for cell in reactor.cells:
@@ -194,8 +248,8 @@ def test_explicit_return_leg_recycle_keeps_gas_zero_and_solid_only():
 
     assert reactor.cyclone_cell is not None
     assert reactor.return_leg_cell is not None
-    np.testing.assert_allclose(reactor.cyclone_cell.N_d_in, top.N_d)
-    np.testing.assert_allclose(reactor.cyclone_cell.N_b_in, top.N_b)
+    np.testing.assert_allclose(reactor.cyclone_cell.N_d_in, top.N_d + top.N_b)
+    np.testing.assert_allclose(reactor.cyclone_cell.N_b_in, 0.0)
     np.testing.assert_allclose(reactor.return_leg_cell.N_d_in, 0.0)
     np.testing.assert_allclose(reactor.return_leg_cell.N_b_in, 0.0)
     np.testing.assert_allclose(reactor.cyclone_cell.m_solid_auf_in[0, S_CHAR], top._solid_upflow_rates()[0, S_CHAR])
@@ -232,15 +286,18 @@ def test_apply_all_bc_with_explicit_freeboard_routes_freeboard_to_side_blocks_an
     reactor._apply_all_bc_for_nr()
 
     np.testing.assert_allclose(bed_top.m_solid_ab_in[0, S_CHAR], fb0._solid_downflow_rates()[0, S_CHAR])
+    assert bed_top.T_solid_ab_in == pytest.approx(fb0.T)
     assert fb0.m_solid_auf_in[0, S_CHAR] == 0.0
     assert fb1.m_solid_auf_in[0, S_CHAR] == 0.0
     assert reactor.cyclone_cell is not None
     assert reactor.return_leg_cell is not None
     np.testing.assert_allclose(reactor.cyclone_cell.m_solid_auf_in[0, S_CHAR], fb1._solid_upflow_rates()[0, S_CHAR])
+    assert reactor.cyclone_cell.T_solid_auf_in == pytest.approx(fb1.T)
     np.testing.assert_allclose(
         reactor.return_leg_cell.m_solid_ab_in[0, S_CHAR],
         reactor.cyclone_cell._solid_downflow_rates()[0, S_CHAR],
     )
+    assert reactor.return_leg_cell.T_solid_ab_in == pytest.approx(reactor.cyclone_cell.T)
 
 
 def test_explicit_freeboard_inlet_filters_classes_not_active_in_closure_mask():
@@ -267,9 +324,13 @@ def test_explicit_freeboard_inlet_filters_classes_not_active_in_closure_mask():
     prev.K_solid_auf[:, S_ASH] = 0.5
 
     fb._freeboard_active_char_ash_mask = np.array([0.0, 1.0], dtype=np.float64)
+    prev.N_d[:] = np.arange(1, len(prev.N_d) + 1, dtype=np.float64)
+    prev.N_b[:] = 0.25 * np.arange(1, len(prev.N_b) + 1, dtype=np.float64)
     _set_explicit_freeboard_inlet_from_prev(prev, fb)
     update_freeboard_solid_transport_inflows([fb], bottom_below_cell=prev)
 
+    np.testing.assert_allclose(fb.N_d_in, prev.N_d + prev.N_b)
+    np.testing.assert_allclose(fb.N_b_in, 0.0)
     assert fb.m_solid_auf_in[0, S_CHAR] == 0.0
     assert fb.m_solid_auf_in[0, S_ASH] == 0.0
     assert fb.m_solid_auf_in[1, S_CHAR] == 0.0
@@ -346,6 +407,50 @@ def test_bed_solid_transport_coefficients_follow_hamel_wake_and_top_ejection_for
     np.testing.assert_allclose(upper.K_solid_auf[:, S_MOISTURE], 0.0)
 
 
+def test_seed_holdup_from_inflows_uses_positive_local_char_source():
+    reactor = Reactor(ReactorConfig(n_cells=1, thesis_mode=True))
+    cell = reactor.cells[0]
+    cell.m_solid.fill(0.0)
+    cell.m_solid_zu.fill(0.0)
+    cell.m_solid_rez.fill(0.0)
+    cell.m_solid_in.fill(0.0)
+    cell.m_solid_auf_in.fill(0.0)
+    cell.m_solid_ab_in.fill(0.0)
+    cell.R_solid.fill(0.0)
+    cell.K_solid_auf.fill(0.0)
+    cell.K_solid_ab.fill(0.0)
+    cell.K_solid_auf[0, S_CHAR] = 2.0
+    cell.R_solid[0, S_CHAR] = 0.4
+    cell.R_solid[1, S_CHAR] = -0.8
+
+    changed = seed_holdup_from_inflows(cell)
+
+    assert changed is True
+    assert cell.m_solid[0, S_CHAR] == 0.2
+    assert cell.m_solid[1, S_CHAR] == 0.0
+
+
+def test_seed_holdup_from_inflows_raises_underfilled_inventory_without_lowering():
+    reactor = Reactor(ReactorConfig(n_cells=1, thesis_mode=True))
+    cell = reactor.cells[0]
+    cell.m_solid.fill(0.0)
+    cell.m_solid[0, S_CHAR] = 0.1
+    cell.m_solid[0, S_ASH] = 0.5
+    cell.m_solid_zu.fill(0.0)
+    cell.m_solid_zu[0, S_CHAR] = 0.6
+    cell.m_solid_zu[0, S_ASH] = 0.2
+    cell.K_solid_auf.fill(0.0)
+    cell.K_solid_ab.fill(0.0)
+    cell.K_solid_auf[0, S_CHAR] = 2.0
+    cell.K_solid_auf[0, S_ASH] = 2.0
+
+    changed = seed_holdup_from_inflows(cell)
+
+    assert changed is True
+    assert cell.m_solid[0, S_CHAR] == pytest.approx(0.3)
+    assert cell.m_solid[0, S_ASH] == pytest.approx(0.5)
+
+
 def test_bed_solid_transport_backmix_coefficients_follow_top_down_continuity():
     reactor = Reactor(ReactorConfig(n_cells=2, H_bed=2.0, D_bed=1.0))
     lower, upper = reactor.cells
@@ -367,14 +472,15 @@ def test_bed_solid_transport_backmix_coefficients_follow_top_down_continuity():
     m_auf_upper = float(upper.K_solid_auf[0, S_CHAR]) * holdup_upper
 
     expected_upper_kab = max(m_auf_lower - m_auf_upper, 0.0) / holdup_upper
-    expected_lower_kab = max(-m_auf_lower + max(m_auf_lower - m_auf_upper, 0.0) + 10.0, 0.0) / holdup_lower
+    expected_lower_kab_char = max(-m_auf_lower + max(m_auf_lower - m_auf_upper, 0.0) + 10.0, 0.0) / holdup_lower
+    expected_lower_kab_ash = max(-m_auf_lower + max(m_auf_lower - m_auf_upper, 0.0), 0.0) / holdup_lower
 
     np.testing.assert_allclose(upper.K_solid_ab[:, S_CHAR], expected_upper_kab)
     np.testing.assert_allclose(upper.K_solid_ab[:, S_ASH], expected_upper_kab)
     np.testing.assert_allclose(upper.K_solid_ab[:, S_VM], 0.0)
     np.testing.assert_allclose(upper.K_solid_ab[:, S_MOISTURE], 0.0)
-    np.testing.assert_allclose(lower.K_solid_ab[:, S_CHAR], expected_lower_kab)
-    np.testing.assert_allclose(lower.K_solid_ab[:, S_ASH], expected_lower_kab)
+    np.testing.assert_allclose(lower.K_solid_ab[:, S_CHAR], expected_lower_kab_char)
+    np.testing.assert_allclose(lower.K_solid_ab[:, S_ASH], expected_lower_kab_ash)
     np.testing.assert_allclose(lower.K_solid_ab[:, S_VM], 0.0)
     np.testing.assert_allclose(lower.K_solid_ab[:, S_MOISTURE], 0.0)
 
@@ -448,6 +554,140 @@ def test_reactor_carbon_conversion_uses_cell_upflow_rates_under_holdup_transport
     assert reactor._compute_carbon_conversion() == 0.9
 
 
+def test_reactor_carbon_conversion_excludes_bottom_recycle_from_system_exit():
+    reactor = Reactor(ReactorConfig(n_cells=2, recirculation_frac=0.25))
+    bot, top = reactor.cells
+    bot.m_solid_zu[0, S_CHAR] = 10.0
+    top.solid_state_model = "holdup_transport"
+    top.m_solid[0, S_CHAR] = 10.0
+    top.K_solid_auf.fill(0.1)
+    top.K_solid_ab.fill(0.0)
+    bot.m_solid_rez[0, S_CHAR] = 0.25
+
+    assert reactor._compute_carbon_conversion() == 0.925
+
+
+def test_char_mass_audit_reuses_solved_reactor_state_without_solving():
+    summarize_reactor_char_ledger = _load_char_audit_summary_fn()
+    reactor = Reactor(ReactorConfig(n_cells=2))
+    bot, top = reactor.cells
+    bot.m_solid_zu[0, S_CHAR] = 10.0
+    bot.R_solid[0, S_CHAR] = -4.0
+    top.solid_state_model = "holdup_transport"
+    top.m_solid[0, S_CHAR] = 8.0
+    top.K_solid_auf[0, S_CHAR] = 0.5
+    bot.m_solid_rez[0, S_CHAR] = 1.0
+
+    payload = summarize_reactor_char_ledger(
+        reactor,
+        {"converged": True, "rms_scaled_final": 0.0, "carbon_conv": 0.7},
+        mode="unit",
+        solve_kwargs={},
+    )
+
+    summary = payload["system_char_summary"]
+    assert summary["fresh_char_kg_s"] == 10.0
+    assert summary["reaction_char_kg_s"] == -4.0
+    assert summary["top_up_char_kg_s"] == 4.0
+    assert summary["bottom_recycle_char_kg_s"] == 1.0
+    assert summary["system_exit_proxy_top_up_minus_recycle_kg_s"] == 3.0
+    assert summary["fresh_minus_reaction_minus_exit_proxy_kg_s"] == 3.0
+
+
+def test_char_mass_audit_reports_bed_transport_profile_by_size_class():
+    summarize_reactor_char_ledger = _load_char_audit_summary_fn()
+    reactor = Reactor(ReactorConfig(n_cells=2, n_age_classes=2))
+    bot, top = reactor.cells
+    bot.solid_state_model = "holdup_transport"
+    top.solid_state_model = "holdup_transport"
+    bot.m_solid[:, S_CHAR] = [1.0, 2.0]
+    top.m_solid[:, S_CHAR] = [3.0, 4.0]
+    bot.K_solid_auf[:, S_CHAR] = [0.1, 0.2]
+    top.K_solid_auf[:, S_CHAR] = [0.3, 0.4]
+    top.m_solid_auf_in[:, S_CHAR] = bot._solid_upflow_rates()[:, S_CHAR]
+
+    payload = summarize_reactor_char_ledger(
+        reactor,
+        {"converged": True, "rms_scaled_final": 0.0, "carbon_conv": 0.0},
+        mode="unit",
+        solve_kwargs={},
+    )
+
+    profile = payload["bed_transport_profile"]
+    assert profile[0]["char_holdup_by_class_kg"] == [1.0, 2.0]
+    assert profile[0]["char_up_out_by_class_kg_s"] == pytest.approx([0.1, 0.4])
+    assert profile[1]["char_up_out_total_kg_s"] == pytest.approx(2.5)
+    assert profile[1]["char_auf_in_gap_vs_below_kg_s"] == pytest.approx(0.0)
+    assert payload["bed_transport_summary"]["max_abs_auf_in_gap_vs_below_kg_s"] == pytest.approx(0.0)
+
+
+def test_char_mass_audit_reports_phase2_freeboard_closure_transport_summary():
+    summarize_reactor_char_ledger = _load_char_audit_summary_fn()
+    reactor = Reactor(ReactorConfig(n_cells=1, thesis_mode=True, H_freeboard=2.0, n_freeboard_cells=2, n_age_classes=1))
+    bed = reactor.cells[0]
+    fb0, fb1 = reactor.freeboard_cells
+    assert reactor.cyclone_cell is not None
+    assert reactor.return_leg_cell is not None
+    bed.solid_state_model = "holdup_transport"
+    bed.m_solid[0, S_CHAR] = 10.0
+    bed.K_solid_auf[0, S_CHAR] = 0.3
+    fb0.solid_state_model = "freeboard_closure"
+    fb1.solid_state_model = "freeboard_closure"
+    fb0.m_solid[0, S_CHAR] = 1.0
+    fb1.m_solid[0, S_CHAR] = 0.5
+    fb0.K_solid_ab[0, S_CHAR] = 0.2
+    fb1.K_solid_auf[0, S_CHAR] = 0.4
+    reactor.cyclone_cell.m_solid_auf_in[0, S_CHAR] = 0.2
+    reactor.return_leg_cell.m_solid_ab_in[0, S_CHAR] = 0.18
+
+    payload = summarize_reactor_char_ledger(
+        reactor,
+        {
+            "converged": True,
+            "rms_scaled_final": 0.0,
+            "carbon_conv": 0.0,
+            "freeboard_active": True,
+            "freeboard_bed_top_up_char_kg_s": 3.0,
+            "freeboard_entrained_char_kg_s": [0.8, 0.2],
+            "freeboard_entrained_return_char_profile_kg_s": [0.2, 0.05],
+            "freeboard_solid_holdup_char_profile_kg": [1.0, 0.5],
+            "freeboard_solid_holdup_char_before_profile_kg": [1.2, 0.6],
+            "freeboard_explicit_char_sink_applied_profile_kg": [0.1, 0.0],
+            "freeboard_entrained_exit_char_kg_s": 0.2,
+            "freeboard_entrained_return_char_kg_s": 0.2,
+            "freeboard_cyclone_capture_char_kg_s": 0.18,
+            "freeboard_axial_z_m": [7.0, 8.0],
+            "freeboard_axial_xi": [0.7, 0.8],
+            "freeboard_carry_ratio_profile": [1.1, 0.9],
+        },
+        mode="phase2-unit",
+        solve_kwargs={},
+    )
+
+    summary = payload["freeboard_closure_transport_summary"]
+    assert summary["freeboard_active"] is True
+    assert summary["bed_top_up_char_kg_s"] == pytest.approx(3.0)
+    assert summary["current_bed_top_up_char_kg_s"] == pytest.approx(3.0)
+    assert summary["gap_current_bed_top_vs_closure_bed_top_kg_s"] == pytest.approx(0.0)
+    assert summary["freeboard_return_char_kg_s"] == pytest.approx(0.2)
+    assert summary["freeboard_exit_char_kg_s"] == pytest.approx(0.2)
+    assert summary["system_escape_after_cyclone_char_kg_s"] == pytest.approx(0.02)
+    assert summary["gap_result_exit_vs_explicit_top_kg_s"] == pytest.approx(0.0)
+    assert summary["gap_cyclone_capture_vs_return_leg_in_kg_s"] == pytest.approx(0.0)
+    assert payload["freeboard_closure_transport_profile"][0]["char_return_kg_s"] == pytest.approx(0.2)
+    interface = payload["bed_freeboard_interface_component_balance"]
+    char_row = next(row for row in interface if row["component"] == "char")
+    total_row = next(row for row in interface if row["component"] == "char+ash")
+    assert char_row["ab_in_kg_s"] == pytest.approx(0.0)
+    assert char_row["freeboard_bottom_return_kg_s"] == pytest.approx(0.2)
+    assert char_row["bed_top_ab_in_gap_vs_freeboard_return_kg_s"] == pytest.approx(-0.2)
+    assert total_row["component"] == "char+ash"
+    sensitivity = payload["top_bed_solid_local_sensitivity"]
+    char_sens = next(row for row in sensitivity if row["component"] == "char")
+    assert char_sens["d_residual_d_holdup_1_s"] == pytest.approx(-0.3)
+    assert char_sens["minus_K_sum_1_s"] == pytest.approx(-0.3)
+
+
 def test_sync_freeboard_cells_from_closure_loads_holdup_transport_coefficients():
     reactor = Reactor(ReactorConfig(n_cells=2, thesis_mode=True, H_freeboard=2.0, n_freeboard_cells=2, n_age_classes=1))
     bed_top = reactor.cells[-1]
@@ -488,6 +728,78 @@ def test_sync_freeboard_cells_from_closure_loads_holdup_transport_coefficients()
     assert reactor.freeboard_cells[0].K_solid_auf[0, S_CHAR] >= 0.0
     assert reactor.freeboard_cells[0].K_solid_ab[0, S_ASH] >= 0.0
     np.testing.assert_allclose(reactor.freeboard_cells[1].m_solid_auf_in, 0.0)
+
+
+def test_sync_freeboard_cells_from_closure_can_preserve_nr_gas_state():
+    reactor = Reactor(ReactorConfig(n_cells=2, thesis_mode=True, H_freeboard=2.0, n_freeboard_cells=2, n_age_classes=1))
+    bed_top = reactor.cells[-1]
+    bed_top.u_b = 1.2
+    bed_top.d_b = 0.12
+
+    n_in = np.zeros(len(GAS_SPECIES), dtype=np.float64)
+    n_in[GAS_SPECIES_INDEX["CO"]] = 1.0
+    n_in[GAS_SPECIES_INDEX["H2"]] = 1.0
+    n_in[GAS_SPECIES_INDEX["H2O"]] = 1.0
+    n_in[GAS_SPECIES_INDEX["N2"]] = 3.0
+    fb = simulate_freeboard(
+        N_in=n_in,
+        T_in=1100.0,
+        P=2.5e6,
+        D_bed=0.6,
+        H_freeboard=2.0,
+        n_cells=2,
+        u_b_bed_top=1.2,
+        d_b_bed_top=0.12,
+        eps_b_bed_top=0.3,
+        eps_d_void_bed_top=0.5,
+        rho_solid_bed_top=1700.0,
+        d_p_classes_bed_top=np.array([7e-4]),
+        m_char_classes_bed_top=np.array([0.02]),
+        m_ash_classes_bed_top=np.array([0.01]),
+        fuel_type="coal",
+        trajectory_model="analytical_wirsum",
+    )
+
+    fb0 = reactor.freeboard_cells[0]
+    fb0.T = 987.0
+    fb0.N_b[:] = np.linspace(0.01, 0.02, len(GAS_SPECIES))
+    fb0.N_d[:] = np.linspace(0.1, 0.2, len(GAS_SPECIES))
+    t_before = float(fb0.T)
+    n_b_before = np.array(fb0.N_b, copy=True)
+    n_d_before = np.array(fb0.N_d, copy=True)
+
+    reactor._sync_freeboard_cells_from_closure(fb, preserve_gas_state=True)
+
+    assert reactor.freeboard_cells[0].solid_state_model == "freeboard_closure"
+    assert reactor.freeboard_cells[0].m_solid[0, S_CHAR] >= 0.0
+    assert reactor.freeboard_cells[0].K_solid_auf[0, S_CHAR] >= 0.0
+    assert reactor.freeboard_cells[0].T == pytest.approx(t_before)
+    np.testing.assert_allclose(reactor.freeboard_cells[0].N_b, n_b_before)
+    np.testing.assert_allclose(reactor.freeboard_cells[0].N_d, n_d_before)
+
+
+def test_sync_freeboard_cells_from_closure_reconstructs_componentwise_k():
+    reactor = Reactor(ReactorConfig(n_cells=2, thesis_mode=True, H_freeboard=1.0, n_freeboard_cells=1, n_age_classes=1))
+    state = SimpleNamespace(
+        T=1050.0,
+        N=np.array([0.0] * len(GAS_SPECIES), dtype=np.float64),
+        m_hold_char_classes=np.array([2.0], dtype=np.float64),
+        m_hold_ash_classes=np.array([1.0], dtype=np.float64),
+        m_dot_auf_char_classes=np.array([1.0], dtype=np.float64),
+        m_dot_auf_ash_classes=np.array([0.25], dtype=np.float64),
+        m_dot_ab_char_classes=np.array([0.2], dtype=np.float64),
+        m_dot_ab_ash_classes=np.array([0.05], dtype=np.float64),
+        m_char_sink_applied_classes=np.array([0.0], dtype=np.float64),
+        segment_index=0,
+    )
+
+    reactor._sync_freeboard_cells_from_closure({"states": [state]})
+
+    cell = reactor.freeboard_cells[0]
+    assert cell.K_solid_auf[0, S_CHAR] == pytest.approx(0.5)
+    assert cell.K_solid_auf[0, S_ASH] == pytest.approx(0.25)
+    assert cell.K_solid_ab[0, S_CHAR] == pytest.approx(0.1)
+    assert cell.K_solid_ab[0, S_ASH] == pytest.approx(0.05)
 
 
 def test_sync_freeboard_cells_from_refined_closure_aggregates_back_to_nominal_cells():
@@ -534,3 +846,33 @@ def test_sync_freeboard_cells_from_refined_closure_aggregates_back_to_nominal_ce
     assert reactor.freeboard_cells[0].solid_state_model == "freeboard_closure"
     assert reactor.freeboard_cells[0].m_solid[0, S_CHAR] >= 0.0
     assert reactor.freeboard_cells[1].K_solid_auf[0, S_CHAR] >= 0.0
+
+
+def test_bed_dh_profile_builds_nonuniform_bed_mesh():
+    cfg = ReactorConfig(
+        n_cells=3,
+        H_bed=1.0,
+        bed_dh_profile=(0.2, 0.3, 0.5),
+    )
+    reactor = Reactor(cfg)
+    dh = [c.geo.dh for c in reactor.cells]
+    hc = [c.geo.h_center for c in reactor.cells]
+    assert dh == pytest.approx([0.2, 0.3, 0.5])
+    assert hc == pytest.approx([0.1, 0.35, 0.75])
+
+
+def test_nonuniform_bed_vorabrechnung_tau_uses_total_bed_height():
+    cfg = ReactorConfig(
+        n_cells=3,
+        H_bed=1.0,
+        bed_dh_profile=(0.2, 0.3, 0.5),
+    )
+    reactor = Reactor(cfg)
+    for cell in reactor.cells:
+        cell.u_mf = 0.25
+        assert vorabrechnung_tau_for_cell(cell) == pytest.approx(4.0)
+
+
+def test_bed_dh_profile_rejects_inconsistent_height():
+    with pytest.raises(ValueError, match="sum\\(bed_dh_profile\\)"):
+        Reactor(ReactorConfig(n_cells=2, H_bed=1.0, bed_dh_profile=(0.2, 0.7)))
