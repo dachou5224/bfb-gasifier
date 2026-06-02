@@ -69,7 +69,11 @@ def pytest_node_exists(node: str) -> bool:
     )
     if proc.returncode != 0:
         return False
-    return "no tests ran" not in proc.stdout.lower()
+    combined = proc.stdout + proc.stderr
+    # ``--collect-only`` 仍会在摘要行打印 "no tests ran"，不能据此判失败。
+    if "::test_" in combined or "::Test" in combined:
+        return True
+    return bool(re.search(r"\d+\s+tests?\s+collected", combined))
 
 
 def collect_gate_pytest_references() -> list[tuple[str, str, str]]:
