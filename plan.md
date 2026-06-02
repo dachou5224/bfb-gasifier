@@ -1,0 +1,155 @@
+# Handoff Plan — 2026-05-10
+
+## Problem
+Continue the thesis-mode BFB gasifier debugging work. The current focus is the frozen-inner NR path: the solver now has cleaner diagnostics, but the second Newton direction can still lose descent after the first accepted step.
+
+## Current state
+- `python3 tests/sanity_checks.py` passes: `ALL 17 SANITY CHECKS PASSED`.
+- `python3 scripts/audit_hamel_consistency.py` passes: `HAMEL CONSISTENCY AUDIT PASSED`.
+- `python3 -m pytest tests/test_cell_kinetics.py tests/test_cell_balances.py tests/test_reactor_solid_streams.py -q` passes: `44 passed`.
+- `python3 -m pytest tests/test_global_nr_solver.py::test_thesis_mode_locks_hydrodynamics_chain_to_hamel_defaults tests/test_global_nr_solver.py::test_init_precalc_seeds_upper_bed_holdup_chain_for_thesis_mode tests/test_reactor_solid_streams.py::test_bed_solid_transport_inflows_use_neighbor_holdup_times_frozen_k -q` passes: `3 passed`.
+- `python3 -m pytest tests/test_global_nr_solver.py::test_phase1_global_nr_pack_excludes_vm_and_moisture_dead_dofs tests/test_global_nr_solver.py::test_freeboard_global_projected_hamel_trajectory_mode_smoke -q` passes: `2 passed`.
+- `python3 scripts/audit_hydrodynamics_consistency_lu.py --init-only` passes and now uses formal INIT+PRECALC instead of a feed-free bare hydrodynamics call:
+  - `u0≈1.01-1.21 m/s`
+  - `u_mf≈0.317-0.338 m/s`
+  - `eps_b≈0.379-0.456`
+  - `eps_d≈0.514`
+  - `d_b≈0.046-0.092 m`
+- `python3 scripts/audit_phase1_htw_lu.py --json` now reaches a converged candidate:
+  - after conservative size-migration fix: `converged_fully=true`, `rms_scaled_final=0.008553915628813863`
+  - T and carbon pass; CO2 passes
+  - CO/H2/CH4 still fail the current validation species tolerance
+- `src/solvers/global_nr_solver.py` now:
+  - keeps negative GD solid steps for empty holdup cells,
+  - computes gas/solid/energy RMS using the real cell-by-cell DOF layout,
+  - prints clearer GD diagnostics (`x[...]` plus residual value).
+- Prior fixes already in place:
+  - restore accepted `cells` state before GD fallback,
+  - reset `lambda_seed` after rebuilding a fresh Jacobian,
+  - use tight NR clipping for empty solid cells,
+  - enlarge the line-search/inner budget for thesis single-shot mode.
+- Char mass conservation fix:
+  - `calc_size_migration()` now treats the smallest modeled particle-size class as a closed lower boundary.
+  - This makes size-class migration conservative across solid components; char disappearance remains represented by `R_solid`, not by migration leakage.
+  - Unit check: `np.sum(size_migration, axis=0) == 0` for char/VM/moisture/ash.
+  - `scripts/audit_char_mass_conservation_lu.py` now exposes `summarize_reactor_char_ledger(...)`, so future audits can reuse an already solved reactor state instead of launching another full NR solve.
+- 2026-05-11 pickup:
+  - `scripts/audit_phase1_htw_lu.py` now treats char mass conservation as a validation precondition. A large char residual adds `char_mass_residual>2.0%_fresh` to `validation_candidate_reasons`.
+  - `scripts/audit_phase1_htw_lu.py` now uses `build_phase1_htw_lu_global_nr_reactor_config(...)` so the audit runs the Hamel/thesis `holdup_transport` path, not the legacy-stream baseline config.
+  - `src/solvers/global_nr_solver.py` now exposes final gas/solid/energy residual RMS groups and requires each group, not only the overall RMS, to satisfy the inner convergence threshold. This prevents unresolved solid/char balances from being hidden by the global average.
+  - `src/solvers/global_nr_solver.py` and `tests/validation_case_utils.py` now also expose/check `max_abs_scaled_final`, because sparse large solid/char residuals can still be hidden by RMS averaging.
+  - `scripts/audit_char_mass_conservation_lu.py` now separates positive char-forming source terms from negative char-consuming sinks and emits `top_char_residual_rows` for faster root-cause pickup.
+  - `tests/validation_case_utils.py` now includes `rms_scaled_component_max_final` in the strict validation gate when available.
+  - Targeted verification: `python3 -m pytest tests/test_global_nr_solver.py::test_residual_group_norms_follow_cell_by_cell_layout tests/test_audit_phase1_htw_lu.py tests/test_cell_balances.py tests/test_reactor_solid_streams.py::test_char_mass_audit_reuses_solved_reactor_state_without_solving -q` passes (`23 passed`), `py_compile` passes, `git diff --check` passes, and `python3 tests/sanity_checks.py` passes.
+  - Short Hamel-path char audit (`--max-global-iter 4`) shows `rms_scaled_solid_final=0.00610` but `max_abs_scaled_solid_final=0.02618`, proving max residual diagnostics are needed. The largest char residuals are in `bed[0]`, `bed[1]`, and `bed[2]`; upper cells remain empty at this short budget.
+- 2026-05-12 phase2 pickup:
+  - Bed-region char transport remains internally consistent enough to move to phase2: bed `auf/ab` linkage gaps are zero and the freeboard issue should be diagnosed separately from bed transport.
+  - `scripts/audit_char_mass_conservation_lu.py --mode phase2 --max-global-iter 1 --tol-global 1.0` shows the analytical freeboard solid closure is nearly conservative by itself, but its stored closure input is stale:
+    - stale closure bed-top char input: `0.09695090 kg/s`
+    - current solved bed-top char upflow: `0.3617168 kg/s`
+    - stale gap: `0.2647659 kg/s`
+    - freeboard closure transport residual: about `-2.12e-6 kg/s`
+  - Added a solid-only freeboard closure refresh path that preserves freeboard gas/T NR state. After refreshing from the current bed-top solid upflow:
+    - refreshed closure bed-top char input: `0.3617168 kg/s`
+    - current bed-top gap: `0.0 kg/s`
+    - refreshed freeboard return char: `0.3617128 kg/s`
+    - refreshed closure transport residual: about `-3.31e-6 kg/s`
+  - Interpretation: the phase2 freeboard analytical transport algorithm is not the main char-conservation fault. The active phase2 bug is stale coupling between the evolving bed top transport state and the explicit freeboard closure stored in the solver/result path.
+  - Tried applying the same solid-only freeboard closure refresh inside the explicit-graph outer NR refresh, but reverted it after the 3-bed/2-freeboard coefficient comparison worsened from the earlier baseline (`rms_scaled_final≈0.0256`) to `0.1156246` and increased line-search failures. Keep solid-only refresh as an audit/reporting diagnostic for now, not a solver-path default.
+  - Added result-finalization solid-only freeboard closure refresh. This runs after NR completion, preserves freeboard gas/T state, refreshes boundary routing into a self-consistent result state, and records both pre-refresh and post-refresh bed-top gaps in the result payload.
+  - Full phase2 audit with `--max-global-iter 1 --tol-global 1.0` still does not converge (`rms_scaled_final=0.028260`), but the result ledger now reports a self-consistent bed/freeboard interface:
+    - result freeboard bed-top char input: `0.3597194 kg/s`
+    - current bed-top char upflow: `0.3597194 kg/s`
+    - post-result gap: `0.0 kg/s`
+    - preserved pre-result stale gap: `0.2647659 kg/s`
+    - freeboard return char: `0.3597154 kg/s`
+    - freeboard closure transport residual: about `-3.29e-6 kg/s`
+  - With the interface now reported consistently, the largest remaining char residual is exposed at the bed/freeboard boundary: `bed[9] residual_char_kg_s≈0.2766 kg/s`. This is now a solver/coupling convergence problem, not an analytical freeboard-transport conservation problem.
+  - Added bed/freeboard interface component audit rows for `char`, `ash`, and `char+ash`. The phase2 audit shows the top-bed residual is not a char/ash cancellation artifact:
+    - char residual at `bed[9]`: `0.2765590 kg/s`
+    - ash residual at `bed[9]`: `0.0867601 kg/s`
+    - char+ash residual at `bed[9]`: `0.3633191 kg/s`
+    - bed-top `ab_in` and freeboard bottom return gaps are zero for both char and ash.
+  - Interpretation: after bed/freeboard interface synchronization, active fuel-solid inventory/outflow in the top bed remains too low for the incoming upflow plus freeboard return. The next convergence check should focus on why NR does not increase top-bed char/ash holdup or otherwise reduce this residual.
+  - Added top-bed local solid sensitivity audit. The top class finite-difference sensitivity matches the expected local slope `-(K_auf+K_ab)`:
+    - char class 0: residual `0.0902188 kg/s`, `dR/dm≈-0.229868 1/s`, local Newton delta `+0.392 kg`
+    - ash class 0: residual `0.0464874 kg/s`, `dR/dm≈-0.229841 1/s`, local Newton delta `+0.202 kg`
+    - Interpretation: the top-bed solid residual is locally well-conditioned; the issue is global step acceptance/clipping, not a missing local solid Jacobian direction.
+  - Found and fixed a structured-NR damping mismatch: sparse direct solves had Tikhonov/temperature-step protection, but the `structured_direct` path could return raw temperature steps of thousands to tens of thousands K, forcing line search down to `lambda=0.001953125` and starving solid holdup updates.
+  - Added a common `_clip_dx(..., t_step_limit_K=...)` temperature trust region used by both NR and GD fallback. Full phase2 short-run diagnostics improved:
+    - `rms_scaled_final`: `0.0282597 -> 0.0265792`
+    - `line_search_failures`: `2 -> 0`
+    - accepted late-step lambda: `0.001953125 -> 0.0078125`
+    - top-bed char residual: about `0.2766 -> 0.2279 kg/s`
+    - top-bed ash residual: about `0.0868 -> 0.0554 kg/s`
+  - Medium phase2 run (`max_global_iter=10`) confirms the top-bed residual continues to decay, but also exposes the next coupling problem:
+    - top-bed char residual: `0.1001 kg/s`
+    - top-bed ash residual: `0.0194 kg/s`
+    - `line_search_failures=32`, `gd_fallback_accepts=17`
+    - outer 1 inner solve reached `rms_scaled_final=0.01844`, but the following Vorabrechnung refresh pushed the residual back above `0.02448`; later outer loops become Check2-aligned (`dT_outer≈1e-9`) but make only tiny GD-driven progress.
+  - Tried reallocating more inner budget after raw Check2 alignment; it did not materially improve the medium run and was reverted. Keep the current outer-loop budget policy until the refresh/inner mismatch is better understood.
+  - Targeted verification passes: `python3 -m pytest tests/test_reactor_solid_streams.py -q` (`30 passed`), `python3 tests/sanity_checks.py` (`ALL 17 SANITY CHECKS PASSED`), and `git diff --check`.
+  - Additional targeted verification after result-finalization refresh: `python3 -m pytest tests/test_global_nr_solver.py::test_finalize_result_refreshes_freeboard_solid_closure_without_gas_state_overwrite tests/test_global_nr_solver.py::test_thesis_outer_refresh_skips_freeboard_closure_resync tests/test_reactor_solid_streams.py -q` passes (`32 passed`).
+ - 2026-05-13 pickup:
+   - Added outer-loop refresh diagnostics in `src/solvers/outer_loop.py`: pre/post refresh signatures, `dT_refresh`, seed-reset markers, and `lambda_seed_used` are now recorded in `nr_outer_history`.
+   - Added adaptive outer lambda-seed reset rule for refreshed states:
+     - reset to `0.5` when refresh causes large state jump (`dT_refresh` over threshold), or
+     - when refresh changes Vorabrechnung signature and the inherited seed is already tiny (`<=0.1`).
+   - Added short regression tests in `tests/test_outer_loop_convergence.py` for:
+     - large-refresh seed reset,
+     - signature-change + tiny-seed reset.
+   - Extended `scripts/audit_char_mass_conservation_lu.py` payload with:
+     - `nr_outer_history`,
+     - `nr_outer_refresh_jump_summary` (`max/avg dT_refresh`, `lambda_seed_reset_count`).
+   - Short phase2 audit (`--mode phase2 --max-global-iter 1 --tol-global 1.0`) now reports:
+     - `rms_scaled_final ≈ 0.01411` (previous short baseline around `0.02658`),
+     - `lambda_seed_reset_count = 5`,
+     - top-bed residuals still significant (`char≈0.239 kg/s`, `ash≈0.053 kg/s`), so coupling convergence remains the active blocker.
+   - Verification:
+     - `python3 -m pytest tests/test_outer_loop_convergence.py -q` passes (`5 passed`),
+     - `python3 tests/sanity_checks.py` passes (`ALL 17 SANITY CHECKS PASSED`).
+  - 2026-05-13 follow-up:
+    - Re-ran phase2 medium audit (`--max-global-iter 10 --tol-global 1.0`) with outer-history extraction and confirmed the current bottleneck:
+      - outer[1] consumes most inner budget (`inner_iter_cap=32`), then outer[2..10] are mostly `inner_iter_cap=2` micro-steps.
+      - after outer[7], `outer_aligned_raw=true` but Check1 still fails, and remaining progress is slow GD/short-step decay.
+      - current medium-run snapshot: `rms_scaled_final≈0.022998`, top-bed residuals `char≈0.09845 kg/s`, `ash≈0.01908 kg/s`.
+    - Tried two extra convergence policies (inner-polish skip-refresh and first-outer budget throttling), but both either gave no gain or worsened medium-run convergence; both were reverted.
+    - Kept the proven-safe policy only: refresh-signature-aware outer lambda-seed reset plus diagnostics.
+  - 2026-05-13 Bild2.2 gate update:
+    - Implemented a strict Hamel-style outer-loop gate for thesis mode in `src/solvers/outer_loop.py`:
+      - when Check1 (inner NR) is not converged, next outer pass skips Vorabrechnung refresh and continues inner NR with remaining budget;
+      - Vorabrechnung refresh is re-enabled only after inner NR converges.
+    - Wiring:
+      - `run_global_nr_outer_abgleich(..., strict_check1_before_refresh=...)`
+      - `run_outer_abgleich_for_global_nr(..., strict_check1_before_refresh=...)`
+      - `Reactor._solve_global_nr()` passes `strict_check1_before_refresh=bool(cfg.thesis_mode)`.
+    - Added test coverage:
+      - `tests/test_outer_loop_convergence.py::test_strict_check1_gate_skips_refresh_until_inner_converges`
+      - plus existing outer-loop/refresh tests still pass.
+    - Targeted verification:
+      - `python3 -m pytest tests/test_outer_loop_convergence.py tests/test_global_nr_solver.py::test_global_nr_outer_loop_forces_vorabrechnung_refresh tests/test_global_nr_solver.py::test_thesis_mode_single_shot_vorabrechnung_sources_not_recomputed_each_outer tests/test_global_nr_solver.py::test_thesis_outer_refresh_does_not_reseed_side_blocks tests/test_global_nr_solver.py::test_thesis_outer_refresh_skips_freeboard_closure_resync -q` passes (`10 passed`).
+      - `python3 tests/sanity_checks.py` passes (`ALL 17 SANITY CHECKS PASSED`).
+    - Medium phase2 audit snapshot with this gate (`--max-global-iter 10 --tol-global 1.0`):
+      - `rms_scaled_final≈0.01830` (improved from ~0.022998 baseline),
+      - `rms_scaled_solid_final≈0.00245`, `max_abs_scaled_solid_final≈0.01378`,
+      - but top-bed interface residuals increase (`char≈0.38284 kg/s`, `ash≈0.07365 kg/s`), indicating convergence improvements are now shifting mismatch concentration to the bed/freeboard interface.
+  - 2026-05-13 damping/feasible-step follow-up:
+    - Tried a strict feasibility cap for NR/GD line-search lambda (nonnegative gas/solid + temperature range), inspired by Hamel Appendix damping constraints.
+    - In this project’s state vector, zero-inventory solid DOFs made the cap over-restrictive; medium phase2 run degraded (`rms_scaled_final≈0.0449`).
+    - Reverted the feasibility-cap path and kept the proven Bild2.2 Check1 gate path.
+    - Current stable medium snapshot remains:
+      - `rms_scaled_final≈0.01830`
+      - `rms_scaled_solid_final≈0.00245`
+      - `max_abs_scaled_solid_final≈0.01378`
+      - top-bed residual concentration remains (`char≈0.38284 kg/s`, `ash≈0.07365 kg/s`).
+
+## Todo
+- `phase2-freeboard-coupling`: result reporting is now aligned post-solve. Remaining work is convergence, not freeboard analytical transport conservation. The top-bed local solid Jacobian direction is healthy and the first global blocker was excessive structured-solver temperature steps. The next blocker is mismatch between an improved inner NR state and the subsequent Vorabrechnung/hydrodynamics refresh; investigate pre/post-refresh residual jumps and whether refresh should be relaxed, made state-consistent, or included in the line-search merit function.
+- `char-mass-conservation`: reduce remaining cell-level bed solid/char residuals and phase2 global residual. Current evidence says size migration and freeboard analytical closure are conservative; focus on solver coupling/refresh order before any species tuning.
+- `hydrodynamics-holdup`: after the freeboard stale-coupling fix, run solved-state hydrodynamics profile audit including freeboard-enabled case; INIT+PRECALC profile, Hamel anchors, and targeted tests pass.
+- `species-mismatch`: only after mass conservation and hydrodynamics profile checks, audit why case1 dry gas still overpredicts CO/H2 and underpredicts CH4.
+
+## Notes
+- The earlier `converged_fully=true` LU result was based on overall RMS only. After adding component-wise convergence, treat that result as superseded for validation; solid/char closure is still the active blocker.
+- Keep following the Hamel source-of-truth flow: code/docs consistency first, original paper second, tuning last.
+- Re-run `python3 tests/sanity_checks.py` after any code change.
