@@ -9,6 +9,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 import numpy as np
 import pytest
 
+from src.core.constants import P0_HAMEL
+from src.physics.phase_fractions import calc_bulk_solid_holdup
 from src.core.species import (
     cp_molar,
     enthalpy_molar,
@@ -27,6 +29,7 @@ from src.core.species import (
     gas_viscosity_power_law,
     gas_diffusivity_correlation,
 )
+from src.core import species as species_module
 from src.kinetics.arrhenius import k_hobbs, k_standard, k_jensen_r7
 
 
@@ -128,10 +131,15 @@ class TestTarComponentPlaceholder:
     """TAR1/TAR2 在未注册时应抛出 NotImplementedError。"""
 
     def test_tar1_cp_raises(self):
+        # 防止前序测试已注册 TAR 参数导致该占位测试失真
+        species_module._NASA_DATA.pop("TAR1", None)
+        species_module._NASA_DATA.pop("TAR2", None)
         with pytest.raises(NotImplementedError):
             cp_molar("TAR1", 1000.0)
 
     def test_tar2_enthalpy_raises(self):
+        species_module._NASA_DATA.pop("TAR1", None)
+        species_module._NASA_DATA.pop("TAR2", None)
         with pytest.raises(NotImplementedError):
             enthalpy_molar("TAR2", 1000.0)
 
@@ -216,9 +224,20 @@ class TestGasMixtureProperties:
         assert mu2 > mu1
 
     def test_gas_diffusivity_pressure_inverse(self):
-        d1 = gas_diffusivity_correlation(T_m=1500.0, P=101300.0)
-        d2 = gas_diffusivity_correlation(T_m=1500.0, P=202600.0)
+        d1 = gas_diffusivity_correlation(T_m=1500.0, P=P0_HAMEL)
+        d2 = gas_diffusivity_correlation(T_m=1500.0, P=2.0 * P0_HAMEL)
         assert abs(d2 / d1 - 0.5) < 1e-12
+
+
+class TestPhaseFractionHierarchy:
+    """相分率层级关系测试。"""
+
+    def test_bulk_solid_holdup_uses_bed_share_times_dense_internal_solid(self):
+        eps_b = 0.30
+        eps_d_voidage = 0.45
+        bulk = calc_bulk_solid_holdup(eps_b, eps_d_voidage)
+        assert abs(bulk - ((1.0 - eps_b) * (1.0 - eps_d_voidage))) < 1e-12
+        assert abs(bulk - (1.0 - (eps_b + (1.0 - eps_b) * eps_d_voidage))) < 1e-12
 
 
 # ===== arrhenius.py 测试 =====

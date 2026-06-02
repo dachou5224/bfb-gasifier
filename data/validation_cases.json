@@ -55,6 +55,12 @@
       "gasification_agent": {
         "type": "Air/Steam (Luft/Dampf)",
         "staged_injection_levels": "up to 10",
+        "primary_air_Nm3_h": "__NOT_TABULATED__  (primary distributor share is described qualitatively as the main portion entering via the multi-level bed/distributor system)",
+        "total_air_Nm3_h": 5536.9,
+        "secondary_air_Nm3_h": 30.1,
+        "secondary_injection_xi_reactor": 0.6,
+        "secondary_injection_agent": "Air",
+        "secondary_injection_note": "Table 7.1 / Chapter 7.1.2: secondary air = 30.1 Nm3/h(STP) at ξ≈0.6; primary share is not tabulated separately, only described qualitatively as the majority entering via the distributor / multi-level bed injection",
         "calculated_flows": {
           "_calculated_from": "λ_O2=0.337, fuel C/H/O/S + moisture=16.9%",
           "O2_stoich_mol_per_kg_dry": 54.85,
@@ -68,6 +74,8 @@
       "reactor": {
         "height_m": 14.5,
         "diameter_m": 0.6,
+        "bed_diameter_m": 0.6,
+        "freeboard_diameter_m": 0.6,
         "bed_height_m": 6.0,
         "bed_height_note": "~6.0 m from Section 7.1.2 description",
         "feed_system": "2 points (Conus + Bed)",
@@ -81,7 +89,9 @@
         "T_inlet_K": 293,
         "T_inlet_note": "ambient, from Section 7.1.2",
         "recirculation": true,
-        "recirculation_note": "via Cyclone"
+        "recirculation_note": "via Cyclone",
+        "recycle_topology": "cyclone return to bed",
+        "cyclone_present": true
       },
       "heat_loss_note": "~5-10% of thermal input for pilot plant"
     },
@@ -227,7 +237,8 @@
           "T_spike": "Secondary air combustion raises T by ~200 K at ξ≈0.6",
           "CO_H2_dip": "CO and H2 drop at ξ≈0.6 due to partial combustion, then recover via WGS equilibration",
           "CH4_flat": "CH4 stays flat ~0.025 through freeboard — minimal secondary formation/destruction",
-          "H2O_trend": "Highest consumption in first 30% where devolatilization + char gasification are most intense"
+          "H2O_trend": "Highest consumption in first 30% where devolatilization + char gasification are most intense",
+          "temperature_curve_confidence": "Re-check against Hamel Fig. 7.4 confirms the main temperature anchors ξ=0.00/0.10/0.20/0.45/0.60/0.80/1.00 at roughly 750/1020/1100/1060/1240/1130/1100 K. Remaining uncertainty is mainly the fine intra-bed curvature between anchors, not the existence of the ξ≈0.6 secondary-air thermal peak itself."
         }
       }
     }
@@ -269,6 +280,12 @@
       "gasification_agent": {
         "type": "O2/Steam (O2/Dampf)",
         "staged_injection_levels": "up to 10",
+        "primary_O2_Nm3_h": "__NOT_TABULATED__  (primary distributor O2 share is not explicitly tabulated; main portion enters via the multi-level bed/distributor system)",
+        "total_O2_Nm3_h": 1921.6,
+        "secondary_O2_Nm3_h": 37.5,
+        "secondary_injection_xi_reactor": 0.6,
+        "secondary_injection_agent": "O2",
+        "secondary_injection_note": "Table 7.1 / Chapter 7.1.2: secondary O2 = 37.5 Nm3/h(STP) around ξ≈0.6; primary distributor share is not tabulated separately",
         "calculated_flows": {
           "_calculated_from": "λ_O2=0.268, fuel C/H/O/S + moisture=15.8%",
           "O2_stoich_mol_per_kg_dry": 55.39,
@@ -281,6 +298,8 @@
       "reactor": {
         "height_m": 14.5,
         "diameter_m": 0.6,
+        "bed_diameter_m": 0.6,
+        "freeboard_diameter_m": 0.6,
         "bed_height_m": 6.0,
         "bed_height_note": "~6.0 m from Section 7.1.2",
         "feed_system": "2 points (Conus + Bed)",
@@ -294,7 +313,9 @@
         "T_inlet_K": 293,
         "T_inlet_note": "ambient",
         "recirculation": true,
-        "recirculation_note": "via Cyclone"
+        "recirculation_note": "via Cyclone",
+        "recycle_topology": "cyclone return to bed",
+        "cyclone_present": true
       },
       "heat_loss_note": "~5-10% of thermal input for pilot plant"
     },
@@ -426,7 +447,8 @@
           "T_peak": "Secondary O2 peak at ξ≈0.6 reaches 1380 K (vs 1240 K in air case)",
           "CO2_spike": "Sharp CO2 increase at ξ≈0.6 from partial combustion of CO/H2",
           "CH4_higher": "CH4 ~0.048 (vs 0.028 in air) — enhanced secondary cracking in hotter freeboard",
-          "H2O_consumption": "H2O drops from 0.38 (entry) to 0.17 (exit) — steam consumed by gasification + WGS"
+          "H2O_consumption": "H2O drops from 0.38 (entry) to 0.17 (exit) — steam consumed by gasification + WGS",
+          "temperature_curve_confidence": "Re-check against Hamel Fig. 7.5 confirms the main temperature anchors ξ=0.00/0.10/0.20/0.45/0.60/0.80/1.00 at roughly 800/1150/1200/1150/1380/1300/1220 K. As in the air case, detailed curvature between anchors is lower-confidence than the anchor temperatures themselves."
         },
         "_comparison_with_sim1": {
           "CO_exit": "0.335 vs 0.130 (2.6×)",

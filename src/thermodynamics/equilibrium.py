@@ -6,6 +6,7 @@ Source: BFB_TechSpec_v11 §5; Hamel (1999) §5.2
 
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Dict
 
 import numpy as np
@@ -29,6 +30,7 @@ REACTION_R7 = "R7"   # CH4 + H2O -> CO + 3 H2
 REACTION_R8 = "R8"   # CO + H2O <-> CO2 + H2 (WGSR)
 
 
+@lru_cache(maxsize=4096)
 def _delta_g0(reaction_id: str, T: float) -> float:
     """反应标准 Gibbs 自由能变化 ΔG°(T) [J/mol]。
 
@@ -54,16 +56,17 @@ def _delta_g0(reaction_id: str, T: float) -> float:
     return dG
 
 
-# R8 WGSR: Benson (1981) 拟合式，Hamel 给式量级与 sanity check 不符
-R8_K_eq_A: float = -4.33
-R8_K_eq_B: float = 4577.8  # K_eq = exp(4577.8/T - 4.33)
+# R8 WGSR: Chen et al. (1987) / Hamel (1999)
+R8_K_eq_A: float = -3.6893
+R8_K_eq_B: float = 4019.0  # K_eq = exp(4019.0/T - 3.6893)
 
 
+@lru_cache(maxsize=4096)
 def get_K_eq(reaction_id: str, T: float, P: float | None = None) -> float:
     """平衡常数 K_eq（压力无关形式，K_p = K_eq * P^Δn）。
 
     R5/R7: ΔG° = −RT ln K_eq
-    R8: Benson 拟合式 K_eq = exp(4577.8/T - 4.33)
+    R8: Hamel / Chen 口径，K_eq = exp(4019.0/T - 3.6893)
 
     Parameters
     ----------
@@ -173,7 +176,10 @@ def calc_gibbs_driving_force(
     else:
         K_eq = max(K_eq, _K_EQ_FLOOR)
     Q_p = calc_reaction_quotient(reaction_id, y, P, species_index)
-    driving = 1.0 - Q_p / K_eq
+    # 限制 Q_p/K_eq 的最大值，防止驱动力爆炸（导致梯度爆炸）
+    # 1e6 对应于极高的驱动力，足以推动数值求解但不会引起溢出
+    ratio = np.clip(Q_p / K_eq, 0.0, 1e6)
+    driving = 1.0 - ratio
     if clamp_irreversible:
         return max(driving, 0.0)
     return driving

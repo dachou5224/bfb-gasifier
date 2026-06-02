@@ -99,10 +99,13 @@ def get_tar_component_stoichiometry(
 # ---------------------------------------------------------------------------
 # R10 Eq.5.59, Table 5.4 — 气泡/悬浮相同热力学参数
 # R = k10·exp(-E_Rg/T)·T·P^0.3·C_tar^0.5·C_O2（E/Rg 为表中活化温度 [K]）
+#
+# 文档基线：docs/hamel_submodels/06_kinetics_r1_r11_and_equilibrium_driving.md
+# 直接采用 Hamel Eq.5.60/5.61 的 k10 与 Pa^0.3 压力单位口径。
 # ---------------------------------------------------------------------------
-R10_k0_AROM: float = 20_700.0   # 芳香（C6H6, C10H8）；Siminski (1972) 经 Hamel
+R10_k0_AROM: float = 20_700.0   # 芳香（C6H6, C10H8）；Hamel Eq.5.61
 R10_E_Rg_AROM: float = 9_650.0  # [K]
-R10_k0_OLEF: float = 59.8      # 烯烃/烷烃（如 C16H34）
+R10_k0_OLEF: float = 59.8       # 烯烃/烷烃（如 C16H34）；Hamel Eq.5.60
 R10_E_Rg_OLEF: float = 12_200.0  # [K]
 
 
@@ -117,17 +120,14 @@ def _r10_single_class(
     k10: float,
     E_Rg: float,
 ) -> float:
-    """单类 tar（芳香或烯烃/烷烃）的 R10 速率 [mol/(m³·s)]。"""
+    """单类 tar（芳香或烯烃/烷烃）的 R10 速率 [mol/(m³·s)]。
+    
+    Hamel Eq.5.59/5.60/5.61: k10 单位包含 Pa^0.3，因此 P 以 Pa 进入。
+    """
     C_tar = max(C_tar, 0.0)
     C_O2 = max(C_O2, 0.0)
-    # k = (
-    #     k10
-    #     * np.exp(np.clip(-E_Rg / max(T, 300.0), -100.0, 100.0))
-    #     * max(T, 300.0)
-    #     * (P ** 0.3)
-    # )
-    # k_hobbs: k0 * T * exp(-E/(Rg*T)) -> E/Rg is input E_Rg
-    k = k_hobbs(k10, E_Rg * Rg, max(T, 300.0)) * (P ** 0.3)
+    # k_hobbs: k0 * T * exp(-E/(Rg*T)) -> E/Rg is input E_Rg.
+    k = k_hobbs(k10, E_Rg * Rg, max(T, 300.0)) * (max(P, 0.0) ** 0.3)
     return k * (C_tar ** 0.5) * C_O2
 
 

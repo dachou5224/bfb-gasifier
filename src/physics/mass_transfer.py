@@ -8,10 +8,10 @@ from __future__ import annotations
 
 import math
 
-from src.core.constants import P0, n_b
+from src.core.constants import P0_HAMEL, n_b
 
 
-def calc_u_br(u_d: float, P: float, n_b_factor: float = n_b, p_ref: float = P0) -> float:
+def calc_u_br(u_d: float, P: float, n_b_factor: float = n_b, p_ref: float = P0_HAMEL) -> float:
     """Gleichung 3.44：论文符号 u_{b,r}（bubble through-flow），此处为 u_br。
 
     u_{b,r} = n_b * u_d * (P / P0)^(-0.15)

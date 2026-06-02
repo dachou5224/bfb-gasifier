@@ -515,7 +515,7 @@ def build_sidebar():
         # ── 反应器参数 ───────────────────────────────────────────
         st.subheader("反应器")
         n_cells = st.slider("轴向 Cell 数", 3, 30, 15, help="将床层离散为串联计算单元")
-        H_bed = st.number_input("床层高度 H [m]", 1.0, 20.0, pv("H_bed", 14.5), 0.5, key=f"H_bed_{_k}")
+        H_bed = st.number_input("床层高度 H [m]", 1.0, 20.0, pv("H_bed", 6.0), 0.5, key=f"H_bed_{_k}")
         D_bed = st.number_input("床层直径 D [m]", 0.1, 3.0, pv("D_bed", 0.6), 0.1, key=f"D_bed_{_k}")
         
         heat_loss = st.slider(
@@ -578,13 +578,8 @@ def build_sidebar():
 
         # ── 求解参数 ─────────────────────────────────────────────
         st.subheader("求解")
-        solver_type = st.selectbox(
-            "求解器类型",
-            ["gauss_seidel", "global_nr"],
-            index=0,
-            help="gauss_seidel: 稳健的轴向扫描；global_nr: 高精度 Newton-Raphson",
-            key=f"solver_{_k}"
-        )
+        solver_type = "global_nr"
+        st.caption("求解器类型：global_nr（与 Hamel 论文一致；已移除 GS 选项）")
         max_iter = st.slider("迭代步数上限", 5, 100, 30)
 
         run = st.button("运行模型", type="primary", use_container_width=True)
@@ -841,7 +836,7 @@ $$0 = \\dot{H}_{in} - \\dot{H}_{out} - \\dot{Q}_W$$
 | `k_standard` | $k = k_0 \\cdot \\exp(-E/(R_gT))$ | R5, R6, R8, R9–R11 |
 | `k_jensen` | $k = (A/T) \\cdot \\exp(-E_T/T)$ | R7 专用 |
 
-**注意**：R4 Boudouard 的吸附常数 $k_b$, $k_c$ 的指数 $-E/(R_gT)$ 为正（$E<0$，代表吸附热）。
+**注意**：thesis **R3 Boudouard**（当前实现入口 `impl r4`）的吸附常数 $k_b$, $k_c$ 的指数 $-E/(R_gT)$ 为正（$E<0$，代表吸附热）。
         """)
 
     with st.expander("气体物种列表（11 组分）"):
@@ -1199,7 +1194,7 @@ def tab_run_simulation(params):
         S_dry=float(p.get("S_dry", 0.0)),
         steam_to_o2_molar=float(p.get("steam_to_o2", 0.8)),
         moisture_wt=p["moisture"], C_dry=p["C_dry"], H_dry=p["H_dry"], O_dry=p["O_dry"],
-        VM_daf=p["VM_daf"], ash_dry_wt=p["ash_dry"], 
+        VM_daf=p["VM_daf"], ash_dry_wt=p["ash_dry"],
         heat_loss_frac=p["heat_loss_frac"],
         recirculation_frac=p["recirculation_frac"],
     )
@@ -1670,10 +1665,10 @@ def tab_validation():
                     "结果": f"{K_bd:.2f} 1/s", "范围": "1–15 1/s",
                     "状态": "✅" if 1 <= K_bd <= 15 else "❌"})
 
-    # 4. R4 Boudouard
+    # 4. Thesis R3 Boudouard (implementation entry: r4)
     from src.kinetics.char_reactions import rate_R4
     r4 = rate_R4(1073.0, 5e4, 1e4)
-    checks.append({"检验": "R4 Boudouard", "条件": "T=1073K, P_CO2=5e4Pa",
+    checks.append({"检验": "R3 Boudouard (impl r4)", "条件": "T=1073K, P_CO2=5e4Pa",
                     "结果": f"{r4:.2e} mol/(m²·s)", "范围": "1e-7 – 1e-3",
                     "状态": "✅" if 1e-7 < r4 < 1e-3 else "❌"})
 
