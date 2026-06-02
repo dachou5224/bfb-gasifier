@@ -22,8 +22,8 @@ htmlcov/
 data/bench_nr_init_*.json
 data/validation_profile_result_profile.json
 
-# 本地论文原文与建模辅助笔记（不入库）
-docs/_2001_VDI-Dis._Mathematische Modellierung und experimentelle Untersuchung der Vergasung verschiedener fester Brennstoffe.pdf
+# Hamel 论文 PDF 与从原文提取的结构性文档（仅本地保留，不入库）
+*.pdf
 docs/hamel_submodels/
 docs/hamel_doc_trace_index_latest_to_earliest.md
 docs/hamel_evidence_matrix.md
