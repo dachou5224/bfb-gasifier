@@ -23,17 +23,21 @@ from src.core.cell import (
     N_SOLID_COMP,
 )
 from src.core.connectivity import (
+    align_bottom_primary_gas_state_to_inlet_split as _align_bottom_primary_gas_state_exec,
     apply_all_nr_boundary_data as _apply_all_nr_boundary_data_exec,
     apply_bottom_recycle as _apply_bottom_recycle_exec,
     apply_local_nr_boundary_data as _apply_local_nr_boundary_data_exec,
     propagate_upstream as _propagate_upstream_exec,
     propagated_solid_stream as _propagated_solid_stream,
     recycled_solid_stream as _recycled_solid_stream,
+    seed_bed_holdup_chain_from_transport as _seed_bed_holdup_chain_from_transport_exec,
     set_bottom_cell_feeds as _set_bottom_cell_feeds_exec,
+    snapshot_bottom_gas_inlet_split_from_vorabrechnung as _snapshot_bottom_gas_split_exec,
 )
 from src.core.connectivity_graph import affected_nr_residual_cells as _affected_nr_cells_graph
 from src.core.freeboard_bridge import (
     refresh_explicit_freeboard_transport_from_closure as _refresh_fb_transport_bridge,
+    sync_freeboard_hydrodynamic_bridge_from_bed_top as _sync_fb_hydro_bridge,
     sync_freeboard_cells_from_closure as _sync_fb_cells_bridge,
 )
 from src.core.side_block_bridge import initialize_explicit_side_block_states as _init_side_blocks_bridge
@@ -130,6 +134,7 @@ def _resolve_nr_init_strategy(
 class ReactorConfig:
     """反应器配置。"""
     n_cells: int = 10             # [-]    轴向 cell 数
+    bed_dh_profile: tuple[float, ...] | None = None  # [m] Optional per-cell bed heights; sum must equal H_bed
     H_bed: float = 5.0            # [m]    流化床高度
     H_freeboard: float = 9.5      # [m]    自由板区高度
     n_freeboard_cells: int = 0    # [-]    自由板离散段数（0=不求解自由板）
@@ -181,6 +186,8 @@ class ReactorConfig:
     freeboard_beta_a_scale: float = 1.0
     freeboard_velocity_sigma: float = 0.60
     freeboard_velocity_bins: int = 5
+    freeboard_age_quadrature_bins: int = 1
+    freeboard_age_quadrature_max_age: float = 0.98
     freeboard_cyclone_capture_char_frac: float = 0.90
     freeboard_cyclone_capture_ash_frac: float = 0.95
     freeboard_secondary_injection_xi: float | None = None
@@ -190,10 +197,33 @@ class ReactorConfig:
     freeboard_secondary_T_K: float = 293.15
     freeboard_secondary_local_refine: int = 1
     freeboard_secondary_injection_mode: str = "lumped"
+    explicit_freeboard_solver_graph_enabled: bool = True
     nitrogen_fraction: float = 0.0
     use_gibbs_minor: bool = True
     nr_jacobian_lag_steps: int = 1
+    nr_damping_halvings_thesis: int = 14
+    nr_lambda_min_thesis: float = 1.0 / 4096.0
+    nr_prefer_full_step_thesis: bool = True
+    nr_step_model_thesis: str = "newton"  # newton | lm | ptc | equil_newton
+    nr_lm_mu0_thesis: float = 1.0e-4
+    nr_lm_mu_growth_thesis: float = 10.0
+    nr_ptc_alpha0_thesis: float = 1.0
+    nr_ptc_alpha_growth_thesis: float = 2.0
+    nr_equil_iters_thesis: int = 3
+    nr_equil_scale_clip_thesis: float = 1.0e3
+    nr_line_search_max_trials_thesis: int = 0  # 0 => use n_damp_halvings
+    nr_nonmonotone_enabled_thesis: bool = False
+    nr_nonmonotone_window_thesis: int = 5
+    nr_nonmonotone_relax_thesis: float = 1.02
+    nr_strict_check1_before_refresh_thesis: bool = True
+    nr_reaction_continuation_stages_thesis: tuple[float, ...] = (1.0,)
+    nr_reaction_continuation_height_m_thesis: float = 0.0
+    nr_reaction_continuation_inner_iter_cap_thesis: int = 0
+    nr_temperature_fence_enabled_thesis: bool = True
+    nr_temperature_fence_lower_margin_K_thesis: float = 150.0
+    nr_temperature_fence_upper_margin_K_thesis: float = 350.0
     thesis_mode: bool = False
+    explicit_side_blocks_enabled: bool = True
     # Deprecated no-op (kept only for backward compatibility): GS path removed.
     allow_legacy_gs: bool = False
     # Hamel A1-style major-species Gibbs seed in Vorabrechnung x0 generation.
@@ -213,8 +243,11 @@ class ReactorConfig:
     H2O_feed: float = 0.3
     N2_feed: float = 0.02
 
-    # 底部主气化剂分配到悬浮相的比例（其余进入气泡相）
+    # 底部主气化剂分配到悬浮相的比例（其余进入气泡相）。
+    # ``gas_inlet_split_strategy="fixed"`` 时作为直接比例；Hamel-aligned
+    # ``precalc_hydrodynamic_flux`` 时仅作为 Vorabrechnung 尚未可用的 fallback。
     gas_inlet_dense_frac: float = 0.7
+    gas_inlet_split_strategy: str = "fixed"
 
     recirculation_frac: float = 0.1
     recycle_gas: bool = True
@@ -285,7 +318,25 @@ class Reactor:
 
     def _build_cells(self) -> None:
         cfg = self.config
-        dh = cfg.H_bed / cfg.n_cells
+        if cfg.n_cells <= 0:
+            raise ValueError(f"n_cells must be positive, got {cfg.n_cells}")
+        dh_profile_cfg = cfg.bed_dh_profile
+        if dh_profile_cfg is None:
+            bed_dh = np.full(int(cfg.n_cells), float(cfg.H_bed) / float(cfg.n_cells), dtype=np.float64)
+        else:
+            bed_dh = np.asarray(tuple(float(v) for v in dh_profile_cfg), dtype=np.float64)
+            if bed_dh.size != int(cfg.n_cells):
+                raise ValueError(
+                    f"bed_dh_profile length ({bed_dh.size}) must equal n_cells ({int(cfg.n_cells)})"
+                )
+            if np.any(bed_dh <= 0.0):
+                raise ValueError("bed_dh_profile entries must be strictly positive")
+            if not np.isclose(float(np.sum(bed_dh)), float(cfg.H_bed), rtol=1e-8, atol=1e-10):
+                raise ValueError(
+                    f"sum(bed_dh_profile)={float(np.sum(bed_dh)):.12g} must equal H_bed={float(cfg.H_bed):.12g}"
+                )
+        z0 = np.concatenate(([0.0], np.cumsum(bed_dh)[:-1]))
+        zc = z0 + 0.5 * bed_dh
         nk = max(1, int(cfg.n_age_classes))
         if nk > 1 and cfg.d_p_min is not None and cfg.d_p_max is not None:
             d_min = float(min(cfg.d_p_min, cfg.d_p_max))
@@ -314,7 +365,7 @@ class Reactor:
         )
 
         for i in range(cfg.n_cells):
-            geo = CellGeometry(D_bed=cfg.D_bed, dh=dh, h_center=(i + 0.5) * dh)
+            geo = CellGeometry(D_bed=cfg.D_bed, dh=float(bed_dh[i]), h_center=float(zc[i]))
             cell = Cell(geo=geo, solid=solid, fuel_type=cfg.fuel_type)
             cell.P = cfg.P
             cell.u0_target = cfg.u0_target
@@ -341,9 +392,12 @@ class Reactor:
             cell.r5_scale = float(max(cfg.r5_scale, 0.0))
             cell.r6_scale = float(max(cfg.r6_scale, 0.0))
             cell.r7_scale = float(max(cfg.r7_scale, 0.0))
+            cell._n_vorab_cells = cfg.n_cells  # legacy uniform-mesh tau fallback
+            cell._vorab_bed_height = float(cfg.H_bed)
             self.cells.append(cell)
+        top_dh = float(bed_dh[-1])
         if self._use_explicit_side_block_cells():
-            side_geo = CellGeometry(D_bed=cfg.D_bed, dh=dh, h_center=cfg.H_bed + 0.5 * dh)
+            side_geo = CellGeometry(D_bed=cfg.D_bed, dh=top_dh, h_center=cfg.H_bed + 0.5 * top_dh)
             cyclone = Cell(geo=side_geo, solid=solid, fuel_type=cfg.fuel_type)
             cyclone.P = cfg.P
             cyclone.cell_type = "cyclone"
@@ -355,7 +409,7 @@ class Reactor:
             cyclone.r6_scale = float(max(cfg.r6_scale, 0.0))
             cyclone.r7_scale = float(max(cfg.r7_scale, 0.0))
 
-            return_leg_geo = CellGeometry(D_bed=cfg.D_bed, dh=dh, h_center=cfg.H_bed + 1.5 * dh)
+            return_leg_geo = CellGeometry(D_bed=cfg.D_bed, dh=top_dh, h_center=cfg.H_bed + 1.5 * top_dh)
             return_leg = Cell(geo=return_leg_geo, solid=solid, fuel_type=cfg.fuel_type)
             return_leg.P = cfg.P
             return_leg.cell_type = "return_leg"
@@ -393,29 +447,64 @@ class Reactor:
                 self.freeboard_cells.append(fb_cell)
 
     def _use_explicit_side_block_cells(self) -> bool:
-        return bool(self.config.thesis_mode)
+        return bool(self.config.thesis_mode) and bool(self.config.explicit_side_blocks_enabled)
 
     def _use_explicit_freeboard_cells(self) -> bool:
         return bool(self.config.thesis_mode) and float(self.config.H_freeboard) > 0.0 and int(self.config.n_freeboard_cells) > 0
 
     def _use_explicit_freeboard_solver_graph(self) -> bool:
-        return self._use_explicit_freeboard_cells()
+        return self._use_explicit_freeboard_cells() and bool(self.config.explicit_freeboard_solver_graph_enabled)
 
     def _solver_cells_for_nr(self) -> List[Cell]:
         if self._use_explicit_side_block_cells():
             if self._use_explicit_freeboard_solver_graph():
                 return self.cells + self.freeboard_cells + self.side_cells
-            if not self._use_explicit_freeboard_cells():
-                return self.cells + self.side_cells
+            return self.cells + self.side_cells
         return self.cells
 
+    def _resolve_nr_reaction_continuation_stages(self) -> tuple[float, ...]:
+        """Return monotone reaction-source continuation stages for thesis NR.
+
+        The stages are a path-control device only.  The final stage is always
+        forced to 1.0 so the reported residuals remain the full physical model.
+        """
+        if not bool(self.config.thesis_mode):
+            return (1.0,)
+        raw = getattr(self.config, "nr_reaction_continuation_stages_thesis", (1.0,))
+        try:
+            stages = tuple(float(x) for x in raw)
+        except TypeError:
+            stages = (float(raw),)
+        stages = tuple(float(np.clip(x, 0.0, 1.0)) for x in stages if np.isfinite(float(x)))
+        if not stages:
+            stages = (1.0,)
+        if stages[-1] < 1.0:
+            stages = stages + (1.0,)
+        return stages
+
+    def _nr_reaction_continuation_target_cells(self, solver_cells: List[Cell]) -> list[Cell]:
+        height = float(max(getattr(self.config, "nr_reaction_continuation_height_m_thesis", 0.0), 0.0))
+        if height <= 0.0:
+            return []
+        return [
+            c
+            for c in solver_cells
+            if str(getattr(c, "cell_type", "bed")) == "bed" and float(c.geo.h_center) <= height
+        ]
+
     def _use_side_blocks_in_nr_boundary_path(self) -> bool:
-        return self._use_explicit_side_block_cells() and (
-            not self._use_explicit_freeboard_cells() or self._use_explicit_freeboard_solver_graph()
-        )
+        # Side blocks participate in the NR boundary path whenever they are part of
+        # the active thesis solver graph, including the "closure-owned freeboard"
+        # mode where freeboard cells are excluded from NR unknowns.
+        return self._use_explicit_side_block_cells()
 
     def _default_nr_jacobian_strategy(self) -> str:
-        """Default Jacobian strategy selected from the active solver graph topology."""
+        """Default Jacobian strategy selected from the active solver graph topology.
+
+        Recycle gas (top-cell → bottom-cell coupling) creates a non-tridiagonal
+        Jacobian structure.  The structured path declares that recycle closure as a
+        side block, avoiding the much slower dense finite-difference fallback.
+        """
         if self._use_side_blocks_in_nr_boundary_path():
             return "band_plus_side_elements_structured"
         return "block_tridiag_structured"
@@ -438,13 +527,28 @@ class Reactor:
             ),
         )
 
-    def _sync_freeboard_cells_from_closure(self, fb: dict) -> None:
+    def _sync_freeboard_cells_from_closure(self, fb: dict, *, preserve_gas_state: bool = False) -> None:
         """委托 ``freeboard_bridge``：closure → freeboard_cells 状态。"""
-        _sync_fb_cells_bridge(self, fb)
+        _sync_fb_cells_bridge(self, fb, preserve_gas_state=preserve_gas_state)
 
-    def _refresh_explicit_freeboard_transport_from_closure(self) -> dict | None:
+    def _refresh_explicit_freeboard_transport_from_closure(self, *, preserve_gas_state: bool = False) -> dict | None:
         """委托 ``freeboard_bridge``：床顶 → simulate_freeboard → 同步显式自由板链。"""
-        return _refresh_fb_transport_bridge(self)
+        return _refresh_fb_transport_bridge(self, preserve_gas_state=preserve_gas_state)
+
+    def _sync_freeboard_hydrodynamic_bridge_from_bed_top(self) -> None:
+        """委托 ``freeboard_bridge``：只同步床顶 ghost-bubble 边界。"""
+        _sync_fb_hydro_bridge(self)
+
+    def _seed_initialized_holdup_chain_for_nr(self) -> None:
+        """Seed bed holdup states once from initialized thesis transport inflows.
+
+        After x0 switched from total-bed-holdup semantics to active-solid inflow
+        semantics, upper bed cells no longer receive a resident solid inventory
+        automatically. A one-time bottom→top sweep restores the intended Eq. 2.6
+        transport chain before explicit freeboard/side-block initialization.
+        """
+        top_above_cell = self.freeboard_cells[0] if self.freeboard_cells else None
+        _seed_bed_holdup_chain_from_transport_exec(self.cells, top_above_cell=top_above_cell)
 
     def _apply_heat_loss_distribution(self) -> None:
         """Refresh per-bed-cell heat-loss fractions from reactor-level settings."""
@@ -468,6 +572,10 @@ class Reactor:
 
     def _set_bottom_cell_feeds(self) -> None:
         _set_bottom_cell_feeds_exec(self.cells, self.config)
+
+    def _snapshot_bottom_gas_inlet_split_from_vorabrechnung(self) -> None:
+        _snapshot_bottom_gas_split_exec(self.cells, self.config)
+        _align_bottom_primary_gas_state_exec(self.cells, self.config)
 
     def _apply_bottom_recycle(self, relax: float | None = None) -> None:
         if self._use_side_blocks_in_nr_boundary_path() and self.return_leg_cell is not None:
@@ -513,13 +621,37 @@ class Reactor:
             self._refresh_explicit_freeboard_transport_from_closure()
         # Side-block states are seeded once during init/precalc.
         # Re-seeding each outer loop overwrites NR-updated side states and breaks Check2.
-        self._apply_all_bc_for_nr()
         strict_single_shot = bool(self.config.thesis_mode) and bool(self.config.thesis_vorab_sources_single_shot)
+        refresh_sources = not strict_single_shot
+        force_sources = force and (not strict_single_shot)
+        self._apply_all_bc_for_nr()
+        if self._use_explicit_freeboard_solver_graph():
+            # Refresh bed hydrodynamics first, then update the Hamel freeboard
+            # ghost-bubble bridge from the current bed-surface state before
+            # snapshotting freeboard hydrodynamics.  This keeps explicit
+            # freeboard gas/energy NR state intact.
+            refresh_vorabrechnung_for_cells(
+                self.cells,
+                force=force_sources,
+                refresh_sources=refresh_sources,
+            )
+            self._snapshot_bottom_gas_inlet_split_from_vorabrechnung()
+            self._sync_freeboard_hydrodynamic_bridge_from_bed_top()
+            trailing_cells = self.freeboard_cells + (self.side_cells if self._use_explicit_side_block_cells() else [])
+            refresh_vorabrechnung_for_cells(
+                trailing_cells,
+                force=force_sources,
+                refresh_sources=refresh_sources,
+            )
+            self._apply_all_bc_for_nr()
+            return
         refresh_vorabrechnung_for_cells(
             self._solver_cells_for_nr(),
-            force=force and (not strict_single_shot),
-            refresh_sources=(not strict_single_shot),
+            force=force_sources,
+            refresh_sources=refresh_sources,
         )
+        self._snapshot_bottom_gas_inlet_split_from_vorabrechnung()
+        self._apply_all_bc_for_nr()
 
     def _initialize_nr_hydrodynamics_freeze_cache(self) -> None:
         """Initialize frozen hydrodynamics cache from the current initialized state.
@@ -545,6 +677,9 @@ class Reactor:
             T_reference=T_bed_avg,
         )
         self._thesis_fixed_vorab_sources_ready = True
+        self._apply_all_bc_for_nr()
+        self._seed_initialized_holdup_chain_for_nr()
+        self._apply_all_bc_for_nr()
 
     def _vorabrechnung_snapshot_signature(self) -> str:
         """Build a lightweight deterministic signature for current Vorabrechnung state."""
@@ -648,6 +783,9 @@ class Reactor:
             moisture_wt=self.config.moisture_wt,
             P=self.config.P,
         )
+        self._set_bottom_cell_feeds()
+        for i in range(len(self.cells)):
+            self._propagate_upstream(i)
         generate_initial_x0(
             cells=self.cells,
             O2_feed=self.config.O2_feed,
@@ -820,14 +958,32 @@ class Reactor:
         resolved_init_strategy = precalc.resolved_init_strategy
         nr_init_s_total = precalc.nr_init_s_total
         nr_vorabrechnung_s = precalc.nr_vorabrechnung_s
-        if bool(cfg.thesis_mode) and bool(cfg.thesis_vorab_sources_single_shot):
-            # Thesis strict path keeps drying/DAEM fixed after init; allowing too many
-            # outer slots over-fragments inner-NR budget and hurts Check1 progress.
-            outer_max = 2
+        explicit_outer_cap = getattr(cfg, "nr_outer_iter_max", None)
+        explicit_inner_cap = getattr(cfg, "nr_inner_iter_max_thesis", None)
+        short_probe_mode = int(max_iter) <= 4
+        if explicit_outer_cap is not None:
+            outer_max = max(1, int(explicit_outer_cap))
+        elif bool(cfg.thesis_mode) and bool(cfg.thesis_vorab_sources_single_shot) and not short_probe_mode:
+            # Thesis single-shot: drying/DAEM sources fixed after init, but
+            # hydrodynamics (K_bd, eps_b, u0, …) must be refreshed after every
+            # accepted Newton step because frozen hydro becomes inconsistent with
+            # the evolving gas/solid/temperature state.  Hamel's outer Abgleich
+            # loop is conceptually "one hydro refresh → one Newton step → repeat",
+            # so we allow up to max_iter outer slots (inner_iter_cap per outer will
+            # naturally be capped at 1–2 before line-search failure triggers the
+            # next outer refresh).
+            outer_max = max(10, max_iter)
         else:
             outer_max = max(2, max_iter // 4)
         tol_rms = float(np.clip(0.01 * max(tol, 1.0), 0.005, 0.02))
-        total_inner_budget = max(int(max_iter), 1)
+        # thesis single-shot 模式：每个 outer 允许多次 NR 尝试（默认 5× 内层 budget），
+        # 确保 Tikhonov / GD 兜底有足够的迭代机会在外层刷新前收敛。
+        if explicit_inner_cap is not None:
+            total_inner_budget = max(int(explicit_inner_cap), 1)
+        elif bool(cfg.thesis_mode) and bool(cfg.thesis_vorab_sources_single_shot) and not short_probe_mode:
+            total_inner_budget = max(int(max_iter) * 5, 20)
+        else:
+            total_inner_budget = max(int(max_iter), 1)
         jacobian_mode = (
             self._default_nr_jacobian_strategy()
             if jacobian_strategy is None
@@ -850,32 +1006,87 @@ class Reactor:
             verbose,
         )
 
-        outer_result = run_outer_abgleich_for_global_nr(
-            cells=solver_cells,
-            outer_max=outer_max,
-            total_inner_budget=total_inner_budget,
-            tol=float(tol),
-            jacobian_mode=jacobian_mode,
-            jacobian_lag=jacobian_lag,
-            tol_rms=tol_rms,
-            refresh_fn=self._refresh_vorabrechnung_sources_for_nr,
-            snapshot_signature_fn=self._vorabrechnung_snapshot_signature,
-            solve_inner_fn=_solve_inner,
-        )
+        continuation_stages = self._resolve_nr_reaction_continuation_stages()
+        continuation_target = self._nr_reaction_continuation_target_cells(solver_cells)
+        continuation_active = len(continuation_stages) > 1 and len(continuation_target) > 0
+        continuation_warmup_cap = int(max(getattr(cfg, "nr_reaction_continuation_inner_iter_cap_thesis", 0), 0))
+
+        def _set_reaction_multiplier(multiplier: float) -> None:
+            for c in solver_cells:
+                c.nr_reaction_rate_multiplier = 1.0
+            for c in continuation_target:
+                c.nr_reaction_rate_multiplier = float(multiplier)
+
+        def _run_outer(stage_idx: int, stage_multiplier: float, inner_budget: int):
+            _set_reaction_multiplier(stage_multiplier)
+            result = run_outer_abgleich_for_global_nr(
+                cells=solver_cells,
+                outer_max=outer_max,
+                total_inner_budget=int(max(inner_budget, 1)),
+                tol=float(tol),
+                jacobian_mode=jacobian_mode,
+                jacobian_lag=jacobian_lag,
+                tol_rms=tol_rms,
+                refresh_fn=self._refresh_vorabrechnung_sources_for_nr,
+                snapshot_signature_fn=self._vorabrechnung_snapshot_signature,
+                solve_inner_fn=_solve_inner,
+                strict_check1_before_refresh=(
+                    bool(cfg.thesis_mode) and bool(getattr(cfg, "nr_strict_check1_before_refresh_thesis", True))
+                ),
+            )
+            for item in result.outer_history:
+                item["reaction_continuation_stage"] = int(stage_idx)
+                item["reaction_rate_multiplier"] = float(stage_multiplier)
+            return result
+
+        outer_results = []
+        try:
+            if continuation_active:
+                for stage_idx, stage_multiplier in enumerate(continuation_stages[:-1], start=1):
+                    stage_budget = continuation_warmup_cap if continuation_warmup_cap > 0 else max(1, total_inner_budget // 2)
+                    outer_results.append(_run_outer(stage_idx, stage_multiplier, stage_budget))
+            outer_results.append(_run_outer(len(continuation_stages), continuation_stages[-1], total_inner_budget))
+        finally:
+            for c in solver_cells:
+                c.nr_reaction_rate_multiplier = 1.0
+
+        outer_result = outer_results[-1]
+
+        all_nr_history = []
+        all_nr_lambdas = []
+        all_nr_line_search_trials = []
+        all_nr_clip_history = []
+        outer_history = []
+        agg_nr_timing: dict[str, float] = {}
+        agg_nr_counts: dict[str, int] = {}
+        outer_refresh_s_total = 0.0
+        inner_solve_s_total = 0.0
+        used_inner_budget = 0
+        outer_iters = 0
+        for stage_idx, stage_result in enumerate(outer_results, start=1):
+            all_nr_history.extend(stage_result.all_nr_history)
+            all_nr_lambdas.extend(stage_result.all_nr_lambdas)
+            all_nr_line_search_trials.extend(stage_result.all_nr_line_search_trials)
+            for item in stage_result.all_nr_clip_history:
+                entry = dict(item)
+                entry["reaction_continuation_stage"] = int(stage_idx)
+                entry["reaction_rate_multiplier"] = float(continuation_stages[min(stage_idx - 1, len(continuation_stages) - 1)])
+                all_nr_clip_history.append(entry)
+            outer_history.extend(stage_result.outer_history)
+            for key, val in stage_result.agg_nr_timing.items():
+                agg_nr_timing[key] = float(agg_nr_timing.get(key, 0.0)) + float(val)
+            for key, val in stage_result.agg_nr_counts.items():
+                if key == "jacobian_nnz_last":
+                    agg_nr_counts[key] = int(val)
+                else:
+                    agg_nr_counts[key] = int(agg_nr_counts.get(key, 0)) + int(val)
+            outer_refresh_s_total += float(stage_result.outer_refresh_s_total)
+            inner_solve_s_total += float(stage_result.inner_solve_s_total)
+            used_inner_budget += int(stage_result.used_inner_budget)
+            outer_iters += int(stage_result.outer_iters)
 
         last_nr_result = outer_result.last_nr_result
         outer_converged = outer_result.converged_outer
-        outer_iters = outer_result.outer_iters
-        outer_history = outer_result.outer_history
-        all_nr_history = outer_result.all_nr_history
-        all_nr_lambdas = outer_result.all_nr_lambdas
-        all_nr_line_search_trials = outer_result.all_nr_line_search_trials
-        all_nr_clip_history = outer_result.all_nr_clip_history
-        agg_nr_timing = outer_result.agg_nr_timing
-        agg_nr_counts = outer_result.agg_nr_counts
-        outer_refresh_s_total = outer_result.outer_refresh_s_total
-        inner_solve_s_total = outer_result.inner_solve_s_total
-        used_inner_budget = outer_result.used_inner_budget
         return self._finalize_global_nr_result(
             dict(
                 last_nr_result,
@@ -902,6 +1113,9 @@ class Reactor:
                 nr_jacobian_strategy=jacobian_mode,
                 nr_jacobian_strategy_requested=("auto" if jacobian_strategy is None else str(jacobian_strategy)),
                 nr_linear_solver_backend=(
+                    str(last_nr_result.get("linear_solver_backend"))
+                    if last_nr_result.get("linear_solver_backend") is not None
+                    else (
                     str(linear_solver_backend)
                     if linear_solver_backend is not None
                     else (
@@ -909,8 +1123,12 @@ class Reactor:
                         if str(jacobian_mode) in {"block_tridiag_structured", "band_plus_side_elements_structured"}
                         else "sparse_direct_fallback"
                     )
+                    )
                 ),
                 nr_jacobian_lag_steps=jacobian_lag,
+                nr_reaction_continuation_active=bool(continuation_active),
+                nr_reaction_continuation_stages=list(continuation_stages),
+                nr_reaction_continuation_target_cells=len(continuation_target),
                 nr_gs_warmup_s=0.0,
                 nr_outer_refresh_s_total=outer_refresh_s_total,
                 nr_inner_solve_s_total=inner_solve_s_total,

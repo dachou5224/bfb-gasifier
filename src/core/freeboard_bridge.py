@@ -23,6 +23,139 @@ if TYPE_CHECKING:
     from src.core.reactor import Reactor
 
 
+def _spm_shrink_proxy_from_reaction_partition(
+    total_char_conversion_proxy: float,
+    combustion_share_proxy: float,
+) -> tuple[float, float, float]:
+    """Map bed heterogeneous conversion to a reduced size-age shrink proxy.
+
+    Ref: Hamel (1999) §5.1.1.1 and Fig. 5.3: gasification advances particle
+    "age" / carbon-density depletion without changing the outer diameter, while
+    combustion follows a shrinking-particle path.  The same combustion mass
+    sink therefore removes a larger shell volume after gasification has lowered
+    the remaining carbon density.
+    """
+    x_total = float(np.clip(total_char_conversion_proxy, 0.0, 1.0 - 1e-9))
+    f_comb = float(np.clip(combustion_share_proxy, 0.0, 1.0))
+    x_comb = float(np.clip(x_total * f_comb, 0.0, 1.0 - 1e-9))
+    x_gas = float(np.clip(x_total - x_comb, 0.0, 1.0 - 1e-9))
+    x_spm = float(np.clip(x_comb / max(1.0 - x_gas, 1e-9), 0.0, 1.0 - 1e-9))
+    return x_spm, x_comb, x_gas
+
+
+def _max_entropy_age_weights(age_grid: np.ndarray, target_mean: float) -> np.ndarray:
+    """Discrete maximum-entropy weights on a fixed Hamel age grid."""
+    ages = np.asarray(age_grid, dtype=np.float64)
+    if ages.size <= 1:
+        return np.ones(max(int(ages.size), 1), dtype=np.float64)
+    target = float(np.clip(target_mean, float(np.min(ages)), float(np.max(ages))))
+    if target <= float(ages[0]) + 1e-12:
+        w = np.zeros_like(ages)
+        w[0] = 1.0
+        return w
+    if target >= float(ages[-1]) - 1e-12:
+        w = np.zeros_like(ages)
+        w[-1] = 1.0
+        return w
+    lo, hi = -120.0, 120.0
+    for _ in range(96):
+        lam = 0.5 * (lo + hi)
+        a = lam * ages
+        w = np.exp(a - float(np.max(a)))
+        w /= max(float(np.sum(w)), 1e-300)
+        mean = float(np.sum(w * ages))
+        if mean < target:
+            lo = lam
+        else:
+            hi = lam
+    a = (0.5 * (lo + hi)) * ages
+    w = np.exp(a - float(np.max(a)))
+    return w / max(float(np.sum(w)), 1e-300)
+
+
+def _expand_bed_top_age_size_launch_quadrature(
+    *,
+    bed_top_proxy: dict[str, Any],
+    m_char_classes: np.ndarray,
+    m_ash_classes: np.ndarray,
+    n_age_bins: int,
+    max_age: float,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, dict[str, float | int]]:
+    """Expand bed-top launch classes into closure-only age/size quadrature.
+
+    The expanded samples are only used by the freeboard trajectory. They carry
+    an aggregate index so the closure can collapse back to the reactor's
+    original particle-size classes before syncing explicit freeboard cells.
+    """
+    d_p_input = np.asarray(bed_top_proxy["d_p_input"], dtype=np.float64)
+    d_p_eff = np.asarray(bed_top_proxy["d_p_eff"], dtype=np.float64)
+    m_char = np.maximum(np.asarray(m_char_classes, dtype=np.float64), 0.0)
+    m_ash = np.maximum(np.asarray(m_ash_classes, dtype=np.float64), 0.0)
+    n_base = int(d_p_eff.size)
+    if int(n_age_bins) <= 1 or n_base == 0:
+        return (
+            d_p_eff,
+            m_char,
+            m_ash,
+            np.arange(n_base, dtype=np.int64),
+            {
+                "enabled": 0,
+                "n_age_bins": 1,
+                "age_mean": float(bed_top_proxy.get("bed_gasification_age_proxy", 0.0)),
+                "age_max": 0.0,
+                "tail_weight_ge_0p9": 0.0,
+                "expanded_class_count": n_base,
+                "d_p_min_m": float(np.min(d_p_eff)) if d_p_eff.size else 0.0,
+                "d_p_max_m": float(np.max(d_p_eff)) if d_p_eff.size else 0.0,
+            },
+        )
+
+    n_bins = int(max(n_age_bins, 1))
+    age_hi = float(np.clip(max_age, 0.0, 1.0 - 1e-9))
+    age_mean = float(np.clip(bed_top_proxy.get("bed_gasification_age_proxy", 0.0), 0.0, age_hi))
+    x_comb = float(np.clip(bed_top_proxy.get("bed_combustion_conversion_proxy", 0.0), 0.0, 1.0 - 1e-9))
+    x_local = float(np.clip(bed_top_proxy.get("top_local_char_conversion", 0.0), 0.0, 1.0 - 1e-9))
+    age_grid = np.linspace(0.0, age_hi, n_bins, dtype=np.float64)
+    weights = _max_entropy_age_weights(age_grid, age_mean)
+
+    d_parts: list[np.ndarray] = []
+    char_parts: list[np.ndarray] = []
+    ash_parts: list[np.ndarray] = []
+    idx_parts: list[np.ndarray] = []
+    for age, weight in zip(age_grid, weights):
+        x_spm_age = float(np.clip(x_comb / max(1.0 - float(age), 1e-9), 0.0, 1.0 - 1e-9))
+        x_spm = float(np.clip(max(x_local, x_spm_age), 0.0, 1.0 - 1e-9))
+        d_age = np.array(
+            [d_core_from_spm_char_conversion(x_spm, float(dp)) for dp in d_p_input],
+            dtype=np.float64,
+        )
+        d_parts.append(np.minimum(d_p_input, np.maximum(d_age, 1e-9)))
+        char_parts.append(m_char * float(weight))
+        ash_parts.append(m_ash * float(weight))
+        idx_parts.append(np.arange(n_base, dtype=np.int64))
+
+    d_expanded = np.concatenate(d_parts)
+    m_char_expanded = np.concatenate(char_parts)
+    m_ash_expanded = np.concatenate(ash_parts)
+    aggregate_idx = np.concatenate(idx_parts)
+    return (
+        d_expanded,
+        m_char_expanded,
+        m_ash_expanded,
+        aggregate_idx,
+        {
+            "enabled": 1,
+            "n_age_bins": n_bins,
+            "age_mean": age_mean,
+            "age_max": age_hi,
+            "tail_weight_ge_0p9": float(np.sum(weights[age_grid >= 0.9])),
+            "expanded_class_count": int(d_expanded.size),
+            "d_p_min_m": float(np.min(d_expanded)) if d_expanded.size else 0.0,
+            "d_p_max_m": float(np.max(d_expanded)) if d_expanded.size else 0.0,
+        },
+    )
+
+
 def _bed_reaction_bundle_for_entrained_size_proxy(cell):
     """Rebuild the current bed-cell heterogeneous bundle for entrained-size audit."""
     if getattr(cell, "cell_type", "") != "bed":
@@ -93,6 +226,8 @@ def bed_top_entrained_size_proxy(reactor: "Reactor") -> dict[str, Any]:
             "top_local_char_conversion": float(top._compute_char_conversion()),
             "bed_total_char_conversion_proxy": 0.0,
             "bed_combustion_share_proxy": 0.0,
+            "bed_combustion_conversion_proxy": 0.0,
+            "bed_gasification_age_proxy": 0.0,
             "bed_spm_shrink_proxy": 0.0,
             "bed_hetero_char_consumption_kg_s": 0.0,
             "bed_r1_char_consumption_kg_s": 0.0,
@@ -124,9 +259,15 @@ def bed_top_entrained_size_proxy(reactor: "Reactor") -> dict[str, Any]:
             1.0,
         )
     ) if bed_hetero_char_consumption > 1e-12 else 0.0
+    age_adjusted_spm_proxy, bed_combustion_conversion_proxy, bed_gasification_age_proxy = (
+        _spm_shrink_proxy_from_reaction_partition(
+            bed_total_char_conversion_proxy,
+            bed_combustion_share_proxy,
+        )
+    )
     bed_spm_shrink_proxy = float(
         np.clip(
-            max(top_local_char_conversion, bed_total_char_conversion_proxy * bed_combustion_share_proxy),
+            max(top_local_char_conversion, age_adjusted_spm_proxy),
             0.0,
             1.0 - 1e-9,
         )
@@ -138,6 +279,8 @@ def bed_top_entrained_size_proxy(reactor: "Reactor") -> dict[str, Any]:
             "top_local_char_conversion": top_local_char_conversion,
             "bed_total_char_conversion_proxy": bed_total_char_conversion_proxy,
             "bed_combustion_share_proxy": bed_combustion_share_proxy,
+            "bed_combustion_conversion_proxy": bed_combustion_conversion_proxy,
+            "bed_gasification_age_proxy": bed_gasification_age_proxy,
             "bed_spm_shrink_proxy": bed_spm_shrink_proxy,
             "bed_hetero_char_consumption_kg_s": bed_hetero_char_consumption,
             "bed_r1_char_consumption_kg_s": bed_r1_char_consumption,
@@ -154,6 +297,8 @@ def bed_top_entrained_size_proxy(reactor: "Reactor") -> dict[str, Any]:
         "top_local_char_conversion": top_local_char_conversion,
         "bed_total_char_conversion_proxy": bed_total_char_conversion_proxy,
         "bed_combustion_share_proxy": bed_combustion_share_proxy,
+        "bed_combustion_conversion_proxy": bed_combustion_conversion_proxy,
+        "bed_gasification_age_proxy": bed_gasification_age_proxy,
         "bed_spm_shrink_proxy": bed_spm_shrink_proxy,
         "bed_hetero_char_consumption_kg_s": bed_hetero_char_consumption,
         "bed_r1_char_consumption_kg_s": bed_r1_char_consumption,
@@ -167,7 +312,12 @@ def effective_bed_top_entrained_d_p_classes(reactor: "Reactor") -> tuple[np.ndar
     return np.array(proxy["d_p_eff"], dtype=np.float64, copy=True), float(proxy["bed_spm_shrink_proxy"])
 
 
-def sync_freeboard_cells_from_closure(reactor: "Reactor", fb: dict[str, Any]) -> None:
+def sync_freeboard_cells_from_closure(
+    reactor: "Reactor",
+    fb: dict[str, Any],
+    *,
+    preserve_gas_state: bool = False,
+) -> None:
     """将 freeboard 闭包 ``fb`` 中的分段状态同步到 ``reactor.freeboard_cells``。"""
     if not reactor._use_explicit_freeboard_cells():
         return
@@ -214,22 +364,35 @@ def sync_freeboard_cells_from_closure(reactor: "Reactor", fb: dict[str, Any]) ->
             | (np.maximum(down_char, 0.0) + np.maximum(down_ash, 0.0) > 1e-12)
         )
         hold_total = np.maximum(hold_char + hold_ash, 0.0)
-        k_auf = np.divide(
-            np.maximum(up_char + up_ash, 0.0),
-            hold_total,
-            out=np.zeros_like(hold_total),
-            where=hold_total > 1e-12,
+        k_auf_char = np.divide(
+            np.maximum(up_char, 0.0),
+            np.maximum(hold_char, 0.0),
+            out=np.zeros_like(hold_char),
+            where=np.maximum(hold_char, 0.0) > 1e-12,
         )
-        k_ab = np.divide(
-            np.maximum(down_char + down_ash, 0.0),
-            hold_total,
-            out=np.zeros_like(hold_total),
-            where=hold_total > 1e-12,
+        k_auf_ash = np.divide(
+            np.maximum(up_ash, 0.0),
+            np.maximum(hold_ash, 0.0),
+            out=np.zeros_like(hold_ash),
+            where=np.maximum(hold_ash, 0.0) > 1e-12,
+        )
+        k_ab_char = np.divide(
+            np.maximum(down_char, 0.0),
+            np.maximum(hold_char, 0.0),
+            out=np.zeros_like(hold_char),
+            where=np.maximum(hold_char, 0.0) > 1e-12,
+        )
+        k_ab_ash = np.divide(
+            np.maximum(down_ash, 0.0),
+            np.maximum(hold_ash, 0.0),
+            out=np.zeros_like(hold_ash),
+            where=np.maximum(hold_ash, 0.0) > 1e-12,
         )
 
-        cell.T = float(st.T)
-        cell.N_b.fill(0.0)
-        cell.N_d[:] = np.maximum(np.asarray(st.N, dtype=np.float64), 0.0)
+        if not preserve_gas_state:
+            cell.T = float(st.T)
+            cell.N_b.fill(0.0)
+            cell.N_d[:] = np.maximum(np.asarray(st.N, dtype=np.float64), 0.0)
         cell.solid_state_model = "freeboard_closure"
         cell.freeboard_explicit_char_hetero_enabled = bool(getattr(reactor.config, "freeboard_explicit_enable_char_hetero", True))
         cell.m_solid.fill(0.0)
@@ -241,10 +404,10 @@ def sync_freeboard_cells_from_closure(reactor: "Reactor", fb: dict[str, Any]) ->
         if hold_char.shape[0] == cell.solid.n_size_classes:
             cell.m_solid[:, S_CHAR] = np.maximum(hold_char, 0.0)
             cell.m_solid[:, S_ASH] = np.maximum(hold_ash, 0.0)
-            cell.K_solid_auf[:, S_CHAR] = np.maximum(k_auf, 0.0)
-            cell.K_solid_auf[:, S_ASH] = np.maximum(k_auf, 0.0)
-            cell.K_solid_ab[:, S_CHAR] = np.maximum(k_ab, 0.0)
-            cell.K_solid_ab[:, S_ASH] = np.maximum(k_ab, 0.0)
+            cell.K_solid_auf[:, S_CHAR] = np.maximum(k_auf_char, 0.0)
+            cell.K_solid_auf[:, S_ASH] = np.maximum(k_auf_ash, 0.0)
+            cell.K_solid_ab[:, S_CHAR] = np.maximum(k_ab_char, 0.0)
+            cell.K_solid_ab[:, S_ASH] = np.maximum(k_ab_ash, 0.0)
             cell._freeboard_active_char_ash_mask = np.asarray(active_class_mask, dtype=np.float64)
         cell.freeboard_u_bed_top = float(max(bed_top.u_b, 1e-9))
         cell.freeboard_d_b_bed_top = float(max(bed_top.d_b, 1e-9))
@@ -258,7 +421,34 @@ def sync_freeboard_cells_from_closure(reactor: "Reactor", fb: dict[str, Any]) ->
         )
 
 
-def refresh_explicit_freeboard_transport_from_closure(reactor: "Reactor") -> dict[str, Any] | None:
+def sync_freeboard_hydrodynamic_bridge_from_bed_top(reactor: "Reactor") -> None:
+    """Refresh the freeboard ghost-bubble bridge without overwriting NR state.
+
+    Hamel's freeboard closure takes ``u_gb,0`` and ``d_b,WS`` from the bed
+    surface.  In the explicit freeboard solver graph, freeboard gas/energy are
+    Newton unknowns, so a full closure sync would erase accepted NR state.  This
+    bridge-only refresh updates just the hydrodynamic inputs used by the next
+    Vorabrechnung snapshot.
+    """
+    if not reactor._use_explicit_freeboard_solver_graph() or not reactor.freeboard_cells or not reactor.cells:
+        return
+    bed_top = reactor.cells[-1]
+    rho_s = float(max(bed_top.solid.rho_s, 1e-12))
+    for cell in reactor.freeboard_cells:
+        cell.freeboard_u_bed_top = float(max(bed_top.u_b, 1e-9))
+        cell.freeboard_d_b_bed_top = float(max(bed_top.d_b, 1e-9))
+        cell.freeboard_height_from_bed = float(max(cell.geo.h_center - float(reactor.config.H_bed), 0.0))
+        hold_total = np.maximum(cell.m_solid[:, S_CHAR] + cell.m_solid[:, S_ASH], 0.0)
+        solid_density = float(np.sum(hold_total) / max(np.pi * cell.geo.D_bed**2 * cell.geo.dh / 4.0, 1e-12))
+        cell.freeboard_eps_d_voidage = float(np.clip(1.0 - solid_density / rho_s, 0.0, 1.0))
+        cell._hydro_cache_valid = False
+
+
+def refresh_explicit_freeboard_transport_from_closure(
+    reactor: "Reactor",
+    *,
+    preserve_gas_state: bool = False,
+) -> dict[str, Any] | None:
     """基于床顶格状态调用解析 freeboard，并同步到显式 freeboard cell 链。"""
     if not reactor._use_explicit_freeboard_solver_graph():
         return None
@@ -268,6 +458,17 @@ def refresh_explicit_freeboard_transport_from_closure(reactor: "Reactor") -> dic
     cfg = reactor.config
     top = reactor.cells[-1]
     bed_top_proxy = bed_top_entrained_size_proxy(reactor)
+    top_up_char = np.maximum(top._solid_upflow_rates()[:, S_CHAR], 0.0)
+    top_up_ash = np.maximum(top._solid_upflow_rates()[:, S_ASH], 0.0)
+    d_p_launch, m_char_launch, m_ash_launch, class_aggregate_idx, age_quad_diag = (
+        _expand_bed_top_age_size_launch_quadrature(
+            bed_top_proxy=bed_top_proxy,
+            m_char_classes=top_up_char,
+            m_ash_classes=top_up_ash,
+            n_age_bins=int(max(getattr(cfg, "freeboard_age_quadrature_bins", 1), 1)),
+            max_age=float(getattr(cfg, "freeboard_age_quadrature_max_age", 0.98)),
+        )
+    )
     d_p_eff_bed_top = np.array(bed_top_proxy["d_p_eff"], dtype=np.float64, copy=True)
     enabled_reactions = tuple(cfg.freeboard_enabled_reactions)
     if not bool(getattr(cfg, "freeboard_closure_enable_char_hetero", True)):
@@ -286,10 +487,12 @@ def refresh_explicit_freeboard_transport_from_closure(reactor: "Reactor") -> dic
         eps_b_bed_top=float(top.eps_b),
         eps_d_void_bed_top=float(top.eps_d_voidage),
         rho_solid_bed_top=float(top.solid.rho_s),
-        d_p_classes_bed_top=np.array(d_p_eff_bed_top, dtype=np.float64, copy=True),
-        m_char_classes_bed_top=np.maximum(top._solid_upflow_rates()[:, S_CHAR], 0.0),
-        m_ash_classes_bed_top=np.maximum(top._solid_upflow_rates()[:, S_ASH], 0.0),
+        d_p_classes_bed_top=np.array(d_p_launch, dtype=np.float64, copy=True),
+        m_char_classes_bed_top=np.array(m_char_launch, dtype=np.float64, copy=True),
+        m_ash_classes_bed_top=np.array(m_ash_launch, dtype=np.float64, copy=True),
         char_conversion_bed_top=float(bed_top_proxy["bed_total_char_conversion_proxy"]),
+        class_aggregate_indices_bed_top=np.array(class_aggregate_idx, dtype=np.int64, copy=True),
+        n_output_size_classes=int(top.solid.n_size_classes),
         fuel_type=cfg.fuel_type,
         heat_loss_frac=float(freeboard_loss),
         trajectory_model=str(cfg.freeboard_trajectory_model),
@@ -318,9 +521,12 @@ def refresh_explicit_freeboard_transport_from_closure(reactor: "Reactor") -> dic
     fb["bed_top_char_conversion_local"] = float(bed_top_proxy["top_local_char_conversion"])
     fb["bed_top_char_conversion_proxy_total"] = float(bed_top_proxy["bed_total_char_conversion_proxy"])
     fb["bed_top_combustion_share_proxy"] = float(bed_top_proxy["bed_combustion_share_proxy"])
+    fb["bed_top_combustion_conversion_proxy"] = float(bed_top_proxy["bed_combustion_conversion_proxy"])
+    fb["bed_top_gasification_age_proxy"] = float(bed_top_proxy["bed_gasification_age_proxy"])
+    fb["bed_top_age_quadrature_diag"] = dict(age_quad_diag)
     fb["bed_top_r1_char_consumption_kg_s"] = float(bed_top_proxy["bed_r1_char_consumption_kg_s"])
     fb["bed_top_hetero_char_consumption_kg_s"] = float(bed_top_proxy["bed_hetero_char_consumption_kg_s"])
     fb["bed_top_up_char_kg_s"] = float(bed_top_proxy["bed_top_up_char_kg_s"])
-    sync_freeboard_cells_from_closure(reactor, fb)
+    sync_freeboard_cells_from_closure(reactor, fb, preserve_gas_state=preserve_gas_state)
     reactor._last_explicit_freeboard_closure = fb
     return fb

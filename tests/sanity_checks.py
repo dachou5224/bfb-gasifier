@@ -80,7 +80,7 @@ def check_kbd_hamel_chain() -> None:
 
 
 def check_r_boudouard() -> None:
-    """R3 Boudouard（实现入口 rate_R4_effective）量级"""
+    """Boudouard（repo `rate_R4` / thesis §5.1.4）量级"""
     from src.kinetics.char_reactions import rate_R4
 
     r = rate_R4(1073.0, 5e4, 1e4)
@@ -322,7 +322,7 @@ def main() -> int:
         ("1. u_mf", check_u_mf),
         ("2. d_b(H_bed)", check_d_b),
         ("3. K_bd (Hamel chain)", check_kbd_hamel_chain),
-        ("4. R3 Boudouard (impl r4)", check_r_boudouard),
+        ("4. Boudouard (repo R4 / thesis 5.1.4)", check_r_boudouard),
         ("5. R8 WGSR direction", check_r8_direction),
         ("6. DAEM", check_daem),
         ("7. h_v corrected (Eq.4.4)", check_hv_corrected),

@@ -13,8 +13,9 @@
   `R11` 的催化路径。
 - 默认反应侧仍以 homogeneous 路径为主：
   `R5, R6, R7, R10, R11b/s, R12`。
-- `R8` 当前实现对应煤灰/焦催化 WGSR；在 gas-only freeboard 中默认关闭，
-  仅保留为显式审计选项。
+- `R8` 当前实现对应煤灰/焦催化 WGSR。基础 ``ReactorConfig`` 默认反应集不含 `R8`，
+  但 thesis-mode / HTW freeboard builder 会显式把 `R8` 加回，用于与当前 Hamel
+  对齐审计保持一致。
 """
 
 from __future__ import annotations
@@ -315,6 +316,41 @@ def _aggregate_class_transport(
         "K_auf_classes": k_auf,
         "K_ab_classes": k_ab,
     }
+
+
+def _resolve_transport_class_mapping(
+    *,
+    d_p_class: np.ndarray,
+    m_dot_class: np.ndarray,
+    class_aggregate_indices: np.ndarray | None,
+    n_output_size_classes: int | None,
+) -> tuple[np.ndarray, int, np.ndarray]:
+    """Return aggregate class ids, output width, and representative diameters."""
+    n_launch = int(np.asarray(d_p_class).size)
+    if class_aggregate_indices is None:
+        aggregate_idx = np.arange(n_launch, dtype=np.int64)
+    else:
+        aggregate_idx = np.asarray(class_aggregate_indices, dtype=np.int64)
+        if aggregate_idx.shape != (n_launch,):
+            raise ValueError(
+                "class_aggregate_indices_bed_top must match expanded launch class count"
+            )
+        if np.any(aggregate_idx < 0):
+            raise ValueError("class_aggregate_indices_bed_top must be non-negative")
+    n_output = (
+        int(n_output_size_classes)
+        if n_output_size_classes is not None
+        else (int(np.max(aggregate_idx)) + 1 if aggregate_idx.size else 0)
+    )
+    if n_output < 0 or (aggregate_idx.size and int(np.max(aggregate_idx)) >= n_output):
+        raise ValueError("n_output_size_classes must cover all aggregate class indices")
+    weights = np.maximum(np.asarray(m_dot_class, dtype=np.float64), 0.0)
+    d_p = np.maximum(np.asarray(d_p_class, dtype=np.float64), 1e-9)
+    denom = np.bincount(aggregate_idx, weights=weights, minlength=n_output).astype(np.float64)
+    numer = np.bincount(aggregate_idx, weights=weights * d_p, minlength=n_output).astype(np.float64)
+    fallback = float(np.mean(d_p)) if d_p.size else 1e-6
+    d_p_out = np.divide(numer, denom, out=np.full(n_output, fallback, dtype=np.float64), where=denom > 1e-12)
+    return aggregate_idx, n_output, np.maximum(d_p_out, 1e-9)
 
 
 def _empty_class_transport(n_classes: int) -> dict[str, np.ndarray]:
@@ -2330,6 +2366,8 @@ def _simulate_freeboard_global_projected_hamel(
     m_char_classes_bed_top: np.ndarray,
     m_ash_classes_bed_top: np.ndarray,
     char_conversion_bed_top: float,
+    class_aggregate_indices_bed_top: np.ndarray | None,
+    n_output_size_classes: int | None,
     fuel_type: str,
     heat_loss_frac: float,
     trajectory_coeff_model: str,
@@ -2370,10 +2408,16 @@ def _simulate_freeboard_global_projected_hamel(
         d_b=float(d_b_bed_top),
         area=A,
     )
+    aggregate_idx, n_transport_classes, d_p_transport_class = _resolve_transport_class_mapping(
+        d_p_class=d_p_class,
+        m_dot_class=m_dot_class0,
+        class_aggregate_indices=class_aggregate_indices_bed_top,
+        n_output_size_classes=n_output_size_classes,
+    )
     m_dot_samples0 = np.repeat(m_dot_class0, len(velocity_weights)) * np.tile(velocity_weights, len(m_dot_class0))
     char_frac_samples = np.repeat(char_frac_class, len(velocity_weights))
     char_conversion_samples = np.full_like(m_dot_samples0, float(np.clip(char_conversion_bed_top, 0.0, 1.0 - 1e-9)), dtype=np.float64)
-    class_idx_samples = np.repeat(np.arange(len(m_dot_class0), dtype=np.int64), len(velocity_weights))
+    class_idx_samples = np.repeat(aggregate_idx, len(velocity_weights))
     d_p_samples = np.repeat(d_p_class, len(velocity_weights))
     u_p_samples0 = np.tile(u_p_seed, len(m_dot_class0))
     secondary_N = np.zeros(N_GAS, dtype=np.float64)
@@ -2445,6 +2489,7 @@ def _simulate_freeboard_global_projected_hamel(
             u_p_samples_prev=u_p_samples0,
             m_dot_samples_prev=m_dot_samples0,
             char_frac_samples=char_frac_samples,
+            char_conversion_samples=char_conversion_samples,
             class_idx_samples=class_idx_samples,
             coeff_model=str(trajectory_coeff_model),
         )
@@ -2484,7 +2529,7 @@ def _simulate_freeboard_global_projected_hamel(
         down_ash = np.asarray(class_transport["m_dot_ab_ash_classes"], dtype=np.float64)
         char_area_total, solid_d_p_eff = _char_area_and_representative_diameter(
             hold_char,
-            d_p_class,
+            d_p_transport_class,
             max(float(rho_solid_bed_top), 1e-6),
         )
         char_conversion_seg = _representative_char_conversion(class_transport)
@@ -2743,6 +2788,8 @@ def simulate_freeboard(
     m_char_classes_bed_top: np.ndarray,
     m_ash_classes_bed_top: np.ndarray,
     char_conversion_bed_top: float = 0.0,
+    class_aggregate_indices_bed_top: np.ndarray | None = None,
+    n_output_size_classes: int | None = None,
     fuel_type: str,
     heat_loss_frac: float = 0.0,
     trajectory_model: str = "analytical_wirsum",
@@ -2796,6 +2843,8 @@ def simulate_freeboard(
             m_char_classes_bed_top=m_char_classes_bed_top,
             m_ash_classes_bed_top=m_ash_classes_bed_top,
             char_conversion_bed_top=char_conversion_bed_top,
+            class_aggregate_indices_bed_top=class_aggregate_indices_bed_top,
+            n_output_size_classes=n_output_size_classes,
             fuel_type=fuel_type,
             heat_loss_frac=heat_loss_frac,
             trajectory_coeff_model=trajectory_coeff_model,
@@ -2848,10 +2897,16 @@ def simulate_freeboard(
         d_b=float(d_b_bed_top),
         area=A,
     )
+    aggregate_idx, n_transport_classes, d_p_transport_class = _resolve_transport_class_mapping(
+        d_p_class=d_p_class,
+        m_dot_class=m_dot_class0,
+        class_aggregate_indices=class_aggregate_indices_bed_top,
+        n_output_size_classes=n_output_size_classes,
+    )
     m_dot_samples0 = np.repeat(m_dot_class0, len(velocity_weights)) * np.tile(velocity_weights, len(m_dot_class0))
     char_frac_samples = np.repeat(char_frac_class, len(velocity_weights))
     char_conversion_samples = np.full_like(m_dot_samples0, float(np.clip(char_conversion_bed_top, 0.0, 1.0 - 1e-9)), dtype=np.float64)
-    class_idx_samples = np.repeat(np.arange(len(m_dot_class0), dtype=np.int64), len(velocity_weights))
+    class_idx_samples = np.repeat(aggregate_idx, len(velocity_weights))
     d_p_samples = np.repeat(d_p_class, len(velocity_weights))
     u_p_samples_prev = np.tile(u_p_samples_prev, len(m_dot_class0))
     slower_ref_u_prev = np.array(u_p_samples_prev, dtype=np.float64, copy=True)
@@ -3018,7 +3073,7 @@ def simulate_freeboard(
         return_char_seg = float(np.sum(np.maximum(return_samples, 0.0) * char_frac_samples))
         return_ash_seg = float(np.sum(np.maximum(return_samples, 0.0) * (1.0 - char_frac_samples)))
         class_transport = _aggregate_class_transport(
-            n_classes=len(m_dot_class0),
+            n_classes=n_transport_classes,
             class_idx_samples=class_idx_samples,
             hold_samples=hold_samples,
             upflow_samples=m_dot_samples,
@@ -3028,7 +3083,7 @@ def simulate_freeboard(
         )
         char_area_total, solid_d_p_eff = _char_area_and_representative_diameter(
             np.asarray(class_transport["m_hold_char_classes"], dtype=np.float64),
-            d_p_class,
+            d_p_transport_class,
             max(float(rho_solid_bed_top), 1e-6),
         )
         char_conversion_seg = _representative_char_conversion(class_transport)

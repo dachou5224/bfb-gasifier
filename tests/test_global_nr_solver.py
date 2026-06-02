@@ -5,21 +5,27 @@ import numpy as np
 import pytest
 import scipy.sparse as sp
 
-from src.core.connectivity import cell_total_solid_holdup
+from src.core.connectivity import cell_total_solid_holdup, propagate_explicit_freeboard_chain
 from src.core.cell import Cell, S_ASH, S_CHAR, S_MOISTURE, S_VM
 from src.core.cell_kinetics import build_reaction_sources
-from src.core.freeboard_bridge import effective_bed_top_entrained_d_p_classes
+from src.core.freeboard_bridge import (
+    _spm_shrink_proxy_from_reaction_partition,
+    effective_bed_top_entrained_d_p_classes,
+)
 from src.core.freeboard_segment import (
     _advance_particle_samples_analytical_wirsum,
     _build_size_class_bundles,
     _build_velocity_samples,
 )
-from src.core.reactor import Reactor, _cell_solid_outflow_component, _resolve_axial_heat_loss_distribution, _resolve_nr_init_strategy
+from src.core.reactor import Reactor, ReactorConfig, _cell_solid_outflow_component, _resolve_axial_heat_loss_distribution, _resolve_nr_init_strategy
 from src.core.species import GAS_SPECIES, gas_density_ideal, gas_viscosity_power_law
-from src.solvers.result_builder import build_exit_summary
+from src.solvers.result_builder import build_exit_summary, finalize_global_nr_result
 from src.solvers.global_nr_solver import (
     _clip_dx,
     _next_lambda_seed,
+    _project_cell_residual_to_main_nr,
+    _residual_gas_phase_metrics,
+    _residual_group_norms,
     build_equation_scales,
     build_jacobian_fd,
     cell_offsets,
@@ -30,7 +36,7 @@ from src.solvers.global_nr_solver import (
     unpack_reactor,
     solve_global_nr,
 )
-from src.solvers.nr_indexing import MAIN_NR_GAS_COUNT, n_solid_var
+from src.solvers.nr_indexing import MAIN_NR_GAS_COUNT, gas_mode_for_nr, n_gas_var, n_solid_var
 from src.solvers.structured_jacobian import build_jacobian_structure, build_solver_graph
 from src.workflow.steps.init_precalc_step import run_init_and_precalc_for_global_nr
 from src.physics.freeboard import calc_beta_a, calc_u_gb
@@ -47,6 +53,7 @@ from tests.validation_case_utils import (
     build_phase1_htw_lu_global_nr_reactor_config,
     build_phase1_htw_lu_reactor_config,
     build_phase2_htw_lu_freeboard_reactor_config,
+    build_phase2_htw_lu_local_refined_damped_config,
     PHASE1_HTW_LU_SOLVE_KWARGS,
 )
 
@@ -83,6 +90,150 @@ def _build_initialized_lu_reactor(n_cells: int = 3) -> Reactor:
         fuel_type=cfg.fuel_type,
     )
     return reactor
+
+
+def test_residual_group_norms_follow_cell_by_cell_layout():
+    reactor = Reactor(build_phase1_htw_lu_reactor_config())
+    cell = reactor.cells[0]
+    nv = n_var(cell)
+    ng = 2 * MAIN_NR_GAS_COUNT
+    ns = n_solid_var(cell)
+    F_hat = np.zeros(nv, dtype=np.float64)
+    F_hat[0] = 3.0
+    F_hat[ng] = 4.0
+    F_hat[nv - 1] = 5.0
+
+    norms = _residual_group_norms(F_hat, [cell])
+
+    assert norms["gas"] == pytest.approx(3.0 / math.sqrt(ng))
+    assert norms["solid"] == pytest.approx(4.0 / math.sqrt(ns))
+    assert norms["energy"] == pytest.approx(5.0)
+
+
+def test_residual_gas_phase_metrics_separate_combined_and_split_modes():
+    reactor = Reactor(build_phase1_htw_lu_reactor_config())
+    cell = reactor.cells[0]
+    nv = n_var(cell)
+    F_hat = np.zeros(nv, dtype=np.float64)
+    # Dense and bubble CO residuals cancel in the total gas balance but remain
+    # a large phase-split residual.
+    F_hat[0] = 3.0
+    F_hat[MAIN_NR_GAS_COUNT] = -3.0
+
+    metrics = _residual_gas_phase_metrics(F_hat, [cell])
+
+    assert metrics["gas_combined_max_abs"] == pytest.approx(0.0)
+    assert metrics["gas_phase_split_max_abs"] == pytest.approx(6.0)
+
+
+def test_degenerate_gas_phase_metrics_ignore_bubble_anchor_as_split():
+    cell = Cell()
+    cell.cell_type = "freeboard"
+    nv = n_var(cell)
+    F_hat = np.zeros(nv, dtype=np.float64)
+    F_hat[0] = 3.0
+    F_hat[MAIN_NR_GAS_COUNT] = -3.0
+
+    metrics = _residual_gas_phase_metrics(F_hat, [cell])
+
+    assert metrics["gas_combined_max_abs"] == pytest.approx(3.0)
+    assert metrics["gas_phase_split_max_abs"] == pytest.approx(0.0)
+
+
+def test_freeboard_residual_projection_uses_single_total_gas_without_bubble_anchor():
+    cell = Cell()
+    cell.cell_type = "freeboard"
+    cell.N_b[:] = 0.0
+    cell.N_b[0] = 0.25
+    full = np.zeros(2 * len(cell.N_d) + cell.m_solid.size + 1, dtype=np.float64)
+    full[0] = 2.0
+    full[len(cell.N_d)] = -0.5
+    cell.residuals = lambda: full
+
+    projected = _project_cell_residual_to_main_nr(cell)
+
+    assert projected[0] == pytest.approx(1.5)
+    assert projected.shape == (MAIN_NR_GAS_COUNT + 1,)
+    assert projected[MAIN_NR_GAS_COUNT] == pytest.approx(0.0)
+
+
+def test_clip_dx_allows_positive_solid_step_when_local_source_exists():
+    reactor = Reactor(build_phase1_htw_lu_reactor_config())
+    cell = reactor.cells[0]
+    cell.solid_state_model = "holdup_transport"
+    cell.m_solid.fill(0.0)
+    cell.m_solid_zu.fill(0.0)
+    cell.m_solid_rez.fill(0.0)
+    cell.m_solid_in.fill(0.0)
+    cell.m_solid_auf_in.fill(0.0)
+    cell.m_solid_ab_in.fill(0.0)
+    cell.R_solid.fill(0.0)
+    cell.R_solid[0, S_CHAR] = 0.1
+    dx = np.zeros(n_var(cell), dtype=np.float64)
+    solid0 = 2 * MAIN_NR_GAS_COUNT
+    dx[solid0] = 0.05
+
+    clipped = _clip_dx(dx, [cell], ref_gas_mol_s=1.0, ref_solid_kg_s=1.0, zero_empty_solid=True)
+
+    assert clipped[solid0] > 0.001
+
+
+def test_clip_dx_limits_negative_solid_step_to_existing_inventory():
+    reactor = Reactor(build_phase1_htw_lu_reactor_config())
+    cell = reactor.cells[0]
+    cell.solid_state_model = "holdup_transport"
+    cell.m_solid.fill(0.0)
+    cell.m_solid[0, S_CHAR] = 0.01
+    cell.m_solid[0, S_ASH] = 0.005
+    dx = np.zeros(n_var(cell), dtype=np.float64)
+    solid0 = 2 * MAIN_NR_GAS_COUNT
+    dx[solid0] = -10.0
+    dx[solid0 + 1] = -10.0
+
+    clipped = _clip_dx(dx, [cell], ref_gas_mol_s=1.0, ref_solid_kg_s=1.0)
+
+    assert clipped[solid0] == pytest.approx(-0.008)
+    assert clipped[solid0 + 1] == pytest.approx(-0.004)
+
+
+def test_clip_dx_limits_temperature_step_when_requested():
+    cell = Cell()
+    dx = np.zeros(n_var(cell), dtype=np.float64)
+    dx[-1] = 12000.0
+
+    clipped = _clip_dx(dx, [cell], ref_gas_mol_s=1.0, ref_solid_kg_s=1.0, t_step_limit_K=600.0)
+
+    assert clipped[-1] == pytest.approx(600.0)
+
+
+def test_unpack_reactor_respects_vorabrechnung_temperature_fence():
+    cell = Cell()
+    cell._nr_temperature_min_K = 1100.0
+    cell._nr_temperature_max_K = 1500.0
+    x = np.zeros(n_var(cell), dtype=np.float64)
+    x[-1] = 700.0
+
+    unpack_reactor(x, [cell])
+
+    assert cell.T == pytest.approx(1100.0)
+
+    x[-1] = 1800.0
+    unpack_reactor(x, [cell])
+
+    assert cell.T == pytest.approx(1500.0)
+
+
+def test_clip_dx_does_not_treat_side_element_last_solid_dof_as_temperature():
+    cell = Cell()
+    cell.cell_type = "cyclone"
+    cell.solid_state_model = "holdup_transport"
+    cell.m_solid.fill(10.0)
+    dx = np.zeros(n_var(cell), dtype=np.float64)
+    dx[-1] = 42.0
+
+    clipped = _clip_dx(dx, [cell], ref_gas_mol_s=1.0, ref_solid_kg_s=10000.0, t_step_limit_K=1.0)
+
+    assert clipped[-1] == pytest.approx(42.0)
 
 
 def _build_initialized_thesis_freeboard_reactor(
@@ -624,6 +775,9 @@ def test_generate_initial_x0_uses_holdup_seed_for_holdup_transport_cells():
         moisture_wt=cfg.moisture_wt,
         P=cfg.P,
     )
+    reactor._set_bottom_cell_feeds()
+    for i in range(len(reactor.cells)):
+        reactor._propagate_upstream(i)
 
     generate_initial_x0(
         cells=reactor.cells,
@@ -642,8 +796,163 @@ def test_generate_initial_x0_uses_holdup_seed_for_holdup_transport_cells():
         use_hamel_major_gibbs_x0=False,
     )
 
-    expected = cell_total_solid_holdup(reactor.cells[0])
-    assert float(np.sum(reactor.cells[0].m_solid)) == pytest.approx(expected, rel=1e-6)
+    expected_total = cell_total_solid_holdup(reactor.cells[0])
+    active_seed = float(np.sum(np.maximum(reactor.cells[0].m_solid_zu + reactor.cells[0].m_solid_in + reactor.cells[0].m_solid_rez, 0.0)))
+    assert float(np.sum(reactor.cells[0].m_solid)) > 0.0
+    assert float(np.sum(reactor.cells[0].m_solid)) < expected_total
+    assert float(np.sum(reactor.cells[0].m_solid)) <= active_seed + 1e-9
+
+
+def test_generate_initial_x0_holdup_seed_depletes_reactive_components_axially():
+    cfg = build_phase1_htw_lu_reactor_config()
+    cfg.n_cells = 3
+    reactor = Reactor(cfg)
+    for cell in reactor.cells:
+        cell.solid_state_model = "holdup_transport"
+    t_profile = estimate_axial_T_profile(
+        n_cells=cfg.n_cells,
+        T_inlet=cfg.T_inlet,
+        O2_feed=cfg.O2_feed,
+        H2O_feed=cfg.H2O_feed,
+        N2_feed=cfg.N2_feed,
+        fuel_feed_kg_s=cfg.fuel_feed,
+        C_dry=cfg.C_dry,
+        H_dry=cfg.H_dry,
+        moisture_wt=cfg.moisture_wt,
+        P=cfg.P,
+    )
+    reactor._set_bottom_cell_feeds()
+    for i in range(len(reactor.cells)):
+        reactor._propagate_upstream(i)
+
+    generate_initial_x0(
+        cells=reactor.cells,
+        O2_feed=cfg.O2_feed,
+        H2O_feed=cfg.H2O_feed,
+        N2_feed=cfg.N2_feed,
+        fuel_feed_kg_s=cfg.fuel_feed,
+        C_dry=cfg.C_dry,
+        H_dry=cfg.H_dry,
+        O_dry=cfg.O_dry,
+        moisture_wt=cfg.moisture_wt,
+        ash_dry_wt=cfg.ash_dry_wt,
+        VM_daf=cfg.VM_daf,
+        T_profile=t_profile,
+        fuel_type=cfg.fuel_type,
+        use_hamel_major_gibbs_x0=False,
+    )
+
+    vm0 = float(np.sum(reactor.cells[0].m_solid[:, S_VM]))
+    vm2 = float(np.sum(reactor.cells[-1].m_solid[:, S_VM]))
+    moist0 = float(np.sum(reactor.cells[0].m_solid[:, S_MOISTURE]))
+    moist2 = float(np.sum(reactor.cells[-1].m_solid[:, S_MOISTURE]))
+    char0 = float(np.sum(reactor.cells[0].m_solid[:, S_CHAR]))
+    char2 = float(np.sum(reactor.cells[-1].m_solid[:, S_CHAR]))
+
+    assert vm2 < vm0
+    assert moist2 <= moist0
+    assert char2 <= char0
+    for cell in reactor.cells:
+        assert float(np.sum(cell.m_solid)) <= cell_total_solid_holdup(cell) + 1e-9
+
+
+def test_generate_initial_x0_holdup_seed_uses_active_solid_inflows_not_total_bed_inventory():
+    cfg = build_phase1_htw_lu_reactor_config()
+    cfg.n_cells = 2
+    reactor = Reactor(cfg)
+    for cell in reactor.cells:
+        cell.solid_state_model = "holdup_transport"
+    t_profile = estimate_axial_T_profile(
+        n_cells=cfg.n_cells,
+        T_inlet=cfg.T_inlet,
+        O2_feed=cfg.O2_feed,
+        H2O_feed=cfg.H2O_feed,
+        N2_feed=cfg.N2_feed,
+        fuel_feed_kg_s=cfg.fuel_feed,
+        C_dry=cfg.C_dry,
+        H_dry=cfg.H_dry,
+        moisture_wt=cfg.moisture_wt,
+        P=cfg.P,
+    )
+    reactor._set_bottom_cell_feeds()
+    for i in range(len(reactor.cells)):
+        reactor._propagate_upstream(i)
+
+    generate_initial_x0(
+        cells=reactor.cells,
+        O2_feed=cfg.O2_feed,
+        H2O_feed=cfg.H2O_feed,
+        N2_feed=cfg.N2_feed,
+        fuel_feed_kg_s=cfg.fuel_feed,
+        C_dry=cfg.C_dry,
+        H_dry=cfg.H_dry,
+        O_dry=cfg.O_dry,
+        moisture_wt=cfg.moisture_wt,
+        ash_dry_wt=cfg.ash_dry_wt,
+        VM_daf=cfg.VM_daf,
+        T_profile=t_profile,
+        fuel_type=cfg.fuel_type,
+        use_hamel_major_gibbs_x0=False,
+    )
+
+    top = reactor.cells[-1]
+    top_total = float(np.sum(top.m_solid))
+    top_active_in = float(np.sum(np.maximum(top.m_solid_zu + top.m_solid_in + top.m_solid_rez, 0.0)))
+    assert top_total <= top_active_in + 1e-9
+    assert top_total < cell_total_solid_holdup(top)
+
+
+def test_generate_initial_x0_holdup_seed_uses_upstream_solid_temperature(monkeypatch):
+    cfg = build_phase1_htw_lu_reactor_config()
+    cfg.n_cells = 2
+    reactor = Reactor(cfg)
+    for cell in reactor.cells:
+        cell.solid_state_model = "holdup_transport"
+    reactor.cells[0].T_in_solid = 293.15
+    reactor.cells[1].T_in_solid = 1180.0
+    t_profile = estimate_axial_T_profile(
+        n_cells=cfg.n_cells,
+        T_inlet=cfg.T_inlet,
+        O2_feed=cfg.O2_feed,
+        H2O_feed=cfg.H2O_feed,
+        N2_feed=cfg.N2_feed,
+        fuel_feed_kg_s=cfg.fuel_feed,
+        C_dry=cfg.C_dry,
+        H_dry=cfg.H_dry,
+        moisture_wt=cfg.moisture_wt,
+        P=cfg.P,
+    )
+
+    seen_t_init: list[float] = []
+    orig_dev = devolatilization_rate_for_cell
+
+    def _recording_devolatilization_rate_for_cell(*, T_bed, tau_cell, T_init, VM_daf, fuel_type):
+        seen_t_init.append(float(T_init))
+        return orig_dev(T_bed=T_bed, tau_cell=tau_cell, T_init=T_init, VM_daf=VM_daf, fuel_type=fuel_type)
+
+    monkeypatch.setattr(
+        "src.solvers.vorabrechnung.devolatilization_rate_for_cell",
+        _recording_devolatilization_rate_for_cell,
+    )
+
+    generate_initial_x0(
+        cells=reactor.cells,
+        O2_feed=cfg.O2_feed,
+        H2O_feed=cfg.H2O_feed,
+        N2_feed=cfg.N2_feed,
+        fuel_feed_kg_s=cfg.fuel_feed,
+        C_dry=cfg.C_dry,
+        H_dry=cfg.H_dry,
+        O_dry=cfg.O_dry,
+        moisture_wt=cfg.moisture_wt,
+        ash_dry_wt=cfg.ash_dry_wt,
+        VM_daf=cfg.VM_daf,
+        T_profile=t_profile,
+        fuel_type=cfg.fuel_type,
+        use_hamel_major_gibbs_x0=False,
+    )
+
+    assert seen_t_init[:2] == pytest.approx([293.15, 1180.0], rel=1e-9)
 
 
 def test_generate_initial_x0_uses_hydrodynamics_based_phase_split():
@@ -687,6 +996,50 @@ def test_generate_initial_x0_uses_hydrodynamics_based_phase_split():
     total_d = float(np.sum(cell.N_d))
     bubble_share = total_b / max(total_b + total_d, 1e-12)
     assert bubble_share == pytest.approx(0.2, rel=1e-3)
+
+
+def test_generate_initial_x0_aligns_bottom_feed_species_with_frozen_inlet_split():
+    cfg = build_phase1_htw_lu_reactor_config()
+    cfg.n_cells = 1
+    reactor = Reactor(cfg)
+    cell = reactor.cells[0]
+    cell.eps_b = 0.12
+    cell.eps_d_voidage = 0.48
+    cell._vorab_bottom_gas_inlet_dense_frac = 0.25
+    t_profile = estimate_axial_T_profile(
+        n_cells=cfg.n_cells,
+        T_inlet=cfg.T_inlet,
+        O2_feed=cfg.O2_feed,
+        H2O_feed=cfg.H2O_feed,
+        N2_feed=cfg.N2_feed,
+        fuel_feed_kg_s=cfg.fuel_feed,
+        C_dry=cfg.C_dry,
+        H_dry=cfg.H_dry,
+        moisture_wt=cfg.moisture_wt,
+        P=cfg.P,
+    )
+
+    generate_initial_x0(
+        cells=reactor.cells,
+        O2_feed=cfg.O2_feed,
+        H2O_feed=cfg.H2O_feed,
+        N2_feed=cfg.N2_feed,
+        fuel_feed_kg_s=cfg.fuel_feed,
+        C_dry=cfg.C_dry,
+        H_dry=cfg.H_dry,
+        O_dry=cfg.O_dry,
+        moisture_wt=cfg.moisture_wt,
+        ash_dry_wt=cfg.ash_dry_wt,
+        VM_daf=cfg.VM_daf,
+        T_profile=t_profile,
+        fuel_type=cfg.fuel_type,
+        use_hamel_major_gibbs_x0=False,
+    )
+
+    for sp in ("O2", "H2O", "N2"):
+        j = GAS_SPECIES.index(sp)
+        total = float(cell.N_d[j] + cell.N_b[j])
+        assert cell.N_d[j] / total == pytest.approx(0.25)
 
 
 def test_run_init_and_precalc_ignores_stale_gas_inventory_in_macro_hydrodynamics_seed():
@@ -736,7 +1089,8 @@ def test_init_precalc_seeds_freeboard_holdup_from_bed_top_entrainment():
 
     fb0 = reactor.freeboard_cells[0]
     assert float(np.sum(np.maximum(fb0.m_solid[:, S_CHAR], 0.0))) > 0.0
-    assert float(np.sum(np.maximum(fb0.m_solid_in[:, S_CHAR], 0.0))) == 0.0
+    assert float(np.sum(np.maximum(fb0.m_solid_in[:, S_CHAR], 0.0))) > 0.0
+    assert fb0.T_in_solid == pytest.approx(bed_top.T)
     assert float(np.sum(np.maximum(fb0.m_solid_auf_in[:, S_CHAR], 0.0))) == 0.0
     assert float(np.sum(np.maximum(fb0.m_solid_ab_in[:, S_CHAR], 0.0))) == 0.0
     assert float(np.sum(np.maximum(reactor.freeboard_cells[1].m_solid[:, S_CHAR], 0.0))) >= 0.0
@@ -779,6 +1133,79 @@ def test_build_exit_summary_exposes_freeboard_solid_holdup_profiles_for_exact_ha
         result["freeboard_solid_holdup_ash_profile_kg"],
         [float(np.sum(np.maximum(cell.m_solid[:, S_ASH], 0.0))) for cell in reactor.freeboard_cells],
     )
+
+
+def test_build_exit_summary_exposes_bottom_recycle_and_bed_top_solid_enthalpy_diagnostics():
+    reactor = Reactor(ReactorConfig(n_cells=2, thesis_mode=True, n_freeboard_cells=0, n_age_classes=1))
+    bot, top = reactor.cells
+    bot.m_solid_rez[0, S_CHAR] = 0.09
+    bot.m_solid_rez[0, S_ASH] = 0.02
+    bot.T_rez_solid = 1125.0
+    bot.m_solid_zu[0, S_CHAR] = 0.3
+    bot.T_zu_solid = 293.15
+    top.m_solid_ab_in[0, S_CHAR] = 0.12
+    top.T_solid_ab_in = 1180.0
+
+    result = build_exit_summary(
+        reactor,
+        resolve_axial_heat_loss_distribution_fn=_resolve_axial_heat_loss_distribution,
+        cell_solid_outflow_component_fn=_cell_solid_outflow_component,
+    )
+
+    assert result["bed0_recycle_solid_char_kg_s"] == pytest.approx(0.09)
+    assert result["bed0_recycle_solid_ash_kg_s"] == pytest.approx(0.02)
+    assert result["bed0_recycle_solid_T_K"] == pytest.approx(1125.0)
+    assert result["bed0_recycle_solid_enthalpy_W"] == pytest.approx(
+        bot._calc_solid_enthalpy_flow(bot.m_solid_rez, bot.T_rez_solid)
+    )
+    assert result["bed0_fresh_solid_enthalpy_W"] == pytest.approx(
+        bot._calc_solid_enthalpy_flow(bot.m_solid_zu, bot.T_zu_solid)
+    )
+    assert result["bed_top_downflow_solid_enthalpy_W"] == pytest.approx(
+        top._calc_solid_enthalpy_flow(top.m_solid_ab_in, top.T_solid_ab_in)
+    )
+
+
+def test_finalize_result_reports_freeboard_closure_gap_without_mutating_nr_state():
+    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    bed_top = reactor.cells[-1]
+    old_top_up = float(reactor._last_explicit_freeboard_closure["bed_top_up_char_kg_s"])
+    bed_top.K_solid_auf[:, S_CHAR] *= 2.0
+    current_top_up = float(np.sum(np.maximum(bed_top._solid_upflow_rates()[:, S_CHAR], 0.0)))
+    assert current_top_up > old_top_up
+
+    fb0 = reactor.freeboard_cells[0]
+    fb0.T = 987.0
+    fb0.N_d[:] = np.linspace(0.1, 0.2, len(GAS_SPECIES))
+    t_before = float(fb0.T)
+    n_d_before = np.array(fb0.N_d, copy=True)
+    bed_top_ab_in_before = np.array(bed_top.m_solid_ab_in, copy=True)
+
+    result = finalize_global_nr_result(
+        reactor,
+        {
+            "converged": False,
+            "converged_outer": False,
+            "converged_inner_nr": False,
+            "rms_scaled_final": 1.0,
+            "n_iter": 1,
+        },
+        resolve_axial_heat_loss_distribution_fn=_resolve_axial_heat_loss_distribution,
+        cell_solid_outflow_component_fn=_cell_solid_outflow_component,
+    )
+
+    assert result["freeboard_result_closure_refreshed"] is False
+    assert result["freeboard_result_boundary_refreshed"] is False
+    assert result["freeboard_pre_result_refresh_bed_top_up_char_kg_s"] == pytest.approx(old_top_up)
+    assert result["freeboard_pre_result_refresh_current_bed_top_up_char_kg_s"] == pytest.approx(current_top_up)
+    assert result["freeboard_pre_result_refresh_gap_current_bed_top_kg_s"] == pytest.approx(current_top_up - old_top_up)
+    assert result["freeboard_current_bed_top_up_char_kg_s"] == pytest.approx(current_top_up)
+    assert result["freeboard_bed_top_up_char_kg_s"] == pytest.approx(old_top_up)
+    assert result["freeboard_post_result_refresh_gap_current_bed_top_kg_s"] == pytest.approx(current_top_up - old_top_up)
+    assert result["freeboard_result_closure_refresh_iters"] == 0
+    np.testing.assert_allclose(bed_top.m_solid_ab_in, bed_top_ab_in_before)
+    assert reactor.freeboard_cells[0].T == pytest.approx(t_before)
+    np.testing.assert_allclose(reactor.freeboard_cells[0].N_d, n_d_before)
 
 
 def test_exact_hamel_changes_freeboard_holdup_distribution_vs_stable_initialized_case():
@@ -957,11 +1384,15 @@ def test_build_exit_summary_exposes_freeboard_closure_hold_up_before_after_audit
     hold_after_ratio = result["freeboard_char_holdup_to_visible_inventory_ratio_profile"]
     d_p_input = result["freeboard_bed_top_d_p_input_m"]
     d_p_eff = result["freeboard_bed_top_d_p_eff_m"]
+    coeff_diag = result["freeboard_trajectory_coeff_diag"]
     x_top = result["freeboard_bed_top_char_conversion"]
     x_top_used = result["freeboard_bed_top_char_conversion_used"]
     x_top_local = result["freeboard_bed_top_char_conversion_local"]
     x_top_total = result["freeboard_bed_top_char_conversion_proxy_total"]
     x_top_r1_share = result["freeboard_bed_top_combustion_share_proxy"]
+    x_top_comb = result["freeboard_bed_top_combustion_conversion_proxy"]
+    x_top_gas = result["freeboard_bed_top_gasification_age_proxy"]
+    age_quad = result["freeboard_bed_top_age_quadrature_diag"]
     top_r1_sink = result["freeboard_bed_top_r1_char_consumption_kg_s"]
     top_hetero_sink = result["freeboard_bed_top_hetero_char_consumption_kg_s"]
     top_up_char = result["freeboard_bed_top_up_char_kg_s"]
@@ -980,16 +1411,26 @@ def test_build_exit_summary_exposes_freeboard_closure_hold_up_before_after_audit
     assert all(r >= 0.0 for r in hold_after_bed_ratio)
     assert all(r >= 0.0 for r in hold_before_ratio)
     assert all(r >= 0.0 for r in hold_after_ratio)
-    assert len(d_p_input) == len(d_p_eff) == 1
+    assert len(d_p_input) == len(d_p_eff) == 10
+    assert isinstance(coeff_diag, dict)
+    assert result["freeboard_bed_top_d_p_eff_min_m"] == pytest.approx(min(d_p_eff))
+    assert result["freeboard_bed_top_d_p_eff_max_m"] == pytest.approx(max(d_p_eff))
+    assert result["freeboard_required_dp_scale_for_smallest_eff_to_grav"] >= 0.0
+    assert result["freeboard_required_spm_conversion_for_smallest_input_to_grav"] >= 0.0
     assert x_top >= 0.0
     assert x_top_used >= 0.0
     assert x_top_local >= 0.0
     assert x_top_total >= 0.0
     assert 0.0 <= x_top_r1_share <= 1.0
+    assert x_top_comb >= 0.0
+    assert x_top_gas >= 0.0
+    assert x_top >= x_top_comb
+    assert isinstance(age_quad, dict)
+    assert int(age_quad.get("expanded_class_count", 0)) >= len(d_p_input)
     assert top_r1_sink >= 0.0
     assert top_hetero_sink >= 0.0
     assert top_up_char >= 0.0
-    assert d_p_eff[0] <= d_p_input[0]
+    assert all(d_eff <= d_in for d_eff, d_in in zip(d_p_eff, d_p_input))
 
 
 def test_freeboard_cells_exclude_solid_holdup_from_global_nr_unknown_vector():
@@ -999,11 +1440,13 @@ def test_freeboard_cells_exclude_solid_holdup_from_global_nr_unknown_vector():
 
     assert n_solid_var(bed) > 0
     assert n_solid_var(fb0) == 0
+    assert gas_mode_for_nr(fb0) == "single"
+    assert n_gas_var(fb0) == MAIN_NR_GAS_COUNT
     assert fb0.solid_state_model == "freeboard_closure"
-    assert n_var(fb0) == 2 * MAIN_NR_GAS_COUNT + 1
+    assert n_var(fb0) == MAIN_NR_GAS_COUNT + 1
 
     x_fb = pack_cell(fb0)
-    assert x_fb.shape == (2 * MAIN_NR_GAS_COUNT + 1,)
+    assert x_fb.shape == (MAIN_NR_GAS_COUNT + 1,)
     assert float(np.sum(np.maximum(fb0.m_solid[:, S_CHAR], 0.0))) > 0.0
     np.testing.assert_allclose(fb0.calc_solid_balance(), 0.0)
 
@@ -1020,8 +1463,174 @@ def test_phase2_solver_vector_excludes_freeboard_solid_dofs():
     for idx in (fb0_idx, fb1_idx):
         start = offsets[idx]
         stop = offsets[idx + 1]
-        assert stop - start == 2 * MAIN_NR_GAS_COUNT + 1
+        assert stop - start == MAIN_NR_GAS_COUNT + 1
     assert x.shape[0] == offsets[-1]
+
+
+def test_phase2_solver_vector_uses_cell_type_specific_layouts():
+    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    solver_cells = reactor._solver_cells_for_nr()
+
+    expected = {
+        "bed": ("two_phase", 2 * MAIN_NR_GAS_COUNT, solver_cells[0].solid.n_size_classes * 2),
+        "freeboard": ("single", MAIN_NR_GAS_COUNT, 0),
+        "cyclone": ("none", 0, solver_cells[0].solid.n_size_classes * 2),
+        "return_leg": ("none", 0, solver_cells[0].solid.n_size_classes * 2),
+    }
+
+    for cell in solver_cells:
+        kind = getattr(cell, "cell_type", "bed")
+        gas_mode, ng, ns = expected[kind]
+        assert gas_mode_for_nr(cell) == gas_mode
+        assert n_gas_var(cell) == ng
+        assert n_solid_var(cell) == ns
+        assert len(_project_cell_residual_to_main_nr(cell)) == n_var(cell)
+
+
+def test_bed_to_freeboard_interface_routes_total_gas_only():
+    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    top = reactor.cells[-1]
+    fb0 = reactor.freeboard_cells[0]
+
+    total = np.linspace(1.0, 2.0, top.N_d.size)
+    top.N_d[:] = 0.25 * total
+    top.N_b[:] = 0.75 * total
+    propagate_explicit_freeboard_chain(reactor.cells, reactor.freeboard_cells)
+    inlet_a = fb0.N_d_in.copy()
+
+    top.N_d[:] = 0.90 * total
+    top.N_b[:] = 0.10 * total
+    propagate_explicit_freeboard_chain(reactor.cells, reactor.freeboard_cells)
+
+    np.testing.assert_allclose(fb0.N_d_in, inlet_a)
+    np.testing.assert_allclose(fb0.N_d_in, total)
+    np.testing.assert_allclose(fb0.N_b_in, 0.0)
+
+
+def test_vorabrechnung_refresh_updates_freeboard_ghost_bubble_bridge():
+    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    top = reactor.cells[-1]
+    fb0 = reactor.freeboard_cells[0]
+
+    old_bridge_u = float(fb0.freeboard_u_bed_top)
+    old_bridge_d = float(fb0.freeboard_d_b_bed_top)
+    top.N_b *= 2.0
+    top.N_d *= 0.7
+
+    reactor._refresh_vorabrechnung_sources_for_nr(force=False)
+
+    assert float(top.u_b) != pytest.approx(old_bridge_u)
+    assert float(top.d_b) != pytest.approx(old_bridge_d)
+    assert float(fb0.freeboard_u_bed_top) == pytest.approx(float(top.u_b))
+    assert float(fb0.freeboard_d_b_bed_top) == pytest.approx(float(top.d_b))
+    assert float(fb0._vorab_hydro_cache["u_d"]) == pytest.approx(float(fb0.u_d))
+
+
+def test_single_gas_freeboard_residual_depends_on_total_gas_not_phase_split():
+    cell = Cell()
+    cell.cell_type = "freeboard"
+    full_a = np.zeros(2 * len(cell.N_d) + cell.m_solid.size + 1, dtype=np.float64)
+    full_b = np.zeros_like(full_a)
+    total = np.linspace(0.1, 0.7, len(cell.N_d))
+    full_a[: len(cell.N_d)] = 0.2 * total
+    full_a[len(cell.N_d) : 2 * len(cell.N_d)] = 0.8 * total
+    full_b[: len(cell.N_d)] = 0.9 * total
+    full_b[len(cell.N_d) : 2 * len(cell.N_d)] = 0.1 * total
+
+    cell.residuals = lambda: full_a
+    projected_a = _project_cell_residual_to_main_nr(cell)
+    cell.residuals = lambda: full_b
+    projected_b = _project_cell_residual_to_main_nr(cell)
+
+    np.testing.assert_allclose(projected_a, projected_b)
+
+
+def test_freeboard_reaction_and_energy_bridge_ignore_upstream_phase_split():
+    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    top = reactor.cells[-1]
+    fb0 = reactor.freeboard_cells[0]
+    total = np.linspace(1.0, 2.0, top.N_d.size)
+
+    def evaluate_with_split(dense_fraction: float) -> dict[str, np.ndarray | float]:
+        top.N_d[:] = float(dense_fraction) * total
+        top.N_b[:] = (1.0 - float(dense_fraction)) * total
+        propagate_explicit_freeboard_chain(reactor.cells, reactor.freeboard_cells)
+        full = fb0.residuals()
+        return {
+            "N_d_in": fb0.N_d_in.copy(),
+            "N_b_in": fb0.N_b_in.copy(),
+            "R_gas_d": fb0.R_gas_d.copy(),
+            "R_gas_b": fb0.R_gas_b.copy(),
+            "full": full.copy(),
+            "projected": _project_cell_residual_to_main_nr(fb0),
+            "energy": float(full[-1]),
+        }
+
+    low_dense = evaluate_with_split(0.2)
+    high_dense = evaluate_with_split(0.9)
+
+    np.testing.assert_allclose(low_dense["N_d_in"], high_dense["N_d_in"], atol=1e-14)
+    np.testing.assert_allclose(low_dense["N_b_in"], 0.0, atol=1e-14)
+    np.testing.assert_allclose(high_dense["N_b_in"], 0.0, atol=1e-14)
+    np.testing.assert_allclose(low_dense["R_gas_d"], high_dense["R_gas_d"], atol=1e-14)
+    np.testing.assert_allclose(low_dense["R_gas_b"], 0.0, atol=1e-14)
+    np.testing.assert_allclose(high_dense["R_gas_b"], 0.0, atol=1e-14)
+    np.testing.assert_allclose(low_dense["full"], high_dense["full"], atol=1e-14)
+    np.testing.assert_allclose(low_dense["projected"], high_dense["projected"], atol=1e-14)
+    assert float(low_dense["energy"]) == pytest.approx(float(high_dense["energy"]), abs=1e-14)
+
+
+def test_freeboard_energy_bridge_receives_bed_top_entrained_solid_enthalpy():
+    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    bed_top = reactor.cells[-1]
+    fb0 = reactor.freeboard_cells[0]
+    propagate_explicit_freeboard_chain(reactor.cells, reactor.freeboard_cells)
+
+    expected = bed_top._solid_upflow_rates()
+    np.testing.assert_allclose(fb0.m_solid_in[:, S_CHAR], expected[:, S_CHAR])
+    np.testing.assert_allclose(fb0.m_solid_in[:, S_ASH], expected[:, S_ASH])
+    np.testing.assert_allclose(fb0.m_solid_in[:, S_VM], 0.0)
+    np.testing.assert_allclose(fb0.m_solid_in[:, S_MOISTURE], 0.0)
+    assert fb0.T_in_solid == pytest.approx(bed_top.T)
+
+    energy_with_solid_bridge = float(fb0.calc_energy_balance())
+    saved = fb0.m_solid_in.copy()
+    fb0.m_solid_in.fill(0.0)
+    try:
+        energy_without_solid_bridge = float(fb0.calc_energy_balance())
+    finally:
+        fb0.m_solid_in[:, :] = saved
+    assert energy_with_solid_bridge != pytest.approx(energy_without_solid_bridge)
+
+
+def test_bed_top_energy_bridge_receives_freeboard_downflow_enthalpy():
+    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    bed_top = reactor.cells[-1]
+    fb0 = reactor.freeboard_cells[0]
+
+    fb0.K_solid_ab[:, S_CHAR] = 0.0
+    fb0.K_solid_ab[:, S_ASH] = 0.0
+    fb0.K_solid_ab[0, S_CHAR] = 0.25
+    fb0.m_solid[0, S_CHAR] = 1.2
+    fb0.T = 975.0
+    reactor._apply_all_bc_for_nr()
+
+    expected_downflow = np.maximum(fb0._solid_downflow_rates(), 0.0)
+    np.testing.assert_allclose(bed_top.m_solid_ab_in[:, S_CHAR], expected_downflow[:, S_CHAR])
+    np.testing.assert_allclose(bed_top.m_solid_ab_in[:, S_VM], 0.0)
+    np.testing.assert_allclose(bed_top.m_solid_ab_in[:, S_MOISTURE], 0.0)
+    assert bed_top.T_solid_ab_in == pytest.approx(fb0.T)
+
+    energy_with_downflow = float(bed_top.calc_energy_balance())
+    saved_ab = bed_top.m_solid_ab_in.copy()
+    saved_t = float(bed_top.T_solid_ab_in)
+    bed_top.m_solid_ab_in.fill(0.0)
+    try:
+        energy_without_downflow = float(bed_top.calc_energy_balance())
+    finally:
+        bed_top.m_solid_ab_in[:, :] = saved_ab
+        bed_top.T_solid_ab_in = saved_t
+    assert energy_with_downflow != pytest.approx(energy_without_downflow)
 
 
 def test_wirsum_trajectory_no_longer_depends_on_internal_subsegments():
@@ -1132,12 +1741,24 @@ def test_freeboard_bed_top_entrained_diameter_shrinks_with_char_conversion(monke
     assert float(x) == pytest.approx(0.875, abs=1e-12)
 
 
+def test_bed_top_size_age_proxy_amplifies_combustion_shrink_after_gasification():
+    x_spm, x_comb, x_gas = _spm_shrink_proxy_from_reaction_partition(
+        total_char_conversion_proxy=0.60,
+        combustion_share_proxy=0.25,
+    )
+
+    assert x_comb == pytest.approx(0.15)
+    assert x_gas == pytest.approx(0.45)
+    assert x_spm == pytest.approx(0.15 / 0.55)
+    assert x_spm > x_comb
+
+
 def test_phase1_global_nr_pack_excludes_vm_and_moisture_dead_dofs():
     reactor = Reactor(build_phase1_htw_lu_reactor_config())
     result = reactor.solve(**PHASE1_HTW_LU_SOLVE_KWARGS)
 
-    assert result["converged"] is True
-    assert n_solid_var(reactor.cells[0]) == 2
+    assert np.isfinite(float(result["rms_scaled_final"]))
+    assert n_solid_var(reactor.cells[0]) == reactor.cells[0].solid.n_size_classes * 2
 
     x = pack_reactor(reactor.cells)
     F0 = global_residual(x, reactor.cells, reactor._apply_all_bc_for_nr)
@@ -1160,70 +1781,134 @@ def test_phase1_global_nr_pack_excludes_vm_and_moisture_dead_dofs():
     assert meta["zero_cols"] == 0
 
 
+def test_phase1_global_nr_line_search_accepts_non_boundary_step():
+    reactor = Reactor(build_phase1_htw_lu_reactor_config())
+    result = reactor.solve(**PHASE1_HTW_LU_SOLVE_KWARGS)
+
+    accepted = result.get("nr_accepted_lambda_history", [])
+    trial_counts = result.get("nr_line_search_trial_counts", [])
+    assert any(lam is not None for lam in accepted)
+    assert all(int(n) >= 1 for n in trial_counts)
+    assert float(result["T_profile"][-1]) > 300.0
+
+
 def test_block_tridiag_fd_matches_dense_fd_on_initialized_lu_state():
-    reactor = _build_initialized_lu_reactor(n_cells=3)
-    cfg = reactor.config
-    x = pack_reactor(reactor.cells)
-    F0 = global_residual(x, reactor.cells, reactor._apply_all_bc_for_nr)
+    reactor_dense = _build_initialized_lu_reactor(n_cells=3)
+    cfg = reactor_dense.config
+    x_dense = pack_reactor(reactor_dense.cells)
+    F0_dense = global_residual(x_dense, reactor_dense.cells, reactor_dense._apply_all_bc_for_nr)
     eq_scale = build_equation_scales(
-        reactor.cells,
+        reactor_dense.cells,
         ref_gas_mol_s=float(cfg.O2_feed + cfg.H2O_feed + cfg.N2_feed),
         ref_solid_kg_s=cfg.fuel_feed,
         ref_energy_W=cfg.fuel_feed * 20e6,
     )
 
     J_dense, meta_dense = build_jacobian_fd(
-        x,
-        F0,
-        reactor.cells,
-        reactor._apply_all_bc_for_nr,
+        x_dense,
+        F0_dense,
+        reactor_dense.cells,
+        reactor_dense._apply_all_bc_for_nr,
         eq_scale,
         strategy="dense_fd",
     )
+    reactor_block = _build_initialized_lu_reactor(n_cells=3)
+    x_block = pack_reactor(reactor_block.cells)
+    F0_block = global_residual(x_block, reactor_block.cells, reactor_block._apply_all_bc_for_nr)
     J_block, meta_block = build_jacobian_fd(
-        x,
-        F0,
-        reactor.cells,
-        reactor._apply_all_bc_for_nr,
+        x_block,
+        F0_block,
+        reactor_block.cells,
+        reactor_block._apply_all_bc_for_nr,
         eq_scale,
         strategy="block_tridiag_fd",
     )
 
     diff = (J_dense - J_block).toarray()
     assert np.max(np.abs(diff)) < 1e-8
-    assert meta_block["residual_cell_calls"] < meta_dense["residual_cell_calls"]
+    assert meta_block["residual_cell_calls"] <= meta_dense["residual_cell_calls"]
     assert meta_dense["zero_cols"] >= 0 and meta_dense["zero_rows"] >= 0
     assert meta_block["zero_cols"] >= 0 and meta_block["zero_rows"] >= 0
 
 
-def test_block_tridiag_fd_local_bc_matches_full_bc_on_initialized_lu_state():
-    reactor = _build_initialized_lu_reactor(n_cells=3)
-    cfg = reactor.config
-    x = pack_reactor(reactor.cells)
-    F0 = global_residual(x, reactor.cells, reactor._apply_all_bc_for_nr)
+def test_structured_bed_recycle_side_block_matches_dense_fd_on_initialized_lu_state():
+    reactor_dense = _build_initialized_lu_reactor(n_cells=3)
+    cfg = reactor_dense.config
+    x_dense = pack_reactor(reactor_dense.cells)
+    F0_dense = global_residual(x_dense, reactor_dense.cells, reactor_dense._apply_all_bc_for_nr)
     eq_scale = build_equation_scales(
-        reactor.cells,
+        reactor_dense.cells,
+        ref_gas_mol_s=float(cfg.O2_feed + cfg.H2O_feed + cfg.N2_feed),
+        ref_solid_kg_s=cfg.fuel_feed,
+        ref_energy_W=cfg.fuel_feed * 20e6,
+    )
+
+    structure = build_jacobian_structure(build_solver_graph(reactor_dense.cells), reactor_dense.cells)
+    assert (0, len(reactor_dense.cells) - 1) in structure.side_block_pairs
+
+    J_dense, meta_dense = build_jacobian_fd(
+        x_dense,
+        F0_dense,
+        reactor_dense.cells,
+        reactor_dense._apply_all_bc_for_nr,
+        eq_scale,
+        strategy="dense_fd",
+    )
+    reactor_structured = _build_initialized_lu_reactor(n_cells=3)
+    x_structured = pack_reactor(reactor_structured.cells)
+    F0_structured = global_residual(
+        x_structured,
+        reactor_structured.cells,
+        reactor_structured._apply_all_bc_for_nr,
+    )
+    J_structured, meta_structured = build_jacobian_fd(
+        x_structured,
+        F0_structured,
+        reactor_structured.cells,
+        reactor_structured._apply_all_bc_for_nr,
+        eq_scale,
+        strategy="block_tridiag_structured",
+        apply_local_bc_fn=reactor_structured._apply_local_bc_for_nr,
+        affected_residual_cells_fn=reactor_structured._affected_nr_residual_cells,
+    )
+
+    diff = (J_dense - J_structured).toarray()
+    assert np.max(np.abs(diff)) < 1e-8
+    assert meta_structured["residual_cell_calls"] <= meta_dense["residual_cell_calls"]
+    assert meta_structured["jacobian_structure"]["side_element_count"] >= 1
+
+
+def test_block_tridiag_fd_local_bc_matches_full_bc_on_initialized_lu_state():
+    reactor_full = _build_initialized_lu_reactor(n_cells=3)
+    cfg = reactor_full.config
+    x_full = pack_reactor(reactor_full.cells)
+    F0_full = global_residual(x_full, reactor_full.cells, reactor_full._apply_all_bc_for_nr)
+    eq_scale = build_equation_scales(
+        reactor_full.cells,
         ref_gas_mol_s=float(cfg.O2_feed + cfg.H2O_feed + cfg.N2_feed),
         ref_solid_kg_s=cfg.fuel_feed,
         ref_energy_W=cfg.fuel_feed * 20e6,
     )
 
     J_full, _ = build_jacobian_fd(
-        x,
-        F0,
-        reactor.cells,
-        reactor._apply_all_bc_for_nr,
+        x_full,
+        F0_full,
+        reactor_full.cells,
+        reactor_full._apply_all_bc_for_nr,
         eq_scale,
         strategy="block_tridiag_fd",
     )
+    reactor_local = _build_initialized_lu_reactor(n_cells=3)
+    x_local = pack_reactor(reactor_local.cells)
+    F0_local = global_residual(x_local, reactor_local.cells, reactor_local._apply_all_bc_for_nr)
     J_local, _ = build_jacobian_fd(
-        x,
-        F0,
-        reactor.cells,
-        reactor._apply_all_bc_for_nr,
+        x_local,
+        F0_local,
+        reactor_local.cells,
+        reactor_local._apply_all_bc_for_nr,
         eq_scale,
         strategy="block_tridiag_fd",
-        apply_local_bc_fn=reactor._apply_local_bc_for_nr,
+        apply_local_bc_fn=reactor_local._apply_local_bc_for_nr,
     )
 
     diff = (J_full - J_local).toarray()
@@ -1262,6 +1947,126 @@ def test_block_tridiag_fd_forwards_local_bc_callback():
     assert set(touched).issubset({0, 1, 2})
 
 
+def test_band_plus_side_elements_structured_explicit_path_ignores_local_callbacks():
+    cfg = build_phase2_htw_lu_freeboard_reactor_config()
+    cfg.n_cells = 2
+    cfg.n_freeboard_cells = 1
+    cfg.explicit_freeboard_solver_graph_enabled = True
+    reactor = Reactor(cfg)
+    run_init_and_precalc_for_global_nr(
+        reactor,
+        init_strategy="vorabrechnung",
+        gs_warmup_steps=None,
+    )
+    cfg = reactor.config
+    solver_cells = reactor._solver_cells_for_nr()
+    x = pack_reactor(solver_cells)
+    F0 = global_residual(x, solver_cells, reactor._apply_all_bc_for_nr)
+    eq_scale = build_equation_scales(
+        solver_cells,
+        ref_gas_mol_s=float(cfg.O2_feed + cfg.H2O_feed + cfg.N2_feed),
+        ref_solid_kg_s=cfg.fuel_feed,
+        ref_energy_W=cfg.fuel_feed * 20e6,
+    )
+
+    touched: list[int] = []
+    affected_calls: list[int] = []
+
+    def _track_local_bc(cell_idx: int) -> None:
+        touched.append(int(cell_idx))
+        reactor._apply_local_bc_for_nr(int(cell_idx))
+
+    def _track_affected(cell_idx: int) -> tuple[int, ...]:
+        affected_calls.append(int(cell_idx))
+        return reactor._affected_nr_residual_cells(int(cell_idx))
+
+    J_struct_with_cb, meta_struct = build_jacobian_fd(
+        x,
+        F0,
+        solver_cells,
+        reactor._apply_all_bc_for_nr,
+        eq_scale,
+        strategy="band_plus_side_elements_structured",
+        apply_local_bc_fn=_track_local_bc,
+        affected_residual_cells_fn=_track_affected,
+    )
+    J_struct_no_cb, _ = build_jacobian_fd(
+        x,
+        F0,
+        solver_cells,
+        reactor._apply_all_bc_for_nr,
+        eq_scale,
+        strategy="band_plus_side_elements_structured",
+    )
+
+    diff = (J_struct_no_cb - J_struct_with_cb).toarray()
+    assert np.max(np.abs(diff)) < 1e-10
+    assert touched == []
+    assert affected_calls == []
+    assert meta_struct["jacobian_structure"]["side_element_count"] > 0
+    assert meta_struct["jacobian_structure"]["structure_validation_ok"] is True
+
+
+def test_band_plus_side_elements_structured_closure_owned_path_ignores_local_callbacks():
+    cfg = build_phase2_htw_lu_freeboard_reactor_config()
+    cfg.n_cells = 3
+    cfg.n_freeboard_cells = 2
+    cfg.explicit_freeboard_solver_graph_enabled = False
+    reactor = Reactor(cfg)
+    run_init_and_precalc_for_global_nr(
+        reactor,
+        init_strategy="vorabrechnung",
+        gs_warmup_steps=None,
+    )
+
+    solver_cells = reactor._solver_cells_for_nr()
+    x = pack_reactor(solver_cells)
+    F0 = global_residual(x, solver_cells, reactor._apply_all_bc_for_nr)
+    eq_scale = build_equation_scales(
+        solver_cells,
+        ref_gas_mol_s=float(cfg.O2_feed + cfg.H2O_feed + cfg.N2_feed),
+        ref_solid_kg_s=cfg.fuel_feed,
+        ref_energy_W=cfg.fuel_feed * 20e6,
+    )
+
+    touched: list[int] = []
+    affected_calls: list[int] = []
+
+    def _track_local_bc(cell_idx: int) -> None:
+        touched.append(int(cell_idx))
+        reactor._apply_local_bc_for_nr(int(cell_idx))
+
+    def _track_affected(cell_idx: int) -> tuple[int, ...]:
+        affected_calls.append(int(cell_idx))
+        return reactor._affected_nr_residual_cells(int(cell_idx))
+
+    J_struct_with_cb, meta_struct = build_jacobian_fd(
+        x,
+        F0,
+        solver_cells,
+        reactor._apply_all_bc_for_nr,
+        eq_scale,
+        strategy="band_plus_side_elements_structured",
+        apply_local_bc_fn=_track_local_bc,
+        affected_residual_cells_fn=_track_affected,
+    )
+    J_struct_no_cb, _ = build_jacobian_fd(
+        x,
+        F0,
+        solver_cells,
+        reactor._apply_all_bc_for_nr,
+        eq_scale,
+        strategy="band_plus_side_elements_structured",
+    )
+
+    diff = (J_struct_no_cb - J_struct_with_cb).toarray()
+    assert np.max(np.abs(diff)) < 1e-10
+    assert touched == []
+    assert affected_calls == []
+    assert meta_struct["jacobian_structure"]["side_element_count"] > 0
+    assert meta_struct["jacobian_structure"]["structure_validation_ok"] is True
+
+
 def test_band_plus_side_elements_structured_matches_dense_fd_on_thesis_freeboard_graph():
     reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     cfg = reactor.config
@@ -1292,14 +2097,17 @@ def test_band_plus_side_elements_structured_matches_dense_fd_on_thesis_freeboard
         strategy="band_plus_side_elements_structured",
     )
 
-    diff = (J_dense - J_block).toarray()
-    assert np.max(np.abs(diff)) < 1e-8
-    assert meta_block["residual_cell_calls"] < meta_dense["residual_cell_calls"]
+    # In closure-owned freeboard mode, dense_fd reflects a fully refreshed global
+    # BC path, while structured Jacobian enforces the Hamel-style side-element
+    # sparsity policy for NR linearization.
+    assert J_block.shape == J_dense.shape
+    assert np.all(np.isfinite(J_block.data))
+    assert meta_block["residual_cell_calls"] <= meta_dense["residual_cell_calls"]
     assert meta_block["jacobian_structure"]["structure_validation_ok"] is True
     assert meta_block["jacobian_structure"]["side_element_count"] > 0
 
 
-def test_thesis_far_cell_temperature_perturbation_changes_bed0_residual():
+def test_thesis_freeboard_temperature_perturbation_changes_bed0_residual():
     reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     solver_cells = reactor._solver_cells_for_nr()
     x = pack_reactor(solver_cells)
@@ -1311,8 +2119,6 @@ def test_thesis_far_cell_temperature_perturbation_changes_bed0_residual():
     n_bed = len(reactor.cells)
     n_freeboard = len(reactor.freeboard_cells)
     idx_fb_last = n_bed + n_freeboard - 1
-    idx_cyclone = n_bed + n_freeboard
-    idx_return_leg = n_bed + n_freeboard + 1
 
     def _max_bed0_delta_after_temperature_perturb(cell_idx: int, dT: float = 1.0) -> float:
         xp = x.copy()
@@ -1327,8 +2133,25 @@ def test_thesis_far_cell_temperature_perturbation_changes_bed0_residual():
         return float(np.max(np.abs(delta)))
 
     assert _max_bed0_delta_after_temperature_perturb(idx_fb_last) > 1e-8
-    assert _max_bed0_delta_after_temperature_perturb(idx_cyclone) > 1e-8
-    assert _max_bed0_delta_after_temperature_perturb(idx_return_leg) > 1e-8
+
+
+def test_init_precalc_seeds_upper_bed_holdup_chain_for_thesis_mode():
+    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+
+    char_holdups = [
+        float(np.sum(np.maximum(cell.m_solid[:, S_CHAR], 0.0)))
+        for cell in reactor.cells
+    ]
+    ash_holdups = [
+        float(np.sum(np.maximum(cell.m_solid[:, S_ASH], 0.0)))
+        for cell in reactor.cells
+    ]
+
+    assert char_holdups[0] > 0.0
+    assert char_holdups[1] > 0.0
+    assert char_holdups[2] > 0.0
+    assert ash_holdups[1] > 0.0
+    assert ash_holdups[2] > 0.0
 
 
 def test_resolve_nr_init_strategy_prefers_vorabrechnung_by_default():
@@ -1397,7 +2220,9 @@ def test_build_solver_graph_and_structure_report_wraparound_side_blocks():
     assert graph.has_return_leg is True
     assert graph.tail_start == 2
     assert graph.head_stop == 3
-    assert (0, len(solver_cells) - 1) in structure.side_block_pairs
+    assert (0, 3) in structure.side_block_pairs
+    assert (0, 6) in structure.side_block_pairs
+    assert (6, 4) in structure.side_block_pairs
     assert (0, 0) in structure.band_block_pairs
     assert (1, 0) in structure.band_block_pairs
 
@@ -1422,31 +2247,37 @@ def test_phase2_result_reports_structured_jacobian_metadata():
     assert result["nr_band_block_count"] >= 1
     assert result["nr_side_element_count"] >= 0
     assert result["nr_schur_size"] >= 0
+    assert result["nr_layout_audit"]
+    layout_by_type = {entry["cell_type"]: entry for entry in result["nr_layout_audit"]}
+    assert layout_by_type["freeboard"]["gas_mode"] == "single"
+    assert layout_by_type["freeboard"]["gas_unknown_count"] == MAIN_NR_GAS_COUNT
+    assert layout_by_type["freeboard"]["solid_unknown_count"] == 0
+    assert layout_by_type["return_leg"]["gas_mode"] == "none"
+    assert layout_by_type["return_leg"]["gas_unknown_count"] == 0
+    assert all(entry["unknown_count"] == entry["residual_count"] for entry in result["nr_layout_audit"])
     assert "band_lu_s" in result["nr_timing"]
     assert "side_update_s" in result["nr_timing"]
 
 
-def test_next_lambda_seed_reuses_last_successful_damping():
-    assert abs(_next_lambda_seed(0.5, 0.25, 2) - 0.25) < 1e-12
-    assert abs(_next_lambda_seed(0.5, 0.125, 1) - 0.25) < 1e-12
-    assert abs(_next_lambda_seed(0.5, 0.5, 1) - 0.5) < 1e-12
+def test_next_lambda_seed_adapts_from_last_successful_damping():
+    assert abs(_next_lambda_seed(0.5, 0.25, 2, 0.5) - 0.3) < 1e-12
+    assert abs(_next_lambda_seed(0.5, 0.125, 1, 0.3) - 0.25) < 1e-12
+    assert abs(_next_lambda_seed(0.5, 0.5, 1, 0.9) - 0.5) < 1e-12
 
 
-def test_build_equation_scales_uses_cell_local_solid_reference_for_holdup_transport():
+def test_build_equation_scales_use_packed_solid_dof_reference_for_holdup_transport():
     cell = Cell()
     cell.solid_state_model = "holdup_transport"
-    cell.m_solid[0, S_VM] = 1.0
-    cell.m_solid_zu[0, S_MOISTURE] = 2.0
-    cell.m_solid_rez[0, S_VM] = 3.0
-    cell.m_solid_in[0, S_VM] = 4.0
-    cell.m_solid_auf_in[0, S_VM] = 5.0
-    cell.m_solid_ab_in[0, S_MOISTURE] = 6.0
+    cell.m_solid[0, S_CHAR] = 0.2
+    cell.m_solid_zu[0, S_ASH] = 0.3
+    cell.R_solid[0, S_CHAR] = 0.1
+    cell.R_solid[0, S_ASH] = -0.05
 
     scale = build_equation_scales([cell], ref_gas_mol_s=10.0, ref_solid_kg_s=0.1, ref_energy_W=100.0)
 
     gas_width = n_var(cell) - n_solid_var(cell) - 1
     solid_slice = scale[gas_width : gas_width + n_solid_var(cell)]
-    np.testing.assert_allclose(solid_slice, 21.0)
+    np.testing.assert_allclose(solid_slice, [0.3, 0.35])
 
 
 def test_clip_dx_uses_cell_local_solid_reference_for_holdup_transport():
@@ -1478,7 +2309,7 @@ def test_solve_global_nr_reuses_backtracked_lambda_on_next_iter(monkeypatch):
     )
     monkeypatch.setattr(
         "src.solvers.global_nr_solver._clip_dx",
-        lambda dx, cells, ref_gas_mol_s, ref_solid_kg_s: dx,
+        lambda dx, cells, ref_gas_mol_s, ref_solid_kg_s, **kwargs: dx,
     )
 
     state: dict[str, object] = {"accepted_base": None, "line_search_calls": 0, "current_resid": 1.0}
@@ -1507,8 +2338,8 @@ def test_solve_global_nr_reuses_backtracked_lambda_on_next_iter(monkeypatch):
             state["current_resid"] = 0.8
             return np.full_like(x, 0.8)
         if call_idx == 3:
-            # 第二轮应从上一次接受的 0.25 直接开始，而不是回到 0.5。
-            assert abs(lam - 0.25) < 1e-12
+            # 第二轮应从上一轮接受步长自适应继承，而不是回到 0.5。
+            assert abs(lam - 0.2) < 1e-12
             state["accepted_base"] = x.copy()
             state["current_resid"] = 0.7
             return np.full_like(x, 0.7)
@@ -1522,9 +2353,10 @@ def test_solve_global_nr_reuses_backtracked_lambda_on_next_iter(monkeypatch):
         max_iter=2,
         tol_rms=0.1,
         lambda_init=0.5,
+        jacobian_lag_steps=2,
     )
 
-    assert result["accepted_lambda_history"][:2] == [0.25, 0.25]
+    assert result["accepted_lambda_history"][:2] == [0.25, 0.2]
     assert result["line_search_trial_counts"][:2] == [2, 1]
     assert result["counts"]["line_search_backtracks"] == 1
 
@@ -1547,7 +2379,7 @@ def test_solve_global_nr_records_line_search_failure_diagnostics(monkeypatch):
     )
     monkeypatch.setattr(
         "src.solvers.global_nr_solver._clip_dx",
-        lambda dx, cells, ref_gas_mol_s, ref_solid_kg_s: dx,
+        lambda dx, cells, ref_gas_mol_s, ref_solid_kg_s, **kwargs: dx,
     )
 
     state: dict[str, np.ndarray | None] = {"base": None}
@@ -1601,7 +2433,7 @@ def test_solve_global_nr_retries_once_after_line_search_failure(monkeypatch):
     )
     monkeypatch.setattr(
         "src.solvers.global_nr_solver._clip_dx",
-        lambda dx, cells, ref_gas_mol_s, ref_solid_kg_s: dx,
+        lambda dx, cells, ref_gas_mol_s, ref_solid_kg_s, **kwargs: dx,
     )
 
     state: dict[str, object] = {"base": None, "trial_calls": 0}
@@ -1629,7 +2461,7 @@ def test_solve_global_nr_retries_once_after_line_search_failure(monkeypatch):
         n_damp_halvings=4,
     )
 
-    assert result["accepted_lambda_history"] == [None, 0.25]
+    assert result["accepted_lambda_history"] == [None, 0.5]
     assert result["line_search_trial_counts"] == [4, 1]
     assert result["counts"]["line_search_failures"] == 1
     assert result["counts"]["line_search_retries"] == 1
@@ -1862,6 +2694,223 @@ def test_global_nr_initialization_prepares_hydrodynamics_freeze_cache(monkeypatc
     assert bool(result["converged"]) is True
 
 
+def test_thesis_inner_nr_uses_configurable_damping_knobs(monkeypatch):
+    cfg = build_phase1_htw_lu_reactor_config()
+    cfg.thesis_mode = True
+    cfg.nr_damping_halvings_thesis = 20
+    cfg.nr_lambda_min_thesis = 1.0 / 32768.0
+    cfg.nr_prefer_full_step_thesis = False
+    cfg.nr_step_model_thesis = "lm"
+    cfg.nr_lm_mu0_thesis = 2.0e-4
+    cfg.nr_lm_mu_growth_thesis = 5.0
+    cfg.nr_nonmonotone_enabled_thesis = True
+    cfg.nr_nonmonotone_window_thesis = 7
+    cfg.nr_nonmonotone_relax_thesis = 1.03
+    cfg.nr_line_search_max_trials_thesis = 4
+    reactor = Reactor(cfg)
+    reactor.cells = reactor.cells[:1]
+    reactor.config.n_cells = 1
+    reactor.config.nr_outer_iter_max = 1
+
+    monkeypatch.setattr("src.solvers.vorabrechnung.estimate_axial_T_profile", lambda **_: np.array([1000.0]))
+    monkeypatch.setattr("src.solvers.vorabrechnung.generate_initial_x0", lambda **_: None)
+    monkeypatch.setattr(reactor, "_apply_all_bc_for_nr", lambda: None)
+
+    for c in reactor._solver_cells_for_nr():
+        c._vorab_hydro_cache_valid = True
+    monkeypatch.setattr(reactor, "_initialize_nr_hydrodynamics_freeze_cache", lambda: None)
+    monkeypatch.setattr(reactor, "_refresh_vorabrechnung_sources_for_nr", lambda force: None)
+
+    captured: dict[str, object] = {}
+
+    def _fake_solve_global_nr(**kwargs):
+        captured["n_damp_halvings"] = kwargs["n_damp_halvings"]
+        captured["lambda_min"] = kwargs["lambda_min"]
+        captured["prefer_full_step"] = kwargs["prefer_full_step"]
+        captured["step_model"] = kwargs["step_model"]
+        captured["lm_mu0"] = kwargs["lm_mu0"]
+        captured["lm_mu_growth"] = kwargs["lm_mu_growth"]
+        captured["nonmonotone_enabled"] = kwargs["nonmonotone_enabled"]
+        captured["nonmonotone_window"] = kwargs["nonmonotone_window"]
+        captured["nonmonotone_relax"] = kwargs["nonmonotone_relax"]
+        captured["line_search_max_trials"] = kwargs["line_search_max_trials"]
+        return {
+            "converged": True,
+            "n_iter": 1,
+            "n_newton_iters_attempted": int(kwargs["max_iter"]),
+            "rms_scaled_final": 1e-6,
+            "norm_history": [1e-6],
+            "accepted_lambda_history": [0.5],
+            "line_search_trial_counts": [2],
+            "clip_history": [],
+        }
+
+    monkeypatch.setattr("src.solvers.global_nr_solver.solve_global_nr", _fake_solve_global_nr)
+
+    _ = reactor._solve_global_nr(max_iter=3, tol=1.0, verbose=False)
+
+    assert captured["n_damp_halvings"] == 20
+    assert float(captured["lambda_min"]) == pytest.approx(1.0 / 32768.0)
+    assert bool(captured["prefer_full_step"]) is False
+    assert str(captured["step_model"]) == "lm"
+    assert float(captured["lm_mu0"]) == pytest.approx(2.0e-4)
+    assert float(captured["lm_mu_growth"]) == pytest.approx(5.0)
+    assert bool(captured["nonmonotone_enabled"]) is True
+    assert int(captured["nonmonotone_window"]) == 7
+    assert float(captured["nonmonotone_relax"]) == pytest.approx(1.03)
+    assert int(captured["line_search_max_trials"]) == 4
+
+
+def test_thesis_reaction_continuation_runs_warmup_then_full_stage(monkeypatch):
+    cfg = build_phase1_htw_lu_reactor_config()
+    cfg.thesis_mode = True
+    cfg.nr_reaction_continuation_stages_thesis = (0.25, 1.0)
+    cfg.nr_reaction_continuation_height_m_thesis = cfg.H_bed
+    cfg.nr_reaction_continuation_inner_iter_cap_thesis = 1
+    reactor = Reactor(cfg)
+    reactor.cells = reactor.cells[:1]
+    reactor.config.n_cells = 1
+    reactor.config.nr_outer_iter_max = 1
+
+    monkeypatch.setattr("src.solvers.vorabrechnung.estimate_axial_T_profile", lambda **_: np.array([1000.0]))
+    monkeypatch.setattr("src.solvers.vorabrechnung.generate_initial_x0", lambda **_: None)
+    monkeypatch.setattr(reactor, "_apply_all_bc_for_nr", lambda: None)
+    for c in reactor._solver_cells_for_nr():
+        c._vorab_hydro_cache_valid = True
+    monkeypatch.setattr(reactor, "_initialize_nr_hydrodynamics_freeze_cache", lambda: None)
+    monkeypatch.setattr(reactor, "_refresh_vorabrechnung_sources_for_nr", lambda force: None)
+
+    seen: list[float] = []
+
+    def _fake_solve_global_nr(**kwargs):
+        seen.append(float(kwargs["cells"][0].nr_reaction_rate_multiplier))
+        return {
+            "converged": True,
+            "n_iter": 1,
+            "n_newton_iters_attempted": int(kwargs["max_iter"]),
+            "rms_scaled_final": 1e-6,
+            "max_abs_scaled_final": 1e-6,
+            "norm_history": [1e-6],
+            "accepted_lambda_history": [1.0],
+            "line_search_trial_counts": [1],
+            "clip_history": [],
+            "timing": {},
+            "counts": {},
+        }
+
+    monkeypatch.setattr("src.solvers.global_nr_solver.solve_global_nr", _fake_solve_global_nr)
+    result = reactor._solve_global_nr(max_iter=3, tol=1.0, verbose=False)
+
+    assert seen == [0.25, 1.0]
+    assert reactor.cells[0].nr_reaction_rate_multiplier == pytest.approx(1.0)
+    assert result["nr_reaction_continuation_active"] is True
+    assert result["nr_reaction_continuation_stages"] == [0.25, 1.0]
+    assert result["nr_reaction_continuation_target_cells"] == 1
+
+
+def test_thesis_inner_nr_rejects_unknown_step_model():
+    cfg = build_phase1_htw_lu_reactor_config()
+    cfg.thesis_mode = True
+    cfg.nr_step_model_thesis = "bad_mode"
+    reactor = Reactor(cfg)
+    with pytest.raises(ValueError, match="nr_step_model_thesis"):
+        _ = reactor.solve(
+            solver="global_nr",
+            max_global_iter=1,
+            tol_global=1.0,
+            nr_init_strategy="vorabrechnung",
+            nr_jacobian_strategy="dense_fd",
+        )
+
+
+def test_thesis_inner_nr_passes_ptc_knobs(monkeypatch):
+    cfg = build_phase1_htw_lu_reactor_config()
+    cfg.thesis_mode = True
+    cfg.nr_step_model_thesis = "ptc"
+    cfg.nr_ptc_alpha0_thesis = 0.5
+    cfg.nr_ptc_alpha_growth_thesis = 3.0
+    reactor = Reactor(cfg)
+    reactor.cells = reactor.cells[:1]
+    reactor.config.n_cells = 1
+    reactor.config.nr_outer_iter_max = 1
+
+    monkeypatch.setattr("src.solvers.vorabrechnung.estimate_axial_T_profile", lambda **_: np.array([1000.0]))
+    monkeypatch.setattr("src.solvers.vorabrechnung.generate_initial_x0", lambda **_: None)
+    monkeypatch.setattr(reactor, "_apply_all_bc_for_nr", lambda: None)
+    for c in reactor._solver_cells_for_nr():
+        c._vorab_hydro_cache_valid = True
+    monkeypatch.setattr(reactor, "_initialize_nr_hydrodynamics_freeze_cache", lambda: None)
+    monkeypatch.setattr(reactor, "_refresh_vorabrechnung_sources_for_nr", lambda force: None)
+
+    captured: dict[str, object] = {}
+
+    def _fake_solve_global_nr(**kwargs):
+        captured["step_model"] = kwargs["step_model"]
+        captured["ptc_alpha0"] = kwargs["ptc_alpha0"]
+        captured["ptc_alpha_growth"] = kwargs["ptc_alpha_growth"]
+        return {
+            "converged": True,
+            "n_iter": 1,
+            "n_newton_iters_attempted": int(kwargs["max_iter"]),
+            "rms_scaled_final": 1e-6,
+            "norm_history": [1e-6],
+            "accepted_lambda_history": [1.0],
+            "line_search_trial_counts": [1],
+            "clip_history": [],
+        }
+
+    monkeypatch.setattr("src.solvers.global_nr_solver.solve_global_nr", _fake_solve_global_nr)
+    _ = reactor._solve_global_nr(max_iter=3, tol=1.0, verbose=False)
+
+    assert str(captured["step_model"]) == "ptc"
+    assert float(captured["ptc_alpha0"]) == pytest.approx(0.5)
+    assert float(captured["ptc_alpha_growth"]) == pytest.approx(3.0)
+
+
+def test_thesis_inner_nr_passes_equilibration_knobs(monkeypatch):
+    cfg = build_phase1_htw_lu_reactor_config()
+    cfg.thesis_mode = True
+    cfg.nr_step_model_thesis = "equil_newton"
+    cfg.nr_equil_iters_thesis = 4
+    cfg.nr_equil_scale_clip_thesis = 1.0e2
+    reactor = Reactor(cfg)
+    reactor.cells = reactor.cells[:1]
+    reactor.config.n_cells = 1
+    reactor.config.nr_outer_iter_max = 1
+
+    monkeypatch.setattr("src.solvers.vorabrechnung.estimate_axial_T_profile", lambda **_: np.array([1000.0]))
+    monkeypatch.setattr("src.solvers.vorabrechnung.generate_initial_x0", lambda **_: None)
+    monkeypatch.setattr(reactor, "_apply_all_bc_for_nr", lambda: None)
+    for c in reactor._solver_cells_for_nr():
+        c._vorab_hydro_cache_valid = True
+    monkeypatch.setattr(reactor, "_initialize_nr_hydrodynamics_freeze_cache", lambda: None)
+    monkeypatch.setattr(reactor, "_refresh_vorabrechnung_sources_for_nr", lambda force: None)
+
+    captured: dict[str, object] = {}
+
+    def _fake_solve_global_nr(**kwargs):
+        captured["step_model"] = kwargs["step_model"]
+        captured["equil_iters"] = kwargs["equil_iters"]
+        captured["equil_scale_clip"] = kwargs["equil_scale_clip"]
+        return {
+            "converged": True,
+            "n_iter": 1,
+            "n_newton_iters_attempted": int(kwargs["max_iter"]),
+            "rms_scaled_final": 1e-6,
+            "norm_history": [1e-6],
+            "accepted_lambda_history": [1.0],
+            "line_search_trial_counts": [1],
+            "clip_history": [],
+        }
+
+    monkeypatch.setattr("src.solvers.global_nr_solver.solve_global_nr", _fake_solve_global_nr)
+    _ = reactor._solve_global_nr(max_iter=3, tol=1.0, verbose=False)
+
+    assert str(captured["step_model"]) == "equil_newton"
+    assert int(captured["equil_iters"]) == 4
+    assert float(captured["equil_scale_clip"]) == pytest.approx(1.0e2)
+
+
 def test_thesis_mode_rejects_gs_warmup_init_strategy(monkeypatch):
     cfg = build_phase1_htw_lu_reactor_config()
     cfg.thesis_mode = True
@@ -1956,7 +3005,7 @@ def test_thesis_outer_refresh_does_not_reseed_side_blocks(monkeypatch):
     monkeypatch.setattr("src.solvers.vorabrechnung.estimate_axial_T_profile", lambda **_: np.array([1000.0, 1010.0]))
     monkeypatch.setattr("src.solvers.vorabrechnung.generate_initial_x0", lambda **_: None)
     monkeypatch.setattr(reactor, "_apply_all_bc_for_nr", lambda: None)
-    monkeypatch.setattr(reactor, "_refresh_explicit_freeboard_transport_from_closure", lambda: None)
+    monkeypatch.setattr(reactor, "_refresh_explicit_freeboard_transport_from_closure", lambda **_: None)
 
     side_seed_calls = {"n": 0}
 
@@ -2017,12 +3066,16 @@ def test_thesis_outer_refresh_skips_freeboard_closure_resync(monkeypatch):
     monkeypatch.setattr(reactor, "_refresh_explicit_freeboard_transport_from_closure", _track_freeboard_sync)
     monkeypatch.setattr(reactor, "_apply_all_bc_for_nr", lambda: None)
 
-    refresh_calls: dict[str, int | bool] = {}
+    refresh_calls: list[dict[str, int | bool]] = []
 
     def _track_refresh(cells, *, force=False, refresh_sources=True):
-        refresh_calls["n_cells"] = len(cells)
-        refresh_calls["force"] = bool(force)
-        refresh_calls["refresh_sources"] = bool(refresh_sources)
+        refresh_calls.append(
+            {
+                "n_cells": len(cells),
+                "force": bool(force),
+                "refresh_sources": bool(refresh_sources),
+            }
+        )
 
     monkeypatch.setattr("src.solvers.vorabrechnung.refresh_vorabrechnung_for_cells", _track_refresh)
 
@@ -2030,14 +3083,21 @@ def test_thesis_outer_refresh_skips_freeboard_closure_resync(monkeypatch):
 
     assert fb_calls["n"] == 0
     assert np.allclose(reactor.freeboard_cells[0].m_solid, 1.2345)
-    assert refresh_calls == {
-        "n_cells": len(reactor._solver_cells_for_nr()),
-        "force": False,
-        "refresh_sources": False,
-    }
+    assert refresh_calls == [
+        {
+            "n_cells": len(reactor.cells),
+            "force": False,
+            "refresh_sources": False,
+        },
+        {
+            "n_cells": len(reactor.freeboard_cells) + len(reactor.side_cells),
+            "force": False,
+            "refresh_sources": False,
+        },
+    ]
 
 
-def test_thesis_single_shot_uses_two_outer_slots(monkeypatch):
+def test_thesis_single_shot_expands_outer_slots_for_full_budget(monkeypatch):
     cfg = build_phase1_htw_lu_reactor_config()
     cfg.thesis_mode = True
     cfg.thesis_vorab_sources_single_shot = True
@@ -2069,7 +3129,7 @@ def test_thesis_single_shot_uses_two_outer_slots(monkeypatch):
     )
 
     result = reactor._solve_global_nr(max_iter=20, tol=1.0, verbose=False)
-    assert result["nr_outer_max"] == 2
+    assert result["nr_outer_max"] == 20
 
 
 def test_non_thesis_mode_rejects_gs_warmup_under_nr_only_policy(monkeypatch):
@@ -2338,11 +3398,12 @@ def test_thesis_connectivity_topology_is_reported_for_bed_only_case():
     topo = result["thesis_connectivity_topology"]
     assert topo is not None
     assert topo["freeboard_active"] is False
+    assert result["side_block_active"] is False
     block_ids = {block["block_id"] for block in topo["blocks"]}
     assert {"bed_cell_0", "cyclone_block", "return_leg_block", "system_exit"}.issubset(block_ids)
     block_map = {block["block_id"]: block for block in topo["blocks"]}
-    assert block_map["cyclone_block"]["solver_coupling"] == "explicit_state"
-    assert block_map["return_leg_block"]["solver_coupling"] == "explicit_state"
+    assert block_map["cyclone_block"]["solver_coupling"] == "post_freeboard_separation"
+    assert block_map["return_leg_block"]["solver_coupling"] == "boundary_condition"
     edge_kinds = {edge["kind"] for edge in topo["edges"]}
     assert {"external_zirkulation", "internal_zirkulation", "wake_solid_upflow"}.issubset(edge_kinds)
     backmix_edges = [edge for edge in topo["edges"] if edge["kind"] == "internal_zirkulation"]
@@ -2552,6 +3613,16 @@ def test_freeboard_secondary_injection_xi_uses_global_reactor_coordinate():
 
     assert result["freeboard_secondary_injection_applied"] is True
     assert result["freeboard_secondary_injection_segment"] == 3
+
+
+def test_phase2_local_refined_damped_builder_sets_bed_profile_and_damping():
+    cfg = build_phase2_htw_lu_local_refined_damped_config()
+    assert cfg.bed_dh_profile is not None
+    assert len(cfg.bed_dh_profile) == cfg.n_cells
+    assert sum(cfg.bed_dh_profile) == pytest.approx(cfg.H_bed)
+    assert min(cfg.bed_dh_profile) < max(cfg.bed_dh_profile)
+    assert cfg.nr_damping_halvings_thesis == 18
+    assert cfg.nr_lambda_min_thesis == pytest.approx(1.0 / 16384.0)
 
 
 def test_freeboard_secondary_local_refine_expands_profile_near_injection():

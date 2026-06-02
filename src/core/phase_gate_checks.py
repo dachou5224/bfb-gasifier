@@ -1148,6 +1148,8 @@ def _phase4_release_rebound(reactor: Reactor) -> dict[str, float]:
             m_vm_in=m_vm_in,
             m_moist_in=m_moist_in,
             solid_shape=cell.R_solid.shape,
+            m_vm_in_classes=np.maximum(cell.m_solid_zu[:, S_VM] + cell.m_solid_in[:, S_VM], 0.0),
+            m_moist_in_classes=np.maximum(cell.m_solid_zu[:, S_MOISTURE] + cell.m_solid_in[:, S_MOISTURE], 0.0),
             vm_index=S_VM,
             moisture_index=S_MOISTURE,
         )
