@@ -12,6 +12,13 @@ description: BFB 一维模型代码审查专用技能。检查 SI 单位、arrhe
 
 ## 职责清单（必须逐项核对）
 
+### 0. 证据链顺序（最高优先级）
+
+- 先检查 **代码 vs `docs/hamel_submodels/00-07`** 是否一致。
+- 若不一致，才回到 **Hamel 原论文**（按页码 / 方程号 / 表格）裁决。
+- **禁止** 用当前代码实现反向补全文档；文档补充必须来自论文原文证据。
+- 在流体力学或动力学上，**未完成一致性核查前，不得进入调参阶段**。
+
 ### 1. 单位制（SI）
 
 - 全链路是否为 **SI**：**Pa, K, m, mol, kg, s**（见 `docs/CLAUDE.md` §全局编程规则）。
@@ -54,6 +61,9 @@ description: BFB 一维模型代码审查专用技能。检查 SI 单位、arrhe
 
 ## 相关文件
 
+- `docs/hamel_submodels/00_readme_and_citation_rules.md`
+- `docs/hamel_submodels/03_hydrodynamics_core_chain.md`
+- `docs/hamel_submodels/06_kinetics_r1_r11_and_equilibrium_driving.md`
 - `docs/CLAUDE.md`（全局规则与 Phase）
 - `src/kinetics/arrhenius.py`
 - `.cursor/rules/scientific-modeling-core.mdc`

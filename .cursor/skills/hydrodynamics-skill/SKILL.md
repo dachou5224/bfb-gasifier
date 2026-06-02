@@ -13,7 +13,13 @@ description: Implements hydrodynamics for the bubbling fluidized bed gasifier, i
 - 最小流化速度 `u_mf`、气泡速度 `u_b`、气泡直径 `d_b(h)` 等气泡动力学
 - 相间传质系数 `K_bd`、气泡体积分数、慢泡/快泡判别逻辑
 
-本 Skill 假定已阅读项目中的 `docs/techspec.md`，所有符号与方程以该文档为权威来源。
+本 Skill 的执行顺序固定为：
+
+1. 先核对代码与 `docs/hamel_submodels/03_hydrodynamics_core_chain.md`、`00_readme_and_citation_rules.md` 是否一致。
+2. 若不一致，再回到 Hamel 原论文对应页码、方程号、表格裁决。
+3. 只有在代码与文档一致后，才允许根据模拟偏差讨论调参。
+
+禁止把当前实现当作文档来源反向补写公式；证据链必须保持 **论文 → 文档 → 代码**。
 
 ## 1. 最小流化速度与慢泡/快泡判别
 
@@ -93,5 +99,4 @@ class HydrodynamicsModel(Protocol):
 - 使用 SI 单位并在函数签名附近注明单位
 - 使用断言检查输入参数范围（如 `d_b > 0`, `P > 0`）
 - 在 docstring 中注明公式来源，例如：
-  - `Ref: Hamel (1999) Gleichung 3.44, 3.50; Hamel & Krumm (2001) Section 2.1`
-
+  - `Ref: Hamel (1999) Gleichung 3.24, 3.44, 3.50`
