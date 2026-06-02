@@ -7,7 +7,7 @@
 - ``n_cells=10``, ``H_bed=6.0`` m（JSON ``bed_height_m``，非全炉 ``height_m``）, ``H_freeboard=0``（自由板未集成）
 - ``heat_loss_frac=0.1``（``ReactorConfig`` 默认，中试炉热损失文献带 5–10% 见 validation_cases 注释）
 - ``u0_target=None``（表观气速走内部默认/闭环）
-- 求解（历史 GS 基线对照，需显式）：``ReactorConfig(..., allow_legacy_gs=True)`` + ``Reactor.solve(..., solver=\"gauss_seidel\", ...)``
+- 求解：``Reactor.solve(..., solver=\"global_nr\", ...)``（NR-only；历史 GS 路径已移除，见 ``scripts/_deprecated/nr/``）
 
 **Phase 1 global NR 开发口径**：
 - 与同一 LU shared config 复用几何/进料/动力学窗口
@@ -473,8 +473,6 @@ def build_phase1_htw_lu_reactor_config(case: dict | None = None) -> ReactorConfi
         r4_scale=0.50,
         r5_scale=0.75,
         r7_scale=2.50,
-        # NR-only policy: legacy GS path is disabled at ``Reactor.solve`` entry.
-        allow_legacy_gs=False,
     )
 
 
@@ -692,7 +690,6 @@ def build_phase1_htw_lu_refined_config(
         top_solid_inlet_frac=0.50,
         r4_scale=0.75,
         r5_scale=0.50,
-        allow_legacy_gs=True,
     )
 
 

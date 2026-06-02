@@ -1288,7 +1288,7 @@ def gate_40_axial_extent_recycle() -> GateResult:
         "solid_stream_filters": stream_filters,
     }
     artifacts = {
-        "phase_4_deep_audit_script": "scripts/audit_drying_pyrolysis_extent_lu.py",
+        "phase_4_deep_audit_script": "scripts/_deprecated/thermal/audit_drying_pyrolysis_extent_lu.py",
         "phase_4_gate_source": "src/core/phase_gate_checks.py",
     }
     return GateResult(

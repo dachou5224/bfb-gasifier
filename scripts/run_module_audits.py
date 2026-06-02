@@ -94,7 +94,7 @@ MODULE_AUDITS: tuple[ModuleAudit, ...] = (
         tests=(
             "python3 -m pytest tests/test_outer_loop_convergence.py "
             "tests/test_global_nr_solver.py::test_global_nr_outer_loop_forces_vorabrechnung_refresh "
-            "tests/test_global_nr_solver.py::test_global_nr_stops_when_outer_is_matched_and_inner_stalls "
+            "tests/test_global_nr_solver.py::test_global_nr_stops_when_inner_stalls_without_progress "
             "-q --tb=no",
         ),
         audits=(

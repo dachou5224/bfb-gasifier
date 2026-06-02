@@ -26,4 +26,5 @@ where = ["src"]
 [tool.pytest.ini_options]
 markers = [
     "slow: 完整反应器扫描集成测试（约数十秒）",
+    "slimming_audit: 瘦身计划假设验证（清理前应全部通过）",
 ]
