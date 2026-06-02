@@ -318,31 +318,31 @@ def test_evaluate_cell_state_uses_current_residual_vector(monkeypatch):
 
 
 def test_reactor_reports_globally_reevaluated_gs_metrics():
-    reactor = Reactor(ReactorConfig(n_cells=2, allow_legacy_gs=True))
+    reactor = Reactor(ReactorConfig(n_cells=2))
     with pytest.raises(ValueError, match="Only solver='global_nr'"):
         reactor.solve(max_global_iter=1, tol_global=1e-4, solver="gauss_seidel")
 
 
 def test_reactor_runs_upper_pair_corrective_sweep_for_high_upper_pair_rms():
-    reactor = Reactor(ReactorConfig(n_cells=3, allow_legacy_gs=True))
+    reactor = Reactor(ReactorConfig(n_cells=3))
     with pytest.raises(ValueError, match="Only solver='global_nr'"):
         reactor.solve(max_global_iter=1, tol_global=1e-4, solver="gauss_seidel")
 
 
 def test_reactor_caps_bottom_full_stiff_solve_to_reference_window():
-    reactor = Reactor(ReactorConfig(n_cells=2, allow_legacy_gs=True))
+    reactor = Reactor(ReactorConfig(n_cells=2))
     with pytest.raises(ValueError, match="Only solver='global_nr'"):
         reactor.solve(max_global_iter=1, tol_global=1e-4, solver="gauss_seidel")
 
 
 def test_reactor_deduplicates_bottom_full_temperature_caps_when_default_is_wide():
-    reactor = Reactor(ReactorConfig(n_cells=1, allow_legacy_gs=True))
+    reactor = Reactor(ReactorConfig(n_cells=1))
     with pytest.raises(ValueError, match="Only solver='global_nr'"):
         reactor.solve(max_global_iter=1, tol_global=1e-4, solver="gauss_seidel")
 
 
 def test_reactor_stops_after_first_clear_degradation_from_best_iter():
-    reactor = Reactor(ReactorConfig(n_cells=1, allow_legacy_gs=True))
+    reactor = Reactor(ReactorConfig(n_cells=1))
     with pytest.raises(ValueError, match="Only solver='global_nr'"):
         reactor.solve(max_global_iter=5, tol_global=1e-4, solver="gauss_seidel")
 

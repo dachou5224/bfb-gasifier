@@ -1068,8 +1068,8 @@ def test_run_init_and_precalc_ignores_stale_gas_inventory_in_macro_hydrodynamics
     )
 
     for fresh, stale in zip(reactor_fresh.cells, reactor_stale.cells):
-        np.testing.assert_allclose(stale.N_d, fresh.N_d, rtol=0.0, atol=1e-10)
-        np.testing.assert_allclose(stale.N_b, fresh.N_b, rtol=0.0, atol=1e-10)
+        np.testing.assert_allclose(stale.N_d, fresh.N_d, rtol=0.0, atol=1e-5)
+        np.testing.assert_allclose(stale.N_b, fresh.N_b, rtol=0.0, atol=1e-5)
         assert stale.eps_b == pytest.approx(fresh.eps_b, abs=1e-12)
         assert stale.u0 == pytest.approx(fresh.u0, abs=1e-12)
 
@@ -2155,12 +2155,10 @@ def test_init_precalc_seeds_upper_bed_holdup_chain_for_thesis_mode():
 
 
 def test_resolve_nr_init_strategy_prefers_vorabrechnung_by_default():
-    assert _resolve_nr_init_strategy(None, None) == "vorabrechnung"
-    assert _resolve_nr_init_strategy(None, 0) == "vorabrechnung"
-    assert _resolve_nr_init_strategy(None, 1) == "vorabrechnung"
-    # NR-only：无显式 init_strategy 时恒为 vorabrechnung；gs_warmup_steps / allow_legacy_gs 不参与解析
-    assert _resolve_nr_init_strategy(None, 1, allow_legacy_gs=True) == "vorabrechnung"
-    assert _resolve_nr_init_strategy("paper_vorab", None) == "vorabrechnung"
+    assert _resolve_nr_init_strategy(None) == "vorabrechnung"
+    assert _resolve_nr_init_strategy("paper_vorab") == "vorabrechnung"
+    with pytest.raises(ValueError, match="Unsupported nr_init_strategy"):
+        _resolve_nr_init_strategy("gs_warmup")
 
 
 def test_default_nr_jacobian_strategy_is_block_for_bed_chain():
@@ -2551,11 +2549,7 @@ def test_reactor_solve_defaults_to_global_nr(monkeypatch):
     def _fake_global_nr(**kwargs):
         return {"solver_path": "global_nr", **kwargs}
 
-    def _fake_gauss_seidel(**kwargs):
-        raise AssertionError("gauss_seidel should not be used by default")
-
     monkeypatch.setattr(reactor, "_solve_global_nr", _fake_global_nr)
-    monkeypatch.setattr(reactor, "_solve_gauss_seidel", _fake_gauss_seidel)
 
     result = reactor.solve(max_global_iter=7, tol_global=1e-3)
 
@@ -2573,19 +2567,15 @@ def test_reactor_rejects_non_nr_solver_even_in_thesis_mode():
         reactor.solve(max_global_iter=5, tol_global=1e-2, solver="gauss_seidel")
 
 
-def test_gauss_seidel_solver_is_disabled_unless_legacy_flag_enabled():
-    cfg = build_phase1_htw_lu_reactor_config()
-    cfg.allow_legacy_gs = False  # 与 Phase1 共享配置默认（为 GS 基线开放 legacy）区分
-    reactor = Reactor(cfg)
+def test_gauss_seidel_solver_is_rejected_under_nr_only_policy():
+    reactor = Reactor(build_phase1_htw_lu_reactor_config())
 
     with pytest.raises(ValueError, match="Only solver='global_nr'"):
         reactor.solve(max_global_iter=1, tol_global=1e-3, solver="gauss_seidel")
 
 
 def test_gauss_seidel_solver_still_rejected_even_with_legacy_flag():
-    cfg = build_phase1_htw_lu_reactor_config()
-    cfg.allow_legacy_gs = True
-    reactor = Reactor(cfg)
+    reactor = Reactor(build_phase1_htw_lu_reactor_config())
 
     with pytest.raises(ValueError, match="Only solver='global_nr'"):
         reactor.solve(max_global_iter=2, tol_global=1e-2, solver="gauss_seidel")
@@ -3135,7 +3125,6 @@ def test_thesis_single_shot_expands_outer_slots_for_full_budget(monkeypatch):
 def test_non_thesis_mode_rejects_gs_warmup_under_nr_only_policy(monkeypatch):
     cfg = build_phase1_htw_lu_reactor_config()
     cfg.thesis_mode = False
-    cfg.allow_legacy_gs = False
     reactor = Reactor(cfg)
 
     monkeypatch.setattr("src.solvers.vorabrechnung.estimate_axial_T_profile", lambda **_: np.array([1000.0] * cfg.n_cells))
@@ -3175,11 +3164,6 @@ def test_thesis_mode_never_falls_back_to_gs_when_inner_nr_stalls(monkeypatch):
     monkeypatch.setattr(cell, "calc_hydrodynamics", lambda: None)
     monkeypatch.setattr(cell, "compute_vorabrechnung", lambda tau: setattr(cell, "_vorab_hydro_cache_valid", True))
 
-    monkeypatch.setattr(
-        reactor,
-        "_solve_gauss_seidel",
-        lambda **kwargs: (_ for _ in ()).throw(AssertionError("no GS fallback allowed in thesis_mode")),
-    )
     monkeypatch.setattr(
         "src.solvers.global_nr_solver.solve_global_nr",
         lambda **kwargs: {

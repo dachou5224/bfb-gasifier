@@ -1,0 +1,94 @@
+{
+  "summary": {
+    "slimming_plan_audit_confirmed": true,
+    "active_core_regression_ok": false,
+    "expected_gate_failures_before_p0": [
+      "tier_c_stage_30_solver_policy",
+      "tier_c_stage_35_convergence_ladder",
+      "tier_c_stage_50_whole_model"
+    ],
+    "unexpected_stage_failures": [
+      "tier_c_stage_15_module_audits"
+    ],
+    "recommendation": "Do not slim yet; fix failing tier A/B checks first."
+  },
+  "tier_a_slimming_audit": {
+    "name": "tier_a_slimming_audit",
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 -m pytest tests/test_codebase_slimming_plan.py -q --tb=short -m slimming_audit",
+    "exit_code": 0,
+    "elapsed_s": 36.398563958000004,
+    "note": ""
+  },
+  "tier_b_sanity": {
+    "name": "tier_b_sanity",
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tests/sanity_checks.py",
+    "exit_code": 0,
+    "elapsed_s": 2.672197150999999,
+    "note": ""
+  },
+  "tier_b_pytest_not_slow": {
+    "name": "tier_b_pytest_not_slow_excluding_global_nr",
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 -m pytest tests/ -q --tb=no -m not slow --ignore=tests/test_global_nr_solver.py",
+    "exit_code": 1,
+    "elapsed_s": 342.188827249,
+    "note": ""
+  },
+  "tier_c_stages": [
+    {
+      "name": "tier_c_stage_00_sanity",
+      "command": "/Library/Developer/CommandLineTools/usr/bin/python3 scripts/run_test_sequence.py --only-stage 00_sanity --timeout-sec=120",
+      "exit_code": 0,
+      "elapsed_s": 1.6163700350000454,
+      "note": ""
+    },
+    {
+      "name": "tier_c_stage_10_independent_modules",
+      "command": "/Library/Developer/CommandLineTools/usr/bin/python3 scripts/run_test_sequence.py --only-stage 10_independent_modules --timeout-sec=120",
+      "exit_code": 0,
+      "elapsed_s": 2.472939330000031,
+      "note": ""
+    },
+    {
+      "name": "tier_c_stage_15_module_audits",
+      "command": "/Library/Developer/CommandLineTools/usr/bin/python3 scripts/run_test_sequence.py --only-stage 15_module_audits --timeout-sec=120",
+      "exit_code": 124,
+      "elapsed_s": 120.26283139600002,
+      "note": ""
+    },
+    {
+      "name": "tier_c_stage_20_coupled_cell",
+      "command": "/Library/Developer/CommandLineTools/usr/bin/python3 scripts/run_test_sequence.py --only-stage 20_coupled_cell --timeout-sec=120",
+      "exit_code": 0,
+      "elapsed_s": 5.1281425870000135,
+      "note": ""
+    },
+    {
+      "name": "tier_c_stage_30_solver_policy",
+      "command": "/Library/Developer/CommandLineTools/usr/bin/python3 scripts/run_test_sequence.py --only-stage 30_solver_policy --timeout-sec=120",
+      "exit_code": 4,
+      "elapsed_s": 2.6938886169999705,
+      "note": "expected_fail_before_P0_gate_fix"
+    },
+    {
+      "name": "tier_c_stage_35_convergence_ladder",
+      "command": "/Library/Developer/CommandLineTools/usr/bin/python3 scripts/run_test_sequence.py --only-stage 35_convergence_ladder --timeout-sec=120",
+      "exit_code": 4,
+      "elapsed_s": 3.1041908529999773,
+      "note": "expected_fail_before_P0_gate_fix"
+    },
+    {
+      "name": "tier_c_stage_40_phase_gates",
+      "command": "/Library/Developer/CommandLineTools/usr/bin/python3 scripts/run_test_sequence.py --only-stage 40_phase_gates --timeout-sec=120",
+      "exit_code": 0,
+      "elapsed_s": 3.484034799000028,
+      "note": ""
+    },
+    {
+      "name": "tier_c_stage_50_whole_model",
+      "command": "/Library/Developer/CommandLineTools/usr/bin/python3 scripts/run_test_sequence.py --only-stage 50_whole_model --timeout-sec=120",
+      "exit_code": 2,
+      "elapsed_s": 0.298269778999952,
+      "note": "expected_promotion_gate_when_stages_not_chained"
+    }
+  ]
+}

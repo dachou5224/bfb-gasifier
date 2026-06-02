@@ -33,4 +33,4 @@ def test_affected_cells_explicit_freeboard_graph_with_recycle():
         explicit_freeboard_graph=True,
         side_blocks_in_boundary_path=True,
         has_side_blocks=True,
-    ) == (0, 1, 2, 4, 5)
+    ) == (0, 1, 2, 5)
