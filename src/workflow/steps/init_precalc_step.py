@@ -105,7 +105,7 @@ def run_init_and_precalc_for_global_nr(
     from src.solvers.vorabrechnung import estimate_axial_T_profile, generate_initial_x0
 
     cfg = reactor.config
-    resolved = _resolve_nr_init_strategy(init_strategy, gs_warmup_steps, allow_legacy_gs=False)
+    resolved = _resolve_nr_init_strategy(init_strategy)
 
     init_started = perf_counter()
     vorab_started = perf_counter()

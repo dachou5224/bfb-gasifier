@@ -48,13 +48,6 @@ from src.core.species import (
     configure_tar_components_by_fuel,
 )
 from src.core.feed_inlet import compute_gas_feeds_mol_s
-from src.core.legacy_gs_support import (
-    _capture_cells_state,
-    _clamp_soft_rollback_monotonic,
-    _gs_profile_metrics,
-    _positive_rebound_penalty,
-    _restore_cells_state,
-)
 
 
 def _compound_heat_loss_fraction(total_frac: float, weight: float) -> float:
@@ -106,14 +99,8 @@ from src.solvers.cell_solver import solve_cell, evaluate_cell_state  # Re-export
 
 def _resolve_nr_init_strategy(
     init_strategy: str | None,
-    gs_warmup_steps: int | None = None,
-    allow_legacy_gs: bool = False,
 ) -> str:
-    """Resolve global-NR initialization strategy (NR-only policy).
-
-    ``gs_warmup_steps`` / ``allow_legacy_gs`` are kept for backward compatibility
-    and ignored under NR-only policy.
-    """
+    """Resolve global-NR initialization strategy (NR-only policy)."""
     if init_strategy is None:
         return "vorabrechnung"
     strategy = str(init_strategy).strip().lower()
@@ -224,8 +211,6 @@ class ReactorConfig:
     nr_temperature_fence_upper_margin_K_thesis: float = 350.0
     thesis_mode: bool = False
     explicit_side_blocks_enabled: bool = True
-    # Deprecated no-op (kept only for backward compatibility): GS path removed.
-    allow_legacy_gs: bool = False
     # Hamel A1-style major-species Gibbs seed in Vorabrechnung x0 generation.
     vorab_major_gibbs_x0: bool = True
     # Major-gibbs init solver mode: augmented | hamel_reduced | shadow_compare
@@ -711,20 +696,6 @@ class Reactor:
         s2 = float(np.dot(arr, arr))
         return f"vorab:v1:n={arr.size};vm={vm_valid_count};sum={s1:.8e};sumsq={s2:.8e}"
 
-    def _evaluate_current_gs_state(self) -> tuple[float, float]:
-        """评估当前全堆 GS 状态的残差（不更新状态）。"""
-        self._set_bottom_cell_feeds()
-        self._apply_all_bc_for_nr()
-        
-        res_list = []
-        rms_list = []
-        for cell in self.cells:
-            metrics = evaluate_cell_state(cell)
-            res_list.append(metrics["residual"])
-            rms_list.append(metrics["rms_scaled"])
-            
-        return float(np.max(res_list)), float(np.mean(rms_list))
-
     def solve(
         self,
         max_global_iter: int = 20,
@@ -755,177 +726,6 @@ class Reactor:
             linear_solver_backend=nr_linear_solver_backend,
             jacobian_lag_steps=nr_jacobian_lag_steps,
         )
-
-    def _solve_gauss_seidel(
-        self,
-        max_global_iter: int,
-        tol_global: float,
-        verbose: bool = False,
-    ) -> dict:
-        """Legacy Gauss-Seidel solver path with compatibility hooks."""
-        if not bool(self.config.allow_legacy_gs):
-            raise RuntimeError(
-                "Legacy Gauss-Seidel path is explicitly disabled in ReactorConfig. "
-                "Use allow_legacy_gs=True to enable for debugging."
-            )
-        from src.solvers.vorabrechnung import estimate_axial_T_profile, generate_initial_x0
-
-        # Warm-start reference profile used by bottom-cell temperature cap logic.
-        T_ref = estimate_axial_T_profile(
-            n_cells=self.config.n_cells,
-            T_inlet=self.config.T_inlet,
-            O2_feed=self.config.O2_feed,
-            H2O_feed=self.config.H2O_feed,
-            N2_feed=self.config.N2_feed,
-            fuel_feed_kg_s=self.config.fuel_feed,
-            C_dry=self.config.C_dry,
-            H_dry=self.config.H_dry,
-            moisture_wt=self.config.moisture_wt,
-            P=self.config.P,
-        )
-        self._set_bottom_cell_feeds()
-        for i in range(len(self.cells)):
-            self._propagate_upstream(i)
-        generate_initial_x0(
-            cells=self.cells,
-            O2_feed=self.config.O2_feed,
-            H2O_feed=self.config.H2O_feed,
-            N2_feed=self.config.N2_feed,
-            fuel_feed_kg_s=self.config.fuel_feed,
-            C_dry=self.config.C_dry,
-            H_dry=self.config.H_dry,
-            O_dry=self.config.O_dry,
-            moisture_wt=self.config.moisture_wt,
-            ash_dry_wt=self.config.ash_dry_wt,
-            VM_daf=self.config.VM_daf,
-            T_profile=T_ref,
-            fuel_type=self.config.fuel_type,
-            major_gibbs_solver_mode=str(self.config.major_gibbs_solver_mode),
-        )
-
-        history: list[dict] = []
-        best_state = _capture_cells_state(self.cells)
-        _, best_rms = self._evaluate_current_gs_state()
-        best_profile = _gs_profile_metrics(self.cells, o2_feed=self.config.O2_feed)
-        best_score = float(best_rms + best_profile["penalty"])
-        best_iter = 0
-        restored_best_state = False
-        residual_gs = 0.0
-        rms_scaled_gs = best_rms
-
-        for g_iter in range(max_global_iter):
-            self._set_bottom_cell_feeds()
-            cell_traces: list[dict] = []
-            for i, cell in enumerate(self.cells):
-                self._propagate_upstream(i)
-                # Fast stiff step (used in GS legacy loop).
-                fast_res = solve_cell(
-                    cell,
-                    stiff_stabilization=True,
-                    skip_homotopy=True,
-                    skip_multistart=True,
-                )
-                full_caps: list[float | None] = []
-                if not bool(fast_res.get("physically_converged", False)):
-                    candidate_caps: list[float | None] = [float(T_ref[i] + 75.0)] if i == 0 else [None]
-                    for cap in candidate_caps:
-                        if cap in full_caps:
-                            continue
-                        full_caps.append(cap)
-                        full_res = solve_cell(
-                            cell,
-                            stiff_stabilization=True,
-                            skip_homotopy=False,
-                            skip_multistart=False,
-                            temperature_cap_K=cap,
-                        )
-                        if bool(full_res.get("physically_converged", False)):
-                            break
-
-                _clamp_soft_rollback_monotonic(cell)
-                cell_traces.append(
-                    {
-                        "cell_index": i,
-                        "full_temperature_caps_K": [float(c) for c in full_caps if c is not None],
-                        "full_temperature_cap_K": next((float(c) for c in full_caps if c is not None), None),
-                    }
-                )
-
-            # Optional upper-pair corrective sweep for high-RMS top cells.
-            cell_metrics = [evaluate_cell_state(c) for c in self.cells]
-            upper_pair = sorted(
-                range(len(self.cells)),
-                key=lambda idx: float(cell_metrics[idx].get("rms_scaled", 0.0)),
-                reverse=True,
-            )[:2]
-            upper_before = max((float(cell_metrics[idx].get("rms_scaled", 0.0)) for idx in upper_pair), default=0.0)
-            upper_correction = {"attempted": False, "before_rms": float(upper_before)}
-            if upper_before >= 0.2 and len(upper_pair) == 2:
-                upper_correction["attempted"] = True
-                for idx in sorted(upper_pair):
-                    solve_cell(
-                        self.cells[idx],
-                        stiff_stabilization=True,
-                        skip_homotopy=True,
-                        skip_multistart=True,
-                    )
-                    _clamp_soft_rollback_monotonic(self.cells[idx])
-
-            residual_gs, rms_scaled_gs = self._evaluate_current_gs_state()
-            profile = _gs_profile_metrics(
-                self.cells,
-                o2_feed=self.config.O2_feed,
-                T_ref=np.asarray(T_ref, dtype=np.float64),
-                m_char_in=float(np.sum(np.maximum(self.cells[0].m_solid_in[:, S_CHAR] + self.cells[0].m_solid_zu[:, S_CHAR], 0.0))),
-            )
-            score = float(rms_scaled_gs + profile["penalty"])
-            if score < best_score:
-                best_score = score
-                best_iter = g_iter + 1
-                best_state = _capture_cells_state(self.cells)
-                best_profile = profile
-            elif g_iter >= 1:
-                history.append(
-                    {
-                        "iter": g_iter + 1,
-                        "residual_gs": float(residual_gs),
-                        "rms_scaled_gs": float(rms_scaled_gs),
-                        "profile_metrics": profile,
-                        "cells": cell_traces,
-                        "upper_pair_correction": upper_correction,
-                    }
-                )
-                _restore_cells_state(self.cells, best_state)
-                restored_best_state = True
-                break
-
-            history.append(
-                {
-                    "iter": g_iter + 1,
-                    "residual_gs": float(residual_gs),
-                    "rms_scaled_gs": float(rms_scaled_gs),
-                    "profile_metrics": profile,
-                    "cells": cell_traces,
-                    "upper_pair_correction": upper_correction,
-                }
-            )
-            if float(rms_scaled_gs) <= float(tol_global):
-                break
-
-        out = self._build_exit_summary()
-        out.update(
-            {
-                "converged": bool(rms_scaled_gs <= tol_global),
-                "n_iter": len(history),
-                "best_iter": int(best_iter if best_iter > 0 else 1),
-                "restored_best_state": bool(restored_best_state),
-                "residual_gs": float(residual_gs),
-                "rms_scaled_gs": float(rms_scaled_gs),
-                "history": history,
-                "best_profile_metrics": best_profile,
-            }
-        )
-        return out
 
     def _solve_global_nr(
         self,

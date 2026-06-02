@@ -60,10 +60,10 @@ STAGES: tuple[Stage, ...] = (
         commands=(
             "python3 -m pytest "
             "tests/test_global_nr_solver.py::test_resolve_nr_init_strategy_prefers_vorabrechnung_by_default "
-            "tests/test_global_nr_solver.py::test_thesis_mode_forces_global_nr_even_when_solver_arg_is_gauss_seidel "
-            "tests/test_global_nr_solver.py::test_gauss_seidel_solver_is_disabled_unless_legacy_flag_enabled "
-            "tests/test_global_nr_solver.py::test_gauss_seidel_solver_allowed_with_legacy_flag "
-            "tests/test_global_nr_solver.py::test_non_thesis_mode_still_disables_gs_warmup_when_legacy_gs_is_off "
+            "tests/test_global_nr_solver.py::test_reactor_rejects_non_nr_solver_even_in_thesis_mode "
+            "tests/test_global_nr_solver.py::test_gauss_seidel_solver_is_rejected_under_nr_only_policy "
+            "tests/test_global_nr_solver.py::test_gauss_seidel_solver_still_rejected_even_with_legacy_flag "
+            "tests/test_global_nr_solver.py::test_non_thesis_mode_rejects_gs_warmup_under_nr_only_policy "
             "tests/test_solver_sequence.py::test_refresh_cell_vorabrechnung_runs_hydrodynamics_then_cache_update "
             "tests/test_solver_sequence.py::test_refresh_cell_vorabrechnung_force_invalidates_before_recompute "
             "-q --tb=no",
@@ -76,7 +76,7 @@ STAGES: tuple[Stage, ...] = (
             "python3 -m pytest "
             "tests/test_outer_loop_convergence.py "
             "tests/test_global_nr_solver.py::test_global_nr_outer_loop_forces_vorabrechnung_refresh "
-            "tests/test_global_nr_solver.py::test_global_nr_stops_when_outer_is_matched_and_inner_stalls "
+            "tests/test_global_nr_solver.py::test_global_nr_stops_when_inner_stalls_without_progress "
             "-q --tb=no",
             "python3 scripts/audit_global_nr_profile_lu.py --strict",
         ),
