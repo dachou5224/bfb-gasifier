@@ -1,0 +1,37 @@
+{
+  "solve_kwargs": {
+    "max_global_iter": 20,
+    "tol_global": 1.0,
+    "solver": "global_nr",
+    "nr_init_strategy": "vorabrechnung",
+    "nr_jacobian_strategy": "block_tridiag_fd"
+  },
+  "gs_warmup_steps": 1,
+  "vorabrechnung_runs": [
+    {
+      "nr_init_strategy": "vorabrechnung",
+      "timeout": true,
+      "wall_s": 30.008663389000002
+    }
+  ],
+  "gs_warmup_runs": [
+    {
+      "nr_init_strategy": "gs_warmup",
+      "timeout": true,
+      "wall_s": 30.006349488
+    }
+  ],
+  "vorabrechnung_mean": {
+    "n_runs": 1,
+    "ok_runs": 0,
+    "timeout_count": 1,
+    "error_count": 0
+  },
+  "gs_warmup_mean": {
+    "n_runs": 1,
+    "ok_runs": 0,
+    "timeout_count": 1,
+    "error_count": 0
+  },
+  "wall_speedup_fraction": 0.0
+}
