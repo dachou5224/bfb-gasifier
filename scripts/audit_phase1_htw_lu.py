@@ -18,6 +18,7 @@ Source: tests/validation_case_utils.py；Phase 1 计划
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import os
 import sys
@@ -33,7 +34,7 @@ from src.core.reactor import Reactor
 from tests.validation_case_utils import (
     CASE_LU_VALIDATION_KEY,
     PHASE1_HTW_LU_SOLVE_KWARGS,
-    build_phase1_htw_lu_reactor_config,
+    build_phase1_htw_lu_global_nr_reactor_config,
     estimate_gas_feeds,
     json_numeric_or_none,
     load_case_LU,
@@ -41,6 +42,16 @@ from tests.validation_case_utils import (
     strict_validation_gate,
     validation_numeric_tolerances,
 )
+
+
+def _load_char_ledger_summary_fn():
+    mod_path = _REPO / "scripts" / "audit_char_mass_conservation_lu.py"
+    spec = importlib.util.spec_from_file_location("audit_char_mass_conservation_lu", mod_path)
+    assert spec is not None and spec.loader is not None
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = mod
+    spec.loader.exec_module(mod)
+    return mod.summarize_reactor_char_ledger
 
 
 def _dry_main_four_sum(y_dry: dict[str, float]) -> float:
@@ -60,6 +71,39 @@ def _overall_validation_pass(
     return bool(validation_candidate_ok and pass_T and pass_species and carbon_ok)
 
 
+def _char_mass_ledger_reasons(
+    ledger: dict[str, float],
+    *,
+    bed_transport_summary: dict[str, float] | None = None,
+    max_rel_residual: float = 0.02,
+) -> list[str]:
+    fresh = abs(float(ledger.get("fresh_char_kg_s", 0.0) or 0.0))
+    residual = abs(float(ledger.get("residual_char_kg_s", 0.0) or 0.0))
+    migration = abs(float(ledger.get("size_migration_char_kg_s", 0.0) or 0.0))
+    reasons: list[str] = []
+    if fresh <= 1e-12:
+        reasons.append("char_mass_missing_fresh_feed")
+        return reasons
+    if bed_transport_summary is not None:
+        local_norm = float(bed_transport_summary.get("max_cell_char_residual_norm_local", 0.0) or 0.0)
+        auf_gap = abs(float(bed_transport_summary.get("max_abs_auf_in_gap_vs_below_kg_s", 0.0) or 0.0))
+        ab_gap = abs(float(bed_transport_summary.get("max_abs_ab_in_gap_vs_above_kg_s", 0.0) or 0.0))
+        if local_norm > 0.10:
+            reasons.append("bed_char_cell_residual>10.0%_local_transport")
+        if auf_gap > 1e-9:
+            reasons.append("bed_char_auf_in_gap_nonzero")
+        if ab_gap > 1e-9:
+            reasons.append("bed_char_ab_in_gap_nonzero")
+        if migration / fresh > 1e-9:
+            reasons.append("char_size_migration_not_conservative")
+        return reasons
+    if residual / fresh > float(max_rel_residual):
+        reasons.append(f"char_mass_residual>{100.0 * float(max_rel_residual):.1f}%_fresh")
+    if migration / fresh > 1e-9:
+        reasons.append("char_size_migration_not_conservative")
+    return reasons
+
+
 def run_audit(
     *,
     strict: bool,
@@ -68,7 +112,7 @@ def run_audit(
     warnings: list[str] = []
     case = load_case_LU()
     feeds = estimate_gas_feeds(case)
-    cfg = build_phase1_htw_lu_reactor_config(case)
+    cfg = build_phase1_htw_lu_global_nr_reactor_config(case)
 
     # 低级错误自检：进料与 ER 链一致
     if abs(cfg.O2_feed - feeds["O2_feed"]) > 1e-6:
@@ -82,8 +126,23 @@ def run_audit(
         "yes",
     )
 
-    result = Reactor(cfg).solve(**PHASE1_HTW_LU_SOLVE_KWARGS)
+    reactor = Reactor(cfg)
+    result = reactor.solve(**PHASE1_HTW_LU_SOLVE_KWARGS)
+    char_ledger = _load_char_ledger_summary_fn()(
+        reactor,
+        result,
+        mode="phase1",
+        solve_kwargs=dict(PHASE1_HTW_LU_SOLVE_KWARGS),
+    )
     validation_candidate_ok, validation_candidate_reasons = strict_validation_gate(result)
+    char_ledger_summary = char_ledger["system_char_summary"]
+    char_mass_reasons = _char_mass_ledger_reasons(
+        char_ledger_summary,
+        bed_transport_summary=char_ledger.get("bed_transport_summary"),
+    )
+    if char_mass_reasons:
+        validation_candidate_ok = False
+        validation_candidate_reasons = list(validation_candidate_reasons) + char_mass_reasons
     raw = load_validation_case_node(CASE_LU_VALIDATION_KEY)
     outs = raw["outputs"]
     tol = validation_numeric_tolerances()
@@ -170,10 +229,19 @@ def run_audit(
         "carbon_conv_pct": sim_X_pct,
         "carbon_relative_error": carbon_rel,
         "pass_carbon": carbon_ok,
+        "char_mass_ledger": char_ledger_summary,
+        "bed_char_transport_summary": char_ledger.get("bed_transport_summary", {}),
+        "top_char_residual_rows": char_ledger.get("top_char_residual_rows", []),
         "converged": result.get("converged"),
         "converged_outer": result.get("converged_outer"),
         "converged_fully": result.get("converged_fully"),
         "rms_scaled_final": result.get("rms_scaled_final"),
+        "rms_scaled_gas_final": result.get("rms_scaled_gas_final"),
+        "rms_scaled_solid_final": result.get("rms_scaled_solid_final"),
+        "rms_scaled_energy_final": result.get("rms_scaled_energy_final"),
+        "rms_scaled_component_max_final": result.get("rms_scaled_component_max_final"),
+        "max_abs_scaled_final": result.get("max_abs_scaled_final"),
+        "max_abs_scaled_solid_final": result.get("max_abs_scaled_solid_final"),
         "validation_candidate_ok": validation_candidate_ok,
         "validation_candidate_reasons": validation_candidate_reasons,
         "n_iter": result.get("n_iter"),
@@ -212,12 +280,30 @@ def main() -> int:
             f"converged={out['converged']} outer={out['converged_outer']} fully={out['converged_fully']}  "
             f"rms={out['rms_scaled_final']}"
         )
+        print(
+            "  residual groups: "
+            f"gas={out.get('rms_scaled_gas_final')} "
+            f"solid={out.get('rms_scaled_solid_final')} "
+            f"energy={out.get('rms_scaled_energy_final')} "
+            f"max_abs={out.get('max_abs_scaled_final')}"
+        )
         for sp, e in out["species_relative_error"].items():
             p = out["species_pass"].get(sp, False)
             print(f"  干基 {sp}: rel_err={e:.4f}  pass={p}")
         if out["carbon_relative_error"] is not None:
             print(
                 f"  碳转化率: {out['carbon_conv_pct']:.1f}%  rel_err={out['carbon_relative_error']:.4f}  pass={out['pass_carbon']}"
+            )
+        ledger = out.get("char_mass_ledger", {})
+        if ledger:
+            print(
+                "  char ledger: "
+                f"fresh={ledger.get('fresh_char_kg_s', 0.0):.4e} kg/s, "
+                f"reaction_net={ledger.get('reaction_char_kg_s', 0.0):.4e} kg/s, "
+                f"source={ledger.get('reaction_char_source_positive_kg_s', 0.0):.4e} kg/s, "
+                f"sink={ledger.get('reaction_char_sink_negative_kg_s', 0.0):.4e} kg/s, "
+                f"migration={ledger.get('size_migration_char_kg_s', 0.0):.4e} kg/s, "
+                f"residual={ledger.get('residual_char_kg_s', 0.0):.4e} kg/s"
             )
         if warnings:
             print("  WARNING:")

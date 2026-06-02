@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import math
 import sys
 from pathlib import Path
@@ -15,10 +16,12 @@ from src.core.constants import P0, g
 from src.core.reactor import Reactor
 from _nr_monitor import print_nr_monitor, solve_with_nr_monitor
 from src.physics.bubble_dynamics import (
+    bubble_interaction_factor,
     bubble_lifetime,
     bubble_rise_velocity,
     integrate_bubble_diameter,
 )
+from src.workflow.steps.init_precalc_step import run_init_and_precalc_for_global_nr
 from tests.validation_case_utils import (
     PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS,
     build_phase1_htw_lu_global_nr_reactor_config,
@@ -40,50 +43,103 @@ def _wein_ud_potential(u_mf: float) -> float:
     return 1.45 * float(u_mf)
 
 
+def _collect_bed_hydro_rows(reactor: Reactor) -> list[dict[str, float | int]]:
+    return [
+        {
+            "cell": i,
+            "xi": float(cell.geo.h_center / reactor.config.H_bed),
+            "eps_b": float(cell.eps_b),
+            "eps_d_void": float(cell.eps_d_voidage),
+            "u0": float(cell.u0),
+            "u_mf": float(cell.u_mf),
+            "u_d": float(cell.u_d),
+            "u_b": float(cell.u_b),
+            "d_b": float(cell.d_b),
+            "n_rz": float(cell.n_rz),
+        }
+        for i, cell in enumerate(reactor.cells)
+    ]
+
+
+def _bed_hydro_bounds_ok(rows: list[dict[str, float | int]]) -> bool:
+    return bool(
+        all(float(row["u0"]) > float(row["u_mf"]) > 0.0 for row in rows)
+        and all(0.0 <= float(row["eps_b"]) <= 0.7 for row in rows)
+        and all(0.35 <= float(row["eps_d_void"]) <= 0.99 for row in rows)
+        and all(float(row["d_b"]) > 0.0 for row in rows)
+    )
+
+
 def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--init-only", action="store_true", help="print the pre-NR hydrodynamics profile without solving")
+    ap.add_argument("--max-global-iter", type=int, default=None, help="override phase1 global NR iteration budget")
+    ap.add_argument("--tol-global", type=float, default=None, help="override phase1 global NR tolerance")
+    args = ap.parse_args()
+
     case = load_case_LU()
     cfg = build_phase1_htw_lu_global_nr_reactor_config(case)
     reactor = Reactor(cfg)
 
-    # 先看初始化 hydrodynamics
-    for cell in reactor.cells:
-        cell.calc_hydrodynamics()
-    init_rows = []
-    for i, cell in enumerate(reactor.cells):
-        init_rows.append(
-            {
-                "cell": i,
-                "xi": float(cell.geo.h_center / cfg.H_bed),
-                "eps_b": float(cell.eps_b),
-                "eps_d_void": float(cell.eps_d_voidage),
-                "u0": float(cell.u0),
-                "u_mf": float(cell.u_mf),
-                "u_d": float(cell.u_d),
-                "u_b": float(cell.u_b),
-                "d_b": float(cell.d_b),
-                "n_rz": float(cell.n_rz),
-            }
-        )
-
-    result, monitor = solve_with_nr_monitor(
+    # 先看正式 INIT+PRECALC hydrodynamics，而不是 feed-free 裸 calc_hydrodynamics。
+    precalc = run_init_and_precalc_for_global_nr(
         reactor,
-        dict(PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS),
-        check_x0=True,
+        init_strategy=PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS.get("nr_init_strategy"),
+        gs_warmup_steps=None,
     )
+    init_rows = _collect_bed_hydro_rows(reactor)
+
+    if args.init_only:
+        print("=" * 118)
+        print("LU bed hydrodynamics initialization audit")
+        print("=" * 118)
+        print(
+            f"P={cfg.P/1e6:.2f}MPa H_bed={cfg.H_bed:.2f}m thesis_mode={cfg.thesis_mode} "
+            f"n_cells={cfg.n_cells} init={precalc.resolved_init_strategy}"
+        )
+        print(
+            f"{'cell':>4} {'xi/H':>6} {'u0':>8} {'u_mf':>8} {'u_d':>8} "
+            f"{'u_b':>8} {'eps_b':>8} {'eps_d':>8} {'solid':>8} {'d_b':>8} {'n_rz':>8}"
+        )
+        for row in init_rows:
+            print(
+                f"{row['cell']:>4d} {row['xi']:>6.2f} {row['u0']:>8.4f} {row['u_mf']:>8.4f} "
+                f"{row['u_d']:>8.4f} {row['u_b']:>8.4f} {row['eps_b']:>8.4f} "
+                f"{row['eps_d_void']:>8.4f} {1.0 - row['eps_d_void']:>8.4f} "
+                f"{row['d_b']:>8.4f} {row['n_rz']:>8.3f}"
+            )
+        ok = _bed_hydro_bounds_ok(init_rows)
+        print("-" * 118)
+        print(f"init_hydrodynamics_bounds={'PASS' if ok else 'FAIL'}")
+        return 0 if ok else 1
+
+    solve_kwargs = dict(PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS)
+    if args.max_global_iter is not None:
+        solve_kwargs["max_global_iter"] = int(args.max_global_iter)
+    if args.tol_global is not None:
+        solve_kwargs["tol_global"] = float(args.tol_global)
+
+    result, monitor = solve_with_nr_monitor(reactor, solve_kwargs, check_x0=True)
 
     # 以 solved bed-bottom 条件走一条 ODE bubble path，仅作当前主路径对照
     ref_u0 = float(reactor.cells[0].u0)
     ref_umf = float(reactor.cells[0].u_mf)
+    ref_ud = float(reactor.cells[0].u_d)
+    ref_psi = bubble_interaction_factor(ref_umf, strategy=cfg.hydrodynamics_psi_b_strategy)
     h_arr, db_ode = integrate_bubble_diameter(
         u0=ref_u0,
         u_mf=ref_umf,
         P=cfg.P,
         H_bed=cfg.H_bed,
+        u_d=ref_ud,
         D_bed=cfg.D_bed,
         n_points=reactor.config.n_cells + 1,
         method="hilligardt_ode",
-        lambda_strategy="current",
-        xi_strategy="fixed_035",
+        lambda_strategy=cfg.hydrodynamics_lambda_strategy,
+        xi_strategy=cfg.hydrodynamics_xi_strategy,
+        velocity_strategy=cfg.hydrodynamics_bubble_velocity_strategy,
+        ode_strategy=cfg.hydrodynamics_bubble_ode_strategy,
+        psi_b=float(ref_psi),
     )
 
     print("=" * 196)
@@ -127,6 +183,9 @@ def main() -> int:
             f"{cell.d_b:>9.4f} {float(db_ode[ode_idx]):>9.4f} {lam_cur:>10.4f} {lam_hamel:>10.4f}"
         )
 
+    print("-" * 196)
+    solved_rows = _collect_bed_hydro_rows(reactor)
+    print(f"solved_hydrodynamics_bounds={'PASS' if _bed_hydro_bounds_ok(solved_rows) else 'FAIL'}")
     print("-" * 196)
     print("top-bed initialization snapshot:")
     print(f"{'cell':>4} {'xi/H':>6} {'u0':>8} {'u_mf':>8} {'u_d':>8} {'eps_b':>8} {'eps_d':>8}")

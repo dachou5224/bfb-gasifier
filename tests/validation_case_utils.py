@@ -17,20 +17,26 @@
 **Phase 2 freeboard-aware 开发口径**：
 - 在 shared ``global_nr`` 配置基础上恢复 ``H_freeboard = reactor_height - H_bed``
 - 将床层顶部之后的 freeboard 作为独立 gas-only 轴向段求解
-- Jacobian 走 ``nr_jacobian_strategy="auto"``，由显式图拓扑自动选择（side-block 路径避免误用纯 block-tridiag）
+- Jacobian 通过 ``nr_jacobian_strategy=None`` 委托 ``Reactor`` 的拓扑默认选择
+  （等价于开发口径里的“auto”，side-block 路径避免误用纯 block-tridiag）
 - 用于区分 ``bed exit`` 与 ``reactor exit`` 的验证/审计
 
-Source: docs/CLAUDE.md；data/validation_cases.json；Phase 1 计划
+Source: ``docs/hamel_submodels/00_readme_and_citation_rules.md``；
+``docs/hamel_submodels/03_hydrodynamics_core_chain.md``；
+``docs/hamel_submodels/04_freeboard_particle_trajectory_analytic.md``；
+``data/validation_cases.json``
 """
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
+import math
 from typing import Any
 
 import numpy as np
 
+from src.core.constants import Rg
 from src.core.feed_inlet import compute_gas_feeds_mol_s
 from src.core.reactor import ReactorConfig
 
@@ -378,6 +384,22 @@ def strict_validation_gate(
         elif rms > float(rms_max):
             reasons.append(f"rms_scaled_final>{float(rms_max):.3f}")
 
+    component_raw = result.get("rms_scaled_component_max_final")
+    if component_raw is not None:
+        component = float(component_raw)
+        if not np.isfinite(component):
+            reasons.append("nonfinite_rms_scaled_component_max_final")
+        elif component > float(rms_max):
+            reasons.append(f"rms_scaled_component_max_final>{float(rms_max):.3f}")
+
+    max_abs_raw = result.get("max_abs_scaled_final")
+    if max_abs_raw is not None:
+        max_abs = float(max_abs_raw)
+        if not np.isfinite(max_abs):
+            reasons.append("nonfinite_max_abs_scaled_final")
+        elif max_abs > float(rms_max):
+            reasons.append(f"max_abs_scaled_final>{float(rms_max):.3f}")
+
     return len(reasons) == 0, reasons
 
 
@@ -444,6 +466,10 @@ def build_phase1_htw_lu_reactor_config(case: dict | None = None) -> ReactorConfi
         recycle_gas=bool(case.get("recirculation", True)),
         enable_r12=False,
         top_solid_inlet_frac=0.50,
+        # Upward-only solid flow: solid propagates from cell below upward through the bed.
+        # Setting lower_frac=1.0 removes the discontinuous above_empty fallback that was
+        # causing Jacobian condition numbers ~10^11 when upper cells have zero solid.
+        solid_lower_inlet_frac=1.0,
         r4_scale=0.50,
         r5_scale=0.75,
         r7_scale=2.50,
@@ -461,10 +487,11 @@ def build_phase1_htw_lu_global_nr_reactor_config(case: dict | None = None) -> Re
     `test_table2_LU` 依赖的 GS baseline。
     """
     cfg = build_phase1_htw_lu_reactor_config(case)
-    # 2026-04-08 cell0 overlap sensitivity:
-    # 在当前 NR 主线下，dense≈0.20 比 dense≈0.30/0.40 更能同时改善
-    # CO / CO2 / carbon-conversion，而不诉诸直接修改 R6 kinetics。
+    # 2026-04-08 legacy fallback from cell0 overlap sensitivity.  The active
+    # Hamel-aligned NR path resolves the bottom split from Vorabrechnung
+    # hydrodynamic fluxes; this value is only used before that snapshot exists.
     cfg.gas_inlet_dense_frac = 0.20
+    cfg.gas_inlet_split_strategy = "precalc_hydrodynamic_flux"
     # 2026-04-10 hydrodynamics source-of-truth locked to Hamel/Wein main chain:
     # - u_d: Wein (1992) Eq.3.12
     # - psi_b: Wein (1992) Eq.3.15
@@ -480,6 +507,13 @@ def build_phase1_htw_lu_global_nr_reactor_config(case: dict | None = None) -> Re
     cfg.hydrodynamics_bubble_ode_strategy = "heinbockel_eq341"
     cfg.use_gibbs_minor = True
     cfg.thesis_mode = True
+    # Phase 1 remains a bed-only reproduction probe.  Keep thesis-aligned
+    # hydrodynamics / kinetics policies active, but do not yet promote the
+    # cyclone + return-leg into explicit solver states.  In Hamel's Ch.2 text,
+    # recycle first appears here as side-elements / boundary couplings in the
+    # Jacobian structure, not as a mandatory extra state block for every
+    # bed-only run.
+    cfg.explicit_side_blocks_enabled = False
     return cfg
 
 
@@ -495,6 +529,7 @@ def build_phase2_htw_lu_freeboard_reactor_config(
     if case is None:
         case = load_case_LU()
     cfg = build_phase1_htw_lu_global_nr_reactor_config(case)
+    cfg.explicit_side_blocks_enabled = True
     cfg.H_freeboard = max(float(case["reactor_height_m"]) - float(case["bed_height_m"]), 0.0)
     cfg.n_freeboard_cells = int(max(n_freeboard_cells, 0))
     cfg.D_bed = float(case.get("bed_diameter_m", case["D_freeboard"]))
@@ -505,10 +540,81 @@ def build_phase2_htw_lu_freeboard_reactor_config(
     cfg.freeboard_beta_a_scale = 1.0
     cfg.freeboard_velocity_sigma = 0.60
     cfg.freeboard_velocity_bins = 5
+    # Hamel §5.1.1 shows that adding particle-age classes can materially change
+    # size/reactivity histories; use an 8-bin closure-only quadrature here so
+    # freeboard trajectories see an age/fines tail without enlarging global NR.
+    cfg.freeboard_age_quadrature_bins = 8
+    cfg.freeboard_age_quadrature_max_age = 0.98
     cfg.freeboard_cyclone_capture_char_frac = 0.90
     cfg.freeboard_cyclone_capture_ash_frac = 0.95
     cfg.freeboard_secondary_injection_xi = case.get("secondary_injection_xi")
+    # Phase2's freeboard + side-element graph is FD-Jacobian dominated.  A small
+    # lag keeps the Hamel block structure fixed for a few Newton attempts and
+    # reduces rebuild cost without changing the residual equations.
+    cfg.nr_jacobian_lag_steps = 4
+    # Most failed phase2 line searches do not recover after twelve halvings; the
+    # thirteenth/fourteenth trials only re-evaluate residuals before the same
+    # retry/outer handoff.  Capping at 12 preserves the observed final RMS while
+    # trimming avoidable full-reactor residual calls.
+    cfg.nr_line_search_max_trials_thesis = 12
+    # Hamel-aligned phase2: freeboard remains in the global NR unknown graph
+    # (gas + energy), while its hydrodynamics are supplied by analytical closure
+    # via outer refresh/frozen-inner policy.
+    cfg.explicit_freeboard_solver_graph_enabled = True
     return apply_case_secondary_stream(cfg, case)
+
+
+def build_phase2_htw_lu_local_refined_damped_config(
+    case: dict | None = None,
+    *,
+    n_freeboard_cells: int = 8,
+    reactive_zone_height_m: float = 1.0,
+    tau_cell_target_s: float = 0.20,
+    max_refine_cells: int = 10,
+    thesis_damp_halvings: int = 18,
+    thesis_lambda_min: float = 1.0 / 16384.0,
+) -> ReactorConfig:
+    """Phase 2: 床层入口局部加密 + thesis 阻尼联动配置。
+
+    入口强反应区按 ``tau_cell = dh / u_eff`` 约束细化：
+    - ``u_eff`` 用入口总摩尔流折算表观气速（理想气体，SI）
+    - ``dh_fine = min(dh_base/2, u_eff * tau_cell_target_s)``
+    - 前 ``reactive_zone_height_m`` 采用细网格，其余轴向按接近基线 ``dh_base`` 重新分段
+    """
+    cfg = build_phase2_htw_lu_freeboard_reactor_config(case=case, n_freeboard_cells=n_freeboard_cells)
+    n_base = int(cfg.n_cells)
+    dh_base = float(cfg.H_bed) / float(max(n_base, 1))
+
+    A_bed = 0.25 * np.pi * float(cfg.D_bed) ** 2
+    n_tot_in = float(cfg.O2_feed + cfg.H2O_feed + cfg.N2_feed)
+    u_eff = max(
+        (n_tot_in * float(Rg) * float(cfg.T_inlet) / max(float(cfg.P), 1e-9)) / max(A_bed, 1e-12),
+        0.05,
+    )
+    dh_tau = max(float(tau_cell_target_s) * u_eff, 0.05)
+    dh_fine = min(0.5 * dh_base, dh_tau)
+
+    h_reactive = float(np.clip(reactive_zone_height_m, 0.0, float(cfg.H_bed) - 1e-6))
+    n_fine = int(max(1, math.ceil(h_reactive / max(dh_fine, 1e-9))))
+    n_fine = int(min(n_fine, max(int(max_refine_cells), 1)))
+    h_fine = n_fine * dh_fine
+    if h_fine >= float(cfg.H_bed):
+        n_fine = max(1, int(float(cfg.H_bed) / max(dh_fine, 1e-9)) - 1)
+        h_fine = n_fine * dh_fine
+
+    h_rem = float(cfg.H_bed) - h_fine
+    n_upper = int(max(1, math.ceil(h_rem / max(dh_base, 1e-9))))
+    dh_upper = h_rem / float(n_upper)
+
+    bed_profile = tuple([float(dh_fine)] * n_fine + [float(dh_upper)] * n_upper)
+    cfg.bed_dh_profile = bed_profile
+    cfg.n_cells = len(bed_profile)
+    cfg.n_freeboard_cells = max(1, int(round(float(n_freeboard_cells) * cfg.n_cells / max(n_base, 1))))
+
+    cfg.nr_damping_halvings_thesis = int(max(thesis_damp_halvings, 1))
+    cfg.nr_lambda_min_thesis = float(max(thesis_lambda_min, 1e-12))
+    cfg.nr_prefer_full_step_thesis = True
+    return cfg
 
 
 def build_phase1_htw_lu_refined_config(
@@ -592,11 +698,14 @@ def build_phase1_htw_lu_refined_config(
 
 # Phase 1 shared solve kwargs（NR-only，与 Hamel 主路径一致）
 PHASE1_HTW_LU_SOLVE_KWARGS: dict[str, Any] = {
-    "max_global_iter": 20,
+    "max_global_iter": 150,
     "tol_global": 1.0,
     "solver": "global_nr",
     "nr_init_strategy": "vorabrechnung",
-    "nr_jacobian_strategy": "block_tridiag_structured",
+    # Use reactor topology-based default. Bed-only recycle is represented as a
+    # structured top→bottom side block, so dense_fd is reserved for explicit
+    # comparison gates rather than ordinary validation runs.
+    "nr_jacobian_strategy": None,
 }
 
 

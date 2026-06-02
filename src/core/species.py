@@ -219,7 +219,13 @@ def _get_coeffs(species: str, T: float) -> Tuple[float, ...]:
         )
     data = _NASA_DATA[species]
     T_low, T_mid, T_high = data[0], data[1], data[2]
-    T_clamp = np.clip(T, T_low, T_high)
+    T_val = float(T)
+    if T_val < T_low:
+        T_clamp = T_low
+    elif T_val > T_high:
+        T_clamp = T_high
+    else:
+        T_clamp = T_val
     if T_clamp <= T_mid:
         return data[4]  # low-T coefficients
     return data[3]  # high-T coefficients
@@ -317,6 +323,41 @@ def register_tar_component_properties(
     gibbs_molar.cache_clear()
 
 
+@lru_cache(maxsize=16)
+def _calc_tar_surrogate_fraction_items(
+    fuel_type: TarFuelType,
+    target_hc_ratio: float | None = None,
+) -> Tuple[Tuple[TarSurrogate, float], ...]:
+    surrogate_a, surrogate_b = TAR_SURROGATES_BY_FUEL[fuel_type]
+    r_a = TAR_SURROGATE_HC_RATIO[surrogate_a]
+    r_b = TAR_SURROGATE_HC_RATIO[surrogate_b]
+    r_target = TAR_TARGET_HC_RATIO[fuel_type] if target_hc_ratio is None else target_hc_ratio
+
+    if abs(r_a - r_b) <= 1e-12 * max(abs(r_a), abs(r_b), 1.0):
+        raise ValueError("两组分 H/C 相同，无法用于配比求解")
+
+    x_a = (r_target - r_b) / (r_a - r_b)
+    tol = 1e-12
+    if x_a < -tol or x_a > 1.0 + tol:
+        raise ValueError(
+            f"目标 H/C={r_target:.6f} 超出两组分可表示范围 "
+            f"[{min(r_a, r_b):.6f}, {max(r_a, r_b):.6f}]"
+        )
+    if x_a < 0.0:
+        x_a = 0.0
+    elif x_a > 1.0:
+        x_a = 1.0
+
+    fractions: Dict[TarSurrogate, float] = {
+        "C6H6": 0.0,
+        "C10H8": 0.0,
+        "C16H34": 0.0,
+    }
+    fractions[surrogate_a] = float(x_a)
+    fractions[surrogate_b] = 1.0 - float(x_a)
+    return tuple(fractions.items())
+
+
 def calc_tar_surrogate_fractions(
     fuel_type: TarFuelType,
     target_hc_ratio: float | None = None,
@@ -327,47 +368,11 @@ def calc_tar_surrogate_fractions(
         r_target = x * r_A + (1 - x) * r_B
         x = (r_target - r_B) / (r_A - r_B)
 
-    Parameters
-    ----------
-    fuel_type : {"coal", "biomass"}
-        燃料类型。coal 使用 (C6H6, C10H8)，biomass 使用 (C10H8, C16H34)。
-    target_hc_ratio : float | None
-        目标摩尔 H/C。若不传入，使用该 fuel_type 的默认值。
-
-    Returns
-    -------
-    Dict[TarSurrogate, float]
-        两个代理组分的摩尔分数，其余代理组分为 0。
-
     Source
     ------
     specs/species.md §1
     """
-    surrogate_a, surrogate_b = TAR_SURROGATES_BY_FUEL[fuel_type]
-    r_a = TAR_SURROGATE_HC_RATIO[surrogate_a]
-    r_b = TAR_SURROGATE_HC_RATIO[surrogate_b]
-    r_target = TAR_TARGET_HC_RATIO[fuel_type] if target_hc_ratio is None else target_hc_ratio
-
-    if np.isclose(r_a, r_b):
-        raise ValueError("两组分 H/C 相同，无法用于配比求解")
-
-    x_a = (r_target - r_b) / (r_a - r_b)
-    tol = 1e-12
-    if x_a < -tol or x_a > 1.0 + tol:
-        raise ValueError(
-            f"目标 H/C={r_target:.6f} 超出两组分可表示范围 "
-            f"[{min(r_a, r_b):.6f}, {max(r_a, r_b):.6f}]"
-        )
-    x_a = float(np.clip(x_a, 0.0, 1.0))
-
-    fractions: Dict[TarSurrogate, float] = {
-        "C6H6": 0.0,
-        "C10H8": 0.0,
-        "C16H34": 0.0,
-    }
-    fractions[surrogate_a] = x_a
-    fractions[surrogate_b] = 1.0 - x_a
-    return fractions
+    return dict(_calc_tar_surrogate_fraction_items(fuel_type, target_hc_ratio))
 
 
 def get_tar_component_mapping(fuel_type: TarFuelType) -> Dict[TarComponent, TarSurrogate]:

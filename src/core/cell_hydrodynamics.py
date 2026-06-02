@@ -22,7 +22,7 @@ from src.physics.bubble_dynamics import (
 )
 from src.physics.mass_transfer import calc_kbd, calc_u_br
 from src.physics.minimum_fluidization import compute_u_mf
-from src.physics.phase_fractions import calc_emulsion_porosity, calc_epsilon_b, calc_n_rz
+from src.physics.phase_fractions import calc_emulsion_porosity, calc_epsilon_b, calc_n_rz, calc_visible_bubble_fraction
 
 
 @dataclass
@@ -185,11 +185,10 @@ def calc_cell_hydrodynamics(
     )
     re_s = max(rho_g * max(u_mf, 1e-9) * max(d_p, 1e-9) / max(mu_g, 1e-12), 0.0)
     n_rz = calc_n_rz(re_s)
-    # Main-path bed holdup should stay on the Hamel Eq. 3.24 excess-gas relation.
-    # A prior refactor switched this to a visible-bubble closure tied to `u_d`,
-    # which collapses `eps_b` when the default `u_d` path approaches `u0` and
-    # drives reactor-level K_bd / conversion drift.
-    eps_b = float(np.clip(calc_epsilon_b(u0, u_mf, u_b), 0.01, 0.7))
+    # Hamel Eq. 3.24 explicitly defines the visible bubble fraction via ``u_d``
+    # and the bubble through-flow relation Eq. 3.23; using the excess-gas proxy
+    # ``(u0-u_mf)/u_b`` here overstates bed bubble hold-up for the LU thesis path.
+    eps_b = float(np.clip(calc_visible_bubble_fraction(u0, u_b, u_d), 0.01, 0.7))
     eps_d = 1.0 - eps_b
     eps_d_voidage = calc_emulsion_porosity(u_d, u_mf, eps_mf, n_rz)
     V_b = eps_b * V_cell

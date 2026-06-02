@@ -110,154 +110,216 @@ def solve_drying_CN(
     pressure_pa: float = P0,
     return_history: bool = False,
 ) -> dict:
-    """Crank-Nicolson 求解球形颗粒径向温度场与干燥进度。
+    """Crank-Nicolson 球形颗粒径向干燥（Hamel Eq. 4.1-4.4, 4.6, Stefan 前沿）。
+
+    **两阶段算法**（忠实于 Hamel Kapitel 4, Agarwal 1986 模型）：
+
+    Phase 1 加热阶段：对整球求 CN，直到外表面温度达到 T_evap。
+    Phase 2 干燥阶段（Stefan 前沿，Hamel Eq. 4.1 + 4.6 + 4.3）：
+        * 仅在干壳 r_e ≤ r ≤ R 上求解热传导（Eq. 4.1）；
+        * 内侧 Dirichlet BC：T|_{r_e} = T_e（Eq. 4.6）；
+        * 外侧 Robin BC：λ dT/dr|_{R} = α(T_a - T_s)（Eq. 4.2）；
+        * Stefan 条件驱动前沿推进（Eq. 4.3）：
+              q_front = λ_s · dT/dr|_{r_e+}
+              dr_e/dt = q_front / (ρ_s · w · h_v')
+              dm/dt   = q_front · 4π r_e² / h_v'
 
     Parameters
     ----------
     d_p         : 颗粒直径 [m]
-    T_bed       : 床层温度 [K]（外边界条件）
+    T_bed       : 床层温度 [K]（外边界条件，即 T_a）
     T_init      : 颗粒初始温度 [K]
-    moisture_wt : 初始含水率 [wt%]
+    moisture_wt : 初始含水率 [wt%]（湿基）
     t_total     : 总模拟时间 [s]
     Nr          : 径向网格数
     Nt          : 时间步数
-    h_conv      : 颗粒表面对流换热系数 [W/(m²·K)]，None 时由 Nu 关联式计算
-    u_rel       : 气固相对速度 [m/s]（用于 Nu）
-    rho_g       : 气体密度 [kg/m³]（用于 Nu）
-    mu_g        : 气体动力黏度 [Pa·s]（用于 Nu）
-    cp_g        : 气体比热 [J/(kg·K)]（用于 Nu）
-    lambda_g    : 气体导热系数 [W/(m·K)]（用于 Nu）
-    return_history : 是否返回径向温度史矩阵（供分层热解耦合）
+    h_conv      : 颗粒表面对流换热系数 [W/(m²·K)]，None 时由 Eq. 4.9 计算
+    u_rel       : 气固相对速度 [m/s]（用于 Eq. 4.9 Nu 关联式）
+    rho_g       : 参考气体密度 [kg/m³]，计算 h_conv 时用压力修正
+    mu_g        : 气体动力黏度 [Pa·s]
+    cp_g        : 气体比热 [J/(kg·K)]
+    lambda_g    : 气体导热系数 [W/(m·K)]
+    pressure_pa : 操作压力 [Pa]（决定 T_evap）
+    return_history : 返回径向温度矩阵（供热解 DAEM 耦合）
 
     Returns
     -------
     dict with keys:
-      't'        : 时间数组 [s]
-      'X_dry'    : 干燥进度（0=湿，1=全干）随时间变化
-      'T_center' : 颗粒中心温度 [K] 随时间
-      'T_surface': 颗粒表面温度 [K] 随时间
-      'r_evap'   : 蒸发前沿半径 [m] 随时间
+      't'           : 时间数组 [s]
+      'X_dry'       : 干燥进度（0=湿，1=全干）随时间
+      'T_center'    : 颗粒中心温度 [K]
+      'T_surface'   : 颗粒表面温度 [K]
+      'r_evap'      : 蒸发前沿半径 [m]
+      'T_history_rt': (Nr+1, Nt+1) 温度场矩阵（return_history=True 时）
 
-    Source: docs/CLAUDE.md Phase 4.1; Crank-Nicolson FD for Stefan problem
+    Sources: Hamel (1999) Eq. 4.1-4.4, 4.6, 4.9; Agarwal et al. (1986)
     """
-    R = d_p / 2.0     # [m] 颗粒半径
+    R = d_p / 2.0
     alpha = thermal_diffusivity()
-    dr = R / Nr
-    dt = t_total / Nt
+    dr = R / max(Nr, 1)
+    dt = t_total / max(Nt, 1)
+
+    # h_conv：用压力修正 rho_g（理想气体，rho ∝ P）以还原高压效果
     if h_conv is None:
+        rho_g_eff = rho_g * (pressure_pa / P0)
         h_conv = convective_htc_from_nusselt(
             d_p=d_p,
             u_rel=u_rel,
-            rho_g=rho_g,
+            rho_g=rho_g_eff,
             mu_g=mu_g,
             cp_g=cp_g,
             lambda_g=lambda_g,
         )
 
-    r = np.linspace(0, R, Nr + 1)  # 径向节点
-
-    # 初始条件
-    T = np.full(Nr + 1, T_init)
-    t_arr = np.zeros(Nt + 1)
-    X_dry = np.zeros(Nt + 1)
-    T_center = np.zeros(Nt + 1)
-    T_surface = np.zeros(Nt + 1)
-    r_evap = np.full(Nt + 1, R)  # 蒸发前沿从外表面向内推进
-    T_history = np.zeros((Nr + 1, Nt + 1)) if return_history else None
-
-    T_center[0] = T_init
-    T_surface[0] = T_init
-    if return_history:
-        T_history[:, 0] = T
-
-    # 球坐标 Crank-Nicolson 系数
-    # d(r²·dT/dr)/dr / r² = (1/alpha) dT/dt
+    r = np.linspace(0.0, R, Nr + 1)
     sigma = alpha * dt / (2.0 * dr**2)
+    Bi_surf = h_conv * dr / LAMBDA_W  # 表面数值 Biot（Robin BC 系数）
 
-    moisture_mass = moisture_wt / 100.0  # 湿基初始质量分数
-    # Hamel Eq. 4.4: w0_tr 为“干基初始含水率”，不是当前湿基含水率。
+    moisture_mass = moisture_wt / 100.0
     w0_tr = moisture_mass / max(1.0 - moisture_mass, 1e-12)
-    t_evap = saturation_temperature_water(pressure_pa)
+    t_evap_val = saturation_temperature_water(pressure_pa)
     h_evap_corr = corrected_evaporation_enthalpy(
         h_v=H_EVAP,
         c_w=C_WATER,
         c_s=CP_W,
         w0_tr=w0_tr,
-        T_e=t_evap,
+        T_e=t_evap_val,
         T0=T_init,
     )
     total_water = moisture_mass * RHO_W * (4.0 / 3.0 * np.pi * R**3)
     evaporated = 0.0
 
+    T = np.full(Nr + 1, T_init)
+    t_arr = np.zeros(Nt + 1)
+    X_dry_arr = np.zeros(Nt + 1)
+    T_center_arr = np.zeros(Nt + 1)
+    T_surface_arr = np.zeros(Nt + 1)
+    r_evap_arr = np.full(Nt + 1, R)
+    T_history = np.zeros((Nr + 1, Nt + 1)) if return_history else None
+
+    T_center_arr[0] = T_init
+    T_surface_arr[0] = T_init
+    if return_history:
+        T_history[:, 0] = T.copy()
+
+    r_front = R
+    drying_phase = T_init >= t_evap_val  # 初始已热则直接进入干燥阶段
+
     for n in range(Nt):
-        # 构建三对角矩阵（球坐标离散）
         N = Nr + 1
-        A = np.zeros(N)
-        B = np.zeros(N)
-        C = np.zeros(N)
-        D = np.zeros(N)
+        Am = np.zeros(N)
+        Bm = np.zeros(N)
+        Cm = np.zeros(N)
+        Dm = np.zeros(N)
 
-        # 中心对称 BC: dT/dr|_{r=0} = 0
-        # 对 i=0 使用 L'Hôpital: ∂²T/∂r² + 2/r * ∂T/∂r -> 3 * ∂²T/∂r²
-        B[0] = 1.0 + 6.0 * sigma
-        C[0] = -6.0 * sigma
-        D[0] = T[0] * (1.0 - 6.0 * sigma) + 6.0 * sigma * T[1]
+        if not drying_phase:
+            # ── Phase 1: 加热阶段，对整球求 CN ─────────────────────────
+            Bm[0] = 1.0 + 6.0 * sigma
+            Cm[0] = -6.0 * sigma
+            Dm[0] = T[0] * (1.0 - 6.0 * sigma) + 6.0 * sigma * T[1]
+            for i in range(1, Nr):
+                ri = r[i]; rp = ri + 0.5 * dr; rm = ri - 0.5 * dr
+                cp_i = sigma * rp**2 / ri**2
+                cm_i = sigma * rm**2 / ri**2
+                Am[i] = -cm_i
+                Bm[i] = 1.0 + cp_i + cm_i
+                Cm[i] = -cp_i
+                Dm[i] = cm_i * T[i-1] + (1.0 - cp_i - cm_i) * T[i] + cp_i * T[i+1]
+        else:
+            # ── Phase 2: 干燥阶段 ────────────────────────────────────────
+            fully_dry = evaporated >= total_water
+            if fully_dry:
+                # 全干：回到全球 CN（无湿核 Dirichlet BC），与 Phase 1 相同
+                Bm[0] = 1.0 + 6.0 * sigma
+                Cm[0] = -6.0 * sigma
+                Dm[0] = T[0] * (1.0 - 6.0 * sigma) + 6.0 * sigma * T[1]
+                for i in range(1, Nr):
+                    ri = r[i]; rp = ri + 0.5 * dr; rm = ri - 0.5 * dr
+                    cp_i = sigma * rp**2 / ri**2
+                    cm_i = sigma * rm**2 / ri**2
+                    Am[i] = -cm_i
+                    Bm[i] = 1.0 + cp_i + cm_i
+                    Cm[i] = -cp_i
+                    Dm[i] = cm_i * T[i-1] + (1.0 - cp_i - cm_i) * T[i] + cp_i * T[i+1]
+            else:
+                # 仍在干燥：Stefan 前沿，最后一个湿核节点
+                i_wet = max(0, min(int(r_front / dr), Nr - 1))
+                # 湿核节点（0..i_wet）：Dirichlet T = T_evap（Eq. 4.6）
+                for i in range(i_wet + 1):
+                    Bm[i] = 1.0
+                    Dm[i] = t_evap_val
+                # 干壳内部节点（i_wet+1..Nr-1）：CN（Eq. 4.1）
+                for i in range(i_wet + 1, Nr):
+                    ri = r[i]; rp = ri + 0.5 * dr; rm = ri - 0.5 * dr
+                    cp_i = sigma * rp**2 / ri**2
+                    cm_i = sigma * rm**2 / ri**2
+                    Am[i] = -cm_i
+                    Bm[i] = 1.0 + cp_i + cm_i
+                    Cm[i] = -cp_i
+                    Dm[i] = cm_i * T[i-1] + (1.0 - cp_i - cm_i) * T[i] + cp_i * T[i+1]
 
-        # 内部节点
-        for i in range(1, Nr):
-            ri = r[i]
-            rp = ri + 0.5 * dr
-            rm = ri - 0.5 * dr
-            cp = sigma * rp**2 / ri**2
-            cm = sigma * rm**2 / ri**2
-
-            A[i] = -cm
-            B[i] = 1.0 + cp + cm
-            C[i] = -cp
-            D[i] = cm * T[i - 1] + (1.0 - cp - cm) * T[i] + cp * T[i + 1]
-
-        # 表面 BC: -lambda * dT/dr = h*(T_s - T_bed) (Robin BC)
-        Bi = h_conv * dr / LAMBDA_W
-        B[Nr] = 1.0 + Bi + 2.0 * sigma * (1.0 + 1.0 / Nr)
-        A[Nr] = -2.0 * sigma * (1.0 + 1.0 / Nr)
-        D[Nr] = (
-            T[Nr] * (1.0 - Bi - 2.0 * sigma * (1.0 + 1.0 / Nr))
+        # 外表面 Robin BC（Eq. 4.2）——两阶段均使用
+        Bm[Nr] = 1.0 + Bi_surf + 2.0 * sigma * (1.0 + 1.0 / Nr)
+        Am[Nr] = -2.0 * sigma * (1.0 + 1.0 / Nr)
+        Dm[Nr] = (
+            T[Nr] * (1.0 - Bi_surf - 2.0 * sigma * (1.0 + 1.0 / Nr))
             + 2.0 * sigma * (1.0 + 1.0 / Nr) * T[Nr - 1]
-            + 2.0 * Bi * T_bed
+            + 2.0 * Bi_surf * T_bed
         )
 
-        # Thomas 算法求解三对角系统
-        T_new = _thomas_solve(A, B, C, D)
+        T_new = _thomas_solve(Am, Bm, Cm, Dm)
 
-        # 蒸发处理：当 T > T_evap 时，该节点水分蒸发，温度锁定在 T_evap
-        # 按 Eq. 4.3 使用修正蒸发焓 h_v' 计算等效蒸发量
-        for i in range(Nr, -1, -1):
-            if T_new[i] >= t_evap and r_evap[n] > r[i]:
-                shell_vol = (4.0 / 3.0 * np.pi) * (r_evap[n]**3 - r[i]**3)
-                dE = RHO_W * CP_W * shell_vol * (T_new[i] - t_evap)
-                dm_evap = dE / max(h_evap_corr, 1e-12)
-                evaporated += dm_evap
-                T_new[i] = t_evap
-                if total_water > 0:
-                    r_evap[n + 1] = r[i]
+        if not drying_phase:
+            if T_new[Nr] >= t_evap_val:
+                T_new[Nr] = t_evap_val
+                drying_phase = True
+                r_front = R
+        else:
+            # Stefan 条件（Eq. 4.3）：前沿热通量驱动蒸发与前沿推进
+            if evaporated < total_water:
+                i_wet = max(0, min(int(r_front / dr), Nr - 1))
+                if i_wet < Nr - 1:
+                    # 颗粒内部前沿：干壳导热热通量
+                    q_front = LAMBDA_W * (T_new[i_wet + 1] - t_evap_val) / dr
+                else:
+                    # 前沿紧贴外表面（干壳厚度→0 极限）：外侧对流热通量
+                    q_front = h_conv * max(T_bed - t_evap_val, 0.0)
+                q_front = max(q_front, 0.0)
 
-        T = T_new.copy()
-        if r_evap[n + 1] == R:
-            r_evap[n + 1] = r_evap[n]
+                # 蒸发质量（Eq. 4.3 积分）
+                A_front = 4.0 * np.pi * max(r_front, dr * 0.5) ** 2
+                dm = q_front * A_front * dt / max(h_evap_corr, 1e-12)
+                dm = min(dm, total_water - evaporated)
+                evaporated += max(dm, 0.0)
 
+                # 前沿向内推进（Eq. 4.3 变形：dr_e/dt = q / (ρ_s w h_v')）
+                denom = RHO_W * moisture_mass * max(h_evap_corr, 1e-12)
+                r_front = max(r_front - q_front * dt / denom, 0.0)
+
+            # 蒸发完成时强制将前沿归零（物理上颗粒全干，无湿核）
+            if evaporated >= total_water:
+                r_front = 0.0
+
+            # 仅在仍有未蒸发水分时才锁定湿核温度（Eq. 4.6）
+            if evaporated < total_water:
+                i_wet_new = max(0, min(int(r_front / dr), Nr - 1))
+                T_new[: i_wet_new + 1] = t_evap_val
+
+        T = T_new
         t_arr[n + 1] = (n + 1) * dt
-        X_dry[n + 1] = min(evaporated / max(total_water, 1e-30), 1.0)
-        T_center[n + 1] = T[0]
-        T_surface[n + 1] = T[Nr]
+        X_dry_arr[n + 1] = min(evaporated / max(total_water, 1e-30), 1.0)
+        T_center_arr[n + 1] = T[0]
+        T_surface_arr[n + 1] = T[Nr]
+        r_evap_arr[n + 1] = r_front
         if return_history:
             T_history[:, n + 1] = T
 
-    out = {
+    out: dict = {
         "t": t_arr,
-        "X_dry": X_dry,
-        "T_center": T_center,
-        "T_surface": T_surface,
-        "r_evap": r_evap,
+        "X_dry": X_dry_arr,
+        "T_center": T_center_arr,
+        "T_surface": T_surface_arr,
+        "r_evap": r_evap_arr,
         "r_nodes": r,
     }
     if return_history:

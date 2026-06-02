@@ -28,7 +28,13 @@ class ReactionSourceBundle:
     limit_factor_o2: float
     limit_factor_o2_bubble: float
     limit_factor_o2_dense: float
+    limit_factor_co_bubble: float
+    limit_factor_ch4_bubble: float
+    limit_factor_ch4_dense: float
     limit_factor_h2o: float
+    co_supply_bubble: float
+    ch4_supply_bubble: float
+    ch4_supply_dense: float
     o2_supply_bubble: float
     o2_supply_dense: float
     o2_budget_bubble: float
@@ -97,6 +103,7 @@ def build_reaction_sources(
     N_ex: npt.ArrayLike,
     solid_shape: tuple[int, int],
     char_index: int,
+    solid_d_p_classes: npt.ArrayLike | None = None,
 ) -> ReactionSourceBundle:
     """组装气相/固相反应源项。
 
@@ -110,6 +117,10 @@ def build_reaction_sources(
     gas_src_vm_arr = np.asarray(gas_src_vm, dtype=np.float64)
     solid_sink_vm_arr = np.asarray(solid_sink_vm, dtype=np.float64)
     areas_arr = np.asarray(areas, dtype=np.float64)
+    if solid_d_p_classes is None:
+        d_p_classes_arr = np.full(solid_shape[0], float(solid_d_p), dtype=np.float64)
+    else:
+        d_p_classes_arr = np.asarray(solid_d_p_classes, dtype=np.float64)
     assert C_b_arr.shape == (N_GAS,)
     assert C_d_arr.shape == (N_GAS,)
     assert y_b_arr.shape == (N_GAS,)
@@ -117,6 +128,7 @@ def build_reaction_sources(
     assert gas_src_vm_arr.shape == (N_GAS,)
     assert solid_sink_vm_arr.shape == solid_shape
     assert areas_arr.shape == (solid_shape[0],)
+    assert d_p_classes_arr.shape == (solid_shape[0],)
     n_ex_arr = np.asarray(N_ex, dtype=np.float64)
     assert n_ex_arr.shape == (N_GAS,)
 
@@ -162,16 +174,26 @@ def build_reaction_sources(
     nu_h2o_r11 = max(0.0, -float(stoich_r11.get("H2O", 0.0)))
 
     total_area = float(np.sum(areas_arr))
-    r1 = r2 = r3 = r4 = 0.0
-    alpha = 1.0
+    r1_by_area = np.zeros_like(areas_arr)
+    r2_by_area = np.zeros_like(areas_arr)
+    r3_by_area = np.zeros_like(areas_arr)
+    r4_by_area = np.zeros_like(areas_arr)
+    alpha_by_area = np.ones_like(areas_arr)
     if total_area > 0.0:
-        dc = d_core_from_spm_char_conversion(float(char_conversion), float(solid_d_p))
-        r1, alpha = rate_R1(T, C_d_arr[idx["O2"]], float(solid_d_p), D_g, dc, fuel_type)
-        r2 = rate_R2(T, C_d_arr[idx["H2O"]], float(solid_d_p), D_g, dc)
-        r3 = rate_R3(T, C_d_arr[idx["H2"]], float(solid_d_p), D_g, dc)
         p_co2 = max(float(C_d_arr[idx["CO2"]] * Rg * T), 0.0)
         p_co = max(float(C_d_arr[idx["CO"]] * Rg * T), 0.0)
-        r4 = float(r4_scale) * rate_R4_effective(T, p_co2, p_co, float(solid_d_p), D_g, dc)
+        for k, (area, d_p_k) in enumerate(zip(areas_arr, d_p_classes_arr)):
+            if area <= 0.0 or d_p_k <= 0.0:
+                continue
+            dc_k = d_core_from_spm_char_conversion(float(char_conversion), float(d_p_k))
+            r1_k, alpha_k = rate_R1(T, C_d_arr[idx["O2"]], float(d_p_k), D_g, dc_k, fuel_type)
+            r1_by_area[k] = r1_k
+            alpha_by_area[k] = alpha_k
+            r2_by_area[k] = rate_R2(T, C_d_arr[idx["H2O"]], float(d_p_k), D_g, dc_k)
+            r3_by_area[k] = rate_R3(T, C_d_arr[idx["H2"]], float(d_p_k), D_g, dc_k)
+            r4_by_area[k] = float(r4_scale) * rate_R4_effective(T, p_co2, p_co, float(d_p_k), D_g, dc_k)
+    r2_extent_raw = float(np.sum(r2_by_area * areas_arr))
+    r1_o2_extent_raw = float(np.sum(alpha_by_area * r1_by_area * areas_arr))
 
     o2_supply_bubble = max(
         float(np.asarray(N_zu_b, dtype=np.float64)[idx["O2"]])
@@ -197,7 +219,7 @@ def build_reaction_sources(
         r5d
         + 1.5 * r6d
         + 0.5 * r12d
-        + alpha * r1 * total_area
+        + r1_o2_extent_raw
         + 1.5 * ext9
         + nu_o2_r10 * ext10d
     )
@@ -207,7 +229,22 @@ def build_reaction_sources(
     limit_factor_o2_dense = min(1.0, o2_budget_dense / max(dense_o2_demand, 1e-9))
     limit_factor_o2 = min(limit_factor_o2_bubble, limit_factor_o2_dense)
 
-    r5b_lim = r5b * limit_factor_o2_bubble
+    # CO supply limiter for the bubble phase.
+    # R5 stoichiometry is 2 CO + O2 → 2 CO2 (coefficient 2), so when the system is
+    # O2-limited the CO demand can far exceed the CO actually available to the bubble,
+    # producing an irreducible residual that prevents NR convergence.
+    # Cap r5b by CO inflow to the bubble (same accounting structure as the O2 limiter).
+    co_supply_bubble = max(
+        float(np.asarray(N_zu_b, dtype=np.float64)[idx["CO"]])
+        + float(np.asarray(N_b_in, dtype=np.float64)[idx["CO"]])
+        + max(-float(n_ex_arr[idx["CO"]]), 0.0)
+        + float(np.asarray(N_rez_b, dtype=np.float64)[idx["CO"]]),
+        1e-6,
+    )
+    bubble_co_demand_r5 = 2.0 * r5b
+    limit_factor_co_bubble = min(1.0, 0.995 * co_supply_bubble / max(bubble_co_demand_r5, 1e-9))
+
+    r5b_lim = r5b * min(limit_factor_o2_bubble, limit_factor_co_bubble)
     r6b_lim = r6b * limit_factor_o2_bubble
     r12b_lim = r12b * limit_factor_o2_bubble
     ext10b_lim = ext10b * limit_factor_o2_bubble
@@ -215,7 +252,7 @@ def build_reaction_sources(
     r5d_lim = r5d * limit_factor_o2_dense
     r6d_lim = r6d * limit_factor_o2_dense
     r12d_lim = r12d * limit_factor_o2_dense
-    r1_lim = r1 * limit_factor_o2_dense
+    r1_by_area_lim = r1_by_area * limit_factor_o2_dense
     ext9_lim = ext9 * limit_factor_o2_dense
     ext10d_lim = ext10d * limit_factor_o2_dense
 
@@ -229,16 +266,39 @@ def build_reaction_sources(
         + float(gas_src_vm_arr[idx["H2O"]]),
         1e-6,
     )
-    h2o_consume = r2 * total_area + ext7 + max(0.0, ext8) + nu_h2o_r11 * (ext11b + ext11d)
+    h2o_consume = r2_extent_raw + ext7 + max(0.0, ext8) + nu_h2o_r11 * (ext11b + ext11d)
     limit_factor_h2o = min(1.0, (0.995 * h2o_supply) / max(h2o_consume, 1e-9))
 
-    r2_lim = r2 * limit_factor_h2o
+    r2_by_area_lim = r2_by_area * limit_factor_h2o
     ext7_lim = ext7 * limit_factor_h2o
     ext11b_lim = ext11b * limit_factor_h2o
     ext11d_lim = ext11d * limit_factor_h2o
     ext8_lim = ext8 * limit_factor_h2o if ext8 > 0.0 else ext8
-    r3_lim = r3
-    r4_lim = r4
+    r3_by_area_lim = r3_by_area.copy()
+    r4_by_area_lim = r4_by_area.copy()
+
+    ch4_supply_bubble = max(
+        float(np.asarray(N_zu_b, dtype=np.float64)[idx["CH4"]])
+        + float(np.asarray(N_b_in, dtype=np.float64)[idx["CH4"]])
+        + max(-float(n_ex_arr[idx["CH4"]]), 0.0)
+        + float(np.asarray(N_rez_b, dtype=np.float64)[idx["CH4"]]),
+        1e-6,
+    )
+    ch4_supply_dense = max(
+        float(np.asarray(N_zu_d, dtype=np.float64)[idx["CH4"]])
+        + float(np.asarray(N_d_in, dtype=np.float64)[idx["CH4"]])
+        + max(float(n_ex_arr[idx["CH4"]]), 0.0)
+        + float(np.asarray(N_rez_d, dtype=np.float64)[idx["CH4"]])
+        + float(gas_src_vm_arr[idx["CH4"]])
+        + float(np.sum(r3_by_area_lim * areas_arr)),
+        1e-6,
+    )
+    limit_factor_ch4_bubble = min(1.0, 0.995 * ch4_supply_bubble / max(r6b_lim, 1e-9))
+    dense_ch4_demand = r6d_lim + ext7_lim
+    limit_factor_ch4_dense = min(1.0, 0.995 * ch4_supply_dense / max(dense_ch4_demand, 1e-9))
+    r6b_lim *= limit_factor_ch4_bubble
+    r6d_lim *= limit_factor_ch4_dense
+    ext7_lim *= limit_factor_ch4_dense
 
     if rate_multiplier != 1.0:
         rm = float(np.clip(rate_multiplier, 0.0, 1.0))
@@ -248,10 +308,10 @@ def build_reaction_sources(
         r5d_lim *= rm
         r6d_lim *= rm
         r12d_lim *= rm
-        r1_lim *= rm
-        r2_lim *= rm
-        r3_lim *= rm
-        r4_lim *= rm
+        r1_by_area_lim *= rm
+        r2_by_area_lim *= rm
+        r3_by_area_lim *= rm
+        r4_by_area_lim *= rm
         ext7_lim *= rm
         ext8_lim *= rm
         ext9_lim *= rm
@@ -299,18 +359,27 @@ def build_reaction_sources(
             R_gas_d[idx[sp]] += ext11d_lim * float(nu)
 
     if total_area > 0.0:
-        R_gas_d[idx["O2"]] -= alpha * r1_lim * total_area
-        R_gas_d[idx["CO"]] += (2.0 * (1.0 - alpha) * r1_lim + r2_lim) * total_area
-        R_gas_d[idx["CO2"]] += (2.0 * alpha - 1.0) * r1_lim * total_area
-        R_gas_d[idx["H2O"]] -= r2_lim * total_area
-        R_gas_d[idx["H2"]] += r2_lim * total_area
-        R_gas_d[idx["H2"]] -= 2.0 * r3_lim * total_area
-        R_gas_d[idx["CH4"]] += r3_lim * total_area
-        R_gas_d[idx["CO2"]] -= r4_lim * total_area
-        R_gas_d[idx["CO"]] += 2.0 * r4_lim * total_area
+        r1_extent = float(np.sum(r1_by_area_lim * areas_arr))
+        r2_extent = float(np.sum(r2_by_area_lim * areas_arr))
+        r3_extent = float(np.sum(r3_by_area_lim * areas_arr))
+        r4_extent = float(np.sum(r4_by_area_lim * areas_arr))
+        r1_o2_extent = float(np.sum(alpha_by_area * r1_by_area_lim * areas_arr))
+        R_gas_d[idx["O2"]] -= r1_o2_extent
+        R_gas_d[idx["CO"]] += 2.0 * (r1_extent - r1_o2_extent) + r2_extent
+        R_gas_d[idx["CO2"]] += 2.0 * r1_o2_extent - r1_extent
+        R_gas_d[idx["H2O"]] -= r2_extent
+        R_gas_d[idx["H2"]] += r2_extent
+        R_gas_d[idx["H2"]] -= 2.0 * r3_extent
+        R_gas_d[idx["CH4"]] += r3_extent
+        R_gas_d[idx["CO2"]] -= r4_extent
+        R_gas_d[idx["CO"]] += 2.0 * r4_extent
         R_solid[:, char_index] -= (
-            (r1_lim + r2_lim + r3_lim + r4_lim) * ATOMIC_MASS_KG_PER_MOL["C"] * areas_arr
+            (r1_by_area_lim + r2_by_area_lim + r3_by_area_lim + r4_by_area_lim)
+            * ATOMIC_MASS_KG_PER_MOL["C"]
+            * areas_arr
         )
+    else:
+        r1_extent = r2_extent = r3_extent = r4_extent = r1_o2_extent = 0.0
 
     if use_gibbs_minor and gibbs_minor_sources:
         for sp, ddot in gibbs_minor_sources.items():
@@ -326,7 +395,7 @@ def build_reaction_sources(
         r5b_lim + 1.5 * r6b_lim + 0.5 * r12b_lim + nu_o2_r10 * ext10b_lim
     )
     o2_demand_dense_limited = (
-        r5d_lim + 1.5 * r6d_lim + 0.5 * r12d_lim + alpha * r1_lim * total_area
+        r5d_lim + 1.5 * r6d_lim + 0.5 * r12d_lim + r1_o2_extent
         + 1.5 * ext9_lim + nu_o2_r10 * ext10d_lim
     )
     o2_slack_bubble = max(o2_budget_bubble - o2_demand_bubble_limited, 0.0)
@@ -348,7 +417,7 @@ def build_reaction_sources(
     )
     net_molar_gas_source_r12 = float(-0.5 * (r12b_lim + r12d_lim))
     net_molar_gas_source_char = float(
-        ((1.0 - alpha) * r1_lim + r2_lim - r3_lim + r4_lim) * total_area
+        (r1_extent - r1_o2_extent) + r2_extent - r3_extent + r4_extent
     )
     net_molar_gas_source_total = float(np.sum(R_gas_b) + np.sum(R_gas_d))
 
@@ -359,7 +428,13 @@ def build_reaction_sources(
         limit_factor_o2=float(limit_factor_o2),
         limit_factor_o2_bubble=float(limit_factor_o2_bubble),
         limit_factor_o2_dense=float(limit_factor_o2_dense),
+        limit_factor_co_bubble=float(limit_factor_co_bubble),
+        limit_factor_ch4_bubble=float(limit_factor_ch4_bubble),
+        limit_factor_ch4_dense=float(limit_factor_ch4_dense),
         limit_factor_h2o=float(limit_factor_h2o),
+        co_supply_bubble=float(co_supply_bubble),
+        ch4_supply_bubble=float(ch4_supply_bubble),
+        ch4_supply_dense=float(ch4_supply_dense),
         o2_supply_bubble=float(o2_supply_bubble),
         o2_supply_dense=float(o2_supply_dense),
         o2_budget_bubble=float(o2_budget_bubble),
@@ -376,7 +451,7 @@ def build_reaction_sources(
         h2o_supply=float(h2o_supply),
         h2o_demand_raw=float(h2o_consume),
         h2o_demand_limited=float(
-            r2_lim * total_area + ext7_lim + max(0.0, ext8_lim) + nu_h2o_r11 * (ext11b_lim + ext11d_lim)
+            r2_extent + ext7_lim + max(0.0, ext8_lim) + nu_h2o_r11 * (ext11b_lim + ext11d_lim)
         ),
         net_molar_gas_source_total=net_molar_gas_source_total,
         net_molar_gas_source_vm=net_molar_gas_source_vm,
@@ -389,8 +464,8 @@ def build_reaction_sources(
         net_molar_gas_source_r11=net_molar_gas_source_r11,
         net_molar_gas_source_r12=net_molar_gas_source_r12,
         net_molar_gas_source_char=net_molar_gas_source_char,
-        extent_r1=float(r1_lim * total_area),
-        extent_r2=float(r2_lim * total_area),
-        extent_r3=float(r3_lim * total_area),
-        extent_r4=float(r4_lim * total_area),
+        extent_r1=float(r1_extent),
+        extent_r2=float(r2_extent),
+        extent_r3=float(r3_extent),
+        extent_r4=float(r4_extent),
     )
