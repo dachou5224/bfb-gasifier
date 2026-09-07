@@ -78,6 +78,6 @@ P0 冻结的 Phase2 3+2 smoke 已出现 4 个零行、2 个零列。现有锚没
 
 ## 建议
 
-- thesis / `wirsum_1997_strict`：残差保持 `net_source - (K_auf+K_ab) M`，`K=0` 时允许零行。不要在 residual 内 clip、floor、anchor。
-- 生产 LU 路径：保留现有 guardrail，但必须继续叫 engineering，不得当作 Eq. (2-6)。
-- 下一步（P1.1b）：给 `calc_solid_balance_residual` 增加 `k0_anchor={'engineering','none'}`，默认 `engineering` 以免改现有 LU；strict 模式传 `none`。
+- thesis / `wirsum_1997_strict`：残差保持 `net_source - (K_auf+K_ab) M`，`K=0` 时允许零行。不要在 residual 内 clip、floor、anchor。配置 `holdup_k0_anchor='none'`。
+- 生产 LU 路径：默认 `holdup_k0_anchor='engineering'`，保留现有 guardrail，但必须继续叫 engineering，不得当作 Eq. (2-6)。
+- 开关在 `calc_solid_balance_residual(..., k0_anchor=)`，经 `ReactorConfig.holdup_k0_anchor` 拷到 `Cell.holdup_k0_anchor`。解析雅可比对角与残差同一开关。

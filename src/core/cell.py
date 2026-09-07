@@ -15,6 +15,7 @@ from src.core.species import (
     formation_enthalpy_dry_fuel,
 )
 from src.core.cell_balances import (
+    HOLDUP_K0_ANCHOR_ENGINEERING,
     calc_energy_balance_residual,
     calc_gas_balance_residual,
     calc_size_migration,
@@ -84,6 +85,7 @@ class Cell:
         self.geo = geo or CellGeometry(); self.solid = solid or SolidProps(); self.fuel_type = fuel_type
         self.cell_type = "bed"
         self.solid_state_model = "legacy_stream"
+        self.holdup_k0_anchor = HOLDUP_K0_ANCHOR_ENGINEERING
         self.use_gibbs_minor = True; self.u0_target = None; self.heat_loss_frac = 0.0
         self.u_d_closure = "current"
         self.bubble_diameter_model = "mori_wen"
@@ -508,6 +510,7 @@ class Cell:
             K_solid_auf=self.K_solid_auf,
             K_solid_ab=self.K_solid_ab,
             solid_state_model=str(self.solid_state_model),
+            k0_anchor=str(self.holdup_k0_anchor),
         )
 
     def _calc_size_migration(self) -> npt.NDArray[np.float64]:

@@ -56,6 +56,7 @@ class BalanceBuilder:
             K_solid_auf=boundary_conditions.get("K_solid_auf"),
             K_solid_ab=boundary_conditions.get("K_solid_ab"),
             solid_state_model=boundary_conditions.get("solid_state_model", "legacy_stream"),
+            k0_anchor=boundary_conditions.get("k0_anchor", "engineering"),
         ).flatten()
 
         # 3. 能量平衡

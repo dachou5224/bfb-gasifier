@@ -159,6 +159,59 @@ def test_solid_balance_holdup_transport_anchors_source_without_transport_channel
     np.testing.assert_allclose(res[0, 3], 0.0)
 
 
+def test_solid_balance_holdup_k0_anchor_none_keeps_kg_s_residual() -> None:
+    shape = (1, 4)
+    m_solid = np.zeros(shape, dtype=np.float64)
+    m_solid[0, 0] = 0.25
+    m_auf_in = np.zeros(shape, dtype=np.float64)
+    m_auf_in[0, 0] = 1.0
+    kwargs = dict(
+        m_solid_zu=np.zeros(shape, dtype=np.float64),
+        m_solid_rez=np.zeros(shape, dtype=np.float64),
+        m_solid_in=np.zeros(shape, dtype=np.float64),
+        m_solid_auf_in=m_auf_in,
+        m_solid_ab_in=np.zeros(shape, dtype=np.float64),
+        R_solid=np.zeros(shape, dtype=np.float64),
+        size_migration=np.zeros(shape, dtype=np.float64),
+        m_solid=m_solid,
+        K_solid_auf=np.zeros(shape, dtype=np.float64),
+        K_solid_ab=np.zeros(shape, dtype=np.float64),
+        solid_state_model="holdup_transport",
+    )
+    res_none = calc_solid_balance_residual(**kwargs, k0_anchor="none")
+    res_eng = calc_solid_balance_residual(**kwargs, k0_anchor="engineering")
+    np.testing.assert_allclose(res_none[0, 0], 1.0)
+    np.testing.assert_allclose(res_eng[0, 0], 0.75)
+
+
+def test_solid_balance_holdup_k0_anchor_none_disconnected_is_identically_zero() -> None:
+    shape = (2, 4)
+    m_solid = np.array(
+        [
+            [1.0, 0.0, 0.0, 0.0],
+            [0.5, 0.0, 0.0, 0.0],
+        ],
+        dtype=np.float64,
+    )
+    zeros = np.zeros(shape, dtype=np.float64)
+    res = calc_solid_balance_residual(
+        m_solid_zu=zeros,
+        m_solid_rez=zeros,
+        m_solid_in=zeros,
+        m_solid_auf_in=zeros,
+        m_solid_ab_in=zeros,
+        R_solid=zeros,
+        size_migration=zeros,
+        m_solid=m_solid,
+        K_solid_auf=zeros,
+        K_solid_ab=zeros,
+        solid_state_model="holdup_transport",
+        k0_anchor="none",
+    )
+    np.testing.assert_allclose(res[:, 0], 0.0)
+    np.testing.assert_allclose(res[:, 3], 0.0)
+
+
 def test_energy_balance_zero_for_matched_inlet_and_outlet_streams() -> None:
     saved_mw = {
         "TAR1": species_mod.MOLECULAR_WEIGHT["TAR1"],

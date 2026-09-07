@@ -132,3 +132,32 @@ def test_freeboard_coeff_models_change_wirsum_abc() -> None:
     a0, b0, c0 = _wirsum_abc(**kwargs)
     a1, b1, c1, *_ = _wirsum_abc_exact_audit(**kwargs)
     assert (a0, b0, c0) != pytest.approx((a1, b1, c1))
+
+
+def test_holdup_k0_anchor_copies_from_reactor_config() -> None:
+    reactor = _two_cell_reactor(holdup_k0_anchor="none")
+    assert all(cell.holdup_k0_anchor == "none" for cell in reactor.cells)
+
+
+def test_holdup_k0_anchor_none_changes_cell_residual_when_K_zero() -> None:
+    from src.core.cell import Cell
+
+    cell = Cell()
+    cell.solid_state_model = "holdup_transport"
+    cell.K_solid_auf[:] = 0.0
+    cell.K_solid_ab[:] = 0.0
+    cell.m_solid[0, S_CHAR] = 0.25
+    cell.m_solid_auf_in[0, S_CHAR] = 1.0
+    cell.holdup_k0_anchor = "engineering"
+    f_eng = cell.calc_solid_balance()
+    cell.holdup_k0_anchor = "none"
+    f_none = cell.calc_solid_balance()
+    assert f_eng[0, S_CHAR] == pytest.approx(0.75)
+    assert f_none[0, S_CHAR] == pytest.approx(1.0)
+
+
+def test_holdup_k0_anchor_rejects_unknown_value() -> None:
+    from src.core.reactor import ReactorConfig
+
+    with pytest.raises(ValueError, match="holdup_k0_anchor"):
+        ReactorConfig(holdup_k0_anchor="clip")

@@ -17,6 +17,24 @@ from src.core.constants import T_REF
 S_CHAR, S_VM, S_MOISTURE, S_ASH = 0, 1, 2, 3
 from src.core.species import GAS_SPECIES, N_GAS, cp_ash, cp_char, cp_sand, enthalpy_molar
 
+# K=0 时是否用 source−M 工程锚。engineering 为生产默认；none 为 thesis/strict。
+HOLDUP_K0_ANCHOR_ENGINEERING: str = "engineering"
+HOLDUP_K0_ANCHOR_NONE: str = "none"
+_HOLDUP_K0_ANCHORS = frozenset(
+    {HOLDUP_K0_ANCHOR_ENGINEERING, HOLDUP_K0_ANCHOR_NONE}
+)
+
+
+def resolve_holdup_k0_anchor(configured: str) -> str:
+    """校验 ``holdup_k0_anchor``。"""
+    name = str(configured).strip().lower()
+    if name not in _HOLDUP_K0_ANCHORS:
+        raise ValueError(
+            f"Unknown holdup_k0_anchor={configured!r}; "
+            f"expected {HOLDUP_K0_ANCHOR_ENGINEERING!r} or {HOLDUP_K0_ANCHOR_NONE!r}"
+        )
+    return name
+
 
 def _as_float64_array(name: str, value: npt.ArrayLike, shape: tuple[int, ...]) -> npt.NDArray[np.float64]:
     arr = np.asarray(value, dtype=np.float64)
@@ -132,10 +150,15 @@ def calc_solid_balance_residual(
     K_solid_auf: npt.ArrayLike | None = None,
     K_solid_ab: npt.ArrayLike | None = None,
     solid_state_model: str = "legacy_stream",
+    k0_anchor: str = HOLDUP_K0_ANCHOR_ENGINEERING,
 ) -> npt.NDArray[np.float64]:
     """组装固相质量守恒残差。
 
-    Ref: Hamel (1999) Eq. 2-6
+    ``holdup_transport``：``F = net_source − (K_auf+K_ab) m``，单位 [kg/s]。
+    ``k0_anchor='engineering'``（默认）在 ``K=0`` 时改写为 ``source−m`` / ``−m``；
+    ``k0_anchor='none'`` 保持物理残差，允许零行。
+
+    Ref: Hamel (1999) Eq. 2-6; docs/solid_balance_formulation_audit.md
     """
     m_solid_arr = np.asarray(m_solid, dtype=np.float64)
     shape = m_solid_arr.shape
@@ -210,6 +233,8 @@ def calc_solid_balance_residual(
         & (np.abs(k_sum_arr) <= 1e-14)
         & (np.abs(net_source_arr) > 1e-14)
     )
+    if resolve_holdup_k0_anchor(k0_anchor) == HOLDUP_K0_ANCHOR_NONE:
+        return res
     if np.any(disconnected_mask):
         res = np.asarray(res, dtype=np.float64)
         res[disconnected_mask] = -m_solid_arr[disconnected_mask]

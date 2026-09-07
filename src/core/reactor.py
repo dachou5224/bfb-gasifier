@@ -25,6 +25,7 @@ from src.core.cell import (
     S_ASH,
     N_SOLID_COMP,
 )
+from src.core.cell_balances import resolve_holdup_k0_anchor
 from src.core.hydrodynamics_defaults import (
     HAMEL_HYDRO_BUBBLE_DIAMETER_MODEL,
     HAMEL_HYDRO_BUBBLE_ODE_STRATEGY,
@@ -236,6 +237,8 @@ class ReactorConfig:
     freeboard_use_shrunk_bed_top_d_p: bool = True
     freeboard_trajectory_model: str = "analytical_wirsum"
     bed_solid_state_model: str = HAMEL_BED_SOLID_STATE_MODEL
+    # K=0 holdup 残差：engineering 用 source−M 锚；none 保持 [kg/s] 物理残差。
+    holdup_k0_anchor: str = "engineering"
     feed_solid_size_distribution_mode: str = HAMEL_FEED_SOLID_SIZE_DISTRIBUTION_MODE
     nr_init_bottom_zone_solid_energy_preprojection_thesis: bool = False
     nr_init_bottom_primary_exchange_preprojection_thesis: bool = False
@@ -666,6 +669,7 @@ class ReactorConfig:
     pyrolysis_co_reduce_h2_inject_frac: float = 0.0
 
     def __post_init__(self) -> None:
+        self.holdup_k0_anchor = resolve_holdup_k0_anchor(self.holdup_k0_anchor)
         if bool(self.thesis_mode):
             # Hamel 口径：fresh-feed 的 VM/moisture 可在下部若干 cells 继续释放，
             # 但上部与 recycle 仍由传播函数/回收函数保持隔离。
@@ -816,6 +820,7 @@ class Reactor:
                 # Thesis mode enforces Hamel hydrodynamics even if config was overridden.
                 apply_hamel_hydrodynamics_to_cell(cell)
             cell.solid_state_model = bed_solid_model
+            cell.holdup_k0_anchor = str(cfg.holdup_k0_anchor)
             cell.size_migration_inventory_mode = size_migration_mode
             cell.hydrodynamics_v_b = float(cfg.hydrodynamics_v_b)
             cell.enable_r12 = bool(cfg.enable_r12)
@@ -863,6 +868,7 @@ class Reactor:
                 fb_cell.freeboard_u_gb_scale = float(max(cfg.freeboard_u_gb_scale, 1e-6))
                 fb_cell.freeboard_explicit_char_hetero_enabled = bool(cfg.freeboard_explicit_enable_char_hetero)
                 fb_cell.solid_state_model = "freeboard_closure"
+                fb_cell.holdup_k0_anchor = str(cfg.holdup_k0_anchor)
                 self.freeboard_cells.append(fb_cell)
 
     def _build_side_block_cells_from_graph(self) -> None:
@@ -893,6 +899,7 @@ class Reactor:
             cell.P = cfg.P
             cell.cell_type = cell_type
             cell.solid_state_model = "holdup_transport"
+            cell.holdup_k0_anchor = str(cfg.holdup_k0_anchor)
             cell.use_gibbs_minor = bool(cfg.use_gibbs_minor)
             cell.enable_r12 = bool(cfg.enable_r12)
             cell.extent_limiters_enabled = bool(
