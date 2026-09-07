@@ -322,12 +322,15 @@ def global_residual(
     cells: List[Cell],
     apply_bc_fn: Callable[[], None],
 ) -> np.ndarray:
-    """F(x)：解包 → 边界条件（含循环）→ 各 cell 残差拼接。"""
+    """F(x)：解包 → 边界条件（含循环）→ 各 cell 残差拼接。
+
+    Must be a pure evaluation of the packed state. Trace-O2 snap, fastox,
+    and other projections belong in pre-NR / accepted-step processing, not here.
+
+    Source: Wirsum (1997) §2.3.3; Hamel (1999) §2.3 Eq. 2.9
+    """
     unpack_reactor(x, cells)
     apply_bc_fn()
-    if snap_trace_o2_holdups(cells) > 0:
-        # 与速率评价所用 holdup 对齐，避免 x 残留 1e-16 而 F 走零分支
-        x[:] = pack_reactor(cells)
     return np.concatenate([_project_cell_residual_to_main_nr(c) for c in cells])
 
 

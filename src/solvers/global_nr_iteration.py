@@ -230,6 +230,11 @@ def execute_global_nr_solve(
         dtype=np.float64,
     )
     x = pack_reactor(cells)
+    # Engineering projection, not part of F(x). Trace O2 snap used to live inside
+    # global_residual and silently mutated x / cell holdups.
+    n_snap0 = int(_gnr.snap_trace_o2_holdups(cells))
+    if n_snap0 > 0:
+        x = pack_reactor(cells)
     timing = {
         "initial_residual_s": 0.0,
         "jacobian_build_s": 0.0,
@@ -256,6 +261,7 @@ def execute_global_nr_solve(
         "linear_lstsq_fallbacks": 0,
         "structured_fallbacks": 0,
         "nr_schur_size_last": 0,
+        "trace_o2_snap_pre_nr": int(n_snap0),
     }
     accepted_lambda_history: list[float | None] = []
     line_search_trial_counts: list[int] = []
@@ -870,6 +876,26 @@ def execute_global_nr_solve(
                 consecutive_line_search_failures = 0
                 prev_norm_F = float(norm_F)
                 x = pack_reactor(cells)
+                n_snap_acc = int(_gnr.snap_trace_o2_holdups(cells))
+                if n_snap_acc > 0:
+                    x = pack_reactor(cells)
+                    t0 = perf_counter()
+                    F = _gnr.global_residual(x, cells, apply_bc_fn)
+                    timing["line_search_residual_s"] += perf_counter() - t0
+                    counts["global_residual_calls"] += 1
+                    F_hat = F / scale
+                    nt = _gnr._rms_norm(F_hat)
+                    merit_trial = _gnr._line_search_merit(
+                        F_hat,
+                        cells,
+                        use_gas_phase_split=line_search_merit_enabled,
+                        use_energy=line_search_energy_merit_enabled,
+                    )
+                    F_trial = F
+                    F_hat_trial = F_hat
+                    counts["trace_o2_snap_accepted_step"] = int(
+                        counts.get("trace_o2_snap_accepted_step", 0)
+                    ) + int(n_snap_acc)
                 F = F_trial
                 F_hat = F_hat_trial
                 norm_F = nt
