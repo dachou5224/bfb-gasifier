@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "description": "Wirsum 1997 alignment P0 freeze. Numbers are the current engineering stack, not a claim of thesis-exact Wirsum Newton.",
+  "created_utc": "2026-09-07T08:30:00.076968+00:00",
+  "git_head": "fdeee0ed6f4e8aaf7790102609303da53d4f76e4",
+  "pythonhashseed": "0",
+  "sanity_checks": {
+    "returncode": 1,
+    "passed": false,
+    "n_failed": 1,
+    "failed_checks": [
+      "10. Pyrolysis elemental allocator"
+    ],
+    "wall_s": 1.8106311490000002,
+    "stdout_tail": "[14. visible epsilon_b range]\n  eps_b_visible = 0.1282 [0.05-0.70] PASS\n[15. freeboard analytical default/meta]\n  default freeboard_trajectory_model = analytical_wirsum PASS\n  solver = wirsum_analytical_exact_hamel_coeffs, diag = {'delta_pos': 4, 'delta_zero': 0, 'delta_neg': 5, 'disc_pos': 5, 'disc_zero': 0, 'disc_neg': 4, 'sign_switch': 4, 'fallbacks': 3, 'returns': 2, 'fallback_no_event': 0, 'fallback_boundary_velocity': 3, 'fallback_delta_neg_time': 0} PASS\n[16. reaction numbering dual labels]\n  mapped keys = ['R11', 'R6', '_impl_only:R9'] PASS\n[17. bulk solid ratio definition]\n  bulk_solid = 0.3456, ref = 0.3456 PASS\n\n========================================\nSOME CHECKS FAILED",
+    "stderr_tail": ""
+  },
+  "cases": {
+    "reduced_3cell_lu_init": {
+      "n_solver_cells": 3,
+      "n_var": 105,
+      "residual_l2": 92899708170884.53,
+      "residual_linf": 32936022822625.93,
+      "rms_scaled": 113385175848.37558,
+      "jacobian_nnz": 1294,
+      "jacobian_zero_rows": 0,
+      "jacobian_zero_cols": 0,
+      "jacobian_strategy": "block_tridiag_structured",
+      "condition_estimate": 2.3261646389869613e+22,
+      "condition_method": "dense_2norm",
+      "exit_T_K": 1139.5,
+      "exit_gas_wet": {
+        "H2": 0.08544878417853556,
+        "CO": 0.11741358430052157,
+        "CO2": 0.019568930716753596,
+        "CH4": 0.011741358430052157
+      },
+      "exit_gas_dry": {
+        "H2": 0.0972060946036539,
+        "CO": 0.13356908577451213,
+        "CO2": 0.022261514295752023,
+        "CH4": 0.013356908577451214
+      },
+      "bed_T_K": [
+        1325.0,
+        1232.25,
+        1139.5
+      ],
+      "wall_s": 5.405541962000001,
+      "knobs": {
+        "thesis_mode": false,
+        "extent_limiters_enabled_thesis": false,
+        "r2_scale": 1.0,
+        "r4_scale": 0.5,
+        "r5_scale": 0.75,
+        "r6_scale": 1.0,
+        "r7_scale": 2.5,
+        "r8_scale": 1.0,
+        "gas_inlet_split_strategy": "fixed",
+        "bed_solid_state_model": "holdup_transport",
+        "freeboard_trajectory_model": "analytical_wirsum",
+        "freeboard_trajectory_coeff_model": "exact_hamel",
+        "freeboard_velocity_sigma": 0.6,
+        "freeboard_velocity_bins": 5,
+        "n_cells": 3,
+        "n_freeboard_cells": 0
+      },
+      "case": "reduced_3cell_lu_init",
+      "note": "Vorabrechnung x0 only; no Newton iterations."
+    },
+    "phase1_htw_lu_solve": {
+      "converged": false,
+      "converged_inner_nr": false,
+      "converged_outer": false,
+      "n_iter": 3,
+      "nr_outer_iters": 2,
+      "residual_l2": 1360403636.7881105,
+      "rms_scaled": 4.283767849798483,
+      "jacobian_nnz": 5234,
+      "jacobian_zero_rows": 0,
+      "jacobian_zero_cols": 0,
+      "exit_T_K": 1014.7248873921351,
+      "exit_gas_wet": {
+        "H2": 0.0,
+        "CO": 1.666177509153095e-05,
+        "CO2": 0.9839379349913937,
+        "CH4": 0.000172605095271201
+      },
+      "exit_gas_dry": {
+        "H2": 0.0,
+        "CO": 1.6722260327105762e-05,
+        "CO2": 0.9875098063833677,
+        "CH4": 0.00017323168276212191
+      },
+      "wall_s": 14.816190481,
+      "knobs": {
+        "thesis_mode": false,
+        "extent_limiters_enabled_thesis": false,
+        "r2_scale": 1.0,
+        "r4_scale": 0.5,
+        "r5_scale": 0.75,
+        "r6_scale": 1.0,
+        "r7_scale": 2.5,
+        "r8_scale": 1.0,
+        "gas_inlet_split_strategy": "fixed",
+        "bed_solid_state_model": "holdup_transport",
+        "freeboard_trajectory_model": "analytical_wirsum",
+        "freeboard_trajectory_coeff_model": "exact_hamel",
+        "freeboard_velocity_sigma": 0.6,
+        "freeboard_velocity_bins": 5,
+        "n_cells": 10,
+        "n_freeboard_cells": 0
+      },
+      "case": "phase1_htw_lu_solve",
+      "solve_kwargs": {
+        "max_global_iter": 3,
+        "tol_global": 1.0,
+        "solver": "global_nr",
+        "nr_init_strategy": "vorabrechnung",
+        "nr_jacobian_strategy": null
+      },
+      "full_harness_max_global_iter": 150,
+      "note": "Short freeze of the existing LU harness. Full test kwargs keep max_global_iter=150; P0 does not chase that budget."
+    },
+    "phase2_reduced_freeboard_smoke": {
+      "converged": false,
+      "converged_inner_nr": false,
+      "converged_outer": false,
+      "n_iter": 2,
+      "nr_outer_iters": 2,
+      "residual_l2": 4750602.96404772,
+      "rms_scaled": 0.033487185220011095,
+      "jacobian_nnz": 1853,
+      "jacobian_zero_rows": 4,
+      "jacobian_zero_cols": 2,
+      "exit_T_K": 760.57152043597,
+      "exit_gas_wet": {
+        "H2": 1.729400973634123e-12,
+        "CO": 0.027111274188334422,
+        "CO2": 0.02404198237643953,
+        "CH4": 0.013338700630039994
+      },
+      "exit_gas_dry": {
+        "H2": 2.1100878123098913e-12,
+        "CO": 0.03307918181680122,
+        "CO2": 0.029334257797767948,
+        "CH4": 0.01627490099785978
+      },
+      "wall_s": 18.151509162000004,
+      "case": "phase2_reduced_freeboard_smoke",
+      "solve_kwargs": {
+        "max_global_iter": 2,
+        "freeboard_trajectory_model": "analytical_wirsum",
+        "freeboard_trajectory_coeff_model": "exact_hamel"
+      },
+      "note": "Reduced Phase2 smoke only. Name analytical_wirsum currently mixes Wirsum/Hamel/Haider; split in later P3 commits."
+    }
+  },
+  "pytest": {
+    "skipped": false,
+    "passed": false,
+    "returncode": 1,
+    "summary_line": "33 failed, 731 passed, 11 deselected in 1275.70s (0:21:15)",
+    "n_failed": 33,
+    "n_passed": 731,
+    "n_deselected": 11,
+    "wall_s": 1275.7,
+    "pythonhashseed": "0",
+    "filter": {
+      "marker": "not slow",
+      "ignored_files": [
+        "tests/test_table2_LU.py",
+        "tests/test_table2_LU_global_nr.py",
+        "tests/test_lu_gs_vs_global_nr.py"
+      ],
+      "deselected": [
+        "tests/test_global_nr_solver.py::test_phase1_global_nr_pack_excludes_vm_and_moisture_dead_dofs",
+        "tests/test_global_nr_solver.py::test_phase1_global_nr_line_search_accepts_non_boundary_step"
+      ],
+      "note": "Full unrestricted pytest -q hung on 150-iter PHASE1 LU solves. P0 freeze uses this bounded suite plus the short LU/reduced cases in JSON."
+    },
+    "failed_tests": [
+      "tests/test_bottom_gas_inlet_split.py::test_bottom_primary_exchange_preprojection_reduces_bed0_primary_phase_stiffness",
+      "tests/test_bottom_gas_inlet_split.py::test_bottom_major_phase_split_preprojection_reduces_bed0_split_without_moving_primary_totals",
+      "tests/test_bottom_gas_inlet_split.py::test_bottom_major_gas_preprojection_reduces_bed0_product_residual_without_moving_primary_totals",
+      "tests/test_bottom_gas_inlet_split.py::test_bottom_joint_gas_temperature_preprojection_reduces_energy_and_total_gas_residual",
+      "tests/test_codebase_slimming_plan.py::TestPostCleanupScriptLayout::test_all_root_scripts_indexed_or_infrastructure",
+      "tests/test_codebase_slimming_plan.py::TestActiveCoreHealth::test_sanity_checks_pass",
+      "tests/test_conservation_priority.py::test_conservation_elemental_closure_is_hard_gate",
+      "tests/test_global_nr_solver.py::test_generate_initial_x0_warmstart_not_propagated_from_high_residual_cell",
+      "tests/test_global_nr_solver.py::test_generate_initial_x0_warmstart_propagated_only_from_low_residual_cell",
+      "tests/test_global_nr_solver.py::test_generate_initial_x0_holdup_seed_uses_upstream_solid_temperature",
+      "tests/test_global_nr_solver.py::test_finalize_result_reports_freeboard_closure_gap_without_mutating_nr_state",
+      "tests/test_global_nr_solver.py::test_build_exit_summary_exposes_freeboard_closure_hold_up_before_after_audit",
+      "tests/test_global_nr_solver.py::test_band_plus_side_elements_structured_ignores_local_callbacks[explicit_path]",
+      "tests/test_global_nr_solver.py::test_band_plus_side_elements_structured_ignores_local_callbacks[closure_owned_path]",
+      "tests/test_global_nr_solver.py::test_band_plus_side_elements_structured_matches_dense_fd_on_thesis_freeboard_graph",
+      "tests/test_global_nr_solver.py::test_side_elements_sparse_fd_alias_matches_dense_fd_on_thesis_graph",
+      "tests/test_global_nr_solver.py::test_build_equation_scales_use_packed_solid_dof_reference_for_holdup_transport",
+      "tests/test_global_nr_solver.py::test_solve_global_nr_reuses_backtracked_lambda_on_next_iter",
+      "tests/test_global_nr_solver.py::test_thesis_outer_refresh_does_not_reseed_side_blocks",
+      "tests/test_global_nr_solver.py::test_global_nr_stops_when_inner_stalls_without_progress",
+      "tests/test_literature_regression_priority.py::test_literature_regression_baseline_case_exists_and_is_stable",
+      "tests/test_phase_gate_20.py::test_gate_20_elemental_closure_smoke",
+      "tests/test_phase_gate_30.py::test_gate_30_phase_partition_closure_smoke",
+      "tests/test_solver_perf.py::test_solve_timing",
+      "tests/test_solver_perf.py::test_residual_count",
+      "tests/test_solver_sequence.py::test_calc_reactions_uses_frozen_vorabrechnung_cache_when_valid",
+      "tests/test_solver_sequence.py::test_cell_thermo_cache_reuses_local_bundle_for_exchange_and_reactions",
+      "tests/test_validation_cases_master_table.py::test_four_validation_plant_groups",
+      "tests/test_validation_cases_master_table.py::test_lu1_exit_gas_matches_ssot",
+      "tests/test_validation_cases_master_table.py::test_build_script_regenerates_json",
+      "tests/test_vorabrechnung_a_tier_budget.py::test_march_vorabrechnung_widens_nr_temperature_fence_upper_bound",
+      "tests/test_vorabrechnung_hamel_x0_transport.py::test_init_realigns_upper_holdup_after_fastox_startwert",
+      "tests/test_vorabrechnung_pyrolysis_seed.py::test_seed_pyrolysis_dense_holdup_reduces_init_split_and_keeps_bubble_zero"
+    ]
+  }
+}

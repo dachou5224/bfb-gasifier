@@ -30,6 +30,7 @@
 - `audit_single_cell_oxygen_convergence.py`
 - `audit_zone_profile_lu.py`
 - `benchmark_nr_init_gibbs_bootstrap.py`
+- `freeze_wirsum_alignment_baseline.py`（Wirsum 对齐 P0：冻结 reduced/LU 残差与 Jacobian 指标）
 - `run_phase_gate_00.py` … `run_phase_gate_40.py`
 - `run_module_audits.py`
 - `run_test_sequence.py`
