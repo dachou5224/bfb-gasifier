@@ -19,12 +19,15 @@ from src.core.freeboard_segment import (
 )
 from src.core.reactor import Reactor, ReactorConfig, _cell_solid_outflow_component, _resolve_axial_heat_loss_distribution, _resolve_nr_init_strategy
 from src.core.species import GAS_SPECIES, gas_density_ideal, gas_viscosity_power_law
-from src.solvers.result_builder import build_exit_summary, finalize_global_nr_result
+from src.solvers.convergence import InnerConvergence
 from src.solvers.global_nr_solver import (
     _clip_dx,
+    _inner_nr_check1_satisfied,
+    _line_search_merit,
     _next_lambda_seed,
     _project_cell_residual_to_main_nr,
     _residual_gas_phase_metrics,
+    _residual_group_metrics,
     _residual_group_norms,
     build_equation_scales,
     build_jacobian_fd,
@@ -33,11 +36,20 @@ from src.solvers.global_nr_solver import (
     n_var,
     pack_cell,
     pack_reactor,
+    resolve_inner_t_max_step_K,
     unpack_reactor,
     solve_global_nr,
 )
-from src.solvers.nr_indexing import MAIN_NR_GAS_COUNT, gas_mode_for_nr, n_gas_var, n_solid_var
+from src.solvers.nr_indexing import (
+    MAIN_NR_GAS_COUNT,
+    gas_mode_for_nr,
+    install_main_nr_gas_indexing_on_cells,
+    main_nr_gas_count_for_cell,
+    n_gas_var,
+    n_solid_var,
+)
 from src.solvers.structured_jacobian import build_jacobian_structure, build_solver_graph
+from src.solvers.result_builder import build_exit_summary
 from src.workflow.steps.init_precalc_step import run_init_and_precalc_for_global_nr
 from src.physics.freeboard import calc_beta_a, calc_u_gb
 from src.solvers.vorabrechnung import (
@@ -54,42 +66,27 @@ from tests.validation_case_utils import (
     build_phase1_htw_lu_reactor_config,
     build_phase2_htw_lu_freeboard_reactor_config,
     build_phase2_htw_lu_local_refined_damped_config,
+    build_vtt_minimal_loop_nr_acceptance_config,
     PHASE1_HTW_LU_SOLVE_KWARGS,
 )
 
+from tests.global_nr_fixtures import (
+    FREEBOARD_TRAJECTORY_SMOKE_CASES,
+    MAJOR_GIBBS_SEED_CASES,
+    THESIS_INNER_NR_KNOB_CASES,
+    assert_band_plus_side_elements_ignores_local_callbacks,
+    build_initialized_lu_reactor,
+    build_initialized_thesis_freeboard_reactor,
+    build_initialized_vtt_minimal_loop_reactor,
+    build_phase1_two_cell_reactor,
+    call_generate_initial_x0_phase1,
+    phase2_first_cell_major_elements,
+    run_freeboard_trajectory_smoke,
+    run_holdup_generate_initial_x0,
+    run_thesis_single_cell_inner_nr,
+    setup_holdup_transport_reactor,
+)
 
-def _build_initialized_lu_reactor(n_cells: int = 3) -> Reactor:
-    cfg = build_phase1_htw_lu_reactor_config()
-    cfg.n_cells = n_cells
-    reactor = Reactor(cfg)
-    t_profile = estimate_axial_T_profile(
-        n_cells=cfg.n_cells,
-        T_inlet=cfg.T_inlet,
-        O2_feed=cfg.O2_feed,
-        H2O_feed=cfg.H2O_feed,
-        N2_feed=cfg.N2_feed,
-        fuel_feed_kg_s=cfg.fuel_feed,
-        C_dry=cfg.C_dry,
-        H_dry=cfg.H_dry,
-        moisture_wt=cfg.moisture_wt,
-        P=cfg.P,
-    )
-    generate_initial_x0(
-        cells=reactor.cells,
-        O2_feed=cfg.O2_feed,
-        H2O_feed=cfg.H2O_feed,
-        N2_feed=cfg.N2_feed,
-        fuel_feed_kg_s=cfg.fuel_feed,
-        C_dry=cfg.C_dry,
-        H_dry=cfg.H_dry,
-        O_dry=cfg.O_dry,
-        moisture_wt=cfg.moisture_wt,
-        ash_dry_wt=cfg.ash_dry_wt,
-        VM_daf=cfg.VM_daf,
-        T_profile=t_profile,
-        fuel_type=cfg.fuel_type,
-    )
-    return reactor
 
 
 def test_residual_group_norms_follow_cell_by_cell_layout():
@@ -138,6 +135,531 @@ def test_degenerate_gas_phase_metrics_ignore_bubble_anchor_as_split():
 
     assert metrics["gas_combined_max_abs"] == pytest.approx(3.0)
     assert metrics["gas_phase_split_max_abs"] == pytest.approx(0.0)
+
+
+def test_line_search_merit_includes_gas_phase_split_when_enabled():
+    reactor = Reactor(build_phase1_htw_lu_reactor_config())
+    cell = reactor.cells[0]
+    nv = n_var(cell)
+    F_hat = np.zeros(nv, dtype=np.float64)
+    F_hat[0] = 0.001
+    F_hat[MAIN_NR_GAS_COUNT] = -0.001
+
+    metrics = _residual_gas_phase_metrics(F_hat, [cell])
+    assert metrics["gas_combined_max_abs"] == pytest.approx(0.0)
+    assert metrics["gas_phase_split_max_abs"] == pytest.approx(0.002)
+
+    rms_only = _line_search_merit(F_hat, [cell], use_gas_phase_split=False)
+    merit_with_split = _line_search_merit(F_hat, [cell], use_gas_phase_split=True)
+    assert merit_with_split == pytest.approx(max(rms_only, metrics["gas_phase_split_rms"]))
+    assert merit_with_split > rms_only
+
+
+def test_line_search_merit_includes_energy_when_enabled():
+    reactor = Reactor(build_phase1_htw_lu_reactor_config())
+    cell = reactor.cells[0]
+    nv = n_var(cell)
+    F_hat = np.zeros(nv, dtype=np.float64)
+    F_hat[-1] = 0.05
+
+    group = _residual_group_metrics(F_hat, [cell])
+    rms_only = _line_search_merit(F_hat, [cell], use_gas_phase_split=False, use_energy=False)
+    merit_with_energy = _line_search_merit(F_hat, [cell], use_gas_phase_split=False, use_energy=True)
+    assert merit_with_energy == pytest.approx(max(rms_only, group["energy_rms"]))
+    assert merit_with_energy > rms_only
+
+
+def test_resolve_inner_t_max_step_cap_when_split_dominates_merit():
+    cap = resolve_inner_t_max_step_K(
+        ene_norm=0.08,
+        tol_rms=0.03,
+        split_rms=0.20,
+        merit_F=0.21,
+        dominant_non_energy=0.10,
+        split_dominant_cap_K=150.0,
+        line_search_split_enabled=True,
+    )
+    assert cap == pytest.approx(150.0)
+
+
+def test_resolve_inner_t_max_step_cap_when_split_codominates_energy_merit():
+    """Outer-8 v8 profile: energy sets merit but split/merit >= 0.85."""
+    cap = resolve_inner_t_max_step_K(
+        ene_norm=0.227,
+        tol_rms=0.03,
+        split_rms=0.196,
+        merit_F=0.227,
+        dominant_non_energy=0.10,
+        split_dominant_cap_K=150.0,
+        line_search_split_enabled=True,
+    )
+    assert cap == pytest.approx(150.0)
+
+
+def test_resolve_inner_t_max_step_default_when_split_not_dominant():
+    cap = resolve_inner_t_max_step_K(
+        ene_norm=0.20,
+        tol_rms=0.03,
+        split_rms=0.05,
+        merit_F=0.20,
+        dominant_non_energy=0.18,
+        default_cap_K=600.0,
+        split_dominant_cap_K=150.0,
+        line_search_split_enabled=True,
+    )
+    assert cap == pytest.approx(600.0)
+
+
+def test_resolve_inner_t_max_step_hold_keeps_cap_after_energy_spike():
+    """F3: hysteresis hold keeps 150 K even when split/merit < engage ratio."""
+    cap = resolve_inner_t_max_step_K(
+        ene_norm=0.16,
+        tol_rms=0.03,
+        split_rms=0.12,
+        merit_F=0.16,
+        dominant_non_energy=0.10,
+        default_cap_K=600.0,
+        split_dominant_cap_K=150.0,
+        line_search_split_enabled=True,
+        hold_split_cap=True,
+    )
+    assert cap == pytest.approx(150.0)
+
+
+def test_refresh_aware_joint_accept_requires_post_refresh_not_worse():
+    """Energy↓ alone is not enough; post-refresh merit/split must not worsen."""
+    from src.solvers.global_nr_solver import _refresh_aware_joint_acceptable
+
+    # Classic plateau trade: energy↓, split↑ → pre-refresh merit↑; post still worse → reject
+    assert _refresh_aware_joint_acceptable(
+        energy_F=0.040,
+        energy_trial=0.022,
+        merit_F=0.040,
+        merit_post=0.045,
+        split_F=0.037,
+        split_post=0.045,
+    ) is False
+    # Post-refresh heals split and merit → accept
+    assert _refresh_aware_joint_acceptable(
+        energy_F=0.040,
+        energy_trial=0.022,
+        merit_F=0.040,
+        merit_post=0.036,
+        split_F=0.037,
+        split_post=0.035,
+    ) is True
+    # Not energy-dominated → this path must not fire
+    assert _refresh_aware_joint_acceptable(
+        energy_F=0.020,
+        energy_trial=0.010,
+        merit_F=0.040,
+        merit_post=0.030,
+        split_F=0.037,
+        split_post=0.030,
+    ) is False
+
+
+def test_zero_gas_holdup_newton_step_keeps_temperature():
+    from src.core.cell import Cell
+    from src.core.species import GAS_SPECIES_INDEX
+    from src.solvers.global_nr_solver import _zero_gas_holdup_newton_step, pack_reactor
+    from src.solvers.nr_indexing import (
+        has_temperature_var,
+        install_main_nr_gas_indexing_on_cells,
+        n_gas_var,
+        temperature_offset,
+    )
+
+    cell = Cell()
+    cell.cell_type = "bed"
+    cell.N_d[:] = 1.0
+    cell.N_b[:] = 0.5
+    cell.N_d[GAS_SPECIES_INDEX["CO"]] = 2.0
+    install_main_nr_gas_indexing_on_cells([cell], None)
+    x = pack_reactor([cell])
+    dx = np.ones_like(x)
+    out = _zero_gas_holdup_newton_step(dx, [cell])
+    ng = n_gas_var(cell)
+    assert np.allclose(out[:ng], 0.0)
+    if has_temperature_var(cell):
+        assert out[temperature_offset(cell)] == pytest.approx(1.0)
+
+
+def test_zero_same_phase_oxidizer_fuel_newton_step_blocks_overlap():
+    """Dense H₂ / bubble O₂: do not introduce the missing oxidizer or fuel into that phase."""
+    from src.core.cell import Cell
+    from src.core.species import GAS_SPECIES_INDEX
+    from src.solvers.global_nr_solver import _zero_same_phase_oxidizer_fuel_newton_step, pack_reactor
+    from src.solvers.nr_indexing import (
+        gas_mode_for_nr,
+        has_temperature_var,
+        install_main_nr_gas_indexing_on_cells,
+        main_nr_gas_idx_for_cell,
+        temperature_offset,
+    )
+
+    cell = Cell()
+    cell.cell_type = "bed"
+    cell.N_d[:] = 0.0
+    cell.N_b[:] = 0.0
+    cell.N_d[GAS_SPECIES_INDEX["H2"]] = 2.0  # [mol/s]
+    cell.N_d[GAS_SPECIES_INDEX["CO"]] = 1.0  # [mol/s]
+    cell.N_b[GAS_SPECIES_INDEX["O2"]] = 8.0  # [mol/s]
+    cell.N_b[GAS_SPECIES_INDEX["N2"]] = 30.0  # [mol/s]
+    install_main_nr_gas_indexing_on_cells([cell], None)
+    assert gas_mode_for_nr(cell) == "two_phase"
+    dx = np.ones_like(pack_reactor([cell]))
+    out = _zero_same_phase_oxidizer_fuel_newton_step(dx, [cell])
+    gas_idx = main_nr_gas_idx_for_cell(cell)
+    loc = {int(gi): int(k) for k, gi in enumerate(gas_idx)}
+    n_sp = int(gas_idx.size)
+    j_o2 = int(GAS_SPECIES_INDEX["O2"])
+    j_h2 = int(GAS_SPECIES_INDEX["H2"])
+    j_co = int(GAS_SPECIES_INDEX["CO"])
+    j_ch4 = int(GAS_SPECIES_INDEX["CH4"])
+    j_n2 = int(GAS_SPECIES_INDEX["N2"])
+    assert out[loc[j_o2]] == 0.0
+    assert out[n_sp + loc[j_h2]] == 0.0
+    assert out[n_sp + loc[j_co]] == 0.0
+    assert out[n_sp + loc[j_ch4]] == 0.0
+    assert out[loc[j_h2]] == pytest.approx(1.0)
+    assert out[loc[j_co]] == pytest.approx(1.0)
+    assert out[n_sp + loc[j_o2]] == pytest.approx(1.0)
+    assert out[loc[j_n2]] == pytest.approx(1.0)
+    assert out[n_sp + loc[j_n2]] == pytest.approx(1.0)
+    if has_temperature_var(cell):
+        assert out[temperature_offset(cell)] == pytest.approx(1.0)
+
+    dx_neg = np.ones_like(dx)
+    dx_neg[loc[j_o2]] = -0.4
+    dx_neg[n_sp + loc[j_h2]] = -0.3
+    out_neg = _zero_same_phase_oxidizer_fuel_newton_step(dx_neg, [cell])
+    assert out_neg[loc[j_o2]] == pytest.approx(-0.4)
+    assert out_neg[n_sp + loc[j_h2]] == pytest.approx(-0.3)
+
+    out_r1 = _zero_same_phase_oxidizer_fuel_newton_step(
+        dx, [cell], allow_oxidizer_into_fuel=True
+    )
+    assert out_r1[loc[j_o2]] == pytest.approx(1.0)
+    assert out_r1[n_sp + loc[j_h2]] == 0.0
+    assert out_r1[n_sp + loc[j_co]] == 0.0
+
+
+def test_line_search_rejects_split_inflation_under_energy_floor():
+    """O3 pathology: tiny merit drop must not buy split co-dominance."""
+    from src.solvers.global_nr_solver import _line_search_trial_acceptable
+
+    # Trial pushes split into co-dominance with only ~0.4% merit drop → reject
+    assert _line_search_trial_acceptable(
+        merit_trial=0.1458,
+        merit_F=0.1464,
+        split_trial=0.140,
+        split_F=0.098,
+        energy_F=0.1464,
+        use_gas_phase_split=True,
+        use_energy=True,
+    ) is False
+    # Large merit drop can justify split rise into co-dominance
+    assert _line_search_trial_acceptable(
+        merit_trial=0.12,
+        merit_F=0.1464,
+        split_trial=0.12,
+        split_F=0.098,
+        energy_F=0.1464,
+        use_gas_phase_split=True,
+        use_energy=True,
+    ) is True
+    # Mild split rise staying below ratio * merit_trial is OK
+    assert _line_search_trial_acceptable(
+        merit_trial=0.145,
+        merit_F=0.1464,
+        split_trial=0.110,
+        split_F=0.098,
+        energy_F=0.1464,
+        use_gas_phase_split=True,
+        use_energy=True,
+    ) is True
+    # Split decrease always OK
+    assert _line_search_trial_acceptable(
+        merit_trial=0.145,
+        merit_F=0.1464,
+        split_trial=0.090,
+        split_F=0.098,
+        energy_F=0.1464,
+        use_gas_phase_split=True,
+        use_energy=True,
+    ) is True
+
+
+def test_update_t_cap_split_hysteresis_ignores_energy_inflated_merit():
+    """Energy spike must not release an engaged split-dominant latch."""
+    from src.solvers.global_nr_solver import update_t_cap_split_hysteresis
+
+    hold = update_t_cap_split_hysteresis(
+        True,
+        split_rms=0.098,
+        merit_F=0.146,
+        merit_without_energy=0.098,
+        engage_ratio=0.85,
+        release_ratio=0.70,
+    )
+    assert hold is True
+    released = update_t_cap_split_hysteresis(
+        True,
+        split_rms=0.04,
+        merit_F=0.15,
+        merit_without_energy=0.15,
+        engage_ratio=0.85,
+        release_ratio=0.70,
+    )
+    assert released is False
+
+
+def test_resolve_t_step_with_abs_dT_budget_clamps_remaining():
+    from src.solvers.global_nr_solver import resolve_t_step_with_abs_dT_budget
+
+    assert resolve_t_step_with_abs_dT_budget(600.0, dT_so_far_K=0.0, abs_dT_budget_K=200.0) == 200.0
+    assert resolve_t_step_with_abs_dT_budget(150.0, dT_so_far_K=120.0, abs_dT_budget_K=200.0) == 80.0
+    assert resolve_t_step_with_abs_dT_budget(150.0, dT_so_far_K=200.0, abs_dT_budget_K=200.0) == pytest.approx(1e-6)
+    assert resolve_t_step_with_abs_dT_budget(600.0, dT_so_far_K=50.0, abs_dT_budget_K=0.0) == 600.0
+
+
+def test_resolve_inner_t_max_step_energy_deep_branch():
+    cap = resolve_inner_t_max_step_K(
+        ene_norm=1.0e-5,
+        tol_rms=0.03,
+        split_rms=0.02,
+        merit_F=0.02,
+        dominant_non_energy=0.10,
+        split_dominant_cap_K=150.0,
+        line_search_split_enabled=True,
+    )
+    assert cap == pytest.approx(1.0)
+
+
+def test_thesis_check1_uses_line_search_merit_not_split_max_abs():
+    reactor = Reactor(build_phase1_htw_lu_reactor_config())
+    cell = reactor.cells[0]
+    nv = n_var(cell)
+    F_hat = np.zeros(nv, dtype=np.float64)
+    F_hat[0] = 0.007
+    F_hat[MAIN_NR_GAS_COUNT] = -0.007
+    inner = InnerConvergence(atol=0.01, rtol=0.0)
+    assert _inner_nr_check1_satisfied(
+        F_hat=F_hat,
+        cells=[cell],
+        norm_F=0.004,
+        x_rms=1.0,
+        tol_rms=0.01,
+        inner_convergence=inner,
+        enforce_gas_phase_split_convergence=True,
+        line_search_merit_enabled=True,
+        tol_gas_phase_split_max=None,
+    )
+    assert not _inner_nr_check1_satisfied(
+        F_hat=F_hat,
+        cells=[cell],
+        norm_F=0.004,
+        x_rms=1.0,
+        tol_rms=0.01,
+        inner_convergence=inner,
+        enforce_gas_phase_split_convergence=True,
+        line_search_merit_enabled=False,
+        tol_gas_phase_split_max=None,
+    )
+
+
+def test_solve_global_nr_refreshes_hydrodynamics_on_accepted_step(monkeypatch):
+    cell = Cell()
+    x0 = pack_reactor([cell])
+    n_total = len(x0)
+    refresh_calls: list[int] = []
+
+    monkeypatch.setattr(
+        "src.solvers.global_nr_solver.build_equation_scales",
+        lambda *args, **kwargs: np.ones(n_total),
+    )
+    monkeypatch.setattr(
+        "src.solvers.global_nr_solver.build_jacobian_fd",
+        lambda *args, **kwargs: (sp.eye(n_total, format="csr"), {"residual_cell_calls": 0, "nnz": n_total}),
+    )
+    monkeypatch.setattr(
+        "src.solvers.global_nr_solver._clip_dx",
+        lambda dx, cells, ref_gas_mol_s, ref_solid_kg_s, **kwargs: dx,
+    )
+
+    def _fake_refresh(cells, *, cfg=None):
+        refresh_calls.append(len(cells))
+
+    monkeypatch.setattr(
+        "src.solvers.vorabrechnung.refresh_cells_hydrodynamics_for_frozen_inner",
+        _fake_refresh,
+    )
+
+    calls = {"n": 0}
+    post_refresh_residuals: list[float] = []
+
+    def _fake_global_residual(x, cells, apply_bc_fn):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            return np.full(n_total, 2.0)
+        # After hydro refresh, residual mapping changes — return a distinct value.
+        if refresh_calls:
+            post_refresh_residuals.append(0.05)
+            return np.full(n_total, 0.05)
+        return np.full(n_total, 0.5)
+
+    monkeypatch.setattr("src.solvers.global_nr_solver.global_residual", _fake_global_residual)
+
+    result = solve_global_nr(
+        cells=[cell],
+        apply_bc_fn=lambda: None,
+        max_iter=2,
+        tol_rms=0.1,
+        lambda_init=1.0,
+        prefer_full_step=True,
+        refresh_hydrodynamics_on_accepted_step=True,
+    )
+
+    assert refresh_calls == [1]
+    assert result["counts"].get("hydrodynamics_refresh_on_accept", 0) == 1
+    assert result["counts"].get("hydrodynamics_refresh_residual_recompute", 0) == 1
+    assert result["refresh_hydrodynamics_on_accepted_step"] is True
+    assert post_refresh_residuals, "accepted-step refresh must recompute residual under new hydro"
+    # Final reported residual should come from the post-refresh mapping, not the
+    # pre-refresh trial residual (0.5).
+    assert float(result["rms_scaled_final"]) == pytest.approx(0.05)
+
+
+def test_refresh_cells_hydrodynamics_updates_bed_K_solid_before_snapshot():
+    """Hydro-only snap left stale K under freeze; batch refresh must recompute K."""
+    from src.solvers.vorabrechnung import refresh_cells_hydrodynamics_for_frozen_inner
+
+    cfg = build_phase2_htw_lu_freeboard_reactor_config()
+    cfg.n_cells = 3
+    cfg.n_freeboard_cells = 0
+    reactor = Reactor(cfg)
+    beds = list(reactor.cells)
+    for cell in beds:
+        cell.calc_hydrodynamics()
+    from src.core.connectivity.solid_transport import update_bed_solid_transport_coefficients
+
+    update_bed_solid_transport_coefficients(beds, cfg)
+    for cell in beds:
+        cell._snapshot_vorabrechnung_hydrodynamics()
+        cell.enable_inner_nr_vorabrechnung_freeze()
+
+    # Corrupt live K while freeze cache still holds the good snapshot.
+    for cell in beds:
+        cell.K_solid_auf.fill(0.0)
+        cell.K_solid_ab.fill(0.0)
+    stale = float(np.sum(np.abs(beds[1].K_solid_auf)))
+    assert stale == 0.0
+
+    refresh_cells_hydrodynamics_for_frozen_inner(beds, cfg=cfg)
+    # Apply freeze restore — must see recomputed K, not zeros.
+    for cell in beds:
+        cell._apply_frozen_vorabrechnung_hydrodynamics()
+    assert float(np.sum(np.abs(beds[1].K_solid_auf))) > 0.0
+
+
+def test_thesis_nr_vector_includes_pyrolysis_gas_species():
+    from src.core.species import GAS_SPECIES_INDEX
+
+    cfg = build_phase2_htw_lu_freeboard_reactor_config()
+    cfg.n_cells = 2
+    cfg.n_freeboard_cells = 0
+    reactor = Reactor(cfg)
+    cell = reactor.cells[0]
+
+    assert cfg.nr_include_pyrolysis_gas_species_in_unknowns_thesis is True
+    assert main_nr_gas_count_for_cell(cell) == 10
+    assert bool(getattr(cell, "_nr_solves_nh3_transport", False)) is True
+
+    x = pack_cell(cell)
+    nh3_idx = int(GAS_SPECIES_INDEX["NH3"])
+    gas_idx = cell._main_nr_gas_idx
+    assert nh3_idx in set(int(i) for i in gas_idx)
+    pos = int(np.where(gas_idx == nh3_idx)[0][0])
+    cell.N_d[nh3_idx] = 0.05
+    cell.N_b[nh3_idx] = 0.01
+    x2 = pack_cell(cell)
+    assert x2[pos] == pytest.approx(0.05)
+    assert x2[len(gas_idx) + pos] == pytest.approx(0.01)
+
+
+def test_legacy_config_keeps_pyrolysis_species_out_of_nr_unknowns():
+    cfg = ReactorConfig(n_cells=2, thesis_mode=False, n_freeboard_cells=0, n_age_classes=1)
+    cfg.nr_include_pyrolysis_gas_species_in_unknowns_thesis = False
+    reactor = Reactor(cfg)
+    cell = reactor.cells[0]
+
+    assert main_nr_gas_count_for_cell(cell) == MAIN_NR_GAS_COUNT
+    assert bool(getattr(cell, "_nr_solves_nh3_transport", False)) is False
+
+
+def test_projected_residual_includes_nh3_balance_when_in_nr():
+    from src.core.species import GAS_SPECIES_INDEX
+
+    cell = Cell()
+    install_main_nr_gas_indexing_on_cells(
+        [cell],
+        type("Cfg", (), {"nr_include_pyrolysis_gas_species_in_unknowns_thesis": True})(),
+    )
+    nh3 = int(GAS_SPECIES_INDEX["NH3"])
+    full = np.zeros(2 * len(cell.N_d) + cell.m_solid.size + 1, dtype=np.float64)
+    full[nh3] = 0.42
+    cell.residuals = lambda: full
+
+    projected = _project_cell_residual_to_main_nr(cell)
+    gas_idx = cell._main_nr_gas_idx
+    pos = int(np.where(gas_idx == nh3)[0][0])
+
+    assert projected[pos] == pytest.approx(0.42)
+
+
+def test_nh3_gibbs_source_disabled_when_nr_solves_nh3_transport():
+    from src.core.species import GAS_SPECIES_INDEX
+
+    cell = Cell()
+    cell.use_gibbs_minor = True
+    install_main_nr_gas_indexing_on_cells(
+        [cell],
+        type("Cfg", (), {"nr_include_pyrolysis_gas_species_in_unknowns_thesis": True})(),
+    )
+    cell.solid.nitrogen_fraction = 0.02
+    cell.N_d[GAS_SPECIES_INDEX["NH3"]] = 0.01
+
+    out = cell.calc_minor_species_gibbs()
+
+    assert "NH3" not in out
+    assert "H2S" in out or out == {}
+
+
+def test_pyrolysis_nr_excludes_pyro_species_from_phase_split_merit():
+    from src.core.species import GAS_SPECIES_INDEX
+
+    cfg = build_phase2_htw_lu_freeboard_reactor_config()
+    cfg.n_cells = 1
+    cfg.n_freeboard_cells = 0
+    reactor = Reactor(cfg)
+    cell = reactor.cells[0]
+    nv = n_var(cell)
+    nh3 = int(GAS_SPECIES_INDEX["NH3"])
+    gas_idx = cell._main_nr_gas_idx
+    nh3_pos = int(np.where(gas_idx == nh3)[0][0])
+    half = n_gas_var(cell) // 2
+
+    F_hat = np.zeros(nv, dtype=np.float64)
+    F_hat[nh3_pos] = 0.2
+    F_hat[half + nh3_pos] = -0.15
+    F_hat[0] = 0.01
+    F_hat[half] = -0.01
+
+    metrics = _residual_gas_phase_metrics(F_hat, [cell])
+
+    assert metrics["gas_phase_split_max_abs"] == pytest.approx(0.02)
+    assert metrics["gas_combined_max_abs"] > 0.04
 
 
 def test_freeboard_residual_projection_uses_single_total_gas_without_bubble_anchor():
@@ -192,8 +714,48 @@ def test_clip_dx_limits_negative_solid_step_to_existing_inventory():
 
     clipped = _clip_dx(dx, [cell], ref_gas_mol_s=1.0, ref_solid_kg_s=1.0)
 
-    assert clipped[solid0] == pytest.approx(-0.008)
+    # Global holdup α is bound by the smaller inventory (ash).
+    assert clipped[solid0] == pytest.approx(-0.004)
     assert clipped[solid0 + 1] == pytest.approx(-0.004)
+
+
+def test_clip_dx_relative_solid_ftb_floor_does_not_kill_gas_step():
+    """微量固相负步不应经全局 α 掐死显著气相 dx（handoff §5.6）。"""
+    from src.core.species import GAS_SPECIES_INDEX
+    from src.solvers.nr_indexing import install_main_nr_gas_indexing_on_cells
+
+    reactor = Reactor(build_phase1_htw_lu_reactor_config())
+    cell = reactor.cells[0]
+    cell.solid_state_model = "holdup_transport"
+    cell.m_solid.fill(0.0)
+    cell.m_solid[0, S_CHAR] = 10.0
+    cell.m_solid[0, S_ASH] = 1.38e-6  # near-empty class
+    install_main_nr_gas_indexing_on_cells([cell], None)
+    idx = GAS_SPECIES_INDEX
+    cell.N_d[idx["CO"]] = 2.0
+    cell.N_b[idx["CO"]] = 1.0
+    dx = np.zeros(n_var(cell), dtype=np.float64)
+    # dense CO is first major gas DOF under default indexing
+    dx[0] = 0.15
+    solid0 = 2 * MAIN_NR_GAS_COUNT
+    # ash class index among NR flat solids — find ash dof by packing
+    from src.solvers.nr_indexing import solid_flat_indices_for_nr, solid_offset
+
+    flats = solid_flat_indices_for_nr(cell)
+    ash_flat = int(np.flatnonzero(cell.m_solid.reshape(-1)[flats] < 1e-5)[0])
+    dx[solid_offset(cell) + ash_flat] = -0.002
+
+    clipped_legacy = _clip_dx(dx, [cell], ref_gas_mol_s=80.0, ref_solid_kg_s=1.0)
+    clipped_rel = _clip_dx(
+        dx,
+        [cell],
+        ref_gas_mol_s=80.0,
+        ref_solid_kg_s=1.0,
+        solid_ftb_relative_floor=True,
+    )
+    assert abs(clipped_legacy[0]) < 1e-3  # legacy α massacre
+    assert clipped_rel[0] == pytest.approx(0.15, rel=1e-6, abs=1e-9)
+    assert clipped_rel[solid_offset(cell) + ash_flat] == pytest.approx(0.0)
 
 
 def test_clip_dx_limits_temperature_step_when_requested():
@@ -204,6 +766,17 @@ def test_clip_dx_limits_temperature_step_when_requested():
     clipped = _clip_dx(dx, [cell], ref_gas_mol_s=1.0, ref_solid_kg_s=1.0, t_step_limit_K=600.0)
 
     assert clipped[-1] == pytest.approx(600.0)
+
+
+def test_clip_dx_limits_temperature_step_to_core_energy_cap():
+    """CORE §5.53：40 K 帽把 350 K 围栏猛砸收住。"""
+    cell = Cell()
+    dx = np.zeros(n_var(cell), dtype=np.float64)
+    dx[-1] = -350.0
+
+    clipped = _clip_dx(dx, [cell], ref_gas_mol_s=1.0, ref_solid_kg_s=1.0, t_step_limit_K=40.0)
+
+    assert clipped[-1] == pytest.approx(-40.0)
 
 
 def test_unpack_reactor_respects_vorabrechnung_temperature_fence():
@@ -223,103 +796,25 @@ def test_unpack_reactor_respects_vorabrechnung_temperature_fence():
     assert cell.T == pytest.approx(1500.0)
 
 
-def test_clip_dx_does_not_treat_side_element_last_solid_dof_as_temperature():
+def test_clip_dx_applies_temperature_limit_to_side_element_temperature_dof():
+    from src.solvers.nr_indexing import temperature_offset
+
     cell = Cell()
     cell.cell_type = "cyclone"
     cell.solid_state_model = "holdup_transport"
     cell.m_solid.fill(10.0)
     dx = np.zeros(n_var(cell), dtype=np.float64)
-    dx[-1] = 42.0
+    t_off = temperature_offset(cell)
+    dx[t_off] = 42.0
 
     clipped = _clip_dx(dx, [cell], ref_gas_mol_s=1.0, ref_solid_kg_s=10000.0, t_step_limit_K=1.0)
 
-    assert clipped[-1] == pytest.approx(42.0)
+    assert clipped[t_off] == pytest.approx(1.0)
 
-
-def _build_initialized_thesis_freeboard_reactor(
-    *,
-    n_bed: int = 3,
-    n_freeboard: int = 2,
-) -> Reactor:
-    cfg = build_phase2_htw_lu_freeboard_reactor_config()
-    cfg.n_cells = int(n_bed)
-    cfg.n_freeboard_cells = int(n_freeboard)
-    cfg.major_gibbs_solver_mode = "hamel_reduced"
-    reactor = Reactor(cfg)
-    run_init_and_precalc_for_global_nr(
-        reactor,
-        init_strategy="vorabrechnung",
-        gs_warmup_steps=None,
-    )
-    return reactor
-
-
-def _phase2_first_cell_major_elements() -> tuple[dict[str, float], float, float]:
-    cfg = build_phase2_htw_lu_freeboard_reactor_config()
-    reactor = Reactor(cfg)
-    t_profile = estimate_axial_T_profile(
-        n_cells=cfg.n_cells,
-        T_inlet=cfg.T_inlet,
-        O2_feed=cfg.O2_feed,
-        H2O_feed=cfg.H2O_feed,
-        N2_feed=cfg.N2_feed,
-        fuel_feed_kg_s=cfg.fuel_feed,
-        C_dry=cfg.C_dry,
-        H_dry=cfg.H_dry,
-        moisture_wt=cfg.moisture_wt,
-        P=cfg.P,
-    )
-    for i, cell in enumerate(reactor.cells):
-        cell.T = float(t_profile[i])
-    reactor._set_bottom_cell_feeds()
-    for i in range(len(reactor.cells)):
-        reactor._propagate_upstream(i)
-    for cell in reactor.cells:
-        cell.calc_hydrodynamics()
-
-    cell0 = reactor.cells[0]
-    moisture_frac = cfg.moisture_wt / 100.0
-    ash_frac = cfg.ash_dry_wt / 100.0
-    vm_daf_frac = cfg.VM_daf / 100.0
-    dry_feed = cfg.fuel_feed * (1.0 - moisture_frac)
-    daf_feed = dry_feed * (1.0 - ash_frac)
-
-    m_c = 12.011e-3
-    m_h = 1.00794e-3
-    m_o = 15.999e-3
-    c_daf = (cfg.C_dry / 100.0) / max(1.0 - ash_frac, 1e-12)
-    h_daf = (cfg.H_dry / 100.0) / max(1.0 - ash_frac, 1e-12)
-    o_daf = (cfg.O_dry / 100.0) / max(1.0 - ash_frac, 1e-12)
-
-    frac_height = 0.5 / max(cfg.n_cells, 1)
-    o2_consumed_frac = min(1.0 - np.exp(-5.0 * frac_height), 1.0)
-    o2_remaining = cfg.O2_feed * max(1.0 - o2_consumed_frac, 0.0)
-    tau_est = cell0.geo.dh / max(0.05, cell0.u_mf if cell0.u_mf > 0 else 0.05)
-    x_vm, _ = devolatilization_rate_for_cell(
-        T_bed=float(t_profile[0]),
-        tau_cell=tau_est,
-        T_init=max(float(t_profile[0]) * 0.3, 400.0),
-        VM_daf=vm_daf_frac,
-        fuel_type="brown_coal",
-    )
-    x_vm_cum = min(x_vm * (frac_height + 0.1), 1.0)
-    m_vm_released = daf_feed * vm_daf_frac * x_vm_cum
-    n_c_vm = m_vm_released * c_daf / m_c
-    n_h_vm = m_vm_released * h_daf / m_h / 2.0
-    n_o_vm = m_vm_released * o_daf / m_o / 2.0
-    elems = _major_elements_from_feeds(
-        nC_vm=float(n_c_vm),
-        nH_vm=float(n_h_vm),
-        nO_vm=float(n_o_vm),
-        H2O_feed=float(cfg.H2O_feed),
-        N2_feed=float(cfg.N2_feed),
-        o2_remaining=float(o2_remaining),
-    )
-    return elems, float(t_profile[0]), float(cell0.P)
 
 
 def test_generate_initial_x0_major_gibbs_seed_is_finite_and_nonnegative():
-    reactor = _build_initialized_lu_reactor(n_cells=2)
+    reactor = build_initialized_lu_reactor(n_cells=2)
     for cell in reactor.cells:
         assert np.all(np.isfinite(cell.N_d))
         assert np.all(np.isfinite(cell.N_b))
@@ -328,201 +823,48 @@ def test_generate_initial_x0_major_gibbs_seed_is_finite_and_nonnegative():
         assert float(np.sum(cell.N_d + cell.N_b)) > 0.0
 
 
-def test_generate_initial_x0_falls_back_when_major_gibbs_seed_raises(monkeypatch):
-    cfg = build_phase1_htw_lu_reactor_config()
-    cfg.n_cells = 2
-    reactor = Reactor(cfg)
-    t_profile = estimate_axial_T_profile(
-        n_cells=cfg.n_cells,
-        T_inlet=cfg.T_inlet,
-        O2_feed=cfg.O2_feed,
-        H2O_feed=cfg.H2O_feed,
-        N2_feed=cfg.N2_feed,
-        fuel_feed_kg_s=cfg.fuel_feed,
-        C_dry=cfg.C_dry,
-        H_dry=cfg.H_dry,
-        moisture_wt=cfg.moisture_wt,
-        P=cfg.P,
-    )
-    monkeypatch.setattr(
-        "src.solvers.vorabrechnung._solve_major_gibbs_seed",
-        lambda **kwargs: (_ for _ in ()).throw(RuntimeError("boom")),
-    )
+@pytest.mark.parametrize(
+    "case_id,seed_fn,strict,expect_match,sum_upper",
+    MAJOR_GIBBS_SEED_CASES,
+    ids=[case[0] for case in MAJOR_GIBBS_SEED_CASES],
+)
+def test_generate_initial_x0_major_gibbs_seed_strict_and_fallback_modes(
+    monkeypatch,
+    case_id,
+    seed_fn,
+    strict,
+    expect_match,
+    sum_upper,
+):
+    reactor, cfg, t_profile = build_phase1_two_cell_reactor()
+    monkeypatch.setattr("src.solvers.vorabrechnung.vorab_x0._solve_major_gibbs_seed", seed_fn)
 
-    generate_initial_x0(
-        cells=reactor.cells,
-        O2_feed=cfg.O2_feed,
-        H2O_feed=cfg.H2O_feed,
-        N2_feed=cfg.N2_feed,
-        fuel_feed_kg_s=cfg.fuel_feed,
-        C_dry=cfg.C_dry,
-        H_dry=cfg.H_dry,
-        O_dry=cfg.O_dry,
-        moisture_wt=cfg.moisture_wt,
-        ash_dry_wt=cfg.ash_dry_wt,
-        VM_daf=cfg.VM_daf,
-        T_profile=t_profile,
-        fuel_type=cfg.fuel_type,
-        use_hamel_major_gibbs_x0=True,
-    )
-
-    for cell in reactor.cells:
-        assert np.all(np.isfinite(cell.N_d))
-        assert np.all(np.isfinite(cell.N_b))
-        assert float(np.sum(cell.N_d + cell.N_b)) > 0.0
-
-
-def test_generate_initial_x0_falls_back_when_major_gibbs_seed_is_not_credible(monkeypatch):
-    cfg = build_phase1_htw_lu_reactor_config()
-    cfg.n_cells = 2
-    reactor = Reactor(cfg)
-    t_profile = estimate_axial_T_profile(
-        n_cells=cfg.n_cells,
-        T_inlet=cfg.T_inlet,
-        O2_feed=cfg.O2_feed,
-        H2O_feed=cfg.H2O_feed,
-        N2_feed=cfg.N2_feed,
-        fuel_feed_kg_s=cfg.fuel_feed,
-        C_dry=cfg.C_dry,
-        H_dry=cfg.H_dry,
-        moisture_wt=cfg.moisture_wt,
-        P=cfg.P,
-    )
-
-    monkeypatch.setattr(
-        "src.solvers.vorabrechnung._solve_major_gibbs_seed",
-        lambda **kwargs: (
-            {
-                "CO2": 1e24,
-                "CO": 0.0,
-                "CH4": 0.0,
-                "H2": 0.0,
-                "H2O": 1e24,
-                "O2": 1e24,
-                "N2": 1e24,
-            },
-            {"converged": False, "lambda": np.zeros(4), "ln_N": 10.0},
-        ),
-    )
-
-    generate_initial_x0(
-        cells=reactor.cells,
-        O2_feed=cfg.O2_feed,
-        H2O_feed=cfg.H2O_feed,
-        N2_feed=cfg.N2_feed,
-        fuel_feed_kg_s=cfg.fuel_feed,
-        C_dry=cfg.C_dry,
-        H_dry=cfg.H_dry,
-        O_dry=cfg.O_dry,
-        moisture_wt=cfg.moisture_wt,
-        ash_dry_wt=cfg.ash_dry_wt,
-        VM_daf=cfg.VM_daf,
-        T_profile=t_profile,
-        fuel_type=cfg.fuel_type,
-        use_hamel_major_gibbs_x0=True,
-    )
-
-    for cell in reactor.cells:
-        assert np.all(np.isfinite(cell.N_d))
-        assert np.all(np.isfinite(cell.N_b))
-        assert float(np.sum(cell.N_d + cell.N_b)) < 1e6
-
-
-def test_generate_initial_x0_strict_mode_raises_when_major_gibbs_seed_fails(monkeypatch):
-    cfg = build_phase1_htw_lu_reactor_config()
-    cfg.n_cells = 2
-    reactor = Reactor(cfg)
-    t_profile = estimate_axial_T_profile(
-        n_cells=cfg.n_cells,
-        T_inlet=cfg.T_inlet,
-        O2_feed=cfg.O2_feed,
-        H2O_feed=cfg.H2O_feed,
-        N2_feed=cfg.N2_feed,
-        fuel_feed_kg_s=cfg.fuel_feed,
-        C_dry=cfg.C_dry,
-        H_dry=cfg.H_dry,
-        moisture_wt=cfg.moisture_wt,
-        P=cfg.P,
-    )
-    monkeypatch.setattr(
-        "src.solvers.vorabrechnung._solve_major_gibbs_seed",
-        lambda **kwargs: (_ for _ in ()).throw(RuntimeError("boom")),
-    )
-
-    with pytest.raises(RuntimeError, match="boom"):
-        generate_initial_x0(
-            cells=reactor.cells,
-            O2_feed=cfg.O2_feed,
-            H2O_feed=cfg.H2O_feed,
-            N2_feed=cfg.N2_feed,
-            fuel_feed_kg_s=cfg.fuel_feed,
-            C_dry=cfg.C_dry,
-            H_dry=cfg.H_dry,
-            O_dry=cfg.O_dry,
-            moisture_wt=cfg.moisture_wt,
-            ash_dry_wt=cfg.ash_dry_wt,
-            VM_daf=cfg.VM_daf,
-            T_profile=t_profile,
-            fuel_type=cfg.fuel_type,
-            use_hamel_major_gibbs_x0=True,
-            strict_hamel_major_gibbs_x0=True,
+    if expect_match is None:
+        call_generate_initial_x0_phase1(
+            reactor,
+            cfg,
+            t_profile,
+            strict_hamel_major_gibbs_x0=strict,
         )
-
-
-def test_generate_initial_x0_strict_mode_rejects_noncredible_finite_seed(monkeypatch):
-    cfg = build_phase1_htw_lu_reactor_config()
-    cfg.n_cells = 2
-    reactor = Reactor(cfg)
-    t_profile = estimate_axial_T_profile(
-        n_cells=cfg.n_cells,
-        T_inlet=cfg.T_inlet,
-        O2_feed=cfg.O2_feed,
-        H2O_feed=cfg.H2O_feed,
-        N2_feed=cfg.N2_feed,
-        fuel_feed_kg_s=cfg.fuel_feed,
-        C_dry=cfg.C_dry,
-        H_dry=cfg.H_dry,
-        moisture_wt=cfg.moisture_wt,
-        P=cfg.P,
-    )
-    monkeypatch.setattr(
-        "src.solvers.vorabrechnung._solve_major_gibbs_seed",
-        lambda **kwargs: (
-            {
-                "CO2": 1e20,
-                "CO": 0.0,
-                "CH4": 0.0,
-                "H2": 0.0,
-                "H2O": 1e20,
-                "O2": 1e20,
-                "N2": 1e20,
-            },
-            {"converged": False, "final_residual": 1e20, "lambda": np.ones(4), "ln_N": 5.0},
-        ),
-    )
-
-    with pytest.raises(RuntimeError, match="non-credible seed in strict mode"):
-        generate_initial_x0(
-            cells=reactor.cells,
-            O2_feed=cfg.O2_feed,
-            H2O_feed=cfg.H2O_feed,
-            N2_feed=cfg.N2_feed,
-            fuel_feed_kg_s=cfg.fuel_feed,
-            C_dry=cfg.C_dry,
-            H_dry=cfg.H_dry,
-            O_dry=cfg.O_dry,
-            moisture_wt=cfg.moisture_wt,
-            ash_dry_wt=cfg.ash_dry_wt,
-            VM_daf=cfg.VM_daf,
-            T_profile=t_profile,
-            fuel_type=cfg.fuel_type,
-            use_hamel_major_gibbs_x0=True,
-            strict_hamel_major_gibbs_x0=True,
-        )
+        for cell in reactor.cells:
+            assert np.all(np.isfinite(cell.N_d))
+            assert np.all(np.isfinite(cell.N_b))
+            total = float(np.sum(cell.N_d + cell.N_b))
+            assert total > 0.0
+            if sum_upper is not None:
+                assert total < sum_upper
+    else:
+        with pytest.raises(RuntimeError, match=expect_match):
+            call_generate_initial_x0_phase1(
+                reactor,
+                cfg,
+                t_profile,
+                strict_hamel_major_gibbs_x0=strict,
+            )
 
 
 def test_major_gibbs_hamel_reduced_seed_is_credible_on_phase2_first_cell():
-    elems, t0, p0 = _phase2_first_cell_major_elements()
+    elems, t0, p0 = phase2_first_cell_major_elements()
     result, diag = _solve_major_gibbs_seed(
         T=t0,
         P=p0,
@@ -537,7 +879,7 @@ def test_major_gibbs_hamel_reduced_seed_is_credible_on_phase2_first_cell():
 
 
 def test_major_gibbs_shadow_compare_reports_both_solver_diagnostics():
-    elems, t0, p0 = _phase2_first_cell_major_elements()
+    elems, t0, p0 = phase2_first_cell_major_elements()
     result, diag = _solve_major_gibbs_seed(
         T=t0,
         P=p0,
@@ -566,6 +908,8 @@ def test_init_precalc_uses_hamel_reduced_major_gibbs_by_default_in_thesis(monkey
     cfg.n_cells = 2
     cfg.n_freeboard_cells = 1
     cfg.major_gibbs_solver_mode = "augmented"
+    cfg.vorab_x0_holdup_mode_thesis = "major_gibbs_per_cell"
+    cfg.vorab_major_gibbs_x0 = True
     reactor = Reactor(cfg)
     captured_modes: list[str] = []
 
@@ -576,7 +920,7 @@ def test_init_precalc_uses_hamel_reduced_major_gibbs_by_default_in_thesis(monkey
             {"converged": True, "final_residual": 1e-12, "lambda": np.ones(4), "ln_N": 0.0},
         )
 
-    monkeypatch.setattr("src.solvers.vorabrechnung._solve_major_gibbs_seed", _fake_solver)
+    monkeypatch.setattr("src.solvers.vorabrechnung.vorab_x0._solve_major_gibbs_seed", _fake_solver)
     run_init_and_precalc_for_global_nr(
         reactor,
         init_strategy="vorabrechnung",
@@ -1080,7 +1424,7 @@ def test_run_init_and_precalc_ignores_stale_gas_inventory_in_macro_hydrodynamics
 
 
 def test_init_precalc_seeds_freeboard_holdup_from_bed_top_entrainment():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     bed_top = reactor.cells[-1]
 
     assert float(np.sum(np.maximum(bed_top._solid_upflow_rates()[:, S_CHAR], 0.0))) > 0.0
@@ -1098,7 +1442,7 @@ def test_init_precalc_seeds_freeboard_holdup_from_bed_top_entrainment():
 
 
 def test_build_exit_summary_exposes_freeboard_solid_holdup_profiles_for_exact_hamel():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     reactor.config.freeboard_trajectory_coeff_model = "exact_hamel"
     fb = reactor._refresh_explicit_freeboard_transport_from_closure()
 
@@ -1167,7 +1511,7 @@ def test_build_exit_summary_exposes_bottom_recycle_and_bed_top_solid_enthalpy_di
 
 
 def test_finalize_result_reports_freeboard_closure_gap_without_mutating_nr_state():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     bed_top = reactor.cells[-1]
     old_top_up = float(reactor._last_explicit_freeboard_closure["bed_top_up_char_kg_s"])
     bed_top.K_solid_auf[:, S_CHAR] *= 2.0
@@ -1209,11 +1553,11 @@ def test_finalize_result_reports_freeboard_closure_gap_without_mutating_nr_state
 
 
 def test_exact_hamel_changes_freeboard_holdup_distribution_vs_stable_initialized_case():
-    stable = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    stable = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     stable.config.freeboard_trajectory_coeff_model = "stable_mixed_drag_split"
     stable._refresh_explicit_freeboard_transport_from_closure()
 
-    exact = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    exact = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     exact.config.freeboard_trajectory_coeff_model = "exact_hamel"
     exact._refresh_explicit_freeboard_transport_from_closure()
 
@@ -1227,7 +1571,7 @@ def test_exact_hamel_changes_freeboard_holdup_distribution_vs_stable_initialized
 
 
 def test_exact_hamel_freeboard_top_char_holdup_activates_char_reaction_source():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     reactor.config.freeboard_trajectory_coeff_model = "exact_hamel"
     reactor._refresh_explicit_freeboard_transport_from_closure()
     fb_top = next(
@@ -1257,13 +1601,16 @@ def test_exact_hamel_freeboard_top_char_holdup_activates_char_reaction_source():
         D_g=float(thermo["D_g"]),
         char_conversion=fb_top._compute_char_conversion(),
         rho_cat=fb_top._catalyst_bulk_density(),
+        rho_ash_kg_m3=fb_top._ash_bulk_density(),
         enable_r12=fb_top.enable_r12,
         use_gibbs_minor=fb_top.use_gibbs_minor,
         gibbs_minor_sources=None,
         r4_scale=fb_top.r4_scale,
+        r2_scale=fb_top.r2_scale,
         r5_scale=fb_top.r5_scale,
         r6_scale=fb_top.r6_scale,
         r7_scale=fb_top.r7_scale,
+        r8_scale=fb_top.r8_scale,
         rate_multiplier=1.0,
         N_zu_d=fb_top.N_zu_d,
         N_d_in=fb_top.N_d_in,
@@ -1280,7 +1627,7 @@ def test_exact_hamel_freeboard_top_char_holdup_activates_char_reaction_source():
 
 
 def test_build_exit_summary_can_separate_freeboard_closure_and_explicit_char_hetero_layers():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     reactor.config.freeboard_trajectory_coeff_model = "exact_hamel"
     reactor.config.freeboard_closure_enable_char_hetero = True
     reactor.config.freeboard_explicit_enable_char_hetero = False
@@ -1295,7 +1642,7 @@ def test_build_exit_summary_can_separate_freeboard_closure_and_explicit_char_het
     assert all(abs(v) == 0.0 for v in result["freeboard_explicit_reaction_diag_impl"]["R1"])
     assert all(abs(v) == 0.0 for v in result["freeboard_explicit_reaction_diag_impl"]["R2"])
 
-    reactor2 = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor2 = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     reactor2.config.freeboard_trajectory_coeff_model = "exact_hamel"
     reactor2.config.freeboard_closure_enable_char_hetero = False
     reactor2.config.freeboard_explicit_enable_char_hetero = True
@@ -1312,13 +1659,13 @@ def test_build_exit_summary_can_separate_freeboard_closure_and_explicit_char_het
 
 
 def test_explicit_freeboard_char_hetero_depletes_projected_char_holdup() -> None:
-    reactor_off = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor_off = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     reactor_off.config.freeboard_trajectory_coeff_model = "exact_hamel"
     reactor_off.config.freeboard_closure_enable_char_hetero = False
     reactor_off.config.freeboard_explicit_enable_char_hetero = False
     reactor_off._refresh_explicit_freeboard_transport_from_closure()
 
-    reactor_on = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor_on = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     reactor_on.config.freeboard_trajectory_coeff_model = "exact_hamel"
     reactor_on.config.freeboard_closure_enable_char_hetero = False
     reactor_on.config.freeboard_explicit_enable_char_hetero = True
@@ -1336,7 +1683,7 @@ def test_explicit_freeboard_char_hetero_depletes_projected_char_holdup() -> None
 
 
 def test_build_exit_summary_exposes_freeboard_explicit_char_sink_profile() -> None:
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     reactor.config.freeboard_trajectory_coeff_model = "exact_hamel"
     reactor.config.freeboard_closure_enable_char_hetero = False
     reactor.config.freeboard_explicit_enable_char_hetero = True
@@ -1354,7 +1701,7 @@ def test_build_exit_summary_exposes_freeboard_explicit_char_sink_profile() -> No
 
 
 def test_build_exit_summary_exposes_freeboard_closure_hold_up_before_after_audit() -> None:
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     reactor.config.freeboard_trajectory_coeff_model = "exact_hamel"
     reactor.config.freeboard_closure_enable_char_hetero = False
     reactor.config.freeboard_explicit_enable_char_hetero = True
@@ -1434,46 +1781,49 @@ def test_build_exit_summary_exposes_freeboard_closure_hold_up_before_after_audit
 
 
 def test_freeboard_cells_exclude_solid_holdup_from_global_nr_unknown_vector():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     bed = reactor.cells[0]
     fb0 = reactor.freeboard_cells[0]
 
     assert n_solid_var(bed) > 0
     assert n_solid_var(fb0) == 0
     assert gas_mode_for_nr(fb0) == "single"
-    assert n_gas_var(fb0) == MAIN_NR_GAS_COUNT
+    assert n_gas_var(fb0) == main_nr_gas_count_for_cell(fb0)
     assert fb0.solid_state_model == "freeboard_closure"
-    assert n_var(fb0) == MAIN_NR_GAS_COUNT + 1
+    assert n_var(fb0) == main_nr_gas_count_for_cell(fb0) + 1
 
     x_fb = pack_cell(fb0)
-    assert x_fb.shape == (MAIN_NR_GAS_COUNT + 1,)
+    assert x_fb.shape == (main_nr_gas_count_for_cell(fb0) + 1,)
     assert float(np.sum(np.maximum(fb0.m_solid[:, S_CHAR], 0.0))) > 0.0
     np.testing.assert_allclose(fb0.calc_solid_balance(), 0.0)
 
 
 def test_phase2_solver_vector_excludes_freeboard_solid_dofs():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     solver_cells = reactor._solver_cells_for_nr()
     offsets = cell_offsets(solver_cells)
 
     fb0_idx = len(reactor.cells)
     fb1_idx = fb0_idx + 1
     x = pack_reactor(solver_cells)
+    fb_gas = main_nr_gas_count_for_cell(reactor.freeboard_cells[0])
 
     for idx in (fb0_idx, fb1_idx):
         start = offsets[idx]
         stop = offsets[idx + 1]
-        assert stop - start == MAIN_NR_GAS_COUNT + 1
+        assert stop - start == fb_gas + 1
     assert x.shape[0] == offsets[-1]
 
 
 def test_phase2_solver_vector_uses_cell_type_specific_layouts():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     solver_cells = reactor._solver_cells_for_nr()
 
+    bed_gas = main_nr_gas_count_for_cell(solver_cells[0])
+
     expected = {
-        "bed": ("two_phase", 2 * MAIN_NR_GAS_COUNT, solver_cells[0].solid.n_size_classes * 2),
-        "freeboard": ("single", MAIN_NR_GAS_COUNT, 0),
+        "bed": ("two_phase", 2 * bed_gas, solver_cells[0].solid.n_size_classes * 2),
+        "freeboard": ("single", bed_gas, 0),
         "cyclone": ("none", 0, solver_cells[0].solid.n_size_classes * 2),
         "return_leg": ("none", 0, solver_cells[0].solid.n_size_classes * 2),
     }
@@ -1488,7 +1838,7 @@ def test_phase2_solver_vector_uses_cell_type_specific_layouts():
 
 
 def test_bed_to_freeboard_interface_routes_total_gas_only():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     top = reactor.cells[-1]
     fb0 = reactor.freeboard_cells[0]
 
@@ -1508,7 +1858,7 @@ def test_bed_to_freeboard_interface_routes_total_gas_only():
 
 
 def test_vorabrechnung_refresh_updates_freeboard_ghost_bubble_bridge():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     top = reactor.cells[-1]
     fb0 = reactor.freeboard_cells[0]
 
@@ -1546,7 +1896,7 @@ def test_single_gas_freeboard_residual_depends_on_total_gas_not_phase_split():
 
 
 def test_freeboard_reaction_and_energy_bridge_ignore_upstream_phase_split():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     top = reactor.cells[-1]
     fb0 = reactor.freeboard_cells[0]
     total = np.linspace(1.0, 2.0, top.N_d.size)
@@ -1581,7 +1931,7 @@ def test_freeboard_reaction_and_energy_bridge_ignore_upstream_phase_split():
 
 
 def test_freeboard_energy_bridge_receives_bed_top_entrained_solid_enthalpy():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     bed_top = reactor.cells[-1]
     fb0 = reactor.freeboard_cells[0]
     propagate_explicit_freeboard_chain(reactor.cells, reactor.freeboard_cells)
@@ -1604,7 +1954,7 @@ def test_freeboard_energy_bridge_receives_bed_top_entrained_solid_enthalpy():
 
 
 def test_bed_top_energy_bridge_receives_freeboard_downflow_enthalpy():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     bed_top = reactor.cells[-1]
     fb0 = reactor.freeboard_cells[0]
 
@@ -1634,7 +1984,7 @@ def test_bed_top_energy_bridge_receives_freeboard_downflow_enthalpy():
 
 
 def test_wirsum_trajectory_no_longer_depends_on_internal_subsegments():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     top = reactor.cells[-1]
     reactor._apply_all_bc_for_nr()
 
@@ -1706,7 +2056,7 @@ def test_wirsum_trajectory_no_longer_depends_on_internal_subsegments():
 
 
 def test_freeboard_bed_top_ejection_is_conservative_with_supplied_upflow():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     top = reactor.cells[-1]
     reactor._apply_all_bc_for_nr()
 
@@ -1731,7 +2081,7 @@ def test_freeboard_bed_top_ejection_is_conservative_with_supplied_upflow():
 
 
 def test_freeboard_bed_top_entrained_diameter_shrinks_with_char_conversion(monkeypatch: pytest.MonkeyPatch):
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     top = reactor.cells[-1]
     raw = np.array(top.solid.d_p_classes, dtype=np.float64, copy=True)
     monkeypatch.setattr(top, "_compute_char_conversion", lambda: 0.875)
@@ -1793,7 +2143,7 @@ def test_phase1_global_nr_line_search_accepts_non_boundary_step():
 
 
 def test_block_tridiag_fd_matches_dense_fd_on_initialized_lu_state():
-    reactor_dense = _build_initialized_lu_reactor(n_cells=3)
+    reactor_dense = build_initialized_lu_reactor(n_cells=3)
     cfg = reactor_dense.config
     x_dense = pack_reactor(reactor_dense.cells)
     F0_dense = global_residual(x_dense, reactor_dense.cells, reactor_dense._apply_all_bc_for_nr)
@@ -1812,7 +2162,7 @@ def test_block_tridiag_fd_matches_dense_fd_on_initialized_lu_state():
         eq_scale,
         strategy="dense_fd",
     )
-    reactor_block = _build_initialized_lu_reactor(n_cells=3)
+    reactor_block = build_initialized_lu_reactor(n_cells=3)
     x_block = pack_reactor(reactor_block.cells)
     F0_block = global_residual(x_block, reactor_block.cells, reactor_block._apply_all_bc_for_nr)
     J_block, meta_block = build_jacobian_fd(
@@ -1832,7 +2182,7 @@ def test_block_tridiag_fd_matches_dense_fd_on_initialized_lu_state():
 
 
 def test_structured_bed_recycle_side_block_matches_dense_fd_on_initialized_lu_state():
-    reactor_dense = _build_initialized_lu_reactor(n_cells=3)
+    reactor_dense = build_initialized_lu_reactor(n_cells=3)
     cfg = reactor_dense.config
     x_dense = pack_reactor(reactor_dense.cells)
     F0_dense = global_residual(x_dense, reactor_dense.cells, reactor_dense._apply_all_bc_for_nr)
@@ -1854,7 +2204,7 @@ def test_structured_bed_recycle_side_block_matches_dense_fd_on_initialized_lu_st
         eq_scale,
         strategy="dense_fd",
     )
-    reactor_structured = _build_initialized_lu_reactor(n_cells=3)
+    reactor_structured = build_initialized_lu_reactor(n_cells=3)
     x_structured = pack_reactor(reactor_structured.cells)
     F0_structured = global_residual(
         x_structured,
@@ -1879,7 +2229,7 @@ def test_structured_bed_recycle_side_block_matches_dense_fd_on_initialized_lu_st
 
 
 def test_block_tridiag_fd_local_bc_matches_full_bc_on_initialized_lu_state():
-    reactor_full = _build_initialized_lu_reactor(n_cells=3)
+    reactor_full = build_initialized_lu_reactor(n_cells=3)
     cfg = reactor_full.config
     x_full = pack_reactor(reactor_full.cells)
     F0_full = global_residual(x_full, reactor_full.cells, reactor_full._apply_all_bc_for_nr)
@@ -1898,7 +2248,7 @@ def test_block_tridiag_fd_local_bc_matches_full_bc_on_initialized_lu_state():
         eq_scale,
         strategy="block_tridiag_fd",
     )
-    reactor_local = _build_initialized_lu_reactor(n_cells=3)
+    reactor_local = build_initialized_lu_reactor(n_cells=3)
     x_local = pack_reactor(reactor_local.cells)
     F0_local = global_residual(x_local, reactor_local.cells, reactor_local._apply_all_bc_for_nr)
     J_local, _ = build_jacobian_fd(
@@ -1916,7 +2266,7 @@ def test_block_tridiag_fd_local_bc_matches_full_bc_on_initialized_lu_state():
 
 
 def test_block_tridiag_fd_forwards_local_bc_callback():
-    reactor = _build_initialized_lu_reactor(n_cells=3)
+    reactor = build_initialized_lu_reactor(n_cells=3)
     cfg = reactor.config
     x = pack_reactor(reactor.cells)
     F0 = global_residual(x, reactor.cells, reactor._apply_all_bc_for_nr)
@@ -1947,128 +2297,25 @@ def test_block_tridiag_fd_forwards_local_bc_callback():
     assert set(touched).issubset({0, 1, 2})
 
 
-def test_band_plus_side_elements_structured_explicit_path_ignores_local_callbacks():
-    cfg = build_phase2_htw_lu_freeboard_reactor_config()
-    cfg.n_cells = 2
-    cfg.n_freeboard_cells = 1
-    cfg.explicit_freeboard_solver_graph_enabled = True
-    reactor = Reactor(cfg)
-    run_init_and_precalc_for_global_nr(
-        reactor,
-        init_strategy="vorabrechnung",
-        gs_warmup_steps=None,
+@pytest.mark.parametrize(
+    "n_bed,n_freeboard,explicit_graph",
+    [(2, 1, True), (3, 2, False)],
+    ids=["explicit_path", "closure_owned_path"],
+)
+def test_band_plus_side_elements_structured_ignores_local_callbacks(
+    n_bed,
+    n_freeboard,
+    explicit_graph,
+):
+    assert_band_plus_side_elements_ignores_local_callbacks(
+        n_bed=n_bed,
+        n_freeboard=n_freeboard,
+        explicit_freeboard_solver_graph_enabled=explicit_graph,
     )
-    cfg = reactor.config
-    solver_cells = reactor._solver_cells_for_nr()
-    x = pack_reactor(solver_cells)
-    F0 = global_residual(x, solver_cells, reactor._apply_all_bc_for_nr)
-    eq_scale = build_equation_scales(
-        solver_cells,
-        ref_gas_mol_s=float(cfg.O2_feed + cfg.H2O_feed + cfg.N2_feed),
-        ref_solid_kg_s=cfg.fuel_feed,
-        ref_energy_W=cfg.fuel_feed * 20e6,
-    )
-
-    touched: list[int] = []
-    affected_calls: list[int] = []
-
-    def _track_local_bc(cell_idx: int) -> None:
-        touched.append(int(cell_idx))
-        reactor._apply_local_bc_for_nr(int(cell_idx))
-
-    def _track_affected(cell_idx: int) -> tuple[int, ...]:
-        affected_calls.append(int(cell_idx))
-        return reactor._affected_nr_residual_cells(int(cell_idx))
-
-    J_struct_with_cb, meta_struct = build_jacobian_fd(
-        x,
-        F0,
-        solver_cells,
-        reactor._apply_all_bc_for_nr,
-        eq_scale,
-        strategy="band_plus_side_elements_structured",
-        apply_local_bc_fn=_track_local_bc,
-        affected_residual_cells_fn=_track_affected,
-    )
-    J_struct_no_cb, _ = build_jacobian_fd(
-        x,
-        F0,
-        solver_cells,
-        reactor._apply_all_bc_for_nr,
-        eq_scale,
-        strategy="band_plus_side_elements_structured",
-    )
-
-    diff = (J_struct_no_cb - J_struct_with_cb).toarray()
-    assert np.max(np.abs(diff)) < 1e-10
-    assert touched == []
-    assert affected_calls == []
-    assert meta_struct["jacobian_structure"]["side_element_count"] > 0
-    assert meta_struct["jacobian_structure"]["structure_validation_ok"] is True
-
-
-def test_band_plus_side_elements_structured_closure_owned_path_ignores_local_callbacks():
-    cfg = build_phase2_htw_lu_freeboard_reactor_config()
-    cfg.n_cells = 3
-    cfg.n_freeboard_cells = 2
-    cfg.explicit_freeboard_solver_graph_enabled = False
-    reactor = Reactor(cfg)
-    run_init_and_precalc_for_global_nr(
-        reactor,
-        init_strategy="vorabrechnung",
-        gs_warmup_steps=None,
-    )
-
-    solver_cells = reactor._solver_cells_for_nr()
-    x = pack_reactor(solver_cells)
-    F0 = global_residual(x, solver_cells, reactor._apply_all_bc_for_nr)
-    eq_scale = build_equation_scales(
-        solver_cells,
-        ref_gas_mol_s=float(cfg.O2_feed + cfg.H2O_feed + cfg.N2_feed),
-        ref_solid_kg_s=cfg.fuel_feed,
-        ref_energy_W=cfg.fuel_feed * 20e6,
-    )
-
-    touched: list[int] = []
-    affected_calls: list[int] = []
-
-    def _track_local_bc(cell_idx: int) -> None:
-        touched.append(int(cell_idx))
-        reactor._apply_local_bc_for_nr(int(cell_idx))
-
-    def _track_affected(cell_idx: int) -> tuple[int, ...]:
-        affected_calls.append(int(cell_idx))
-        return reactor._affected_nr_residual_cells(int(cell_idx))
-
-    J_struct_with_cb, meta_struct = build_jacobian_fd(
-        x,
-        F0,
-        solver_cells,
-        reactor._apply_all_bc_for_nr,
-        eq_scale,
-        strategy="band_plus_side_elements_structured",
-        apply_local_bc_fn=_track_local_bc,
-        affected_residual_cells_fn=_track_affected,
-    )
-    J_struct_no_cb, _ = build_jacobian_fd(
-        x,
-        F0,
-        solver_cells,
-        reactor._apply_all_bc_for_nr,
-        eq_scale,
-        strategy="band_plus_side_elements_structured",
-    )
-
-    diff = (J_struct_no_cb - J_struct_with_cb).toarray()
-    assert np.max(np.abs(diff)) < 1e-10
-    assert touched == []
-    assert affected_calls == []
-    assert meta_struct["jacobian_structure"]["side_element_count"] > 0
-    assert meta_struct["jacobian_structure"]["structure_validation_ok"] is True
 
 
 def test_band_plus_side_elements_structured_matches_dense_fd_on_thesis_freeboard_graph():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     cfg = reactor.config
     solver_cells = reactor._solver_cells_for_nr()
     x = pack_reactor(solver_cells)
@@ -2108,7 +2355,7 @@ def test_band_plus_side_elements_structured_matches_dense_fd_on_thesis_freeboard
 
 
 def test_thesis_freeboard_temperature_perturbation_changes_bed0_residual():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     solver_cells = reactor._solver_cells_for_nr()
     x = pack_reactor(solver_cells)
     F0 = global_residual(x, solver_cells, reactor._apply_all_bc_for_nr)
@@ -2136,7 +2383,7 @@ def test_thesis_freeboard_temperature_perturbation_changes_bed0_residual():
 
 
 def test_init_precalc_seeds_upper_bed_holdup_chain_for_thesis_mode():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
 
     char_holdups = [
         float(np.sum(np.maximum(cell.m_solid[:, S_CHAR], 0.0)))
@@ -2161,20 +2408,58 @@ def test_resolve_nr_init_strategy_prefers_vorabrechnung_by_default():
         _resolve_nr_init_strategy("gs_warmup")
 
 
-def test_default_nr_jacobian_strategy_is_block_for_bed_chain():
+def test_default_nr_jacobian_strategy_is_hybrid_block_for_bed_chain():
+    from src.solvers.global_nr_solver import resolve_hybrid_jacobian_strategy
+
     cfg = build_phase1_htw_lu_reactor_config()
+    reactor = Reactor(cfg)
+    assert reactor._default_nr_jacobian_strategy() == resolve_hybrid_jacobian_strategy(
+        "block_tridiag_structured"
+    )
+
+
+def test_default_nr_jacobian_strategy_is_hybrid_side_elements_for_thesis_side_blocks():
+    from src.solvers.global_nr_solver import resolve_hybrid_jacobian_strategy
+
+    cfg = build_phase2_htw_lu_freeboard_reactor_config()
+    reactor = Reactor(cfg)
+    assert reactor._default_nr_jacobian_strategy() == resolve_hybrid_jacobian_strategy(
+        "band_plus_side_elements_structured"
+    )
+
+
+def test_default_nr_jacobian_strategy_uses_structured_fd_when_hybrid_disabled():
+    cfg = build_phase1_htw_lu_reactor_config()
+    cfg.nr_hybrid_jacobian_thesis = False
     reactor = Reactor(cfg)
     assert reactor._default_nr_jacobian_strategy() == "block_tridiag_structured"
 
+    cfg_side = build_phase2_htw_lu_freeboard_reactor_config()
+    cfg_side.nr_hybrid_jacobian_thesis = False
+    reactor_side = Reactor(cfg_side)
+    assert reactor_side._default_nr_jacobian_strategy() == "band_plus_side_elements_structured"
 
-def test_default_nr_jacobian_strategy_is_side_elements_sparse_for_thesis_side_blocks():
-    cfg = build_phase2_htw_lu_freeboard_reactor_config()
+
+def test_default_nr_jacobian_strategy_uses_hybrid_when_opt_in_flag_set():
+    from src.solvers.global_nr_solver import resolve_hybrid_jacobian_strategy
+
+    cfg = build_phase1_htw_lu_reactor_config()
+    cfg.nr_hybrid_jacobian_thesis = True
     reactor = Reactor(cfg)
-    assert reactor._default_nr_jacobian_strategy() == "band_plus_side_elements_structured"
+    assert reactor._default_nr_jacobian_strategy() == resolve_hybrid_jacobian_strategy(
+        "block_tridiag_structured"
+    )
+
+    cfg_side = build_phase2_htw_lu_freeboard_reactor_config()
+    cfg_side.nr_hybrid_jacobian_thesis = True
+    reactor_side = Reactor(cfg_side)
+    assert reactor_side._default_nr_jacobian_strategy() == resolve_hybrid_jacobian_strategy(
+        "band_plus_side_elements_structured"
+    )
 
 
 def test_side_elements_sparse_fd_alias_matches_dense_fd_on_thesis_graph():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     cfg = reactor.config
     solver_cells = reactor._solver_cells_for_nr()
     x = pack_reactor(solver_cells)
@@ -2207,7 +2492,7 @@ def test_side_elements_sparse_fd_alias_matches_dense_fd_on_thesis_graph():
 
 
 def test_build_solver_graph_and_structure_report_wraparound_side_blocks():
-    reactor = _build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
+    reactor = build_initialized_thesis_freeboard_reactor(n_bed=3, n_freeboard=2)
     solver_cells = reactor._solver_cells_for_nr()
     graph = build_solver_graph(solver_cells)
     structure = build_jacobian_structure(graph, solver_cells)
@@ -2225,10 +2510,286 @@ def test_build_solver_graph_and_structure_report_wraparound_side_blocks():
     assert (1, 0) in structure.band_block_pairs
 
 
+def test_vtt_minimal_loop_jacobian_structure_has_no_unexpected_blocks():
+    """B-tier acceptance: Verbindungsmatrix-driven Nebenelemente cover all FD blocks."""
+    reactor = build_initialized_vtt_minimal_loop_reactor()
+    solver_cells = reactor._solver_cells_for_nr()
+    cfg = reactor.config
+    assert reactor.connectivity_graph is not None
+    assert reactor.connectivity_graph.mode == "vtt_minimal_loop"
+    assert len(solver_cells) == 6
+
+    x = pack_reactor(solver_cells)
+    F0 = global_residual(x, solver_cells, reactor._apply_all_bc_for_nr)
+    eq_scale = build_equation_scales(
+        solver_cells,
+        ref_gas_mol_s=float(cfg.O2_feed + cfg.H2O_feed + cfg.N2_feed),
+        ref_solid_kg_s=cfg.fuel_feed,
+        ref_energy_W=cfg.fuel_feed * 20e6,
+    )
+    _, meta = build_jacobian_fd(
+        x,
+        F0,
+        solver_cells,
+        reactor._apply_all_bc_for_nr,
+        eq_scale,
+        strategy="band_plus_side_elements_structured",
+        connectivity_graph=reactor.connectivity_graph,
+        affected_residual_cells_fn=reactor._affected_nr_residual_cells,
+    )
+    js = meta["jacobian_structure"]
+    assert js["unexpected_block_count"] == 0
+    assert js["unexpected_blocks"] == []
+    assert js["structure_validation_ok"] is True
+    assert js["side_element_count"] > 0
+
+
+def test_vtt_hybrid_jacobian_matches_fd_and_keeps_structure():
+    """Hybrid overlay (side-block T analytic) must preserve sparsity gate and match FD closely."""
+    def _assemble(strategy: str):
+        reactor = build_initialized_vtt_minimal_loop_reactor()
+        solver_cells = reactor._solver_cells_for_nr()
+        cfg = reactor.config
+        x = pack_reactor(solver_cells)
+        f0 = global_residual(x, solver_cells, reactor._apply_all_bc_for_nr)
+        eq_scale = build_equation_scales(
+            solver_cells,
+            ref_gas_mol_s=float(cfg.O2_feed + cfg.H2O_feed + cfg.N2_feed),
+            ref_solid_kg_s=cfg.fuel_feed,
+            ref_energy_W=cfg.fuel_feed * 20e6,
+        )
+        return build_jacobian_fd(
+            x,
+            f0,
+            solver_cells,
+            reactor._apply_all_bc_for_nr,
+            eq_scale,
+            strategy=strategy,
+            connectivity_graph=reactor.connectivity_graph,
+            affected_residual_cells_fn=reactor._affected_nr_residual_cells,
+        )
+
+    # FD 组装会改写 K_solid 等非 NR 缓存；两次比较须各自独立 reactor。
+    J_fd, _ = _assemble("band_plus_side_elements_structured")
+    J_hybrid, meta_hybrid = _assemble("hybrid_band_plus_side_elements_structured")
+    assert meta_hybrid["strategy"] == "hybrid_band_plus_side_elements_structured"
+    assert meta_hybrid["jacobian_structure"]["unexpected_block_count"] == 0
+    diff = (J_fd - J_hybrid).toarray()
+    # Hybrid replaces side-block T / holdup inventory stencils; two fresh inits may
+    # differ at ~1e-4 when transport inflow seeds diverge slightly.
+    assert float(np.max(np.abs(diff))) < 1e-3
+    assert float(np.count_nonzero(np.abs(diff) > 1e-8)) <= 8
+
+
+def test_holdup_lu_hybrid_jacobian_matches_fd_and_keeps_structure():
+    """Holdup-transport LU bed chain: hybrid band K·m overlays must stay on declared graph."""
+    from tests.global_nr_fixtures import run_holdup_generate_initial_x0, setup_holdup_transport_reactor
+
+    def _assemble(strategy: str):
+        reactor, cfg, t_profile = setup_holdup_transport_reactor(n_cells=3)
+        run_holdup_generate_initial_x0(reactor, cfg, t_profile)
+        reactor._apply_all_bc_for_nr()
+        cells = reactor.cells
+        x = pack_reactor(cells)
+        f0 = global_residual(x, cells, reactor._apply_all_bc_for_nr)
+        eq_scale = build_equation_scales(
+            cells,
+            ref_gas_mol_s=float(cfg.O2_feed + cfg.H2O_feed + cfg.N2_feed),
+            ref_solid_kg_s=cfg.fuel_feed,
+            ref_energy_W=cfg.fuel_feed * 20e6,
+        )
+        return build_jacobian_fd(
+            x,
+            f0,
+            cells,
+            reactor._apply_all_bc_for_nr,
+            eq_scale,
+            strategy=strategy,
+            apply_local_bc_fn=reactor._apply_local_bc_for_nr,
+            affected_residual_cells_fn=reactor._affected_nr_residual_cells,
+        )
+
+    J_fd, meta_fd = _assemble("block_tridiag_structured")
+    J_hybrid, meta_hybrid = _assemble("hybrid_block_tridiag_structured")
+    assert meta_hybrid["strategy"] == "hybrid_block_tridiag_structured"
+    assert meta_hybrid["jacobian_structure"]["unexpected_block_count"] == 0
+    assert meta_fd["residual_cell_calls"] == meta_hybrid["residual_cell_calls"]
+    diff = (J_fd - J_hybrid).toarray()
+    assert float(np.max(np.abs(diff))) < 1e-8
+
+
+@pytest.mark.slow
+def test_jacobian_assembly_benchmark_lu_structured_hybrid_dense_parity():
+    """LU 3-bed：记录组装 walltime；hybrid≈structured；structured 应快于 dense。"""
+    from time import perf_counter
+
+    from src.solvers.global_nr_solver import resolve_hybrid_jacobian_strategy
+
+    structured = "block_tridiag_structured"
+    hybrid = resolve_hybrid_jacobian_strategy(structured)
+
+    def _time(strategy: str):
+        reactor = build_initialized_lu_reactor(n_cells=3)
+        cells = reactor.cells
+        cfg = reactor.config
+        x = pack_reactor(cells)
+        f0 = global_residual(x, cells, reactor._apply_all_bc_for_nr)
+        eq_scale = build_equation_scales(
+            cells,
+            ref_gas_mol_s=float(cfg.O2_feed + cfg.H2O_feed + cfg.N2_feed),
+            ref_solid_kg_s=cfg.fuel_feed,
+            ref_energy_W=cfg.fuel_feed * 20e6,
+        )
+        t0 = perf_counter()
+        jacobian, meta = build_jacobian_fd(
+            x,
+            f0,
+            cells,
+            reactor._apply_all_bc_for_nr,
+            eq_scale,
+            strategy=strategy,
+            apply_local_bc_fn=reactor._apply_local_bc_for_nr,
+            affected_residual_cells_fn=reactor._affected_nr_residual_cells,
+        )
+        return perf_counter() - t0, jacobian, meta
+
+    t_structured, j_structured, meta_structured = _time(structured)
+    t_hybrid, j_hybrid, meta_hybrid = _time(hybrid)
+    t_dense, j_dense, meta_dense = _time("dense_fd")
+
+    diff_hybrid = float(np.max(np.abs((j_structured - j_hybrid).toarray())))
+    diff_dense = float(np.max(np.abs((j_structured - j_dense).toarray())))
+
+    assert diff_hybrid < 1e-7
+    assert diff_dense < 1e-8
+    assert meta_hybrid["residual_cell_calls"] == meta_structured["residual_cell_calls"]
+    assert meta_structured["residual_cell_calls"] <= meta_dense["residual_cell_calls"]
+    # Walltime varies by machine; hybrid overlay should stay within ~50% of structured.
+    assert t_hybrid <= t_structured * 1.5 + 1e-6
+
+
+@pytest.mark.slow
+def test_vtt_minimal_loop_inner_nr_convergence_with_hybrid_jacobian():
+    """B-tier：hybrid Jacobian 路径下内层 NR merit 仍须低于 thesis tol。"""
+    reactor = build_initialized_vtt_minimal_loop_reactor()
+    solver_cells = reactor._solver_cells_for_nr()
+    cfg = reactor.config
+    for cell in solver_cells:
+        cell.enable_inner_nr_vorabrechnung_freeze()
+
+    inner = InnerConvergence(atol=0.02, rtol=1e-3)
+    result = solve_global_nr(
+        cells=solver_cells,
+        apply_bc_fn=reactor._apply_all_bc_for_nr,
+        apply_local_bc_fn=reactor._apply_local_bc_for_nr,
+        affected_residual_cells_fn=reactor._affected_nr_residual_cells,
+        connectivity_graph=reactor.connectivity_graph,
+        ref_gas_mol_s=float(cfg.O2_feed + cfg.H2O_feed + cfg.N2_feed),
+        ref_solid_kg_s=cfg.fuel_feed,
+        ref_energy_W=cfg.fuel_feed * 20e6,
+        max_iter=32,
+        tol_rms=0.02,
+        inner_convergence=inner,
+        jacobian_strategy="hybrid_band_plus_side_elements_structured",
+        linear_solver_backend="structured_direct",
+        prefer_full_step=True,
+        n_damp_halvings=14,
+    )
+    js = result["jacobian_structure"]
+    assert result["jacobian_strategy"] == "hybrid_band_plus_side_elements_structured"
+    assert js["unexpected_block_count"] == 0
+    assert js["structure_validation_ok"] is True
+    assert float(result["rms_scaled_final"]) < 0.02
+
+
+@pytest.mark.slow
+def test_vtt_minimal_loop_inner_nr_convergence_acceptance():
+    """B-tier acceptance: damped inner NR merit on the VTT recycle graph."""
+    reactor = build_initialized_vtt_minimal_loop_reactor()
+    solver_cells = reactor._solver_cells_for_nr()
+    cfg = reactor.config
+    for cell in solver_cells:
+        cell.enable_inner_nr_vorabrechnung_freeze()
+
+    inner = InnerConvergence(atol=0.02, rtol=1e-3)
+    result = solve_global_nr(
+        cells=solver_cells,
+        apply_bc_fn=reactor._apply_all_bc_for_nr,
+        apply_local_bc_fn=reactor._apply_local_bc_for_nr,
+        affected_residual_cells_fn=reactor._affected_nr_residual_cells,
+        connectivity_graph=reactor.connectivity_graph,
+        ref_gas_mol_s=float(cfg.O2_feed + cfg.H2O_feed + cfg.N2_feed),
+        ref_solid_kg_s=cfg.fuel_feed,
+        ref_energy_W=cfg.fuel_feed * 20e6,
+        max_iter=32,
+        tol_rms=0.02,
+        inner_convergence=inner,
+        jacobian_strategy="band_plus_side_elements_structured",
+        linear_solver_backend="structured_direct",
+        prefer_full_step=True,
+        n_damp_halvings=14,
+    )
+    js = result["jacobian_structure"]
+    assert js["unexpected_block_count"] == 0
+    assert js["structure_validation_ok"] is True
+    assert float(result["rms_scaled_final"]) < 0.02
+    assert float(reactor.cells[0].m_solid_rez[0, S_CHAR]) >= 0.0
+
+
+@pytest.mark.slow
+def test_vtt_minimal_loop_outer_check2_gate_diagnosis():
+    """Document which Check2 gates block converged_fully on the VTT recycle graph."""
+    reactor = build_initialized_vtt_minimal_loop_reactor()
+    result = reactor.solve(
+        solver="global_nr",
+        max_global_iter=4,
+        tol_global=0.15,
+        nr_init_strategy="vorabrechnung",
+    )
+    js = result.get("nr_jacobian_structure") or {}
+    assert js.get("unexpected_block_count") == 0
+    assert result.get("nr_structure_validation_ok") is True
+
+    history = result.get("nr_outer_history") or []
+    assert history, "expected at least one outer iteration"
+    first = history[0]
+    assert first.get("preinner_global_gate_pass") is True
+    assert first.get("outer_gas_check_pass") is False
+    assert first.get("outer_dt_check_pass") is False
+    assert float(first.get("gas_phase_split_rms", 0.0)) > float(
+        first.get("outer_gas_split_tol", 0.05)
+    )
+    assert float(first.get("dT_outer", 0.0)) > float(first.get("outer_dT_tol_effective", 0.5))
+    assert first.get("inner_converged") is False
+    assert first.get("check2_bridge_enabled") is False
+
+    assert float(first.get("inner_rms_scaled_final", 1.0)) > 0.02
+    assert result.get("converged_fully") is False
+
+
+@pytest.mark.slow
+def test_vtt_minimal_loop_outer_a_tier_convergence():
+    """A-tier: full outer Abgleich can finish on VTT after Check1 stall recovery."""
+    from tests.validation_case_utils import VTT_MINIMAL_LOOP_SOLVE_KWARGS
+
+    reactor = build_initialized_vtt_minimal_loop_reactor()
+    result = reactor._solve_global_nr(
+        skip_precalc=True,
+        **VTT_MINIMAL_LOOP_SOLVE_KWARGS,
+    )
+    js = result.get("jacobian_structure") or result.get("nr_jacobian_structure") or {}
+    assert js.get("unexpected_block_count") == 0
+    assert result.get("converged") is True
+    assert result.get("converged_fully") is True
+    assert float(result.get("rms_scaled_final", 1.0)) < 0.008
+
+
 def test_phase2_result_reports_structured_jacobian_metadata():
     cfg = build_phase2_htw_lu_freeboard_reactor_config()
     cfg.n_cells = 3
     cfg.n_freeboard_cells = 2
+    cfg.vorab_major_gibbs_x0 = False
+    cfg.major_gibbs_solver_mode = "hamel_reduced"
     reactor = Reactor(cfg)
     result = reactor.solve(
         solver="global_nr",
@@ -2237,7 +2798,7 @@ def test_phase2_result_reports_structured_jacobian_metadata():
         nr_init_strategy="vorabrechnung",
     )
 
-    assert result["nr_jacobian_strategy"] == "band_plus_side_elements_structured"
+    assert result["nr_jacobian_strategy"] == "hybrid_band_plus_side_elements_structured"
     assert result["nr_linear_solver_backend"] == "structured_direct"
     assert result["nr_linear_solver_backend_last"] in {"structured_direct", "sparse_direct_fallback"}
     assert isinstance(result["nr_jacobian_structure"], dict)
@@ -2248,7 +2809,7 @@ def test_phase2_result_reports_structured_jacobian_metadata():
     assert result["nr_layout_audit"]
     layout_by_type = {entry["cell_type"]: entry for entry in result["nr_layout_audit"]}
     assert layout_by_type["freeboard"]["gas_mode"] == "single"
-    assert layout_by_type["freeboard"]["gas_unknown_count"] == MAIN_NR_GAS_COUNT
+    assert layout_by_type["freeboard"]["gas_unknown_count"] == main_nr_gas_count_for_cell(reactor.freeboard_cells[0])
     assert layout_by_type["freeboard"]["solid_unknown_count"] == 0
     assert layout_by_type["return_leg"]["gas_mode"] == "none"
     assert layout_by_type["return_leg"]["gas_unknown_count"] == 0
@@ -2466,7 +3027,7 @@ def test_solve_global_nr_retries_once_after_line_search_failure(monkeypatch):
 
 
 def test_apply_all_bc_for_nr_projects_orphan_vm_and_moisture():
-    reactor = _build_initialized_lu_reactor(n_cells=3)
+    reactor = build_initialized_lu_reactor(n_cells=3)
     reactor._set_bottom_cell_feeds()
     for i in range(len(reactor.cells)):
         reactor._propagate_upstream(i)
@@ -2558,27 +3119,21 @@ def test_reactor_solve_defaults_to_global_nr(monkeypatch):
     assert result["tol"] == 1e-3
 
 
-def test_reactor_rejects_non_nr_solver_even_in_thesis_mode():
+@pytest.mark.parametrize(
+    "thesis_mode,max_global_iter,tol_global",
+    [(True, 5, 1e-2), (False, 1, 1e-3), (False, 2, 1e-2)],
+    ids=["thesis_mode", "nr_only", "legacy_flag_ignored"],
+)
+def test_reactor_rejects_gauss_seidel_solver(thesis_mode, max_global_iter, tol_global):
     cfg = build_phase1_htw_lu_reactor_config()
-    cfg.thesis_mode = True
+    cfg.thesis_mode = thesis_mode
     reactor = Reactor(cfg)
-
     with pytest.raises(ValueError, match="Only solver='global_nr'"):
-        reactor.solve(max_global_iter=5, tol_global=1e-2, solver="gauss_seidel")
-
-
-def test_gauss_seidel_solver_is_rejected_under_nr_only_policy():
-    reactor = Reactor(build_phase1_htw_lu_reactor_config())
-
-    with pytest.raises(ValueError, match="Only solver='global_nr'"):
-        reactor.solve(max_global_iter=1, tol_global=1e-3, solver="gauss_seidel")
-
-
-def test_gauss_seidel_solver_still_rejected_even_with_legacy_flag():
-    reactor = Reactor(build_phase1_htw_lu_reactor_config())
-
-    with pytest.raises(ValueError, match="Only solver='global_nr'"):
-        reactor.solve(max_global_iter=2, tol_global=1e-2, solver="gauss_seidel")
+        reactor.solve(
+            max_global_iter=max_global_iter,
+            tol_global=tol_global,
+            solver="gauss_seidel",
+        )
 
 
 def test_global_nr_outer_loop_forces_vorabrechnung_refresh(monkeypatch):
@@ -2684,73 +3239,6 @@ def test_global_nr_initialization_prepares_hydrodynamics_freeze_cache(monkeypatc
     assert bool(result["converged"]) is True
 
 
-def test_thesis_inner_nr_uses_configurable_damping_knobs(monkeypatch):
-    cfg = build_phase1_htw_lu_reactor_config()
-    cfg.thesis_mode = True
-    cfg.nr_damping_halvings_thesis = 20
-    cfg.nr_lambda_min_thesis = 1.0 / 32768.0
-    cfg.nr_prefer_full_step_thesis = False
-    cfg.nr_step_model_thesis = "lm"
-    cfg.nr_lm_mu0_thesis = 2.0e-4
-    cfg.nr_lm_mu_growth_thesis = 5.0
-    cfg.nr_nonmonotone_enabled_thesis = True
-    cfg.nr_nonmonotone_window_thesis = 7
-    cfg.nr_nonmonotone_relax_thesis = 1.03
-    cfg.nr_line_search_max_trials_thesis = 4
-    reactor = Reactor(cfg)
-    reactor.cells = reactor.cells[:1]
-    reactor.config.n_cells = 1
-    reactor.config.nr_outer_iter_max = 1
-
-    monkeypatch.setattr("src.solvers.vorabrechnung.estimate_axial_T_profile", lambda **_: np.array([1000.0]))
-    monkeypatch.setattr("src.solvers.vorabrechnung.generate_initial_x0", lambda **_: None)
-    monkeypatch.setattr(reactor, "_apply_all_bc_for_nr", lambda: None)
-
-    for c in reactor._solver_cells_for_nr():
-        c._vorab_hydro_cache_valid = True
-    monkeypatch.setattr(reactor, "_initialize_nr_hydrodynamics_freeze_cache", lambda: None)
-    monkeypatch.setattr(reactor, "_refresh_vorabrechnung_sources_for_nr", lambda force: None)
-
-    captured: dict[str, object] = {}
-
-    def _fake_solve_global_nr(**kwargs):
-        captured["n_damp_halvings"] = kwargs["n_damp_halvings"]
-        captured["lambda_min"] = kwargs["lambda_min"]
-        captured["prefer_full_step"] = kwargs["prefer_full_step"]
-        captured["step_model"] = kwargs["step_model"]
-        captured["lm_mu0"] = kwargs["lm_mu0"]
-        captured["lm_mu_growth"] = kwargs["lm_mu_growth"]
-        captured["nonmonotone_enabled"] = kwargs["nonmonotone_enabled"]
-        captured["nonmonotone_window"] = kwargs["nonmonotone_window"]
-        captured["nonmonotone_relax"] = kwargs["nonmonotone_relax"]
-        captured["line_search_max_trials"] = kwargs["line_search_max_trials"]
-        return {
-            "converged": True,
-            "n_iter": 1,
-            "n_newton_iters_attempted": int(kwargs["max_iter"]),
-            "rms_scaled_final": 1e-6,
-            "norm_history": [1e-6],
-            "accepted_lambda_history": [0.5],
-            "line_search_trial_counts": [2],
-            "clip_history": [],
-        }
-
-    monkeypatch.setattr("src.solvers.global_nr_solver.solve_global_nr", _fake_solve_global_nr)
-
-    _ = reactor._solve_global_nr(max_iter=3, tol=1.0, verbose=False)
-
-    assert captured["n_damp_halvings"] == 20
-    assert float(captured["lambda_min"]) == pytest.approx(1.0 / 32768.0)
-    assert bool(captured["prefer_full_step"]) is False
-    assert str(captured["step_model"]) == "lm"
-    assert float(captured["lm_mu0"]) == pytest.approx(2.0e-4)
-    assert float(captured["lm_mu_growth"]) == pytest.approx(5.0)
-    assert bool(captured["nonmonotone_enabled"]) is True
-    assert int(captured["nonmonotone_window"]) == 7
-    assert float(captured["nonmonotone_relax"]) == pytest.approx(1.03)
-    assert int(captured["line_search_max_trials"]) == 4
-
-
 def test_thesis_reaction_continuation_runs_warmup_then_full_stage(monkeypatch):
     cfg = build_phase1_htw_lu_reactor_config()
     cfg.thesis_mode = True
@@ -2798,6 +3286,29 @@ def test_thesis_reaction_continuation_runs_warmup_then_full_stage(monkeypatch):
     assert result["nr_reaction_continuation_target_cells"] == 1
 
 
+@pytest.mark.parametrize(
+    "case_id,cfg_overrides,expected",
+    THESIS_INNER_NR_KNOB_CASES,
+    ids=[case[0] for case in THESIS_INNER_NR_KNOB_CASES],
+)
+def test_thesis_inner_nr_passes_configurable_step_knobs(monkeypatch, case_id, cfg_overrides, expected):
+    cfg = build_phase1_htw_lu_reactor_config()
+    cfg.thesis_mode = True
+    for key, value in cfg_overrides.items():
+        setattr(cfg, key, value)
+    captured = run_thesis_single_cell_inner_nr(
+        monkeypatch,
+        cfg,
+        capture_keys=tuple(expected.keys()),
+    )
+    for key, exp in expected.items():
+        got = captured[key]
+        if isinstance(exp, float):
+            assert float(got) == pytest.approx(exp)
+        else:
+            assert got == exp
+
+
 def test_thesis_inner_nr_rejects_unknown_step_model():
     cfg = build_phase1_htw_lu_reactor_config()
     cfg.thesis_mode = True
@@ -2811,94 +3322,6 @@ def test_thesis_inner_nr_rejects_unknown_step_model():
             nr_init_strategy="vorabrechnung",
             nr_jacobian_strategy="dense_fd",
         )
-
-
-def test_thesis_inner_nr_passes_ptc_knobs(monkeypatch):
-    cfg = build_phase1_htw_lu_reactor_config()
-    cfg.thesis_mode = True
-    cfg.nr_step_model_thesis = "ptc"
-    cfg.nr_ptc_alpha0_thesis = 0.5
-    cfg.nr_ptc_alpha_growth_thesis = 3.0
-    reactor = Reactor(cfg)
-    reactor.cells = reactor.cells[:1]
-    reactor.config.n_cells = 1
-    reactor.config.nr_outer_iter_max = 1
-
-    monkeypatch.setattr("src.solvers.vorabrechnung.estimate_axial_T_profile", lambda **_: np.array([1000.0]))
-    monkeypatch.setattr("src.solvers.vorabrechnung.generate_initial_x0", lambda **_: None)
-    monkeypatch.setattr(reactor, "_apply_all_bc_for_nr", lambda: None)
-    for c in reactor._solver_cells_for_nr():
-        c._vorab_hydro_cache_valid = True
-    monkeypatch.setattr(reactor, "_initialize_nr_hydrodynamics_freeze_cache", lambda: None)
-    monkeypatch.setattr(reactor, "_refresh_vorabrechnung_sources_for_nr", lambda force: None)
-
-    captured: dict[str, object] = {}
-
-    def _fake_solve_global_nr(**kwargs):
-        captured["step_model"] = kwargs["step_model"]
-        captured["ptc_alpha0"] = kwargs["ptc_alpha0"]
-        captured["ptc_alpha_growth"] = kwargs["ptc_alpha_growth"]
-        return {
-            "converged": True,
-            "n_iter": 1,
-            "n_newton_iters_attempted": int(kwargs["max_iter"]),
-            "rms_scaled_final": 1e-6,
-            "norm_history": [1e-6],
-            "accepted_lambda_history": [1.0],
-            "line_search_trial_counts": [1],
-            "clip_history": [],
-        }
-
-    monkeypatch.setattr("src.solvers.global_nr_solver.solve_global_nr", _fake_solve_global_nr)
-    _ = reactor._solve_global_nr(max_iter=3, tol=1.0, verbose=False)
-
-    assert str(captured["step_model"]) == "ptc"
-    assert float(captured["ptc_alpha0"]) == pytest.approx(0.5)
-    assert float(captured["ptc_alpha_growth"]) == pytest.approx(3.0)
-
-
-def test_thesis_inner_nr_passes_equilibration_knobs(monkeypatch):
-    cfg = build_phase1_htw_lu_reactor_config()
-    cfg.thesis_mode = True
-    cfg.nr_step_model_thesis = "equil_newton"
-    cfg.nr_equil_iters_thesis = 4
-    cfg.nr_equil_scale_clip_thesis = 1.0e2
-    reactor = Reactor(cfg)
-    reactor.cells = reactor.cells[:1]
-    reactor.config.n_cells = 1
-    reactor.config.nr_outer_iter_max = 1
-
-    monkeypatch.setattr("src.solvers.vorabrechnung.estimate_axial_T_profile", lambda **_: np.array([1000.0]))
-    monkeypatch.setattr("src.solvers.vorabrechnung.generate_initial_x0", lambda **_: None)
-    monkeypatch.setattr(reactor, "_apply_all_bc_for_nr", lambda: None)
-    for c in reactor._solver_cells_for_nr():
-        c._vorab_hydro_cache_valid = True
-    monkeypatch.setattr(reactor, "_initialize_nr_hydrodynamics_freeze_cache", lambda: None)
-    monkeypatch.setattr(reactor, "_refresh_vorabrechnung_sources_for_nr", lambda force: None)
-
-    captured: dict[str, object] = {}
-
-    def _fake_solve_global_nr(**kwargs):
-        captured["step_model"] = kwargs["step_model"]
-        captured["equil_iters"] = kwargs["equil_iters"]
-        captured["equil_scale_clip"] = kwargs["equil_scale_clip"]
-        return {
-            "converged": True,
-            "n_iter": 1,
-            "n_newton_iters_attempted": int(kwargs["max_iter"]),
-            "rms_scaled_final": 1e-6,
-            "norm_history": [1e-6],
-            "accepted_lambda_history": [1.0],
-            "line_search_trial_counts": [1],
-            "clip_history": [],
-        }
-
-    monkeypatch.setattr("src.solvers.global_nr_solver.solve_global_nr", _fake_solve_global_nr)
-    _ = reactor._solve_global_nr(max_iter=3, tol=1.0, verbose=False)
-
-    assert str(captured["step_model"]) == "equil_newton"
-    assert int(captured["equil_iters"]) == 4
-    assert float(captured["equil_scale_clip"]) == pytest.approx(1.0e2)
 
 
 def test_thesis_mode_rejects_gs_warmup_init_strategy(monkeypatch):
@@ -3421,116 +3844,52 @@ def test_reaction_numbering_mapping_helper_aggregates_impl_to_thesis():
     assert out["_impl_only:R9"] == 4.0
 
 
-def test_freeboard_analytical_wirsum_trajectory_mode_smoke():
+@pytest.mark.parametrize(
+    "trajectory_model,coeff_model,expected_solver,check_holdup_profiles",
+    FREEBOARD_TRAJECTORY_SMOKE_CASES,
+    ids=[case[0] + ("_" + case[1] if case[1] else "") for case in FREEBOARD_TRAJECTORY_SMOKE_CASES],
+)
+def test_freeboard_trajectory_mode_smoke(
+    trajectory_model,
+    coeff_model,
+    expected_solver,
+    check_holdup_profiles,
+):
+    result = run_freeboard_trajectory_smoke(
+        trajectory_model=trajectory_model,
+        coeff_model=coeff_model,
+    )
     cfg = build_phase2_htw_lu_freeboard_reactor_config()
     cfg.n_cells = 3
     cfg.n_freeboard_cells = 2
-    cfg.vorab_major_gibbs_x0 = False
-    cfg.freeboard_trajectory_model = "analytical_wirsum"
-    reactor = Reactor(cfg)
-    result = reactor.solve(
-        solver="global_nr",
-        max_global_iter=2,
-        tol_global=1.0,
-        nr_init_strategy="vorabrechnung",
-        nr_jacobian_strategy=None,
-    )
 
     assert result["freeboard_active"] is True
-    assert result["freeboard_trajectory_model"] == "analytical_wirsum"
-    assert result["freeboard_trajectory_solver"] == "wirsum_analytical"
+    assert result["freeboard_trajectory_model"] == trajectory_model
+    if expected_solver is not None:
+        assert result["freeboard_trajectory_solver"] == expected_solver
+    if coeff_model is not None:
+        assert result["freeboard_trajectory_coeff_model"] == coeff_model
     assert isinstance(result["freeboard_trajectory_diag"], dict)
     assert result["freeboard_entrained_eject_char_ash_kg_s"] >= 0.0
     assert result["freeboard_entrained_exit_char_kg_s"] >= 0.0
     assert result["freeboard_entrained_exit_ash_kg_s"] >= 0.0
-
-
-def test_freeboard_analytical_wirsum_exact_hamel_coeff_mode_smoke():
-    cfg = build_phase2_htw_lu_freeboard_reactor_config()
-    cfg.n_cells = 3
-    cfg.n_freeboard_cells = 2
-    cfg.vorab_major_gibbs_x0 = False
-    cfg.freeboard_trajectory_model = "analytical_wirsum"
-    cfg.freeboard_trajectory_coeff_model = "exact_hamel"
-    reactor = Reactor(cfg)
-    result = reactor.solve(
-        solver="global_nr",
-        max_global_iter=2,
-        tol_global=1.0,
-        nr_init_strategy="vorabrechnung",
-        nr_jacobian_strategy=None,
-    )
-
-    assert result["freeboard_active"] is True
-    assert result["freeboard_trajectory_model"] == "analytical_wirsum"
-    assert result["freeboard_trajectory_coeff_model"] == "exact_hamel"
-    assert result["freeboard_trajectory_solver"] == "wirsum_analytical_exact_hamel_coeffs"
-    assert isinstance(result["freeboard_trajectory_diag"], dict)
-    assert result["freeboard_entrained_eject_char_ash_kg_s"] >= 0.0
-    assert result["freeboard_entrained_exit_char_kg_s"] >= 0.0
-    assert result["freeboard_entrained_exit_ash_kg_s"] >= 0.0
-    assert len(result["freeboard_solid_holdup_char_profile_kg"]) == cfg.n_freeboard_cells
-    assert len(result["freeboard_solid_holdup_ash_profile_kg"]) == cfg.n_freeboard_cells
-    assert result["freeboard_solid_holdup_char_profile_kg"][0] > 0.0
-    assert sum(result["freeboard_solid_holdup_char_profile_kg"]) > 0.0
-    assert sum(result["freeboard_solid_holdup_ash_profile_kg"]) > 0.0
-
-
-def test_freeboard_global_projected_hamel_trajectory_mode_smoke():
-    cfg = build_phase2_htw_lu_freeboard_reactor_config()
-    cfg.n_cells = 3
-    cfg.n_freeboard_cells = 2
-    cfg.vorab_major_gibbs_x0 = False
-    cfg.freeboard_trajectory_model = "global_projected_hamel"
-    cfg.freeboard_trajectory_coeff_model = "exact_hamel"
-    reactor = Reactor(cfg)
-    result = reactor.solve(
-        solver="global_nr",
-        max_global_iter=2,
-        tol_global=1.0,
-        nr_init_strategy="vorabrechnung",
-        nr_jacobian_strategy=None,
-    )
-
-    assert result["freeboard_active"] is True
-    assert result["freeboard_trajectory_model"] == "global_projected_hamel"
-    assert result["freeboard_trajectory_solver"] == "global_projected_hamel"
-    assert isinstance(result["freeboard_trajectory_diag"], dict)
-    assert result["freeboard_trajectory_diag"].get("projection_crossings", 0) >= 0
-    assert result["freeboard_entrained_eject_char_ash_kg_s"] >= 0.0
-    assert result["freeboard_entrained_exit_char_kg_s"] >= 0.0
-    assert result["freeboard_entrained_exit_ash_kg_s"] >= 0.0
-
-
-def test_freeboard_force_balance_trajectory_mode_smoke():
-    cfg = build_phase2_htw_lu_freeboard_reactor_config()
-    cfg.n_cells = 3
-    cfg.n_freeboard_cells = 2
-    cfg.vorab_major_gibbs_x0 = False
-    cfg.freeboard_trajectory_model = "force_balance"
-    reactor = Reactor(cfg)
-    result = reactor.solve(
-        solver="global_nr",
-        max_global_iter=2,
-        tol_global=1.0,
-        nr_init_strategy="vorabrechnung",
-        nr_jacobian_strategy=None,
-    )
-
-    assert result["freeboard_active"] is True
-    assert result["freeboard_trajectory_model"] == "force_balance"
-    assert result["freeboard_entrained_eject_char_ash_kg_s"] >= 0.0
-    assert result["freeboard_entrained_exit_char_kg_s"] >= 0.0
-    assert result["freeboard_entrained_exit_ash_kg_s"] >= 0.0
+    if trajectory_model == "global_projected_hamel":
+        assert result["freeboard_trajectory_diag"].get("projection_crossings", 0) >= 0
+    if check_holdup_profiles:
+        assert len(result["freeboard_solid_holdup_char_profile_kg"]) == cfg.n_freeboard_cells
+        assert len(result["freeboard_solid_holdup_ash_profile_kg"]) == cfg.n_freeboard_cells
+        assert result["freeboard_solid_holdup_char_profile_kg"][0] > 0.0
+        assert sum(result["freeboard_solid_holdup_char_profile_kg"]) > 0.0
+        assert sum(result["freeboard_solid_holdup_ash_profile_kg"]) > 0.0
 
 
 def test_global_projected_hamel_initialized_projection_reaches_at_least_as_high_as_analytical():
-    analytical = _build_initialized_thesis_freeboard_reactor(n_bed=5, n_freeboard=8)
+    analytical = build_initialized_thesis_freeboard_reactor(n_bed=5, n_freeboard=8)
     analytical.config.freeboard_trajectory_model = "analytical_wirsum"
     analytical.config.freeboard_trajectory_coeff_model = "exact_hamel"
     analytical._refresh_explicit_freeboard_transport_from_closure()
 
-    projected = _build_initialized_thesis_freeboard_reactor(n_bed=5, n_freeboard=8)
+    projected = build_initialized_thesis_freeboard_reactor(n_bed=5, n_freeboard=8)
     projected.config.freeboard_trajectory_model = "global_projected_hamel"
     projected.config.freeboard_trajectory_coeff_model = "exact_hamel"
     projected._refresh_explicit_freeboard_transport_from_closure()
