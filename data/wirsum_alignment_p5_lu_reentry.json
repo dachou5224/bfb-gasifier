@@ -1,0 +1,228 @@
+{
+  "source": "Wirsum alignment P5 LU re-entry",
+  "case": "reduced_3cell_lu_init",
+  "solved": false,
+  "checklist_order": [
+    "elemental_closure",
+    "mass_closure",
+    "energy_closure",
+    "inner_nr",
+    "outer_convergence",
+    "freeboard_closure",
+    "composition_observation",
+    "temperature_observation"
+  ],
+  "open_items": [
+    "elemental_closure",
+    "mass_closure",
+    "energy_closure"
+  ],
+  "items": {
+    "elemental_closure": {
+      "item": "elemental_closure",
+      "units": "mol-atom/s",
+      "per_cell": [
+        {
+          "cell": 0,
+          "rates_mol_atom_s": {
+            "C": 5.135447622706124e-12,
+            "H": 0.0071291166480875745,
+            "O": 0.0009169913421498421,
+            "N": 0.0,
+            "S": 0.0
+          },
+          "max_abs_mol_atom_s": 0.0071291166480875745
+        },
+        {
+          "cell": 1,
+          "rates_mol_atom_s": {
+            "C": 8.185452315956354e-12,
+            "H": 0.0045399406844808254,
+            "O": -0.0078125,
+            "N": 0.0,
+            "S": 0.0
+          },
+          "max_abs_mol_atom_s": 0.0078125
+        },
+        {
+          "cell": 2,
+          "rates_mol_atom_s": {
+            "C": -2.5011104298755527e-12,
+            "H": -0.004709303534582432,
+            "O": 0.0,
+            "N": 0.0,
+            "S": 0.0
+          },
+          "max_abs_mol_atom_s": 0.004709303534582432
+        }
+      ],
+      "max_abs_mol_atom_s": 0.0078125,
+      "dominant_element": "O",
+      "open": true,
+      "note": "C \u8fd1\u673a\u5668\u7cbe\u5ea6\u800c H/O \u5f00\u53e3\uff0c\u5bf9\u5e94 sanity\u300cPyrolysis elemental allocator\u300d\u3002\u8fd9\u662f\u6e90\u9879\u95ed\u5408\uff0c\u4e0d\u662f\u5b9e\u9a8c CO \u504f\u5dee\u3002"
+    },
+    "mass_closure": {
+      "item": "mass_closure",
+      "units": {
+        "gas": "mol/s residual L2",
+        "solid": "kg/s residual L2"
+      },
+      "per_cell": [
+        {
+          "cell": 0,
+          "gas_residual_l2": 60407203254839.64,
+          "solid_residual_l2": 0.4959904276977361
+        },
+        {
+          "cell": 1,
+          "gas_residual_l2": 60987295667645.94,
+          "solid_residual_l2": 0.0
+        },
+        {
+          "cell": 2,
+          "gas_residual_l2": 35522884740840.28,
+          "solid_residual_l2": 0.0
+        }
+      ],
+      "max_gas_residual_l2": 60987295667645.94,
+      "max_solid_residual_l2": 0.4959904276977361,
+      "open": true,
+      "note": "x0 \u6c14\u76f8\u6b8b\u5dee\u91cf\u7ea7\u4e0e P0 packed residual \u540c\u7c7b\uff1b\u4e0d\u636e\u6b64\u8c03 rate multiplier\u3002"
+    },
+    "energy_closure": {
+      "item": "energy_closure",
+      "units": "W",
+      "per_cell": [
+        {
+          "cell": 0,
+          "energy_residual_W": -10722385.451923925
+        },
+        {
+          "cell": 1,
+          "energy_residual_W": 126694.22644953942
+        },
+        {
+          "cell": 2,
+          "energy_residual_W": -668006.038729755
+        }
+      ],
+      "max_abs_W": 10722385.451923925,
+      "open": true,
+      "note": "\u80fd\u91cf\u53e3\u672a\u95ed\u5408\u65f6\u5148\u770b Eq.2.7 \u6b8b\u5dee\uff0c\u4e0d\u5148\u52a0 T clip\u3002"
+    },
+    "inner_nr": {
+      "item": "inner_nr",
+      "solved": false,
+      "n_var": 105,
+      "residual_l2": 92899708170884.53,
+      "residual_linf": 32936022822625.93,
+      "rms_scaled": 113385175848.37558,
+      "note": "\u53ea\u8bca\u65ad x0 residual\uff0c\u4e0d\u8dd1 Newton\uff0c\u4e0d\u8ffd\u6536\u655b\u3002"
+    },
+    "outer_convergence": {
+      "item": "outer_convergence",
+      "status": "single_frame_only",
+      "n_cells": 3,
+      "snapshot": {
+        "eps_b": [
+          0.4305822890904592,
+          0.41988737408186266,
+          0.43860766856187877
+        ],
+        "K_bd": [
+          14.857224698118383,
+          19.247091785399444,
+          24.845288354905424
+        ],
+        "K_s": [
+          0.039455081654985354,
+          0.0596339626192384,
+          0.03474747648907922
+        ],
+        "u_b": [
+          0.8348294056288378,
+          0.742450062615889,
+          0.6740787899649038
+        ],
+        "T": [
+          1325.0,
+          1232.25,
+          1139.5
+        ]
+      },
+      "contractivity": null,
+      "note": "P4 \u6838\u5df2\u5c31\u7eea\uff1b\u5168\u7089 outer \u5386\u53f2\u5c1a\u672a\u63a5\u5165\u751f\u4ea7 loop\u3002"
+    },
+    "freeboard_closure": {
+      "item": "freeboard_closure",
+      "configured": "analytical_wirsum",
+      "resolved_name": "engineering_freeboard",
+      "u_p0_over_u_b": 1.53,
+      "ejection": "roof_plus_wake_renormalize",
+      "n_freeboard_cells": 0,
+      "wirsum_1997_exact_wired": false,
+      "note": "\u751f\u4ea7\u4ecd\u662f engineering \u522b\u540d\uff1bexact \u6838\u672a\u63a5\u5165 simulate_freeboard\u3002"
+    },
+    "composition_observation": {
+      "item": "composition_observation",
+      "role": "observation_vs_p0_baseline",
+      "forbidden": [
+        "experiment_CO",
+        "measured_CO",
+        "y_CO_target",
+        "calibration_objective",
+        "lu_plant_parity"
+      ],
+      "exit_gas_dry": {
+        "H2": 0.0972060946036539,
+        "CO": 0.13356908577451213,
+        "CO2": 0.022261514295752023,
+        "CH4": 0.013356908577451214
+      },
+      "exit_gas_wet": {
+        "H2": 0.08544878417853556,
+        "CO": 0.11741358430052157,
+        "CO2": 0.019568930716753596,
+        "CH4": 0.011741358430052157
+      },
+      "delta_vs_p0": {
+        "d_exit_T_K": 0.0,
+        "d_exit_gas_dry": {
+          "H2": 0.0,
+          "CO": 0.0,
+          "CO2": 0.0,
+          "CH4": 0.0
+        }
+      },
+      "note": "\u5bf9\u7167 P0 x0\uff0c\u4e0d\u662f\u5b9e\u9a8c\u7ec4\u6210\uff0c\u4e0d\u80fd\u7528\u6765\u6279\u51c6 clip / renormalize / rate scale\u3002"
+    },
+    "temperature_observation": {
+      "item": "temperature_observation",
+      "role": "observation_vs_p0_baseline",
+      "forbidden": [
+        "experiment_CO",
+        "measured_CO",
+        "y_CO_target",
+        "calibration_objective",
+        "lu_plant_parity"
+      ],
+      "exit_T_K": 1139.5,
+      "bed_T_K": [
+        1325.0,
+        1232.25,
+        1139.5
+      ],
+      "delta_vs_p0": {
+        "d_exit_T_K": 0.0,
+        "d_exit_gas_dry": {
+          "H2": 0.0,
+          "CO": 0.0,
+          "CO2": 0.0,
+          "CH4": 0.0
+        }
+      },
+      "note": "\u5bf9\u7167 P0 \u8f74\u5411 T\uff0c\u4e0d\u662f\u5de5\u4e1a\u6d4b\u70b9\uff0c\u4e0d\u636e\u6b64\u52a0 fence\u3002"
+    }
+  },
+  "rule": "Do not treat CO vs plant data as proof that a numerical bridge is correct. Close elemental/mass/energy and diagnose inner/outer/freeboard first."
+}
