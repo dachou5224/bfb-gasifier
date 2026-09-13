@@ -1,0 +1,279 @@
+{
+  "source": "Wirsum alignment km holdup Startwert A/B",
+  "case": "reduced_3cell_lu_init",
+  "solved": false,
+  "name": "km_holdup_startwert",
+  "not": [
+    "holdup_k0_anchor",
+    "vm_in_eq27_outlet",
+    "temperature_fence",
+    "source_minus_M"
+  ],
+  "units": {
+    "enthalpy": "W",
+    "holdup": "kg",
+    "K": "1/s"
+  },
+  "note": "generate_initial_x0 \u65f6 m_zu=0\uff0choldup \u88ab\u5199\u6210 0\u3002BC \u8865\u4e0a\u7ed9\u6599\u540e\u6309 M=m_in/K \u53ea\u586b char/ash\u3002VM \u7684 K=0\uff0c\u5e93\u5b58\u4e0e H_aus \u4ecd\u4e0d\u95ed\u5408\uff1b\u4e0d\u628a VM \u8865\u8fdb Eq.2.7\u3002",
+  "applied": {
+    "cells_touched": 1,
+    "per_cell": [
+      {
+        "cell": 0,
+        "skipped": false,
+        "xi_M_kg": 5.2042057055499775,
+        "char_M_kg": 4.076920715648554,
+        "ash_M_kg": 1.1272849899014237,
+        "vm_M_kg": 0.0
+      },
+      {
+        "cell": 1,
+        "skipped": false,
+        "xi_M_kg": 0.0,
+        "char_M_kg": 0.0,
+        "ash_M_kg": 0.0,
+        "vm_M_kg": 0.0
+      },
+      {
+        "cell": 2,
+        "skipped": false,
+        "xi_M_kg": 0.0,
+        "char_M_kg": 0.0,
+        "ash_M_kg": 0.0,
+        "vm_M_kg": 0.0
+      }
+    ]
+  },
+  "before": {
+    "bed0_residual_W": -10722385.451923925,
+    "per_cell": [
+      {
+        "cell": 0,
+        "T_K": 1325.0,
+        "residual_W": -10722385.451923925,
+        "H_in_W": -11189748.988059329,
+        "H_solid_zu_W": -8197533.887162287,
+        "H_gas_out_W": -1155352.4250242915,
+        "H_solid_out_W": 0.0,
+        "Q_loss_W": 687988.888888889,
+        "m_holdup_kg": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_energy_out_kg_s": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "H_zu_by_comp_W": {
+          "char": -5105096.796185404,
+          "vm": -3088782.7929697167,
+          "moisture": -3313.698483333333,
+          "ash": -340.5995238327432
+        },
+        "H_solid_out_by_comp_W": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "holdup_zero": true,
+        "H_solid_out_zero": true,
+        "vm_in_not_in_energy_out": true
+      },
+      {
+        "cell": 1,
+        "T_K": 1232.25,
+        "residual_W": 126694.22644953942,
+        "H_in_W": -1155352.4250242915,
+        "H_solid_zu_W": 0.0,
+        "H_gas_out_W": -1970035.54036272,
+        "H_solid_out_W": 0.0,
+        "Q_loss_W": 687988.888888889,
+        "m_holdup_kg": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_energy_out_kg_s": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "H_zu_by_comp_W": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "H_solid_out_by_comp_W": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "holdup_zero": true,
+        "H_solid_out_zero": true,
+        "vm_in_not_in_energy_out": false
+      },
+      {
+        "cell": 2,
+        "T_K": 1139.5,
+        "residual_W": -668006.038729755,
+        "H_in_W": -1970035.54036272,
+        "H_solid_zu_W": 0.0,
+        "H_gas_out_W": -1990018.390521854,
+        "H_solid_out_W": 0.0,
+        "Q_loss_W": 687988.888888889,
+        "m_holdup_kg": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_energy_out_kg_s": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "H_zu_by_comp_W": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "H_solid_out_by_comp_W": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "holdup_zero": true,
+        "H_solid_out_zero": true,
+        "vm_in_not_in_energy_out": false
+      }
+    ]
+  },
+  "after": {
+    "bed0_residual_W": -5295034.687039311,
+    "per_cell": [
+      {
+        "cell": 0,
+        "T_K": 1325.0,
+        "residual_W": -5295034.687039311,
+        "H_in_W": -11189748.988059329,
+        "H_solid_zu_W": -8197533.887162287,
+        "H_gas_out_W": -1155352.4250242915,
+        "H_solid_out_W": -5427350.764884615,
+        "Q_loss_W": 687988.888888889,
+        "m_holdup_kg": {
+          "char": 4.076920715648554,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 1.1272849899014237
+        },
+        "m_energy_out_kg_s": {
+          "char": 0.38225371513551476,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.08895424265000001
+        },
+        "H_zu_by_comp_W": {
+          "char": -5105096.796185404,
+          "vm": -3088782.7929697167,
+          "moisture": -3313.698483333333,
+          "ash": -340.5995238327432
+        },
+        "H_solid_out_by_comp_W": {
+          "char": -5552531.318852704,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 125180.55396808825
+        },
+        "holdup_zero": false,
+        "H_solid_out_zero": false,
+        "vm_in_not_in_energy_out": true
+      },
+      {
+        "cell": 1,
+        "T_K": 1232.25,
+        "residual_W": -4421219.141631443,
+        "H_in_W": -5703265.7931052735,
+        "H_solid_zu_W": 0.0,
+        "H_gas_out_W": -1970035.54036272,
+        "H_solid_out_W": 0.0,
+        "Q_loss_W": 687988.888888889,
+        "m_holdup_kg": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_energy_out_kg_s": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "H_zu_by_comp_W": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "H_solid_out_by_comp_W": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "holdup_zero": true,
+        "H_solid_out_zero": true,
+        "vm_in_not_in_energy_out": false
+      },
+      {
+        "cell": 2,
+        "T_K": 1139.5,
+        "residual_W": -668006.038729755,
+        "H_in_W": -1970035.54036272,
+        "H_solid_zu_W": 0.0,
+        "H_gas_out_W": -1990018.390521854,
+        "H_solid_out_W": 0.0,
+        "Q_loss_W": 687988.888888889,
+        "m_holdup_kg": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_energy_out_kg_s": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "H_zu_by_comp_W": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "H_solid_out_by_comp_W": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "holdup_zero": true,
+        "H_solid_out_zero": true,
+        "vm_in_not_in_energy_out": false
+      }
+    ]
+  }
+}
