@@ -1,0 +1,368 @@
+{
+  "source": "Wirsum alignment Eq.2.7 energy term decomposition",
+  "case": "reduced_3cell_lu_init",
+  "solved": false,
+  "name": "eq27_energy_term_decomp",
+  "not": [
+    "temperature_fence",
+    "energy_clip",
+    "vm_in_eq27_outlet",
+    "same_phase_r5_startwert"
+  ],
+  "units": {
+    "enthalpy": "W",
+    "solid_mass": "kg/s",
+    "temperature": "K"
+  },
+  "note": "bed0 \u7684 \u221210 MW \u5728 R12 Startwert \u524d\u5df2\u5728\u3002holdup_transport \u4e0b H_aus,solid = K\u00b7m\uff1breduced x0 \u7684 m_solid=0\uff0c\u6545 H_sout=0\u3002H_zu \u4ecd\u5e26\u5165\u71c3\u6599\u7113\uff08char+VM\uff09\u3002K_VM=0 \u662f\u7b2c\u4e8c\u5c42\uff1b\u5148\u6709\u5e93\u5b58\u4e3a\u96f6\u3002\u7981\u6b62\u628a VM \u8865\u8fdb Eq.2.7 \u51fa\u53e3\uff0c\u7981\u6b62\u7528 T clip \u62b9\u6389\u6b8b\u5dee\u3002\u4e0d\u7528\u5b9e\u9a8c CO\u3002",
+  "before": {
+    "bed0_residual_W": -10722385.451923925,
+    "bed0_dominant_H_in_term": "H_solid_zu",
+    "bed0_holdup_zero": true,
+    "per_cell": [
+      {
+        "cell": 0,
+        "T_K": 1325.0,
+        "heat_loss_mode": "hamel_eq27_explicit",
+        "H_in_W": -11189748.988059329,
+        "H_in_parts_W": {
+          "H_gas_axial_in": 0.0,
+          "H_gas_zu": -2793213.261844856,
+          "H_gas_rez": -199001.83905218542,
+          "H_solid_rez": 0.0,
+          "H_solid_axial_in": 0.0,
+          "H_solid_auf_in": 0.0,
+          "H_solid_ab_in": 0.0,
+          "H_solid_zu": -8197533.887162287
+        },
+        "H_gas_out_W": -1155352.4250242915,
+        "H_solid_out_W": 0.0,
+        "Q_loss_W": 687988.888888889,
+        "residual_W": -10722385.451923925,
+        "decomp_matches_live": true,
+        "dominant_H_in_term": "H_solid_zu",
+        "H_zu_by_comp_W": {
+          "char": -5105096.796185404,
+          "vm": -3088782.7929697167,
+          "moisture": -3313.698483333333,
+          "ash": -340.5995238327432
+        },
+        "m_in_kg_s": {
+          "char": 0.32171047947363,
+          "vm": 0.36895177787637,
+          "moisture": 0.15855016666666666,
+          "ash": 0.08895424265000001
+        },
+        "m_energy_out_kg_s": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_holdup_kg": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "K_auf_max_1_per_s": {
+          "char": 0.07891016330997071,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.07891016330997071
+        },
+        "holdup_zero": true,
+        "H_solid_out_zero": true,
+        "vm_in_not_in_energy_out": true,
+        "solid_state_model": "holdup_transport"
+      },
+      {
+        "cell": 1,
+        "T_K": 1232.25,
+        "heat_loss_mode": "hamel_eq27_explicit",
+        "H_in_W": -1155352.4250242915,
+        "H_in_parts_W": {
+          "H_gas_axial_in": -1155352.4250242915,
+          "H_gas_zu": 0.0,
+          "H_gas_rez": 0.0,
+          "H_solid_rez": 0.0,
+          "H_solid_axial_in": 0.0,
+          "H_solid_auf_in": 0.0,
+          "H_solid_ab_in": 0.0,
+          "H_solid_zu": 0.0
+        },
+        "H_gas_out_W": -1970035.54036272,
+        "H_solid_out_W": 0.0,
+        "Q_loss_W": 687988.888888889,
+        "residual_W": 126694.22644953942,
+        "decomp_matches_live": true,
+        "dominant_H_in_term": "H_gas_axial_in",
+        "H_zu_by_comp_W": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_in_kg_s": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_energy_out_kg_s": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_holdup_kg": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "K_auf_max_1_per_s": {
+          "char": 0.06717346624832213,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.06717346624832213
+        },
+        "holdup_zero": true,
+        "H_solid_out_zero": true,
+        "vm_in_not_in_energy_out": false,
+        "solid_state_model": "holdup_transport"
+      },
+      {
+        "cell": 2,
+        "T_K": 1139.5,
+        "heat_loss_mode": "hamel_eq27_explicit",
+        "H_in_W": -1970035.54036272,
+        "H_in_parts_W": {
+          "H_gas_axial_in": -1970035.54036272,
+          "H_gas_zu": 0.0,
+          "H_gas_rez": 0.0,
+          "H_solid_rez": 0.0,
+          "H_solid_axial_in": 0.0,
+          "H_solid_auf_in": 0.0,
+          "H_solid_ab_in": 0.0,
+          "H_solid_zu": 0.0
+        },
+        "H_gas_out_W": -1990018.390521854,
+        "H_solid_out_W": 0.0,
+        "Q_loss_W": 687988.888888889,
+        "residual_W": -668006.038729755,
+        "decomp_matches_live": true,
+        "dominant_H_in_term": "H_gas_axial_in",
+        "H_zu_by_comp_W": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_in_kg_s": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_energy_out_kg_s": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_holdup_kg": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "K_auf_max_1_per_s": {
+          "char": 0.026332398034021515,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.026332398034021515
+        },
+        "holdup_zero": true,
+        "H_solid_out_zero": true,
+        "vm_in_not_in_energy_out": false,
+        "solid_state_model": "holdup_transport"
+      }
+    ]
+  },
+  "after": {
+    "bed0_residual_W": -10406368.617527042,
+    "bed0_dominant_H_in_term": "H_solid_zu",
+    "bed0_holdup_zero": true,
+    "per_cell": [
+      {
+        "cell": 0,
+        "T_K": 1325.0,
+        "heat_loss_mode": "hamel_eq27_explicit",
+        "H_in_W": -11200833.452328432,
+        "H_in_parts_W": {
+          "H_gas_axial_in": 0.0,
+          "H_gas_zu": -2793213.261844856,
+          "H_gas_rez": -210086.3033212904,
+          "H_solid_rez": 0.0,
+          "H_solid_axial_in": 0.0,
+          "H_solid_auf_in": 0.0,
+          "H_solid_ab_in": 0.0,
+          "H_solid_zu": -8197533.887162287
+        },
+        "H_gas_out_W": -1482453.723690278,
+        "H_solid_out_W": 0.0,
+        "Q_loss_W": 687988.888888889,
+        "residual_W": -10406368.617527042,
+        "decomp_matches_live": true,
+        "dominant_H_in_term": "H_solid_zu",
+        "H_zu_by_comp_W": {
+          "char": -5105096.796185404,
+          "vm": -3088782.7929697167,
+          "moisture": -3313.698483333333,
+          "ash": -340.5995238327432
+        },
+        "m_in_kg_s": {
+          "char": 0.32171047947363,
+          "vm": 0.36895177787637,
+          "moisture": 0.15855016666666666,
+          "ash": 0.08895424265000001
+        },
+        "m_energy_out_kg_s": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_holdup_kg": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "K_auf_max_1_per_s": {
+          "char": 0.07891016330997071,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.07891016330997071
+        },
+        "holdup_zero": true,
+        "H_solid_out_zero": true,
+        "vm_in_not_in_energy_out": true,
+        "solid_state_model": "holdup_transport"
+      },
+      {
+        "cell": 1,
+        "T_K": 1232.25,
+        "heat_loss_mode": "hamel_eq27_explicit",
+        "H_in_W": -1482453.723690278,
+        "H_in_parts_W": {
+          "H_gas_axial_in": -1482453.723690278,
+          "H_gas_zu": 0.0,
+          "H_gas_rez": 0.0,
+          "H_solid_rez": 0.0,
+          "H_solid_axial_in": 0.0,
+          "H_solid_auf_in": 0.0,
+          "H_solid_ab_in": 0.0,
+          "H_solid_zu": 0.0
+        },
+        "H_gas_out_W": -2558004.4974684757,
+        "H_solid_out_W": 0.0,
+        "Q_loss_W": 687988.888888889,
+        "residual_W": 387561.8848893088,
+        "decomp_matches_live": true,
+        "dominant_H_in_term": "H_gas_axial_in",
+        "H_zu_by_comp_W": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_in_kg_s": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_energy_out_kg_s": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_holdup_kg": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "K_auf_max_1_per_s": {
+          "char": 0.06717346624832213,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.06717346624832213
+        },
+        "holdup_zero": true,
+        "H_solid_out_zero": true,
+        "vm_in_not_in_energy_out": false,
+        "solid_state_model": "holdup_transport"
+      },
+      {
+        "cell": 2,
+        "T_K": 1139.5,
+        "heat_loss_mode": "hamel_eq27_explicit",
+        "H_in_W": -2558004.4974684757,
+        "H_in_parts_W": {
+          "H_gas_axial_in": -2558004.4974684757,
+          "H_gas_zu": 0.0,
+          "H_gas_rez": 0.0,
+          "H_solid_rez": 0.0,
+          "H_solid_axial_in": 0.0,
+          "H_solid_auf_in": 0.0,
+          "H_solid_ab_in": 0.0,
+          "H_solid_zu": 0.0
+        },
+        "H_gas_out_W": -2100863.033212905,
+        "H_solid_out_W": 0.0,
+        "Q_loss_W": 687988.888888889,
+        "residual_W": -1145130.35314446,
+        "decomp_matches_live": true,
+        "dominant_H_in_term": "H_gas_axial_in",
+        "H_zu_by_comp_W": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_in_kg_s": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_energy_out_kg_s": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "m_holdup_kg": {
+          "char": 0.0,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0
+        },
+        "K_auf_max_1_per_s": {
+          "char": 0.026332398034021515,
+          "vm": 0.0,
+          "moisture": 0.0,
+          "ash": 0.026332398034021515
+        },
+        "holdup_zero": true,
+        "H_solid_out_zero": true,
+        "vm_in_not_in_energy_out": false,
+        "solid_state_model": "holdup_transport"
+      }
+    ]
+  }
+}
