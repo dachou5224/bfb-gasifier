@@ -297,3 +297,112 @@ def run_wirsum_strict_ab(
         )
         out[name] = result.as_dict()
     return out
+
+
+def _slim_ab_result(result: dict[str, Any]) -> dict[str, Any]:
+    keys = (
+        "converged",
+        "iterations",
+        "accepted_alphas",
+        "residual_l2_history",
+        "merit_history",
+        "n_jac_builds",
+        "cond_last",
+        "n_zero_rows_last",
+        "rank_last",
+        "failure_reason",
+        "merit_kind",
+        "jacobian_refresh",
+        "residual_l2_final",
+    )
+    slim = {key: result[key] for key in keys}
+    cond = slim["cond_last"]
+    if isinstance(cond, float) and not np.isfinite(cond):
+        slim["cond_last"] = None
+    return slim
+
+
+def build_reduced_holdup_ab_payload() -> dict[str, Any]:
+    """P2.1 三格 holdup A/B：线性 / 非线性 MM / 行加权 / K=0。"""
+    from src.core.solid_balance_reduced import (
+        N_CELLS,
+        canonical_open_chain_K,
+        holdup_jacobian,
+        holdup_residual,
+    )
+
+    K_up, K_down = canonical_open_chain_K()
+    m_feed = np.zeros(N_CELLS, dtype=np.float64)
+    m_feed[0] = 1.0  # [kg/s]
+    r_dot = np.zeros(N_CELLS, dtype=np.float64)
+    k_sat = np.array([0.50, 0.20, 0.10], dtype=np.float64)  # [kg/s]
+    M_ref = np.ones(N_CELLS, dtype=np.float64)  # [kg]
+    x0 = np.array([0.05, 0.05, 0.05], dtype=np.float64)  # [kg]
+    scale = np.ones(N_CELLS, dtype=np.float64)  # [kg/s]
+    weights = np.array([1.0, 1.0e3, 1.0e-3], dtype=np.float64)
+
+    def linear_residual(M: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+        return holdup_residual(
+            M, m_feed=m_feed, K_up=K_up, K_down=K_down, r_dot=r_dot, k0_anchor="none"
+        )
+
+    def linear_jacobian(M: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+        return holdup_jacobian(
+            M, m_feed=m_feed, K_up=K_up, K_down=K_down, r_dot=r_dot, k0_anchor="none"
+        )
+
+    def mm_residual(M: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+        return linear_residual(M) - k_sat * M / (1.0 + M / M_ref)
+
+    def mm_jacobian(M: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+        J = linear_jacobian(M).copy()
+        J[np.diag_indices(N_CELLS)] -= k_sat * M_ref / (M_ref + M) ** 2
+        return J
+
+    def weighted_residual(M: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+        return weights * mm_residual(M)
+
+    def weighted_jacobian(M: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+        return weights[:, None] * mm_jacobian(M)
+
+    zero_K = np.zeros(N_CELLS, dtype=np.float64)
+
+    def k0_residual(M: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+        return holdup_residual(
+            M, m_feed=m_feed, K_up=zero_K, K_down=zero_K, r_dot=r_dot, k0_anchor="none"
+        )
+
+    def k0_jacobian(M: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+        return holdup_jacobian(
+            M, m_feed=m_feed, K_up=zero_K, K_down=zero_K, r_dot=r_dot, k0_anchor="none"
+        )
+
+    k0 = wirsum_1997_strict_newton(k0_residual, k0_jacobian, np.ones(N_CELLS, dtype=np.float64))
+    return {
+        "problem": {
+            "name": "3-cell holdup reduced",
+            "x0_kg": x0.tolist(),
+            "feed_kg_s": m_feed.tolist(),
+            "k_sat_kg_s": k_sat.tolist(),
+            "row_weights": weights.tolist(),
+        },
+        "linear_K_positive": {
+            key: _slim_ab_result(val)
+            for key, val in run_wirsum_strict_ab(
+                linear_residual, linear_jacobian, x0, scale=scale, max_iter=20
+            ).items()
+        },
+        "nonlinear_mm": {
+            key: _slim_ab_result(val)
+            for key, val in run_wirsum_strict_ab(
+                mm_residual, mm_jacobian, x0, scale=scale, max_iter=40
+            ).items()
+        },
+        "nonlinear_mm_row_weighted": {
+            key: _slim_ab_result(val)
+            for key, val in run_wirsum_strict_ab(
+                weighted_residual, weighted_jacobian, x0, scale=weights, max_iter=40
+            ).items()
+        },
+        "K_zero_no_constitutive_outflow": _slim_ab_result(k0.as_dict()),
+    }

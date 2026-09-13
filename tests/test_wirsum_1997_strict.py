@@ -14,6 +14,7 @@ from src.core.solid_balance_reduced import (
 from src.solvers.wirsum_1997_strict import (
     NR_SOLVER_MODE_WIRSUM_1997_STRICT,
     apply_wirsum_1997_strict_config,
+    build_reduced_holdup_ab_payload,
     eval_merit,
     resolve_nr_solver_mode,
     run_wirsum_strict_ab,
@@ -185,3 +186,22 @@ def test_reactor_config_strict_mode_disables_engineering_bridges() -> None:
     assert cfg.nr_step_model_thesis == "newton"
     apply_wirsum_1997_strict_config(cfg)
     assert cfg.nr_nonmonotone_enabled_thesis is False
+
+
+def test_reduced_holdup_ab_verdicts() -> None:
+    payload = build_reduced_holdup_ab_payload()
+    linear = payload["linear_K_positive"]
+    assert all(case["converged"] and case["iterations"] == 1 for case in linear.values())
+    mm = payload["nonlinear_mm"]
+    assert mm["A_raw_fresh"]["converged"] and mm["A_raw_fresh"]["iterations"] == 5
+    assert mm["B_scaled_fresh"]["iterations"] == mm["A_raw_fresh"]["iterations"]
+    assert not mm["C_raw_frozen"]["converged"]
+    assert mm["C_raw_frozen"]["failure_reason"] == "max_iter"
+    weighted = payload["nonlinear_mm_row_weighted"]
+    assert weighted["A_raw_fresh"]["converged"]
+    assert min(weighted["A_raw_fresh"]["accepted_alphas"]) < 1.0
+    assert weighted["B_scaled_fresh"]["accepted_alphas"] == [1.0] * weighted["B_scaled_fresh"]["iterations"]
+    assert weighted["C_raw_frozen"]["failure_reason"] == "line_search"
+    k0 = payload["K_zero_no_constitutive_outflow"]
+    assert k0["failure_reason"] == "singular_jacobian"
+    assert k0["rank_last"] == 0
