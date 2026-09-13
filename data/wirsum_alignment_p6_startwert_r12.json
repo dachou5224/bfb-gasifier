@@ -1,0 +1,217 @@
+{
+  "source": "Wirsum alignment same-phase R12 Startwert A/B",
+  "case": "reduced_3cell_lu_init",
+  "solved": false,
+  "name": "same_phase_r12_startwert",
+  "not": [
+    "project_bed_holdup_fast_oxidation_closure",
+    "nr_line_search_fast_oxidation_projection_thesis",
+    "residual_clip"
+  ],
+  "units": {
+    "holdup": "mol/s",
+    "r12_extent": "mol/s",
+    "residual": "mixed SI packed F"
+  },
+  "note": "\u53ea\u6d88\u540c\u76f8 H2\u2229O2\u3002CO/CH4 \u4e0e O2 \u7684\u91cd\u53e0\u7559\u4e0b\u7ed9\u540e\u7eed\u8bca\u65ad\u3002\u88f8 R12 \u6e90\u9879\u5e94\u4ece 10\u00b9\u00b3 \u843d\u5230\u70ed\u89e3/\u5176\u5b83\u5747\u76f8\u91cf\u7ea7\u3002\u4e0d\u7528\u5b9e\u9a8c CO \u505a\u5224\u636e\u3002",
+  "applied": {
+    "xi12_total_mol_s": 4.116695788933971,
+    "cells_touched": 3,
+    "per_cell": [
+      {
+        "cell": 0,
+        "xi12_mol_s": 1.3108094150969567,
+        "dense_xi12": 1.2452689443421088,
+        "bubble_xi12": 0.06554047075484784
+      },
+      {
+        "cell": 1,
+        "xi12_mol_s": 2.3601177172279715,
+        "dense_xi12": 2.242111831366573,
+        "bubble_xi12": 0.11800588586139858
+      },
+      {
+        "cell": 2,
+        "xi12_mol_s": 0.4457686566090425,
+        "dense_xi12": 0.4234802237785904,
+        "bubble_xi12": 0.02228843283045213
+      }
+    ]
+  },
+  "before": {
+    "max_xi12_possible_mol_s": 2.3601177172279715,
+    "max_xi5_possible_mol_s": 2.3601177172279715,
+    "max_xi6_possible_mol_s": 0.6393198895641152,
+    "max_r12_extent_mol_s": 56775221477746.08,
+    "residual_l2": 92899708170884.53,
+    "residual_linf": 32936022822625.93,
+    "overlap": [
+      {
+        "cell": 0,
+        "dense": {
+          "N_H2": 1.2452689443421088,
+          "N_O2": 5.935419391605726,
+          "N_H2O": 10.566459355625096,
+          "N_CO": 0.9902543411818482,
+          "N_CH4": 0.27006936577686774,
+          "xi12_possible_mol_s": 1.2452689443421088,
+          "xi5_possible_mol_s": 0.9902543411818482,
+          "xi6_possible_mol_s": 0.27006936577686774
+        },
+        "bubble": {
+          "N_H2": 0.06554047075484784,
+          "N_O2": 0.31239049429503823,
+          "N_H2O": 0.5561294397697419,
+          "N_CO": 0.052118649535886755,
+          "N_CH4": 0.014214177146150933,
+          "xi12_possible_mol_s": 0.06554047075484784,
+          "xi5_possible_mol_s": 0.052118649535886755,
+          "xi6_possible_mol_s": 0.014214177146150933
+        },
+        "xi12_possible_mol_s": 1.3108094150969567,
+        "xi5_possible_mol_s": 1.042372990717735,
+        "xi6_possible_mol_s": 0.28428354292301866
+      },
+      {
+        "cell": 1,
+        "dense": {
+          "N_H2": 3.610266999251399,
+          "N_O2": 1.1210559156832864,
+          "N_H2O": 10.117678696583024,
+          "N_CO": 4.251477265601366,
+          "N_CH4": 0.6073538950859094,
+          "xi12_possible_mol_s": 2.242111831366573,
+          "xi5_possible_mol_s": 2.242111831366573,
+          "xi6_possible_mol_s": 0.6073538950859094
+        },
+        "bubble": {
+          "N_H2": 0.19001405259217893,
+          "N_O2": 0.05900294293069929,
+          "N_H2O": 0.5325094050833171,
+          "N_CO": 0.22376196134744034,
+          "N_CH4": 0.031965994478205764,
+          "xi12_possible_mol_s": 0.11800588586139858,
+          "xi5_possible_mol_s": 0.11800588586139858,
+          "xi6_possible_mol_s": 0.031965994478205764
+        },
+        "xi12_possible_mol_s": 2.3601177172279715,
+        "xi5_possible_mol_s": 2.3601177172279715,
+        "xi6_possible_mol_s": 0.6393198895641152
+      },
+      {
+        "cell": 2,
+        "dense": {
+          "N_H2": 6.835776134684335,
+          "N_O2": 0.2117401118892952,
+          "N_H2O": 9.67601278906466,
+          "N_CO": 9.392912785889191,
+          "N_CH4": 0.9392912785889191,
+          "xi12_possible_mol_s": 0.4234802237785904,
+          "xi5_possible_mol_s": 0.4234802237785904,
+          "xi6_possible_mol_s": 0.14116007459286348
+        },
+        "bubble": {
+          "N_H2": 0.35977769129917553,
+          "N_O2": 0.011144216415226066,
+          "N_H2O": 0.5092638310034032,
+          "N_CO": 0.4943638308362733,
+          "N_CH4": 0.04943638308362733,
+          "xi12_possible_mol_s": 0.02228843283045213,
+          "xi5_possible_mol_s": 0.02228843283045213,
+          "xi6_possible_mol_s": 0.007429477610150711
+        },
+        "xi12_possible_mol_s": 0.4457686566090425,
+        "xi5_possible_mol_s": 0.4457686566090425,
+        "xi6_possible_mol_s": 0.14858955220301417
+      }
+    ]
+  },
+  "after": {
+    "max_xi12_possible_mol_s": 0.0,
+    "max_xi5_possible_mol_s": 1.042372990717735,
+    "max_xi6_possible_mol_s": 0.28428354292301866,
+    "max_r12_extent_mol_s": 7.7342156160001405,
+    "residual_l2": 10476530.64941399,
+    "residual_linf": 10406368.617527042,
+    "overlap": [
+      {
+        "cell": 0,
+        "dense": {
+          "N_H2": 0.0,
+          "N_O2": 5.312784919434671,
+          "N_H2O": 11.811728299967204,
+          "N_CO": 0.9902543411818482,
+          "N_CH4": 0.27006936577686774,
+          "xi12_possible_mol_s": 0.0,
+          "xi5_possible_mol_s": 0.9902543411818482,
+          "xi6_possible_mol_s": 0.27006936577686774
+        },
+        "bubble": {
+          "N_H2": 0.0,
+          "N_O2": 0.27962025891761433,
+          "N_H2O": 0.6216699105245898,
+          "N_CO": 0.052118649535886755,
+          "N_CH4": 0.014214177146150933,
+          "xi12_possible_mol_s": 0.0,
+          "xi5_possible_mol_s": 0.052118649535886755,
+          "xi6_possible_mol_s": 0.014214177146150933
+        },
+        "xi12_possible_mol_s": 0.0,
+        "xi5_possible_mol_s": 1.042372990717735,
+        "xi6_possible_mol_s": 0.28428354292301866
+      },
+      {
+        "cell": 1,
+        "dense": {
+          "N_H2": 1.3681551678848263,
+          "N_O2": 0.0,
+          "N_H2O": 12.359790527949597,
+          "N_CO": 4.251477265601366,
+          "N_CH4": 0.6073538950859094,
+          "xi12_possible_mol_s": 0.0,
+          "xi5_possible_mol_s": 0.0,
+          "xi6_possible_mol_s": 0.0
+        },
+        "bubble": {
+          "N_H2": 0.07200816673078035,
+          "N_O2": 0.0,
+          "N_H2O": 0.6505152909447157,
+          "N_CO": 0.22376196134744034,
+          "N_CH4": 0.031965994478205764,
+          "xi12_possible_mol_s": 0.0,
+          "xi5_possible_mol_s": 0.0,
+          "xi6_possible_mol_s": 0.0
+        },
+        "xi12_possible_mol_s": 0.0,
+        "xi5_possible_mol_s": 0.0,
+        "xi6_possible_mol_s": 0.0
+      },
+      {
+        "cell": 2,
+        "dense": {
+          "N_H2": 6.412295910905744,
+          "N_O2": 0.0,
+          "N_H2O": 10.09949301284325,
+          "N_CO": 9.392912785889191,
+          "N_CH4": 0.9392912785889191,
+          "xi12_possible_mol_s": 0.0,
+          "xi5_possible_mol_s": 0.0,
+          "xi6_possible_mol_s": 0.0
+        },
+        "bubble": {
+          "N_H2": 0.3374892584687234,
+          "N_O2": 0.0,
+          "N_H2O": 0.5315522638338553,
+          "N_CO": 0.4943638308362733,
+          "N_CH4": 0.04943638308362733,
+          "xi12_possible_mol_s": 0.0,
+          "xi5_possible_mol_s": 0.0,
+          "xi6_possible_mol_s": 0.0
+        },
+        "xi12_possible_mol_s": 0.0,
+        "xi5_possible_mol_s": 0.0,
+        "xi6_possible_mol_s": 0.0
+      }
+    ]
+  }
+}
