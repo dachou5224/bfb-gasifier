@@ -1,0 +1,136 @@
+{
+  "source": "Wirsum alignment residual family decomposition after R12 Startwert",
+  "case": "reduced_3cell_lu_init",
+  "solved": false,
+  "name": "packed_residual_family_decomp",
+  "not": [
+    "same_phase_r5_startwert",
+    "project_bed_holdup_fast_oxidation_closure",
+    "residual_clip"
+  ],
+  "units": {
+    "gas": "mol/s",
+    "solid": "kg/s",
+    "energy": "W",
+    "r5_extent": "mol/s"
+  },
+  "note": "R12 Startwert \u4e4b\u540e\u770b\u54ea\u4e00\u65cf\u6491\u4f4f \u2016F\u2016\u2082\u3002\u80fd\u91cf\u6b8b\u5dee\u5355\u4f4d\u662f W\uff0c\u4e0e\u6c14\u76f8 mol/s \u4e0d\u53ef\u76f4\u63a5\u6bd4\u5927\u5c0f\uff1braw \u2016F\u2016\u2082 \u88ab W \u4e3b\u5bfc\u4e0d\u8bc1\u660e\u8d28\u91cf\u5df2\u95ed\u5408\u3002\u4e0d\u7528\u5b9e\u9a8c CO\u3002",
+  "before": {
+    "residual_l2": 92899708170884.53,
+    "residual_linf": 32936022822625.93,
+    "linf_label": "c1.N_d.H2O",
+    "linf_family": "gas",
+    "linf_over_l2": 0.3545331139473733,
+    "family_l2": {
+      "gas": 92899708170883.92,
+      "solid": 0.4959904276977361,
+      "energy": 10743920.758942002
+    },
+    "dominant_family": "gas",
+    "max_r5_extent_mol_s": 55341.38108501218,
+    "max_r12_extent_mol_s": 56775221477746.08,
+    "per_cell": [
+      {
+        "cell": 0,
+        "gas_residual_l2": 60407203254839.64,
+        "gas_linf": {
+          "species": "H2O",
+          "phase": "dense",
+          "value": 32121638819226.66
+        },
+        "solid_residual_l2": 0.4959904276977361,
+        "energy_residual_W": -10722385.451923925,
+        "r5_extent_mol_s": 17118.02862213513,
+        "r5_looks_like_pair": false,
+        "r12_extent_mol_s": 56411379878945.39
+      },
+      {
+        "cell": 1,
+        "gas_residual_l2": 60987295667645.94,
+        "gas_linf": {
+          "species": "H2O",
+          "phase": "dense",
+          "value": 32936022822625.93
+        },
+        "solid_residual_l2": 0.0,
+        "energy_residual_W": 126694.22644953942,
+        "r5_extent_mol_s": 55341.38108501218,
+        "r5_looks_like_pair": false,
+        "r12_extent_mol_s": 56775221477746.08
+      },
+      {
+        "cell": 2,
+        "gas_residual_l2": 35522884740840.28,
+        "gas_linf": {
+          "species": "H2O",
+          "phase": "dense",
+          "value": 18661611578914.055
+        },
+        "solid_residual_l2": 0.0,
+        "energy_residual_W": -668006.038729755,
+        "r5_extent_mol_s": 47100.747435774036,
+        "r5_looks_like_pair": false,
+        "r12_extent_mol_s": 33241657453113.766
+      }
+    ]
+  },
+  "after": {
+    "residual_l2": 10476530.64941399,
+    "residual_linf": 10406368.617527042,
+    "linf_label": "c0.energy",
+    "linf_family": "energy",
+    "linf_over_l2": 0.9933029325990782,
+    "family_l2": {
+      "gas": 60488.87457391625,
+      "solid": 0.4959904276977361,
+      "energy": 10476356.024122288
+    },
+    "dominant_family": "energy",
+    "max_r5_extent_mol_s": 19656.531099673484,
+    "max_r12_extent_mol_s": 7.7342156160001405,
+    "per_cell": [
+      {
+        "cell": 0,
+        "gas_residual_l2": 60488.87236600254,
+        "gas_linf": {
+          "species": "CO2",
+          "phase": "bubble",
+          "value": 35094.19911071216
+        },
+        "solid_residual_l2": 0.4959904276977361,
+        "energy_residual_W": -10406368.617527042,
+        "r5_extent_mol_s": 19656.531099673484,
+        "r5_looks_like_pair": false,
+        "r12_extent_mol_s": -7.7342156160001405
+      },
+      {
+        "cell": 1,
+        "gas_residual_l2": 11.26387138437812,
+        "gas_linf": {
+          "species": "CO",
+          "phase": "dense",
+          "value": -7.475621617939297
+        },
+        "solid_residual_l2": 0.0,
+        "energy_residual_W": 387561.8848893088,
+        "r5_extent_mol_s": 4.2143986935197875,
+        "r5_looks_like_pair": false,
+        "r12_extent_mol_s": -4.214398757092182
+      },
+      {
+        "cell": 2,
+        "gas_residual_l2": 11.842027958154416,
+        "gas_linf": {
+          "species": "CO",
+          "phase": "dense",
+          "value": -9.812352707985301
+        },
+        "solid_residual_l2": 0.0,
+        "energy_residual_W": -1145130.35314446,
+        "r5_extent_mol_s": 4.6709171876974755,
+        "r5_looks_like_pair": false,
+        "r12_extent_mol_s": -4.670917216688279
+      }
+    ]
+  }
+}
