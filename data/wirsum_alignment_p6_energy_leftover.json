@@ -1,0 +1,99 @@
+{
+  "source": "Wirsum alignment Eq.2.7 leftover after km holdup Startwert",
+  "case": "reduced_3cell_lu_init",
+  "solved": false,
+  "name": "eq27_energy_leftover",
+  "not": [
+    "K_vm",
+    "vm_in_eq27_outlet",
+    "temperature_fence",
+    "energy_clip"
+  ],
+  "units": "W",
+  "note": "char/ash \u7528 M=m_in/K \u95ed\u5408\u540e\uff0c\u5269\u4f59\u6b8b\u5dee\u5e94\u80fd\u52a0\u603b\u3002VM \u6876\u662f K_VM=0 \u7684\u7ed3\u6784\u9879\uff0c\u4e0d\u662f\u8c03\u53c2\u5bf9\u8c61\u3002bed1/2 \u82e5\u4ecd holdup_zero\uff0c\u662f\u5355\u6b21\u626b\u63cf\u672a\u63a5\u529b\uff0c\u4e0d\u662f\u7ed9 VM \u52a0 K\u3002\u4e0d\u7528\u5b9e\u9a8c CO\u3002",
+  "eq27": {
+    "bed0_residual_W": -5295034.687039311,
+    "bed0_holdup_zero": false
+  },
+  "bed0_dominant_bucket": "vm_H_zu_minus_H_sout",
+  "per_cell": [
+    {
+      "cell": 0,
+      "residual_W": -5295034.687039311,
+      "dominant_bucket": "vm_H_zu_minus_H_sout",
+      "sum_matches_residual": true,
+      "holdup_zero": false,
+      "vm_in_not_in_energy_out": true,
+      "buckets_W": {
+        "char_H_zu_minus_H_sout": 447434.52266729996,
+        "vm_H_zu_minus_H_sout": -3088782.7929697167,
+        "moisture_H_zu_minus_H_sout": -3313.698483333333,
+        "ash_H_zu_minus_H_sout": -125521.153491921,
+        "other_solid_in": 0.0,
+        "gas_H_in_minus_H_out": -1836862.67587275,
+        "minus_Q": -687988.888888889
+      },
+      "abs_share": {
+        "char_H_zu_minus_H_sout": 0.07228456887417584,
+        "vm_H_zu_minus_H_sout": 0.4990033652405653,
+        "moisture_H_zu_minus_H_sout": 0.0005353392599633348,
+        "ash_H_zu_minus_H_sout": 0.020278369247558874,
+        "other_solid_in": 0.0,
+        "gas_H_in_minus_H_out": 0.2967514125083637,
+        "minus_Q": 0.11114694486937297
+      }
+    },
+    {
+      "cell": 1,
+      "residual_W": -4421219.141631443,
+      "dominant_bucket": "other_solid_in",
+      "sum_matches_residual": true,
+      "holdup_zero": true,
+      "vm_in_not_in_energy_out": false,
+      "buckets_W": {
+        "char_H_zu_minus_H_sout": 0.0,
+        "vm_H_zu_minus_H_sout": 0.0,
+        "moisture_H_zu_minus_H_sout": 0.0,
+        "ash_H_zu_minus_H_sout": 0.0,
+        "other_solid_in": -4547913.368080982,
+        "gas_H_in_minus_H_out": 814683.1153384284,
+        "minus_Q": -687988.888888889
+      },
+      "abs_share": {
+        "char_H_zu_minus_H_sout": 0.0,
+        "vm_H_zu_minus_H_sout": 0.0,
+        "moisture_H_zu_minus_H_sout": 0.0,
+        "ash_H_zu_minus_H_sout": 0.0,
+        "other_solid_in": 0.7516484915485048,
+        "gas_H_in_minus_H_out": 0.13464533846047141,
+        "minus_Q": 0.1137061699910237
+      }
+    },
+    {
+      "cell": 2,
+      "residual_W": -668006.038729755,
+      "dominant_bucket": "minus_Q",
+      "sum_matches_residual": true,
+      "holdup_zero": true,
+      "vm_in_not_in_energy_out": false,
+      "buckets_W": {
+        "char_H_zu_minus_H_sout": 0.0,
+        "vm_H_zu_minus_H_sout": 0.0,
+        "moisture_H_zu_minus_H_sout": 0.0,
+        "ash_H_zu_minus_H_sout": 0.0,
+        "other_solid_in": 0.0,
+        "gas_H_in_minus_H_out": 19982.850159134017,
+        "minus_Q": -687988.888888889
+      },
+      "abs_share": {
+        "char_H_zu_minus_H_sout": 0.0,
+        "vm_H_zu_minus_H_sout": 0.0,
+        "moisture_H_zu_minus_H_sout": 0.0,
+        "ash_H_zu_minus_H_sout": 0.0,
+        "other_solid_in": 0.0,
+        "gas_H_in_minus_H_out": 0.028225491297158324,
+        "minus_Q": 0.9717745087028417
+      }
+    }
+  ]
+}
