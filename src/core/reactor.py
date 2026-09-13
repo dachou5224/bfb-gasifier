@@ -273,6 +273,9 @@ class ReactorConfig:
     # Default on (2026-07-07): hybrid_* structured Jacobian; set False to force pure FD overlay off.
     nr_hybrid_jacobian_thesis: bool = True
     nr_damping_halvings_thesis: int = 14
+    # engineering：现有 solve_global_nr；wirsum_1997_strict：关工程桥 + 禁止 K=0 锚。
+    # Eq. 2.23 的 raw ||F||₂ Newton 在 src/solvers/wirsum_1997_strict.py。
+    nr_solver_mode: str = "engineering"
     nr_lambda_init_thesis: float = 1.0  # [-] Hamel Eq. 2.9 first damped trial when prefer_full_step off
     nr_lambda_min_thesis: float = 1.0 / 4096.0
     nr_prefer_full_step_thesis: bool = True
@@ -669,7 +672,16 @@ class ReactorConfig:
     pyrolysis_co_reduce_h2_inject_frac: float = 0.0
 
     def __post_init__(self) -> None:
+        from src.solvers.wirsum_1997_strict import (
+            NR_SOLVER_MODE_WIRSUM_1997_STRICT,
+            apply_wirsum_1997_strict_config,
+            resolve_nr_solver_mode,
+        )
+
+        self.nr_solver_mode = resolve_nr_solver_mode(self.nr_solver_mode)
         self.holdup_k0_anchor = resolve_holdup_k0_anchor(self.holdup_k0_anchor)
+        if self.nr_solver_mode == NR_SOLVER_MODE_WIRSUM_1997_STRICT:
+            apply_wirsum_1997_strict_config(self)
         if bool(self.thesis_mode):
             # Hamel 口径：fresh-feed 的 VM/moisture 可在下部若干 cells 继续释放，
             # 但上部与 recycle 仍由传播函数/回收函数保持隔离。
