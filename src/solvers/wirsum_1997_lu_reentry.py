@@ -118,8 +118,8 @@ def audit_elemental_closure(cells: list[Any]) -> dict[str, Any]:
         "dominant_element": max_elem,
         "open": bool(max_abs > 1e-8),
         "note": (
-            "C 近机器精度而 H/O 开口，对应 sanity「Pyrolysis elemental allocator」。"
-            "这是源项闭合，不是实验 CO 偏差。"
+            "C 近机器精度。H/O 净口：bed0 为气/固账差分，bed1/2 为均相大数残差。"
+            "裸 R12 解释质量残差而非 H/O。见 wirsum_1997_elemental_decomp。"
         ),
     }
 
