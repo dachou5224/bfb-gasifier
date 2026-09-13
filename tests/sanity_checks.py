@@ -80,12 +80,15 @@ def check_kbd_hamel_chain() -> None:
 
 
 def check_r_boudouard() -> None:
-    """Boudouard（repo `rate_R4` / thesis §5.1.4）量级"""
-    from src.kinetics.char_reactions import rate_R4
+    """Boudouard（repo `rate_R4` / thesis §5.1.4）量级；R* 单位 1/s"""
+    from src.kinetics.char_reactions import extent_R4, rate_R4
 
     r = rate_R4(1073.0, 5e4, 1e4)
-    print(f"  R3_boud (impl r4) = {r:.2e} mol/(m²·s)  [1e-7, 1e-3]", end=" ")
+    print(f"  R3_boud (impl r4) = {r:.2e} 1/s  [1e-7, 1e-3]", end=" ")
     assert 1e-7 < r < 1e-3
+    # Eq.5.33：m=1 kg → mol/s = R*/M_C
+    ext = extent_R4(1073.0, 5e4, 1e4, 1.0)
+    assert abs(ext - r / 12.011e-3) / max(ext, 1e-30) < 1e-12
     print("PASS")
 
 
@@ -112,9 +115,10 @@ def check_daem() -> None:
 
 def check_hv_corrected() -> None:
     """Eq.4.4 修正蒸发焓应高于潜热"""
-    from src.thermal.drying import H_EVAP, corrected_evaporation_enthalpy
+    from src.thermal.drying import H_EVAP, corrected_evaporation_enthalpy, initial_moisture_dry_basis_from_wt_percent
 
-    hvp = corrected_evaporation_enthalpy(w0_tr=0.169, T0=300.0, T_e=373.15)
+    w0_tr = initial_moisture_dry_basis_from_wt_percent(16.9)
+    hvp = corrected_evaporation_enthalpy(w0_tr=w0_tr, T0=300.0, T_e=373.15)
     print(f"  h_v' = {hvp:.3e} J/kg  [> h_v={H_EVAP:.3e}]", end=" ")
     assert hvp > H_EVAP
     print("PASS")
@@ -153,14 +157,35 @@ def check_daem_radial() -> None:
 
 
 def check_pyrolysis_elemental_allocator() -> None:
-    """热解元素分配不超支"""
-    from src.core.cell import Cell, SolidProps
+    """热解元素分配不超支（与生产 Hegermann 路径同口径）。
+
+    ``koks=0`` + 固定 tar=0.2 时，(C,H,O)=(10,12,4) 对 {CO,CO2,CH4,H2,H2O}
+    的 An=b 不可行。Hamel §4.2 先用 Eq.4.21–4.22 分出 Koks/Teer，禁止事后
+    把剩余 C 划回 Koks。
+    """
+    from src.core.cell_pyrolysis import allocate_pyrolysis_products_hamel
+    from src.core.pyrolysis_carbon_split import resolve_pyrolysis_carbon_fractions
     from src.core.species import TAR_SURROGATE_FORMULA, get_tar_component_mapping
 
-    c = Cell(solid=SolidProps())
-    c.fuel_type = "coal"
     n_c_in, n_h_in, n_o_in = 10.0, 12.0, 4.0
-    prod = c._allocate_pyrolysis_products_elemental(nC=n_c_in, nH=n_h_in, nO=n_o_in)
+    T_K, P_Pa = 1200.0, 2.5e6
+    f_koks, f_tar = resolve_pyrolysis_carbon_fractions(
+        fuel_type="coal",
+        yield_mode="hegermann",
+        P_Pa=P_Pa,
+        T_K=T_K,
+        pyrolysis_tar_carbon_frac=0.2,
+    )
+    prod = allocate_pyrolysis_products_hamel(
+        T_K=T_K,
+        P_Pa=P_Pa,
+        nC=n_c_in,
+        nH=n_h_in,
+        nO=n_o_in,
+        fuel_type="coal",
+        pyrolysis_tar_carbon_frac=f_tar,
+        pyrolysis_koks_carbon_frac=f_koks,
+    )
 
     tar_map = get_tar_component_mapping("coal")
     n_c_out = prod["CO"] + prod["CO2"] + prod["CH4"]
@@ -270,7 +295,15 @@ def check_freeboard_analytical_default_and_metadata() -> None:
         enabled_reactions=("R5", "R6", "R7", "R8", "R12"),
     )
     print(f"  solver = {out['trajectory_solver']}, diag = {out['trajectory_diag']}", end=" ")
-    assert out["trajectory_solver"] == "wirsum_analytical"
+    # Default coeff_model is exact_hamel → solver tag includes _exact_hamel_coeffs.
+    assert out["trajectory_solver"] in {
+        "wirsum_analytical",
+        "wirsum_analytical_exact_hamel_coeffs",
+    }
+    assert out.get("trajectory_coeff_model", "exact_hamel") in {
+        "exact_hamel",
+        "stable_mixed_drag_split",
+    }
     diag = out["trajectory_diag"]
     assert {
         "delta_pos",
