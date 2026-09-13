@@ -1,0 +1,178 @@
+{
+  "source": "Wirsum alignment km holdup axial sweep A/B",
+  "case": "reduced_3cell_lu_init",
+  "solved": false,
+  "name": "km_holdup_startwert_axial_sweep",
+  "not": [
+    "K_vm",
+    "vm_in_eq27_outlet",
+    "holdup_k0_anchor",
+    "temperature_fence"
+  ],
+  "units": {
+    "enthalpy": "W",
+    "holdup": "kg"
+  },
+  "note": "\u4e00\u6b21\u626b\u63cf\u65f6 bed1 \u8fd8\u6ca1\u6709 m_auf_in\uff0cother_solid_in \u662f\u7a7a\u5e93\u5b58\u3002\u63a5\u529b\u540e char/ash \u4e0a\u884c\u8fdb\u5165 bed1/2 \u7684 M=m_in/K\u3002bed0 \u7684 VM \u6876\u4e0d\u53d8\uff1b\u4e0d\u7ed9 VM \u52a0 K\u3002",
+  "applied": {
+    "cells_touched": 3,
+    "per_cell": [
+      {
+        "cell": 0,
+        "xi_M_kg": 5.2042057055499775,
+        "char_M_kg": 4.076920715648554,
+        "vm_M_kg": 0.0
+      },
+      {
+        "cell": 1,
+        "xi_M_kg": 6.113496073070188,
+        "char_M_kg": 4.7892493486096654,
+        "vm_M_kg": 0.0
+      },
+      {
+        "cell": 2,
+        "xi_M_kg": 5.909274048328342,
+        "char_M_kg": 4.629263934817546,
+        "vm_M_kg": 0.0
+      }
+    ]
+  },
+  "one_shot": {
+    "per_cell_residual_W": [
+      -5295034.687039311,
+      -4421219.141631443,
+      -668006.038729755
+    ],
+    "holdup_zero": [
+      false,
+      true,
+      true
+    ],
+    "leftover": [
+      {
+        "cell": 0,
+        "residual_W": -5295034.687039311,
+        "dominant_bucket": "vm_H_zu_minus_H_sout",
+        "holdup_zero": false,
+        "buckets_W": {
+          "char_H_zu_minus_H_sout": 447434.52266729996,
+          "vm_H_zu_minus_H_sout": -3088782.7929697167,
+          "moisture_H_zu_minus_H_sout": -3313.698483333333,
+          "ash_H_zu_minus_H_sout": -125521.153491921,
+          "other_solid_in": 0.0,
+          "gas_H_in_minus_H_out": -1836862.67587275,
+          "minus_Q": -687988.888888889
+        }
+      },
+      {
+        "cell": 1,
+        "residual_W": -4421219.141631443,
+        "dominant_bucket": "other_solid_in",
+        "holdup_zero": true,
+        "buckets_W": {
+          "char_H_zu_minus_H_sout": 0.0,
+          "vm_H_zu_minus_H_sout": 0.0,
+          "moisture_H_zu_minus_H_sout": 0.0,
+          "ash_H_zu_minus_H_sout": 0.0,
+          "other_solid_in": -4547913.368080982,
+          "gas_H_in_minus_H_out": 814683.1153384284,
+          "minus_Q": -687988.888888889
+        }
+      },
+      {
+        "cell": 2,
+        "residual_W": -668006.038729755,
+        "dominant_bucket": "minus_Q",
+        "holdup_zero": true,
+        "buckets_W": {
+          "char_H_zu_minus_H_sout": 0.0,
+          "vm_H_zu_minus_H_sout": 0.0,
+          "moisture_H_zu_minus_H_sout": 0.0,
+          "ash_H_zu_minus_H_sout": 0.0,
+          "other_solid_in": 0.0,
+          "gas_H_in_minus_H_out": 19982.850159134017,
+          "minus_Q": -687988.888888889
+        }
+      }
+    ]
+  },
+  "axial_sweep": {
+    "per_cell_residual_W": [
+      -5473260.223773395,
+      -2713234.1097384235,
+      -593735.7032819381
+    ],
+    "holdup_zero": [
+      false,
+      false,
+      false
+    ],
+    "m_holdup_kg": [
+      {
+        "char": 4.076920715648554,
+        "vm": 0.0,
+        "moisture": 0.0,
+        "ash": 1.1272849899014237
+      },
+      {
+        "char": 4.7892493486096654,
+        "vm": 0.0,
+        "moisture": 0.0,
+        "ash": 1.324246724460522
+      },
+      {
+        "char": 4.629263934817546,
+        "vm": 0.0,
+        "moisture": 0.0,
+        "ash": 1.280010113510796
+      }
+    ],
+    "leftover": [
+      {
+        "cell": 0,
+        "residual_W": -5473260.223773395,
+        "dominant_bucket": "vm_H_zu_minus_H_sout",
+        "holdup_zero": false,
+        "buckets_W": {
+          "char_H_zu_minus_H_sout": 447434.52266729996,
+          "vm_H_zu_minus_H_sout": -3088782.7929697167,
+          "moisture_H_zu_minus_H_sout": -3313.698483333333,
+          "ash_H_zu_minus_H_sout": -125521.153491921,
+          "other_solid_in": -178225.53673408364,
+          "gas_H_in_minus_H_out": -1836862.67587275,
+          "minus_Q": -687988.888888889
+        }
+      },
+      {
+        "cell": 1,
+        "residual_W": -2713234.1097384235,
+        "dominant_bucket": "other_solid_in",
+        "holdup_zero": false,
+        "buckets_W": {
+          "char_H_zu_minus_H_sout": 4738713.163817466,
+          "vm_H_zu_minus_H_sout": 0.0,
+          "moisture_H_zu_minus_H_sout": 0.0,
+          "ash_H_zu_minus_H_sout": -109357.46458369322,
+          "other_solid_in": -7469284.035421737,
+          "gas_H_in_minus_H_out": 814683.1153384284,
+          "minus_Q": -687988.888888889
+        }
+      },
+      {
+        "cell": 2,
+        "residual_W": -593735.7032819381,
+        "dominant_bucket": "char_H_zu_minus_H_sout",
+        "holdup_zero": false,
+        "buckets_W": {
+          "char_H_zu_minus_H_sout": 4798057.264635236,
+          "vm_H_zu_minus_H_sout": 0.0,
+          "moisture_H_zu_minus_H_sout": 0.0,
+          "ash_H_zu_minus_H_sout": -94431.22995364526,
+          "other_solid_in": -4629355.699233773,
+          "gas_H_in_minus_H_out": 19982.850159134017,
+          "minus_Q": -687988.888888889
+        }
+      }
+    ]
+  }
+}

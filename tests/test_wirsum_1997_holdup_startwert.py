@@ -8,8 +8,10 @@ import numpy as np
 import pytest
 
 from src.solvers.wirsum_1997_holdup_startwert import (
+    apply_km_holdup_startwert_axial_sweep,
     apply_km_holdup_startwert_to_cells,
     build_holdup_startwert_ab_payload,
+    build_holdup_sweep_ab_payload,
     km_support_holdup,
 )
 
@@ -59,3 +61,25 @@ def test_holdup_ab_does_not_touch_experiment_co() -> None:
     dumped = str(build_holdup_startwert_ab_payload())
     assert "experiment" not in dumped.lower()
     assert "y_CO_target" not in dumped
+
+
+def test_axial_sweep_seeds_upper_beds_and_shrinks_bed1_energy() -> None:
+    payload = build_holdup_sweep_ab_payload()
+    one = payload["one_shot"]
+    sweep = payload["axial_sweep"]
+    assert one["eq27"]["holdup_zero"] == [False, True, True]
+    assert sweep["eq27"]["holdup_zero"] == [False, False, False]
+    assert float(sweep["eq27"]["m_holdup_kg"][1]["char"] or 0.0) > 1.0
+    assert float(sweep["eq27"]["m_holdup_kg"][1]["vm"] or 0.0) == pytest.approx(0.0, abs=1e-12)
+    assert abs(float(sweep["eq27"]["per_cell_residual_W"][1] or 0.0)) < abs(
+        float(one["eq27"]["per_cell_residual_W"][1] or 0.0)
+    )
+    assert sweep["leftover"][0]["dominant_bucket"] == "vm_H_zu_minus_H_sout"
+    assert payload["name"] == "km_holdup_startwert_axial_sweep"
+
+
+def test_axial_sweep_is_not_k_vm() -> None:
+    source = inspect.getsource(apply_km_holdup_startwert_axial_sweep)
+    assert "K_VM" not in source
+    dumped = str(build_holdup_sweep_ab_payload())
+    assert "experiment" not in dumped.lower()

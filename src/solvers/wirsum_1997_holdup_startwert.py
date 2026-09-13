@@ -104,7 +104,11 @@ def apply_km_holdup_startwert(cell: Any) -> dict[str, Any]:
 
 
 def apply_km_holdup_startwert_to_cells(cells: list[Any]) -> dict[str, Any]:
-    """逐格做 ``M = m_in / K``。只动 ``holdup_transport``。"""
+    """逐格做 ``M = m_in / K``。只动 ``holdup_transport``。
+
+    一次扫完全床：上层若此时还没有 ``m_auf_in``，库存仍为 0。
+    轴向接力用 ``apply_km_holdup_startwert_axial_sweep``。
+    """
     per_cell: list[dict[str, Any]] = []
     touched = 0
     for i, cell in enumerate(cells):
@@ -119,6 +123,38 @@ def apply_km_holdup_startwert_to_cells(cells: list[Any]) -> dict[str, Any]:
         per_cell.append(diag)
     return {
         "name": "km_holdup_startwert",
+        "units": {"holdup": "kg", "K": "1/s", "inlet": "kg/s"},
+        "cells_touched": touched,
+        "per_cell": per_cell,
+    }
+
+
+def apply_km_holdup_startwert_axial_sweep(
+    cells: list[Any],
+    apply_bc_fn: Any,
+) -> dict[str, Any]:
+    """自下而上：种第 i 格后立刻刷新 BC，让第 i+1 格看见 ``K M`` 上行流。
+
+    仍只反演 K>0 的 char/ash。不给 VM 加 K，不改 residual。
+    """
+    if apply_bc_fn is None:
+        raise ValueError("axial sweep requires apply_bc_fn so upflow reaches the next cell")
+    per_cell: list[dict[str, Any]] = []
+    touched = 0
+    for i, cell in enumerate(cells):
+        if str(getattr(cell, "solid_state_model", "")) != "holdup_transport":
+            per_cell.append({"cell": i, "skipped": True, "pass": i})
+            apply_bc_fn()
+            continue
+        diag = apply_km_holdup_startwert(cell)
+        apply_bc_fn()
+        diag["cell"] = i
+        diag["skipped"] = False
+        if float(diag["xi_M_kg"] or 0.0) > 0.0:
+            touched += 1
+        per_cell.append(diag)
+    return {
+        "name": "km_holdup_startwert_axial_sweep",
         "units": {"holdup": "kg", "K": "1/s", "inlet": "kg/s"},
         "cells_touched": touched,
         "per_cell": per_cell,
@@ -158,5 +194,71 @@ def build_holdup_startwert_ab_payload() -> dict[str, Any]:
             "generate_initial_x0 时 m_zu=0，holdup 被写成 0。"
             "BC 补上给料后按 M=m_in/K 只填 char/ash。"
             "VM 的 K=0，库存与 H_aus 仍不闭合；不把 VM 补进 Eq.2.7。"
+        ),
+    }
+
+
+def _prepare_lu_cells():
+    from tests.global_nr_fixtures import build_initialized_lu_reactor
+
+    reactor = build_initialized_lu_reactor(n_cells=3)
+    reactor._apply_all_bc_for_nr()
+    for cell in reactor.cells:
+        cell.residuals()
+    return reactor
+
+
+def build_holdup_sweep_ab_payload() -> dict[str, Any]:
+    """一次扫描 vs 自下而上接力。不跑 Newton，不给 VM 加 K。"""
+    from src.solvers.wirsum_1997_energy_leftover import attribute_eq27_leftover
+
+    one = _prepare_lu_cells()
+    apply_km_holdup_startwert_to_cells(list(one.cells))
+    one._apply_all_bc_for_nr()
+    for cell in one.cells:
+        cell.residuals()
+    one_eq = decompose_reactor_eq27(list(one.cells))
+
+    sweep = _prepare_lu_cells()
+    applied = apply_km_holdup_startwert_axial_sweep(
+        list(sweep.cells), sweep._apply_all_bc_for_nr
+    )
+    for cell in sweep.cells:
+        cell.residuals()
+    sweep_eq = decompose_reactor_eq27(list(sweep.cells))
+    return {
+        "source": "Wirsum alignment km holdup axial sweep A/B",
+        "case": "reduced_3cell_lu_init",
+        "solved": False,
+        "name": "km_holdup_startwert_axial_sweep",
+        "not": [
+            "K_vm",
+            "vm_in_eq27_outlet",
+            "holdup_k0_anchor",
+            "temperature_fence",
+        ],
+        "units": {"enthalpy": "W", "holdup": "kg"},
+        "applied": applied,
+        "one_shot": {
+            "eq27": {
+                "bed0_residual_W": one_eq["bed0_residual_W"],
+                "per_cell_residual_W": [row["residual_W"] for row in one_eq["per_cell"]],
+                "holdup_zero": [row["holdup_zero"] for row in one_eq["per_cell"]],
+            },
+            "leftover": [attribute_eq27_leftover(row) for row in one_eq["per_cell"]],
+        },
+        "axial_sweep": {
+            "eq27": {
+                "bed0_residual_W": sweep_eq["bed0_residual_W"],
+                "per_cell_residual_W": [row["residual_W"] for row in sweep_eq["per_cell"]],
+                "holdup_zero": [row["holdup_zero"] for row in sweep_eq["per_cell"]],
+                "m_holdup_kg": [row["m_holdup_kg"] for row in sweep_eq["per_cell"]],
+            },
+            "leftover": [attribute_eq27_leftover(row) for row in sweep_eq["per_cell"]],
+        },
+        "note": (
+            "一次扫描时 bed1 还没有 m_auf_in，other_solid_in 是空库存。"
+            "接力后 char/ash 上行进入 bed1/2 的 M=m_in/K。"
+            "bed0 的 VM 桶不变；不给 VM 加 K。"
         ),
     }
