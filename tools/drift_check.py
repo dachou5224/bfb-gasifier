@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 """章程 §9 偏离检查。
 
-对照基准分支（默认 main，否则 origin/main）检查当前工作树。任一信号触发则退出码为 1。
-本脚本不修改仓库，也不检查文献引用。
+对照基准分支（默认 origin/main，否则 main）检查当前工作树。净增行数、新文件名和新增配置字段以该基准与 HEAD 的共同祖先为起点，避免 main 在分叉后前进把本卡的新增抵扣掉。任一信号触发则退出码为 1。
+本脚本不修改仓库，也不自动 fetch，也不检查文献引用。
 
 信号与上限：
 
 - 工作树不干净。
-- ``hamel/`` 下非测试 Python 相对基准的净增行数超过 800（CHARTER §9）。
+- ``hamel/`` 下非测试 Python 相对共同祖先的净增行数超过 800（CHARTER §9）。
   未提交改动计入，避免超限代码只留在工作树里。
 - ``hamel/`` 非测试 Python 的当前总行数超过 8000（CHARTER §6.2）。
 - 新增配置字段在正式 ADR 的文件名或正文中找不到同名标识。字段只从
@@ -74,6 +74,8 @@ class Signal:
 class Report:
     root: str
     base: str
+    compared: str
+    base_notes: list[str]
     today: str
     dirty: bool
     net_lines: int
@@ -98,6 +100,8 @@ class Report:
             "ok": not self.signals,
             "root": self.root,
             "base": self.base,
+            "compared": self.compared,
+            "base_notes": self.base_notes,
             "today": self.today,
             "dirty": self.dirty,
             "net_lines": self.net_lines,
@@ -142,17 +146,67 @@ def resolve_root(explicit: Path | None) -> Path:
     return Path(proc.stdout.strip()).resolve()
 
 
+def _ref_exists(root: Path, ref: str) -> bool:
+    proc = subprocess.run(
+        ["git", "rev-parse", "--verify", "--quiet", ref],
+        cwd=root,
+        capture_output=True,
+        check=False,
+    )
+    return proc.returncode == 0
+
+
 def default_base(root: Path) -> str:
-    for candidate in ("main", "origin/main"):
-        proc = subprocess.run(
-            ["git", "rev-parse", "--verify", "--quiet", candidate],
-            cwd=root,
-            capture_output=True,
-            check=False,
-        )
-        if proc.returncode == 0:
-            return candidate
-    raise DriftError("找不到基准分支 main 或 origin/main，请用 --base 指定")
+    if _ref_exists(root, "origin/main"):
+        return "origin/main"
+    if _ref_exists(root, "main"):
+        return "main"
+    raise DriftError("找不到基准分支 origin/main 或 main，请用 --base 指定")
+
+
+def _comparison_commit(root: Path, base: str) -> str:
+    return _git(root, ["merge-base", base, "HEAD"]).decode().strip()
+
+
+def _rev_list_count(root: Path, revision_range: str) -> int:
+    try:
+        blob = _git(root, ["rev-list", "--count", revision_range])
+    except DriftError:
+        return 0
+    return int(blob.decode().strip() or "0")
+
+
+def _reflog_time(root: Path, ref: str) -> str | None:
+    proc = subprocess.run(
+        ["git", "reflog", "show", "-1", "--date=iso", "--format=%gd", ref],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    text = proc.stdout.strip()
+    if proc.returncode != 0 or "@{" not in text or not text.endswith("}"):
+        return None
+    return text.split("@{", 1)[1][:-1]
+
+
+def _base_notes(root: Path) -> list[str]:
+    notes: list[str] = []
+    if not _ref_exists(root, "origin/main"):
+        return notes
+    fetched = _reflog_time(root, "origin/main")
+    if fetched:
+        notes.append(f"origin/main 上次更新于 {fetched}。脚本不会自动 fetch")
+    else:
+        notes.append("origin/main 没有 reflog，无法判断上次 fetch。脚本不会自动 fetch")
+    if _ref_exists(root, "main"):
+        behind = _rev_list_count(root, "main..origin/main")
+        ahead = _rev_list_count(root, "origin/main..main")
+        if behind:
+            notes.append(f"本地 main 落后 origin/main {behind} 个提交")
+        if ahead:
+            notes.append(f"本地 main 比 origin/main 超前 {ahead} 个提交")
+    return notes
 
 
 def _git(root: Path, args: list[str]) -> bytes:
@@ -323,12 +377,50 @@ def _class_fields(stmt: ast.ClassDef) -> set[str]:
     return fields
 
 
+def _config_root(node: ast.AST) -> str | None:
+    current = node
+    while isinstance(current, (ast.Attribute, ast.Subscript)):
+        current = current.value
+    if isinstance(current, ast.Name) and current.id in _GROUP_NAMES:
+        return current.id
+    return None
+
+
+def _config_mutation(tree: ast.AST) -> str | None:
+    """字面量赋值之后的 update、下标写入等会漏掉字段，直接判为不可读。"""
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+            name = _config_root(node.func.value)
+            if name:
+                return name
+        elif isinstance(node, ast.Assign):
+            for target in node.targets:
+                name = _config_root(target) if isinstance(target, ast.Subscript) else None
+                if name:
+                    return name
+        elif isinstance(node, ast.AugAssign):
+            if isinstance(node.target, ast.Name) and node.target.id in _GROUP_NAMES:
+                return node.target.id
+            name = _config_root(node.target) if isinstance(node.target, ast.Subscript) else None
+            if name:
+                return name
+        elif isinstance(node, ast.Delete):
+            for target in node.targets:
+                name = _config_root(target) if isinstance(target, ast.Subscript) else None
+                if name:
+                    return name
+    return None
+
+
 def extract_config_fields(source: str) -> tuple[set[str], set[str]]:
-    """返回 (物理字段, 求解器字段)。非字面量绑定视为不可读。"""
+    """返回 (物理字段, 求解器字段)。非字面量绑定或事后修改视为不可读。"""
     try:
         tree = ast.parse(source)
     except SyntaxError as exc:
         raise ConfigError(f"语法错误：{exc.msg}") from exc
+    mutated = _config_mutation(tree)
+    if mutated:
+        raise ConfigError(f"{mutated} 在字面量之外被修改，无法静态读取全部字段")
     dicts: dict[str, set[str]] = {}
     class_fields = {"physical": set(), "solver": set()}
     for stmt in tree.body:
@@ -571,8 +663,8 @@ def _worktree_text(report: Report) -> str:
 
 def _net_text(report: Report) -> str:
     if report.net_lines > NET_CODE_LIMIT:
-        return f"相对基准净增代码 {report.net_lines} 行，超过 {NET_CODE_LIMIT} 行"
-    return f"相对基准净增代码 {report.net_lines} 行（上限 {NET_CODE_LIMIT}）"
+        return f"相对共同祖先净增代码 {report.net_lines} 行，超过 {NET_CODE_LIMIT} 行"
+    return f"相对共同祖先净增代码 {report.net_lines} 行（上限 {NET_CODE_LIMIT}）"
 
 
 def _hamel_text(report: Report) -> str:
@@ -617,6 +709,8 @@ def format_text(report: Report) -> str:
         "偏离检查（CHARTER §9）",
         f"根目录：{report.root}",
         f"基准：{report.base}",
+        f"比较提交：{report.compared[:12]}",
+        *[f"基准说明：{note}" for note in report.base_notes],
         f"检查日：{report.today}",
         "",
         _mark(_worktree_text(report), "dirty" in triggered),
@@ -638,11 +732,13 @@ def format_text(report: Report) -> str:
 def check(root: Path, base: str, today: date) -> Report:
     root = resolve_root(root)
     _ensure_base(root, base)
+    compared = _comparison_commit(root, base)
+    notes = _base_notes(root)
     dirty = bool(
         _git(root, ["-c", "status.showUntrackedFiles=all", "status", "--porcelain=v1", "-z"]).strip(b"\0")
     )
-    net_lines, hamel_lines = _line_delta(root, base)
-    base_physical, work_physical, base_solver, work_solver, config_errors = _config_sides(root, base)
+    net_lines, hamel_lines = _line_delta(root, compared)
+    base_physical, work_physical, base_solver, work_solver, config_errors = _config_sides(root, compared)
     added_physical = sorted(work_physical - base_physical)
     removed_physical = sorted(base_physical - work_physical)
     added_solver = sorted(work_solver - base_solver)
@@ -651,14 +747,14 @@ def check(root: Path, base: str, today: date) -> Report:
     unregistered = sorted(
         name for name in set(added_physical) | set(added_solver) if not field_in_adr(name, corpus)
     )
-    stage_files = sorted(path for path in _new_paths(root, base) if has_stage_suffix(path))
+    stage_files = sorted(path for path in _new_paths(root, compared) if has_stage_suffix(path))
     metrics_date, metrics_age = _metrics(root, today)
 
     signals: list[Signal] = []
     if dirty:
         signals.append(Signal("dirty", "工作树不干净"))
     if net_lines > NET_CODE_LIMIT:
-        signals.append(Signal("net_lines", f"相对基准净增代码 {net_lines} 行，超过 {NET_CODE_LIMIT} 行"))
+        signals.append(Signal("net_lines", f"相对共同祖先净增代码 {net_lines} 行，超过 {NET_CODE_LIMIT} 行"))
     if hamel_lines > HAMEL_LINE_LIMIT:
         signals.append(
             Signal("hamel_lines", f"hamel/ 代码 {hamel_lines} 行，超过 {HAMEL_LINE_LIMIT} 行（不含测试）")
@@ -689,6 +785,8 @@ def check(root: Path, base: str, today: date) -> Report:
     return Report(
         root=str(root),
         base=base,
+        compared=compared,
+        base_notes=notes,
         today=today.isoformat(),
         dirty=dirty,
         net_lines=net_lines,
@@ -713,7 +811,7 @@ def check(root: Path, base: str, today: date) -> Report:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="检查章程 §9 偏离信号。")
     parser.add_argument("--root", type=Path, default=None, help="仓库根目录，默认当前工作树")
-    parser.add_argument("--base", default=None, help="对比基准，默认 main，否则 origin/main")
+    parser.add_argument("--base", default=None, help="对比基准，默认 origin/main，否则 main")
     parser.add_argument("--today", default=None, help="检查日 YYYY-MM-DD，默认今天")
     parser.add_argument("--json", action="store_true", help="以 JSON 输出")
     args = parser.parse_args(argv)

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """偏离检查的违规样例：阶段后缀、未登记配置字段，以及章程 §9 的其余信号。"""
+from __future__ import annotations
+
 import importlib.util
 import json
 import os
@@ -69,6 +71,17 @@ class SolverConfig:
     def test_non_literal_config_is_unreadable(self):
         with self.assertRaises(drift_check.ConfigError):
             drift_check.extract_config_fields("PHYSICAL = load_config()\n")
+
+    def test_later_mutation_is_unreadable(self):
+        samples = (
+            'PHYSICAL = {}\nPHYSICAL.update({"invented_knob": 1})\n',
+            'PHYSICAL = {}\nPHYSICAL["invented_knob"] = 1\n',
+            'SOLVER = {"damping": 0.5}\nSOLVER |= {"new_tol": 1e-8}\n',
+        )
+        for source in samples:
+            with self.subTest(source=source):
+                with self.assertRaises(drift_check.ConfigError):
+                    drift_check.extract_config_fields(source)
 
     def test_stage_suffix_matches_path_components(self):
         self.assertTrue(drift_check.has_stage_suffix("hamel/kinetics/rate_v7.py"))
@@ -347,6 +360,57 @@ class DriftRepoTests(unittest.TestCase):
         report = self.check()
         self.assertEqual(signal_codes(report), ["config_unreadable"])
         self.assertIn("hamel/config.py", drift_check.format_text(report))
+
+    def test_config_update_after_assignment_is_reported(self):
+        self.branch()
+        self.write(
+            "hamel/config.py",
+            'PHYSICAL = {}\nPHYSICAL.update({"invented_knob": 1})\n',
+        )
+        self.commit("update")
+        report = self.check()
+        self.assertEqual(report.physical_head, 0)
+        self.assertEqual(report.unregistered_fields, [])
+        self.assertEqual(signal_codes(report), ["config_unreadable"])
+        self.assertIn("invented_knob", self.root.joinpath("hamel/config.py").read_text(encoding="utf-8"))
+        self.assertIn("无法静态读取", drift_check.format_text(report))
+
+    def test_main_advancing_does_not_offset_this_card(self):
+        self.branch()
+        self.write("hamel/task_card.py", py_lines(899))
+        self.write("hamel/config.py", 'PHYSICAL = {"invented_knob": 1}\n')
+        self.write("card_v7.py", "x = 1\n")
+        self.commit("task card")
+        self.git(["checkout", "main"])
+        self.write("hamel/other_card.py", py_lines(600))
+        self.write("hamel/config.py", 'PHYSICAL = {"from_main": 1}\n')
+        self.write("main_stage3.py", "x = 1\n")
+        self.commit("other card")
+        self.git(["checkout", "task/example"])
+        report = self.check()
+        fork = self.git(["merge-base", "main", "HEAD"]).stdout.strip()
+        main_tip = self.git(["rev-parse", "main"]).stdout.strip()
+        self.assertEqual(report.compared, fork)
+        self.assertNotEqual(fork, main_tip)
+        self.assertEqual(report.net_lines, 900)
+        self.assertEqual(report.hamel_lines, 900)
+        self.assertEqual(report.unregistered_fields, ["invented_knob"])
+        self.assertEqual(report.stage_files, ["card_v7.py"])
+        self.assertEqual(signal_codes(report), ["net_lines", "config_without_adr", "stage_suffix"])
+        self.assertIn(fork[:12], drift_check.format_text(report))
+
+    def test_default_base_prefers_origin_main_and_notes_divergence(self):
+        self.write("README.md", "remote\n")
+        self.commit("remote")
+        self.git(["update-ref", "refs/remotes/origin/main", "HEAD"])
+        self.git(["reset", "--hard", "HEAD~1"])
+        self.assertEqual(drift_check.default_base(self.root), "origin/main")
+        report = drift_check.check(self.root, "origin/main", TODAY)
+        self.assertEqual(signal_codes(report), [])
+        self.assertTrue(any("落后 origin/main 1 个提交" in note for note in report.base_notes))
+        text = drift_check.format_text(report)
+        self.assertIn("不会自动 fetch", text)
+        self.assertIn("落后 origin/main 1 个提交", text)
 
     def test_metrics_stale_after_14_days(self):
         self.write_status("2026-09-29")
