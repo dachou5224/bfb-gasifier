@@ -27,7 +27,10 @@
    - 该文件已有 `case_id_map`（11 条：VTT 加压 1/6/13/14 → Bild 7.10；WSV400 A–F → Bild 7.17；VTT 常压 E → Bild 7.13；VTT 常压 D 未映射）。这些映射尚未经过核实，须逐项复核，不能直接作为已确认的对应关系；上面 WSV400 A 的数值矛盾就出现在已映射的条目上。复核结论写入新的 `data/digitized/case_id_map.json`，旧文件保持只读、原样不动。
 5. **新旧比较**：出口值新读数与 `hamel_fig7_parity_digitized.json` 逐点比较，偏差超过估计误差的点复读并说明原因。
 
-每张图输出一个文件 `data/digitized/fig_X_Y.json`，按图的类型使用下面两种格式之一（总司令 2026-10-14 裁定）。两种格式的公共字段：`figure`、`pdf_page`、`printed_page`、`side`、`caption_de`、`read_date`、`tool`、`est_error`，以及可复算的标定记录 `calibration`（见下）。
+每张图输出一个文件 `data/digitized/fig_X_Y.json`，按图的类型使用下面两种格式之一（总司令 2026-10-14 裁定）。两种格式的公共字段：`figure`、`pdf_page`、`printed_page`、`side`、`caption_de`、`read_date`、`tool`、`units`、`est_error`，以及可复算的标定记录 `calibration`（见下）。
+
+- **工况标识**：parity 图在 `cases` 的每一项中写 `case_label_in_figure` 和 `case_id`；剖面图在文件根级写这两个字段。
+- **`units` 与 `est_error`**：两种格式都写成按量的字典，键与数据中的量名一致；`est_error` 是数值，单位与 `units` 相同。不得用文字（如“待补”）代替数值；尚未评估时整份文件不应提交。
 
 **parity 图（按工况汇总）**：
 
@@ -52,7 +55,20 @@
 - `units` 必须写明每个量的单位，不能让读者从字段名去猜。
 - `est_error` 写成按量给出的数值（与 `units` 同单位），供验收时判断“边界待定”（CHARTER §2.2）。
 
-**轴向剖面图（逐序列）**：沿用 `series` 格式，每个序列含 `kind`（`sim` / `meas`）、`variable`、`basis`、`unit`、`quantity_definition`、`points`（`[ξ, 值]`）。
+**轴向剖面图（逐序列）**：每个序列含 `kind`（`sim` / `meas`）、`variable`、`basis`、`quantity_definition`、`points`（`[ξ, 值]`）；单位与误差取根级的 `units`、`est_error` 中同名的键。示例：
+
+```json
+{
+  "figure": "7.16", "pdf_page": 82, "printed_page": "145", "side": "right",
+  "case_label_in_figure": "Sim.-Nr. A", "case_id": "CASE_WSV400_A",
+  "tool": "…", "units": {"T": "K", "CO": "mol/mol"}, "est_error": {"T": 8, "CO": 0.005},
+  "series": [
+    {"kind": "sim", "variable": "T", "basis": null, "quantity_definition": "出口端局部温度，ξ = 1", "points": [[1.0, 1000]]},
+    {"kind": "meas", "variable": "CO", "basis": "dry", "quantity_definition": "出口端，ξ = 1", "points": [[1.0, 0.176]]}
+  ],
+  "calibration": {"…": "见下"}
+}
+```
 
 **标定记录 `calibration`（两种格式都必须有）**：写明渲染方式（工具、分辨率或缩放、裁剪原点），用于标定的网格线像素位置及其对应的坐标值，以及每个读数点所取的像素坐标（例如方框四边描边中线的中点）。任何人都能据此复算读数。若用脚本读数，脚本提交到 `tools/`（按 CHARTER §8 由 codex 审查）。
 

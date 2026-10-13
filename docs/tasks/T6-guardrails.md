@@ -29,10 +29,11 @@
    - 核心模块（`balances/`、`kinetics/`、`hydrodynamics/`、`pyrolysis/`、`freeboard/`）的公开函数缺少引用时报错。
 3. **偏离检查脚本** `tools/drift_check.py`（cursor），输出章程 §9 的各项信号：
    - 工作树是否干净；
-   - 相对 main 的净增行数（按任务卡分支）与 `hamel/` 总行数是否超过上限；
+   - 本卡相对共同祖先（`git merge-base <基准> HEAD`）的 `hamel/` 净增行数，以及 `hamel/` 总行数是否超过上限；新文件名与新增配置字段同样以共同祖先为比较基点；
    - 配置字段数量的变化，以及新增字段是否有对应 ADR（按字段名在 `docs/adr/` 中检索）；
    - 新文件名是否匹配阶段后缀模式（`_v\d+`、`_r\d+_r\d+`、`_stage\d+` 等）；
-   - `docs/STATUS.md` 中工况指标表最近一次变化的日期。
+   - `docs/STATUS.md` 中工况指标表最近一次变化的日期；
+   - skill 副本一致性（2026-10-14 增补）：`.claude/skills/<名称>/SKILL.md` 与 `.cursor/skills/<名称>/SKILL.md` 内容不一致时触发；只存在于其中一边时也触发；两边都没有则不检查。
 4. 两个脚本都加入默认测试集，或作为 PR 检查的一部分。
 
 ## 范围外
