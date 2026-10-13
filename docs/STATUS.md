@@ -37,5 +37,5 @@
 - Hamel 原文、`docs/hamel_submodels/` 仅本地保留；本地备份位于 `~/bfb-gasifier-local-backup-2026-10-13/`（含清单与 SHA256）。
 - 原文页面图像与逐页全文在 `../bfb-T2/refs/hamel/pages/`（仅本地，113 页）。源 PDF 缺印刷页 152–153（Bild 7.20、7.21，§7.2 参数研究），且 PDF 84、85 重复扫描 S.148–149；页码一律以 `refs/hamel/index.json` 为准，不按固定偏移换算。
 - 原书存在重复编号：式 3.49、3.50（S.35、36），表 5.1（S.74、79），表 A.2.1.2（S.169、170）；引用时须带页码。
-- `index.json` 的 `label_bbox_pt` 有纵向偏移，暂时只能作导航，不能用于裁图（T2 审查 P2）。
+- `index.json` 的坐标已换到页面图像坐标系（像素 = pt × 300/72），可直接用于裁图。268 条方程中有 24 条（`locator: page_image`）文本层缺式号、没有坐标框，只有人工核对的页码与半页，裁图时须打开整页。
 - 多个 agent 并行时各自使用独立 worktree。注意：cursor 目前在主目录 `bfb-gasifier/` 上做 T3（分支 `task/T3-digitize`），主目录不一定在 main。
