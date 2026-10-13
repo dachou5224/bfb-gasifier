@@ -18,7 +18,8 @@ git checkout archive-2026-10-12
 ## 数据
 
 - `data/validation_cases.json`：15 个 Hamel 验证工况（WSV400、VTT、HTW）的输入与实验值。
-- `data/hamel_fig7_parity_digitized.json`：第 7 章 parity 图的旧数字化读数（只读，待 T3 复核）。
+- `data/hamel_fig7_parity_digitized.json`：第 7 章 parity 图的旧数字化读数。已证实有大幅读数错误，仅留作比对记录，不得使用（CHARTER §3）。
+- `data/digitized/`：T3 从原图读取的出口值，作为验收依据。
 
 ## 环境
 
