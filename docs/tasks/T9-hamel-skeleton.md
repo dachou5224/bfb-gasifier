@@ -16,7 +16,7 @@
 ## 范围内
 
 1. **包结构**：按 CHARTER §6.1 建立 `hamel/` 下的各子包（`properties`、`hydrodynamics`、`freeboard`、`pyrolysis`、`kinetics`、`balances`、`solver`、`cases`）。没有内容的子包只放 `__init__.py`，不写占位实现。
-2. **配置**：物理参数与求解器参数分为两组 dataclass。物理参数只放 T7 输入文件里确实存在的字段，总数不超过 30 项（CHARTER §6.2）；不设功能开关。
+2. **配置**：物理参数与求解器参数分为两组 dataclass。物理参数只放 T7 输入文件里确实存在的字段，**字段名与 `data/cases/*.json` 中的键名保持一致**（这样才能适用 CHARTER v0.6 §9 的 ADR 例外），总数不超过 30 项（CHARTER §6.2）；不设功能开关。求解器参数每一项都须有对应 ADR。
 3. **工况装配** `hamel/cases/`：读取 `data/cases/wsv400.json`，换算为 SI 单位的配置对象；遇到 `status=missing` 的字段时报错，并指出字段名，不静默填默认值。
 4. **验收目标读取**：从 `data/digitized/fig_7_17.json` 等文件读出 Hamel 模拟值，按 CHARTER §2.2 的容差与登记的验收量生成目标区间。WSV400 A 的结果须与 `docs/STATUS.md` 中的“WSV400 A 验收目标”表一致。
 5. **外部元素平衡检查器**：给定进口物流与出口物流（组分摩尔流、固体质量流及其元素组成），计算 C/H/O 的缺口（mol/s）与总能量缺口（W）。它只依赖进出口物流，不依赖模型内部，T1 那类“床顶凭空产生碳”的问题必须能被它捕获。
