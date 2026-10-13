@@ -9,10 +9,10 @@
 | [`docs/CHARTER.md`](docs/CHARTER.md) | 章程：北极星、验收、来源层级、求解手段边界、代码规范、角色、偏离信号 |
 | [`docs/STATUS.md`](docs/STATUS.md) | 唯一交接文档：当前阶段、任务状态、工况指标 |
 | [`docs/tasks/`](docs/tasks/) | 任务卡：只在本卡范围内工作 |
-| `GLOSSARY.md` | 术语（T5 建立） |
-| `docs/adr/` | 决策记录（T5 起建立） |
-| `refs/hamel/index.json` | Hamel 原文索引（T2 建立） |
-| `hamel-source-check` skill | 涉及方程的任务动手前须交原文答卷（T6 建立） |
+| `GLOSSARY.md` | 术语：Hamel 符号／德文、中文名、代码名、页码 |
+| `docs/adr/` | 决策记录；`CANDIDATES.md` 为待核实的旧结论 |
+| `refs/hamel/index.json` | Hamel 原文索引（式号／表号／图号 → 页码）；页面图像仅本地，见 skill |
+| `.claude/skills/hamel-source-check/SKILL.md`（`.cursor/skills/` 下为相同副本） | 涉及 Hamel 方程、常数、表图的任务：如何定位原文、提交原文答卷、独立转录规则、审查清单。动手前必读 |
 
 最低要求：
 
