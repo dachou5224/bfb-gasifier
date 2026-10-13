@@ -3,7 +3,8 @@
 """从指定 Hamel 原 PDF 生成 T2 本地语料和导航索引，不实现或解释方程。
 
 依赖：pdfplumber、pypdf；渲染时另需 Poppler 的 pdftoppm。
-页序从 1 开始。此扫描版有双页、重复页、缺页和重复式号，不能用统一偏移。
+页序从 1 开始。此扫描版有双页、重复页和重复式号，不能用统一偏移。
+原扫描不含印刷页 152–153；这两页用 --supplement 单独编为 PDF 114，不插入已有页序。
 """
 import argparse
 import hashlib
@@ -15,6 +16,8 @@ import unicodedata
 from pathlib import Path
 
 SOURCE_SHA256 = "1e1a83a1e87c7de45f20811fe3322aa4d036c541d1c45a63cb845ddcb30990ef"
+SUPPLEMENT_SHA256 = "d99d192003cd95e2382eace333eb3308a18703ea533c3f5e962b483fdfa3f8ac"
+SUPPLEMENT_PDF_PAGE = 114
 
 # 对照书目原图核实的姓名 OCR 修正，不依据外部文献或旧转录。
 OCR_SURNAMES = {
@@ -590,7 +593,8 @@ def to_image_coords(index, pages):
 
 
 def validate(index):
-    expected = {"2": (9, 2, 5), "3": (105, 1, 8), "4": (30, 4, 13), "7": (0, 5, 19)}
+    located_7 = 21 if index["figures"]["7.20"]["status"] == "indexed" else 19
+    expected = {"2": (9, 2, 5), "3": (105, 1, 8), "4": (30, 4, 13), "7": (0, 5, located_7)}
     for chapter, (equations, tables, figures) in expected.items():
         actual = index["coverage"][chapter]
         if (actual["equation_numbers"], actual["tables"], actual["located_figures"]) != (equations, tables, figures):
@@ -611,13 +615,185 @@ def validate(index):
         raise ValueError("丢失原文重复式号")
 
 
+def _insert_before(mapping, key, value, before):
+    rebuilt = {}
+    placed = False
+    for existing, item in mapping.items():
+        if existing == before and not placed:
+            rebuilt[key] = value
+            placed = True
+        rebuilt[existing] = item
+    if not placed:
+        rebuilt[key] = value
+    return rebuilt
+
+
+def _image_box(line, origin):
+    ox, oy = origin
+    return [round(line["x0"] - ox, 2), round(line["top"] - oy, 2),
+            round(line["x1"] - ox, 2), round(line["bottom"] - oy, 2)]
+
+
+def render_supplement_png(pdf, png):
+    renderer = shutil.which("pdftoppm")
+    if renderer:
+        subprocess.run([renderer, "-r", "300", "-png", "-f", "1", "-l", "1", str(pdf),
+                        str(png.parent / "supplement")], check=True, timeout=120)
+        (png.parent / "supplement-1.png").replace(png)
+        return "pdftoppm 300 dpi"
+    import fitz
+    document = fitz.open(str(pdf))
+    pixmap = document[0].get_pixmap(matrix=fitz.Matrix(300 / 72, 300 / 72), alpha=False)
+    pixmap.save(str(png))
+    document.close()
+    return "PyMuPDF %s，300 dpi；本机没有 pdftoppm" % fitz.version[0]
+
+
+def place_supplement_png(pdf, png, skip_render):
+    if skip_render:
+        if png.exists():
+            return "未渲染，沿用已有 114.png"
+        return "未渲染，本地没有 114.png"
+    return render_supplement_png(pdf, png)
+
+
+def ingest_supplement_page(pdf, pages_dir, skip_render=False):
+    """把补页写入本地 114.txt，并挂到 extraction.json。不改 1–113。skip_render 时不创建或改写 114.png。"""
+    import pdfplumber
+    from pypdf import PdfReader
+
+    digest = hashlib.sha256(pdf.read_bytes()).hexdigest()
+    if digest != SUPPLEMENT_SHA256:
+        raise ValueError("补页 PDF SHA256 不同")
+    reader = PdfReader(str(pdf))
+    if len(reader.pages) != 1:
+        raise ValueError("补页 PDF 应为单页对开扫描")
+    with pdfplumber.open(str(pdf)) as document:
+        page = document.pages[0]
+        x0, y0, x1, y1 = page.bbox
+        mid = (x0 + x1) / 2
+        sides = []
+        for side, bounds in (("left", (x0, y0, mid, y1)), ("right", (mid, y0, x1, y1))):
+            cropped = page.crop(bounds)
+            sides.append({"side": side,
+                          "text": cropped.extract_text(x_tolerance=1, y_tolerance=3) or "",
+                          "lines": cropped.extract_text_lines(x_tolerance=1, y_tolerance=3, return_chars=False)})
+    left_header = sides[0]["lines"][0]["text"]
+    right_header = sides[1]["lines"][0]["text"]
+    if not left_header.startswith("152 ") or "153" not in right_header:
+        raise ValueError("补页页眉不是 S.152 / S.153：%s | %s" % (left_header, right_header))
+    label_20 = next(line for line in sides[0]["lines"] if line["text"].startswith("Bild 7.20"))
+    label_21 = next(line for line in sides[1]["lines"] if line["text"].startswith("Bild 7.21"))
+    if _image_box(label_20, (x0, y0))[:2] != [9.73, 495.76]:
+        raise ValueError("Bild 7.20 标签位置与已核对的补页不符")
+    if _image_box(label_21, (x0, y0)) != [421.22, 500.84, 743.23, 516.57]:
+        raise ValueError("Bild 7.21 标签位置与已核对的补页不符")
+    band = [line for line in sides[0]["lines"] if 478 < line["top"] < 490]
+    box_20 = [round(min(line["x0"] for line in band) - x0, 2),
+              round(min(line["top"] for line in band) - y0, 2),
+              round(max(line["x1"] for line in band) - x0, 2),
+              round(max(line["bottom"] for line in band) - y0, 2)]
+    if box_20 != [9.73, 495.76, 335.08, 512.46]:
+        raise ValueError("Bild 7.20 首行范围与已核对的补页不符")
+    pages_dir.mkdir(parents=True, exist_ok=True)
+    raw = reader.pages[0].extract_text() or ""
+    (pages_dir / "114.txt").write_text(raw + "\n", encoding="utf-8")
+    render_note = place_supplement_png(pdf, pages_dir / "114.png", skip_render)
+    record = {"pdf_page": SUPPLEMENT_PDF_PAGE, "bbox": [x0, y0, x1, y1], "rotation": 0, "sides": sides}
+    cache = pages_dir / "extraction.json"
+    pages = json.loads(cache.read_text(encoding="utf-8")) if cache.exists() else []
+    pages = [item for item in pages if item["pdf_page"] != SUPPLEMENT_PDF_PAGE]
+    pages.append(record)
+    write_json(cache, pages)
+    return {"filename": pdf.name, "render_note": render_note, "box_20": box_20,
+            "box_21": _image_box(label_21, (x0, y0))}
+
+
+def merge_supplement(index, pdf, pages_dir, skip_render=False):
+    """把已核对的 S.152–153 写入索引。图注以页面图像为准，文本层漏了 ü。"""
+    placed = ingest_supplement_page(pdf, pages_dir, skip_render=skip_render)
+    captions = {
+        "7.20": ("152", "left", placed["box_20"],
+                 "Bild 7.20: Simulationsergebnisse für den Modellreaktor unter Variation des "
+                 "Feuchtegehalts des zugeführten Brennstoffs.",
+                 location(84, "left", "148")),
+        "7.21": ("153", "right", placed["box_21"],
+                 "Bild 7.21: Simulationsergebnisse für den Modellreaktor unter Variation der "
+                 "Aufteilung der zugeführten Luft in Primär- und Sekundärluft.",
+                 location(84, "right", "149")),
+    }
+    for key, (printed, side, box, caption_de, mentioned) in captions.items():
+        index["figures"][key] = dict(location(SUPPLEMENT_PDF_PAGE, side, printed),
+                                     section="7.2", caption_de=caption_de, status="indexed",
+                                     caption_source="page_image", label_bbox_pt=box,
+                                     note="图注对照页面图像；文本层漏写 ü，且 7.20 被拆成单字符行",
+                                     mentioned_at=[mentioned])
+    index["page_map"] = _insert_before(
+        index["page_map"], "114", {"left": "152", "right": "153"}, "113")
+    # _insert_before 把新键放在 113 之前；114 应紧跟 113。
+    page_map = index["page_map"]
+    entry_114 = page_map.pop("114")
+    index["page_map"] = {}
+    for key, value in page_map.items():
+        index["page_map"][key] = value
+        if key == "113":
+            index["page_map"]["114"] = entry_114
+    reverse = index["printed_page_map"]
+    reverse.pop("152", None)
+    reverse.pop("153", None)
+    reverse = _insert_before(reverse, "152", [location(SUPPLEMENT_PDF_PAGE, "left", "152")], "154")
+    index["printed_page_map"] = _insert_before(
+        reverse, "153", [location(SUPPLEMENT_PDF_PAGE, "right", "153")], "154")
+    index["source_issues"] = [
+        {"kind": "supplement_scan", "pdf_pages": [SUPPLEMENT_PDF_PAGE],
+         "printed_pages": ["152", "153"], "affected_figures": ["7.20", "7.21"],
+         "sha256": SUPPLEMENT_SHA256,
+         "evidence": "原扫描 PDF 86 为 S.150–151，PDF 87 为 S.154–155。补页单独编为 PDF 114，左 S.152、右 S.153。"},
+        *[item for item in index["source_issues"]
+          if item["kind"] not in ("missing_pages", "supplement_scan")]
+    ]
+    index["coverage"]["7"]["located_figures"] = 21
+    index["coverage"]["7"]["missing_figures"] = 0
+    meta = index["_meta"]
+    meta["acceptance_status"] = ("总司令抽查 20/20 通过（2026-10-13）。"
+                                 "S.152–153 于 2026-10-14 由补页纳入 PDF 114，待总司令复核。")
+    meta["page_map_schema"] = (meta["page_map_schema"].split("。PDF 114")[0]
+                               + "。PDF 114 为补页，左 152、右 153")
+    meta["supplement"] = {"filename": placed["filename"], "sha256": SUPPLEMENT_SHA256,
+                          "pdf_page": SUPPLEMENT_PDF_PAGE, "printed_pages": ["152", "153"],
+                          "render": placed["render_note"],
+                          "note": "原扫描 113 页不含这两页。补页不插入 PDF 86 与 87 之间，已有页序不变。PDF 与页面图像不入库。"}
+    return index
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("pdf", type=Path, help="原 PDF 路径，不复制或提交 PDF")
+    parser.add_argument("pdf", nargs="?", type=Path, help="原 PDF 路径，不复制或提交 PDF")
     parser.add_argument("--output", type=Path, default=Path("refs/hamel"))
     parser.add_argument("--reuse-extraction", action="store_true", help="复用本次 PDF 提取的本地缓存")
     parser.add_argument("--skip-render", action="store_true", help="只重建索引；不代表图像交付已完成")
+    parser.add_argument("--supplement", type=Path, help="S.152–153 补页 PDF。不替换 113 页原扫描，也不入库")
+    parser.add_argument("--supplement-only", action="store_true",
+                        help="不重建 1–113，只把补页并入现有索引和本地页")
     args = parser.parse_args()
+    if args.supplement_only:
+        if args.supplement is None:
+            raise ValueError("补页需要 --supplement")
+        index_path = args.output / "index.json"
+        index = merge_supplement(json.loads(index_path.read_text(encoding="utf-8")),
+                                 args.supplement, args.output / "pages",
+                                 skip_render=args.skip_render)
+        validate(index)
+        write_json(index_path, index)
+        print("S.152–153 已并入 PDF 114。页面图像只在本地，PDF 不入库。")
+        return
+    if args.pdf is None:
+        parser.error("需要原 PDF 路径")
+    existing = args.output / "index.json"
+    if existing.exists() and args.supplement is None:
+        old = json.loads(existing.read_text(encoding="utf-8"))
+        if "152" in old.get("printed_page_map", {}):
+            raise ValueError("现有索引已含 S.152–153。重跑须带 --supplement，否则会把补页写回缺口。")
     digest = hashlib.sha256(args.pdf.read_bytes()).hexdigest()
     if digest != SOURCE_SHA256:
         raise ValueError("PDF SHA256 不同：此扫描版的人工定位清单不能套用到另一版本")
@@ -625,7 +801,8 @@ def main():
     pages_dir.mkdir(parents=True, exist_ok=True)
     cache = pages_dir / "extraction.json"
     if args.reuse_extraction:
-        pages = json.loads(cache.read_text(encoding="utf-8"))
+        pages = [item for item in json.loads(cache.read_text(encoding="utf-8"))
+                 if item["pdf_page"] <= 113]
     else:
         pages = extract(args.pdf, pages_dir)
     if len(pages) != 113:
@@ -633,10 +810,15 @@ def main():
     if not args.skip_render:
         render(args.pdf, pages_dir, len(pages))
     index = to_image_coords(build_index(pages, args.pdf), pages)
+    if args.supplement is not None:
+        index = merge_supplement(index, args.supplement, pages_dir, skip_render=args.skip_render)
     validate(index)
     write_json(args.output / "index.json", index)
     print(json.dumps(index["coverage"], ensure_ascii=False, indent=2))
-    print("原 PDF 缺 S.152–153（§7.2，非验证工况）：缺口已记录并经总司令裁定接受。")
+    if args.supplement is None:
+        print("原 PDF 缺 S.152–153（§7.2，非验证工况）：缺口已记录并经总司令裁定接受。")
+    else:
+        print("S.152–153 已并入 PDF 114。页面图像只在本地，PDF 不入库。")
 
 
 if __name__ == "__main__":

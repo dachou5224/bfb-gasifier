@@ -21,11 +21,11 @@ description: 在本仓库中做任何涉及 Hamel 论文方程、常数、表格
 
 1. **索引**：`refs/hamel/index.json`（随仓库提交）。
    - `equations`、`tables`、`figures`、`sections`：按式号、表号、图号、小节号查 `pdf_page`、`printed_page`、`side`（left/right；PDF 98–103 为 top/bottom）。
-   - `printed_page_map`：从印刷页查 PDF 页。**不要按固定偏移换算页码**：原 PDF 有重复扫描（PDF 84、85 均为 S. 148–149）和缺页（S. 152–153）。
+   - `printed_page_map`：从印刷页查 PDF 页。**不要按固定偏移换算页码**：原 PDF 有重复扫描（PDF 84、85 均为 S. 148–149）。印刷页 152–153 不在原扫描中，补页编为 PDF 114。
    - `source_issues`：重复式号（3.49、3.50）、重复表号（5.1、A.2.1.2）等。引用这些编号时必须带页码。
    - `cited_references`：Hamel 的参考文献，以及它们在正文中被引用的位置候选。这里的引用位置只是导航线索，不能自动当作某个方程的依据。
 2. **页面图像**：`refs/hamel/pages/NNN.png`（300 dpi，NNN 为三位补零的 PDF 页序），仅本地保留，不入库。
-   - 主工作树（`git worktree list` 的第一行）的 `refs/hamel/pages/` 下通常已有一份完整的图像和文本（113 页）。在其它 worktree 工作时，链接过去即可：
+   - 主工作树（`git worktree list` 的第一行）的 `refs/hamel/pages/` 下通常已有一份完整的图像和文本（114 页，含补页）。在其它 worktree 工作时，链接过去即可：
 
      ```bash
      MAIN=$(git worktree list --porcelain | awk 'NR==1{print $2}')

@@ -2,6 +2,7 @@
 """T2 原文导航测试；锚点取自当前 PDF 的页码、印刷标签和图注，不使用模型输出。"""
 import importlib.util
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -72,21 +73,35 @@ class SourceIndexTests(unittest.TestCase):
             self.assertEqual(entry["additional_locations"][0]["printed_page"], "36")
             self.assertNotEqual(entry["section"], entry["additional_locations"][0]["section"])
 
-    def test_continuation_pages_and_absent_figures(self):
+    def test_continuation_pages_and_supplement_figures(self):
         for label, page, printed in [("7.10", 78, "137"), ("7.13", 80, "141")]:
             extra = self.index["figures"][label]["additional_locations"]
             self.assertIn((page, printed), [(v["pdf_page"], v["printed_page"]) for v in extra])
         self.assertEqual(self.index["tables"]["7.2"]["additional_locations"][0]["printed_page"], "134")
-        for label in ("7.20", "7.21"):
+        expected = {
+            "7.20": ("152", "left", "Feuchtegehalts"),
+            "7.21": ("153", "right", "Sekundärluft"),
+        }
+        for label, (printed, side, phrase) in expected.items():
             entry = self.index["figures"][label]
-            self.assertEqual(entry["status"], "source_page_missing")
-            self.assertIsNone(entry["pdf_page"])
-            self.assertIsNone(entry["caption_de"])
+            self.assertEqual(entry["status"], "indexed")
+            self.assertEqual((entry["pdf_page"], entry["printed_page"], entry["side"]),
+                             (114, printed, side))
+            self.assertEqual(entry["section"], "7.2")
+            self.assertIn(phrase, entry["caption_de"])
+            self.assertEqual(entry["caption_source"], "page_image")
+        self.assertEqual(self.index["page_map"]["114"], {"left": "152", "right": "153"})
+        self.assertEqual(self.index["printed_page_map"]["152"][0]["pdf_page"], 114)
+        self.assertEqual(self.index["printed_page_map"]["153"][0]["side"], "right")
+        self.assertEqual(self.index["coverage"]["7"]["located_figures"], 21)
+        self.assertEqual(self.index["coverage"]["7"]["missing_figures"], 0)
+        kinds = [item["kind"] for item in self.index["source_issues"]]
+        self.assertIn("supplement_scan", kinds)
+        self.assertNotIn("missing_pages", kinds)
 
     def test_duplicate_and_rotated_scan_page_map(self):
         self.assertEqual(self.index["page_map"]["84"], self.index["page_map"]["85"])
         self.assertEqual(len(self.index["printed_page_map"]["148"]), 2)
-        self.assertNotIn("152", self.index["printed_page_map"])
         self.assertEqual(self.index["page_map"]["98"], {"top": "176", "bottom": "177"})
 
     def test_author_matching_uses_whole_names(self):
@@ -105,6 +120,58 @@ class SourceIndexTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("SHA256", result.stderr)
             self.assertFalse(output.exists())
+
+    def test_skip_render_does_not_call_renderer_or_touch_png(self):
+        called = []
+        original = CORPUS.render_supplement_png
+        CORPUS.render_supplement_png = lambda *args: called.append(args)
+        try:
+            missing = Path(tempfile.gettempdir()) / "hamel-skip-missing-114.png"
+            if missing.exists():
+                missing.unlink()
+            note = CORPUS.place_supplement_png(Path("unused.pdf"), missing, True)
+            self.assertFalse(missing.exists())
+            self.assertEqual(called, [])
+            self.assertIn("没有", note)
+            kept = Path(tempfile.gettempdir()) / "hamel-skip-kept-114.png"
+            kept.write_bytes(b"original-png")
+            note = CORPUS.place_supplement_png(Path("unused.pdf"), kept, True)
+            self.assertEqual(kept.read_bytes(), b"original-png")
+            self.assertEqual(called, [])
+            self.assertIn("沿用", note)
+            CORPUS.place_supplement_png(Path("unused.pdf"), kept, False)
+            self.assertEqual(len(called), 1)
+        finally:
+            CORPUS.render_supplement_png = original
+            kept = Path(tempfile.gettempdir()) / "hamel-skip-kept-114.png"
+            if kept.exists():
+                kept.unlink()
+
+    def test_cli_skip_render_does_not_rewrite_png(self):
+        pdf = ROOT / "docs" / "hamel_supplement_S152-153.pdf"
+        if not pdf.exists():
+            self.skipTest("本地没有补页 PDF")
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+            pages = output / "pages"
+            pages.mkdir()
+            png = pages / "114.png"
+            png.write_bytes(b"do-not-rewrite")
+            shutil.copy(ROOT / "refs" / "hamel" / "index.json", output / "index.json")
+            command = [sys.executable, str(ROOT / "tools" / "build_hamel_corpus.py"),
+                       "--supplement-only", "--skip-render", "--supplement", str(pdf),
+                       "--output", str(output)]
+            result = subprocess.run(command, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(png.read_bytes(), b"do-not-rewrite")
+            index = json.loads((output / "index.json").read_text(encoding="utf-8"))
+            self.assertIn("未渲染，沿用已有", index["_meta"]["supplement"]["render"])
+            png.unlink()
+            result = subprocess.run(command, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertFalse(png.exists())
+            index = json.loads((output / "index.json").read_text(encoding="utf-8"))
+            self.assertIn("本地没有", index["_meta"]["supplement"]["render"])
 
 
 if __name__ == "__main__":

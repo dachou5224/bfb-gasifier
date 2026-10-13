@@ -7,31 +7,74 @@
   "case_label_in_figure": "Sim.-Nr. A",
   "case_id": "CASE_WSV400_A",
   "read_date": "2026-10-13",
-  "tool": "目标所有者人工读数，用专用数字化工具（工具名称与版本待补）",
-  "est_error": "待补",
-  "scope": "T3 例外读数：只读出口端（ξ = 1），轴向剖面暂缓（CHARTER §2.2 补充核对用）",
+  "tool": "PyMuPDF 1.26.5 渲染，zoom=4（4 px/pt）。网格线取墨迹质心后线性拟合。出口取顶边 ξ = 1 紧下方的描边中心，只用 x 换算。复算：tools/digitize_wsv400_outlets.py。",
+  "est_error": {
+    "T": 8,
+    "CO": 0.005
+  },
+  "units": {
+    "T": "K",
+    "CO": "mol/mol"
+  },
+  "scope": "T3 例外读数：只读出口端（ξ = 1）。轴向剖面暂缓。出口温度作 CHARTER §2.2 的补充核对，不替代 Bild 7.17 的 T_FRB。",
+  "revision_note": "早先人工读数把模拟温度记为 990 K。本次取实线在 ξ = 1 处的描边中心，为 1000 K。990 K 靠近该描边的左缘。图例：温度的测量符号是空心圆、模拟是实线；CO 的测量符号是空心方框、模拟是实线。",
   "series": [
     {
       "kind": "sim",
       "variable": "T",
-      "quantity_definition": "出口端局部温度，ξ = 1",
+      "quantity_definition": "出口端局部温度，ξ = 1，实线",
+      "basis": null,
       "unit": "K",
-      "x_axis": {
-        "name": "xi",
-        "definition": "归一化高度（normierte Höhe）",
-        "unit": "-"
-      },
-      "points": [
-        [
-          1.0,
-          990
-        ]
-      ],
-      "note": "实线（模拟值）"
+      "points": [[1.0, 1000]]
+    },
+    {
+      "kind": "meas",
+      "variable": "T",
+      "quantity_definition": "出口端局部温度，ξ = 1，空心圆",
+      "basis": null,
+      "unit": "K",
+      "points": [[1.0, 1011]]
+    },
+    {
+      "kind": "sim",
+      "variable": "CO",
+      "quantity_definition": "出口端，ξ = 1，实线",
+      "basis": "dry",
+      "unit": "mol/mol",
+      "points": [[1.0, 0.170]]
+    },
+    {
+      "kind": "meas",
+      "variable": "CO",
+      "quantity_definition": "出口端，ξ = 1，空心方框",
+      "basis": "dry",
+      "unit": "mol/mol",
+      "points": [[1.0, 0.176]]
     }
   ],
-  "not_read": [
-    "出口端温度实测点（空心圆）",
-    "出口端 CO 等组分"
-  ]
+  "not_read": ["出口端 O2、CH4、CO2、H2 的符号与曲线", "轴向剖面"],
+  "calibration": {
+    "renderer": "PyMuPDF 1.26.5",
+    "zoom": 4,
+    "px_per_pt": 4,
+    "origin": "裁图左上角，x 向右，y 向下",
+    "pdf_page": 82,
+    "clip_pt": [420, 20, 820, 500],
+    "marker": "出口符号的 x 是描边中心。y_span 只说明它紧贴 ξ = 1，不参与换算。",
+    "rounding_digits": {
+      "T": 0,
+      "CO": 3
+    },
+    "grids": {
+      "xi_y": [[879.0, 1.0], [1025.95, 0.8], [1174.03, 0.6], [1321.91, 0.4], [1470.9, 0.2], [1617.99, 0.0]],
+      "CO_x": [[530.1, 0.0], [661.91, 0.1], [792.61, 0.2], [925.88, 0.3]],
+      "T_x": [[1027.52, 800], [1158.99, 1000], [1291.12, 1200], [1422.37, 1400]]
+    },
+    "points": {
+      "CO_sim": {"x": 754.5, "y_span": [882, 889]},
+      "CO_meas": {"x": 761.25, "y_span": [889, 901]},
+      "T_sim": {"x": 1159.0, "y_span": [884, 888]},
+      "T_meas": {"x": 1166.5, "y_span": [890, 904]}
+    }
+  }
 }
