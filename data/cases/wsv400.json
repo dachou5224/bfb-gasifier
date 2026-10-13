@@ -1,0 +1,782 @@
+{
+  "plant_id": "WSV400",
+  "description": "WSV 400，Universität Magdeburg。输入清单是表 2.1 与表 2.2（S. 13）。数值来自表 7.4、§7.1.5；Bild 7.14 的 cell 尺寸和 Bild 7.15 的柱高尚未读取。",
+  "checklist": {
+    "table_2_1": "表 2.1, S. 13",
+    "table_2_2": "表 2.2, S. 13"
+  },
+  "shared": {
+    "bed_diameter": {
+      "value": 0.4,
+      "unit": "m",
+      "source": "§7.1.5, S. 142",
+      "status": "source"
+    },
+    "freeboard_diameter": {
+      "value": 0.6,
+      "unit": "m",
+      "source": "§7.1.5, S. 142",
+      "status": "source"
+    },
+    "reactor_height": {
+      "value": 3.0,
+      "unit": "m",
+      "source": "§7.1.5, S. 142",
+      "status": "source"
+    },
+    "connecting_line_geometry": {
+      "value": null,
+      "unit": "m",
+      "source": "表 2.1, S. 13 要求 Verbindungsleitungen；§7.1.5, S. 142–146 与 Bild 7.14, S. 142 未给出",
+      "status": "missing"
+    },
+    "cyclone_geometry": {
+      "value": null,
+      "unit": "m",
+      "source": "表 2.1, S. 13 要求 Zyklon；§7.1.5, S. 142–146 与 Bild 7.14, S. 142 未给出",
+      "status": "missing"
+    },
+    "return_line_geometry": {
+      "value": null,
+      "unit": "m",
+      "source": "表 2.1, S. 13 要求 Rückführleitungen；表 7.4, S. 143 的 Rezirkulation 为 Nein，几何尺寸未给出",
+      "status": "missing"
+    },
+    "fuel_feed_count": {
+      "value": 1,
+      "unit": "1",
+      "source": "§7.1.5, S. 143；一根螺旋给料",
+      "status": "source"
+    },
+    "fuel_feed_height": {
+      "value": 0.2,
+      "unit": "m",
+      "source": "§7.1.5, S. 143",
+      "status": "derived",
+      "formula": "h = 200 mm / 1000 mm/m， Düsenboden 以上"
+    },
+    "agent_feed_count": {
+      "value": 1,
+      "unit": "1",
+      "source": "表 7.4, S. 143；六个工况的 Sekundärluft 均为短横，只使用 Primärluft",
+      "status": "source"
+    },
+    "agent_feed_height": {
+      "value": null,
+      "unit": "m",
+      "source": "Bild 7.14, S. 142 底部箭头为 Vergasungsmittel；图上高度待读取",
+      "status": "missing"
+    },
+    "ash_withdrawal_count": {
+      "value": null,
+      "unit": "1",
+      "source": "表 2.1, S. 13 要求 Ascheabzugstellen；§7.1.5, S. 142–146 未给出",
+      "status": "missing"
+    },
+    "return_location": {
+      "value": "none",
+      "unit": "1",
+      "source": "表 7.4, S. 143；Rezirkulation = Nein",
+      "status": "source"
+    },
+    "wall_heat_transfer_coefficient": {
+      "value": null,
+      "unit": "W/(m2·K)",
+      "source": "表 2.1, S. 13 要求 Wärmedurchgangskoeffizient；§7.1.5, S. 142 只说矿物保温，未给系数",
+      "status": "missing"
+    },
+    "thermal_design_power": {
+      "value": 100000.0,
+      "unit": "W",
+      "source": "§7.1.5, S. 142",
+      "status": "derived",
+      "formula": "P = 100 kW * 1000 W/kW；Feuerungswärmeleistung，不是各工况热值"
+    },
+    "gasifying_agent": {
+      "value": "Luft",
+      "unit": "1",
+      "source": "§7.1.5, S. 142",
+      "status": "source"
+    },
+    "bed_inventory_composition": {
+      "value": null,
+      "unit": "kg/kg",
+      "source": "表 2.2, S. 13 要求 Feststoffinventar 的组成；§7.1.5, S. 142–146 未给出",
+      "status": "missing"
+    },
+    "bed_inventory_diameter": {
+      "value": null,
+      "unit": "m",
+      "source": "表 2.2, S. 13 允许给出平均粒径；§7.1.5, S. 142–146 未给出",
+      "status": "missing"
+    },
+    "bed_height": {
+      "value": null,
+      "unit": "m",
+      "source": "表 2.2, S. 13 要求 Wirbelbetthöhe；Bild 7.14, S. 142 有床面记号，高度待读取",
+      "status": "missing"
+    },
+    "cell_count": {
+      "value": null,
+      "unit": "1",
+      "source": "Bild 7.14, S. 142；cell 数待读取",
+      "status": "missing"
+    },
+    "cell_heights": {
+      "value": null,
+      "unit": "m",
+      "source": "Bild 7.14, S. 142；各 cell 高度待读取",
+      "status": "missing"
+    },
+    "fuel_size_class_edges": {
+      "value": [
+        "bis 2",
+        "2-5",
+        "5-8",
+        "8-11",
+        "11-14",
+        "14-17",
+        "17-20",
+        "20-23",
+        "23-26"
+      ],
+      "unit": "mm",
+      "source": "Bild 7.15, S. 144；印刷横坐标，当量球直径",
+      "status": "source"
+    }
+  },
+  "fuels": {
+    "holz_ae": {
+      "ash_mass_fraction_wf": {
+        "value": 0.0634,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143；数值落在 A–E 列中心，F 列为另一组",
+        "status": "derived",
+        "formula": "w = 6.34 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "volatiles_mass_fraction_waf": {
+        "value": 0.9362,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143；数值落在 A–E 列中心，F 列为另一组",
+        "status": "derived",
+        "formula": "w = 93.62 / 100；原文单位 Gew.-%，基准 waf"
+      },
+      "carbon_mass_fraction_wf": {
+        "value": 0.4627,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143；数值落在 A–E 列中心，F 列为另一组",
+        "status": "derived",
+        "formula": "w = 46.27 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "hydrogen_mass_fraction_wf": {
+        "value": 0.0594,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143；数值落在 A–E 列中心，F 列为另一组",
+        "status": "derived",
+        "formula": "w = 5.94 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "oxygen_mass_fraction_wf": {
+        "value": 0.4101,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143；数值落在 A–E 列中心，F 列为另一组",
+        "status": "derived",
+        "formula": "w = 41.01 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "nitrogen_mass_fraction_wf": {
+        "value": 0.004,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143；数值落在 A–E 列中心，F 列为另一组",
+        "status": "derived",
+        "formula": "w = 0.4 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "sulfur_mass_fraction_wf": {
+        "value": 0.0001,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143；数值落在 A–E 列中心，F 列为另一组",
+        "status": "derived",
+        "formula": "w = 0.01 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "heating_value": {
+        "value": null,
+        "unit": "J/kg",
+        "source": "表 2.2, S. 13 要求 Heizwert；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出",
+        "status": "missing"
+      }
+    },
+    "holz_f": {
+      "ash_mass_fraction_wf": {
+        "value": 0.0023,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143；数值落在 F 列",
+        "status": "derived",
+        "formula": "w = 0.23 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "volatiles_mass_fraction_waf": {
+        "value": 0.9305,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143；数值落在 F 列",
+        "status": "derived",
+        "formula": "w = 93.05 / 100；原文单位 Gew.-%，基准 waf"
+      },
+      "carbon_mass_fraction_wf": {
+        "value": 0.5185,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143；数值落在 F 列",
+        "status": "derived",
+        "formula": "w = 51.85 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "hydrogen_mass_fraction_wf": {
+        "value": 0.0615,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143；数值落在 F 列",
+        "status": "derived",
+        "formula": "w = 6.15 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "oxygen_mass_fraction_wf": {
+        "value": 0.0416,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143；数值落在 F 列",
+        "status": "derived",
+        "formula": "w = 4.16 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "nitrogen_mass_fraction_wf": {
+        "value": 0.0014,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143；数值落在 F 列",
+        "status": "derived",
+        "formula": "w = 0.14 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "sulfur_mass_fraction_wf": {
+        "value": 0.0001,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143；数值落在 F 列",
+        "status": "derived",
+        "formula": "w = 0.01 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "heating_value": {
+        "value": null,
+        "unit": "J/kg",
+        "source": "表 2.2, S. 13 要求 Heizwert；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出",
+        "status": "missing"
+      }
+    }
+  },
+  "cases": {
+    "A": {
+      "case_id": "CASE_WSV400_A",
+      "fuel_id": "holz_ae",
+      "fuel_name": {
+        "value": "Holz",
+        "unit": "1",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.009777777777777778,
+        "unit": "kg/s",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "m = 35.2 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.273,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "w = 27.3 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.4532,
+        "unit": "1",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 50,
+        "unit": "m3(VN)/h",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": null,
+        "unit": "mol/s",
+        "source": "表 7.4, S. 143 给出 50 m3(VN)/h；S. 142–146 未给出 VN 的温度和压力",
+        "status": "missing"
+      },
+      "secondary_air_volume_flow": {
+        "value": 0,
+        "unit": "m3(VN)/h",
+        "source": "表 7.4, S. 143；表内为短横",
+        "status": "source"
+      },
+      "steam_mass_flow": {
+        "value": 0.0,
+        "unit": "kg/s",
+        "source": "表 7.4, S. 143；表内为短横，单位 kg/h",
+        "status": "derived",
+        "formula": "m = 0 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.4, S. 143 只写 Vergasungsmittel = Luft",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 100000.0,
+        "unit": "Pa",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "p = 0.1 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": false,
+        "unit": "1",
+        "source": "表 7.4, S. 143；原文 Nein",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "Bild 7.15, S. 144 只注明 Holzhackschnitzelprobe zum Versuch A；柱高待目标所有者读取",
+        "status": "missing"
+      }
+    },
+    "B": {
+      "case_id": "CASE_WSV400_B",
+      "fuel_id": "holz_ae",
+      "fuel_name": {
+        "value": "Holz",
+        "unit": "1",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.012333333333333333,
+        "unit": "kg/s",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "m = 44.4 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.2582,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "w = 25.82 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.35,
+        "unit": "1",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 50,
+        "unit": "m3(VN)/h",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": null,
+        "unit": "mol/s",
+        "source": "表 7.4, S. 143 给出 50 m3(VN)/h；S. 142–146 未给出 VN 的温度和压力",
+        "status": "missing"
+      },
+      "secondary_air_volume_flow": {
+        "value": 0,
+        "unit": "m3(VN)/h",
+        "source": "表 7.4, S. 143；表内为短横",
+        "status": "source"
+      },
+      "steam_mass_flow": {
+        "value": 0.0,
+        "unit": "kg/s",
+        "source": "表 7.4, S. 143；表内为短横，单位 kg/h",
+        "status": "derived",
+        "formula": "m = 0 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.4, S. 143 只写 Vergasungsmittel = Luft",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 100000.0,
+        "unit": "Pa",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "p = 0.1 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": false,
+        "unit": "1",
+        "source": "表 7.4, S. 143；原文 Nein",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "Bild 7.15, S. 144 的样品注明为 Versuch A，B–F 的粒径分布原文未给出",
+        "status": "missing"
+      }
+    },
+    "C": {
+      "case_id": "CASE_WSV400_C",
+      "fuel_id": "holz_ae",
+      "fuel_name": {
+        "value": "Holz",
+        "unit": "1",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.010777777777777778,
+        "unit": "kg/s",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "m = 38.8 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.2582,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "w = 25.82 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.4,
+        "unit": "1",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 50,
+        "unit": "m3(VN)/h",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": null,
+        "unit": "mol/s",
+        "source": "表 7.4, S. 143 给出 50 m3(VN)/h；S. 142–146 未给出 VN 的温度和压力",
+        "status": "missing"
+      },
+      "secondary_air_volume_flow": {
+        "value": 0,
+        "unit": "m3(VN)/h",
+        "source": "表 7.4, S. 143；表内为短横",
+        "status": "source"
+      },
+      "steam_mass_flow": {
+        "value": 0.0,
+        "unit": "kg/s",
+        "source": "表 7.4, S. 143；表内为短横，单位 kg/h",
+        "status": "derived",
+        "formula": "m = 0 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.4, S. 143 只写 Vergasungsmittel = Luft",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 100000.0,
+        "unit": "Pa",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "p = 0.1 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": false,
+        "unit": "1",
+        "source": "表 7.4, S. 143；原文 Nein",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "Bild 7.15, S. 144 的样品注明为 Versuch A，B–F 的粒径分布原文未给出",
+        "status": "missing"
+      }
+    },
+    "D": {
+      "case_id": "CASE_WSV400_D",
+      "fuel_id": "holz_ae",
+      "fuel_name": {
+        "value": "Holz",
+        "unit": "1",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.009583333333333333,
+        "unit": "kg/s",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "m = 34.5 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.2582,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "w = 25.82 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.45,
+        "unit": "1",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 50,
+        "unit": "m3(VN)/h",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": null,
+        "unit": "mol/s",
+        "source": "表 7.4, S. 143 给出 50 m3(VN)/h；S. 142–146 未给出 VN 的温度和压力",
+        "status": "missing"
+      },
+      "secondary_air_volume_flow": {
+        "value": 0,
+        "unit": "m3(VN)/h",
+        "source": "表 7.4, S. 143；表内为短横",
+        "status": "source"
+      },
+      "steam_mass_flow": {
+        "value": 0.0,
+        "unit": "kg/s",
+        "source": "表 7.4, S. 143；表内为短横，单位 kg/h",
+        "status": "derived",
+        "formula": "m = 0 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.4, S. 143 只写 Vergasungsmittel = Luft",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 100000.0,
+        "unit": "Pa",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "p = 0.1 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": false,
+        "unit": "1",
+        "source": "表 7.4, S. 143；原文 Nein",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "Bild 7.15, S. 144 的样品注明为 Versuch A，B–F 的粒径分布原文未给出",
+        "status": "missing"
+      }
+    },
+    "E": {
+      "case_id": "CASE_WSV400_E",
+      "fuel_id": "holz_ae",
+      "fuel_name": {
+        "value": "Holz",
+        "unit": "1",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.008638888888888889,
+        "unit": "kg/s",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "m = 31.1 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.2582,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "w = 25.82 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.5,
+        "unit": "1",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 50,
+        "unit": "m3(VN)/h",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": null,
+        "unit": "mol/s",
+        "source": "表 7.4, S. 143 给出 50 m3(VN)/h；S. 142–146 未给出 VN 的温度和压力",
+        "status": "missing"
+      },
+      "secondary_air_volume_flow": {
+        "value": 0,
+        "unit": "m3(VN)/h",
+        "source": "表 7.4, S. 143；表内为短横",
+        "status": "source"
+      },
+      "steam_mass_flow": {
+        "value": 0.0,
+        "unit": "kg/s",
+        "source": "表 7.4, S. 143；表内为短横，单位 kg/h",
+        "status": "derived",
+        "formula": "m = 0 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.4, S. 143 只写 Vergasungsmittel = Luft",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 100000.0,
+        "unit": "Pa",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "p = 0.1 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": false,
+        "unit": "1",
+        "source": "表 7.4, S. 143；原文 Nein",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "Bild 7.15, S. 144 的样品注明为 Versuch A，B–F 的粒径分布原文未给出",
+        "status": "missing"
+      }
+    },
+    "F": {
+      "case_id": "CASE_WSV400_F",
+      "fuel_id": "holz_f",
+      "fuel_name": {
+        "value": "Holz",
+        "unit": "1",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.009305555555555555,
+        "unit": "kg/s",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "m = 33.5 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.228,
+        "unit": "kg/kg",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "w = 22.8 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.45,
+        "unit": "1",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 50,
+        "unit": "m3(VN)/h",
+        "source": "表 7.4, S. 143",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": null,
+        "unit": "mol/s",
+        "source": "表 7.4, S. 143 给出 50 m3(VN)/h；S. 142–146 未给出 VN 的温度和压力",
+        "status": "missing"
+      },
+      "secondary_air_volume_flow": {
+        "value": 0,
+        "unit": "m3(VN)/h",
+        "source": "表 7.4, S. 143；表内为短横",
+        "status": "source"
+      },
+      "steam_mass_flow": {
+        "value": 0.0,
+        "unit": "kg/s",
+        "source": "表 7.4, S. 143；表内为短横，单位 kg/h",
+        "status": "derived",
+        "formula": "m = 0 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.4, S. 143 只写 Vergasungsmittel = Luft",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 100000.0,
+        "unit": "Pa",
+        "source": "表 7.4, S. 143",
+        "status": "derived",
+        "formula": "p = 0.1 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": false,
+        "unit": "1",
+        "source": "表 7.4, S. 143；原文 Nein",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "Bild 7.15, S. 144 的样品注明为 Versuch A，B–F 的粒径分布原文未给出",
+        "status": "missing"
+      }
+    }
+  }
+}
