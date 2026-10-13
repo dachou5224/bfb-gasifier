@@ -7,11 +7,22 @@
     "pdf_page_numbering": "1-based",
     "render_dpi": 300,
     "local_pages": "refs/hamel/pages/NNN.png, NNN.txt",
-    "page_map_schema": "常规扫描页映射 left/right；PDF 98–103 为 top/bottom；null 表示无印刷页码；重复页在 reverse map 保留全部位置",
+    "page_map_schema": "常规扫描页映射 left/right；PDF 98–103 为 top/bottom；null 表示无印刷页码；重复页在 reverse map 保留全部位置。PDF 114 为补页，左 152、右 153",
     "coordinates": "label_bbox_pt、heading_y、line_y 为相对页面图像左上角的 point 坐标（已减去 pdfplumber 页 bbox 原点）；像素 = pt × render_dpi / 72",
     "index_scope": "方程定位清单覆盖第2–6章和附录A1，第1/7/8章无带编号方程；全书小节、可提取图表和参考文献同时建立导航",
     "short_form_policy": "只有少量目视核对的短式；空串表示未转录，绝不使用 OCR 公式作为科学依据",
-    "acceptance_status": "总司令抽查 20/20 通过（2026-10-13）；源缺页 S.152–153（§7.2 参数研究，非验证工况）已裁定接受"
+    "acceptance_status": "总司令抽查 20/20 通过（2026-10-13）。S.152–153 于 2026-10-14 由补页纳入 PDF 114，待总司令复核。",
+    "supplement": {
+      "filename": "hamel_supplement_S152-153.pdf",
+      "sha256": "d99d192003cd95e2382eace333eb3308a18703ea533c3f5e962b483fdfa3f8ac",
+      "pdf_page": 114,
+      "printed_pages": [
+        "152",
+        "153"
+      ],
+      "render": "PyMuPDF 1.26.5，300 dpi；本机没有 pdftoppm",
+      "note": "原扫描 113 页不含这两页。补页不插入 PDF 86 与 87 之间，已有页序不变。PDF 与页面图像不入库。"
+    }
   },
   "page_map": {
     "1": {
@@ -465,6 +476,10 @@
     "113": {
       "left": null,
       "right": null
+    },
+    "114": {
+      "left": "152",
+      "right": "153"
     }
   },
   "printed_page_map": {
@@ -1616,6 +1631,20 @@
       {
         "pdf_page": 86,
         "printed_page": "151",
+        "side": "right"
+      }
+    ],
+    "152": [
+      {
+        "pdf_page": 114,
+        "printed_page": "152",
+        "side": "left"
+      }
+    ],
+    "153": [
+      {
+        "pdf_page": 114,
+        "printed_page": "153",
         "side": "right"
       }
     ],
@@ -8237,12 +8266,20 @@
       ]
     },
     "7.20": {
-      "pdf_page": null,
-      "printed_page": null,
+      "pdf_page": 114,
+      "printed_page": "152",
+      "side": "left",
       "section": "7.2",
-      "caption_de": null,
-      "status": "source_page_missing",
-      "note": "正文 S.148–149 提及；扫描件缺 S.152–153，不能恢复图或图注",
+      "caption_de": "Bild 7.20: Simulationsergebnisse für den Modellreaktor unter Variation des Feuchtegehalts des zugeführten Brennstoffs.",
+      "status": "indexed",
+      "caption_source": "page_image",
+      "label_bbox_pt": [
+        9.73,
+        495.76,
+        335.08,
+        512.46
+      ],
+      "note": "图注对照页面图像；文本层漏写 ü，且 7.20 被拆成单字符行",
       "mentioned_at": [
         {
           "pdf_page": 84,
@@ -8252,12 +8289,20 @@
       ]
     },
     "7.21": {
-      "pdf_page": null,
-      "printed_page": null,
+      "pdf_page": 114,
+      "printed_page": "153",
+      "side": "right",
       "section": "7.2",
-      "caption_de": null,
-      "status": "source_page_missing",
-      "note": "正文 S.148–149 提及；扫描件缺 S.152–153，不能恢复图或图注",
+      "caption_de": "Bild 7.21: Simulationsergebnisse für den Modellreaktor unter Variation der Aufteilung der zugeführten Luft in Primär- und Sekundärluft.",
+      "status": "indexed",
+      "caption_source": "page_image",
+      "label_bbox_pt": [
+        421.22,
+        500.84,
+        743.23,
+        516.57
+      ],
+      "note": "图注对照页面图像；文本层漏写 ü，且 7.20 被拆成单字符行",
       "mentioned_at": [
         {
           "pdf_page": 84,
@@ -18140,7 +18185,10 @@
   },
   "source_issues": [
     {
-      "kind": "missing_pages",
+      "kind": "supplement_scan",
+      "pdf_pages": [
+        114
+      ],
       "printed_pages": [
         "152",
         "153"
@@ -18149,7 +18197,8 @@
         "7.20",
         "7.21"
       ],
-      "evidence": "PDF 86 为 S.150–151，PDF 87 为 S.154–155；原文 S.148–149 提及两图"
+      "sha256": "d99d192003cd95e2382eace333eb3308a18703ea533c3f5e962b483fdfa3f8ac",
+      "evidence": "原扫描 PDF 86 为 S.150–151，PDF 87 为 S.154–155。补页单独编为 PDF 114，左 S.152、右 S.153。"
     },
     {
       "kind": "duplicate_scan",
@@ -18240,8 +18289,8 @@
       "equation_numbers": 0,
       "equation_occurrences": 0,
       "tables": 5,
-      "located_figures": 19,
-      "missing_figures": 2
+      "located_figures": 21,
+      "missing_figures": 0
     },
     "A": {
       "equation_numbers": 40,

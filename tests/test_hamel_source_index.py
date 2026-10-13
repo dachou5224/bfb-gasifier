@@ -72,21 +72,35 @@ class SourceIndexTests(unittest.TestCase):
             self.assertEqual(entry["additional_locations"][0]["printed_page"], "36")
             self.assertNotEqual(entry["section"], entry["additional_locations"][0]["section"])
 
-    def test_continuation_pages_and_absent_figures(self):
+    def test_continuation_pages_and_supplement_figures(self):
         for label, page, printed in [("7.10", 78, "137"), ("7.13", 80, "141")]:
             extra = self.index["figures"][label]["additional_locations"]
             self.assertIn((page, printed), [(v["pdf_page"], v["printed_page"]) for v in extra])
         self.assertEqual(self.index["tables"]["7.2"]["additional_locations"][0]["printed_page"], "134")
-        for label in ("7.20", "7.21"):
+        expected = {
+            "7.20": ("152", "left", "Feuchtegehalts"),
+            "7.21": ("153", "right", "Sekundärluft"),
+        }
+        for label, (printed, side, phrase) in expected.items():
             entry = self.index["figures"][label]
-            self.assertEqual(entry["status"], "source_page_missing")
-            self.assertIsNone(entry["pdf_page"])
-            self.assertIsNone(entry["caption_de"])
+            self.assertEqual(entry["status"], "indexed")
+            self.assertEqual((entry["pdf_page"], entry["printed_page"], entry["side"]),
+                             (114, printed, side))
+            self.assertEqual(entry["section"], "7.2")
+            self.assertIn(phrase, entry["caption_de"])
+            self.assertEqual(entry["caption_source"], "page_image")
+        self.assertEqual(self.index["page_map"]["114"], {"left": "152", "right": "153"})
+        self.assertEqual(self.index["printed_page_map"]["152"][0]["pdf_page"], 114)
+        self.assertEqual(self.index["printed_page_map"]["153"][0]["side"], "right")
+        self.assertEqual(self.index["coverage"]["7"]["located_figures"], 21)
+        self.assertEqual(self.index["coverage"]["7"]["missing_figures"], 0)
+        kinds = [item["kind"] for item in self.index["source_issues"]]
+        self.assertIn("supplement_scan", kinds)
+        self.assertNotIn("missing_pages", kinds)
 
     def test_duplicate_and_rotated_scan_page_map(self):
         self.assertEqual(self.index["page_map"]["84"], self.index["page_map"]["85"])
         self.assertEqual(len(self.index["printed_page_map"]["148"]), 2)
-        self.assertNotIn("152", self.index["printed_page_map"])
         self.assertEqual(self.index["page_map"]["98"], {"top": "176", "bottom": "177"})
 
     def test_author_matching_uses_whole_names(self):
