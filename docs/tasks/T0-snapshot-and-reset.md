@@ -18,8 +18,9 @@
 2. **备份仅本地文件**：`.gitignore` 中的 `*.pdf`、`docs/hamel_submodels/`、`docs/hamel_isomorphic_gap_implementation_checklist.md`、`specs/hamel_checked_algorithm_spec.md` 不会进入 git。将它们打包备份到仓库外（如 `~/bfb-gasifier-local-backup-2026-10-12.tar.gz`），记录文件清单与校验和。
 3. **快照提交**：从当前分支 `feat/nr-hamel-wirsum-core-startwert` 建 `archive/2026-10-12-snapshot`，`git add -A`（遵守 `.gitignore`）后提交，打 tag `archive-2026-10-12`。提交前列出大于 5 MB 的文件，请目标所有者确认。
 4. **推送远端**：经目标所有者确认后，推送快照分支和 tag。
-5. **主线重置**：从 `main` 建 `chore/charter-reset`：
-   - 删除旧代码与旧文档：`src/`、`tests/`、`scripts/`、`archive/`、`specs/`、`app.py`、`plan.md`、`status_report.md`、`GEMINI.md`、`docs/CLAUDE.md`、各 handoff、`docs/audit_reports/`、`.cursor/skills/bfb-*`、`.cursor/rules/*`，以及 `data/` 中除保留项以外的文件；
+5. **主线重置**：先 `git fetch`，从最新的 `origin/main` 建 `chore/charter-reset`（合并前若 main 有新提交，先并入并重新处理）：
+   - 删除规则以保留清单为准：除下列保留项和新增文件外，**全部删除**。典型包括 `src/`、`tests/`、`scripts/`、`archive/`、`specs/`、`app.py`、`plan.md`、`status_report.md`、`GEMINI.md`、`docs/CLAUDE.md`、各 handoff、`docs/audit_reports/`、`.cursor/skills/bfb-*`、`.cursor/rules/*`、`data/` 中的运行数据；
+   - 验收：最终合并树的文件清单与“保留项＋新增文件”完全一致；
    - 保留：`docs/blog/`、`docs/siegen_cell_model_lineage.md`、`data/validation_cases.json`、`data/hamel_fig7_parity_digitized.json`、`pyproject.toml`、`requirements.txt`、`.gitignore`；
    - 放入章程草稿的最终版本：`docs/CHARTER.md`、`docs/STATUS.md`、`docs/tasks/`，以及重写后的 `AGENTS.md`（简短入口＋原博客写作规则）和 `README.md`（说明正在重建，旧版见归档 tag）；
    - `.gitignore` 增加 `refs/hamel/pages/`。

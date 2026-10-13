@@ -33,7 +33,7 @@
 4. **工况标签核对**：建立 `data/digitized/case_id_map.json`，把图中的工况标签对应到 `data/validation_cases.json` 中的 `CASE_*`。已发现的疑点：
    - `hamel_fig7_parity_digitized.json` 中 `fig_7_17_wsv400` 的 A 为 T_FRB 1135 K、CO 0.172；而 `validation_cases.json` 的 `CASE_WSV400_A` 为 T_out 980 K、CO 0.152。可能是标签错配，也可能是温度定义不同（平均自由空间温度与出口温度），必须对照原图和表 7.4 裁定。
    - `fig_7_13_vtt_atmospheric` 有 A–E 五个工况，而 `validation_cases.json` 只收录了 D、E。
-   - 该文件中的 `case_id_map` 为空。
+   - 该文件已有 `case_id_map`（11 条：VTT 加压 1/6/13/14 → Bild 7.10；WSV400 A–F → Bild 7.17；VTT 常压 E → Bild 7.13；VTT 常压 D 未映射）。这些映射尚未经过核实，须逐项复核，不能直接作为已确认的对应关系；上面 WSV400 A 的数值矛盾就出现在已映射的条目上。复核结论写入新的 `data/digitized/case_id_map.json`，旧文件保持只读、原样不动。
 5. 新读数与旧文件（`hamel_fig7_parity_digitized.json`、`validation_cases.json` 中的 `axial_profiles`）逐点比较，偏差超过估计误差的点复读并说明原因。
 
 ## 范围外
