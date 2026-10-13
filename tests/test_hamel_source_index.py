@@ -50,6 +50,20 @@ class SourceIndexTests(unittest.TestCase):
                 self.assertEqual((entry["pdf_page"], entry["printed_page"], entry["side"]),
                                  (pdf_page, printed, side))
 
+    def test_label_bbox_is_in_page_image_frame(self):
+        # Eq. 2.1（PDF 17 右半页）：pdfplumber 原坐标 x0=491.7、top=325.21 pt，页 bbox 原点 (25.1, -28.3)，
+        # 平移到图像坐标后为 (466.6, 353.5)；300 dpi 原图上该公式行目视位于约 1440–1520 px。
+        x0, y0, _, _ = self.index["equations"]["2.1"]["label_bbox_pt"]
+        self.assertAlmostEqual(x0, 466.6, delta=0.5)
+        self.assertAlmostEqual(y0, 353.5, delta=0.5)
+        self.assertTrue(1440 < y0 * 300 / 72 < 1520)
+        for kind in ("equations", "tables", "figures"):
+            for label, entry in self.index[kind].items():
+                if isinstance(entry, dict) and entry.get("label_bbox_pt"):
+                    with self.subTest(kind=kind, label=label):
+                        bx0, by0, bx1, by1 = entry["label_bbox_pt"]
+                        self.assertTrue(0 <= bx0 < bx1 and 0 <= by0 < by1 <= 560)
+
     def test_repeated_equation_numbers_do_not_hide_second_formula(self):
         for label in ("3.49", "3.50"):
             entry = self.index["equations"][label]
