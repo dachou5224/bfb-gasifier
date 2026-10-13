@@ -533,10 +533,10 @@ def build_index(pages, pdf):
                         "pdf_page_count": len(pages), "pdf_page_numbering": "1-based",
                         "render_dpi": 300, "local_pages": "refs/hamel/pages/NNN.png, NNN.txt",
                         "page_map_schema": "常规扫描页映射 left/right；PDF 98–103 为 top/bottom；null 表示无印刷页码；重复页在 reverse map 保留全部位置",
-                        "coordinates": "label_bbox_pt 为 pdfplumber 的 PDF point 坐标，基于原页 bbox（可能非零起点）",
+                        "coordinates": "label_bbox_pt、heading_y、line_y 为相对页面图像左上角的 point 坐标（已减去 pdfplumber 页 bbox 原点）；像素 = pt × render_dpi / 72",
                         "index_scope": "方程定位清单覆盖第2–6章和附录A1，第1/7/8章无带编号方程；全书小节、可提取图表和参考文献同时建立导航",
                         "short_form_policy": "只有少量目视核对的短式；空串表示未转录，绝不使用 OCR 公式作为科学依据",
-                        "acceptance_status": "pending_commander_review_and_missing_source_pages"},
+                        "acceptance_status": "总司令抽查 20/20 通过（2026-10-13）；源缺页 S.152–153（§7.2 参数研究，非验证工况）已裁定接受"},
              "page_map": page_map, "printed_page_map": reverse, "equations": equations,
              "tables": captions["tables"], "figures": captions["figures"],
              "sections": sections, "cited_references": references,
@@ -547,7 +547,6 @@ def build_index(pages, pdf):
                  {"kind": "duplicate_equation_numbers", "numbers": ["3.49", "3.50"], "printed_pages": ["35", "36"]},
                  {"kind": "duplicate_table_numbers", "locations": {"5.1": ["74", "79"], "A.2.1.2": ["169", "170"]},
                   "note": "原书同号的不同表；索引保留所有位置，不自行重编号"},
-                 {"kind": "chapter_navigation", "note": "原文第4章为干燥与热解，第5章为化学反应；T4 卡标题所称第4章动力学需总司令确认"},
                  {"kind": "rotated_scans", "pdf_pages": list(range(98, 104)),
                   "note": "附录试验曲线页有90度旋转，PDF显示为上下双页，使用top/bottom定位；全文保持原文本层"}]}
     index["coverage"] = {}
@@ -560,6 +559,33 @@ def build_index(pages, pdf):
             "tables": sum(k.startswith(chapter + ".") for k in captions["tables"]),
             "located_figures": sum(v["status"] == "indexed" for v in figs),
             "missing_figures": sum(v["status"] != "indexed" for v in figs)}
+    return index
+
+
+def to_image_coords(index, pages):
+    """把 pdfplumber 坐标平移到页面图像坐标系：减去各页 bbox 的左上角原点。"""
+    origin = {page["pdf_page"]: (page["bbox"][0], page["bbox"][1]) for page in pages}
+
+    def walk(node):
+        if isinstance(node, list):
+            for item in node:
+                walk(item)
+            return
+        if not isinstance(node, dict):
+            return
+        number = node.get("pdf_page", node.get("pdf_page_start"))
+        if number in origin:
+            ox, oy = origin[number]
+            if node.get("label_bbox_pt"):
+                x0, y0, x1, y1 = node["label_bbox_pt"]
+                node["label_bbox_pt"] = [round(x0 - ox, 2), round(y0 - oy, 2), round(x1 - ox, 2), round(y1 - oy, 2)]
+            for key in ("heading_y", "line_y"):
+                if node.get(key) is not None:
+                    node[key] = round(node[key] - oy, 2)
+        for value in node.values():
+            walk(value)
+
+    walk(index)
     return index
 
 
@@ -606,11 +632,11 @@ def main():
         raise ValueError("PDF 页数不符")
     if not args.skip_render:
         render(args.pdf, pages_dir, len(pages))
-    index = build_index(pages, args.pdf)
+    index = to_image_coords(build_index(pages, args.pdf), pages)
     validate(index)
     write_json(args.output / "index.json", index)
     print(json.dumps(index["coverage"], ensure_ascii=False, indent=2))
-    print("原 PDF 缺 S.152–153：索引保存缺口，不宣称 T2 完整验收通过。")
+    print("原 PDF 缺 S.152–153（§7.2，非验证工况）：缺口已记录并经总司令裁定接受。")
 
 
 if __name__ == "__main__":
