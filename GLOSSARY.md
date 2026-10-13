@@ -50,6 +50,21 @@ _Avoid_：自由板、freeboard 段
 代码名：`size_class`
 _Avoid_：bin、档（用于正式命名时）
 
+**Feststoffmassenstrombilanz（固体质量流衡算）**：
+Eq. 2.6 的名称：对每个固体种类 j、粒级 k、cell i 列写的质量流平衡，各项都是质量流（kg/s）。PDF 17 / S. 14–15（Bild 2.2 流程图），PDF 18–19 / S. 17–18。
+代码名：`solid_mass_flow_balance`
+_Avoid_：库存方程、holdup 方程
+
+**Feststoffinventar（床料存量）**：
+床层中的固体总量。其组成与粒径分布（或平均粒径）作为输入给定；床层高度也作为输入参数，因为实际运行中床高通过压差测量保持恒定。PDF 16 / S. 12（输入参数表）。
+代码名：`bed_inventory`
+_Avoid_：holdup（指床料总量时）
+
+**cell 内固体质量（库存）**：
+cell i 中固体种类 j、粒级 k 的质量（kg），归档代码记作 M 或 holdup，并假定流出流与之成正比（ṁ = K·M）。**待核实**：原文中尚未找到该量的叫法，也未确认它是否为衡算变量，还是 Eq. 2.6 只以质量流为变量、由流动模型给出各流项；见 `docs/adr/CANDIDATES.md` C2、C3。核实前暂用下列代码名，核实后按原文更名。
+代码名（暂定）：`solid_mass_in_cell`
+_Avoid_：holdup、M（作为标识符时）
+
 **ṁ_auf / ṁ_ab（上行／下行固体流）**：
 cell i 中颗粒类 (j, k) 向上、向下流出的质量流，相邻 cell 之间的固体返混由它们描述（Eq. 2.6）。PDF 19 / S. 18。
 代码名：`m_up`、`m_down`
