@@ -1,6 +1,6 @@
 # 项目章程（CHARTER）
 
-版本：v0.1 · 2026-10-12 起草，2026-10-13 批准 · 目标所有者：项目负责人（用户）
+版本：v0.2 · 2026-10-12 起草，2026-10-13 批准 v0.1；v0.2 修正 §6.1 章节号 · 目标所有者：项目负责人（用户）
 
 本章程是所有 agent 开工前必读的唯一权威文件。只有目标所有者可以修改本章程和验收判据。与本章程冲突的任何文档、注释、交接记录和 skill 一律以本章程为准。
 
@@ -73,16 +73,16 @@
 
 | 模块 | 内容 | 论文 |
 |---|---|---|
-| `hamel/properties/` | 物性、组分、焓 | 附录及相关章节 |
-| `hamel/hydrodynamics/` | u_mf、气泡、相含率、相间交换、自由空间流动 | 第 3 章 |
-| `hamel/kinetics/` | 异相与均相反应速率 | 第 4 章 |
-| `hamel/pyrolysis/` | 干燥、热解产率与元素分配 | 第 4 章相关节 |
-| `hamel/balances/` | cell 物料与能量衡算 | 第 2 章 |
-| `hamel/freeboard/` | 自由空间 | 相关章节 |
-| `hamel/solver/` | Vorabrechnung＋Newton–Raphson | 相关章节 |
+| `hamel/properties/` | 物性、组分、焓、气相化学平衡 | 附录 A1 及相关章节 |
+| `hamel/hydrodynamics/` | u_mf、气泡、相含率、相间交换 | 第 3.1 节 |
+| `hamel/freeboard/` | 床面固体抛出、颗粒与气体在自由空间的运动 | 第 3.2 节 |
+| `hamel/pyrolysis/` | 干燥、热解产率与热解气组成 | 第 4 章 |
+| `hamel/kinetics/` | 异相（R1–R4）与均相（R5–R11）反应速率 | 第 5 章 |
+| `hamel/balances/` | cell 物料与能量衡算 | 第 2.2 节 |
+| `hamel/solver/` | Vorabrechnung、对齐迭代、阻尼 Newton–Raphson | 第 2.1、2.3 节 |
 | `hamel/cases/` | 工况装配与对标 | 第 7 章 |
 
-（章节号以 T2 索引为准，由 T4 及后续审计修正。）
+（章节号依据原文目录（PDF 4–5），2026-10-13 修正；以 T2 索引为准。）
 
 ### 6.2 规模与配置
 
