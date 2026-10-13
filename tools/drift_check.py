@@ -11,13 +11,17 @@
 - ``hamel/`` 下非测试 Python 相对共同祖先的净增行数超过 800（CHARTER §9）。
   未提交改动计入，避免超限代码只留在工作树里。
 - ``hamel/`` 非测试 Python 的当前总行数超过 8000（CHARTER §6.2）。
-- 新增配置字段在正式 ADR 的文件名或正文中找不到同名标识。字段只从
-  ``hamel/**/config.py`` 读取：模块级字面量字典 ``PHYSICAL`` / ``PHYSICAL_CONFIG``、
-  ``SOLVER`` / ``SOLVER_CONFIG``，以及类 ``PhysicalConfig``、``SolverConfig`` 的公开字段。
-  求解器字段单独计数，不计入物理参数 30 项上限。``docs/adr/NNNN-*.md`` 才算 ADR，
-  ``CANDIDATES.md`` 不算。
-- 相对基准新出现的路径组件匹配 ``_v<数字>``、``_r<数字>_r<数字>``、``_stage<数字>``。
+- 新增配置字段没有出处。字段只从 ``hamel/**/config.py`` 读取：模块级字面量字典
+  ``PHYSICAL`` / ``PHYSICAL_CONFIG``、``SOLVER`` / ``SOLVER_CONFIG``，以及类
+  ``PhysicalConfig``、``SolverConfig`` 的公开字段。求解器字段必须在正式 ADR
+  （``docs/adr/NNNN-*.md``，不含 ``CANDIDATES.md``）里按完整标识符出现。物理字段
+  同样可以靠 ADR；也可以靠 ``data/cases/*.json`` 里的同名键豁免，但该键的
+  ``status`` 须为 ``source`` 或 ``derived``，``source`` 含 ``S. <数字>``，
+  ``derived`` 还要有非空 ``formula``（CHARTER v0.6 §9）。
+- 相对共同祖先新出现的路径组件匹配 ``_v<数字>``、``_r<数字>_r<数字>``、``_stage<数字>``。
 - ``docs/STATUS.md`` 工况指标表的最近更新日期距检查日已满 14 天。
+- ``.claude/skills/<名称>/SKILL.md`` 与 ``.cursor/skills/<名称>/SKILL.md`` 内容不一致，
+  或只存在于其中一边。两边都没有则不检查。
 
 退出码：0 未触发，1 触发，2 无法检查（不是 git 工作树、基准不存在、日期无效）。
 """
@@ -46,6 +50,8 @@ STALE_DAYS = 14
 # 阶段后缀写在文件名或目录名里，不要求位于字符串末尾。
 _STAGE_SUFFIX = re.compile(r"_v\d+|_r\d+_r\d+|_stage\d+")
 _DATE = re.compile(r"(\d{4})-(\d{2})-(\d{2})")
+# T7：印刷页码写成 “S. 143”；允许 S. 与数字之间有空白。
+_PRINTED_PAGE = re.compile(r"S\.\s*\d+")
 _GROUP_NAMES = {
     "PHYSICAL": "physical",
     "PHYSICAL_CONFIG": "physical",
@@ -90,6 +96,7 @@ class Report:
     removed_solver: list[str]
     unregistered_fields: list[str]
     stage_files: list[str]
+    skill_mismatches: list[str]
     config_errors: list[str]
     metrics_date: str | None
     metrics_age_days: int | None
@@ -114,6 +121,7 @@ class Report:
             "removed_solver": self.removed_solver,
             "unregistered_fields": self.unregistered_fields,
             "stage_files": self.stage_files,
+            "skill_mismatches": self.skill_mismatches,
             "config_errors": self.config_errors,
             "metrics_date": self.metrics_date,
             "metrics_age_days": self.metrics_age_days,
@@ -533,6 +541,57 @@ def _config_sides(root: Path, base: str) -> tuple[set[str], set[str], set[str], 
     return base_physical, work_physical, base_solver, work_solver, errors + base_errors + work_errors
 
 
+def case_field_qualifies(obj: dict) -> bool:
+    """CHARTER v0.6 §9：带来源页码的物理输入可以不另写 ADR。"""
+    status = obj.get("status")
+    if status not in {"source", "derived"}:
+        return False
+    source = obj.get("source")
+    if not isinstance(source, str) or _PRINTED_PAGE.search(source) is None:
+        return False
+    if status == "derived":
+        formula = obj.get("formula")
+        if not isinstance(formula, str) or not formula.strip():
+            return False
+    return True
+
+
+def _walk_case_fields(node: object, found: dict[str, list[dict]]) -> None:
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if isinstance(value, dict) and "status" in value:
+                found.setdefault(str(key), []).append(value)
+            _walk_case_fields(value, found)
+    elif isinstance(node, list):
+        for item in node:
+            _walk_case_fields(item, found)
+
+
+def case_exemptions(root: Path) -> tuple[set[str], list[str]]:
+    """返回可豁免的物理字段名，以及读不了的工况文件。同名键必须全部合格。"""
+    folder = root / "data" / "cases"
+    if not folder.is_dir():
+        return set(), []
+    found: dict[str, list[dict]] = {}
+    errors: list[str] = []
+    for path in sorted(folder.glob("*.json")):
+        if path.is_symlink() or not path.is_file():
+            continue
+        relative = path.relative_to(root).as_posix()
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            errors.append(f"{relative}：无法读取工况字段（{exc.__class__.__name__}）")
+            continue
+        _walk_case_fields(payload, found)
+    exempt = {
+        name
+        for name, objects in found.items()
+        if objects and all(case_field_qualifies(obj) for obj in objects)
+    }
+    return exempt, errors
+
+
 def field_in_adr(name: str, corpus: str) -> bool:
     """字段名按标识符整体匹配，避免 damping 命中 newton_damping。"""
     return re.search(rf"(?<![A-Za-z0-9_]){re.escape(name)}(?![A-Za-z0-9_])", corpus) is not None
@@ -547,6 +606,34 @@ def _adr_corpus(root: Path) -> str:
         chunks.append(path.name)
         chunks.append(path.read_text(encoding="utf-8", errors="replace"))
     return "\n".join(chunks)
+
+
+def skill_mismatches(root: Path) -> list[str]:
+    """同名 SKILL.md 须在 .claude 与 .cursor 两边内容一致。两边都没有则不检查。"""
+    roots = {
+        ".claude/skills": root / ".claude" / "skills",
+        ".cursor/skills": root / ".cursor" / "skills",
+    }
+    names: set[str] = set()
+    for folder in roots.values():
+        if not folder.is_dir():
+            continue
+        for child in folder.iterdir():
+            if (child / "SKILL.md").is_file():
+                names.add(child.name)
+    problems: list[str] = []
+    for name in sorted(names):
+        left = roots[".claude/skills"] / name / "SKILL.md"
+        right = roots[".cursor/skills"] / name / "SKILL.md"
+        has_left = left.is_file()
+        has_right = right.is_file()
+        if has_left and not has_right:
+            problems.append(f"{name}：仅有 .claude/skills")
+        elif has_right and not has_left:
+            problems.append(f"{name}：仅有 .cursor/skills")
+        elif left.read_bytes() != right.read_bytes():
+            problems.append(f"{name}：内容不一致")
+    return problems
 
 
 def has_stage_suffix(path: str) -> bool:
@@ -679,6 +766,12 @@ def _stage_text(report: Report) -> str:
     return "新文件名呈阶段后缀：" + "、".join(report.stage_files)
 
 
+def _skill_text(report: Report) -> str:
+    if not report.skill_mismatches:
+        return "skill 副本一致，或两边都没有"
+    return "skill 副本不一致：" + "、".join(report.skill_mismatches)
+
+
 def _metrics_text(report: Report) -> str:
     if report.metrics_date is None:
         return "工况指标表缺少可读取的更新日期"
@@ -718,6 +811,7 @@ def format_text(report: Report) -> str:
         _mark(_hamel_text(report), "hamel_lines" in triggered),
         *config_lines,
         _mark(_stage_text(report), "stage_suffix" in triggered),
+        _mark(_skill_text(report), "skill_mismatch" in triggered),
         _mark(_metrics_text(report), metric_triggered),
         "",
         (
@@ -744,10 +838,16 @@ def check(root: Path, base: str, today: date) -> Report:
     added_solver = sorted(work_solver - base_solver)
     removed_solver = sorted(base_solver - work_solver)
     corpus = _adr_corpus(root)
+    exempt, case_errors = case_exemptions(root)
+    config_errors = [*config_errors, *case_errors]
     unregistered = sorted(
-        name for name in set(added_physical) | set(added_solver) if not field_in_adr(name, corpus)
-    )
+        name
+        for name in added_physical
+        if not field_in_adr(name, corpus) and name not in exempt
+    ) + sorted(name for name in added_solver if not field_in_adr(name, corpus))
+    unregistered = sorted(set(unregistered))
     stage_files = sorted(path for path in _new_paths(root, compared) if has_stage_suffix(path))
+    mismatched_skills = skill_mismatches(root)
     metrics_date, metrics_age = _metrics(root, today)
 
     signals: list[Signal] = []
@@ -772,6 +872,8 @@ def check(root: Path, base: str, today: date) -> Report:
         signals.append(Signal("config_unreadable", "无法读取配置字段：" + "；".join(config_errors)))
     if stage_files:
         signals.append(Signal("stage_suffix", "新文件名呈阶段后缀：" + "、".join(stage_files)))
+    if mismatched_skills:
+        signals.append(Signal("skill_mismatch", "skill 副本不一致：" + "、".join(mismatched_skills)))
     if metrics_date is None:
         signals.append(Signal("metrics_missing", "工况指标表缺少可读取的更新日期"))
     elif metrics_age is not None and metrics_age >= STALE_DAYS:
@@ -801,6 +903,7 @@ def check(root: Path, base: str, today: date) -> Report:
         removed_solver=removed_solver,
         unregistered_fields=unregistered,
         stage_files=stage_files,
+        skill_mismatches=mismatched_skills,
         config_errors=config_errors,
         metrics_date=None if metrics_date is None else metrics_date.isoformat(),
         metrics_age_days=metrics_age,

@@ -160,6 +160,14 @@ class DriftRepoTests(unittest.TestCase):
     def check(self, today: date = TODAY):
         return drift_check.check(self.root, "main", today)
 
+    def add_case_field(self, name: str, field: dict, *, solver: bool = False):
+        self.branch()
+        group = "SOLVER" if solver else "PHYSICAL"
+        self.write("hamel/config.py", f'{group} = {{"{name}": 1}}\n')
+        self.write("data/cases/wsv400.json", json.dumps({name: field}, ensure_ascii=False))
+        self.commit("case field")
+        return self.check()
+
     def test_clean_tree_has_no_signals(self):
         report = self.check()
         self.assertEqual(signal_codes(report), [])
@@ -423,6 +431,91 @@ class DriftRepoTests(unittest.TestCase):
         report = self.check()
         self.assertEqual(report.metrics_age_days, 13)
         self.assertEqual(signal_codes(report), [])
+
+    def test_sourced_physical_field_does_not_need_adr(self):
+        report = self.add_case_field("bed_diameter_m", {
+            "value": 0.4, "unit": "m", "source": "表 7.4, S. 143", "status": "source",
+        })
+        self.assertEqual(signal_codes(report), [])
+
+    def test_source_without_page_still_needs_adr(self):
+        report = self.add_case_field("bed_diameter_m", {
+            "value": 0.4, "unit": "m", "source": "表 7.4", "status": "source",
+        })
+        self.assertEqual(report.unregistered_fields, ["bed_diameter_m"])
+
+    def test_placeholder_source_still_needs_adr(self):
+        report = self.add_case_field("bed_diameter_m", {
+            "value": None, "source": "待补", "status": "source",
+        })
+        self.assertEqual(report.unregistered_fields, ["bed_diameter_m"])
+
+    def test_derived_without_formula_still_needs_adr(self):
+        report = self.add_case_field("fuel_hhv", {
+            "value": 1, "source": "表 7.4, S. 143", "status": "derived",
+        })
+        self.assertEqual(report.unregistered_fields, ["fuel_hhv"])
+
+    def test_blank_formula_still_needs_adr(self):
+        report = self.add_case_field("fuel_hhv", {
+            "value": 1, "source": "表 7.4, S. 143", "status": "derived", "formula": "  ",
+        })
+        self.assertEqual(report.unregistered_fields, ["fuel_hhv"])
+
+    def test_derived_with_page_and_formula_is_exempt(self):
+        report = self.add_case_field("fuel_hhv", {
+            "value": 1, "source": "表 7.4, S. 143", "status": "derived", "formula": "Q = V / 22.4",
+        })
+        self.assertEqual(signal_codes(report), [])
+
+    def test_missing_status_still_needs_adr(self):
+        report = self.add_case_field("bed_height_m", {
+            "value": None, "source": "查过 S. 142", "status": "missing",
+        })
+        self.assertEqual(report.unregistered_fields, ["bed_height_m"])
+
+    def test_mixed_case_copies_do_not_exempt(self):
+        self.branch()
+        self.write("hamel/config.py", 'PHYSICAL = {"bed_diameter_m": 0.4}\n')
+        self.write("data/cases/wsv400.json", json.dumps({
+            "shared": {"bed_diameter_m": {"value": 0.4, "source": "表 7.4, S. 143", "status": "source"}},
+            "A": {"bed_diameter_m": {"value": None, "source": "待补", "status": "missing"}},
+        }, ensure_ascii=False))
+        self.commit("mixed")
+        report = self.check()
+        self.assertEqual(report.unregistered_fields, ["bed_diameter_m"])
+
+    def test_solver_field_is_not_exempted_by_case_file(self):
+        report = self.add_case_field("bed_diameter_m", {
+            "value": 0.4, "source": "表 7.4, S. 143", "status": "source",
+        }, solver=True)
+        self.assertEqual(report.unregistered_fields, ["bed_diameter_m"])
+        self.assertEqual(signal_codes(report), ["config_without_adr"])
+
+    def test_identical_skill_copies_are_quiet(self):
+        self.write(".claude/skills/hamel-source-check/SKILL.md", "同样\n")
+        self.write(".cursor/skills/hamel-source-check/SKILL.md", "同样\n")
+        self.commit("skills")
+        self.assertEqual(signal_codes(self.check()), [])
+
+    def test_skill_content_mismatch(self):
+        self.write(".claude/skills/hamel-source-check/SKILL.md", "甲\n")
+        self.write(".cursor/skills/hamel-source-check/SKILL.md", "乙\n")
+        self.commit("mismatch")
+        report = self.check()
+        self.assertEqual(signal_codes(report), ["skill_mismatch"])
+        self.assertIn("hamel-source-check：内容不一致", drift_check.format_text(report))
+
+    def test_skill_present_on_only_one_side(self):
+        self.write(".claude/skills/hamel-source-check/SKILL.md", "甲\n")
+        self.commit("claude only")
+        report = self.check()
+        self.assertEqual(report.skill_mismatches, ["hamel-source-check：仅有 .claude/skills"])
+        self.write(".cursor/skills/other/SKILL.md", "乙\n")
+        (self.root / ".claude/skills/hamel-source-check/SKILL.md").unlink()
+        self.commit("cursor only")
+        report = self.check()
+        self.assertEqual(report.skill_mismatches, ["other：仅有 .cursor/skills"])
 
     def test_missing_metrics_table(self):
         self.branch()
