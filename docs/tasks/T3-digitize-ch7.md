@@ -27,21 +27,34 @@
    - 该文件已有 `case_id_map`（11 条：VTT 加压 1/6/13/14 → Bild 7.10；WSV400 A–F → Bild 7.17；VTT 常压 E → Bild 7.13；VTT 常压 D 未映射）。这些映射尚未经过核实，须逐项复核，不能直接作为已确认的对应关系；上面 WSV400 A 的数值矛盾就出现在已映射的条目上。复核结论写入新的 `data/digitized/case_id_map.json`，旧文件保持只读、原样不动。
 5. **新旧比较**：出口值新读数与 `hamel_fig7_parity_digitized.json` 逐点比较，偏差超过估计误差的点复读并说明原因。
 
-每张图输出一个文件 `data/digitized/fig_X_Y.json`，每个序列必须包含：
+每张图输出一个文件 `data/digitized/fig_X_Y.json`，按图的类型使用下面两种格式之一（总司令 2026-10-14 裁定）。两种格式的公共字段：`figure`、`pdf_page`、`printed_page`、`side`、`caption_de`、`read_date`、`tool`、`est_error`，以及可复算的标定记录 `calibration`（见下）。
+
+**parity 图（按工况汇总）**：
 
 ```json
 {
-  "figure": "7.17", "pdf_page": 0, "printed_page": "",
-  "case_label_in_figure": "", "case_id": "CASE_...",
-  "series": [
-    {"kind": "sim | meas", "variable": "CO", "basis": "wet | dry", "unit": "mol/mol",
-     "quantity_definition": "出口 | 平均自由空间 | …",
-     "points": [[0.0, 0.0]], "tool": "WebPlotDigitizer 4.x", "est_error": ""}
-  ]
+  "figure": "7.17", "pdf_page": 83, "printed_page": "146", "side": "left",
+  "tool": "…", "est_error": {"T_FRB_K": 8, "CO": 0.008, "CH4": 0.004},
+  "basis_gas": "dry",
+  "units": {"T_FRB_K": "K", "CO": "mol/mol", "CO2": "mol/mol", "H2": "mol/mol", "CH4": "mol/mol"},
+  "quantity_definition": {"T_FRB_K": "平均自由空间温度", "CO": "出口"},
+  "points_format": "[实验值（x，Messung）, 模拟值（y，Sim.）]",
+  "cases": [
+    {"case_label_in_figure": "A", "case_id": "CASE_WSV400_A",
+     "T_FRB_K": [1066, 1048], "CO": [0.172, 0.169]}
+  ],
+  "not_in_source": ["H2O", "X_C"],
+  "calibration": {"…": "见下"}
 }
 ```
 
-parity 图的 `points` 为 `[实验值, 模拟值]` 对，并在 `x_axis`/`y_axis` 字段中注明哪一轴是 Messung、哪一轴是 Simulation。
+- 每个量都是 `[实验值, 模拟值]` 一对；未读的一侧写 `null`。
+- `units` 必须写明每个量的单位，不能让读者从字段名去猜。
+- `est_error` 写成按量给出的数值（与 `units` 同单位），供验收时判断“边界待定”（CHARTER §2.2）。
+
+**轴向剖面图（逐序列）**：沿用 `series` 格式，每个序列含 `kind`（`sim` / `meas`）、`variable`、`basis`、`unit`、`quantity_definition`、`points`（`[ξ, 值]`）。
+
+**标定记录 `calibration`（两种格式都必须有）**：写明渲染方式（工具、分辨率或缩放、裁剪原点），用于标定的网格线像素位置及其对应的坐标值，以及每个读数点所取的像素坐标（例如方框四边描边中线的中点）。任何人都能据此复算读数。若用脚本读数，脚本提交到 `tools/`（按 CHARTER §8 由 codex 审查）。
 
 ## 暂缓项与触发条件
 

@@ -25,7 +25,8 @@ description: 在本仓库中做任何涉及 Hamel 论文方程、常数、表格
    - `source_issues`：重复式号（3.49、3.50）、重复表号（5.1、A.2.1.2）等。引用这些编号时必须带页码。
    - `cited_references`：Hamel 的参考文献，以及它们在正文中被引用的位置候选。这里的引用位置只是导航线索，不能自动当作某个方程的依据。
 2. **页面图像**：`refs/hamel/pages/NNN.png`（300 dpi，NNN 为三位补零的 PDF 页序），仅本地保留，不入库。
-   - 本地没有时，用 `python3 tools/build_hamel_corpus.py "<PDF 路径>"` 生成（需要 `pdfplumber`、`pypdf` 和 Poppler 的 `pdftoppm`）；PDF 在主工作目录的 `docs/` 下。
+   - 主工作目录 `bfb-gasifier/refs/hamel/pages/` 下已有一份完整的图像和文本（113 页）。在其它 worktree 工作时，建立符号链接即可：`mkdir -p refs/hamel && ln -s /Users/liuzhen/AI-projects/bfb-gasifier/refs/hamel/pages refs/hamel/pages`。
+   - 只有在主目录也没有时，才用 `python3 tools/build_hamel_corpus.py "<PDF 路径>"` 重新生成（需要 `pdfplumber`、`pypdf` 和 Poppler 的 `pdftoppm`；本机目前没有安装 `pdftoppm`）；PDF 在主工作目录的 `docs/` 下。
    - 裁图：`label_bbox_pt` 是相对页面图像左上角的 point 坐标，像素 = pt × 300/72。有 24 条方程（`locator: page_image`）没有坐标框，须打开整页查找。
 3. **逐页文本** `refs/hamel/pages/NNN.txt` 是 OCR 文本层，**只能用来检索定位**。公式、数值、上下标、指数一律以页面图像为准：OCR 常把 `O₂` 识别成 `O9`，把指数和分式弄乱。
 
