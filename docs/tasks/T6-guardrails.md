@@ -30,7 +30,11 @@
 3. **偏离检查脚本** `tools/drift_check.py`（cursor），输出章程 §9 的各项信号：
    - 工作树是否干净；
    - 本卡相对共同祖先（`git merge-base <基准> HEAD`）的 `hamel/` 净增行数，以及 `hamel/` 总行数是否超过上限；新文件名与新增配置字段同样以共同祖先为比较基点；
-   - 配置字段数量的变化，以及新增字段是否有出处：求解器字段须在正式 ADR（`docs/adr/NNNN-*.md`）中按完整标识符出现；物理字段在正式 ADR 中出现，**或者**是 `data/cases/*.json` 中某个字段的键名，且该字段 `status` 为 `source` 或 `derived`、`source` 非空（CHARTER v0.6 §9 例外）。`status` 为 `missing` 或缺少 `source` 的同名字段不算出处；
+   - 配置字段数量的变化，以及新增字段是否有出处：求解器字段须在正式 ADR（`docs/adr/NNNN-*.md`）中按完整标识符出现；物理字段在正式 ADR 中出现，**或者**满足 CHARTER v0.6 §9 的例外：是 `data/cases/*.json` 中某个字段的键名，且该字段同时满足——
+     - `status` 为 `source` 或 `derived`；
+     - `source` 中含可识别的印刷页码 `S. <数字>`（格式见 T7 任务卡）；
+     - `status` 为 `derived` 时，`formula` 非空。
+     不满足任一条件（如 `status=missing`、`source` 为“待补”等占位文字或无页码、`derived` 缺 `formula`）即不享受例外，仍须正式 ADR；
    - 新文件名是否匹配阶段后缀模式（`_v\d+`、`_r\d+_r\d+`、`_stage\d+` 等）；
    - `docs/STATUS.md` 中工况指标表最近一次变化的日期；
    - skill 副本一致性（2026-10-14 增补）：`.claude/skills/<名称>/SKILL.md` 与 `.cursor/skills/<名称>/SKILL.md` 内容不一致时触发；只存在于其中一边时也触发；两边都没有则不检查。
@@ -48,6 +52,7 @@
 ## 验收证据
 
 - 用构造的违规样例（缺引用、假式号、阶段后缀文件名、未登记的配置字段）各触发一次，脚本都能报出。
+- 配置出处的例外判定，正反样例各至少一个：`source` 无页码、`source` 为占位文字、`derived` 缺 `formula`、`status=missing`，均须报出；`source` 带 `S. <数字>` 的 `source` 字段，以及带页码且有 `formula` 的 `derived` 字段，可以豁免；与输入文件同名的**求解器**字段仍须报出。
 
 ## 停止条件
 
