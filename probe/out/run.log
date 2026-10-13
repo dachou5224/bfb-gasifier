@@ -1,0 +1,21 @@
+python=/Users/liuzhen/AI-projects/bfb-gasifier/.venv/bin/python
+hashseed=0
+=== START thesis_default 2026-10-13T05:54:48Z ===
+[probe] setting=thesis_default building Reactor
+[probe] cells=12 equations=452 O2=1.302853e-01 H2O=0.000000e+00 N2=4.901210e-01 mol/s
+[probe] solve start
+[probe] wrote /Users/liuzhen/AI-projects/bfb-T1/probe/out/thesis_default.json status=SOLVED elapsed=255.3s
+=== END thesis_default exit=0 2026-10-13T05:59:04Z ===
+=== START freeboard_n4 2026-10-13T05:59:04Z ===
+[probe] setting=freeboard_n4 building Reactor
+[probe] cells=16 equations=496 O2=1.302853e-01 H2O=0.000000e+00 N2=4.901210e-01 mol/s
+[probe] solve start
+[probe] wrote /Users/liuzhen/AI-projects/bfb-T1/probe/out/freeboard_n4.json status=SOLVED elapsed=335.7s
+=== END freeboard_n4 exit=0 2026-10-13T06:04:41Z ===
+=== START seed_budget_progress 2026-10-13T06:04:41Z ===
+[probe] setting=seed_budget_progress building Reactor
+[probe] cells=12 equations=452 O2=1.302853e-01 H2O=0.000000e+00 N2=4.901210e-01 mol/s
+[probe] solve start
+[probe] wrote /Users/liuzhen/AI-projects/bfb-T1/probe/out/seed_budget_progress.json status=SOLVED elapsed=307.7s
+=== END seed_budget_progress exit=0 2026-10-13T06:09:50Z ===
+DONE

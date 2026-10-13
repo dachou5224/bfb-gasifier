@@ -1,0 +1,1043 @@
+{
+  "status": "SOLVED",
+  "error": null,
+  "elapsed_s": 255.306929958,
+  "timeout_s": 420,
+  "setting": "thesis_default",
+  "meta": {
+    "case_id": "CASE_WSV400_A",
+    "shared_id": "_WSV400_SHARED",
+    "setting": "thesis_default",
+    "setting_note": "thesis_mode=True，求解开关与温度种子保持 ReactorConfig 类默认值；max_global_iter=20，即 Reactor.solve 的默认参数。n_freeboard_cells 保持 0，自由空间高度写入但不进入方程图。",
+    "setting_overrides": {},
+    "mapping": [
+      {
+        "config_field": "thesis_mode",
+        "value": true,
+        "source": "任务卡：现有论文模式",
+        "status": "task",
+        "note": "打开后由 ReactorConfig.__post_init__ 套论文模式默认，本探针不再改那些开关。"
+      },
+      {
+        "config_field": "fuel_feed",
+        "value": 0.00977777777777778,
+        "source": "CASE_WSV400_A.inputs.fuel.feed_rate_kg_h = 35.2",
+        "status": "tabulated",
+        "note": "35.2 kg/h ÷ 3600 → kg/s。"
+      },
+      {
+        "config_field": "moisture_wt",
+        "value": 27.3,
+        "source": "CASE_WSV400_A.inputs.fuel.proximate_analysis.moisture_wt_pct",
+        "status": "tabulated",
+        "note": "湿基 wt%。"
+      },
+      {
+        "config_field": "ash_dry_wt",
+        "value": 6.34,
+        "source": "CASE_WSV400_A.inputs.fuel.proximate_analysis.ash_dry_wt_pct",
+        "status": "tabulated",
+        "note": "干基 wt%。"
+      },
+      {
+        "config_field": "VM_daf",
+        "value": 93.62,
+        "source": "CASE_WSV400_A.inputs.fuel.proximate_analysis.VM_daf_pct",
+        "status": "tabulated",
+        "note": "无水无灰基 wt%。"
+      },
+      {
+        "config_field": "C_dry",
+        "value": 46.27,
+        "source": "CASE_WSV400_A.inputs.fuel.ultimate_analysis_dry_wt_pct.C",
+        "status": "tabulated",
+        "note": "与 _WSV400_SHARED.fuel_properties_case_A_to_E 的 C 相同。"
+      },
+      {
+        "config_field": "H_dry",
+        "value": 5.94,
+        "source": "CASE_WSV400_A.inputs.fuel.ultimate_analysis_dry_wt_pct.H",
+        "status": "tabulated",
+        "note": "干基 wt%。"
+      },
+      {
+        "config_field": "O_dry",
+        "value": 41.01,
+        "source": "CASE_WSV400_A.inputs.fuel.ultimate_analysis_dry_wt_pct.O",
+        "status": "tabulated",
+        "note": "干基 wt%。"
+      },
+      {
+        "config_field": "S_dry",
+        "value": 0.01,
+        "source": "CASE_WSV400_A.inputs.fuel.ultimate_analysis_dry_wt_pct.S",
+        "status": "tabulated",
+        "note": "只进入 ER 化学计量。Reactor 构造不把 S_dry 抄进 SolidProps.sulfur_fraction。"
+      },
+      {
+        "config_field": "nitrogen_fraction",
+        "value": 0.4,
+        "source": "CASE_WSV400_A.inputs.fuel.ultimate_analysis_dry_wt_pct.N",
+        "status": "tabulated",
+        "note": "干基 wt%。elemental_ledger 里按 /100 使用，与 C_dry 同一百分数口径。"
+      },
+      {
+        "config_field": "fuel_type",
+        "value": "biomass",
+        "source": "CASE_WSV400_A.inputs.fuel.type = Natural Wood (Holz)",
+        "status": "inferred",
+        "note": "TarFuelType 只有 coal 与 biomass，没有 wood。木材取 biomass。"
+      },
+      {
+        "config_field": "D_bed",
+        "value": 0.4,
+        "source": "CASE_WSV400_A.inputs.reactor.bed_diameter_m；_WSV400_SHARED.reactor.bed_diameter_m",
+        "status": "tabulated",
+        "note": "两处都是 0.4 m。"
+      },
+      {
+        "config_field": "H_bed",
+        "value": 1.2,
+        "source": "CASE_WSV400_A.inputs.reactor.bed_height_m",
+        "status": "inferred",
+        "note": "JSON 自带 bed_height_source：由图 7.16 的 ξ≈0.4 推成约 40%×3 m。_WSV400_SHARED.reactor.bed_height_m 仍是 __MISSING__。"
+      },
+      {
+        "config_field": "H_freeboard",
+        "value": 1.8,
+        "source": "total_height_m 3.0 − bed_height_m 1.2",
+        "status": "inferred",
+        "note": "总高在工况与共享块里都有。床高本身是图上推断，自由空间高度跟着减出来。"
+      },
+      {
+        "config_field": "P",
+        "value": 100000.0,
+        "source": "CASE_WSV400_A.inputs.operating_conditions.pressure_MPa = 0.1",
+        "status": "tabulated",
+        "note": "0.1 MPa = 1.0e5 Pa。"
+      },
+      {
+        "config_field": "T_inlet",
+        "value": 293.0,
+        "source": "CASE_WSV400_A.inputs.operating_conditions.T_inlet_K",
+        "status": "tabulated",
+        "note": "293 K，不是 293.15。"
+      },
+      {
+        "config_field": "ER",
+        "value": 0.4532,
+        "source": "CASE_WSV400_A.inputs.operating_conditions.ER",
+        "status": "tabulated",
+        "note": "0.4532。ReactorConfig.__post_init__ 会据此重写 O2/H2O/N2。"
+      },
+      {
+        "config_field": "primary_agent",
+        "value": "air",
+        "source": "CASE_WSV400_A.inputs.gasification_agent.type = Air (only, no steam)",
+        "status": "tabulated",
+        "note": "已有枚举 air。"
+      },
+      {
+        "config_field": "steam_to_o2_molar",
+        "value": 0.0,
+        "source": "CASE_WSV400_A.inputs.gasification_agent.steam_feed_kg_h = 0",
+        "status": "tabulated",
+        "note": "类默认 0.8 会在纯空气工况里加入蒸汽，故显式写 0。"
+      },
+      {
+        "config_field": "recirculation_frac",
+        "value": 0.0,
+        "source": "CASE_WSV400_A.inputs.operating_conditions.recirculation = false",
+        "status": "tabulated",
+        "note": "类默认 0.1。工况写明不循环。"
+      },
+      {
+        "config_field": "recycle_gas",
+        "value": false,
+        "source": "CASE_WSV400_A.inputs.operating_conditions.recirculation = false",
+        "status": "tabulated",
+        "note": "类默认 True。与 recirculation false 对齐。"
+      },
+      {
+        "config_field": "n_cells",
+        "value": 10,
+        "source": "ReactorConfig 类默认",
+        "status": "class_default",
+        "note": "JSON 没有轴向格子数。"
+      },
+      {
+        "config_field": "n_freeboard_cells",
+        "value": 0,
+        "source": "ReactorConfig 类默认",
+        "status": "class_default",
+        "note": "默认不求解自由空间。freeboard_n4 那一组才改成 4。"
+      },
+      {
+        "config_field": "d_p",
+        "value": 0.00225,
+        "source": "ReactorConfig 类默认",
+        "status": "class_default",
+        "note": "燃料给出的是等效粒径范围 2–26 mm、主导档 14–17 mm（质量分数 0.22）。没有单一粒径。床料 __MISSING__。默认分布模式 coarsest_class 会把质量放到最粗档，所以不把范围写进 d_p_min/d_p_max。"
+      },
+      {
+        "config_field": "rho_s",
+        "value": 1400.0,
+        "source": "ReactorConfig 类默认",
+        "status": "class_default",
+        "note": "_WSV400_SHARED.reactor.bed_material = __MISSING__，不另设密度。"
+      },
+      {
+        "config_field": "phi_s",
+        "value": 0.86,
+        "source": "ReactorConfig 类默认",
+        "status": "class_default",
+        "note": "JSON 无形状系数。"
+      },
+      {
+        "config_field": "eps_mf",
+        "value": 0.45,
+        "source": "ReactorConfig 类默认",
+        "status": "class_default",
+        "note": "JSON 无最小流化空隙率。"
+      },
+      {
+        "config_field": "HHV_dry",
+        "value": 22.0,
+        "source": "ReactorConfig 类默认",
+        "status": "class_default",
+        "note": "工况输入没有热值。hamel_plant_engineering.thermal_input_kW = 100 未换算成 HHV。"
+      },
+      {
+        "config_field": "heat_loss_frac",
+        "value": 0.1,
+        "source": "ReactorConfig 类默认",
+        "status": "class_default",
+        "note": "JSON 无热损失分数。不按出口温度调整。"
+      },
+      {
+        "config_field": null,
+        "value": "__MISSING__",
+        "source": "_WSV400_SHARED.reactor.bed_material",
+        "status": "unmapped",
+        "note": "值是 __MISSING__，且没有对应的床料字段可填。"
+      },
+      {
+        "config_field": null,
+        "value": 0.6,
+        "source": "CASE_WSV400_A.inputs.reactor.freeboard_diameter_m；共享块同值 0.6 m",
+        "status": "unmapped",
+        "note": "ReactorConfig 只有 D_bed。自由空间计算沿用床径。不新增字段。"
+      },
+      {
+        "config_field": null,
+        "value": 200,
+        "source": "CASE_WSV400_A.inputs.reactor.fuel_inlet_mm_above_nozzle",
+        "status": "unmapped",
+        "note": "喷嘴上方 200 mm。没有轴向进料位置字段，不改 solid_lower_inlet_frac。"
+      },
+      {
+        "config_field": null,
+        "value": {
+          "equiv_diameter_range_mm": [
+            2,
+            26
+          ],
+          "dominant_class_mm": [
+            14,
+            17
+          ]
+        },
+        "source": "CASE_WSV400_A.inputs.fuel.particle_diameter_mm",
+        "status": "unmapped",
+        "note": "范围与主导档都在，单一 d_p 的含义不明，保持类默认。"
+      },
+      {
+        "config_field": "freeboard_secondary_O2_mol_s",
+        "value": 0.0,
+        "source": "CASE_WSV400_A.inputs.gasification_agent.secondary_air_Nm3_h = 0",
+        "status": "tabulated",
+        "note": "类默认已是 0，与二次风为 0 一致，不另改。"
+      },
+      {
+        "config_field": null,
+        "value": 50,
+        "source": "CASE_WSV400_A.inputs.gasification_agent.primary_air_Nm3_h",
+        "status": "crosscheck",
+        "note": "进料走 ER，不把 50 Nm³/h 再写成一套摩尔流。构造后与计算值对照。"
+      }
+    ],
+    "computed_feeds_mol_s": {
+      "O2_feed": 0.1302853409639094,
+      "H2O_feed": 0.0,
+      "N2_feed": 0.49012104457851635
+    },
+    "computed_air_Nm3_h": {
+      "O2": 10.512776276514236,
+      "air_from_O2_over_0_21": 50.06083941197255,
+      "json_primary_air_Nm3_h": 50.0,
+      "json_total_air_Nm3_h": 50.0,
+      "json_calculated_air_actual_Nm3_h": 50.3,
+      "nm3_per_kmol": 22.414
+    },
+    "solve_kwargs": {
+      "max_global_iter": 20,
+      "tol_global": 0.0001,
+      "solver": "global_nr"
+    }
+  },
+  "stage": "solved",
+  "balance": {
+    "method": "inlet_atoms - (bed_top N_d+N_b atoms + bed_top solid upflow atoms)",
+    "inlet_mol_atom_s": {
+      "C": 0.2738387515148151,
+      "H": 0.715256443614865,
+      "O": 0.5909509026926438,
+      "N": 0.9822721017779769,
+      "S": 2.2168858395273487e-05
+    },
+    "bed_top_gas_mol_atom_s": {
+      "C": 0.833952794302232,
+      "H": 0.1939489547969353,
+      "O": 1.0514418843153517,
+      "N": 0.9802420891570327,
+      "S": 0.0
+    },
+    "bed_top_solid_upflow_mol_atom_s": {
+      "C": 0.0001777792130686537,
+      "H": 0.0,
+      "O": 0.0,
+      "N": 0.0,
+      "S": 0.0
+    },
+    "side_gas_mol_atom_s": {
+      "cyclone_cell": {
+        "C": 0.833952794302232,
+        "H": 0.1939489547969353,
+        "O": 1.0514418843153517,
+        "N": 0.9802420891570327,
+        "S": 0.0
+      },
+      "return_leg_cell": {
+        "C": 0.0,
+        "H": 0.0,
+        "O": 0.0,
+        "N": 0.0,
+        "S": 0.0
+      }
+    },
+    "gap_mol_atom_s": {
+      "C": -0.5602918220004856,
+      "H": 0.5213074888179297,
+      "O": -0.46049098162270785,
+      "N": 0.002030012620944155,
+      "S": 2.2168858395273487e-05
+    },
+    "energy_residual_sum_W": 59781.88524789665,
+    "energy_residual_max_abs_W": 54919.76063430633,
+    "energy_residuals": [
+      {
+        "index": 0,
+        "cell_type": "bed",
+        "T_K": 1180.0,
+        "residual_W": -20540.76843397144
+      },
+      {
+        "index": 1,
+        "cell_type": "bed",
+        "T_K": 1161.6444444444444,
+        "residual_W": -694.3901396255233
+      },
+      {
+        "index": 2,
+        "cell_type": "bed",
+        "T_K": 1143.2888888888888,
+        "residual_W": 5851.30219230961
+      },
+      {
+        "index": 3,
+        "cell_type": "bed",
+        "T_K": 1124.9333333333334,
+        "residual_W": 3429.230949446567
+      },
+      {
+        "index": 4,
+        "cell_type": "bed",
+        "T_K": 1106.5777777777778,
+        "residual_W": 54919.76063430633
+      },
+      {
+        "index": 5,
+        "cell_type": "bed",
+        "T_K": 1088.2222222222222,
+        "residual_W": 22795.930185464626
+      },
+      {
+        "index": 6,
+        "cell_type": "bed",
+        "T_K": 1069.8666666666666,
+        "residual_W": 8207.180682328479
+      },
+      {
+        "index": 7,
+        "cell_type": "bed",
+        "T_K": 1051.511111111111,
+        "residual_W": -801.7646491997066
+      },
+      {
+        "index": 8,
+        "cell_type": "bed",
+        "T_K": 1033.1555555555556,
+        "residual_W": -5612.673067773626
+      },
+      {
+        "index": 9,
+        "cell_type": "bed",
+        "T_K": 1014.8,
+        "residual_W": -7771.923105388668
+      },
+      {
+        "index": 10,
+        "cell_type": "cyclone",
+        "T_K": 1014.8,
+        "residual_W": 0.0
+      },
+      {
+        "index": 11,
+        "cell_type": "return_leg",
+        "T_K": 1014.8,
+        "residual_W": 0.0
+      }
+    ],
+    "solid_sulfur_fraction_on_cell": 0.0
+  },
+  "residuals": {
+    "n_equations": 452,
+    "rms_scaled": {
+      "gas": 0.03944022663801242,
+      "solid": 0.0840184002907177,
+      "energy": 0.01862825537087718
+    },
+    "max_abs_scaled": {
+      "gas": 0.418630843052881,
+      "solid": 0.4638095253763663,
+      "energy": 0.05491976063430633
+    },
+    "top10": [
+      {
+        "cell_index": 1,
+        "cell_type": "bed",
+        "equation": "solid_class9_ash",
+        "rank": 1,
+        "index": 80,
+        "residual_raw": -0.0034892643502935764,
+        "residual_scaled": -0.4638095253763663
+      },
+      {
+        "cell_index": 1,
+        "cell_type": "bed",
+        "equation": "solid_class8_ash",
+        "rank": 2,
+        "index": 78,
+        "residual_raw": 0.003489264335322427,
+        "residual_scaled": 0.4638095233863303
+      },
+      {
+        "cell_index": 2,
+        "cell_type": "bed",
+        "equation": "solid_class8_ash",
+        "rank": 3,
+        "index": 119,
+        "residual_raw": 0.003492312857888647,
+        "residual_scaled": 0.42934041128338896
+      },
+      {
+        "cell_index": 2,
+        "cell_type": "bed",
+        "equation": "solid_class9_ash",
+        "rank": 4,
+        "index": 121,
+        "residual_raw": -0.0034922685208124697,
+        "residual_scaled": -0.42933496054077347
+      },
+      {
+        "cell_index": 4,
+        "cell_type": "bed",
+        "equation": "gas_dense_CO",
+        "rank": 5,
+        "index": 164,
+        "residual_raw": -0.418630843052881,
+        "residual_scaled": -0.418630843052881
+      },
+      {
+        "cell_index": 3,
+        "cell_type": "bed",
+        "equation": "solid_class9_ash",
+        "rank": 6,
+        "index": 162,
+        "residual_raw": -0.0029958989977503453,
+        "residual_scaled": -0.344495462305092
+      },
+      {
+        "cell_index": 3,
+        "cell_type": "bed",
+        "equation": "solid_class8_ash",
+        "rank": 7,
+        "index": 160,
+        "residual_raw": 0.002995871181241015,
+        "residual_scaled": 0.3444922637121993
+      },
+      {
+        "cell_index": 2,
+        "cell_type": "bed",
+        "equation": "solid_class9_char",
+        "rank": 8,
+        "index": 120,
+        "residual_raw": -0.002529896832861363,
+        "residual_scaled": -0.31102223395355205
+      },
+      {
+        "cell_index": 2,
+        "cell_type": "bed",
+        "equation": "solid_class8_char",
+        "rank": 9,
+        "index": 118,
+        "residual_raw": 0.0025286595234159798,
+        "residual_scaled": 0.31087012073581277
+      },
+      {
+        "cell_index": 3,
+        "cell_type": "bed",
+        "equation": "solid_class9_char",
+        "rank": 10,
+        "index": 161,
+        "residual_raw": -0.0026735503180403382,
+        "residual_scaled": -0.307428906482108
+      }
+    ],
+    "scale_refs": {
+      "ref_gas_mol_s": 1.0,
+      "ref_solid_kg_s": 0.00977777777777778,
+      "ref_energy_W": 1000000.0
+    }
+  },
+  "exit": {
+    "bed_T_K": [
+      1180.0,
+      1161.6444444444444,
+      1143.2888888888888,
+      1124.9333333333334,
+      1106.5777777777778,
+      1088.2222222222222,
+      1069.8666666666666,
+      1051.511111111111,
+      1033.1555555555556,
+      1014.8
+    ],
+    "bed_T_mean_K": 1097.3999999999999,
+    "freeboard_cell_T_K": [],
+    "freeboard_cell_T_mean_K": null,
+    "parity_fig_7_17_A": {
+      "T_FRB_K": {
+        "meas": 1135,
+        "sim": 1135
+      },
+      "CO": {
+        "meas": 0.172,
+        "sim": 0.168
+      },
+      "CO2": {
+        "meas": 0.132,
+        "sim": 0.128
+      },
+      "H2": {
+        "meas": 0.175,
+        "sim": 0.165
+      },
+      "CH4": {
+        "meas": 0.022,
+        "sim": 0.02
+      }
+    },
+    "correspondence": "采用 hamel_fig7_parity_digitized.json case_id_map：CASE_WSV400_A → fig 7.17 标签 A。同一 JSON 里 CASE_WSV400_A.outputs 的轴向出口是 T=980 K、CO=0.152，与图 7.17 A 的 T_FRB=1135 K、CO sim=0.168 不一致。T3 尚未裁定。本探针的 Hamel 模拟对照用图 7.17 A，不把轴向出口当作 Sim。",
+    "exit_gas": {
+      "CO": 0.4545456305528585,
+      "CO2": 0.13506636191798146,
+      "H2": 0.0,
+      "H2O": 0.03869232805678794,
+      "CH4": 0.015856672236625905,
+      "O2": 0.0,
+      "N2": 0.35583900723574613,
+      "H2S": 0.0,
+      "NH3": 0.0,
+      "TAR1": 0.0,
+      "TAR2": 0.0
+    },
+    "exit_gas_dry": {
+      "CO": 0.4728409476167274,
+      "CO2": 0.14050274002802332,
+      "H2": 0.0,
+      "CH4": 0.016494898251017617,
+      "O2": 0.0,
+      "N2": 0.3701614141042316,
+      "H2S": 0.0,
+      "NH3": 0.0
+    },
+    "bed_exit_gas_dry": {
+      "CO": 0.4728409476167274,
+      "CO2": 0.14050274002802332,
+      "H2": 0.0,
+      "CH4": 0.016494898251017617,
+      "O2": 0.0,
+      "N2": 0.3701614141042316,
+      "H2S": 0.0,
+      "NH3": 0.0
+    },
+    "reactor_exit_T": 1014.8,
+    "carbon_conv": 0.9994972978522495,
+    "converged": false,
+    "converged_outer": false,
+    "converged_inner_nr": false,
+    "converged_fully": false,
+    "rms_scaled_final": 0.06667601662470941,
+    "rms_scaled_gas_final": 0.03944022663801242,
+    "rms_scaled_solid_final": 0.0840184002907177,
+    "rms_scaled_energy_final": 0.01862825537087718,
+    "max_abs_scaled_gas_final": 0.418630843052881,
+    "max_abs_scaled_solid_final": 0.4638095253763663,
+    "max_abs_scaled_energy_final": 0.05491976063430633,
+    "n_iter": 20,
+    "residual": 64530.169519865616,
+    "nr_outer_iters": 20,
+    "nr_inner_budget_total": 100,
+    "nr_inner_budget_used": 40,
+    "nr_init_s_total": 1.0034599270000002,
+    "nr_total_s": 255.24355300000002,
+    "freeboard_active": false,
+    "delta_vs_fig717_A_sim": {
+      "T_K": -120.20000000000005,
+      "CO": 0.3048409476167274,
+      "CO2": 0.012502740028023318,
+      "H2": -0.165,
+      "CH4": -0.003505101748982383
+    },
+    "delta_vs_fig717_A_meas": {
+      "T_K": -120.20000000000005,
+      "CO": 0.3008409476167274,
+      "CO2": 0.008502740028023315,
+      "H2": -0.175,
+      "CH4": -0.005505101748982381
+    }
+  },
+  "solver": {
+    "bed_T_K": [
+      1180.0,
+      1161.6444444444444,
+      1143.2888888888888,
+      1124.9333333333334,
+      1106.5777777777778,
+      1088.2222222222222,
+      1069.8666666666666,
+      1051.511111111111,
+      1033.1555555555556,
+      1014.8
+    ],
+    "bed_T_mean_K": 1097.3999999999999,
+    "freeboard_cell_T_K": [],
+    "freeboard_cell_T_mean_K": null,
+    "parity_fig_7_17_A": {
+      "T_FRB_K": {
+        "meas": 1135,
+        "sim": 1135
+      },
+      "CO": {
+        "meas": 0.172,
+        "sim": 0.168
+      },
+      "CO2": {
+        "meas": 0.132,
+        "sim": 0.128
+      },
+      "H2": {
+        "meas": 0.175,
+        "sim": 0.165
+      },
+      "CH4": {
+        "meas": 0.022,
+        "sim": 0.02
+      }
+    },
+    "correspondence": "采用 hamel_fig7_parity_digitized.json case_id_map：CASE_WSV400_A → fig 7.17 标签 A。同一 JSON 里 CASE_WSV400_A.outputs 的轴向出口是 T=980 K、CO=0.152，与图 7.17 A 的 T_FRB=1135 K、CO sim=0.168 不一致。T3 尚未裁定。本探针的 Hamel 模拟对照用图 7.17 A，不把轴向出口当作 Sim。",
+    "exit_gas": {
+      "CO": 0.4545456305528585,
+      "CO2": 0.13506636191798146,
+      "H2": 0.0,
+      "H2O": 0.03869232805678794,
+      "CH4": 0.015856672236625905,
+      "O2": 0.0,
+      "N2": 0.35583900723574613,
+      "H2S": 0.0,
+      "NH3": 0.0,
+      "TAR1": 0.0,
+      "TAR2": 0.0
+    },
+    "exit_gas_dry": {
+      "CO": 0.4728409476167274,
+      "CO2": 0.14050274002802332,
+      "H2": 0.0,
+      "CH4": 0.016494898251017617,
+      "O2": 0.0,
+      "N2": 0.3701614141042316,
+      "H2S": 0.0,
+      "NH3": 0.0
+    },
+    "bed_exit_gas_dry": {
+      "CO": 0.4728409476167274,
+      "CO2": 0.14050274002802332,
+      "H2": 0.0,
+      "CH4": 0.016494898251017617,
+      "O2": 0.0,
+      "N2": 0.3701614141042316,
+      "H2S": 0.0,
+      "NH3": 0.0
+    },
+    "reactor_exit_T": 1014.8,
+    "carbon_conv": 0.9994972978522495,
+    "converged": false,
+    "converged_outer": false,
+    "converged_inner_nr": false,
+    "converged_fully": false,
+    "rms_scaled_final": 0.06667601662470941,
+    "rms_scaled_gas_final": 0.03944022663801242,
+    "rms_scaled_solid_final": 0.0840184002907177,
+    "rms_scaled_energy_final": 0.01862825537087718,
+    "max_abs_scaled_gas_final": 0.418630843052881,
+    "max_abs_scaled_solid_final": 0.4638095253763663,
+    "max_abs_scaled_energy_final": 0.05491976063430633,
+    "n_iter": 20,
+    "residual": 64530.169519865616,
+    "nr_outer_iters": 20,
+    "nr_inner_budget_total": 100,
+    "nr_inner_budget_used": 40,
+    "nr_init_s_total": 1.0034599270000002,
+    "nr_total_s": 255.24355300000002,
+    "freeboard_active": false,
+    "delta_vs_fig717_A_sim": {
+      "T_K": -120.20000000000005,
+      "CO": 0.3048409476167274,
+      "CO2": 0.012502740028023318,
+      "H2": -0.165,
+      "CH4": -0.003505101748982383
+    },
+    "delta_vs_fig717_A_meas": {
+      "T_K": -120.20000000000005,
+      "CO": 0.3008409476167274,
+      "CO2": 0.008502740028023315,
+      "H2": -0.175,
+      "CH4": -0.005505101748982381
+    },
+    "norm_history": [
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056,
+      0.07600857210458056
+    ],
+    "outer_trend": [
+      {
+        "outer_iter": 1,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.08405743168103498,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.018628102516743742,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.30611608831449616,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 2,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 3,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 4,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 5,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 6,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 7,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 8,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 9,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 10,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 11,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 12,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 13,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 14,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 15,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 16,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 17,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 18,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 19,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      },
+      {
+        "outer_iter": 20,
+        "inner_n_iter": 1,
+        "inner_rms_scaled_final": 0.07600857210458056,
+        "outer_energy_rms_final": 0.09525812405562194,
+        "preinner_solid_rms_before": 0.0840184002907177,
+        "preinner_solid_rms_after": 0.0840184002907177,
+        "preinner_energy_rms_before": 0.01862825537087718,
+        "preinner_energy_rms_after": 0.01862825537087718,
+        "preinner_split_rms_before": 0.06456045668676254,
+        "preinner_split_rms_after": 0.06456045668676254,
+        "inner_converged": false,
+        "dT_outer": 0.0
+      }
+    ]
+  }
+}
