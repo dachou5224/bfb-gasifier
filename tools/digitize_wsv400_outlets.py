@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 import sys
 from decimal import Decimal, ROUND_HALF_UP
@@ -75,6 +76,92 @@ def recorded_717(doc):
     return out
 
 
+OUTLET_716 = (("sim", "T"), ("meas", "T"), ("sim", "CO"), ("meas", "CO"))
+
+
+def is_error_number(value):
+    return (
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and math.isfinite(value)
+        and value >= 0
+    )
+
+
+def series_variables(doc):
+    keys = []
+    for item in doc.get("series", []):
+        variable = item.get("variable")
+        if variable and variable not in keys:
+            keys.append(variable)
+    return keys
+
+
+def quantity_keys_717(doc):
+    keys = []
+    for case in doc.get("cases", []):
+        for key, value in case.items():
+            if isinstance(value, list) and key not in keys:
+                keys.append(key)
+    return keys
+
+
+def check_error_map(doc, label, required):
+    mismatches = []
+    errors = doc.get("est_error")
+    units = doc.get("units")
+    if not isinstance(errors, dict):
+        mismatches.append(f"{label} 缺少 est_error")
+        errors = {}
+    if not isinstance(units, dict):
+        mismatches.append(f"{label} 缺少 units")
+        units = {}
+    for key in required:
+        if key not in errors:
+            mismatches.append(f"{label} est_error 缺少 {key}")
+        elif not is_error_number(errors[key]):
+            mismatches.append(f"{label} est_error.{key} 不是有限非负数值")
+        unit = units.get(key)
+        if not isinstance(unit, str) or not unit:
+            mismatches.append(f"{label} units 缺少 {key}")
+    return mismatches
+
+
+def check_716_series(doc):
+    mismatches = []
+    seen = set()
+    for item in doc.get("series", []):
+        key = (item.get("kind"), item.get("variable"))
+        points = item.get("points")
+        if key in seen:
+            mismatches.append(f"7.16 序列 {key[0]}/{key[1]} 重复")
+            continue
+        seen.add(key)
+        outlet = (
+            isinstance(points, list)
+            and len(points) == 1
+            and isinstance(points[0], (list, tuple))
+            and len(points[0]) == 2
+            and points[0][0] == 1
+        )
+        if not outlet:
+            mismatches.append(f"7.16 序列 {key[0]}/{key[1]} 必须恰有一个 ξ = 1 的点")
+    for kind, variable in OUTLET_716:
+        if (kind, variable) not in seen:
+            mismatches.append(f"7.16 缺少序列 {kind}/{variable}")
+    return mismatches
+
+
+def check_716_units(doc):
+    units = doc.get("units") if isinstance(doc.get("units"), dict) else {}
+    mismatches = []
+    for item in doc.get("series", []):
+        variable = item.get("variable")
+        if variable in units and item.get("unit") != units[variable]:
+            mismatches.append(f"7.16 {variable} 的序列单位与 units 不一致")
+    return mismatches
+
+
 def recorded_716(doc):
     series = {(item["kind"], item["variable"]): item["points"][0][1] for item in doc["series"]}
     return {
@@ -102,29 +189,29 @@ def pixels_of(doc717, doc716):
     return pixels
 
 
-def check():
-    doc717 = json.loads((ROOT / "data/digitized/fig_7_17.json").read_text())
-    doc716 = json.loads((ROOT / "data/digitized/fig_7_16.json").read_text())
+def check(doc717=None, doc716=None):
+    if doc717 is None:
+        doc717 = json.loads((ROOT / "data/digitized/fig_7_17.json").read_text())
+    if doc716 is None:
+        doc716 = json.loads((ROOT / "data/digitized/fig_7_16.json").read_text())
     mismatches = []
-    for key, value in doc717["est_error"].items():
-        if not isinstance(value, (int, float)):
-            mismatches.append(f"7.17 est_error.{key} 不是数值")
-        if key not in doc717["units"]:
-            mismatches.append(f"7.17 est_error.{key} 没有对应的 units")
-    for key, value in doc716["est_error"].items():
-        if not isinstance(value, (int, float)):
-            mismatches.append(f"7.16 est_error.{key} 不是数值")
+    mismatches.extend(check_error_map(doc717, "7.17", quantity_keys_717(doc717)))
+    mismatches.extend(check_error_map(doc716, "7.16", series_variables(doc716)))
+    mismatches.extend(check_716_units(doc716))
+    series_errors = check_716_series(doc716)
+    mismatches.extend(series_errors)
     got = values_717(doc717)
     recorded = recorded_717(doc717)
     for variable, cases in got.items():
         for letter, pair in cases.items():
             if pair != recorded[variable][letter]:
                 mismatches.append(f"7.17 {variable} {letter}: 复算 {pair}，JSON {recorded[variable][letter]}")
-    got716 = values_716(doc716)
-    recorded716 = recorded_716(doc716)
-    for key, value in got716.items():
-        if value != recorded716[key]:
-            mismatches.append(f"7.16 {key}: 复算 {value}，JSON {recorded716[key]}")
+    if not series_errors:
+        got716 = values_716(doc716)
+        recorded716 = recorded_716(doc716)
+        for key, value in got716.items():
+            if value != recorded716[key]:
+                mismatches.append(f"7.16 {key}: 复算 {value}，JSON {recorded716[key]}")
     report = (ROOT / "data/digitized/REPORT.md").read_text()
     for pixel in pixels_of(doc717, doc716):
         token = f"{pixel:.2f}".rstrip("0").rstrip(".")

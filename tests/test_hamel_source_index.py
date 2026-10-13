@@ -2,6 +2,7 @@
 """T2 原文导航测试；锚点取自当前 PDF 的页码、印刷标签和图注，不使用模型输出。"""
 import importlib.util
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -119,6 +120,58 @@ class SourceIndexTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("SHA256", result.stderr)
             self.assertFalse(output.exists())
+
+    def test_skip_render_does_not_call_renderer_or_touch_png(self):
+        called = []
+        original = CORPUS.render_supplement_png
+        CORPUS.render_supplement_png = lambda *args: called.append(args)
+        try:
+            missing = Path(tempfile.gettempdir()) / "hamel-skip-missing-114.png"
+            if missing.exists():
+                missing.unlink()
+            note = CORPUS.place_supplement_png(Path("unused.pdf"), missing, True)
+            self.assertFalse(missing.exists())
+            self.assertEqual(called, [])
+            self.assertIn("没有", note)
+            kept = Path(tempfile.gettempdir()) / "hamel-skip-kept-114.png"
+            kept.write_bytes(b"original-png")
+            note = CORPUS.place_supplement_png(Path("unused.pdf"), kept, True)
+            self.assertEqual(kept.read_bytes(), b"original-png")
+            self.assertEqual(called, [])
+            self.assertIn("沿用", note)
+            CORPUS.place_supplement_png(Path("unused.pdf"), kept, False)
+            self.assertEqual(len(called), 1)
+        finally:
+            CORPUS.render_supplement_png = original
+            kept = Path(tempfile.gettempdir()) / "hamel-skip-kept-114.png"
+            if kept.exists():
+                kept.unlink()
+
+    def test_cli_skip_render_does_not_rewrite_png(self):
+        pdf = ROOT / "docs" / "hamel_supplement_S152-153.pdf"
+        if not pdf.exists():
+            self.skipTest("本地没有补页 PDF")
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+            pages = output / "pages"
+            pages.mkdir()
+            png = pages / "114.png"
+            png.write_bytes(b"do-not-rewrite")
+            shutil.copy(ROOT / "refs" / "hamel" / "index.json", output / "index.json")
+            command = [sys.executable, str(ROOT / "tools" / "build_hamel_corpus.py"),
+                       "--supplement-only", "--skip-render", "--supplement", str(pdf),
+                       "--output", str(output)]
+            result = subprocess.run(command, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(png.read_bytes(), b"do-not-rewrite")
+            index = json.loads((output / "index.json").read_text(encoding="utf-8"))
+            self.assertIn("未渲染，沿用已有", index["_meta"]["supplement"]["render"])
+            png.unlink()
+            result = subprocess.run(command, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertFalse(png.exists())
+            index = json.loads((output / "index.json").read_text(encoding="utf-8"))
+            self.assertIn("本地没有", index["_meta"]["supplement"]["render"])
 
 
 if __name__ == "__main__":

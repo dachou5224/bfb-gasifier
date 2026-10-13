@@ -634,8 +634,31 @@ def _image_box(line, origin):
             round(line["x1"] - ox, 2), round(line["bottom"] - oy, 2)]
 
 
-def ingest_supplement_page(pdf, pages_dir):
-    """把补页写入本地 114.png / 114.txt，并挂到 extraction.json。不改 1–113。"""
+def render_supplement_png(pdf, png):
+    renderer = shutil.which("pdftoppm")
+    if renderer:
+        subprocess.run([renderer, "-r", "300", "-png", "-f", "1", "-l", "1", str(pdf),
+                        str(png.parent / "supplement")], check=True, timeout=120)
+        (png.parent / "supplement-1.png").replace(png)
+        return "pdftoppm 300 dpi"
+    import fitz
+    document = fitz.open(str(pdf))
+    pixmap = document[0].get_pixmap(matrix=fitz.Matrix(300 / 72, 300 / 72), alpha=False)
+    pixmap.save(str(png))
+    document.close()
+    return "PyMuPDF %s，300 dpi；本机没有 pdftoppm" % fitz.version[0]
+
+
+def place_supplement_png(pdf, png, skip_render):
+    if skip_render:
+        if png.exists():
+            return "未渲染，沿用已有 114.png"
+        return "未渲染，本地没有 114.png"
+    return render_supplement_png(pdf, png)
+
+
+def ingest_supplement_page(pdf, pages_dir, skip_render=False):
+    """把补页写入本地 114.txt，并挂到 extraction.json。不改 1–113。skip_render 时不创建或改写 114.png。"""
     import pdfplumber
     from pypdf import PdfReader
 
@@ -675,20 +698,7 @@ def ingest_supplement_page(pdf, pages_dir):
     pages_dir.mkdir(parents=True, exist_ok=True)
     raw = reader.pages[0].extract_text() or ""
     (pages_dir / "114.txt").write_text(raw + "\n", encoding="utf-8")
-    renderer = shutil.which("pdftoppm")
-    png = pages_dir / "114.png"
-    if renderer:
-        subprocess.run([renderer, "-r", "300", "-png", "-f", "1", "-l", "1", str(pdf),
-                        str(pages_dir / "supplement")], check=True, timeout=120)
-        (pages_dir / "supplement-1.png").replace(png)
-        render_note = "pdftoppm 300 dpi"
-    else:
-        import fitz
-        document = fitz.open(str(pdf))
-        pixmap = document[0].get_pixmap(matrix=fitz.Matrix(300 / 72, 300 / 72), alpha=False)
-        pixmap.save(str(png))
-        document.close()
-        render_note = "PyMuPDF %s，300 dpi；本机没有 pdftoppm" % fitz.version[0]
+    render_note = place_supplement_png(pdf, pages_dir / "114.png", skip_render)
     record = {"pdf_page": SUPPLEMENT_PDF_PAGE, "bbox": [x0, y0, x1, y1], "rotation": 0, "sides": sides}
     cache = pages_dir / "extraction.json"
     pages = json.loads(cache.read_text(encoding="utf-8")) if cache.exists() else []
@@ -699,9 +709,9 @@ def ingest_supplement_page(pdf, pages_dir):
             "box_21": _image_box(label_21, (x0, y0))}
 
 
-def merge_supplement(index, pdf, pages_dir):
+def merge_supplement(index, pdf, pages_dir, skip_render=False):
     """把已核对的 S.152–153 写入索引。图注以页面图像为准，文本层漏了 ü。"""
-    placed = ingest_supplement_page(pdf, pages_dir)
+    placed = ingest_supplement_page(pdf, pages_dir, skip_render=skip_render)
     captions = {
         "7.20": ("152", "left", placed["box_20"],
                  "Bild 7.20: Simulationsergebnisse für den Modellreaktor unter Variation des "
@@ -771,7 +781,8 @@ def main():
             raise ValueError("补页需要 --supplement")
         index_path = args.output / "index.json"
         index = merge_supplement(json.loads(index_path.read_text(encoding="utf-8")),
-                                 args.supplement, args.output / "pages")
+                                 args.supplement, args.output / "pages",
+                                 skip_render=args.skip_render)
         validate(index)
         write_json(index_path, index)
         print("S.152–153 已并入 PDF 114。页面图像只在本地，PDF 不入库。")
@@ -800,7 +811,7 @@ def main():
         render(args.pdf, pages_dir, len(pages))
     index = to_image_coords(build_index(pages, args.pdf), pages)
     if args.supplement is not None:
-        index = merge_supplement(index, args.supplement, pages_dir)
+        index = merge_supplement(index, args.supplement, pages_dir, skip_render=args.skip_render)
     validate(index)
     write_json(args.output / "index.json", index)
     print(json.dumps(index["coverage"], ensure_ascii=False, indent=2))
