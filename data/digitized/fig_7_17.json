@@ -4,142 +4,76 @@
   "printed_page": "146",
   "side": "left",
   "caption_de": "Bild 7.17: Vergleich Messungen mit den Simulationsergebnissen für die mittlere Freiraumtemperatur und die wichtigsten Gaskomponenten des Wirbelschichtvergasers WSV400 der Universität Magdeburg.",
-  "case_label_in_figure": "A",
-  "case_id": "CASE_WSV400_A",
   "read_date": "2026-10-13",
-  "tool": "目标所有者人工读数，用专用数字化工具（工具名称与版本待补）",
-  "est_error": "待补",
-  "series": [
+  "tool": "PyMuPDF 1.26.5 渲染，zoom=4（4 px/pt），裁 PDF 第 83 页左半（clip 原点 40 pt, 20 pt）。网格线取墨迹质心后线性拟合。空心方框的中心取四边描边中线的中点。字母按放大后的笔划辨认。像素与换算：tools/digitize_wsv400_outlets.py，表在 data/digitized/REPORT.md。",
+  "units": {
+    "T_FRB": "K",
+    "CO": "mol/mol",
+    "CO2": "mol/mol",
+    "H2": "mol/mol",
+    "CH4": "mol/mol"
+  },
+  "est_error": "T_FRB ±8 K；CO、CO2、H2 ±0.008 mol/mol；CH4 ±0.004 mol/mol。网格拟合残差小于 0.5 K、小于 0.001 mol/mol。误差主要来自描边宽度（约 3 px）和互相重叠的方框。",
+  "basis_gas": "dry",
+  "points_format": "[实验值（x，Messung）, 模拟值（y，Sim.）]",
+  "revision_note": "2026-10-13 早先的人工读数把 A 的 T_FRB 模拟值记为 1060 K，气体记为 CO 0.165/0.165、CO2 0.14/0.12、H2 0.085/0.085、CH4 0.045/0.024。本次对 A–F 使用同一套方框中心。A 的温度方框中心是 1048 K；1060 K 落在该方框的上沿附近，不是中心。气体差值在 ±0.008 以内，CH4 实验值差 0.003。",
+  "cases": [
     {
-      "kind": "parity",
-      "variable": "T_FRB",
-      "quantity_definition": "平均自由空间温度（mittlere Freiraumtemperatur）",
-      "unit": "K",
-      "basis": null,
-      "note": "实验值（横轴）未读",
-      "x_axis": {
-        "name": "Messung",
-        "definition": "实验值",
-        "unit": "K"
-      },
-      "y_axis": {
-        "name": "Sim.",
-        "definition": "Hamel 模拟值",
-        "unit": "K"
-      },
-      "points": [
-        [
-          null,
-          1060
-        ]
-      ]
+      "case_label_in_figure": "A",
+      "case_id": "CASE_WSV400_A",
+      "T_FRB": [1066, 1048],
+      "CO": [0.172, 0.169],
+      "CO2": [0.147, 0.122],
+      "H2": [0.087, 0.081],
+      "CH4": [0.048, 0.022]
     },
     {
-      "kind": "parity",
-      "variable": "CO",
-      "quantity_definition": "出口",
-      "unit": "mol/mol",
-      "basis": "dry",
-      "note": "实验值与模拟值读作同值",
-      "x_axis": {
-        "name": "Messung",
-        "definition": "实验值",
-        "unit": "mol/mol"
-      },
-      "y_axis": {
-        "name": "Sim.",
-        "definition": "Hamel 模拟值",
-        "unit": "mol/mol"
-      },
-      "points": [
-        [
-          0.165,
-          0.165
-        ]
-      ]
+      "case_label_in_figure": "B",
+      "case_id": "CASE_WSV400_B",
+      "T_FRB": [1058, 997],
+      "CO": [0.155, 0.198],
+      "CO2": [0.176, 0.115],
+      "H2": [0.110, 0.090],
+      "CH4": [0.044, 0.033],
+      "note": "T_FRB 方框压在 1000 K 网格线上，中心在线下方约 3 K。"
     },
     {
-      "kind": "parity",
-      "variable": "CO2",
-      "quantity_definition": "出口",
-      "unit": "mol/mol",
-      "basis": "dry",
-      "x_axis": {
-        "name": "Messung",
-        "definition": "实验值",
-        "unit": "mol/mol"
-      },
-      "y_axis": {
-        "name": "Sim.",
-        "definition": "Hamel 模拟值",
-        "unit": "mol/mol"
-      },
-      "points": [
-        [
-          0.14,
-          0.12
-        ]
-      ]
+      "case_label_in_figure": "C",
+      "case_id": "CASE_WSV400_C",
+      "T_FRB": [1027, 1027],
+      "CO": [0.167, 0.183],
+      "CO2": [0.170, 0.124],
+      "H2": [0.117, 0.097],
+      "CH4": [0.047, 0.026]
     },
     {
-      "kind": "parity",
-      "variable": "H2",
-      "quantity_definition": "出口",
-      "unit": "mol/mol",
-      "basis": "dry",
-      "note": "两者接近，读作同值",
-      "x_axis": {
-        "name": "Messung",
-        "definition": "实验值",
-        "unit": "mol/mol"
-      },
-      "y_axis": {
-        "name": "Sim.",
-        "definition": "Hamel 模拟值",
-        "unit": "mol/mol"
-      },
-      "points": [
-        [
-          0.085,
-          0.085
-        ]
-      ]
+      "case_label_in_figure": "D",
+      "case_id": "CASE_WSV400_D",
+      "T_FRB": [1047, 1067],
+      "CO": [0.178, 0.164],
+      "CO2": [0.162, 0.129],
+      "H2": [0.123, 0.090],
+      "CH4": [0.039, 0.021]
     },
     {
-      "kind": "parity",
-      "variable": "CH4",
-      "quantity_definition": "出口",
-      "unit": "mol/mol",
-      "basis": "dry",
-      "note": "本图偏差最大的指标；模拟值低于实验值约 47%",
-      "x_axis": {
-        "name": "Messung",
-        "definition": "实验值",
-        "unit": "mol/mol"
-      },
-      "y_axis": {
-        "name": "Sim.",
-        "definition": "Hamel 模拟值",
-        "unit": "mol/mol"
-      },
-      "points": [
-        [
-          0.045,
-          0.024
-        ]
-      ]
+      "case_label_in_figure": "E",
+      "case_id": "CASE_WSV400_E",
+      "T_FRB": [1075, 1094],
+      "CO": [0.187, 0.149],
+      "CO2": [0.152, 0.134],
+      "H2": [0.122, 0.078],
+      "CH4": [0.033, 0.017]
+    },
+    {
+      "case_label_in_figure": "F",
+      "case_id": "CASE_WSV400_F",
+      "T_FRB": [1005, 1044],
+      "CO": [0.145, 0.182],
+      "CO2": [0.160, 0.116],
+      "H2": [0.069, 0.096],
+      "CH4": [0.040, 0.027]
     }
   ],
-  "not_in_source": [
-    "H2O",
-    "X_C"
-  ],
-  "pending": [
-    "B",
-    "C",
-    "D",
-    "E",
-    "F"
-  ],
-  "points_format": "[实验值（x，Messung）, 模拟值（y，Sim.）]；null 表示未读"
+  "not_in_source": ["H2O", "X_C"],
+  "pending": []
 }
