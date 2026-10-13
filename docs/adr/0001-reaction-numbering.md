@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 ---
 
 # 反应编号统一采用 Hamel 的 R1–R11
@@ -10,4 +10,4 @@ Hamel 第 5 章开头列出 11 个反应：R1 Verbrennung、R2 heterogene Wasser
 
 ## 证据状态
 
-依据 OCR 文本核对（归档 `data/hamel_1999_extracted.txt` 第 45 页）。原页目视复核待 T2 页面图像交付。
+内容经目标所有者批准（PR #10）。2026-10-13 已在 T2 页面图像上目视核对原页（PDF 45 右半页 / S. 71）：11 个反应的编号、德文名称与计量式与本 ADR 一致。另在 PDF 55 / S. 91 确认 H₂ 氧化速率常数记作 k_ch,R6（引 Jensen et al. 1995）。
