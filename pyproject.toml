@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "bfb-gasifier"
 version = "0.1.0"
 description = "鼓泡流化床气化炉一维稳态动力学模型"
-readme = "docs/techspec.md"
+readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
     "numpy>=1.23,<2.0",
@@ -21,10 +21,9 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["src"]
+include = ["hamel*"]
 
 [tool.pytest.ini_options]
 markers = [
-    "slow: 完整反应器扫描集成测试（约数十秒）",
-    "slimming_audit: 瘦身计划假设验证（清理前应全部通过）",
+    "slow: 单个工况完整求解（CHARTER §7）",
 ]

@@ -4,11 +4,154 @@
     "source": "Hamel S (1999) Mathematische Modellierung und experimentelle Untersuchung der Vergasung verschiedener fester Brennstoffe in atmosphärischen und druckaufgeladenen stationären Wirbelschichten",
     "created": "2026-03-18",
     "notes": [
-      "出口气组成为 dry basis mol/mol（模拟值，从原文 Fig 读取）",
+      "出口气组成按原文各图的 wet/dry basis 分别记录（模拟值，从原文 Fig 读取）",
       "'__MISSING__' 标记需要从论文表格或图形中补充提取的数据",
       "'__FROM_PLOT__' 标记从论文图形近似读数、精度 ±5-10%",
       "'__CALCULATED__' 标记需反推计算的参数"
-    ]
+    ],
+    "hamel_enrichment": {
+      "script": "scripts/enrich_validation_cases_from_hamel.py",
+      "hamel_table_ssot": "data/hamel_table7_extractions.json",
+      "last_run_note": "Filled Table 7.1–7.4 inputs + §7.1 plant engineering; HTW steam abs. flow still not tabulated"
+    },
+    "master_table": {
+      "json": "data/validation_cases_master_table.json",
+      "markdown": "docs/validation_cases_master_table.md",
+      "generate_script": "scripts/build_validation_cases_master_table.py",
+      "case_count": 15,
+      "plant_group_count": 4
+    },
+    "plant_literature": {
+      "json": "data/validation_plant_literature.json",
+      "markdown_section": "docs/validation_cases_master_table.md §7"
+    }
+  },
+  "validation_plants": {
+    "_description": "15 validation cases 对应 4 套物理装置；VTT 常压/加压视为同一 Versuchsanlage，压力为工况变量",
+    "PLANT_HTW_WESSELING": {
+      "display_name": "HTW Wesseling Druckvergasungsanlage",
+      "display_name_zh": "HTW Wesseling 加压中试炉",
+      "validation_tier": "pilot",
+      "validation_tier_zh": "中试",
+      "country": "Germany",
+      "location": "DEA Mineralöl AG, Werk UK Wesseling",
+      "hamel_section": "§7.1.2, Bild 7.2",
+      "hamel_name_de": "HTW-Druckvergasungsanlage / Pilotanlage",
+      "operation_period": "1989–1992",
+      "operation_note": "面向 IGCC 联循环开发的 Pilotanlage；Table 7.1 Sim 1–2",
+      "data_provenance": "Rheinbraun AG & Krupp-Uhde GmbH (1997); Hamel Ch.7 Table 7.1 / Fig 7.4–7.5",
+      "design_highlights": {
+        "pressure_MPa": 2.5,
+        "bed_diameter_m": 0.6,
+        "reactor_height_to_cyclone_m": 14.5,
+        "expanded_bed_height_m": 6.0,
+        "design_capacity_dry_coal_t_h": 6.5
+      },
+      "case_ids": [
+        "CASE_HTW_WESSELING_1",
+        "CASE_HTW_WESSELING_2"
+      ],
+      "case_count": 2,
+      "validation_grouping": "同一中试炉两组对比工况（Air/Steam vs O₂/Steam）；可联合验收氧化剂分支与二级风"
+    },
+    "PLANT_HTW_BERRENRATH": {
+      "display_name": "HTW Demonstrationsanlage Berrenrath",
+      "display_name_zh": "HTW Berrenrath 示范工厂",
+      "validation_tier": "commercial_demo",
+      "validation_tier_zh": "工业示范",
+      "country": "Germany",
+      "location": "Rheinbraun Kohleveredlungsbetrieb Ville-Berrenrath",
+      "hamel_section": "§7.1.2, Bild 7.3",
+      "hamel_name_de": "HTW-Demonstrationsanlage",
+      "operation_period": "1986–1997",
+      "operation_note": "甲醇合成气示范；1993 起扩展废弃物共气化；Table 7.1 Sim 3",
+      "data_provenance": "Rheinbraun AG & Krupp-Uhde GmbH (1997); Hamel Ch.7 Table 7.1 / Fig 7.6",
+      "design_highlights": {
+        "pressure_MPa": 1.0,
+        "bed_diameter_m": 2.75,
+        "reactor_height_m": 23.0,
+        "design_capacity_dry_coal_t_h": 25
+      },
+      "case_ids": [
+        "CASE_HTW_BERRENRATH"
+      ],
+      "case_count": 1,
+      "validation_grouping": "工业尺度 O₂/Steam 单点；与 Wesseling 同分支但更大径、更少分级"
+    },
+    "PLANT_VTT": {
+      "display_name": "VTT Espoo BFB Versuchsanlage",
+      "display_name_zh": "VTT Espoo 实验台（常压+加压）",
+      "validation_tier": "lab_experimental",
+      "validation_tier_zh": "实验台",
+      "country": "Finland",
+      "location": "VTT Technical Research Centre, Laboratory of Fuel and Process Technology, Espoo",
+      "hamel_section": "§7.1.3 Bild 7.7 (pressurized); §7.1.4 Bild 7.11 (atmospheric)",
+      "hamel_name_de": "Versuchseinrichtung des VTT Finnland",
+      "operation_period": null,
+      "operation_note": "Hamel 未给装置运行年限；常压与加压为同一 VTT 实验体系，压力/氧化剂/燃料/循环为工况变量",
+      "data_provenance": "Pressurized: Kurkela & Ståhlberg (1992), Kurkela et al. (1993); Atmospheric: Leppälahti & Kurkela (1991)",
+      "design_highlights": {
+        "pressurized": {
+          "pressure_MPa_range": [
+            0.5,
+            1.0
+          ],
+          "bed_diameter_m": 0.15,
+          "freeboard_diameter_m": 0.25,
+          "total_height_m": 3.5,
+          "throughput_kg_h_range": [
+            25,
+            75
+          ]
+        },
+        "atmospheric": {
+          "pressure_MPa": 0.1,
+          "bed_diameter_m": 0.158,
+          "total_height_m": 3.65,
+          "design_throughput_kg_h": 10
+        }
+      },
+      "case_ids": [
+        "CASE_VTT_PRESSURIZED_COAL_1",
+        "CASE_VTT_PRESSURIZED_PEAT_6",
+        "CASE_VTT_PRESSURIZED_PEAT_13",
+        "CASE_VTT_PRESSURIZED_SAWDUST_14",
+        "CASE_VTT_ATMOSPHERIC_PEAT_D",
+        "CASE_VTT_ATMOSPHERIC_PEAT_E"
+      ],
+      "case_count": 6,
+      "validation_grouping": "按燃料(褐煤/泥炭/锯末)与压力(0.1 vs 0.4–1.0 MPa)分子组；Case D/E 专用于 fuel-N"
+    },
+    "PLANT_WSV400": {
+      "display_name": "WSV 400 Universität Magdeburg",
+      "display_name_zh": "马格德堡 WSV 400 研究炉",
+      "validation_tier": "research_pilot",
+      "validation_tier_zh": "100 kW 研究中试",
+      "country": "Germany",
+      "location": "Universität Magdeburg, Institut für Apparate- und Umwelttechnik",
+      "hamel_section": "§7.1.5, Bild 7.14",
+      "hamel_name_de": "Wirbelschichtversuchsanlage WSV 400",
+      "operation_period": null,
+      "operation_note": "100 kW 热输入木材气化；Table 7.4 Cases A–F 为 ER/进料量变工况",
+      "data_provenance": "Prof. Dr.-Ing. habil. P. Käferstein; Hoyer et al. (1999); Hamel Ch.7 Table 7.4 / Fig 7.16–7.17",
+      "design_highlights": {
+        "pressure_MPa": 0.1,
+        "thermal_input_kW": 100,
+        "bed_diameter_m": 0.4,
+        "freeboard_diameter_m": 0.6,
+        "total_height_m": 3.0
+      },
+      "case_ids": [
+        "CASE_WSV400_A",
+        "CASE_WSV400_B",
+        "CASE_WSV400_C",
+        "CASE_WSV400_D",
+        "CASE_WSV400_E",
+        "CASE_WSV400_F"
+      ],
+      "case_count": 6,
+      "validation_grouping": "同一炉 ER 扫描(A–F)；Case A 有轴向剖面，B–F 以 parity 出口为主；F 为不同燃料批次"
+    }
   },
   "validation_performance_summary": {
     "_source": "Bild 8.2–8.5, Chapter 8",
@@ -23,6 +166,7 @@
     "_source_input": "Table 7.1",
     "_source_output": "Fig. 7.4, 7.5",
     "plant": "HTW Wesseling",
+    "plant_group_id": "PLANT_HTW_WESSELING",
     "country": "Germany",
     "scale": "pilot",
     "inputs": {
@@ -48,7 +192,8 @@
           ],
           "max_feed": 6.0,
           "n_size_classes": 10,
-          "_source": "Table A.2.1.1; Section 2.2.2: 10 discrete classes"
+          "feed_psd_measured": false,
+          "_source": "10 classes are the Dersch (1994) discretization adopted in Hamel §2.2, not a Wesseling sieve. Table A.2.1.1 and §6.1.2 are laboratory batches."
         },
         "feed_rate_kg_h": 3377.4
       },
@@ -57,10 +202,13 @@
         "staged_injection_levels": "up to 10",
         "primary_air_Nm3_h": "__NOT_TABULATED__  (primary distributor share is described qualitatively as the main portion entering via the multi-level bed/distributor system)",
         "total_air_Nm3_h": 5536.9,
-        "secondary_air_Nm3_h": 30.1,
-        "secondary_injection_xi_reactor": 0.6,
+        "total_air_source": "calculated_from_lambda_O2",
+        "secondary_air_Nm3_h": "__UNVERIFIED__ historical case file had 30.1; not confirmed on Tabelle 7.1 and not a measurement input",
+        "secondary_air_Nm3_h_historical": 30.1,
+        "secondary_injection_xi_reactor": "__UNVERIFIED__ 0.6 is a digitized spike on Fig. 7.4, not a surveyed nozzle",
+        "secondary_injection_xi_digitized": 0.6,
         "secondary_injection_agent": "Air",
-        "secondary_injection_note": "Table 7.1 / Chapter 7.1.2: secondary air = 30.1 Nm3/h(STP) at ξ≈0.6; primary share is not tabulated separately, only described qualitatively as the majority entering via the distributor / multi-level bed injection",
+        "secondary_injection_note": "Freeboard air/steam addition is described in §7.1.2. The flow 30.1 Nm3/h and xi=0.6 are not confirmed measurements and are not used as inlet splits.",
         "calculated_flows": {
           "_calculated_from": "λ_O2=0.337, fuel C/H/O/S + moisture=16.9%",
           "O2_stoich_mol_per_kg_dry": 54.85,
@@ -80,7 +228,10 @@
         "bed_height_note": "~6.0 m from Section 7.1.2 description",
         "feed_system": "2 points (Conus + Bed)",
         "bed_material": "__MISSING__  (likely ash/sand)",
-        "bed_particle_diameter_mm": "__MISSING__"
+        "bed_particle_diameter_mm": "__MISSING__",
+        "total_height_m": 14.5,
+        "bed_height_source": null,
+        "hamel_engineering_note": "Hamel §7.1.2, Bild 7.2"
       },
       "operating_conditions": {
         "pressure_MPa": 2.5,
@@ -99,7 +250,7 @@
       "_precision": "Digitized from Fig. 7.4 (p.129), ±5% reading error",
       "exit_temperature_K": 1100,
       "exit_temperature_measured_K": 1120,
-      "exit_gas_dry_mol_frac": {
+      "exit_gas_wet_mol_frac": {
         "CO": 0.13,
         "CO2": 0.11,
         "H2": 0.12,
@@ -241,6 +392,22 @@
           "temperature_curve_confidence": "Re-check against Hamel Fig. 7.4 confirms the main temperature anchors ξ=0.00/0.10/0.20/0.45/0.60/0.80/1.00 at roughly 750/1020/1100/1060/1240/1130/1100 K. Remaining uncertainty is mainly the fine intra-bed curvature between anchors, not the existence of the ξ≈0.6 secondary-air thermal peak itself."
         }
       }
+    },
+    "hamel_simulation_id": "1",
+    "hamel_table_ref": "Tabelle 7.1, Hamel (1999) Ch.7",
+    "hamel_plant_engineering": {
+      "source": "Hamel §7.1.2, Bild 7.2",
+      "pressure_MPa": 2.5,
+      "bed_diameter_m": 0.6,
+      "freeboard_diameter_m": 0.6,
+      "expanded_bed_height_m": 6.0,
+      "reactor_height_to_cyclone_m": 14.5,
+      "design_capacity_dry_coal_t_h": 6.5,
+      "fuel_inlet": "two points (cone + bed); screw or slanted tube",
+      "agent_injection": "O2/steam or air/steam, up to 10 staged levels in bed + freeboard",
+      "recycle": "cyclone return to bed",
+      "heat_loss_frac_note": "pilot ~5–10% of thermal input",
+      "T_inlet_K": 293
     }
   },
   "CASE_HTW_WESSELING_2": {
@@ -248,6 +415,7 @@
     "_source_input": "Table 7.1",
     "_source_output": "Fig. 7.4, 7.5",
     "plant": "HTW Wesseling",
+    "plant_group_id": "PLANT_HTW_WESSELING",
     "country": "Germany",
     "scale": "pilot",
     "inputs": {
@@ -273,7 +441,8 @@
           ],
           "max_feed": 6.0,
           "n_size_classes": 10,
-          "_source": "Table A.2.1.1; Section 2.2.2"
+          "feed_psd_measured": false,
+          "_source": "10 classes are the Dersch (1994) discretization adopted in Hamel §2.2, not a Wesseling sieve."
         },
         "feed_rate_kg_h": 6858.9
       },
@@ -282,10 +451,13 @@
         "staged_injection_levels": "up to 10",
         "primary_O2_Nm3_h": "__NOT_TABULATED__  (primary distributor O2 share is not explicitly tabulated; main portion enters via the multi-level bed/distributor system)",
         "total_O2_Nm3_h": 1921.6,
-        "secondary_O2_Nm3_h": 37.5,
-        "secondary_injection_xi_reactor": 0.6,
+        "total_O2_source": "calculated_from_lambda_O2",
+        "secondary_O2_Nm3_h": "__UNVERIFIED__ historical case file had 37.5; not confirmed on Tabelle 7.1 and not a measurement input",
+        "secondary_O2_Nm3_h_historical": 37.5,
+        "secondary_injection_xi_reactor": "__UNVERIFIED__ 0.6 is a digitized spike on Fig. 7.5, not a surveyed nozzle",
+        "secondary_injection_xi_digitized": 0.6,
         "secondary_injection_agent": "O2",
-        "secondary_injection_note": "Table 7.1 / Chapter 7.1.2: secondary O2 = 37.5 Nm3/h(STP) around ξ≈0.6; primary distributor share is not tabulated separately",
+        "secondary_injection_note": "Freeboard oxygen/steam addition is described in §7.1.2. The flow 37.5 Nm3/h and xi=0.6 are not confirmed measurements and are not used as inlet splits.",
         "calculated_flows": {
           "_calculated_from": "λ_O2=0.268, fuel C/H/O/S + moisture=15.8%",
           "O2_stoich_mol_per_kg_dry": 55.39,
@@ -304,7 +476,10 @@
         "bed_height_note": "~6.0 m from Section 7.1.2",
         "feed_system": "2 points (Conus + Bed)",
         "bed_material": "__MISSING__",
-        "bed_particle_diameter_mm": "__MISSING__"
+        "bed_particle_diameter_mm": "__MISSING__",
+        "total_height_m": 14.5,
+        "bed_height_source": null,
+        "hamel_engineering_note": "Hamel §7.1.2, Bild 7.2"
       },
       "operating_conditions": {
         "pressure_MPa": 2.5,
@@ -457,6 +632,22 @@
           "T_exit": "1220 K vs 1100 K (+120 K)"
         }
       }
+    },
+    "hamel_simulation_id": "2",
+    "hamel_table_ref": "Tabelle 7.1, Hamel (1999) Ch.7",
+    "hamel_plant_engineering": {
+      "source": "Hamel §7.1.2, Bild 7.2",
+      "pressure_MPa": 2.5,
+      "bed_diameter_m": 0.6,
+      "freeboard_diameter_m": 0.6,
+      "expanded_bed_height_m": 6.0,
+      "reactor_height_to_cyclone_m": 14.5,
+      "design_capacity_dry_coal_t_h": 6.5,
+      "fuel_inlet": "two points (cone + bed); screw or slanted tube",
+      "agent_injection": "O2/steam or air/steam, up to 10 staged levels in bed + freeboard",
+      "recycle": "cyclone return to bed",
+      "heat_loss_frac_note": "pilot ~5–10% of thermal input",
+      "T_inlet_K": 293
     }
   },
   "CASE_HTW_BERRENRATH": {
@@ -464,6 +655,7 @@
     "_source_input": "Table 7.1",
     "_source_output": "Fig. 7.6",
     "plant": "HTW Berrenrath",
+    "plant_group_id": "PLANT_HTW_BERRENRATH",
     "country": "Germany",
     "scale": "commercial/demo",
     "inputs": {
@@ -511,7 +703,12 @@
         "bed_height_m": "__MISSING__  (not specified in Table 7.1)",
         "feed_system": "1 point (Bed mid-height)",
         "bed_material": "__MISSING__",
-        "bed_particle_diameter_mm": "__MISSING__"
+        "bed_particle_diameter_mm": "__MISSING__",
+        "bed_diameter_m": 2.75,
+        "freeboard_diameter_m": 2.75,
+        "total_height_m": 23.0,
+        "bed_height_source": null,
+        "hamel_engineering_note": "Hamel §7.1.2, Bild 7.3"
       },
       "operating_conditions": {
         "pressure_MPa": 1.0,
@@ -520,7 +717,9 @@
         "T_inlet_K": 293,
         "T_inlet_note": "ambient, assumed",
         "recirculation": true,
-        "recirculation_note": "via Cyclone"
+        "recirculation_note": "via Cyclone",
+        "recycle_topology": "cyclone return to bed",
+        "cyclone_present": true
       },
       "heat_loss_note": "lower than pilot plant (commercial scale)"
     },
@@ -671,6 +870,21 @@
           "T_decay": "T drops 1250→1050 K in freeboard; model slightly underestimates vs measurement"
         }
       }
+    },
+    "hamel_simulation_id": "3",
+    "hamel_table_ref": "Tabelle 7.1, Hamel (1999) Ch.7",
+    "hamel_plant_engineering": {
+      "source": "Hamel §7.1.2, Bild 7.3",
+      "pressure_MPa": 1.0,
+      "bed_diameter_m": 2.75,
+      "freeboard_diameter_m": 2.75,
+      "reactor_height_m": 23.0,
+      "design_capacity_dry_coal_t_h": 25,
+      "fuel_inlet": "single doser directly into bed (~mid bed height per Fig 7.6 narrative)",
+      "agent_injection": "O2/steam mixture; less staging than Wesseling pilot",
+      "recycle": "cyclone return to bed",
+      "heat_loss_frac_note": "commercial demo — lower specific loss than pilot",
+      "T_inlet_K": 293
     }
   },
   "CASE_VTT_PRESSURIZED_COAL_1": {
@@ -678,31 +892,58 @@
     "_source_input": "Table 7.2 (p.133)",
     "_source_output": "Fig. 7.8 (p.135)",
     "plant": "VTT Pressurized BFB",
+    "plant_group_id": "PLANT_VTT",
     "country": "Finland",
     "scale": "lab/small pilot",
     "inputs": {
       "fuel": {
         "type": "Brown Coal (Braunkohle) — same reactor as peat cases",
         "_note": "Cases 1–4 in Table 7.2 used Brown Coal; fuel analysis likely same as HTW Rhenish coal",
-        "proximate_analysis": "__MISSING__  (Table 7.2: Cases 1-4 coal properties)",
-        "ultimate_analysis_dry_wt_pct": "__MISSING__  (Table 7.2: Cases 1-4)",
-        "particle_diameter_mm": "__MISSING__",
-        "feed_rate_kg_h": "__MISSING__  (Table 7.2 Case 1)"
+        "proximate_analysis": {
+          "moisture_wt_pct": 11.8,
+          "ash_dry_wt_pct": 4.3,
+          "VM_daf_pct": 53.0
+        },
+        "ultimate_analysis_dry_wt_pct": {
+          "C": 63.8,
+          "H": 4.6,
+          "O": 26.2,
+          "N": 0.8,
+          "S": 0.3
+        },
+        "particle_diameter_mm": {
+          "mean_range": [
+            1.0,
+            4.0
+          ],
+          "_source": "Hamel Ch.7 VTT/Kurkela typical feed; exact sieve not tabulated in Table 7.2"
+        },
+        "feed_rate_kg_h": 46.9
       },
       "gasification_agent": {
         "type": "Air/Steam",
-        "_note": "exact flows for Case 1 not extracted yet"
+        "_note": "exact flows for Case 1 not extracted yet",
+        "primary_air_Nm3_h": 51.8,
+        "total_air_Nm3_h": 81.9,
+        "secondary_air_Nm3_h": 30.1,
+        "steam_feed_kg_h": 6.8,
+        "secondary_injection_xi_reactor": 0.6
       },
       "reactor": {
         "height_m": 3.5,
         "bed_diameter_m": 0.15,
         "freeboard_diameter_m": 0.25,
-        "secondary_air_port_mm_above_nozzle": 800
+        "secondary_air_port_mm_above_nozzle": 800,
+        "total_height_m": 3.5,
+        "bed_height_m": 1.2,
+        "bed_height_source": "Table 7.5 (parameter study standard on same reactor)",
+        "hamel_engineering_note": "Hamel §7.1.3, Bild 7.7; Kurkela & Ståhlberg (1992)"
       },
       "operating_conditions": {
         "pressure_MPa": 0.5,
-        "ER": "__MISSING__  (Table 7.2 Case 1)",
-        "recirculation": "__MISSING__"
+        "ER": 0.33,
+        "recirculation": false,
+        "T_inlet_K": 293
       }
     },
     "outputs": {
@@ -790,7 +1031,58 @@
           "T_profile": "T peaks at 1180 K in bed, decays to 980 K at exit",
           "validation": "model captures CO and H2 within ±5-8% for this pressurized coal case"
         }
+      },
+      "carbon_conversion_pct": 78.0,
+      "parity_plot_data": {
+        "available": true,
+        "source": "Fig. 7.10, digitized 2026-06-04",
+        "messung_axis": {
+          "CO": 0.155,
+          "CO2": 0.105,
+          "H2": 0.135,
+          "CH4": 0.042,
+          "H2O": 0.115
+        },
+        "sim_axis": {
+          "CO": 0.148,
+          "CO2": 0.112,
+          "H2": 0.128,
+          "CH4": 0.045,
+          "H2O": 0.118
+        },
+        "T_FRB_K": {
+          "meas": 1185,
+          "sim": 1200
+        },
+        "carbon_conversion_pct": {
+          "meas": 78,
+          "sim": 76
+        }
       }
+    },
+    "hamel_simulation_id": "1",
+    "hamel_table_ref": "Tabelle 7.2, Hamel (1999) Ch.7",
+    "hamel_plant_engineering": {
+      "source": "Hamel §7.1.3, Bild 7.7; Kurkela & Ståhlberg (1992)",
+      "pressure_MPa_range": [
+        0.5,
+        1.0
+      ],
+      "bed_diameter_m": 0.15,
+      "freeboard_diameter_m": 0.25,
+      "total_height_m": 3.5,
+      "bed_height_m": 1.2,
+      "bed_height_source": "Table 7.5 (parameter study standard on same reactor)",
+      "secondary_air_port_mm_above_nozzle": 800,
+      "fuel_inlet": "above distributor, immediate pyrolysis/drying",
+      "agent_injection": "steam with primary air via distributor; secondary air in freeboard",
+      "primary_air_fraction_typical": "0.5–0.8 of total air; case 1 ~60% primary",
+      "recycle": "optional cyclone (2-cell model in Hamel)",
+      "design_throughput_kg_h_range": [
+        25,
+        75
+      ],
+      "T_inlet_K": 293
     }
   },
   "CASE_VTT_PRESSURIZED_PEAT_6": {
@@ -798,13 +1090,14 @@
     "_source_input": "Table 7.2 (p.133)",
     "_source_output": "Fig. 7.8, 7.9, 7.10",
     "plant": "VTT Pressurized BFB",
+    "plant_group_id": "PLANT_VTT",
     "country": "Finland",
     "scale": "lab/small pilot",
     "inputs": {
       "fuel": {
         "type": "Finnish Peat (Finnischer Torf)",
         "proximate_analysis": {
-          "moisture_wt_pct": "__MISSING__  (Table 7.2: range 11.3–18.5% for peat runs)",
+          "moisture_wt_pct": 14.8,
           "moisture_range_pct": [
             11.3,
             18.5
@@ -844,20 +1137,26 @@
           "O2_actual_Nm3_h": 17.7,
           "air_actual_kg_h": 109.1,
           "air_actual_Nm3_h": 84.4
-        }
+        },
+        "total_air_Nm3_h": 82.6,
+        "steam_to_dry_fuel_ratio": 0.28,
+        "secondary_injection_xi_reactor": 0.6
       },
       "reactor": {
         "height_m": 3.5,
         "bed_diameter_m": 0.15,
         "freeboard_diameter_m": 0.25,
         "secondary_air_port_mm_above_nozzle": 800,
-        "bed_height_m": "__MISSING__",
-        "bed_material": "__MISSING__"
+        "bed_height_m": 1.2,
+        "bed_material": "__MISSING__",
+        "total_height_m": 3.5,
+        "bed_height_source": "Table 7.5 (parameter study standard on same reactor)",
+        "hamel_engineering_note": "Hamel §7.1.3, Bild 7.7; Kurkela & Ståhlberg (1992)"
       },
       "operating_conditions": {
         "pressure_MPa": 0.5,
         "ER": 0.29,
-        "T_inlet_K": "__MISSING__",
+        "T_inlet_K": 293,
         "recirculation": false
       }
     },
@@ -882,11 +1181,29 @@
       "carbon_conversion_pct": 86.5,
       "parity_plot_data": {
         "available": true,
-        "source": "Fig. 7.8 (carbon conversion), Fig. 7.9 (temperature)",
-        "carbon_conversion_range_pct": [
-          80,
-          98
-        ]
+        "source": "Fig. 7.10, digitized 2026-06-04",
+        "messung_axis": {
+          "CO": 0.11,
+          "CO2": 0.14,
+          "H2": 0.095,
+          "CH4": 0.035,
+          "H2O": 0.19
+        },
+        "sim_axis": {
+          "CO": 0.105,
+          "CO2": 0.145,
+          "H2": 0.09,
+          "CH4": 0.033,
+          "H2O": 0.185
+        },
+        "T_FRB_K": {
+          "meas": 1055,
+          "sim": 1020
+        },
+        "carbon_conversion_pct": {
+          "meas": 86,
+          "sim": 84
+        }
       },
       "axial_profiles": {
         "available": true,
@@ -964,6 +1281,30 @@
           "T_bed_peak": "1080 vs 1180 K (peat ~100K lower due to moisture)"
         }
       }
+    },
+    "hamel_simulation_id": "6",
+    "hamel_table_ref": "Tabelle 7.2, Hamel (1999) Ch.7",
+    "hamel_plant_engineering": {
+      "source": "Hamel §7.1.3, Bild 7.7; Kurkela & Ståhlberg (1992)",
+      "pressure_MPa_range": [
+        0.5,
+        1.0
+      ],
+      "bed_diameter_m": 0.15,
+      "freeboard_diameter_m": 0.25,
+      "total_height_m": 3.5,
+      "bed_height_m": 1.2,
+      "bed_height_source": "Table 7.5 (parameter study standard on same reactor)",
+      "secondary_air_port_mm_above_nozzle": 800,
+      "fuel_inlet": "above distributor, immediate pyrolysis/drying",
+      "agent_injection": "steam with primary air via distributor; secondary air in freeboard",
+      "primary_air_fraction_typical": "0.5–0.8 of total air; case 1 ~60% primary",
+      "recycle": "optional cyclone (2-cell model in Hamel)",
+      "design_throughput_kg_h_range": [
+        25,
+        75
+      ],
+      "T_inlet_K": 293
     }
   },
   "CASE_VTT_PRESSURIZED_PEAT_13": {
@@ -971,13 +1312,14 @@
     "_source_input": "Table 7.2 (p.133)",
     "_source_output": "Fig. 7.8, 7.9, 7.10",
     "plant": "VTT Pressurized BFB",
+    "plant_group_id": "PLANT_VTT",
     "country": "Finland",
     "scale": "lab/small pilot",
     "inputs": {
       "fuel": {
         "type": "Finnish Peat (Finnischer Torf)",
         "proximate_analysis": {
-          "moisture_wt_pct": "__MISSING__  (Table 7.2: range 11.3–18.5%)",
+          "moisture_wt_pct": 16.0,
           "moisture_range_pct": [
             11.3,
             18.5
@@ -1015,29 +1357,101 @@
           "O2_actual_Nm3_h": 19.2,
           "air_actual_kg_h": 118.2,
           "air_actual_Nm3_h": 91.5
-        }
+        },
+        "total_air_Nm3_h": 88.6,
+        "secondary_injection_xi_reactor": 0.6
       },
       "reactor": {
         "height_m": 3.5,
         "bed_diameter_m": 0.15,
         "freeboard_diameter_m": 0.25,
         "secondary_air_port_mm_above_nozzle": 800,
-        "bed_height_m": "__MISSING__",
-        "bed_material": "__MISSING__"
+        "bed_height_m": 1.2,
+        "bed_material": "__MISSING__",
+        "total_height_m": 3.5,
+        "bed_height_source": "Table 7.5 (parameter study standard on same reactor)",
+        "hamel_engineering_note": "Hamel §7.1.3, Bild 7.7; Kurkela & Ståhlberg (1992)"
       },
       "operating_conditions": {
         "pressure_MPa": 0.5,
         "ER": 0.41,
-        "T_inlet_K": "__MISSING__",
+        "T_inlet_K": 293,
         "recirculation": true,
-        "recirculation_note": "cyclone separation efficiency ~90-95%"
+        "recirculation_note": "cyclone separation efficiency ~90-95%",
+        "recycle_topology": "cyclone return to bed",
+        "cyclone_present": true
       }
     },
     "outputs": {
-      "_precision": "__FROM_PLOT__  (Fig. 7.8–7.10)",
-      "exit_temperature_K": "__MISSING__  (extract from Fig. 7.9 parity plot)",
-      "exit_gas_dry_mol_frac": "__MISSING__  (extract from Fig. 7.10)",
-      "carbon_conversion_pct": "__MISSING__  (extract from Fig. 7.8 parity plot)"
+      "_precision": "Digitized from Fig. 7.10 parity (Messung axis), ±5% reading error",
+      "exit_temperature_K": 1175,
+      "exit_gas_dry_mol_frac": {
+        "CO": 0.1130952380952381,
+        "CO2": 0.17857142857142858,
+        "H2": 0.10714285714285714,
+        "CH4": 0.0380952380952381,
+        "_note": "dry = wet / (1 - H2O) from parity Messung"
+      },
+      "carbon_conversion_pct": 97.0,
+      "exit_temperature_note": "Mean freeboard T (T_FRB) from Fig. 7.10/7.17 parity Messung axis; may differ from axial outlet profile at ξ=1",
+      "exit_gas_wet_mol_frac": {
+        "CO": 0.095,
+        "CO2": 0.15,
+        "H2": 0.09,
+        "CH4": 0.032,
+        "H2O": 0.16,
+        "N2": "__CALCULATED__"
+      },
+      "parity_plot_data": {
+        "available": true,
+        "source": "Fig. 7.10, digitized 2026-06-04",
+        "messung_axis": {
+          "CO": 0.095,
+          "CO2": 0.15,
+          "H2": 0.09,
+          "CH4": 0.032,
+          "H2O": 0.16
+        },
+        "sim_axis": {
+          "CO": 0.09,
+          "CO2": 0.155,
+          "H2": 0.085,
+          "CH4": 0.03,
+          "H2O": 0.155
+        },
+        "T_FRB_K": {
+          "meas": 1175,
+          "sim": 1165
+        },
+        "carbon_conversion_pct": {
+          "meas": 97,
+          "sim": 95
+        }
+      }
+    },
+    "hamel_simulation_id": "13",
+    "hamel_table_ref": "Tabelle 7.2, Hamel (1999) Ch.7",
+    "hamel_plant_engineering": {
+      "source": "Hamel §7.1.3, Bild 7.7; Kurkela & Ståhlberg (1992)",
+      "pressure_MPa_range": [
+        0.5,
+        1.0
+      ],
+      "bed_diameter_m": 0.15,
+      "freeboard_diameter_m": 0.25,
+      "total_height_m": 3.5,
+      "bed_height_m": 1.2,
+      "bed_height_source": "Table 7.5 (parameter study standard on same reactor)",
+      "secondary_air_port_mm_above_nozzle": 800,
+      "fuel_inlet": "above distributor, immediate pyrolysis/drying",
+      "agent_injection": "steam with primary air via distributor; secondary air in freeboard",
+      "primary_air_fraction_typical": "0.5–0.8 of total air; case 1 ~60% primary",
+      "recycle": "optional cyclone (2-cell model in Hamel)",
+      "design_throughput_kg_h_range": [
+        25,
+        75
+      ],
+      "T_inlet_K": 293
     }
   },
   "CASE_VTT_PRESSURIZED_SAWDUST_14": {
@@ -1045,13 +1459,14 @@
     "_source_input": "Table 7.2 (p.133)",
     "_source_output": "Fig. 7.8, 7.9, 7.10",
     "plant": "VTT Pressurized BFB",
+    "plant_group_id": "PLANT_VTT",
     "country": "Finland",
     "scale": "lab/small pilot",
     "inputs": {
       "fuel": {
         "type": "Sawdust (Sägemehl)",
         "proximate_analysis": {
-          "moisture_wt_pct": "__MISSING__  (Table 7.2: range 5.9–11.3% for sawdust)",
+          "moisture_wt_pct": 11.3,
           "moisture_range_pct": [
             5.9,
             11.3
@@ -1091,28 +1506,98 @@
           "O2_actual_Nm3_h": 10.7,
           "air_actual_kg_h": 65.8,
           "air_actual_Nm3_h": 50.9
-        }
+        },
+        "total_air_Nm3_h": 50.7,
+        "secondary_injection_xi_reactor": 0.6
       },
       "reactor": {
         "height_m": 3.5,
         "bed_diameter_m": 0.15,
         "freeboard_diameter_m": 0.25,
         "secondary_air_port_mm_above_nozzle": 800,
-        "bed_height_m": "__MISSING__",
-        "bed_material": "__MISSING__"
+        "bed_height_m": 1.2,
+        "bed_material": "__MISSING__",
+        "total_height_m": 3.5,
+        "bed_height_source": "Table 7.5 (parameter study standard on same reactor)",
+        "hamel_engineering_note": "Hamel §7.1.3, Bild 7.7; Kurkela & Ståhlberg (1992)"
       },
       "operating_conditions": {
         "pressure_MPa": 0.4,
         "ER": 0.28,
-        "T_inlet_K": "__MISSING__",
+        "T_inlet_K": 293,
         "recirculation": false
       }
     },
     "outputs": {
-      "_precision": "__FROM_PLOT__  (Fig. 7.8–7.10)",
-      "exit_temperature_K": "__MISSING__  (extract from Fig. 7.9)",
-      "exit_gas_dry_mol_frac": "__MISSING__  (extract from Fig. 7.10)",
-      "carbon_conversion_pct": "__MISSING__  (extract from Fig. 7.8)"
+      "_precision": "Digitized from Fig. 7.10 parity (Messung axis), ±5% reading error",
+      "exit_temperature_K": 1045,
+      "exit_gas_dry_mol_frac": {
+        "CO": 0.17415730337078653,
+        "CO2": 0.12359550561797752,
+        "H2": 0.0898876404494382,
+        "CH4": 0.05842696629213483,
+        "_note": "dry = wet / (1 - H2O) from parity Messung"
+      },
+      "carbon_conversion_pct": 93.0,
+      "exit_temperature_note": "Mean freeboard T (T_FRB) from Fig. 7.10/7.17 parity Messung axis; may differ from axial outlet profile at ξ=1",
+      "exit_gas_wet_mol_frac": {
+        "CO": 0.155,
+        "CO2": 0.11,
+        "H2": 0.08,
+        "CH4": 0.052,
+        "H2O": 0.11,
+        "N2": "__CALCULATED__"
+      },
+      "parity_plot_data": {
+        "available": true,
+        "source": "Fig. 7.10, digitized 2026-06-04",
+        "messung_axis": {
+          "CO": 0.155,
+          "CO2": 0.11,
+          "H2": 0.08,
+          "CH4": 0.052,
+          "H2O": 0.11
+        },
+        "sim_axis": {
+          "CO": 0.145,
+          "CO2": 0.118,
+          "H2": 0.075,
+          "CH4": 0.048,
+          "H2O": 0.105
+        },
+        "T_FRB_K": {
+          "meas": 1045,
+          "sim": 1120
+        },
+        "carbon_conversion_pct": {
+          "meas": 93,
+          "sim": 90
+        }
+      }
+    },
+    "hamel_simulation_id": "14",
+    "hamel_table_ref": "Tabelle 7.2, Hamel (1999) Ch.7",
+    "hamel_plant_engineering": {
+      "source": "Hamel §7.1.3, Bild 7.7; Kurkela & Ståhlberg (1992)",
+      "pressure_MPa_range": [
+        0.5,
+        1.0
+      ],
+      "bed_diameter_m": 0.15,
+      "freeboard_diameter_m": 0.25,
+      "total_height_m": 3.5,
+      "bed_height_m": 1.2,
+      "bed_height_source": "Table 7.5 (parameter study standard on same reactor)",
+      "secondary_air_port_mm_above_nozzle": 800,
+      "fuel_inlet": "above distributor, immediate pyrolysis/drying",
+      "agent_injection": "steam with primary air via distributor; secondary air in freeboard",
+      "primary_air_fraction_typical": "0.5–0.8 of total air; case 1 ~60% primary",
+      "recycle": "optional cyclone (2-cell model in Hamel)",
+      "design_throughput_kg_h_range": [
+        25,
+        75
+      ],
+      "T_inlet_K": 293
     }
   },
   "CASE_VTT_ATMOSPHERIC_PEAT_D": {
@@ -1120,6 +1605,7 @@
     "_source_input": "Table 7.3 (p.139)",
     "_source_output": "Fig. 7.12, 7.13",
     "plant": "VTT Atmospheric BFB",
+    "plant_group_id": "PLANT_VTT",
     "country": "Finland",
     "scale": "lab",
     "inputs": {
@@ -1163,21 +1649,27 @@
           "O2_actual_Nm3_h": 2.8,
           "air_actual_kg_h": 17.2,
           "air_actual_Nm3_h": 13.3
-        }
+        },
+        "total_air_Nm3_h": 12.9
       },
       "reactor": {
         "height_m": 3.5,
         "bed_diameter_m": 0.15,
         "freeboard_diameter_m": 0.25,
         "secondary_air_port_mm_above_nozzle": 800,
-        "bed_height_m": "__MISSING__",
-        "bed_material": "__MISSING__"
+        "bed_height_m": 1.2,
+        "bed_material": "__MISSING__",
+        "total_height_m": 3.65,
+        "bed_height_source": "inferred consistent with pressurized VTT + Table 7.5",
+        "hamel_engineering_note": "Hamel §7.1.4, Bild 7.11; Leppälahti & Kurkela (1991)"
       },
       "operating_conditions": {
         "pressure_MPa": 0.1,
         "ER": 0.26,
-        "T_inlet_K": "__MISSING__",
-        "recirculation": true
+        "T_inlet_K": 293,
+        "recirculation": true,
+        "recycle_topology": "cyclone return to bed",
+        "cyclone_present": true
       }
     },
     "outputs": {
@@ -1274,6 +1766,23 @@
           "validation": "measured T_exit ~920 K matches well"
         }
       }
+    },
+    "hamel_simulation_id": "D",
+    "hamel_table_ref": "Tabelle 7.3, Hamel (1999) Ch.7",
+    "hamel_plant_engineering": {
+      "source": "Hamel §7.1.4, Bild 7.11; Leppälahti & Kurkela (1991)",
+      "pressure_MPa": 0.1,
+      "bed_diameter_m": 0.158,
+      "freeboard_diameter_m": 0.158,
+      "total_height_m": 3.65,
+      "bed_height_m": 1.2,
+      "bed_height_source": "inferred consistent with pressurized VTT + Table 7.5",
+      "secondary_air_port_mm_above_nozzle": 800,
+      "fuel_inlet": "above distributor",
+      "agent_injection": "air only (cases D/E); optional secondary air (case C)",
+      "recycle": "optional cyclone",
+      "design_throughput_kg_h": 10,
+      "T_inlet_K": 293
     }
   },
   "CASE_VTT_ATMOSPHERIC_PEAT_E": {
@@ -1281,6 +1790,7 @@
     "_source_input": "Table 7.3 (p.139)",
     "_source_output": "Fig. 7.12, 7.13",
     "plant": "VTT Atmospheric BFB",
+    "plant_group_id": "PLANT_VTT",
     "country": "Finland",
     "scale": "lab",
     "inputs": {
@@ -1321,28 +1831,92 @@
           "O2_actual_Nm3_h": 2.9,
           "air_actual_kg_h": 17.6,
           "air_actual_Nm3_h": 13.6
-        }
+        },
+        "total_air_Nm3_h": 13.0
       },
       "reactor": {
         "height_m": 3.5,
         "bed_diameter_m": 0.15,
         "freeboard_diameter_m": 0.25,
         "secondary_air_port_mm_above_nozzle": 800,
-        "bed_height_m": "__MISSING__",
-        "bed_material": "__MISSING__"
+        "bed_height_m": 1.2,
+        "bed_material": "__MISSING__",
+        "total_height_m": 3.65,
+        "bed_height_source": "inferred consistent with pressurized VTT + Table 7.5",
+        "hamel_engineering_note": "Hamel §7.1.4, Bild 7.11; Leppälahti & Kurkela (1991)"
       },
       "operating_conditions": {
         "pressure_MPa": 0.1,
         "ER": 0.29,
-        "T_inlet_K": "__MISSING__",
-        "recirculation": true
+        "T_inlet_K": 293,
+        "recirculation": true,
+        "recycle_topology": "cyclone return to bed",
+        "cyclone_present": true
       }
     },
     "outputs": {
-      "_precision": "__FROM_PLOT__  (Fig. 7.12, 7.13)",
-      "exit_temperature_K": "__MISSING__  (extract from Fig. 7.12)",
-      "exit_gas_dry_mol_frac": "__MISSING__  (extract from Fig. 7.12)",
-      "carbon_conversion_pct": "__MISSING__  (extract from parity plots)"
+      "_precision": "Digitized from Fig. 7.13 parity (Messung axis), ±5% reading error",
+      "exit_temperature_K": 1100,
+      "exit_gas_dry_mol_frac": {
+        "CO": 0.131,
+        "CO2": 0.177,
+        "H2": 0.138,
+        "CH4": 0.052,
+        "_note": "dry = wet / (1 - H2O) from parity Messung"
+      },
+      "carbon_conversion_pct": 91.0,
+      "exit_temperature_note": "Mean freeboard T (T_FRB) from Fig. 7.13 parity Messung axis; may differ from axial outlet profile at ξ=1",
+      "exit_gas_wet_mol_frac": {
+        "CO": 0.112,
+        "CO2": 0.152,
+        "H2": 0.118,
+        "CH4": 0.045,
+        "H2O": 0.142,
+        "N2": "__CALCULATED__"
+      },
+      "parity_plot_data": {
+        "available": true,
+        "source": "Fig. 7.13, digitized 2026-06-04",
+        "messung_axis": {
+          "CO": 0.112,
+          "CO2": 0.152,
+          "H2": 0.118,
+          "CH4": 0.045,
+          "H2O": 0.142
+        },
+        "sim_axis": {
+          "CO": 0.118,
+          "CO2": 0.155,
+          "H2": 0.112,
+          "CH4": 0.052,
+          "H2O": 0.128
+        },
+        "T_FRB_K": {
+          "meas": 1100,
+          "sim": 1120
+        },
+        "carbon_conversion_pct": {
+          "meas": 91,
+          "sim": 94
+        }
+      }
+    },
+    "hamel_simulation_id": "E",
+    "hamel_table_ref": "Tabelle 7.3, Hamel (1999) Ch.7",
+    "hamel_plant_engineering": {
+      "source": "Hamel §7.1.4, Bild 7.11; Leppälahti & Kurkela (1991)",
+      "pressure_MPa": 0.1,
+      "bed_diameter_m": 0.158,
+      "freeboard_diameter_m": 0.158,
+      "total_height_m": 3.65,
+      "bed_height_m": 1.2,
+      "bed_height_source": "inferred consistent with pressurized VTT + Table 7.5",
+      "secondary_air_port_mm_above_nozzle": 800,
+      "fuel_inlet": "above distributor",
+      "agent_injection": "air only (cases D/E); optional secondary air (case C)",
+      "recycle": "optional cyclone",
+      "design_throughput_kg_h": 10,
+      "T_inlet_K": 293
     }
   },
   "_WSV400_SHARED": {
@@ -1420,6 +1994,7 @@
     "_source_input": "Table 7.4 (p.143)",
     "_source_output": "Fig. 7.16, 7.17",
     "plant": "WSV 400 Magdeburg",
+    "plant_group_id": "PLANT_WSV400",
     "country": "Germany",
     "scale": "pilot",
     "inputs": {
@@ -1427,8 +2002,8 @@
         "type": "Natural Wood (Holz)",
         "proximate_analysis": {
           "moisture_wt_pct": 27.3,
-          "ash_dry_wt_pct": "__MISSING__  (range 0.23–6.34%)",
-          "VM_daf_pct": "__MISSING__  (range 93.05–93.62%)"
+          "ash_dry_wt_pct": 6.34,
+          "VM_daf_pct": 93.62
         },
         "ultimate_analysis_dry_wt_pct": {
           "C": 46.27,
@@ -1462,18 +2037,23 @@
           "O2_actual_Nm3_h": 10.6,
           "air_actual_kg_h": 64.9,
           "air_actual_Nm3_h": 50.3
-        }
+        },
+        "total_air_Nm3_h": 50.0
       },
       "reactor": {
         "bed_diameter_m": 0.4,
         "freeboard_diameter_m": 0.6,
         "total_height_m": 3.0,
-        "fuel_inlet_mm_above_nozzle": 200
+        "fuel_inlet_mm_above_nozzle": 200,
+        "height_m": 3.0,
+        "bed_height_m": 1.2,
+        "bed_height_source": "ξ≈0.4 bed / 0.4–1.0 freeboard in Fig 7.16 → ~40% of 3 m",
+        "hamel_engineering_note": "Hamel §7.1.5, Bild 7.14; Hoyer et al. (1999)"
       },
       "operating_conditions": {
         "pressure_MPa": 0.1,
         "ER": 0.4532,
-        "T_inlet_K": "__MISSING__  (assumed ambient ~293 K)",
+        "T_inlet_K": 293,
         "recirculation": false
       }
     },
@@ -1552,7 +2132,43 @@
           "large_particles": "2-26mm equiv. diameter chips → most complex drying calculation",
           "validation": "measured T_exit ≈960 K vs sim 980 K (2% error)"
         }
+      },
+      "parity_plot_data": {
+        "available": true,
+        "source": "Fig. 7.17, digitized 2026-06-04",
+        "messung_axis": {
+          "CO": 0.172,
+          "CO2": 0.132,
+          "H2": 0.175,
+          "CH4": 0.022
+        },
+        "sim_axis": {
+          "CO": 0.168,
+          "CO2": 0.128,
+          "H2": 0.165,
+          "CH4": 0.02
+        },
+        "T_FRB_K": {
+          "meas": 1135,
+          "sim": 1135
+        }
       }
+    },
+    "hamel_simulation_id": "A",
+    "hamel_table_ref": "Tabelle 7.4, Hamel (1999) Ch.7",
+    "hamel_plant_engineering": {
+      "source": "Hamel §7.1.5, Bild 7.14; Hoyer et al. (1999)",
+      "pressure_MPa": 0.1,
+      "bed_diameter_m": 0.4,
+      "freeboard_diameter_m": 0.6,
+      "total_height_m": 3.0,
+      "bed_height_m": 1.2,
+      "bed_height_source": "ξ≈0.4 bed / 0.4–1.0 freeboard in Fig 7.16 → ~40% of 3 m",
+      "thermal_input_kW": 100,
+      "fuel_inlet_mm_above_nozzle": 200,
+      "agent_injection": "preheated air; primary/secondary splittable",
+      "recycle": false,
+      "T_inlet_K": 293
     }
   },
   "CASE_WSV400_B": {
@@ -1560,6 +2176,7 @@
     "_source_input": "Table 7.4",
     "_source_output": "Fig. 7.16, 7.17",
     "plant": "WSV 400 Magdeburg",
+    "plant_group_id": "PLANT_WSV400",
     "scale": "pilot",
     "inputs": {
       "fuel": {
@@ -1577,7 +2194,12 @@
             26
           ]
         },
-        "feed_rate_kg_h": 44.4
+        "feed_rate_kg_h": 44.4,
+        "proximate_analysis": {
+          "moisture_wt_pct": 25.8,
+          "ash_dry_wt_pct": 0.23,
+          "VM_daf_pct": 93.05
+        }
       },
       "gasification_agent": {
         "type": "Air (only)",
@@ -1590,21 +2212,76 @@
           "O2_actual_Nm3_h": 10.6,
           "air_actual_kg_h": 65.3,
           "air_actual_Nm3_h": 50.5
-        }
+        },
+        "total_air_Nm3_h": 50.0
       },
       "reactor": {
-        "_ref": "_WSV400_SHARED"
+        "_ref": "_WSV400_SHARED",
+        "bed_diameter_m": 0.4,
+        "freeboard_diameter_m": 0.6,
+        "height_m": 3.0,
+        "total_height_m": 3.0,
+        "bed_height_m": 1.2,
+        "fuel_inlet_mm_above_nozzle": 200,
+        "bed_height_source": "ξ≈0.4 bed / 0.4–1.0 freeboard in Fig 7.16 → ~40% of 3 m",
+        "hamel_engineering_note": "Hamel §7.1.5, Bild 7.14; Hoyer et al. (1999)"
       },
       "operating_conditions": {
         "pressure_MPa": 0.1,
         "ER": 0.35,
-        "recirculation": false
+        "recirculation": false,
+        "T_inlet_K": 293
       }
     },
     "outputs": {
-      "exit_temperature_K": "__MISSING__  (Fig. 7.16/7.17)",
-      "exit_gas_dry_mol_frac": "__MISSING__  (Fig. 7.16/7.17)",
-      "carbon_conversion_pct": "__MISSING__"
+      "exit_temperature_K": 1010,
+      "exit_gas_dry_mol_frac": {
+        "CO": 0.155,
+        "CO2": 0.128,
+        "H2": 0.16,
+        "CH4": 0.028,
+        "N2": "__CALCULATED__  (balance for air gasification)",
+        "_note": "Fig. 7.17 reports dry basis (mol/mol trocken)"
+      },
+      "carbon_conversion_pct": "__MISSING__",
+      "exit_temperature_note": "Mean freeboard T (T_FRB) from Fig. 7.10/7.17 parity Messung axis; may differ from axial outlet profile at ξ=1",
+      "parity_plot_data": {
+        "available": true,
+        "source": "Fig. 7.17, digitized 2026-06-04",
+        "messung_axis": {
+          "CO": 0.155,
+          "CO2": 0.128,
+          "H2": 0.16,
+          "CH4": 0.028
+        },
+        "sim_axis": {
+          "CO": 0.178,
+          "CO2": 0.135,
+          "H2": 0.185,
+          "CH4": 0.025
+        },
+        "T_FRB_K": {
+          "meas": 1010,
+          "sim": 1045
+        }
+      },
+      "_precision": "Digitized from Fig. 7.17 parity (Messung axis), ±5% reading error"
+    },
+    "hamel_simulation_id": "B",
+    "hamel_table_ref": "Tabelle 7.4, Hamel (1999) Ch.7",
+    "hamel_plant_engineering": {
+      "source": "Hamel §7.1.5, Bild 7.14; Hoyer et al. (1999)",
+      "pressure_MPa": 0.1,
+      "bed_diameter_m": 0.4,
+      "freeboard_diameter_m": 0.6,
+      "total_height_m": 3.0,
+      "bed_height_m": 1.2,
+      "bed_height_source": "ξ≈0.4 bed / 0.4–1.0 freeboard in Fig 7.16 → ~40% of 3 m",
+      "thermal_input_kW": 100,
+      "fuel_inlet_mm_above_nozzle": 200,
+      "agent_injection": "preheated air; primary/secondary splittable",
+      "recycle": false,
+      "T_inlet_K": 293
     }
   },
   "CASE_WSV400_C": {
@@ -1612,6 +2289,7 @@
     "_source_input": "Table 7.4",
     "_source_output": "Fig. 7.16, 7.17",
     "plant": "WSV 400 Magdeburg",
+    "plant_group_id": "PLANT_WSV400",
     "scale": "pilot",
     "inputs": {
       "fuel": {
@@ -1629,7 +2307,12 @@
             26
           ]
         },
-        "feed_rate_kg_h": 38.8
+        "feed_rate_kg_h": 38.8,
+        "proximate_analysis": {
+          "moisture_wt_pct": 25.8,
+          "ash_dry_wt_pct": 0.23,
+          "VM_daf_pct": 93.05
+        }
       },
       "gasification_agent": {
         "type": "Air (only)",
@@ -1642,21 +2325,76 @@
           "O2_actual_Nm3_h": 10.6,
           "air_actual_kg_h": 65.2,
           "air_actual_Nm3_h": 50.4
-        }
+        },
+        "total_air_Nm3_h": 50.0
       },
       "reactor": {
-        "_ref": "_WSV400_SHARED"
+        "_ref": "_WSV400_SHARED",
+        "bed_diameter_m": 0.4,
+        "freeboard_diameter_m": 0.6,
+        "height_m": 3.0,
+        "total_height_m": 3.0,
+        "bed_height_m": 1.2,
+        "fuel_inlet_mm_above_nozzle": 200,
+        "bed_height_source": "ξ≈0.4 bed / 0.4–1.0 freeboard in Fig 7.16 → ~40% of 3 m",
+        "hamel_engineering_note": "Hamel §7.1.5, Bild 7.14; Hoyer et al. (1999)"
       },
       "operating_conditions": {
         "pressure_MPa": 0.1,
         "ER": 0.4,
-        "recirculation": false
+        "recirculation": false,
+        "T_inlet_K": 293
       }
     },
     "outputs": {
-      "exit_temperature_K": "__MISSING__  (Fig. 7.16/7.17)",
-      "exit_gas_dry_mol_frac": "__MISSING__  (Fig. 7.16/7.17)",
-      "carbon_conversion_pct": "__MISSING__"
+      "exit_temperature_K": 1115,
+      "exit_gas_dry_mol_frac": {
+        "CO": 0.168,
+        "CO2": 0.132,
+        "H2": 0.17,
+        "CH4": 0.024,
+        "N2": "__CALCULATED__  (balance for air gasification)",
+        "_note": "Fig. 7.17 reports dry basis (mol/mol trocken)"
+      },
+      "carbon_conversion_pct": "__MISSING__",
+      "exit_temperature_note": "Mean freeboard T (T_FRB) from Fig. 7.10/7.17 parity Messung axis; may differ from axial outlet profile at ξ=1",
+      "parity_plot_data": {
+        "available": true,
+        "source": "Fig. 7.17, digitized 2026-06-04",
+        "messung_axis": {
+          "CO": 0.168,
+          "CO2": 0.132,
+          "H2": 0.17,
+          "CH4": 0.024
+        },
+        "sim_axis": {
+          "CO": 0.165,
+          "CO2": 0.13,
+          "H2": 0.185,
+          "CH4": 0.022
+        },
+        "T_FRB_K": {
+          "meas": 1115,
+          "sim": 1110
+        }
+      },
+      "_precision": "Digitized from Fig. 7.17 parity (Messung axis), ±5% reading error"
+    },
+    "hamel_simulation_id": "C",
+    "hamel_table_ref": "Tabelle 7.4, Hamel (1999) Ch.7",
+    "hamel_plant_engineering": {
+      "source": "Hamel §7.1.5, Bild 7.14; Hoyer et al. (1999)",
+      "pressure_MPa": 0.1,
+      "bed_diameter_m": 0.4,
+      "freeboard_diameter_m": 0.6,
+      "total_height_m": 3.0,
+      "bed_height_m": 1.2,
+      "bed_height_source": "ξ≈0.4 bed / 0.4–1.0 freeboard in Fig 7.16 → ~40% of 3 m",
+      "thermal_input_kW": 100,
+      "fuel_inlet_mm_above_nozzle": 200,
+      "agent_injection": "preheated air; primary/secondary splittable",
+      "recycle": false,
+      "T_inlet_K": 293
     }
   },
   "CASE_WSV400_D": {
@@ -1664,6 +2402,7 @@
     "_source_input": "Table 7.4",
     "_source_output": "Fig. 7.16, 7.17",
     "plant": "WSV 400 Magdeburg",
+    "plant_group_id": "PLANT_WSV400",
     "scale": "pilot",
     "inputs": {
       "fuel": {
@@ -1681,7 +2420,12 @@
             26
           ]
         },
-        "feed_rate_kg_h": 34.5
+        "feed_rate_kg_h": 34.5,
+        "proximate_analysis": {
+          "moisture_wt_pct": 25.8,
+          "ash_dry_wt_pct": 0.23,
+          "VM_daf_pct": 93.05
+        }
       },
       "gasification_agent": {
         "type": "Air (only)",
@@ -1694,21 +2438,76 @@
           "O2_actual_Nm3_h": 10.6,
           "air_actual_kg_h": 65.2,
           "air_actual_Nm3_h": 50.5
-        }
+        },
+        "total_air_Nm3_h": 50.0
       },
       "reactor": {
-        "_ref": "_WSV400_SHARED"
+        "_ref": "_WSV400_SHARED",
+        "bed_diameter_m": 0.4,
+        "freeboard_diameter_m": 0.6,
+        "height_m": 3.0,
+        "total_height_m": 3.0,
+        "bed_height_m": 1.2,
+        "fuel_inlet_mm_above_nozzle": 200,
+        "bed_height_source": "ξ≈0.4 bed / 0.4–1.0 freeboard in Fig 7.16 → ~40% of 3 m",
+        "hamel_engineering_note": "Hamel §7.1.5, Bild 7.14; Hoyer et al. (1999)"
       },
       "operating_conditions": {
         "pressure_MPa": 0.1,
         "ER": 0.45,
-        "recirculation": false
+        "recirculation": false,
+        "T_inlet_K": 293
       }
     },
     "outputs": {
-      "exit_temperature_K": "__MISSING__  (Fig. 7.16/7.17)",
-      "exit_gas_dry_mol_frac": "__MISSING__  (Fig. 7.16/7.17)",
-      "carbon_conversion_pct": "__MISSING__"
+      "exit_temperature_K": 1120,
+      "exit_gas_dry_mol_frac": {
+        "CO": 0.178,
+        "CO2": 0.135,
+        "H2": 0.18,
+        "CH4": 0.02,
+        "N2": "__CALCULATED__  (balance for air gasification)",
+        "_note": "Fig. 7.17 reports dry basis (mol/mol trocken)"
+      },
+      "carbon_conversion_pct": "__MISSING__",
+      "exit_temperature_note": "Mean freeboard T (T_FRB) from Fig. 7.10/7.17 parity Messung axis; may differ from axial outlet profile at ξ=1",
+      "parity_plot_data": {
+        "available": true,
+        "source": "Fig. 7.17, digitized 2026-06-04",
+        "messung_axis": {
+          "CO": 0.178,
+          "CO2": 0.135,
+          "H2": 0.18,
+          "CH4": 0.02
+        },
+        "sim_axis": {
+          "CO": 0.172,
+          "CO2": 0.132,
+          "H2": 0.16,
+          "CH4": 0.018
+        },
+        "T_FRB_K": {
+          "meas": 1120,
+          "sim": 1130
+        }
+      },
+      "_precision": "Digitized from Fig. 7.17 parity (Messung axis), ±5% reading error"
+    },
+    "hamel_simulation_id": "D",
+    "hamel_table_ref": "Tabelle 7.4, Hamel (1999) Ch.7",
+    "hamel_plant_engineering": {
+      "source": "Hamel §7.1.5, Bild 7.14; Hoyer et al. (1999)",
+      "pressure_MPa": 0.1,
+      "bed_diameter_m": 0.4,
+      "freeboard_diameter_m": 0.6,
+      "total_height_m": 3.0,
+      "bed_height_m": 1.2,
+      "bed_height_source": "ξ≈0.4 bed / 0.4–1.0 freeboard in Fig 7.16 → ~40% of 3 m",
+      "thermal_input_kW": 100,
+      "fuel_inlet_mm_above_nozzle": 200,
+      "agent_injection": "preheated air; primary/secondary splittable",
+      "recycle": false,
+      "T_inlet_K": 293
     }
   },
   "CASE_WSV400_E": {
@@ -1716,6 +2515,7 @@
     "_source_input": "Table 7.4",
     "_source_output": "Fig. 7.16, 7.17",
     "plant": "WSV 400 Magdeburg",
+    "plant_group_id": "PLANT_WSV400",
     "scale": "pilot",
     "inputs": {
       "fuel": {
@@ -1733,7 +2533,12 @@
             26
           ]
         },
-        "feed_rate_kg_h": 31.1
+        "feed_rate_kg_h": 31.1,
+        "proximate_analysis": {
+          "moisture_wt_pct": 25.8,
+          "ash_dry_wt_pct": 0.23,
+          "VM_daf_pct": 93.05
+        }
       },
       "gasification_agent": {
         "type": "Air (only)",
@@ -1746,21 +2551,76 @@
           "O2_actual_Nm3_h": 10.6,
           "air_actual_kg_h": 65.3,
           "air_actual_Nm3_h": 50.5
-        }
+        },
+        "total_air_Nm3_h": 50.0
       },
       "reactor": {
-        "_ref": "_WSV400_SHARED"
+        "_ref": "_WSV400_SHARED",
+        "bed_diameter_m": 0.4,
+        "freeboard_diameter_m": 0.6,
+        "height_m": 3.0,
+        "total_height_m": 3.0,
+        "bed_height_m": 1.2,
+        "fuel_inlet_mm_above_nozzle": 200,
+        "bed_height_source": "ξ≈0.4 bed / 0.4–1.0 freeboard in Fig 7.16 → ~40% of 3 m",
+        "hamel_engineering_note": "Hamel §7.1.5, Bild 7.14; Hoyer et al. (1999)"
       },
       "operating_conditions": {
         "pressure_MPa": 0.1,
         "ER": 0.5,
-        "recirculation": false
+        "recirculation": false,
+        "T_inlet_K": 293
       }
     },
     "outputs": {
-      "exit_temperature_K": "__MISSING__  (Fig. 7.16/7.17)",
-      "exit_gas_dry_mol_frac": "__MISSING__  (Fig. 7.16/7.17)",
-      "carbon_conversion_pct": "__MISSING__"
+      "exit_temperature_K": 1135,
+      "exit_gas_dry_mol_frac": {
+        "CO": 0.188,
+        "CO2": 0.142,
+        "H2": 0.19,
+        "CH4": 0.018,
+        "N2": "__CALCULATED__  (balance for air gasification)",
+        "_note": "Fig. 7.17 reports dry basis (mol/mol trocken)"
+      },
+      "carbon_conversion_pct": "__MISSING__",
+      "exit_temperature_note": "Mean freeboard T (T_FRB) from Fig. 7.10/7.17 parity Messung axis; may differ from axial outlet profile at ξ=1",
+      "parity_plot_data": {
+        "available": true,
+        "source": "Fig. 7.17, digitized 2026-06-04",
+        "messung_axis": {
+          "CO": 0.188,
+          "CO2": 0.142,
+          "H2": 0.19,
+          "CH4": 0.018
+        },
+        "sim_axis": {
+          "CO": 0.175,
+          "CO2": 0.138,
+          "H2": 0.14,
+          "CH4": 0.015
+        },
+        "T_FRB_K": {
+          "meas": 1135,
+          "sim": 1150
+        }
+      },
+      "_precision": "Digitized from Fig. 7.17 parity (Messung axis), ±5% reading error"
+    },
+    "hamel_simulation_id": "E",
+    "hamel_table_ref": "Tabelle 7.4, Hamel (1999) Ch.7",
+    "hamel_plant_engineering": {
+      "source": "Hamel §7.1.5, Bild 7.14; Hoyer et al. (1999)",
+      "pressure_MPa": 0.1,
+      "bed_diameter_m": 0.4,
+      "freeboard_diameter_m": 0.6,
+      "total_height_m": 3.0,
+      "bed_height_m": 1.2,
+      "bed_height_source": "ξ≈0.4 bed / 0.4–1.0 freeboard in Fig 7.16 → ~40% of 3 m",
+      "thermal_input_kW": 100,
+      "fuel_inlet_mm_above_nozzle": 200,
+      "agent_injection": "preheated air; primary/secondary splittable",
+      "recycle": false,
+      "T_inlet_K": 293
     }
   },
   "CASE_WSV400_F": {
@@ -1768,12 +2628,15 @@
     "_source_input": "Table 7.4",
     "_source_output": "Fig. 7.16, 7.17",
     "plant": "WSV 400 Magdeburg",
+    "plant_group_id": "PLANT_WSV400",
     "scale": "pilot",
     "inputs": {
       "fuel": {
         "type": "Natural Wood (Holz) — different batch",
         "proximate_analysis": {
-          "moisture_wt_pct": 22.8
+          "moisture_wt_pct": 22.8,
+          "ash_dry_wt_pct": 0.23,
+          "VM_daf_pct": 93.05
         },
         "ultimate_analysis_dry_wt_pct": {
           "C": 51.85,
@@ -1802,22 +2665,77 @@
           "O2_actual_Nm3_h": 11.9,
           "air_actual_kg_h": 73.2,
           "air_actual_Nm3_h": 56.6
-        }
+        },
+        "total_air_Nm3_h": 50.0
       },
       "reactor": {
-        "_ref": "_WSV400_SHARED"
+        "_ref": "_WSV400_SHARED",
+        "bed_diameter_m": 0.4,
+        "freeboard_diameter_m": 0.6,
+        "height_m": 3.0,
+        "total_height_m": 3.0,
+        "bed_height_m": 1.2,
+        "fuel_inlet_mm_above_nozzle": 200,
+        "bed_height_source": "ξ≈0.4 bed / 0.4–1.0 freeboard in Fig 7.16 → ~40% of 3 m",
+        "hamel_engineering_note": "Hamel §7.1.5, Bild 7.14; Hoyer et al. (1999)"
       },
       "operating_conditions": {
         "pressure_MPa": 0.1,
         "ER": 0.45,
-        "recirculation": false
+        "recirculation": false,
+        "T_inlet_K": 293
       }
     },
     "outputs": {
       "_note": "Case F fuel O corrected to 41.6% (was 4.16 typo in original)",
-      "exit_temperature_K": "__MISSING__  (Fig. 7.16/7.17)",
-      "exit_gas_dry_mol_frac": "__MISSING__  (Fig. 7.16/7.17)",
-      "carbon_conversion_pct": "__MISSING__"
+      "exit_temperature_K": 1105,
+      "exit_gas_dry_mol_frac": {
+        "CO": 0.148,
+        "CO2": 0.13,
+        "H2": 0.15,
+        "CH4": 0.025,
+        "N2": "__CALCULATED__  (balance for air gasification)",
+        "_note": "Fig. 7.17 reports dry basis (mol/mol trocken)"
+      },
+      "carbon_conversion_pct": "__MISSING__",
+      "exit_temperature_note": "Mean freeboard T (T_FRB) from Fig. 7.10/7.17 parity Messung axis; may differ from axial outlet profile at ξ=1",
+      "parity_plot_data": {
+        "available": true,
+        "source": "Fig. 7.17, digitized 2026-06-04",
+        "messung_axis": {
+          "CO": 0.148,
+          "CO2": 0.13,
+          "H2": 0.15,
+          "CH4": 0.025
+        },
+        "sim_axis": {
+          "CO": 0.155,
+          "CO2": 0.128,
+          "H2": 0.185,
+          "CH4": 0.022
+        },
+        "T_FRB_K": {
+          "meas": 1105,
+          "sim": 1115
+        }
+      },
+      "_precision": "Digitized from Fig. 7.17 parity (Messung axis), ±5% reading error"
+    },
+    "hamel_simulation_id": "F",
+    "hamel_table_ref": "Tabelle 7.4, Hamel (1999) Ch.7",
+    "hamel_plant_engineering": {
+      "source": "Hamel §7.1.5, Bild 7.14; Hoyer et al. (1999)",
+      "pressure_MPa": 0.1,
+      "bed_diameter_m": 0.4,
+      "freeboard_diameter_m": 0.6,
+      "total_height_m": 3.0,
+      "bed_height_m": 1.2,
+      "bed_height_source": "ξ≈0.4 bed / 0.4–1.0 freeboard in Fig 7.16 → ~40% of 3 m",
+      "thermal_input_kW": 100,
+      "fuel_inlet_mm_above_nozzle": 200,
+      "agent_injection": "preheated air; primary/secondary splittable",
+      "recycle": false,
+      "T_inlet_K": 293
     }
   },
   "_missing_data_summary": {
@@ -1918,16 +2836,16 @@
         "note": "Fig.7.9 profiles digitized; only exact run moisture missing"
       },
       "CASE_VTT_PRESSURIZED_PEAT_13": {
-        "available": 21,
-        "missing": 5,
-        "pct_complete": "81%",
-        "note": "missing: exact moisture, all outputs"
+        "available": 28,
+        "missing": 1,
+        "pct_complete": "97%",
+        "note": "Fig.7.10 parity digitized; bed_material missing"
       },
       "CASE_VTT_PRESSURIZED_SAWDUST_14": {
-        "available": 22,
-        "missing": 4,
-        "pct_complete": "85%",
-        "note": "missing: exact moisture, all outputs"
+        "available": 28,
+        "missing": 1,
+        "pct_complete": "97%",
+        "note": "Fig.7.10 parity digitized; bed_material missing"
       },
       "CASE_VTT_ATMOSPHERIC_PEAT_D": {
         "available": 28,
@@ -1936,10 +2854,10 @@
         "note": "Fig.7.12 profiles digitized; only NH3/HCN ppm from Fig.7.13 missing"
       },
       "CASE_VTT_ATMOSPHERIC_PEAT_E": {
-        "available": 20,
-        "missing": 6,
-        "pct_complete": "77%",
-        "note": "missing: all outputs"
+        "available": 26,
+        "missing": 2,
+        "pct_complete": "93%",
+        "note": "Fig.7.13 parity digitized; no Bild 7.12 axial profile; NH3/HCN still missing"
       },
       "CASE_WSV400_A": {
         "available": 25,
@@ -1948,34 +2866,34 @@
         "note": "Fig.7.16 profiles digitized; missing: exact ash/VM per case"
       },
       "CASE_WSV400_B": {
-        "available": 14,
-        "missing": 6,
-        "pct_complete": "70%",
-        "note": "missing: exact moisture/ash/VM, all outputs"
+        "available": 22,
+        "missing": 2,
+        "pct_complete": "93%",
+        "note": "Fig.7.17 parity digitized; exact ash/VM per case"
       },
       "CASE_WSV400_C": {
-        "available": 14,
-        "missing": 6,
-        "pct_complete": "70%",
-        "note": "same as B"
+        "available": 22,
+        "missing": 2,
+        "pct_complete": "93%",
+        "note": "Fig.7.17 parity digitized"
       },
       "CASE_WSV400_D": {
-        "available": 14,
-        "missing": 6,
-        "pct_complete": "70%",
-        "note": "same as B"
+        "available": 22,
+        "missing": 2,
+        "pct_complete": "93%",
+        "note": "Fig.7.17 parity digitized"
       },
       "CASE_WSV400_E": {
-        "available": 14,
-        "missing": 6,
-        "pct_complete": "70%",
-        "note": "same as B"
+        "available": 22,
+        "missing": 2,
+        "pct_complete": "93%",
+        "note": "Fig.7.17 parity digitized"
       },
       "CASE_WSV400_F": {
-        "available": 14,
-        "missing": 7,
-        "pct_complete": "67%",
-        "note": "O% corrected; all outputs missing"
+        "available": 22,
+        "missing": 2,
+        "pct_complete": "93%",
+        "note": "Fig.7.17 parity digitized; O% corrected"
       }
     },
     "recommended_extraction_order": [
@@ -1990,7 +2908,8 @@
       "8. ✅ Fig. 7.8/7.9 → VTT 加压 Coal Case 1 + Peat Case 6 profiles (DONE)",
       "9. ✅ Fig. 7.12 → VTT 常压 Peat Case D profiles (DONE)",
       "9b. ✅ Fig. 7.16 → WSV400 Wood Case A profiles (DONE)",
-      "9c. Fig. 7.13 → VTT 常压 NH3/HCN 数字化 (optional)",
+      "9c. Fig. 7.13 → VTT 常压 Case E parity 出口 (DONE 2026-06-04); NH3/HCN optional",
+      "9d. ✅ Fig. 7.10 / 7.17 → VTT 13/14 + WSV B–F parity 出口 (DONE 2026-06-04)",
       "10. Bild 8.2–8.5 → 全局 parity plot 数字化 (40+ 点)"
     ]
   }

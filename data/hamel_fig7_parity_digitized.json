@@ -1,0 +1,175 @@
+{
+  "_meta": {
+    "source": "Hamel (1999) Bild 7.10, 7.13 (VTT), 7.17 (WSV400)",
+    "pdf": "docs/_2001_VDI-Dis._Mathematische Modellierung und experimentelle Untersuchung der Vergasung verschiedener fester Brennstoffe.pdf",
+    "digitized": "2026-06-04",
+    "reading_error": "±5% of axis span (parity plot Messung axis used as experimental reference)",
+    "notes": [
+      "Parity x-axis = Messung (measured); y-axis = Sim (Hamel model, stored for cross-check only)",
+      "VTT pressurized species are wet mol/mol; WSV400 species are dry mol/mol",
+      "T_FRB = mittlere Freiraumtemperatur (may differ from axial-profile outlet T at ξ=1)"
+    ]
+  },
+  "fig_7_10_vtt_pressurized": {
+    "table_ref": "Tabelle 7.2",
+    "species_basis": "wet_mol_frac",
+    "temperature_quantity": "T_FRB_mean_K",
+    "cases": {
+      "1": {
+        "T_FRB_K": {"meas": 1185, "sim": 1200},
+        "carbon_conversion_pct": {"meas": 78, "sim": 76},
+        "CO": {"meas": 0.155, "sim": 0.148},
+        "CO2": {"meas": 0.105, "sim": 0.112},
+        "H2": {"meas": 0.135, "sim": 0.128},
+        "CH4": {"meas": 0.042, "sim": 0.045},
+        "H2O": {"meas": 0.115, "sim": 0.118}
+      },
+      "6": {
+        "T_FRB_K": {"meas": 1055, "sim": 1020},
+        "carbon_conversion_pct": {"meas": 86, "sim": 84},
+        "CO": {"meas": 0.110, "sim": 0.105},
+        "CO2": {"meas": 0.140, "sim": 0.145},
+        "H2": {"meas": 0.095, "sim": 0.090},
+        "CH4": {"meas": 0.035, "sim": 0.033},
+        "H2O": {"meas": 0.190, "sim": 0.185}
+      },
+      "13": {
+        "T_FRB_K": {"meas": 1175, "sim": 1165},
+        "carbon_conversion_pct": {"meas": 97, "sim": 95},
+        "CO": {"meas": 0.095, "sim": 0.090},
+        "CO2": {"meas": 0.150, "sim": 0.155},
+        "H2": {"meas": 0.090, "sim": 0.085},
+        "CH4": {"meas": 0.032, "sim": 0.030},
+        "H2O": {"meas": 0.160, "sim": 0.155}
+      },
+      "14": {
+        "T_FRB_K": {"meas": 1045, "sim": 1120},
+        "carbon_conversion_pct": {"meas": 93, "sim": 90},
+        "CO": {"meas": 0.155, "sim": 0.145},
+        "CO2": {"meas": 0.110, "sim": 0.118},
+        "H2": {"meas": 0.080, "sim": 0.075},
+        "CH4": {"meas": 0.052, "sim": 0.048},
+        "H2O": {"meas": 0.110, "sim": 0.105}
+      }
+    }
+  },
+  "fig_7_13_vtt_atmospheric": {
+    "table_ref": "Tabelle 7.3",
+    "species_basis": "wet_mol_frac",
+    "temperature_quantity": "T_FRB_mean_K",
+    "source_pages": "PDF p.80 (Bild 7.13 + Fortsetzung)",
+    "notes": [
+      "No Bild 7.12 axial profile published for Case E — outlet scalars from parity Messung axis only",
+      "NH3/HCN not shown in Bild 7.13 (see Leppälahti & Kurkela 1991 for fuel-N data)"
+    ],
+    "cases": {
+      "A": {
+        "T_FRB_K": {"meas": 1050, "sim": 1065},
+        "carbon_conversion_pct": {"meas": 98, "sim": 99},
+        "CO": {"meas": 0.125, "sim": 0.118},
+        "CO2": {"meas": 0.138, "sim": 0.142},
+        "H2": {"meas": 0.128, "sim": 0.122},
+        "CH4": {"meas": 0.028, "sim": 0.032},
+        "H2O": {"meas": 0.128, "sim": 0.132}
+      },
+      "B": {
+        "T_FRB_K": {"meas": 1070, "sim": 1095},
+        "carbon_conversion_pct": {"meas": 85, "sim": 92},
+        "CO": {"meas": 0.115, "sim": 0.108},
+        "CO2": {"meas": 0.152, "sim": 0.158},
+        "H2": {"meas": 0.112, "sim": 0.105},
+        "CH4": {"meas": 0.062, "sim": 0.072},
+        "H2O": {"meas": 0.135, "sim": 0.128}
+      },
+      "C": {
+        "T_FRB_K": {"meas": 1165, "sim": 1175},
+        "carbon_conversion_pct": {"meas": 94, "sim": 96},
+        "CO": {"meas": 0.108, "sim": 0.102},
+        "CO2": {"meas": 0.158, "sim": 0.162},
+        "H2": {"meas": 0.105, "sim": 0.098},
+        "CH4": {"meas": 0.032, "sim": 0.028},
+        "H2O": {"meas": 0.125, "sim": 0.118}
+      },
+      "D": {
+        "T_FRB_K": {"meas": 1090, "sim": 1110},
+        "carbon_conversion_pct": {"meas": 82, "sim": 90},
+        "CO": {"meas": 0.118, "sim": 0.112},
+        "CO2": {"meas": 0.148, "sim": 0.152},
+        "H2": {"meas": 0.120, "sim": 0.115},
+        "CH4": {"meas": 0.042, "sim": 0.038},
+        "H2O": {"meas": 0.130, "sim": 0.125}
+      },
+      "E": {
+        "T_FRB_K": {"meas": 1100, "sim": 1120},
+        "carbon_conversion_pct": {"meas": 91, "sim": 94},
+        "CO": {"meas": 0.112, "sim": 0.118},
+        "CO2": {"meas": 0.152, "sim": 0.155},
+        "H2": {"meas": 0.118, "sim": 0.112},
+        "CH4": {"meas": 0.045, "sim": 0.052},
+        "H2O": {"meas": 0.142, "sim": 0.128}
+      }
+    }
+  },
+  "fig_7_17_wsv400": {
+    "table_ref": "Tabelle 7.4",
+    "species_basis": "dry_mol_frac",
+    "temperature_quantity": "T_FRB_mean_K",
+    "cases": {
+      "A": {
+        "T_FRB_K": {"meas": 1135, "sim": 1135},
+        "CO": {"meas": 0.172, "sim": 0.168},
+        "CO2": {"meas": 0.132, "sim": 0.128},
+        "H2": {"meas": 0.175, "sim": 0.165},
+        "CH4": {"meas": 0.022, "sim": 0.020}
+      },
+      "B": {
+        "T_FRB_K": {"meas": 1010, "sim": 1045},
+        "CO": {"meas": 0.155, "sim": 0.178},
+        "CO2": {"meas": 0.128, "sim": 0.135},
+        "H2": {"meas": 0.160, "sim": 0.185},
+        "CH4": {"meas": 0.028, "sim": 0.025}
+      },
+      "C": {
+        "T_FRB_K": {"meas": 1115, "sim": 1110},
+        "CO": {"meas": 0.168, "sim": 0.165},
+        "CO2": {"meas": 0.132, "sim": 0.130},
+        "H2": {"meas": 0.170, "sim": 0.185},
+        "CH4": {"meas": 0.024, "sim": 0.022}
+      },
+      "D": {
+        "T_FRB_K": {"meas": 1120, "sim": 1130},
+        "CO": {"meas": 0.178, "sim": 0.172},
+        "CO2": {"meas": 0.135, "sim": 0.132},
+        "H2": {"meas": 0.180, "sim": 0.160},
+        "CH4": {"meas": 0.020, "sim": 0.018}
+      },
+      "E": {
+        "T_FRB_K": {"meas": 1135, "sim": 1150},
+        "CO": {"meas": 0.188, "sim": 0.175},
+        "CO2": {"meas": 0.142, "sim": 0.138},
+        "H2": {"meas": 0.190, "sim": 0.140},
+        "CH4": {"meas": 0.018, "sim": 0.015}
+      },
+      "F": {
+        "T_FRB_K": {"meas": 1105, "sim": 1115},
+        "CO": {"meas": 0.148, "sim": 0.155},
+        "CO2": {"meas": 0.130, "sim": 0.128},
+        "H2": {"meas": 0.150, "sim": 0.185},
+        "CH4": {"meas": 0.025, "sim": 0.022}
+      }
+    }
+  },
+  "case_id_map": {
+    "CASE_VTT_PRESSURIZED_COAL_1": {"fig": "7.10", "sim": "1"},
+    "CASE_VTT_PRESSURIZED_PEAT_6": {"fig": "7.10", "sim": "6"},
+    "CASE_VTT_PRESSURIZED_PEAT_13": {"fig": "7.10", "sim": "13"},
+    "CASE_VTT_PRESSURIZED_SAWDUST_14": {"fig": "7.10", "sim": "14"},
+    "CASE_WSV400_A": {"fig": "7.17", "sim": "A"},
+    "CASE_WSV400_B": {"fig": "7.17", "sim": "B"},
+    "CASE_WSV400_C": {"fig": "7.17", "sim": "C"},
+    "CASE_WSV400_D": {"fig": "7.17", "sim": "D"},
+    "CASE_WSV400_E": {"fig": "7.17", "sim": "E"},
+    "CASE_WSV400_F": {"fig": "7.17", "sim": "F"},
+    "CASE_VTT_ATMOSPHERIC_PEAT_E": {"fig": "7.13", "sim": "E"}
+  }
+}
