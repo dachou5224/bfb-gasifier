@@ -2,7 +2,7 @@
 
 本项目复现 Hamel（2001，VDI Fortschritt-Berichte Reihe 6 Nr. 469）的 cell 模型。术语以 Hamel 原文为准。
 
-页码记作“PDF n / S. m”：n 为本地 PDF 的页序，m 为印刷页码。本 PDF 每页是两张印刷页的对开扫描，印刷页 ≈ 2n−20 与 2n−19。页码目前依据 OCR 文本定位，待 T2 的原文索引逐条复核。
+页码记作“PDF n / S. m”：n 为本地 PDF 的页序（从 1 起），m 为印刷页码。本 PDF 每页是两张印刷页的对开扫描，且有重复扫描（PDF 84、85 均为 S. 148–149）和缺页（S. 152–153），不能按固定偏移换算；页码一律以 `refs/hamel/index.json` 为准。本表页码已按该索引复核（2026-10-13）。
 
 ## 模型结构
 
@@ -12,17 +12,17 @@
 _Avoid_：zone 模型、两区核、named_f 核
 
 **Bilanzraum / Zelle i（cell）**：
-cell 模型中编号为 i 的一个衡算空间。所有 cell 的衡算变量相同，衡算变量总数 = cell 数 × 每个 cell 的变量数（Eq. 2.3）。PDF 18 / S. 16。
+cell 模型中编号为 i 的一个衡算空间。所有 cell 的衡算变量相同，衡算变量总数 = cell 数 × 每个 cell 的变量数（Eq. 2.3）；每个 cell 的变量数见 Eq. 2.1（PDF 17 / S. 15）。PDF 18 / S. 16。
 代码名：`cell`
 _Avoid_：格、zone、segment（用于床层 cell 时）
 
 **Blasenphase（气泡相）**：
-cell 内以无固体气泡形式上升的气相，有自己的气体衡算（Eq. 2.5）。PDF 18 / S. 17。
+cell 内以无固体气泡形式上升的气相，有自己的气体衡算（Eq. 2.5）。PDF 18 / S. 16。
 代码名：`bubble`
 _Avoid_：b 相
 
 **Suspensionsphase（悬浮相）**：
-cell 内气体与床料、燃料颗粒组成的致密相，有自己的气体衡算（Eq. 2.4）；固体只存在于悬浮相。PDF 18 / S. 17。
+cell 内气体与床料、燃料颗粒组成的致密相，有自己的气体衡算（Eq. 2.4）；固体只存在于悬浮相（§2.2.2，气泡视为无固体）。PDF 18 / S. 16–17。
 代码名：`suspension`
 _Avoid_：乳化相、dense phase、d 相、emulsion
 
@@ -42,21 +42,21 @@ _Avoid_：自由板、freeboard 段
 ## 衡算量
 
 **Feststoffart j（固体种类）**：
-参与化学反应的活性固体种类，例如 Koks、石灰石；每种可再分若干 Partikelgrößenklasse。PDF 18 / S. 17。
+参与化学反应的活性固体种类，例如 Koks、石灰石；每种可再分若干 Partikelgrößenklasse。§2.2.2，PDF 18 / S. 17。
 代码名：`solid_species`
 
 **Partikelgrößenklasse k（粒级）**：
-固体种类 j 的离散粒径类别，固体衡算对每个 (j, k) 分别列写（Eq. 2.6）。PDF 18–19 / S. 17–18。
+固体种类 j 的离散粒径类别，固体衡算对每个 (j, k) 分别列写（Eq. 2.6）。粒级数可任意设定（Hamel 采用 Wirsum 1998 的扩展，§2.2，PDF 17 / S. 15）。Eq. 2.6 见 PDF 18 / S. 17。
 代码名：`size_class`
 _Avoid_：bin、档（用于正式命名时）
 
 **Feststoffmassenstrombilanz（固体质量流衡算）**：
-Eq. 2.6 的名称：对每个固体种类 j、粒级 k、cell i 列写的质量流平衡，各项都是质量流（kg/s）。PDF 17 / S. 14–15（Bild 2.2 流程图），PDF 18–19 / S. 17–18。
+Eq. 2.6 的名称：对每个固体种类 j、粒级 k、cell i 列写的质量流平衡，各项都是质量流（kg/s）。名称见 Bild 2.2 流程图（PDF 17 / S. 14）；方程见 PDF 18 / S. 17，符号说明见 PDF 19 / S. 18。
 代码名：`solid_mass_flow_balance`
 _Avoid_：库存方程、holdup 方程
 
 **Feststoffinventar（床料存量）**：
-床层中的固体总量。其组成与粒径分布（或平均粒径）作为输入给定；床层高度也作为输入参数，因为实际运行中床高通过压差测量保持恒定。PDF 16 / S. 12（输入参数表）。
+床层中的固体总量。其组成与粒径分布（或平均粒径）作为输入给定；床层高度也作为输入参数，因为实际运行中床高通过压差测量保持恒定。表 2.2 运行参数，PDF 16 / S. 13。
 代码名：`bed_inventory`
 _Avoid_：holdup（指床料总量时）
 
@@ -71,11 +71,11 @@ cell i 中颗粒类 (j, k) 向上、向下流出的质量流，相邻 cell 之�
 _Avoid_：auf/ab 流、upflow closure
 
 **ṁ_zu / ṁ_aus / ṁ_rez（外部加入／流出系统／再循环流）**：
-从外部进入 cell i 的流、从 cell i 离开整个系统的流、从其它 cell 回流进入 cell i 的流；气体对应 Ṅ_zu、Ṅ_rez。PDF 19 / S. 18–19。
+从外部进入 cell i 的流、从 cell i 离开整个系统的流、从其它 cell 回流进入 cell i 的流；气体对应 Ṅ_zu、Ṅ_rez。Eq. 2.6 符号说明，PDF 19 / S. 18。
 代码名：`m_in_ext`、`m_out_sys`、`m_rec`
 
 **Ṅ_ex,bd（相间交换流）**：
-同一 cell 内气泡相与悬浮相之间组分 j 的交换摩尔流（Eq. 2.4、2.5）。PDF 18 / S. 17。
+同一 cell 内气泡相与悬浮相之间组分 j 的交换摩尔流（Eq. 2.4、2.5）。PDF 18 / S. 16。
 代码名：`n_exchange_bd`
 
 **Energiestrombilanz（能量衡算）**：
@@ -113,18 +113,18 @@ _Avoid_：炭（作为正式术语时）
 
 ## 反应
 
-编号以 Hamel 第 5 章开头的反应列表为准（PDF 45 / S. 71），见 `docs/adr/0001-reaction-numbering.md`。
+编号以 Hamel 第 5 章开头的反应列表为准（PDF 45 / S. 71，已目视核对原页），见 `docs/adr/0001-reaction-numbering.md`。计量式按原文列表照录；Φ_c 为 R1 中决定 CO/CO₂ 产物比例的机理因子，R8 的平衡处理见 §5.2.4。
 
 | Hamel | 反应 | 德文名 | 归档旧代码编号 |
 |---|---|---|---|
-| R1 | C + O₂ → CO/CO₂ | Verbrennung | R1 |
+| R1 | C + (1/Φ_c) O₂ → (2 − 2/Φ_c) CO + (2/Φ_c − 1) CO₂ | Verbrennung | R1 |
 | R2 | C + H₂O → CO + H₂ | heterogene Wassergasreaktion | R2 |
 | R3 | C + CO₂ → 2 CO | Boudouard-Reaktion | R4 |
 | R4 | C + 2 H₂ → CH₄ | hydrierende Vergasung | R3 |
 | R5 | CO + ½O₂ → CO₂ | Kohlenmonoxid-Oxidation | R5 |
 | R6 | H₂ + ½O₂ → H₂O | Wasserstoff-Oxidation | R12 |
 | R7 | CH₄ + 3/2 O₂ → CO + 2 H₂O | Methan-Oxidation | R6 |
-| R8 | CO + H₂O ⇌ H₂ + CO₂ | homogene Wassergasreaktion | R8 |
+| R8 | CO + H₂O → H₂ + CO₂ | homogene Wassergasreaktion | R8 |
 | R9 | CH₄ + H₂O → CO + 3 H₂ | Methan-Reformierung | R7 |
 | R10 | Teer + O₂ → CO + H₂ | Teer-Oxidation | R10 |
 | R11 | Teer + H₂O → CO + H₂ + CH₄ | Teer-Umsetzung | R11 |
@@ -135,12 +135,12 @@ _Avoid_：在新代码和文档中使用“仓库编号”“thesis R6”这类�
 ## 求解
 
 **Vorabrechnung（预计算）**：
-程序三大模块之一（另两个是 Konfiguration 与 Zellenmodell），计算那些只能整体描述、与 cell 划分无关的过程（如流动），在建立 cell 衡算方程之前完成；预计算与 cell 模型反复对齐，直到满足收敛判据。PDF 15–16 / S. 11–13，Bild 2.2。
+程序三大模块之一（另两个是 Konfiguration 与 Zellenmodell），计算那些只能整体描述、与 cell 划分无关的过程（如流动），在建立 cell 衡算方程之前完成；预计算与 cell 模型反复对齐，直到满足收敛判据。§2.1，PDF 15–16 / S. 11–12；流程见 Bild 2.2（PDF 17 / S. 14）。
 代码名：`precalc`
 _Avoid_：Vorab、init_precalc（作为概念名时）
 
 **Abgleich（对齐）**：
-Vorabrechnung 与 Zellenmodell 之间的外层迭代。PDF 16 / S. 12–13。
+Vorabrechnung 与 Zellenmodell 之间的外层迭代。PDF 16 / S. 12；Bild 2.2（PDF 17 / S. 14）。
 代码名：`outer_iteration`
 _Avoid_：outer refresh、Check1/Check2（作为正式术语时）
 

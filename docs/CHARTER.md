@@ -1,6 +1,6 @@
 # 项目章程（CHARTER）
 
-版本：v0.2 · 2026-10-12 起草，2026-10-13 批准 v0.1；v0.2 修正 §6.1 章节号 · 目标所有者：项目负责人（用户）
+版本：v0.3 · 2026-10-12 起草，2026-10-13 批准 v0.1；v0.2 修正 §6.1 章节号；v0.3 撤销旧 parity 读数的临时使用，登记 WSV400 验收量 · 目标所有者：项目负责人（用户）
 
 本章程是所有 agent 开工前必读的唯一权威文件。只有目标所有者可以修改本章程和验收判据。与本章程冲突的任何文档、注释、交接记录和 skill 一律以本章程为准。
 
@@ -32,6 +32,9 @@
 | 碳转化率 | \|Δ\| ≤ 3 个百分点 |
 
 - 干基、湿基必须与原图一致，不得混比。
+- 原文没有给出的量不参与验收，也不得用其它来源补足。各装置采用的验收量：
+  - WSV400 A–F：平均自由空间温度 T̄_FRB（Bild 7.17）及干基 CO、CO₂、H₂、CH₄；原文无 H₂O 与碳转化率。A 另以 Bild 7.16 出口端温度作补充核对（同一 20 K 容差），不替代 T̄_FRB。（目标所有者 2026-10-13 决定）
+  - 其它装置的验收量在推进到对应关卡前，依据 T3 覆盖表确定，并在此登记。
 - 轴向剖面暂作定性比较（峰值位置、趋势、二次风处的跳变），待 T3 重新数字化模拟曲线后由目标所有者决定是否收紧。
 - 容差只能由目标所有者修改。
 
@@ -46,7 +49,7 @@
 5. HTW Wesseling 1、2
 6. HTW Berrenrath
 
-数据来源：`data/validation_cases.json`（工况输入与实验值）；`data/digitized/`（T3 交付的模拟值与实验值序列）。在 T3 交付前，出口模拟值暂用 `data/hamel_fig7_parity_digitized.json` 的 `sim` 字段，但须先完成图中工况标签与 `CASE_*` 的对应核对（见 T3）。
+数据来源：`data/digitized/`（T3 用专用工具从原图读取的模拟值与实验值）是出口值的唯一依据；`data/validation_cases.json` 只提供工况输入。`data/hamel_fig7_parity_digitized.json` 已证实存在大幅读数错误（2026-10-13 对照 Bild 7.17 原页），不得用于验收或对比；`validation_cases.json` 中的出口值在与 `data/digitized/` 逐项核对前同样不得使用。
 
 ## 4. 文献来源
 
@@ -161,7 +164,7 @@
 | `refs/hamel/index.json` | 原文索引（式号/表号/图号 → 页码 → 小节，附简短转录） | T2 建立，审计中修正 |
 | `AGENTS.md` | 简短入口，指向上述文件；保留博客写作规则 | — |
 
-保留在主线的既有内容：`docs/blog/`、`docs/siegen_cell_model_lineage.md`、`data/validation_cases.json`、`data/hamel_fig7_parity_digitized.json`（只读）。`docs/hamel_submodels/` 作为待审计的转录导航，仍按 `.gitignore` 仅本地保留。
+保留在主线的既有内容：`docs/blog/`、`docs/siegen_cell_model_lineage.md`、`data/validation_cases.json`（工况输入；出口值待核对）、`data/hamel_fig7_parity_digitized.json`（只读，已证实有误，仅留作比对记录）。`docs/hamel_submodels/` 作为待审计的转录导航，仍按 `.gitignore` 仅本地保留。
 
 旧的 handoff、audit_reports、`.cursor/skills/bfb-*`、`.cursor/rules/*`、`docs/CLAUDE.md`、`GEMINI.md`、`app.py` 随快照归档。`app.py` 在 WSV400 全部通过后于新主线重建。
 
