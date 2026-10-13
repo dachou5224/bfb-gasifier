@@ -1,0 +1,39 @@
+{
+  "merit_at_zero": 0.2487429739873638,
+  "accepted_alpha": 0.25,
+  "accepted_merit": 0.24221279527828876,
+  "rows": [
+    {
+      "alpha": 0.5,
+      "merit": 0.24582094902625723,
+      "passed": false,
+      "transport_closed": true
+    },
+    {
+      "alpha": 0.25,
+      "merit": 0.24221279527828876,
+      "passed": false,
+      "transport_closed": true
+    },
+    {
+      "alpha": 0.1,
+      "merit": 0.2449045177896768,
+      "passed": false,
+      "transport_closed": true
+    },
+    {
+      "alpha": 0.01,
+      "merit": 0.2482810922807273,
+      "passed": false,
+      "transport_closed": true
+    },
+    {
+      "alpha": 0.001,
+      "merit": 0.24869599625286845,
+      "passed": false,
+      "transport_closed": true
+    }
+  ],
+  "checkpoint": "least_squares_x",
+  "inner_status": "least_squares"
+}

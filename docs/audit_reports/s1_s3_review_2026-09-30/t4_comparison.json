@@ -1,0 +1,34 @@
+{
+  "point": "corrected s=0.16 merit_reject state; not the old s=0.23",
+  "same_state_one_corrector": {
+    "max_j": 4,
+    "max_nfev": 8,
+    "original_log_coordinates": {
+      "inner_status": "least_squares",
+      "F_calls": 392,
+      "J_calls": 4,
+      "merit0": 0.003591449744083014,
+      "frozen_merit": 0.0031110914414192586,
+      "composite_merit": 0.004004588077769852,
+      "composite_gas_l2": 1.05679733919101e-05,
+      "composite_tar_l2": 2.7836314199539876e-05
+    },
+    "linear_bubble_tar": {
+      "kept": false,
+      "reason": "same budget raised gas L2 from 6.87e-6 to 0.0689 and composite merit to 6.91",
+      "inner_status": "jacobian_budget",
+      "F_calls": 389,
+      "J_calls": 4,
+      "frozen_merit": 6.911720764168788,
+      "composite_merit": 6.912295094094052,
+      "composite_gas_l2": 0.06894495218579016,
+      "composite_tar_l2": 0.00495724270110024
+    }
+  },
+  "column_scale": {
+    "bed_tar_40_41_scaled_column_norm": [330.63349193945555, 863.9855194973526],
+    "bubble_tar_x_mol_s": [2.4350377024780983e-18, 2.4350139784293e-18],
+    "bubble_tar_F_mol_s": [-1.2982956154173556e-05, -1.9989075645540817e-05],
+    "freeboard_oxygen_left_in_log_coordinates": true
+  }
+}

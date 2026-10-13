@@ -1,0 +1,39 @@
+{
+  "max_global_iter": 20,
+  "cases": [
+    {
+      "label": "baseline_off",
+      "axial_on": false,
+      "axial_cells": 0,
+      "wall_time_s": 326.573125547,
+      "init_rms_scaled": 0.022712820776222106,
+      "init_gas_phase_split_rms": 0.02902184880224311,
+      "init_solid_rms": 0.013000634074238248,
+      "init_energy_rms": 0.07132671244218898,
+      "converged": false,
+      "nr_outer_iters": 20,
+      "n_iter": 70,
+      "rms_scaled_final": 0.00672924357996262,
+      "rms_scaled_gas_phase_split_final": 0.0015749631440629707,
+      "rms_scaled_solid_final": 0.008236924045437154,
+      "rms_scaled_energy_final": 0.016905289168140863
+    },
+    {
+      "label": "axial_cells2_bed1",
+      "axial_on": true,
+      "axial_cells": 2,
+      "wall_time_s": 373.46440539299994,
+      "init_rms_scaled": 0.043261147663585194,
+      "init_gas_phase_split_rms": 0.04458401105359403,
+      "init_solid_rms": 0.050536016165811014,
+      "init_energy_rms": 0.09651230341094495,
+      "converged": false,
+      "nr_outer_iters": 18,
+      "n_iter": 87,
+      "rms_scaled_final": 0.004054212859199221,
+      "rms_scaled_gas_phase_split_final": 0.004054212859199221,
+      "rms_scaled_solid_final": 0.0033812670421802453,
+      "rms_scaled_energy_final": 0.01245052150408753
+    }
+  ]
+}

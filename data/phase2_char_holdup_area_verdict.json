@@ -1,0 +1,73 @@
+{
+  "knife": "char_holdup_area_gasification_parity",
+  "date": "2026-07-25",
+  "constraint": "不抬 Tin；不用 r*_scale 验收；不默认砍面积进生产",
+  "formula_parity": {
+    "solid_state_model": "holdup_transport",
+    "A_formula": "A = 6 * m_char / (rho_s * d_p_class)",
+    "A_equals_direct": true,
+    "legacy_M_bed_frac_not_used": true,
+    "legacy_would_be_A_ratio": 38.1,
+    "verdict": "几何表面积公式与 holdup 口径一致；不是 M_bed 误乘 bug",
+    "artifact": "data/phase2_char_holdup_area_decomp_o8.json"
+  },
+  "psd_parity": {
+    "feed_mode": "coarsest_class (Hamel Startwert)",
+    "bed0_frac_coarse": 1.0,
+    "d_p_range_mm": [
+      1.5,
+      3.0
+    ],
+    "uniform_psd_ab": {
+      "result": "WORSE",
+      "score_true": 0.543,
+      "A_bed_sum": 44.3,
+      "vs_coarsest_A_sum": 23.4,
+      "artifact": "data/phase2_char_holdup_psd_ab_o8.json"
+    },
+    "verdict": "粗档进料为有意 Hamel；改均匀 PSD 增大面积且出口更差"
+  },
+  "conversion_spm_gap": {
+    "bed0_X": 0.038,
+    "bed1plus_X": 0.0,
+    "bed1_m_in_char": 0.0,
+    "bed1_m_out_char": 0.738,
+    "mechanism": "X=1-m_out/m_in 在 holdup_transport 上层床 m_solid_zu/in/rez 炭和为 0，m_out>0 ⇒ X 被 clip 到 0；SPM d_core 不收缩",
+    "tier": "parity/B-tier gap（转换估计与 holdup 输运口径不一致）",
+    "direction_vs_area_x0.5": "若修好 X 使 d_core↓，比表面积↑（与「面积过大」诊断方向相反）；真正杠杆更可能是 m_char 库存或速率×A"
+  },
+  "candidates_tested": [
+    {
+      "id": "A_equals_6m_rho_d",
+      "result": "CONFIRMED_isomorphic"
+    },
+    {
+      "id": "switch_to_uniform_PSD",
+      "result": "WORSE",
+      "score_true": 0.543
+    },
+    {
+      "id": "char_area_x0.5_prior",
+      "result": "IMPROVES_but_not_formula_fix",
+      "score_true": 0.139,
+      "note": "等效于砍 m_char 或抬 d_p；非 A=6M/ρd 公式错误"
+    }
+  ],
+  "ship": {
+    "production_change": false,
+    "reason": "面积公式同构；无证据支持默认改 PSD 或无审计砍面积"
+  },
+  "next_knife": {
+    "primary": "holdup_char_conversion_X_for_SPM",
+    "why": "上层床 X≡0 因 m_in 口径不含 K·m 轴向炭流；SPM 核径不更新。应先把 holdup 下的炭转化/面积与 Eq.2-6 输运对齐，再解释 area×0.5 诊断信号。",
+    "alt": [
+      "char_inventory_K_m_residence（m_char 总量/停留时间 vs Hamel）",
+      "H4_fb_secondary_nr"
+    ],
+    "do_not": [
+      "默认 area×0.5 进生产",
+      "改用 uniform PSD 凑出口",
+      "回到 legacy M_bed 面积"
+    ]
+  }
+}

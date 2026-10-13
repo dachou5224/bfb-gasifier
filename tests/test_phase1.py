@@ -145,23 +145,31 @@ class TestTarComponentPlaceholder:
 
 
 class TestTarSurrogateModel:
-    """Tar 两组分代理模型 H/C 一致性验证。"""
+    """Tar 两组分代理模型 H/C 一致性验证（Gesamtteer 原子比 nH/nC）。"""
+
+    @staticmethod
+    def _atom_hc(frac: dict) -> float:
+        from src.core.species import TAR_SURROGATE_FORMULA
+
+        n_h = sum(frac[s] * TAR_SURROGATE_FORMULA[s][1] for s in frac)
+        n_c = sum(frac[s] * TAR_SURROGATE_FORMULA[s][0] for s in frac)
+        return n_h / max(n_c, 1e-12)
 
     def test_tar_coal_hc_match(self):
         frac = calc_tar_surrogate_fractions("coal")
-        r_mix = sum(frac[s] * TAR_SURROGATE_HC_RATIO[s] for s in frac)
-        assert abs(r_mix - 0.856) < 1e-10
+        assert abs(self._atom_hc(frac) - 0.856) < 1e-10
         assert abs(sum(frac.values()) - 1.0) < 1e-12
 
     def test_tar_biomass_hc_match(self):
         frac = calc_tar_surrogate_fractions("biomass")
-        r_mix = sum(frac[s] * TAR_SURROGATE_HC_RATIO[s] for s in frac)
-        assert abs(r_mix - 1.364) < 1e-10
+        assert abs(self._atom_hc(frac) - 1.364) < 1e-10
         assert abs(sum(frac.values()) - 1.0) < 1e-12
 
-    def test_tar_custom_hc_out_of_range_raises(self):
-        with pytest.raises(ValueError):
-            calc_tar_surrogate_fractions("coal", target_hc_ratio=1.2)
+    def test_tar_custom_hc_out_of_range_clips(self):
+        # coal 对 [0.8, 1.0]；超出上界 → 纯苯
+        frac = calc_tar_surrogate_fractions("coal", target_hc_ratio=1.2)
+        assert frac["C6H6"] == pytest.approx(1.0)
+        assert frac["C10H8"] == pytest.approx(0.0)
 
     def test_tar_mapping_changes_with_feedstock(self):
         coal_map = configure_tar_components_by_fuel("coal")

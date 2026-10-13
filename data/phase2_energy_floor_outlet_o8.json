@@ -1,0 +1,194 @@
+{
+  "wall_s": 121.449504397,
+  "E": 0.024797337518489705,
+  "S": 0.011716350209535075,
+  "merit": 0.024797337518489705,
+  "energy_top5": [
+    {
+      "i": 0,
+      "type": "bed",
+      "T": 1250.0,
+      "E_W": 1713056.3210479058,
+      "at_hi": true
+    },
+    {
+      "i": 2,
+      "type": "bed",
+      "T": 1222.9496421868578,
+      "E_W": 875156.587480208,
+      "at_hi": false
+    },
+    {
+      "i": 1,
+      "type": "bed",
+      "T": 1343.0266196212356,
+      "E_W": 614798.6555935723,
+      "at_hi": true
+    },
+    {
+      "i": 4,
+      "type": "bed",
+      "T": 1112.1558596751363,
+      "E_W": 412088.76547371416,
+      "at_hi": false
+    },
+    {
+      "i": 8,
+      "type": "bed",
+      "T": 996.7706812533227,
+      "E_W": 236095.0064194855,
+      "at_hi": false
+    }
+  ],
+  "energy_all": [
+    {
+      "i": 0,
+      "type": "bed",
+      "T": 1250.0,
+      "E_W": 1713056.3210479058,
+      "at_hi": true
+    },
+    {
+      "i": 2,
+      "type": "bed",
+      "T": 1222.9496421868578,
+      "E_W": 875156.587480208,
+      "at_hi": false
+    },
+    {
+      "i": 1,
+      "type": "bed",
+      "T": 1343.0266196212356,
+      "E_W": 614798.6555935723,
+      "at_hi": true
+    },
+    {
+      "i": 4,
+      "type": "bed",
+      "T": 1112.1558596751363,
+      "E_W": 412088.76547371416,
+      "at_hi": false
+    },
+    {
+      "i": 8,
+      "type": "bed",
+      "T": 996.7706812533227,
+      "E_W": 236095.0064194855,
+      "at_hi": false
+    },
+    {
+      "i": 9,
+      "type": "bed",
+      "T": 977.8148630471466,
+      "E_W": 107262.06831983283,
+      "at_hi": false
+    },
+    {
+      "i": 7,
+      "type": "bed",
+      "T": 1017.8681963617995,
+      "E_W": 78620.72847455546,
+      "at_hi": false
+    },
+    {
+      "i": 6,
+      "type": "bed",
+      "T": 1044.6486084837402,
+      "E_W": 78097.33778035089,
+      "at_hi": false
+    },
+    {
+      "i": 5,
+      "type": "bed",
+      "T": 1076.36127818072,
+      "E_W": 36486.7378126736,
+      "at_hi": false
+    },
+    {
+      "i": 3,
+      "type": "bed",
+      "T": 1159.8565740612964,
+      "E_W": 24279.4003330861,
+      "at_hi": false
+    }
+  ],
+  "bed0": {
+    "T": 1250.0,
+    "E_W": 1713056.3210479058,
+    "tmin": NaN,
+    "tmax_hint": 1250.0
+  },
+  "outlet": {
+    "cell_types": [
+      "bed",
+      "bed",
+      "bed",
+      "bed",
+      "bed",
+      "bed",
+      "bed",
+      "bed",
+      "bed",
+      "bed"
+    ],
+    "outlet_index": 9,
+    "outlet_type": "bed",
+    "T": 977.8148630471466,
+    "CO_dry": 0.12625367636710577,
+    "CO2_dry": 0.14993544251993213,
+    "H2_dry": 0.1495479647188204,
+    "CH4_dry": 0.0,
+    "N2_dry": 0.5718525027958535,
+    "O2_dry": 0.000251817406448626,
+    "CO_wet": 0.10942200018313844,
+    "CO2_wet": 0.12994660029677718,
+    "H2_wet": 0.12961077961222991,
+    "H2O_wet": 0.13331632526110473,
+    "CH4_wet": 0.0,
+    "co_co2_score": 0.3918673515531148,
+    "REF_CO": 0.13,
+    "REF_CO2": 0.11
+  },
+  "out_keys_sample": [
+    "converged",
+    "converged_outer",
+    "converged_inner_nr",
+    "converged_fully",
+    "rms_scaled_energy_final",
+    "rms_scaled_gas_combined_final",
+    "rms_scaled_component_max_final",
+    "max_abs_scaled_energy_final",
+    "max_abs_scaled_gas_combined_final",
+    "nr_jacobian_strategy",
+    "nr_jacobian_structure",
+    "nr_side_element_count",
+    "nr_band_block_count",
+    "nr_jacobian_lag_steps",
+    "nr_reaction_continuation_active",
+    "nr_reaction_continuation_stages",
+    "nr_reaction_continuation_target_cells",
+    "nr_counts",
+    "nr_line_search_trial_counts",
+    "carbon_conv",
+    "bed_exit_gas_dry",
+    "thesis_connectivity_topology",
+    "bed0_energy_residual_W",
+    "bed0_recycle_solid_enthalpy_W",
+    "bed0_fresh_solid_enthalpy_W",
+    "bed_top_downflow_solid_enthalpy_W",
+    "freeboard_trajectory_model",
+    "freeboard_trajectory_solver",
+    "freeboard_trajectory_coeff_model",
+    "freeboard_trajectory_diag",
+    "freeboard_trajectory_coeff_diag",
+    "freeboard_required_spm_conversion_for_smallest_input_to_grav",
+    "freeboard_secondary_injection_applied",
+    "freeboard_secondary_injection_segment",
+    "freeboard_secondary_local_refine",
+    "freeboard_secondary_injection_mode",
+    "freeboard_secondary_observation_z_m",
+    "freeboard_secondary_observation_xi",
+    "freeboard_secondary_observation_slice_global_index",
+    "freeboard_secondary_observation_segment_index"
+  ]
+}

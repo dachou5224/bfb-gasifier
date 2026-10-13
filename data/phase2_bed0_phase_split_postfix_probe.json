@@ -1,0 +1,9 @@
+{
+  "init_merit_scaled": 0.7021413478680014,
+  "init_gas_phase_split_rms": 0.060230985998243294,
+  "bed0_N2_split_scaled": 3.1358655531626006e-10,
+  "bed0_N2_Nd": 26.528282360464594,
+  "bed0_N2_Nb": 15.726369215452117,
+  "bed0_phase_split_closure_accepted": true,
+  "bed0_preproj_final_split": 9.010391713393827e-10
+}

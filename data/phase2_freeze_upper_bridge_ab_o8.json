@@ -1,0 +1,481 @@
+{
+  "note": "in-solve freeze upper CO bridge A/B; bed2 R + freeze timeline",
+  "max_global_iter": 8,
+  "arms": [
+    {
+      "label": "ps_f0.3",
+      "wall_s": 71.702368886,
+      "exit_CO": 0.15329987983075538,
+      "rms": 0.06093708765270558,
+      "split": 0.03932693104533581,
+      "energy": 0.06093708765270558,
+      "converged": false,
+      "n_acc": 5,
+      "local2_n_accepted": 3,
+      "local2_n_enabled": 10,
+      "first_freeze_outer": null,
+      "freeze_events": [
+        {
+          "outer": 1,
+          "frozen": false,
+          "y_co_top": NaN,
+          "local2": true,
+          "absorb": false
+        },
+        {
+          "outer": 2,
+          "frozen": false,
+          "y_co_top": NaN,
+          "local2": true,
+          "absorb": false
+        },
+        {
+          "outer": 3,
+          "frozen": false,
+          "y_co_top": NaN,
+          "local2": true,
+          "absorb": true
+        },
+        {
+          "outer": 4,
+          "frozen": false,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": true
+        },
+        {
+          "outer": 5,
+          "frozen": false,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": true
+        },
+        {
+          "outer": 6,
+          "frozen": false,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": true
+        },
+        {
+          "outer": 7,
+          "frozen": false,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": true
+        },
+        {
+          "outer": 8,
+          "frozen": false,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": true
+        },
+        {
+          "outer": 9,
+          "frozen": false,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": true
+        },
+        {
+          "outer": 10,
+          "frozen": false,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": true
+        }
+      ],
+      "bed2": {
+        "R_H2O": 65.5439810368261,
+        "R_H2": -64.44085740339625,
+        "R_O2": -34.399411424314096,
+        "R_CO": 2.9117770275628545,
+        "T": 1150.577408971712
+      },
+      "overrides": {}
+    },
+    {
+      "label": "freeze_y0.14",
+      "wall_s": 68.169911636,
+      "exit_CO": 0.14052643227279812,
+      "rms": 0.05861821424796668,
+      "split": 0.0394635690174953,
+      "energy": 0.054593903763598385,
+      "converged": false,
+      "n_acc": 5,
+      "local2_n_accepted": 3,
+      "local2_n_enabled": 5,
+      "first_freeze_outer": 6,
+      "freeze_events": [
+        {
+          "outer": 1,
+          "frozen": false,
+          "y_co_top": 0.010488580417155625,
+          "local2": true,
+          "absorb": false
+        },
+        {
+          "outer": 2,
+          "frozen": false,
+          "y_co_top": 0.05921014580174155,
+          "local2": true,
+          "absorb": false
+        },
+        {
+          "outer": 3,
+          "frozen": false,
+          "y_co_top": 0.08941968361212545,
+          "local2": true,
+          "absorb": true
+        },
+        {
+          "outer": 4,
+          "frozen": false,
+          "y_co_top": 0.1300558715969457,
+          "local2": false,
+          "absorb": true
+        },
+        {
+          "outer": 5,
+          "frozen": false,
+          "y_co_top": 0.1357585101876601,
+          "local2": false,
+          "absorb": true
+        },
+        {
+          "outer": 6,
+          "frozen": true,
+          "y_co_top": 0.14052643227279812,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 7,
+          "frozen": true,
+          "y_co_top": 0.14052643227279812,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 8,
+          "frozen": true,
+          "y_co_top": 0.14052643227279812,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 9,
+          "frozen": true,
+          "y_co_top": 0.14052643227279812,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 10,
+          "frozen": true,
+          "y_co_top": 0.14052643227279812,
+          "local2": false,
+          "absorb": false
+        }
+      ],
+      "bed2": {
+        "R_H2O": 65.49334040860785,
+        "R_H2": -64.39021678143746,
+        "R_O2": -34.399411424314096,
+        "R_CO": 2.9588922744597284,
+        "T": 1150.577408971712
+      },
+      "overrides": {
+        "nr_outer_freeze_upper_co_bridge_after_y_co_thesis": true,
+        "nr_outer_freeze_upper_co_bridge_y_co_threshold_thesis": 0.14
+      }
+    },
+    {
+      "label": "freeze_y0.10",
+      "wall_s": 67.953070304,
+      "exit_CO": 0.13005587159694568,
+      "rms": 0.058459948071798794,
+      "split": 0.03963919636353734,
+      "energy": 0.05191904987374086,
+      "converged": false,
+      "n_acc": 5,
+      "local2_n_accepted": 3,
+      "local2_n_enabled": 3,
+      "first_freeze_outer": 4,
+      "freeze_events": [
+        {
+          "outer": 1,
+          "frozen": false,
+          "y_co_top": 0.010488580417155625,
+          "local2": true,
+          "absorb": false
+        },
+        {
+          "outer": 2,
+          "frozen": false,
+          "y_co_top": 0.05921014580174155,
+          "local2": true,
+          "absorb": false
+        },
+        {
+          "outer": 3,
+          "frozen": false,
+          "y_co_top": 0.08941968361212545,
+          "local2": true,
+          "absorb": true
+        },
+        {
+          "outer": 4,
+          "frozen": true,
+          "y_co_top": 0.1300558715969457,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 5,
+          "frozen": true,
+          "y_co_top": 0.1300558715969457,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 6,
+          "frozen": true,
+          "y_co_top": 0.1300558715969457,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 7,
+          "frozen": true,
+          "y_co_top": 0.1300558715969457,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 8,
+          "frozen": true,
+          "y_co_top": 0.1300558715969457,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 9,
+          "frozen": true,
+          "y_co_top": 0.1300558715969457,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 10,
+          "frozen": true,
+          "y_co_top": 0.1300558715969457,
+          "local2": false,
+          "absorb": false
+        }
+      ],
+      "bed2": {
+        "R_H2O": 65.43740294850225,
+        "R_H2": -64.33427932823352,
+        "R_O2": -34.399411424314096,
+        "R_CO": 3.010741845260648,
+        "T": 1150.577408971712
+      },
+      "overrides": {
+        "nr_outer_freeze_upper_co_bridge_after_y_co_thesis": true,
+        "nr_outer_freeze_upper_co_bridge_y_co_threshold_thesis": 0.1
+      }
+    },
+    {
+      "label": "freeze_after_local2_1",
+      "wall_s": 68.694998476,
+      "exit_CO": 0.06770384804463618,
+      "rms": 0.04943043234234302,
+      "split": 0.03733069952495344,
+      "energy": 0.04943043234234302,
+      "converged": false,
+      "n_acc": 7,
+      "local2_n_accepted": 1,
+      "local2_n_enabled": 1,
+      "first_freeze_outer": 1,
+      "freeze_events": [
+        {
+          "outer": 1,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": true,
+          "absorb": false
+        },
+        {
+          "outer": 2,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 3,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 4,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 5,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 6,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 7,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 8,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 9,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 10,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": false
+        }
+      ],
+      "bed2": {
+        "R_H2O": 49.8379350385018,
+        "R_H2": -48.73527488386242,
+        "R_O2": -26.671076062480743,
+        "R_CO": 3.448563428164743,
+        "T": 1150.579784970889
+      },
+      "overrides": {
+        "nr_outer_freeze_upper_co_bridge_after_local2_accepts_thesis": 1
+      }
+    },
+    {
+      "label": "freeze_after_local2_2",
+      "wall_s": 66.94255405900003,
+      "exit_CO": 0.08941968361212545,
+      "rms": 0.05838824253228385,
+      "split": 0.04435227916049076,
+      "energy": 0.048865109293057644,
+      "converged": false,
+      "n_acc": 5,
+      "local2_n_accepted": 2,
+      "local2_n_enabled": 2,
+      "first_freeze_outer": 2,
+      "freeze_events": [
+        {
+          "outer": 1,
+          "frozen": false,
+          "y_co_top": NaN,
+          "local2": true,
+          "absorb": false
+        },
+        {
+          "outer": 2,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": true,
+          "absorb": false
+        },
+        {
+          "outer": 3,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 4,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 5,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 6,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 7,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 8,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 9,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": false
+        },
+        {
+          "outer": 10,
+          "frozen": true,
+          "y_co_top": NaN,
+          "local2": false,
+          "absorb": false
+        }
+      ],
+      "bed2": {
+        "R_H2O": 65.19619155910455,
+        "R_H2": -64.09306796855205,
+        "R_O2": -34.399411424314096,
+        "R_CO": 3.233584502207069,
+        "T": 1150.577408971712
+      },
+      "overrides": {
+        "nr_outer_freeze_upper_co_bridge_after_local2_accepts_thesis": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "note": "solid FTB relative floor A/B; isomorphic o8",
+  "max_global_iter": 8,
+  "arms": [
+    {
+      "label": "baseline",
+      "wall_s": 123.870830899,
+      "exit_CO": 0.03266295426713553,
+      "rms": 0.05020559784564186,
+      "split": 0.050204813900953923,
+      "energy": 0.04168325690672808,
+      "ls_fail": 21,
+      "n_acc": 8,
+      "overrides": {}
+    },
+    {
+      "label": "solid_ftb_rel",
+      "wall_s": 105.521516701,
+      "exit_CO": 0.03266148924308279,
+      "rms": 0.05043694373189186,
+      "split": 0.05043694373189186,
+      "energy": 0.0414101737266683,
+      "ls_fail": 21,
+      "n_acc": 8,
+      "overrides": {
+        "nr_clip_solid_ftb_relative_floor_thesis": true
+      }
+    }
+  ]
+}

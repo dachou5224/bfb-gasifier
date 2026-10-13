@@ -1,0 +1,44 @@
+{
+  "output": "data/phase2_outer_residual_decay_audit_p20_v3.json",
+  "diagnosis": [
+    "outer_inner_rms_plateau: inner NR 末态 RMS 下降不足，可能为结构型 BC/merit 冲突",
+    "split_elevated: phase-split 持续高于 0.05，优先 T2 split 而非 solid LSQ",
+    "holdup_flux_mismatch: bed1+ auf_in/out_auf 偏离，优先 T1 reconcile"
+  ],
+  "solve_summary": {
+    "converged": false,
+    "nr_outer_iters": 19,
+    "rms_scaled_final": 0.5684858605860588,
+    "rms_scaled_energy_final": 0.5684858605860588,
+    "rms_scaled_gas_phase_split_final": 0.1991107629131174
+  },
+  "hotspots": [
+    {
+      "bed": 9,
+      "T_K": 970.0,
+      "energy_residual_MW": 30.88914237034753,
+      "solid_holdup_kg": 14.700021027480933,
+      "solid_out_kg_s": 5.631128840619873,
+      "solid_auf_in_kg_s": 2.8030507711604793,
+      "auf_in_over_outflow": 0.4977777725383958
+    },
+    {
+      "bed": 5,
+      "T_K": 1008.2733581181012,
+      "energy_residual_MW": 3.4136868440948223,
+      "solid_holdup_kg": 6.0380952162113655,
+      "solid_out_kg_s": 2.808373631013274,
+      "solid_auf_in_kg_s": 2.0110879173452108,
+      "auf_in_over_outflow": 0.7161041163242944
+    },
+    {
+      "bed": 1,
+      "T_K": 650.691233065481,
+      "energy_residual_MW": 3.104798196241973,
+      "solid_holdup_kg": 5.1077779921147455,
+      "solid_out_kg_s": 0.5721710654535415,
+      "solid_auf_in_kg_s": 0.4501958197698478,
+      "auf_in_over_outflow": 0.7868203181735381
+    }
+  ]
+}

@@ -1,0 +1,818 @@
+{
+  "note": "temperature chain on fixed50+r5=0.25+vm_zone=0 baseline",
+  "max_global_iter": 40,
+  "best_converged_by_T_rmse_full": "seed_peak1240",
+  "best_converged_by_score_total": "seed_hamel_1020_1100",
+  "results": [
+    {
+      "label": "baseline",
+      "overrides": {},
+      "max_global_iter": 40,
+      "wall_time_s": 357.36806063,
+      "converged_fully": true,
+      "rms_scaled_final": 0.009699433220408511,
+      "nr_outer_iters": 19,
+      "reactor_exit_gas_dry": {
+        "CO": 0.08223167474161978,
+        "CO2": 0.16836966637646256
+      },
+      "score_exit_co_co2": 0.8980819865288081,
+      "score_total": 1.0964357884828808,
+      "bed0_T_K": 1030.0,
+      "bed_top_T_K": 1029.0761461228635,
+      "T_peak_K": 1106.7884755665605,
+      "T_peak_xi": 0.10344827586206896,
+      "T_peak_cell_type": "bed",
+      "T_rmse_bed_vs_hamel_K": 99.17690097703634,
+      "T_rmse_full_vs_hamel_K": 99.17690097703634,
+      "ref_dry": {
+        "CO": 0.13,
+        "CO2": 0.11
+      },
+      "axial_T_summary": [
+        {
+          "xi": 0.020689655172413793,
+          "T_K": 1030.0,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.06206896551724137,
+          "T_K": 1095.1740405651476,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.10344827586206896,
+          "T_K": 1106.7884755665605,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.14482758620689654,
+          "T_K": 1087.4444849721742,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.18620689655172412,
+          "T_K": 1070.1837744149138,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2275862068965517,
+          "T_K": 1056.566193350047,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2689655172413793,
+          "T_K": 1045.6992488692729,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.3103448275862069,
+          "T_K": 1036.751061533396,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.35172413793103446,
+          "T_K": 1029.9817516374296,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.393103448275862,
+          "T_K": 1029.0761461228635,
+          "cell_type": "bed"
+        }
+      ]
+    },
+    {
+      "label": "seed_budget",
+      "overrides": {
+        "vorab_nr_temperature_seed_mode_thesis": "budget_progress"
+      },
+      "max_global_iter": 40,
+      "wall_time_s": 267.284564759,
+      "converged_fully": true,
+      "rms_scaled_final": 0.007901293488746422,
+      "nr_outer_iters": 18,
+      "reactor_exit_gas_dry": {
+        "CO": 0.0862540396680465,
+        "CO2": 0.1659102115512102
+      },
+      "score_exit_co_co2": 0.8447820376344204,
+      "score_total": 0.9940458533737832,
+      "bed0_T_K": 963.4509114541905,
+      "bed_top_T_K": 1034.1532455030194,
+      "T_peak_K": 1118.7118196183799,
+      "T_peak_xi": 0.10344827586206896,
+      "T_peak_cell_type": "bed",
+      "T_rmse_bed_vs_hamel_K": 74.63190786968137,
+      "T_rmse_full_vs_hamel_K": 74.63190786968137,
+      "ref_dry": {
+        "CO": 0.13,
+        "CO2": 0.11
+      },
+      "axial_T_summary": [
+        {
+          "xi": 0.020689655172413793,
+          "T_K": 963.4509114541905,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.06206896551724137,
+          "T_K": 1035.0478680688125,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.10344827586206896,
+          "T_K": 1118.7118196183799,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.14482758620689654,
+          "T_K": 1097.999572152816,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.18620689655172412,
+          "T_K": 1078.7544083768737,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2275862068965517,
+          "T_K": 1063.8500638046821,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2689655172413793,
+          "T_K": 1051.9930351674216,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.3103448275862069,
+          "T_K": 1042.3973390420908,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.35172413793103446,
+          "T_K": 1035.129312907604,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.393103448275862,
+          "T_K": 1034.1532455030194,
+          "cell_type": "bed"
+        }
+      ]
+    },
+    {
+      "label": "seed_blend_50",
+      "overrides": {
+        "vorab_nr_temperature_seed_mode_thesis": "blend",
+        "vorab_nr_temperature_seed_adiabatic_blend_thesis": 0.5
+      },
+      "max_global_iter": 40,
+      "wall_time_s": 505.25082796000004,
+      "converged_fully": false,
+      "rms_scaled_final": 0.007874340983633933,
+      "nr_outer_iters": 40,
+      "reactor_exit_gas_dry": {
+        "CO": 0.08662662983999325,
+        "CO2": 0.16696619539241558
+      },
+      "score_exit_co_co2": 0.8515158124905433,
+      "score_total": 0.9537396810815212,
+      "bed0_T_K": 881.2994209461176,
+      "bed_top_T_K": 1040.6034149581928,
+      "T_peak_K": 1110.1249009238547,
+      "T_peak_xi": 0.14482758620689654,
+      "T_peak_cell_type": "bed",
+      "T_rmse_bed_vs_hamel_K": 51.11193429548895,
+      "T_rmse_full_vs_hamel_K": 51.11193429548895,
+      "ref_dry": {
+        "CO": 0.13,
+        "CO2": 0.11
+      },
+      "axial_T_summary": [
+        {
+          "xi": 0.020689655172413793,
+          "T_K": 881.2994209461176,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.06206896551724137,
+          "T_K": 1017.2265149488284,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.10344827586206896,
+          "T_K": 1087.1086939607756,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.14482758620689654,
+          "T_K": 1110.1249009238547,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.18620689655172412,
+          "T_K": 1093.0742757824057,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2275862068965517,
+          "T_K": 1075.7261954131163,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2689655172413793,
+          "T_K": 1061.9052219413084,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.3103448275862069,
+          "T_K": 1050.700585999203,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.35172413793103446,
+          "T_K": 1042.2317597635479,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.393103448275862,
+          "T_K": 1040.6034149581928,
+          "cell_type": "bed"
+        }
+      ]
+    },
+    {
+      "label": "seed_hamel_1020_1100",
+      "overrides": {
+        "vorab_nr_temperature_seed_mode_thesis": "budget_progress",
+        "vorab_nr_temperature_seed_bottom_K_thesis": 1020.0,
+        "vorab_nr_temperature_seed_top_K_thesis": 1100.0
+      },
+      "max_global_iter": 40,
+      "wall_time_s": 206.24213310000005,
+      "converged_fully": true,
+      "rms_scaled_final": 0.006701971302143392,
+      "nr_outer_iters": 18,
+      "reactor_exit_gas_dry": {
+        "CO": 0.0945811412124778,
+        "CO2": 0.16042247586320524
+      },
+      "score_exit_co_co2": 0.7308389041149737,
+      "score_total": 0.888372219047797,
+      "bed0_T_K": 900.3083067182251,
+      "bed_top_T_K": 1034.0451511904562,
+      "T_peak_K": 1113.9780542327358,
+      "T_peak_xi": 0.10344827586206896,
+      "T_peak_cell_type": "bed",
+      "T_rmse_bed_vs_hamel_K": 78.76665746641163,
+      "T_rmse_full_vs_hamel_K": 78.76665746641163,
+      "ref_dry": {
+        "CO": 0.13,
+        "CO2": 0.11
+      },
+      "axial_T_summary": [
+        {
+          "xi": 0.020689655172413793,
+          "T_K": 900.3083067182251,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.06206896551724137,
+          "T_K": 1110.049675951115,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.10344827586206896,
+          "T_K": 1113.9780542327358,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.14482758620689654,
+          "T_K": 1095.5501743991042,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.18620689655172412,
+          "T_K": 1077.9249948030358,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2275862068965517,
+          "T_K": 1063.474810542709,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2689655172413793,
+          "T_K": 1051.7879575202317,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.3103448275862069,
+          "T_K": 1042.1507613829676,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.35172413793103446,
+          "T_K": 1034.8889701361145,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.393103448275862,
+          "T_K": 1034.0451511904562,
+          "cell_type": "bed"
+        }
+      ]
+    },
+    {
+      "label": "adiab_cap_1240",
+      "overrides": {
+        "vorab_bottom_temperature_cap_K_thesis": 1240.0
+      },
+      "max_global_iter": 40,
+      "wall_time_s": 150.87061917000005,
+      "converged_fully": true,
+      "rms_scaled_final": 0.009102591416799194,
+      "nr_outer_iters": 7,
+      "reactor_exit_gas_dry": {
+        "CO": 0.091295087951841,
+        "CO2": 0.16390621970295927
+      },
+      "score_exit_co_co2": 0.7877866354323213,
+      "score_total": 1.0301781755536175,
+      "bed0_T_K": 1090.0,
+      "bed_top_T_K": 1041.2288335300586,
+      "T_peak_K": 1135.3851091690071,
+      "T_peak_xi": 0.10344827586206896,
+      "T_peak_cell_type": "bed",
+      "T_rmse_bed_vs_hamel_K": 121.1957700606481,
+      "T_rmse_full_vs_hamel_K": 121.1957700606481,
+      "ref_dry": {
+        "CO": 0.13,
+        "CO2": 0.11
+      },
+      "axial_T_summary": [
+        {
+          "xi": 0.020689655172413793,
+          "T_K": 1090.0,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.06206896551724137,
+          "T_K": 1134.2083359464116,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.10344827586206896,
+          "T_K": 1135.3851091690071,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.14482758620689654,
+          "T_K": 1109.343687128053,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.18620689655172412,
+          "T_K": 1088.388502489251,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2275862068965517,
+          "T_K": 1072.4113162903877,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2689655172413793,
+          "T_K": 1059.8525597154835,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.3103448275862069,
+          "T_K": 1049.674156823561,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.35172413793103446,
+          "T_K": 1042.0393002203139,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.393103448275862,
+          "T_K": 1041.2288335300586,
+          "cell_type": "bed"
+        }
+      ]
+    },
+    {
+      "label": "fence_lo_80",
+      "overrides": {
+        "nr_temperature_fence_lower_margin_K_thesis": 80.0
+      },
+      "max_global_iter": 40,
+      "wall_time_s": 537.2405103020001,
+      "converged_fully": false,
+      "rms_scaled_final": 0.037399606416128925,
+      "nr_outer_iters": 33,
+      "reactor_exit_gas_dry": {
+        "CO": 0.08745223989647058,
+        "CO2": 0.16542022229404213
+      },
+      "score_exit_co_co2": 0.8311106650079519,
+      "score_total": 1.072459374747777,
+      "bed0_T_K": 1100.0,
+      "bed_top_T_K": 1039.8972004160735,
+      "T_peak_K": 1125.8808955549794,
+      "T_peak_xi": 0.10344827586206896,
+      "T_peak_cell_type": "bed",
+      "T_rmse_bed_vs_hamel_K": 120.6743548699125,
+      "T_rmse_full_vs_hamel_K": 120.6743548699125,
+      "ref_dry": {
+        "CO": 0.13,
+        "CO2": 0.11
+      },
+      "axial_T_summary": [
+        {
+          "xi": 0.020689655172413793,
+          "T_K": 1100.0,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.06206896551724137,
+          "T_K": 1122.6745700175275,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.10344827586206896,
+          "T_K": 1125.8808955549794,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.14482758620689654,
+          "T_K": 1107.7819230543219,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.18620689655172412,
+          "T_K": 1088.343374576782,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2275862068965517,
+          "T_K": 1072.7912100962276,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2689655172413793,
+          "T_K": 1060.2408124273677,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.3103448275862069,
+          "T_K": 1049.8617475061876,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.35172413793103446,
+          "T_K": 1041.86469745634,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.393103448275862,
+          "T_K": 1039.8972004160735,
+          "cell_type": "bed"
+        }
+      ]
+    },
+    {
+      "label": "heat_loss_half",
+      "overrides": {
+        "heat_loss_frac": 0.05
+      },
+      "max_global_iter": 40,
+      "wall_time_s": 320.98813412699997,
+      "converged_fully": true,
+      "rms_scaled_final": 0.007604323845314706,
+      "nr_outer_iters": 28,
+      "reactor_exit_gas_dry": {
+        "CO": 0.08402214687694994,
+        "CO2": 0.1680923953065249
+      },
+      "score_exit_co_co2": 0.881788477859003,
+      "score_total": 1.0859622749374134,
+      "bed0_T_K": 1030.0,
+      "bed_top_T_K": 1021.7115121111738,
+      "T_peak_K": 1125.1838262164038,
+      "T_peak_xi": 0.10344827586206896,
+      "T_peak_cell_type": "bed",
+      "T_rmse_bed_vs_hamel_K": 102.08689853920518,
+      "T_rmse_full_vs_hamel_K": 102.08689853920518,
+      "ref_dry": {
+        "CO": 0.13,
+        "CO2": 0.11
+      },
+      "axial_T_summary": [
+        {
+          "xi": 0.020689655172413793,
+          "T_K": 1030.0,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.06206896551724137,
+          "T_K": 1096.2250605089514,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.10344827586206896,
+          "T_K": 1125.1838262164038,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.14482758620689654,
+          "T_K": 1097.5870132515063,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.18620689655172412,
+          "T_K": 1075.2833376911574,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2275862068965517,
+          "T_K": 1058.1241214938882,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2689655172413793,
+          "T_K": 1044.370327751588,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.3103448275862069,
+          "T_K": 1032.9985419598304,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.35172413793103446,
+          "T_K": 1024.2108754208305,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.393103448275862,
+          "T_K": 1021.7115121111738,
+          "cell_type": "bed"
+        }
+      ]
+    },
+    {
+      "label": "march_hl0_blend",
+      "overrides": {
+        "vorab_bed_temperature_march_thesis": true,
+        "vorab_bed_temperature_march_heat_loss_frac_thesis": 0.0,
+        "vorab_nr_temperature_seed_mode_thesis": "blend",
+        "vorab_nr_temperature_seed_adiabatic_blend_thesis": 0.5
+      },
+      "max_global_iter": 40,
+      "wall_time_s": 654.6987804099999,
+      "converged_fully": false,
+      "rms_scaled_final": 0.710803669355026,
+      "nr_outer_iters": 40,
+      "reactor_exit_gas_dry": {
+        "CO": 0.08859863105754162,
+        "CO2": 0.08872971655824843
+      },
+      "score_exit_co_co2": 0.5118382818949738,
+      "score_total": 0.6260716658411716,
+      "bed0_T_K": 943.3331412760614,
+      "bed_top_T_K": 1049.8513905871548,
+      "T_peak_K": 1049.8513905871548,
+      "T_peak_xi": 0.393103448275862,
+      "T_peak_cell_type": "bed",
+      "T_rmse_bed_vs_hamel_K": 57.11669197309887,
+      "T_rmse_full_vs_hamel_K": 57.11669197309887,
+      "ref_dry": {
+        "CO": 0.13,
+        "CO2": 0.11
+      },
+      "axial_T_summary": [
+        {
+          "xi": 0.020689655172413793,
+          "T_K": 943.3331412760614,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.06206896551724137,
+          "T_K": 909.4796854833785,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.10344827586206896,
+          "T_K": 985.5311202796851,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.14482758620689654,
+          "T_K": 1022.5658012908432,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.18620689655172412,
+          "T_K": 1029.2659780244514,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2275862068965517,
+          "T_K": 1037.8687615834126,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2689655172413793,
+          "T_K": 1040.1113833999218,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.3103448275862069,
+          "T_K": 1043.0155808650375,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.35172413793103446,
+          "T_K": 1046.8660337202336,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.393103448275862,
+          "T_K": 1049.8513905871548,
+          "cell_type": "bed"
+        }
+      ]
+    },
+    {
+      "label": "march_budget_seed",
+      "overrides": {
+        "vorab_bed_temperature_march_thesis": true,
+        "vorab_bed_temperature_march_heat_loss_frac_thesis": 0.05,
+        "vorab_nr_temperature_seed_mode_thesis": "budget_progress"
+      },
+      "max_global_iter": 40,
+      "wall_time_s": 541.0104884609996,
+      "converged_fully": false,
+      "rms_scaled_final": 0.22496174885775014,
+      "nr_outer_iters": 40,
+      "reactor_exit_gas_dry": {
+        "CO": 0.251728143811719,
+        "CO2": 0.12353174897789314
+      },
+      "score_exit_co_co2": 1.0593862368122515,
+      "score_total": 1.5079736792517808,
+      "bed0_T_K": 728.1639492688994,
+      "bed_top_T_K": 897.348982562449,
+      "T_peak_K": 897.348982562449,
+      "T_peak_xi": 0.393103448275862,
+      "T_peak_cell_type": "bed",
+      "T_rmse_bed_vs_hamel_K": 224.2937212197646,
+      "T_rmse_full_vs_hamel_K": 224.2937212197646,
+      "ref_dry": {
+        "CO": 0.13,
+        "CO2": 0.11
+      },
+      "axial_T_summary": [
+        {
+          "xi": 0.020689655172413793,
+          "T_K": 728.1639492688994,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.06206896551724137,
+          "T_K": 737.9008640223125,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.10344827586206896,
+          "T_K": 764.0538188132607,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.14482758620689654,
+          "T_K": 786.6884777407212,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.18620689655172412,
+          "T_K": 807.1391520705248,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2275862068965517,
+          "T_K": 826.0479393014143,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2689655172413793,
+          "T_K": 843.7858914126684,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.3103448275862069,
+          "T_K": 860.5917193631719,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.35172413793103446,
+          "T_K": 876.6303551701487,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.393103448275862,
+          "T_K": 897.348982562449,
+          "cell_type": "bed"
+        }
+      ]
+    },
+    {
+      "label": "seed_peak1240",
+      "overrides": {
+        "vorab_nr_temperature_seed_mode_thesis": "budget_progress",
+        "vorab_nr_temperature_seed_bottom_K_thesis": 750.0,
+        "vorab_nr_temperature_seed_top_K_thesis": 1240.0,
+        "vorab_bottom_temperature_cap_K_thesis": 1325.0,
+        "vorab_nr_temperature_fence_upper_anchor_K_thesis": 1500.0
+      },
+      "max_global_iter": 40,
+      "wall_time_s": 105.12666262099992,
+      "converged_fully": true,
+      "rms_scaled_final": 0.008134388905434185,
+      "nr_outer_iters": 4,
+      "reactor_exit_gas_dry": {
+        "CO": 0.08083177040314597,
+        "CO2": 0.16829725058919903
+      },
+      "score_exit_co_co2": 0.9081921561013857,
+      "score_total": 0.9955958577613294,
+      "bed0_T_K": 794.5327542777846,
+      "bed_top_T_K": 1049.7225055669685,
+      "T_peak_K": 1117.758289787416,
+      "T_peak_xi": 0.10344827586206896,
+      "T_peak_cell_type": "bed",
+      "T_rmse_bed_vs_hamel_K": 43.701850829971875,
+      "T_rmse_full_vs_hamel_K": 43.701850829971875,
+      "ref_dry": {
+        "CO": 0.13,
+        "CO2": 0.11
+      },
+      "axial_T_summary": [
+        {
+          "xi": 0.020689655172413793,
+          "T_K": 794.5327542777846,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.06206896551724137,
+          "T_K": 976.4251790782614,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.10344827586206896,
+          "T_K": 1117.758289787416,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.14482758620689654,
+          "T_K": 1105.1425922716821,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.18620689655172412,
+          "T_K": 1085.5894194095877,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2275862068965517,
+          "T_K": 1069.3620422714055,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2689655172413793,
+          "T_K": 1056.6690617248325,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.3103448275862069,
+          "T_K": 1046.4425306730761,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.35172413793103446,
+          "T_K": 1038.6773726711326,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.393103448275862,
+          "T_K": 1049.7225055669685,
+          "cell_type": "bed"
+        }
+      ]
+    }
+  ]
+}

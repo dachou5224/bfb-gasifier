@@ -14,6 +14,11 @@
 
 from __future__ import annotations
 
+from _lu_harness import (
+    build_phase2_config,
+    phase2_solve_kwargs,
+)
+
 import json
 import math
 import sys
@@ -22,21 +27,10 @@ from typing import Any
 
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
 from src.core.reactor import Reactor
 from src.core.species import GAS_SPECIES
 from _nr_monitor import print_nr_monitor, solve_with_nr_monitor
-from tests.validation_case_utils import (
-    CASE_LU_VALIDATION_KEY,
-    PHASE2_HTW_LU_FREEBOARD_SOLVE_KWARGS,
-    build_phase2_htw_lu_freeboard_reactor_config,
-    json_numeric_or_none,
-    load_validation_case_node,
-)
-
+from tests.validation_case_utils import CASE_LU_VALIDATION_KEY, load_validation_case_node
 
 PROFILE_KEYS = {
     "T_K": {"kind": "temperature", "model_key": "T"},
@@ -54,9 +48,9 @@ def _interp_profile(x_query: np.ndarray, x_data: np.ndarray, y_data: np.ndarray)
 
 
 def _build_model_profiles() -> tuple[dict[str, Any], dict[str, np.ndarray], dict[str, Any], str]:
-    cfg = build_phase2_htw_lu_freeboard_reactor_config()
+    cfg = build_phase2_config()
     reactor = Reactor(cfg)
-    solve_kwargs = dict(PHASE2_HTW_LU_FREEBOARD_SOLVE_KWARGS)
+    solve_kwargs = phase2_solve_kwargs()
     result, monitor = solve_with_nr_monitor(
         reactor,
         solve_kwargs,
@@ -153,7 +147,7 @@ def run_audit() -> dict[str, Any]:
         "case_key": CASE_LU_VALIDATION_KEY,
         "solver": result.get("nr_init_strategy"),
         "major_gibbs_solver_mode": major_gibbs_solver_mode,
-        "solve_kwargs": dict(PHASE2_HTW_LU_FREEBOARD_SOLVE_KWARGS),
+        "solve_kwargs": phase2_solve_kwargs(),
         "converged": bool(result.get("converged", False)),
         "n_iter": int(result.get("n_iter", 0)),
         "nr_total_s": result.get("nr_total_s"),

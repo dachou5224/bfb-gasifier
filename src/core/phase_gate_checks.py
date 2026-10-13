@@ -682,6 +682,9 @@ def _phase2_pyrolysis_closure() -> dict[str, Any]:
         char_index=S_CHAR,
         vm_index=S_VM,
         moisture_index=S_MOISTURE,
+        pyrolysis_tar_yield_mode=str(
+            getattr(cell.solid, "pyrolysis_tar_yield_mode", "hegermann")
+        ),
     )
     closure = combined_element_molar_rates(
         gas_rates=bundle.gas_source,
@@ -726,17 +729,22 @@ def _phase2_reaction_closure() -> dict[str, Any]:
         solid_sink_vm=cell._vm_solid_sink_cache,
         areas=cell._calc_char_surface_area_per_class(),
         solid_d_p=cell.solid.d_p,
+        m_char_classes=np.maximum(cell.m_solid[:, S_CHAR], 0.0),
         D_g=gas_diffusivity_correlation(cell.T, cell.P),
         char_conversion=cell._compute_char_conversion(),
         rho_cat=cell._catalyst_bulk_density(),
+        rho_ash_kg_m3=cell._ash_bulk_density(),
         enable_r12=cell.enable_r12,
         use_gibbs_minor=cell.use_gibbs_minor,
         gibbs_minor_sources=None,
         r4_scale=cell.r4_scale,
+        r2_scale=cell.r2_scale,
         r5_scale=cell.r5_scale,
         r6_scale=cell.r6_scale,
         r7_scale=cell.r7_scale,
+        r8_scale=cell.r8_scale,
         rate_multiplier=1.0,
+        extent_limiters_enabled=bool(getattr(cell, "extent_limiters_enabled", False)),
         N_zu_d=cell.N_zu_d,
         N_d_in=cell.N_d_in,
         N_zu_b=cell.N_zu_b,
@@ -913,17 +921,22 @@ def _phase3_partition_ledger() -> dict[str, Any]:
         solid_sink_vm=cell._vm_solid_sink_cache,
         areas=cell._calc_char_surface_area_per_class(),
         solid_d_p=cell.solid.d_p,
+        m_char_classes=np.maximum(cell.m_solid[:, S_CHAR], 0.0),
         D_g=gas_diffusivity_correlation(cell.T, cell.P),
         char_conversion=cell._compute_char_conversion(),
         rho_cat=cell._catalyst_bulk_density(),
+        rho_ash_kg_m3=cell._ash_bulk_density(),
         enable_r12=cell.enable_r12,
         use_gibbs_minor=cell.use_gibbs_minor,
         gibbs_minor_sources=None,
         r4_scale=cell.r4_scale,
+        r2_scale=cell.r2_scale,
         r5_scale=cell.r5_scale,
         r6_scale=cell.r6_scale,
         r7_scale=cell.r7_scale,
+        r8_scale=cell.r8_scale,
         rate_multiplier=1.0,
+        extent_limiters_enabled=bool(getattr(cell, "extent_limiters_enabled", False)),
         N_zu_d=cell.N_zu_d,
         N_d_in=cell.N_d_in,
         N_zu_b=cell.N_zu_b,
@@ -1152,6 +1165,9 @@ def _phase4_release_rebound(reactor: Reactor) -> dict[str, float]:
             m_moist_in_classes=np.maximum(cell.m_solid_zu[:, S_MOISTURE] + cell.m_solid_in[:, S_MOISTURE], 0.0),
             vm_index=S_VM,
             moisture_index=S_MOISTURE,
+            pyrolysis_tar_yield_mode=str(
+                getattr(cell.solid, "pyrolysis_tar_yield_mode", "hegermann")
+            ),
         )
         vm_release_profile.append(float(max(-np.sum(bundle.solid_sink[:, S_VM]), 0.0)))
         moist_release_profile.append(float(max(-np.sum(bundle.solid_sink[:, S_MOISTURE]), 0.0)))

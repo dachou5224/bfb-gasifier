@@ -1,0 +1,308 @@
+{
+  "solve": {
+    "converged": true,
+    "converged_fully": true,
+    "rms_scaled_final": 0.008320360184260633,
+    "nr_outer_iters": 9
+  },
+  "init": {
+    "label": "init",
+    "global": {
+      "gas_rms": 0.41883395238098753,
+      "solid_rms": 0.021793048409051895,
+      "energy_rms": 0.20767805832820474,
+      "gas_max_abs": 1.9471785023367263,
+      "solid_max_abs": 0.04882502056579617,
+      "energy_max_abs": 0.4310775640881964,
+      "gas_combined_rms": 0.140335248654443,
+      "gas_phase_split_rms": 1.0602879797868636,
+      "gas_combined_max_abs": 0.47856518158699635,
+      "gas_phase_split_max_abs": 3.8943570046734526,
+      "rms_all": 0.268946500769561
+    },
+    "bed_major_phase_split": {
+      "bed0": [
+        {
+          "species": "CO",
+          "dense_minus_bubble_abs": 0.05658280085997908,
+          "dense_scaled": 0.006974015134818582,
+          "bubble_scaled": -0.0496087857251605
+        },
+        {
+          "species": "O2",
+          "dense_minus_bubble_abs": 0.05534177163448375,
+          "dense_scaled": -0.08223174300943246,
+          "bubble_scaled": -0.026889971374948717
+        },
+        {
+          "species": "H2",
+          "dense_minus_bubble_abs": 0.015420542854577772,
+          "dense_scaled": -0.0005444431361257235,
+          "bubble_scaled": -0.015964985990703496
+        },
+        {
+          "species": "CH4",
+          "dense_minus_bubble_abs": 0.009721329835271955,
+          "dense_scaled": 0.022030396632091796,
+          "bubble_scaled": 0.012309066796819841
+        },
+        {
+          "species": "CO2",
+          "dense_minus_bubble_abs": 0.008375776895254875,
+          "dense_scaled": -0.021840418023825803,
+          "bubble_scaled": -0.030216194919080678
+        },
+        {
+          "species": "N2",
+          "dense_minus_bubble_abs": 0.000912679134164591,
+          "dense_scaled": -0.0004563395670822955,
+          "bubble_scaled": 0.0004563395670822955
+        },
+        {
+          "species": "H2O",
+          "dense_minus_bubble_abs": 0.0009117040945989321,
+          "dense_scaled": 0.03570399100092187,
+          "bubble_scaled": 0.03479228690632294
+        }
+      ],
+      "bed1": [
+        {
+          "species": "N2",
+          "dense_minus_bubble_abs": 3.8943570046734526,
+          "dense_scaled": 1.9471785023367263,
+          "bubble_scaled": -1.9471785023367263
+        },
+        {
+          "species": "CO2",
+          "dense_minus_bubble_abs": 1.785042600037702,
+          "dense_scaled": -0.885109334824193,
+          "bubble_scaled": 0.8999332652135089
+        },
+        {
+          "species": "CO",
+          "dense_minus_bubble_abs": 1.7335982017022182,
+          "dense_scaled": -1.1060816916446072,
+          "bubble_scaled": 0.6275165100576109
+        },
+        {
+          "species": "H2",
+          "dense_minus_bubble_abs": 1.1352871660118973,
+          "dense_scaled": -0.6565617059099021,
+          "bubble_scaled": 0.4787254601019951
+        },
+        {
+          "species": "H2O",
+          "dense_minus_bubble_abs": 0.8692885944794004,
+          "dense_scaled": 0.5099162359972573,
+          "bubble_scaled": -0.3593723584821431
+        },
+        {
+          "species": "O2",
+          "dense_minus_bubble_abs": 0.25681390507441576,
+          "dense_scaled": 0.09516944201675996,
+          "bubble_scaled": -0.1616444630576558
+        },
+        {
+          "species": "CH4",
+          "dense_minus_bubble_abs": 0.07195710736070558,
+          "dense_scaled": -0.006896149856626074,
+          "bubble_scaled": -0.07885325721733166
+        }
+      ],
+      "bed2": [
+        {
+          "species": "N2",
+          "dense_minus_bubble_abs": 0.3317609212194136,
+          "dense_scaled": -0.16588046060970685,
+          "bubble_scaled": 0.16588046060970676
+        },
+        {
+          "species": "H2O",
+          "dense_minus_bubble_abs": 0.09708119489416142,
+          "dense_scaled": -0.06309893525435648,
+          "bubble_scaled": 0.03398225963980495
+        },
+        {
+          "species": "CO2",
+          "dense_minus_bubble_abs": 0.09034889054915032,
+          "dense_scaled": 0.1689868666402876,
+          "bubble_scaled": 0.2593357571894379
+        },
+        {
+          "species": "CO",
+          "dense_minus_bubble_abs": 0.019672800184787148,
+          "dense_scaled": 0.12820150961470198,
+          "bubble_scaled": 0.14787430979948912
+        },
+        {
+          "species": "CH4",
+          "dense_minus_bubble_abs": 0.016849369502408888,
+          "dense_scaled": -0.006963803048807283,
+          "bubble_scaled": 0.009885566453601606
+        },
+        {
+          "species": "H2",
+          "dense_minus_bubble_abs": 0.0012962818566649437,
+          "dense_scaled": 0.10567164370056899,
+          "bubble_scaled": 0.10437536184390404
+        },
+        {
+          "species": "O2",
+          "dense_minus_bubble_abs": 0.0012107028683033573,
+          "dense_scaled": -0.02330106302923304,
+          "bubble_scaled": -0.022090360160929683
+        }
+      ]
+    }
+  },
+  "final": {
+    "label": "final",
+    "global": {
+      "gas_rms": 0.012754027637974457,
+      "solid_rms": 0.002387739263585442,
+      "energy_rms": 0.003852383186039119,
+      "gas_max_abs": 0.0433824343010483,
+      "solid_max_abs": 0.013577145461226328,
+      "energy_max_abs": 0.007702174666815871,
+      "gas_combined_rms": 0.023172733986770108,
+      "gas_phase_split_rms": 0.007783452339502663,
+      "gas_combined_max_abs": 0.08676486860209288,
+      "gas_phase_split_max_abs": 0.021298250448541493,
+      "rms_all": 0.008320360184260633
+    },
+    "bed_major_phase_split": {
+      "bed0": [
+        {
+          "species": "CO",
+          "dense_minus_bubble_abs": 3.032491792398506e-14,
+          "dense_scaled": 0.001397916492947819,
+          "bubble_scaled": 0.001397916492978144
+        },
+        {
+          "species": "N2",
+          "dense_minus_bubble_abs": 3.005831191488524e-14,
+          "dense_scaled": -4.2132733589489895e-13,
+          "bubble_scaled": -4.513856478097842e-13
+        },
+        {
+          "species": "O2",
+          "dense_minus_bubble_abs": 2.548135313862332e-14,
+          "dense_scaled": 0.0117103953948744,
+          "bubble_scaled": 0.011710395394899882
+        },
+        {
+          "species": "H2O",
+          "dense_minus_bubble_abs": 1.1286110934705107e-14,
+          "dense_scaled": 0.019432564038053633,
+          "bubble_scaled": 0.01943256403806492
+        },
+        {
+          "species": "CH4",
+          "dense_minus_bubble_abs": 1.0151601781416275e-14,
+          "dense_scaled": -0.03130534969821308,
+          "bubble_scaled": -0.03130534969820293
+        },
+        {
+          "species": "CO2",
+          "dense_minus_bubble_abs": 3.896188927043909e-15,
+          "dense_scaled": -0.021230003526124655,
+          "bubble_scaled": -0.02123000352612855
+        },
+        {
+          "species": "H2",
+          "dense_minus_bubble_abs": 3.7192471324942744e-15,
+          "dense_scaled": -0.0433824343010483,
+          "bubble_scaled": -0.04338243430104458
+        }
+      ],
+      "bed1": [
+        {
+          "species": "H2",
+          "dense_minus_bubble_abs": 0.021298250448541493,
+          "dense_scaled": 0.018591667316155823,
+          "bubble_scaled": 0.039889917764697316
+        },
+        {
+          "species": "CH4",
+          "dense_minus_bubble_abs": 0.014292027309237575,
+          "dense_scaled": 0.016278841214405194,
+          "bubble_scaled": 0.03057086852364277
+        },
+        {
+          "species": "H2O",
+          "dense_minus_bubble_abs": 0.014132562162218303,
+          "dense_scaled": 0.006386610577125637,
+          "bubble_scaled": -0.007745951585092665
+        },
+        {
+          "species": "CO",
+          "dense_minus_bubble_abs": 0.011531450655317332,
+          "dense_scaled": 0.0029241183241892153,
+          "bubble_scaled": 0.014455568979506547
+        },
+        {
+          "species": "O2",
+          "dense_minus_bubble_abs": 0.0030851089240311763,
+          "dense_scaled": 0.0006374534817482858,
+          "bubble_scaled": 0.003722562405779462
+        },
+        {
+          "species": "CO2",
+          "dense_minus_bubble_abs": 0.0027668237943704876,
+          "dense_scaled": -0.005707609580410234,
+          "bubble_scaled": -0.008474433374780722
+        },
+        {
+          "species": "N2",
+          "dense_minus_bubble_abs": 0.0009932113995112385,
+          "dense_scaled": 0.0004966057000091932,
+          "bubble_scaled": -0.0004966056995020453
+        }
+      ],
+      "bed2": [
+        {
+          "species": "H2O",
+          "dense_minus_bubble_abs": 0.013828960157905804,
+          "dense_scaled": 0.00704782490550672,
+          "bubble_scaled": -0.006781135252399085
+        },
+        {
+          "species": "H2",
+          "dense_minus_bubble_abs": 0.004964865746630236,
+          "dense_scaled": -0.0026157810717756034,
+          "bubble_scaled": 0.0023490846748546322
+        },
+        {
+          "species": "CO2",
+          "dense_minus_bubble_abs": 0.004299653771828646,
+          "dense_scaled": -0.0021193134991004995,
+          "bubble_scaled": 0.0021803402727281463
+        },
+        {
+          "species": "CH4",
+          "dense_minus_bubble_abs": 0.0038752736759972016,
+          "dense_scaled": -0.0019376347838720189,
+          "bubble_scaled": 0.0019376388921251827
+        },
+        {
+          "species": "CO",
+          "dense_minus_bubble_abs": 0.0031000737595134947,
+          "dense_scaled": -0.0017239198841471819,
+          "bubble_scaled": 0.0013761538753663128
+        },
+        {
+          "species": "N2",
+          "dense_minus_bubble_abs": 0.002116274025844805,
+          "dense_scaled": 0.0010581370128944102,
+          "bubble_scaled": -0.0010581370129503947
+        },
+        {
+          "species": "O2",
+          "dense_minus_bubble_abs": 0.0,
+          "dense_scaled": 0.0,
+          "bubble_scaled": 0.0
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,73 @@
+[113] Ruoss, F.: 
+Simulation einer Klärschlammverbrennung in einer stationären Wirbel-
+schichtanlage mit Hilfe des Flowsheet-Programms Aspen Plus. Essen, Universität, Di-
+plomarbeit, August 1991
+[114] SALASKE, S.: Gaschromatographische Analyse von Pyrolysegasen aus Klärschlammen.
+Siegen, Universität, Analytische Chemie I, Diplomarbeit, Juni 1995
+[115] SCHACK, K.: Zur Berechnung der Wasserdampfstrahlung. In: Chem. Ing. Tech. 43
+(1971), Nr. 21, S. 1151-1153
+[116] ScHARZ, S.: Untersuchungen zur Verbrennung von stückigen wasserhaltigen Feststof-
+fen in der blasenbildenden Wirbelschicht unter Anwendung der Gaspotentiometrie mit
+einem Sauerstoff-Festelektrolyt-Sensor. Siegen, Universität, Institut für Energietechnik,
+Studienarbeit, 1995
+[117] SCHENKEL, W.: Neue staatliche Regelungen und ihre vermutlichen Auswirkungen auf
+die Klärschlammentsorgung. In: SCHENKEL, W. (Hrsg.) ; WITTE, H. (Hrsg.): Klär-
+schlammentsorgung . Expert-Verlag, 1994
+[118] SCHENKEL, W. ; BUTZKAMM-ERKER, R.: Klärschlammentsorgung, die neuen Rahmen-
+bedingungen und künftigen Entsorgungswege. In: Korrespondenz Abwasser 37 (1990),
+Nr. 9, S. 1037-1053
+[119] SCHINGNITZ, M.: 
+Darstellung des NOELL-Konversionsverfahrens. In: JÜRGEN, C.
+(Hrsg.) ; PETER, F. (Hrsg.): NOELL-Konversionsverfahren zur Verwertung und Ent-
+sorgung von Abfällen. 1994
+[120] SCHÖLER, J.: Ein Gesamtmodell für Dampferzeugeranlagen mit zirkulierender Wirbel-
+schichtfeuerung. Siegen, Universität, Dissertation, 1993
+[121] SCHWANDTNER, D.: Entgasung von Steinkohlen bei Aufheizgeschwindigkeiten oberhalb
+100.000 grad/min. Aachen, RWTH, Dissertation, 1971
+[122] SCHWIND, B.: Experimentelle Untersuchung des Abbrandverhaltens von Kohle und Klär-
+schlamm in einer blasenbildenden Wirbelschicht. Siegen, Universität, Institut für Ener-
+gietechnik, Studienarbeit, 1995
+[123] SPRINGER-VERLAG (Hrsg.): Umweltlexikon. Springer, 1995
+[124] STÄUBLI, B. ; KELLER, C.: Stoffflußanalyse bei zwei KlärschlammVerbrennungsanlagen.
+In: Müll und Abfall (1993), Nr. 2, S. 82-100
+[125] STUBINGTON, J.F. ; CHAN, S.W.: Experimental measurements of combusting of simu-
+lated coal volatiles in a bubbling fluidized bed combustor. In: Fuel 69 (1990), June,
+S. 678-683
+[126] STUBINGTON, J.F. ; CHAN, S.W.: On the phase location and rate of volatiles combustion
+in bubbling fluidized bed combustors. In: Trans. Inst. Chem. Eng. 68 (1990), März,
+Nr. 195-201
+[127] TABASARAN, O. ; BESEMER, G. ; THOMANETZ, E.; In: Müll und Abfall 9 (1977),
+Nr. 293
+[128] TAMARIN, A.I. ; GALERSHTEIN, D.M. ; SHUKLINA, V.M.: Heat transfer and the com-
+bustion of coke particles in a fluidized beds. In: Journal Eng. Phys. 42 (1982), S. 14-19
+[129] TANIMOTO, H. ; CHIBA, S. ; CHIBA, T. ; KOBAYASHI, H.: Mechanism of solid Segrega-
+tion in gas fluidised beds. In: GRACE, J.R. (Hrsg.) ; MATSEN, J.R. (Hrsg.): Fluidization.
+1980, S. 381-388
+[130] TATEBAJASHI, J. ; OKADA, Y. ; YANO, K. ; IKEA, S.: In: Proc. 6th Int. Conference on
+Fluidized Bed Combustion, 1980, S. 986
+[131] TELLER, M. ; PÜSCHEL, M. ; WlTTCHEN, F.: 
+Klärschlammverwertung und
+-behandlung. In: Abfallwirtschaftsjoumal 6 (1994)
+[132] TURNBULL, E.: 
+Fluidised combustion of char and volatiles. Cambridge (England),
+University of Cambridge, Dissertation, 1983
+[133] UMWELTBUNDESAMT: Daten zur Umwelt 1990/91. Erich Schmidt Verlag, 1992
+[134] VAN DER VAART, R.D.: The chemistry of premixed hydrocarbon/air combustion in a
+fluidized bed. In: Combustion and Flame 71 (1988), S. 35-39
+[135] VERWEYEN, N.: 
+Zur Modellierung von stationären Kohlewirbelschichten. In: VDI
+Fortschrittberichte. Düsseldorf : VDI-Verlag, 1994 (Reihe 6: Energieerzeugung Nr. 299)
+[136] WARNATZ, J. ; MAAS, U.: Technische Verbrennung. Berlin : Springer, 1993
+[137] WEBER, T.: Experimentelle Untersuchung des Abbrandverhaltens von Kohle und Klär-
+schlamm in einer blasenbildenden Wirbelschicht. Siegen, Universität, Institut für Ener-
+gietechnik, Studienarbeit, 1995
+[138] WEN, C.Y. ; CHEN, L.H.: 
+Fluidized bed freeboard phenomena: Entrainment and
+elutriation. In: AIChE 28 (1982), Januar, Nr. 1, S. 117-128
+[139] WEN, C.Y. ; DUTTA, S.: Coal Conversion Technology. Addison-Wesley, 1979
+[140] WERTHER, J.: Bubble growth in large diameter fluidized beds. In: KEAIRNS, D.L.
+(Hrsg.): Fluidization Technology. 1975, S. 215-235
+[141] WERTHER, J.: Convective solids transport in large diameter gas fluidized beds. In.
+Powder Technology (1976), Nr. 15, S. 155-167
+209
+208

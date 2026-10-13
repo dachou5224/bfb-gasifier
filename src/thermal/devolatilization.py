@@ -225,3 +225,84 @@ def devolatilization_rate_for_cell(
     devol_rate = X_VM * VM_daf / max(tau_cell, 1e-10)
 
     return X_VM, devol_rate
+
+
+def vm_devolatilization_zone_cumulative_fraction(
+    bed_cell_rank: int,
+    n_zone_cells: int,
+    x_vm_total: float,
+    *,
+    profile: str = "linear",
+    front_power: float = 0.5,
+) -> float:
+    """脱挥发分区内的累积 VM 释放率 [-]。
+
+    DAEM 在 HTW 床温下于首格停留时间即饱和；此处将 **总量** ``x_vm_total``（仍由 DAEM
+    决定）沿床底 ``n_zone_cells`` 格展开，实现 Hamel Kap.2.1 的
+    「按反应器高度释放 → 分配到各 cell」，避免 distribution plate 处一次性释放。
+
+    Parameters
+    ----------
+    bed_cell_rank : 床层内 0-based 格序号（bed0=0）
+    n_zone_cells  : 脱挥发分区床格数；<=0 时退化为瞬时释放
+    x_vm_total    : 分区出口应达到的 DAEM 总释放率 [-]
+    profile       : ``linear`` / ``uniform``（均分累积）；``front_loaded``（ζ^p 前重，
+                    默认 p=0.5，让 bed0 分到更多可燃 VM 以利点火，仍跨多格）
+    front_power   : 仅 ``front_loaded`` 使用；p∈(0,1] 越小越前重
+
+    Source: Hamel (1999) Kap.2.1 Vorabrechnung — Freisetzung … in Abhängigkeit
+    der Reaktorhöhe；Kap.4 提供 DAEM 总量 ``x_vm_total``。
+    """
+    x_total = float(np.clip(x_vm_total, 0.0, 1.0))
+    n_zone = int(max(n_zone_cells, 0))
+    if n_zone <= 0:
+        return x_total
+    rank = int(max(bed_cell_rank, 0))
+    if rank >= n_zone - 1:
+        return x_total
+    prof = str(profile).strip().lower()
+    zeta = float(rank + 1) / float(n_zone)
+    if prof in ("linear", "uniform"):
+        frac = zeta
+    elif prof in ("front_loaded", "front"):
+        p = float(front_power)
+        if not (0.0 < p <= 1.0):
+            raise ValueError(f"front_power 须在 (0,1]，得到 {front_power!r}")
+        frac = zeta**p
+    else:
+        raise ValueError(f"未知 vm devolatilization profile: {profile!r}")
+    return float(np.clip(frac * x_total, 0.0, x_total))
+
+
+def vm_devolatilization_zone_increment_fraction(
+    bed_cell_rank: int,
+    n_zone_cells: int,
+    x_vm_total: float,
+    *,
+    profile: str = "linear",
+    front_power: float = 0.5,
+) -> float:
+    """单格 VM 释放增量：相对 **当前格入口 VM 存量** 的最大转化份额 [-]。"""
+    n_zone = int(max(n_zone_cells, 0))
+    if n_zone <= 0:
+        return 1.0
+    x_prev = (
+        0.0
+        if bed_cell_rank <= 0
+        else vm_devolatilization_zone_cumulative_fraction(
+            bed_cell_rank - 1,
+            n_zone,
+            x_vm_total,
+            profile=profile,
+            front_power=front_power,
+        )
+    )
+    x_curr = vm_devolatilization_zone_cumulative_fraction(
+        bed_cell_rank,
+        n_zone,
+        x_vm_total,
+        profile=profile,
+        front_power=front_power,
+    )
+    remaining = max(1.0 - x_prev, 1.0e-12)
+    return float(np.clip((x_curr - x_prev) / remaining, 0.0, 1.0))

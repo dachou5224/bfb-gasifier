@@ -1,0 +1,33 @@
+{
+  "note": "CORE o1 uniform-alpha clip (preserve Newton dir)",
+  "wall_s": 28.780148906,
+  "clip_meta": {
+    "alpha": 0.06488168743323341,
+    "max_g": 16.026389708704002,
+    "max_s": 2.891930539359317,
+    "max_t": 349.49467686942853
+  },
+  "exit_CO": 0.012019838590470941,
+  "exit_H2": 0.0,
+  "rms": 0.02040994247393333,
+  "split": 0.03934387267972454,
+  "energy": 0.0684913999590071,
+  "n_acc": 0,
+  "lambda_hist": [
+    null
+  ],
+  "ls_trials_hist": [
+    12
+  ],
+  "clip0": {
+    "failed": true,
+    "lam": null,
+    "trials": 12,
+    "best_trial_rms": 2850.7782229932727,
+    "best_trial_lam": 0.00048828125,
+    "linear_defect": 0.0006053088785028912,
+    "clip_defect": 0.9351181846203308,
+    "clip_disp": 0.9351183125667666,
+    "max_abs_dT_step": 22.675804384221173
+  }
+}

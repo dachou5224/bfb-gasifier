@@ -1,0 +1,164 @@
+{
+  "source": "Wirsum alignment stage F bed-freeboard interface",
+  "solved": false,
+  "not_a_furnace_convergence_claim": true,
+  "units": {
+    "gas": "mol/s",
+    "solid": "kg/s",
+    "length": "m"
+  },
+  "recycle_closed_coarse": {
+    "wirsum_1997_exact": {
+      "fate": "returns",
+      "model": "wirsum_1997_exact",
+      "m_eject_kg_s": [
+        0.25945920000000006,
+        0.06486480000000001
+      ],
+      "m_return_kg_s": [
+        0.25945920000000006,
+        0.06486480000000001
+      ],
+      "m_leave_kg_s": [
+        0.0,
+        0.0
+      ],
+      "m_catch_kg_s": [
+        0.0,
+        0.0
+      ],
+      "m_flyash_kg_s": [
+        0.0,
+        0.0
+      ],
+      "m_recycle_kg_s": [
+        0.0,
+        0.0
+      ],
+      "gas_gap_mol_s": 0.0,
+      "solid_gaps": {
+        "eject_minus_return_leave_kg_s": 0.0,
+        "leave_minus_catch_fly_kg_s": 0.0,
+        "recycle_kg_s": 0.0
+      }
+    },
+    "hamel_extended": {
+      "fate": "returns",
+      "model": "hamel_extended",
+      "m_eject_kg_s": [
+        1.0666656000000003,
+        0.2666664000000001
+      ],
+      "m_return_kg_s": [
+        1.0666656000000003,
+        0.2666664000000001
+      ],
+      "m_leave_kg_s": [
+        0.0,
+        0.0
+      ],
+      "m_catch_kg_s": [
+        0.0,
+        0.0
+      ],
+      "m_flyash_kg_s": [
+        0.0,
+        0.0
+      ],
+      "m_recycle_kg_s": [
+        0.0,
+        0.0
+      ],
+      "gas_gap_mol_s": 0.0,
+      "solid_gaps": {
+        "eject_minus_return_leave_kg_s": 0.0,
+        "leave_minus_catch_fly_kg_s": 0.0,
+        "recycle_kg_s": 0.0
+      }
+    }
+  },
+  "fine_leave_d_p_m": 0.0002,
+  "recycle_closed_fine_hamel": {
+    "fate": "reaches_next_cell",
+    "model": "hamel_extended",
+    "m_eject_kg_s": [
+      0.8302694400000001,
+      0.20756736000000003
+    ],
+    "m_return_kg_s": [
+      0.0,
+      0.0
+    ],
+    "m_leave_kg_s": [
+      0.8302694400000001,
+      0.20756736000000003
+    ],
+    "m_catch_kg_s": [
+      0.7887559680000001,
+      0.19718899200000004
+    ],
+    "m_flyash_kg_s": [
+      0.041513471999999996,
+      0.010378367999999999
+    ],
+    "m_recycle_kg_s": [
+      0.0,
+      0.0
+    ],
+    "gas_gap_mol_s": 0.0,
+    "solid_gaps": {
+      "eject_minus_return_leave_kg_s": 0.0,
+      "leave_minus_catch_fly_kg_s": 0.0,
+      "recycle_kg_s": 0.0
+    }
+  },
+  "recycle_open_fine_hamel": {
+    "fate": "reaches_next_cell",
+    "model": "hamel_extended",
+    "m_eject_kg_s": [
+      0.8302694400000001,
+      0.20756736000000003
+    ],
+    "m_return_kg_s": [
+      0.0,
+      0.0
+    ],
+    "m_leave_kg_s": [
+      0.8302694400000001,
+      0.20756736000000003
+    ],
+    "m_catch_kg_s": [
+      0.7887559680000001,
+      0.19718899200000004
+    ],
+    "m_flyash_kg_s": [
+      0.041513471999999996,
+      0.010378367999999999
+    ],
+    "m_recycle_kg_s": [
+      0.7887559680000001,
+      0.19718899200000004
+    ],
+    "gas_gap_mol_s": 0.0,
+    "solid_gaps": {
+      "eject_minus_return_leave_kg_s": 0.0,
+      "leave_minus_catch_fly_kg_s": 0.0,
+      "recycle_kg_s": 0.7887559680000001
+    }
+  },
+  "eject_hamel_minus_wirsum_kg_s": 1.0090080000000003,
+  "outer_criteria": {
+    "temperature": "not_covered",
+    "total_gas": "covered",
+    "phase_split": "not_covered",
+    "hydro_exchange": "frozen_context",
+    "solid_bidirectional": "covered",
+    "solid_holdup": "not_covered",
+    "pyrolysis_release": "not_covered",
+    "bed_surface_fallback_entrainment": "covered",
+    "element_balance": "not_covered",
+    "energy": "not_covered"
+  },
+  "fate_drag": "wirsum_1997_cw",
+  "note": "\u5173\u56de\u6d41\u9a8c\u6536\u754c\u9762\u3002\u7c97\u9897\u7c92\u56de\u843d\uff1b\u7ec6\u7c89\u79bb\u5f00\u540e\u65cb\u98ce\u624d\u6709\u7269\u6d41\u3002Wirsum exact \u2260 Hamel \u6269\u5c55\u3002\u751f\u4ea7\u81ea\u7531\u677f\u8def\u5f84\u672a\u6539\u3002"
+}

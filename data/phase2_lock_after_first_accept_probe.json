@@ -1,0 +1,369 @@
+{
+  "probe": "lock_after_first_accept_decomp",
+  "wall_s": 23.375008845,
+  "base0": {
+    "rms": 0.020488391074271486,
+    "split": 0.03370827839171615,
+    "energy": 0.07377409898377091,
+    "merit": 0.07377409898377091,
+    "gas_totals": {
+      "CO": 10.43549829767228,
+      "CO2": 34.77810115699089,
+      "H2": 0.0,
+      "O2": 5.9666022566747925,
+      "CH4": 0.8641357556431355,
+      "N2": 583.9948293594587
+    }
+  },
+  "newton0": {
+    "linear_defect_rel": NaN,
+    "clip_linear_defect_rel": NaN,
+    "clip_displacement_rel": NaN,
+    "clipped_components": 0,
+    "clipped_fraction": 0.0,
+    "temp_clipped_cells": 0,
+    "max_abs_dT_step": 0.0
+  },
+  "trials_lam_0p25": [
+    {
+      "case": "raw_no_fastox",
+      "rms": NaN,
+      "split": NaN,
+      "energy": NaN,
+      "merit": NaN,
+      "gas_totals": {
+        "CO": NaN,
+        "CO2": NaN,
+        "H2": NaN,
+        "O2": NaN,
+        "CH4": NaN,
+        "N2": NaN
+      }
+    },
+    {
+      "case": "raw_local_fastox",
+      "rms": NaN,
+      "split": NaN,
+      "energy": NaN,
+      "merit": NaN,
+      "gas_totals": {
+        "CO": NaN,
+        "CO2": NaN,
+        "H2": NaN,
+        "O2": NaN,
+        "CH4": NaN,
+        "N2": NaN
+      }
+    },
+    {
+      "case": "raw_full_fastox",
+      "rms": NaN,
+      "split": NaN,
+      "energy": NaN,
+      "merit": NaN,
+      "gas_totals": {
+        "CO": NaN,
+        "CO2": NaN,
+        "H2": NaN,
+        "O2": NaN,
+        "CH4": NaN,
+        "N2": NaN
+      }
+    },
+    {
+      "case": "clip_no_fastox",
+      "rms": NaN,
+      "split": NaN,
+      "energy": NaN,
+      "merit": NaN,
+      "gas_totals": {
+        "CO": NaN,
+        "CO2": NaN,
+        "H2": NaN,
+        "O2": NaN,
+        "CH4": NaN,
+        "N2": NaN
+      }
+    },
+    {
+      "case": "clip_local_fastox",
+      "rms": NaN,
+      "split": NaN,
+      "energy": NaN,
+      "merit": NaN,
+      "gas_totals": {
+        "CO": NaN,
+        "CO2": NaN,
+        "H2": NaN,
+        "O2": NaN,
+        "CH4": NaN,
+        "N2": NaN
+      }
+    },
+    {
+      "case": "clip_full_fastox",
+      "rms": NaN,
+      "split": NaN,
+      "energy": NaN,
+      "merit": NaN,
+      "gas_totals": {
+        "CO": NaN,
+        "CO2": NaN,
+        "H2": NaN,
+        "O2": NaN,
+        "CH4": NaN,
+        "N2": NaN
+      }
+    }
+  ],
+  "accepted_clip_local_fastox_0p25": {
+    "metrics": {
+      "rms": NaN,
+      "split": NaN,
+      "energy": NaN,
+      "merit": NaN,
+      "gas_totals": {
+        "CO": NaN,
+        "CO2": NaN,
+        "H2": NaN,
+        "O2": NaN,
+        "CH4": NaN,
+        "N2": NaN
+      }
+    },
+    "base1": {
+      "rms": NaN,
+      "split": NaN,
+      "energy": NaN,
+      "merit": NaN,
+      "gas_totals": {
+        "CO": NaN,
+        "CO2": NaN,
+        "H2": NaN,
+        "O2": NaN,
+        "CH4": NaN,
+        "N2": NaN
+      }
+    }
+  },
+  "newton1": {
+    "linear_defect_rel": NaN,
+    "clip_linear_defect_rel": NaN,
+    "clip_displacement_rel": NaN,
+    "clipped_components": 0.0,
+    "base1_merit": NaN,
+    "best_trial": {
+      "case": "raw_no_fastox",
+      "lam": 1.0,
+      "rms": NaN,
+      "split": NaN,
+      "energy": NaN,
+      "merit": NaN,
+      "dmerit": NaN,
+      "CO": NaN
+    },
+    "any_merit_decrease": false,
+    "trials": [
+      {
+        "case": "raw_no_fastox",
+        "lam": 1.0,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "raw_no_fastox",
+        "lam": 0.5,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "raw_no_fastox",
+        "lam": 0.25,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "raw_no_fastox",
+        "lam": 0.125,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "raw_no_fastox",
+        "lam": 0.0625,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "raw_local_fastox",
+        "lam": 1.0,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "raw_local_fastox",
+        "lam": 0.5,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "raw_local_fastox",
+        "lam": 0.25,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "raw_local_fastox",
+        "lam": 0.125,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "raw_local_fastox",
+        "lam": 0.0625,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "clip_no_fastox",
+        "lam": 1.0,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "clip_no_fastox",
+        "lam": 0.5,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "clip_no_fastox",
+        "lam": 0.25,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "clip_no_fastox",
+        "lam": 0.125,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "clip_no_fastox",
+        "lam": 0.0625,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "clip_local_fastox",
+        "lam": 1.0,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "clip_local_fastox",
+        "lam": 0.5,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "clip_local_fastox",
+        "lam": 0.25,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "clip_local_fastox",
+        "lam": 0.125,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      },
+      {
+        "case": "clip_local_fastox",
+        "lam": 0.0625,
+        "rms": NaN,
+        "split": NaN,
+        "energy": NaN,
+        "merit": NaN,
+        "dmerit": NaN,
+        "CO": NaN
+      }
+    ]
+  }
+}

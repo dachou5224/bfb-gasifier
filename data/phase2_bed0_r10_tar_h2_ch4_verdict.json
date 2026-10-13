@@ -1,0 +1,124 @@
+{
+  "knife": "bed0_R10_tar_H2_CH4_budget",
+  "date": "2026-07-25",
+  "constraint": "不抬 Tin；不用 r*_scale 作验收；单路径 reactor.solve()",
+  "baseline_o8": {
+    "exit_CO_CO2_H2": [
+      0.1251,
+      0.1514,
+      0.1512
+    ],
+    "score_abs_true": 0.05,
+    "bed0_T_K": 1250.0,
+    "gaps_R_minus_Nout": {
+      "H2": -2.19,
+      "CH4": 1.327,
+      "CO": -1.122
+    }
+  },
+  "parity": {
+    "stoich_R10_vs_Hamel_552_554": "PASS — C6H6/C10H8/C16H34 与 Eq.5.52–5.54 一致",
+    "stoich_R11_vs_Hamel_555_557": "PASS — 与 Eq.5.55–5.57 一致",
+    "rate_R10_vs_Eq559": "PASS — k·T·P^0.3·C_tar^0.5·C_O2；k10/E 来自 5.60/5.61",
+    "coal_surrogates": {
+      "C6H6": 0.28,
+      "C10H8": 0.72,
+      "C16H34": 0.0
+    },
+    "lumped_nu_R10": {
+      "O2": -4.44,
+      "CO": 8.88,
+      "H2": 3.72,
+      "CH4": 0.0
+    }
+  },
+  "same_state_budget": {
+    "ext10_raw_b_d": [
+      0.1265,
+      3.6833
+    ],
+    "ext10_lim_approx": 0.918,
+    "ext11_raw": "~1e-7 (床0 可忽略)",
+    "lim_o2_b_d": [
+      0.00408,
+      0.249
+    ],
+    "H2_sources_mol_s": {
+      "vm": 0.0,
+      "R2": 1.749,
+      "R10_direct": 3.415,
+      "R11": 0.0,
+      "R_tot": 5.174,
+      "frac_R10": 0.66
+    },
+    "CH4": {
+      "vm": 3.151,
+      "R10_stoich_CH4": 0.0,
+      "R11": 0.0,
+      "R_tot": 2.088,
+      "same_state_r10_off_delta_CH4": -2.104,
+      "interpretation": "R10 计量无 CH4；同态关 R10 使 R_CH4↓2.1 是 O2 竞争：R10 抢密相 O2 → 抑制 R6 烧 CH4。非 R10 直接产 CH4。"
+    },
+    "artifact": "data/phase2_bed0_r10_tar_h2_ch4_budget_o8.json"
+  },
+  "full_solve_AB": {
+    "r10_0": {
+      "result": "PATHOLOGY_cold_branch",
+      "exit_CO_CO2": [
+        0.0088,
+        0.1123
+      ],
+      "T0": 943.8,
+      "score_abs": 0.169,
+      "note": "关掉 R10 掉冷支路；禁止当修复"
+    },
+    "r11_0": {
+      "result": "WORSE",
+      "exit_CO_CO2": [
+        0.0997,
+        0.1643
+      ],
+      "score_abs": 0.089,
+      "note": "床0 同态 R11≈0，但全炉关 R11 仍恶化（他格/路径）"
+    },
+    "r10_0.5": {
+      "result": "IMPROVES_exit_but_scale_not_shippable",
+      "exit_CO_CO2": [
+        0.141,
+        0.1441
+      ],
+      "score_abs": 0.027,
+      "gaps_H2_CH4_CO": [
+        1.624,
+        -1.515,
+        -3.083
+      ],
+      "note": "出口更近真干基，但属倍率诊断；combined gap 未同时闭合；不可验收"
+    },
+    "artifact": "data/phase2_bed0_r10_tar_ab_o8.json"
+  },
+  "falsification": {
+    "R10_stoich_or_rate_bug_vs_Hamel": "FALSIFIED",
+    "R11_drives_bed0_H2_CH4_budget": "FALSIFIED_at_o8_state",
+    "R10_directly_produces_CH4": "FALSIFIED — CH4 效应是 O2–R6 竞争",
+    "disabling_R10_fixes_COCO2": "FALSIFIED_pathology",
+    "R10_causes_H2_over_export_gap": "FALSIFIED — gap=R−Nout<0 是 Nout 偏高；同态去掉 R10 的 H2 源只会使 gap 更负"
+  },
+  "ship": {
+    "production_change": false,
+    "reason": "R10 与 Hamel 计量/速率同构；床0 H2 源 66% 来自 R10 为预期化学。combined 债在 Nout/NR 侧，不在 R10 公式 bug。r10×0.5 出口改善不可当作同构修复。"
+  },
+  "next_knife": {
+    "primary": "bed0_H2_Nout_vs_R_NR_or_H4_FB",
+    "why": "H2：Nout=7.36 > R=5.17；CH4：Nout=0.76 < R=2.09 — 对向出口债，下一刀盯 NR 投影/出口分配或 FB",
+    "alt": [
+      "dense_O2_R10_vs_R6_partition（R10–R6 O2 竞争对 CH4）",
+      "H4_FB_secondary_air_NR"
+    ]
+  },
+  "artifacts": [
+    "data/phase2_bed0_r10_tar_h2_ch4_budget_o8.json",
+    "data/phase2_bed0_r10_tar_ab_o8.json",
+    "data/phase2_bed0_r10_tar_h2_ch4_verdict.json"
+  ]
+}

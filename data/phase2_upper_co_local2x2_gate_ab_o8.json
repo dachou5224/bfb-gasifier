@@ -1,0 +1,256 @@
+{
+  "note": "local2x2 vs disable other preinner tiers; isomorphic o8",
+  "max_global_iter": 8,
+  "arms": [
+    {
+      "label": "local2x2",
+      "wall_s": 131.66962776900002,
+      "exit_CO": 0.07047261629639938,
+      "rms": 0.0632369600730628,
+      "split": 0.06027663575116241,
+      "energy": 0.05125527566397263,
+      "ls_fail": 20,
+      "n_acc": 6,
+      "local2_hits": [
+        {
+          "outer": 1,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 2,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 3,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 4,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 5,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 6,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 7,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 8,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 9,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 10,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      ],
+      "local2_n_accepted": 2,
+      "overrides": {
+        "nr_outer_preinner_upper_co_local2x2_thesis": true
+      }
+    },
+    {
+      "label": "local2x2_no_zone",
+      "wall_s": 124.92227797999999,
+      "exit_CO": 0.07047261629639938,
+      "rms": 0.0632369600730628,
+      "split": 0.06027663575116241,
+      "energy": 0.05125527566397263,
+      "ls_fail": 20,
+      "n_acc": 6,
+      "local2_hits": [
+        {
+          "outer": 1,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 2,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 3,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 4,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 5,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 6,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 7,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 8,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 9,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 10,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      ],
+      "local2_n_accepted": 2,
+      "overrides": {
+        "nr_outer_preinner_upper_co_local2x2_thesis": true,
+        "nr_outer_preinner_solid_energy_preprojection_thesis": false
+      }
+    },
+    {
+      "label": "local2x2_split_off_zone_off",
+      "wall_s": 80.75627197,
+      "exit_CO": 0.038249606614968665,
+      "rms": 0.06756834867017097,
+      "split": 0.0653972456603061,
+      "energy": 0.028936947999533957,
+      "ls_fail": 20,
+      "n_acc": 5,
+      "local2_hits": [],
+      "local2_n_accepted": 0,
+      "overrides": {
+        "nr_outer_preinner_upper_co_local2x2_thesis": true,
+        "nr_outer_preinner_solid_energy_preprojection_thesis": false,
+        "nr_outer_preinner_phase_split_preprojection_thesis": false
+      }
+    }
+  ]
+}

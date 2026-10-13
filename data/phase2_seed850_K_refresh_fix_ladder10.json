@@ -1,0 +1,110 @@
+{
+  "final_split": 0.036204443051724954,
+  "final_energy": 0.11255241869036892,
+  "final_merit": 0.11255241869036892,
+  "converged": false,
+  "n_outer": 10,
+  "max_dT": 350.00000039843746,
+  "rows": [
+    {
+      "O": 1,
+      "S": null,
+      "E": null,
+      "merit": null,
+      "dT": 87.50000000000011,
+      "lam": null,
+      "refresh": null,
+      "n_iter": null
+    },
+    {
+      "O": 2,
+      "S": null,
+      "E": null,
+      "merit": null,
+      "dT": 175.0,
+      "lam": null,
+      "refresh": null,
+      "n_iter": null
+    },
+    {
+      "O": 3,
+      "S": null,
+      "E": null,
+      "merit": null,
+      "dT": 350.0,
+      "lam": null,
+      "refresh": null,
+      "n_iter": null
+    },
+    {
+      "O": 4,
+      "S": null,
+      "E": null,
+      "merit": null,
+      "dT": 350.00000039843746,
+      "lam": null,
+      "refresh": null,
+      "n_iter": null
+    },
+    {
+      "O": 5,
+      "S": null,
+      "E": null,
+      "merit": null,
+      "dT": 1.0247230529785156,
+      "lam": null,
+      "refresh": null,
+      "n_iter": null
+    },
+    {
+      "O": 6,
+      "S": null,
+      "E": null,
+      "merit": null,
+      "dT": 175.0,
+      "lam": null,
+      "refresh": null,
+      "n_iter": null
+    },
+    {
+      "O": 7,
+      "S": null,
+      "E": null,
+      "merit": null,
+      "dT": 168.75,
+      "lam": null,
+      "refresh": null,
+      "n_iter": null
+    },
+    {
+      "O": 8,
+      "S": null,
+      "E": null,
+      "merit": null,
+      "dT": 112.5,
+      "lam": null,
+      "refresh": null,
+      "n_iter": null
+    },
+    {
+      "O": 9,
+      "S": null,
+      "E": null,
+      "merit": null,
+      "dT": 37.5,
+      "lam": null,
+      "refresh": null,
+      "n_iter": null
+    },
+    {
+      "O": 10,
+      "S": null,
+      "E": null,
+      "merit": null,
+      "dT": 213.74284130462576,
+      "lam": null,
+      "refresh": null,
+      "n_iter": null
+    }
+  ]
+}

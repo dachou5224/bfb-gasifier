@@ -1,0 +1,301 @@
+A1 Berechnung des chemischen Gleichgewichts in der Gasphase
+A2 Zusammenstellung der Pyrolyse-, Verbrennungs- und Vergasungsversuche
+168
+169
+A.2 
+Zusammenstellung der Pyrolyse-, Verbrennungs- und Vergasungsversuche
+j = l,Ns-NQ
+(A.35)
+Eine Taylorentwicklung der linken Seite von Gleichung (A.35) umy/ /; ergibt:
+A.2.1 Zusammenstellung der zur Berechnung der globalen Verbrennungsraten heran-
+gezogenen Versuchsfalle
+1
+(A.36)
+Tabelle A.2.1.1: Zusammenstellung der ausgewerteten globalen Verbrennungsversuche tro-
+ckener Rheinischer Braunkohle
+Daraus ergibt sich:
+Exp.-Nr.
+Brennstoff
+ruß
+ing
+d p,B
+in mm
+Tws.o
+inK
+uo.o
+in m/s
+yo2,o
+in mol/mol
+t90
+in s
+157
+Rhein. Braunkohle
+2,53
+1,50
+807,6
+0,60
+0,106
+126
+158 n
+Rhein. Braunkohle
+2,53
+1,50
+799,7
+0,89
+0,099
+132
+159
+Rhein. Braunkohle
+2,53
+3,00
+817,1
+0,60
+0,106
+210
+160
+Rhein. Braunkohle
+2,50
+3,00
+800,3
+0,91
+0,099
+218
+162 ”
+Rhein. Braunkohle
+2,51
+1,50
+795,8
+0,60
+0,210
+76
+163
+Rhein. Braunkohle
+2,52
+1,50
+811,5
+0,92
+0,210
+72
+164
+Rhein. Braunkohle
+2,50
+3,00
+802,3
+0,62
+0,210
+121
+165
+Rhein. Braunkohle
+2,50
+3,00
+804,0
+0,92
+0,210
+111
+188
+Rhein. Braunkohle
+2,51
+1,50
+1.028,4
+1,05
+0,098
+89
+189
+Rhein. Braunkohle
+2,51
+3,00
+1.031,1
+1,07
+0,098
+109
+193
+Rhein. Braunkohle
+2,51
+1,50
+1.014,7
+0,81
+0,210
+67
+194
+Rhein. Braunkohle
+2,53
+3,00
+1.015,8
+0,81
+0,210
+79
+216”
+Rhein. Braunkohle
+2,50
+1,50
+1.107,0
+0,99
+0,099
+110
+217
+Rhein. Braunkohle
+2,50
+1,50
+1.099,2
+0,98
+0,100
+84
+219”
+Rhein. Braunkohle
+2,50
+3,00
+1.110,7
+1,01
+0,098
+145
+222
+Rhein. Braunkohle
+2,50
+1,50
+1.154,0
+1,02
+0,210
+47
+223
+Rhein. Braunkohle
+2,51
+1,50
+1.156,5
+1,02
+0,210
+63
+224
+Rhein. Braunkohle
+2,50
+3,00
+1.154,7
+1,00
+0,210
+75
+J = l,Ns-NQ
+(A.37)
+' a kJ~ c J
+yj
+Die Massenbilanz (A.3) unter Verwendung der Molanteile lautet:
+N
+i = 1, NE
+(A.38)
+durch einsetzen von Gleichung (A.37) in Gleichung (A.38):
+jVfJ
+r 
+i 
+\ 
+(Nr 
+Y
+E’°v y 
+l-lny 
++yW- 
+= N
+i = 1, N£
+(A.39)
+und umformen der Gleichung (A.39) ergibt sich:
+Vs-\> 
+N,, 
+NS -N Q
+Ns -Nf>
+E 
+a ijyj }i 
+kj=bt- 
+X 
+ayy {l-lny 
+)+ £
+J=I 
+k~l 
+j=l 
+j=l
+(A.40)
+Die Lösung des Gleichungssystems (A.40) erfolgt, analog zur oben beschriebenen Vorgehens-
+weise, wiederum mit Hilfe des Newton-Verfahrens nach Gleichung (A.27).
+Tabelle A.2.1.2: Zusammenstellung der ausgewerteten globalen Verbrennungsversuche von
+________ ______Restkunststoff aus der DSP-Sammlung ________________
+Exp.-Nr.
+Brennstoff
+m B
+ing
+d p,B
+in mm
+Tws.o
+in K
+Uo.o
+in m/s
+yo2,o
+in mol/mol
+*90
+in s
+103
+Restkunststoff
+2,49
+4,20
+800,7
+1,26
+0,050
+140
+107
+Restkunststoff
+2,49
+4,20
+770,2
+0,88
+0,100
+128
+108 ”
+Restkunststoff
+2,46
+4,20
+767,0
+0,87
+0,100
+135
+109”
+Restkunststoff
+2,53
+4,20
+800,1
+0,92
+0,210
+65
+HO
+Restkunststoff
+2,53
+4,20
+806,1
+0,93
+0,210
+64
+127
+Restkunststoff
+2,52
+4,20
+1.007,9
+1,04
+0,100
+48
+128
+Restkunststoff
+2,44
+4,20
+1.007,0
+1,06
+0,099
+48
+129
+Restkunststoff
+2,51
+4,20
+985,3
+0,85
+0,210
+44
+130
+Restkunststoff
+2,53
+4,20
+996,7
+0,86
+0,210
+48

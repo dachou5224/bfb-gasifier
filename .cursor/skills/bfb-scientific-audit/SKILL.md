@@ -21,7 +21,7 @@ description: BFB 一维模型代码审查专用技能。检查 SI 单位、arrhe
 
 ### 1. 单位制（SI）
 
-- 全链路是否为 **SI**：**Pa, K, m, mol, kg, s**（见 `docs/CLAUDE.md` §全局编程规则）。
+- 全链路是否为 **SI**：**Pa, K, m, mol, kg, s**（见 `docs/CLAUDE.md` §全局编程规则；算法规格见 `docs/README.md`）。
 - **已知例外**：R8 WGSR 速率式中压力项为 **atm** 时，是否在函数**内部**完成 `P_atm = P_Pa / 101325.0`，对外仍传 **Pa**。
 - 新增/修改的 **函数参数与关键局部变量** 是否在定义处或 docstring 中标注单位（可与 `.cursor/rules/scientific-modeling-core.mdc` 对齐）。
 
@@ -41,8 +41,8 @@ description: BFB 一维模型代码审查专用技能。检查 SI 单位、arrhe
 
 - 对 **气泡动力学、相间传质、守恒方程、关键速率式** 等，是否在 docstring 或紧邻注释中标明：
   - **Hamel (1999)** 方程编号（如 Eq. 3.50、4.4/4.5），或
-  - **Hamel & Krumm (2001)** / `specs/*.md` 章节。
-- 若实现与论文/规格有**已知差异**（如全局 NR vs GS），是否指向 `docs/validation_gap_analysis.md` 或 `docs/hamel_dissertation_vs_python_architecture.md` 相应章节。
+  - **Hamel & Krumm (2001)** / `docs/hamel_submodels/00-07` 分册。
+- 若实现与论文/规格有**已知差异**，是否指向 `docs/hamel_isomorphic_gap_implementation_checklist.md` §0.5 或 `specs/hamel_checked_algorithm_spec.md` §7。
 
 ### 5. 交叉引用
 
@@ -61,10 +61,12 @@ description: BFB 一维模型代码审查专用技能。检查 SI 单位、arrhe
 
 ## 相关文件
 
+- `docs/README.md`（算法文档索引）
 - `docs/hamel_submodels/00_readme_and_citation_rules.md`
 - `docs/hamel_submodels/03_hydrodynamics_core_chain.md`
 - `docs/hamel_submodels/06_kinetics_r1_r11_and_equilibrium_driving.md`
 - `docs/CLAUDE.md`（全局规则与 Phase）
+- `docs/README.md`（Hamel 算法规格索引）
 - `src/kinetics/arrhenius.py`
 - `.cursor/rules/scientific-modeling-core.mdc`
-- `docs/source_units_audit.md`
+- `docs/source_units_audit.md`（若存在；否则以 `tests/sanity_checks.py` 为准）

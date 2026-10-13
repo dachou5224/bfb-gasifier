@@ -1,0 +1,40 @@
+{
+  "rows": [
+    {
+      "vm_zone": 0,
+      "max_global_iter": 40,
+      "converged_fully": true,
+      "rms": 0.004698201135563663,
+      "CO": 0.08290220392231065,
+      "CO2": 0.1680731168058864,
+      "nr_outer_iters": 10
+    },
+    {
+      "vm_zone": 0,
+      "max_global_iter": 150,
+      "converged_fully": true,
+      "rms": 0.006018248603773981,
+      "CO": 0.08183906489898755,
+      "CO2": 0.1683585266373312,
+      "nr_outer_iters": 7
+    },
+    {
+      "vm_zone": 3,
+      "max_global_iter": 40,
+      "converged_fully": false,
+      "rms": 0.13570849543712,
+      "CO": 0.0,
+      "CO2": 0.12360803189125531,
+      "nr_outer_iters": 40
+    },
+    {
+      "vm_zone": 3,
+      "max_global_iter": 150,
+      "converged_fully": false,
+      "rms": 0.18636148369077432,
+      "CO": 0.0,
+      "CO2": 0.1339223758659513,
+      "nr_outer_iters": 150
+    }
+  ]
+}

@@ -19,9 +19,38 @@ from tests.slimming_plan_utils import (
 )
 
 INDEX_ACTIVE_SCRIPTS = {
+    "audit_bed_co_co2_budget_lu.py",
+    "audit_bed01_o2_inlet_split_lu.py",
     "audit_char_mass_conservation_lu.py",
     "audit_flowchart_mapping.py",
     "audit_hamel_consistency.py",
+    "audit_homogeneous_bubble_reduction_lu.py",
+    "audit_init_residual_breakdown.py",
+    "audit_init_staged_w1_w2.py",
+    "benchmark_opt012_walltime_compare.py",
+    "benchmark_phase2_convergence_ladder.py",
+    "benchmark_phase2_multi_case_matrix.py",
+    "benchmark_preinner_perf_experiments.py",
+    "build_validation_cases_master_table.py",
+    "calibrate_phase2_co_co2_window.py",
+    "compare_low_nr_init_temperature_lu.py",
+    "compare_vorab_march_lu.py",
+    "enrich_validation_cases_from_hamel.py",
+    "merge_fig7_parity_outputs.py",
+    "render_hamel_fig7_parity_pages.py",
+    "run_phase_gate.py",
+    "sensitivity_ud_closure_o2_co_co2.py",
+    "vtt_full_sim_residual_audit.py",
+}
+
+REMOVED_SCRIPTS = {
+    "run_phase_gate_00.py",
+    "run_phase_gate_10.py",
+    "run_phase_gate_20.py",
+    "run_phase_gate_30.py",
+    "run_phase_gate_40.py",
+    "compare_staged_march_weights_lu.py",
+    "compare_vorab_march_staged_lu.py",
 }
 
 MOVED_TO_DEPRECATED = {
@@ -31,6 +60,15 @@ MOVED_TO_DEPRECATED = {
     "benchmark_structured_jacobian.py": "scripts/_deprecated/nr/benchmark_structured_jacobian.py",
     "audit_gs_history_lu.py": "scripts/_deprecated/nr/audit_gs_history_lu.py",
     "audit_solver_parity_lu.py": "scripts/_deprecated/nr/audit_solver_parity_lu.py",
+    "audit_char_reduction_sensitivity_lu.py": "scripts/_deprecated/cell/audit_char_reduction_sensitivity_lu.py",
+    "audit_bed_bottom_co_co2_profile.py": "scripts/_deprecated/cell/audit_bed_bottom_co_co2_profile.py",
+    "audit_init_holdup_seed_variants_w2.py": "scripts/_deprecated/nr/audit_init_holdup_seed_variants_w2.py",
+    "benchmark_phase2_temperature_chain_lu.py": "scripts/_deprecated/nr/benchmark_phase2_temperature_chain_lu.py",
+    "benchmark_phase2_vm_zone_iter_sweep.py": "scripts/_deprecated/nr/benchmark_phase2_vm_zone_iter_sweep.py",
+    "benchmark_phase2_vm_zone_r5_mitigation_sweep.py": "scripts/_deprecated/nr/benchmark_phase2_vm_zone_r5_mitigation_sweep.py",
+    "audit_temperature_fence_secondary_lu.py": "scripts/_deprecated/thermal/audit_temperature_fence_secondary_lu.py",
+    "calibrate_phase2_fixed50_r5_composition_grid.py": "scripts/_deprecated/calibration/calibrate_phase2_fixed50_r5_composition_grid.py",
+    "sweep_phase2_gas_inlet_dense_frac_lu.py": "scripts/_deprecated/calibration/sweep_phase2_gas_inlet_dense_frac_lu.py",
 }
 
 REMOVED_RUNTIME_MODULES = (
@@ -38,6 +76,12 @@ REMOVED_RUNTIME_MODULES = (
     "src/solvers/gauss_seidel_reactor_solver.py",
     "src/solvers/cell_outer_loop.py",
 )
+
+# 根目录基础设施：不在 Active 列表展示，但允许存在
+INFRASTRUCTURE_SCRIPTS = frozenset({
+    "_lu_harness.py",
+    "_audit_common.py",
+})
 
 STALE_GATE_PYTEST_NODES = {
     "tests/test_global_nr_solver.py::test_thesis_mode_forces_global_nr_even_when_solver_arg_is_gauss_seidel",
@@ -72,9 +116,19 @@ class TestPostCleanupScriptLayout:
         for rel in MOVED_TO_DEPRECATED.values():
             assert (REPO_ROOT / rel).is_file(), rel
 
+    def test_removed_scripts_are_gone(self) -> None:
+        root = list_root_scripts()
+        assert REMOVED_SCRIPTS.isdisjoint(root)
+
     def test_scripts_index_covers_gate_active_scripts(self) -> None:
         indexed = parse_scripts_index_active()
         assert INDEX_ACTIVE_SCRIPTS.issubset(indexed)
+
+    def test_all_root_scripts_indexed_or_infrastructure(self) -> None:
+        root = list_root_scripts()
+        indexed = parse_scripts_index_active()
+        unlisted = root - indexed - INFRASTRUCTURE_SCRIPTS
+        assert unlisted == set(), f"根目录脚本未登记 INDEX 且非 infrastructure: {sorted(unlisted)}"
 
     def test_module_audit_scripts_exist_on_disk(self) -> None:
         missing = [

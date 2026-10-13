@@ -30,3 +30,11 @@ Roof（Wirsum Eq. 3.59，与 Hamel Eq. 3.53 同构）[kg/(m² s)]：
 `c_w = 24/Re + z`，`du_p/dt = A u_p² + B u_p + C`，`Δ = 4AC − B²`。
 
 `z` 取论文高 Re 极限常数，默认 0.44；不用 `73.69 exp(-5.0784 φ)`。
+
+## 旋风
+
+主线是 `src/solvers/wirsum_1997_cyclone_cells.py`：Hamel Eq. 2.4 / 2.6，Bild 7.7 的 1–2 cell + 返料。
+`K_auf/K_ab` 为冻结上下文。回料以 `m_rez` 进床残差。
+
+`src/physics/wirsum_1997_cyclone.py` 的 Lapple / 常数 η 只是工程对照，不是论文算法，不进主线残差。
+生产仍用 `freeboard_cyclone_capture_*_frac`。

@@ -1,0 +1,51 @@
+{
+  "parameter_branch": [
+    {
+      "name": "fuel_plus_5pct",
+      "class": "parameter_branch",
+      "target_factor": 1.05,
+      "certified_factor": 1.05,
+      "reached_target": true,
+      "path": [
+        {
+          "factor": 1.025,
+          "passed": true,
+          "reason": "block_gates",
+          "elapsed_s": 138.034144867,
+          "merit": 3.459158291189682e-05,
+          "gate_ratio": {
+            "gas": 0.030385128237768403,
+            "solid": 2.4195235424486154e-05,
+            "tar": 0.00018528669806460411,
+            "energy_sum_W": 3.318453673273325e-05
+          },
+          "T_bed": 1360.1374848022579,
+          "T_fb": 1369.3731779721404,
+          "gas_l2": 3.03851282377684e-08,
+          "worst_index": 49,
+          "worst_value": 3.4435157431289554e-05
+        },
+        {
+          "factor": 1.05,
+          "passed": true,
+          "reason": "block_gates",
+          "elapsed_s": 153.959469574,
+          "merit": 3.600083300074417e-05,
+          "gate_ratio": {
+            "gas": 0.03442330552274494,
+            "solid": 2.4159033470801926e-05,
+            "tar": 0.00017668762359380102,
+            "energy_sum_W": 3.458339779172093e-05
+          },
+          "T_bed": 1356.4515194695412,
+          "T_fb": 1354.7712035634713,
+          "gas_l2": 3.442330552274494e-08,
+          "worst_index": 49,
+          "worst_value": 3.581470809876919e-05
+        }
+      ],
+      "T_bed": 1356.4515194695412,
+      "T_fb": 1354.7712035634713
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "knife": "H3_lower_T_isomorphism",
+  "constraint": "不抬 Tin；不默认抬/改围栏进生产；不用 r*_scale",
+  "map": {
+    "artifact": "data/phase2_h3_lower_T_map_o8.json",
+    "bild_bed1_approx_K": 918,
+    "baseline_T0123_K": [
+      997.4,
+      1355.3,
+      1275.2,
+      1206.9
+    ],
+    "delta_vs_bild_bed1_K": 437.29999999999995,
+    "Tin_K": 293.0,
+    "note": "bed1 相对 Bild 最热 (+~437 K)；Tin 未抬"
+  },
+  "root_cause_T": {
+    "mechanism": "bed1_pinned_to_upper_fence",
+    "evidence": {
+      "init_T_est_bed1_K": 1005.3,
+      "upper_margin_K": 350.0,
+      "T_max_bed1_K": 1355.3,
+      "final_T_bed1_K": 1355.2656,
+      "at_fence_bed0123": [
+        false,
+        true,
+        false,
+        false
+      ]
+    },
+    "tier": "B档围栏/Startwert（非 Hamel 方程同构）",
+    "prior_doc": "docs/audit_reports/hamel_parity_uncertainty_2026-07-14.md §围栏 Pareto 保护"
+  },
+  "lever_tests": {
+    "cooler_seed_ab": "data/phase2_h3_cooler_seed_ab_o8.json",
+    "fence_margin_ab": "data/phase2_h3_fence_margin_ab_o8.json",
+    "summary": [
+      {
+        "label": "baseline",
+        "T1": 1355.3,
+        "CO": 0.1164,
+        "CO2": 0.1516,
+        "E": 0.0263,
+        "score_true": 0.398
+      },
+      {
+        "label": "seed_cooler",
+        "T1": 1055.1,
+        "CO": 0.01,
+        "CO2": 0.1386,
+        "E": 0.164
+      },
+      {
+        "label": "abs_dT_150",
+        "T1": 1127.1,
+        "CO": 0.0084,
+        "CO2": 0.1944,
+        "E": 0.2117
+      },
+      {
+        "label": "seed_cooler_dT150",
+        "T1": 1092.7,
+        "CO": 0.0757,
+        "CO2": 0.1499,
+        "E": 0.1352
+      },
+      {
+        "label": "margin_200",
+        "T1": 1200.4,
+        "CO": 0.0806,
+        "CO2": 0.17,
+        "E": 0.0915,
+        "score_true": 0.765
+      },
+      {
+        "label": "margin_150",
+        "T1": 1081.1,
+        "CO": 0.0593,
+        "CO2": 0.1886,
+        "E": 0.051,
+        "score_true": 1.04
+      },
+      {
+        "label": "margin_100",
+        "T1": 855.3,
+        "CO": 0.0449,
+        "CO2": 0.1893,
+        "E": 0.0469,
+        "score_true": 1.137
+      }
+    ]
+  },
+  "falsification": {
+    "H3_cooler_improves_CO_CO2": "FALSIFIED",
+    "detail": "强制降温（cooler seed / 收紧 upper_margin / abs_dT）可使 bed1 更接近 Bild，但出口 CO 系统性崩塌、CO2 不变差或更差，E_rms 上升。因此 bed1 贴上围栏是 T 形态根因，但不是出口 CO/CO2 结构偏差的可操作主杠杆。"
+  },
+  "ship": {
+    "production_change": false,
+    "reason": "收紧围栏/cooler seed 使 score 与 CO 恶化；与既有「不默认动围栏」一致"
+  },
+  "next_knife": {
+    "primary": "ex_bd_CO_partition_deeper",
+    "alt": "energy/oxidation closure that explains why NR wants T→T_max without collapsing CO when cooled",
+    "do_not": [
+      "抬 Tin",
+      "默认改 upper_margin",
+      "r5_scale 掩盖"
+    ]
+  }
+}

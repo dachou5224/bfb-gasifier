@@ -11,6 +11,7 @@ import numpy.typing as npt
 
 from src.core.cell_balances import calc_gas_enthalpy_flow, calc_solid_enthalpy_flow
 from src.core.constants import Rg
+from src.core.energy_balance_defaults import DEFAULT_SOLID_ENTHALPY_MODE
 from src.core.species import GAS_SPECIES_INDEX, N_GAS, cp_ash, cp_char, cp_sand
 
 __all__ = [
@@ -64,8 +65,12 @@ def solid_enthalpy_flow_for_fuel_props(
     ash_dry_wt: float,
     VM_daf: float,
     h_f_dry: float,
+    solid_enthalpy_mode: str = DEFAULT_SOLID_ENTHALPY_MODE,
 ) -> float:
-    """固相总焓流（与 ``Cell._calc_solid_enthalpy_flow`` 等价，供薄委托）。"""
+    """固相总焓流（与 ``Cell._calc_solid_enthalpy_flow`` 等价，供薄委托）。
+
+    Ref: Hamel (1999) Eq. (2.8)；默认 ``hamel_eq28_component``。
+    """
     return calc_solid_enthalpy_flow(
         m,
         T,
@@ -75,4 +80,5 @@ def solid_enthalpy_flow_for_fuel_props(
         cp_char_fn=cp_char,
         cp_ash_fn=cp_ash,
         cp_sand_fn=cp_sand,
+        solid_enthalpy_mode=solid_enthalpy_mode,
     )

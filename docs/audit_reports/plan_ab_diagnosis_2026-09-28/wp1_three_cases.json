@@ -1,0 +1,109 @@
+{
+  "cases": [
+    {
+      "name": "T_plus_50K",
+      "passed": true,
+      "reason": "block_gates",
+      "elapsed_s": 108.208721046,
+      "merit": 0.0006155806082764965,
+      "stats": {
+        "F_calls": 60130.0,
+        "J_calls": 618.0,
+        "P_calls": 4.0,
+        "outers": 3.0,
+        "inner_status": "least_squares",
+        "rejects": 0.0
+      },
+      "blocks": {
+        "passed": true,
+        "gas_l2": 5.366771196402443e-07,
+        "solid_l2": 4.505906212952815e-10,
+        "tar_l2": 3.5969846394987067e-09,
+        "energy_W": 0.0005890143511351198
+      },
+      "gate_ratio": {
+        "gas": 0.5366771196402443,
+        "solid": 0.00045059062129528156,
+        "tar": 0.0035969846394987067,
+        "energy_sum_W": 0.0005890143511351198
+      },
+      "opened_zeros": [],
+      "T_bed": 1363.441209726828,
+      "T_fb": 1384.0930284267793,
+      "worst_index": 49,
+      "worst_value": 0.0006127759115770459
+    },
+    {
+      "name": "positive_half",
+      "passed": false,
+      "reason": "deadline",
+      "elapsed_s": 120.002152211,
+      "merit": 6.749739904371512,
+      "stats": {
+        "F_calls": 63682.0,
+        "J_calls": 655.0,
+        "P_calls": 2.0,
+        "outers": 1.0,
+        "inner_status": "least_squares",
+        "rejects": 0.0
+      },
+      "blocks": {
+        "passed": false,
+        "gas_l2": 0.0025790005395647684,
+        "solid_l2": 7.825826424236977e-05,
+        "tar_l2": 0.0021653191972000555,
+        "energy_W": 1.5718469168059528
+      },
+      "gate_ratio": {
+        "gas": 2579.0005395647686,
+        "solid": 78.25826424236978,
+        "tar": 2165.3191972000554,
+        "energy_sum_W": 1.5718469168059528
+      },
+      "opened_zeros": [],
+      "T_bed": 1342.3635835379089,
+      "T_fb": 1420.2589366828042,
+      "worst_index": 48,
+      "worst_value": 5.487205972021911
+    },
+    {
+      "name": "cold_start",
+      "passed": false,
+      "reason": "deadline",
+      "elapsed_s": 120.002168453,
+      "merit": 52676.71723151751,
+      "stats": {
+        "F_calls": 13681.0,
+        "J_calls": 140.0,
+        "P_calls": 6.0,
+        "outers": 4.0,
+        "inner_status": "least_squares",
+        "rejects": 0.0
+      },
+      "blocks": {
+        "passed": false,
+        "gas_l2": 58.533342424388955,
+        "solid_l2": 4.816728593223119,
+        "tar_l2": 0.030980990571926693,
+        "energy_W": -28243.794765463317
+      },
+      "gate_ratio": {
+        "gas": 58533342.42438896,
+        "solid": 4816728.593223119,
+        "tar": 30980.990571926694,
+        "energy_sum_W": -28243.794765463317
+      },
+      "opened_zeros": [
+        44,
+        45,
+        7,
+        8,
+        10
+      ],
+      "T_bed": 1000.0000378371096,
+      "T_fb": 972.7655447766388,
+      "worst_index": 49,
+      "worst_value": -48169.7913059962
+    }
+  ]
+}

@@ -7,13 +7,10 @@
 from __future__ import annotations
 
 import importlib
-import sys
-from pathlib import Path
 
-# 保证可导入 src.*
-_ROOT = Path(__file__).resolve().parents[1]
-if str(_ROOT) not in sys.path:
-    sys.path.insert(0, str(_ROOT))
+import _lu_harness  # noqa: F401
+
+from _lu_harness import repo_root
 
 
 def _resolve_dotted(qualname: str) -> object:
@@ -54,7 +51,7 @@ def main() -> int:
         except Exception as exc:  # noqa: BLE001
             errors.append(f"pipeline: {dotted} -> {exc!r}")
 
-    mmd = _ROOT / "docs" / "gasifier_model_flowchart_trilingual.mmd"
+    mmd = repo_root() / "docs" / "gasifier_model_flowchart_trilingual.mmd"
     if not mmd.is_file():
         errors.append(f"missing mmd: {mmd}")
     else:

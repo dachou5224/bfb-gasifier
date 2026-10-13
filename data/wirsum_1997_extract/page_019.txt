@@ -1,0 +1,80 @@
+angegeben worden. Im Falle des stationären Beharrungszustands des Systems lautet die Bi-
+lanzierung der verschiedenen Transportmechanismen für jede der einzelnen Erhaltungsgrößen
+und in der Blasenphase der Zelle i
+nZBj,i + 
+= 0 
+(2.11)
+In Gleichung (2.10) und Gleichung (2.11) bedeuten:
+von außen zugeführter Stoffstrom der Substanz j in die Emulsionsphase
+der Zelle i
+aus der Emulsionsphase der Zelle i + 1 zugeführter Stoffstrom der
+Substanz j
+nEjjii
+aus der Emulsionsphase der Zelle i abgeführter Stoffstrom
+der Substanz j
+Quell- bzw. Senkenterm der Substanz j durch chemische Reaktion in der
+Emulsionsphase
+™EBjj 
+Stoffstrom der Substanz j aus der Emulsionsphase in die Blasenphase
+der selben Zelle
+von außen zugeführter Stoffstrom der Substanz j in die Blasenphase der
+Zelle i
+nE ,j,i+i 
+aus der Blasenphase der Zelle i + 1 zugeführter Stoffstrom
+der Substanz j
+nE,j,i 
+aus der Blasenphase der Zelle i abgeführter Stoffstrom der Substanz j
+Quell- bzw. Senkenterm der Substanz j durch chemische Reaktion in der
+Blasenphase
+2. 3.2. 2 
+Bilanzierung fester Stoffströme Das vorliegende Simulationsmodell bietet die
+Möglichkeit, eine beliebige Anzahl verschiedener Feststoffe in das Bilanzierungschema zu in-
+tegrieren, wobei man sich jedoch in der Regel auf einige wenige Substanzen wie Koks oder
+Kalkstein beschränken wird. Bilanziert werden nur sogenannte „aktive“ Feststoffe, also sol-
+che Stoffe, welche an Umsatzreaktionen beteiligt sind. Für jede aktive Feststoffsorte liegt eine
+Einteilung in diskrete Partikelgrößenklassen vor.
+In Bild 2.3 sind am Beispiel einer Feststoffsorte j, repräsentiert durch eine Partikelgrößen-
+klasse l in einem Bilanzraum i, die bei der Bilanzierung zu berücksichtigenden Transportme-
+chanismen dargestellt. Jm stationären Beharrungszustand lautet die Bilanzgleichnung für die
+Partikelklasse l der Feststoffsorte j in der Zelle i:
++ 
++ 
++ 
+= 0
+(2.12)
+In Gleichung (2.12) bedeuten:
+von außen zugeführter Stoffstrom der Partikelklasse l des Feststoffs j
+rrf 
+Quell- bzw. Senkenterm der Partikelklasse l des Feststoffs j durch
+chemische Reaktion
+konvektiver Transport 
+diffusiver Transport 
+QuelL/Senkenterm
+der Größe j 
+der Größe j 
+der Größe j
+Die numerische Auswertung der Bilanzgleichungen als Funktion aller Bilanzvariablen wird
+entsprechend der im Abschnitt 2.3.1 vorgenommenen Einteilung der Bilanzvariablen in drei
+Gruppen durchgeführt.
+1. gasförmige Stoffströme
+2. Feststoffströme
+3. Energieströme
+Die Bilanzierung von Stoffströmen kann für die beiden Gruppen „Gase“ und „Feststoffe“
+weitgehend unabhängig voneinander erfolgen. Lediglich bei der Berücksichtigung von inneren
+Quell- und Senkentermen führen heterogene Gas-Feststoff-Reaktionen zu einer Verbindung
+zwischen den beiden genannten Gruppen.
+... 
+L/1C Bilanzierung von Gasen erfolgt für
+jede Phase einer Zelle. In Bild 2.2 sind die zu berücksichtigenden Stoffströme am Beispiel
+eines Bilanzraums mit zwei Phasen (Emulsions- und Blasenphase) dargestellt. Im stationären
+CD
+(/)
+Ud 2.2. Stoffströme einer bilan2ierten Gaskomponente. im
+Beharrungszustand lautet die Bil
+Zelle i:
+.•z e le,eh...g «, die Sutaln2
+. __ 
+Eaml!ioTi-phaae
+(2-10)
+18
+19

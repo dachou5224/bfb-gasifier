@@ -1,0 +1,50 @@
+{
+  "note": "CORE same-phase clip o4",
+  "wall_s": 24.731329748,
+  "rms_scaled_final": 0.034457577467575606,
+  "rms_scaled_gas_phase_split_final": 0.1243589379611765,
+  "n_acc": 4,
+  "accepted_lambda_history": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "clip_best": [
+    {
+      "iter": 1,
+      "accepted_lambda": 1.0,
+      "line_search_failed": false,
+      "best_trial_rms_scaled": 0.0345573883741943,
+      "best_trial_lambda": 1.0
+    },
+    {
+      "iter": 2,
+      "accepted_lambda": 1.0,
+      "line_search_failed": false,
+      "best_trial_rms_scaled": 0.03224905638506227,
+      "best_trial_lambda": 1.0
+    },
+    {
+      "iter": 1,
+      "accepted_lambda": 1.0,
+      "line_search_failed": false,
+      "best_trial_rms_scaled": 0.0349424299108434,
+      "best_trial_lambda": 1.0
+    },
+    {
+      "iter": 2,
+      "accepted_lambda": 1.0,
+      "line_search_failed": false,
+      "best_trial_rms_scaled": 0.034529173706947594,
+      "best_trial_lambda": 1.0
+    }
+  ],
+  "fast_ox_projections": 4,
+  "same_phase_oxidizer_fuel_clip_components": 76,
+  "y_co_top": 0.008633643383777687,
+  "bed0_N_d_O2": 0.0,
+  "bed0_N_b_O2": 6.07922752553225,
+  "bed0_N_d_H2": 0.26214654087829975,
+  "bed0_N_b_H2": 0.0
+}

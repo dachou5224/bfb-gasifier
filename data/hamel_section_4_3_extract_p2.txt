@@ -1,0 +1,148 @@
+Symbolverzeichnis
+Symbolverzeichnis
+VIII
+IX
+freie Enthalpie 
+J
+Höhe 
+m
+Starthöhe des BläsenWachstums 
+m
+Höhe der Austrittsöffnungen des Düsenbodens 
+m
+Höhe der Brennstoffzufuhr über Düsenboden 
+m
+Höhe eines Partikels im Freiraum 
+m
+Starthöhe der Partikelflugbahn 
+m
+Höhe des Reaktorsegments i 
+m
+Höhe der expandierten Wirbelschicht 
+m
+spezifische Enthalpie 
+J/kg, J/mol
+spezifische Verdampfungsenthalpie des Wassers 
+J/kg
+korrigierte Verdampfungsenthalpie des Wassers 
+J/kg
+Energiestrom 
+W
+durch Gase und Feststoffe dem Bilanzraum i von außen zugefiihrte Energie 
+W
+Energiestrom in den Bilanzraum i durch Rezirkulation von Gasen und 
+W
+Feststoffen aus anderen Bilanzräumen
+Energiestrom in den Bilanzraum i durch Gas- und Feststoffströme aus der 
+W
+Zelle i+1
+Energiestrom in den Bilanzraum i durch Gas- und Feststoffströme aus der 
+W
+Zelle i-1
+Energiestrom in die Zelle i-1 durch aus der Zelle i austretende Gas- und 
+W
+Feststoffströme
+Energiestrom in die Zelle i+1 durch aus der Zelle i austretende Gas- und 
+W
+Feststoffströme
+durch Gas- und Feststoffströme aus dem Bilanzsystem austretender Ener- 
+W
+giestrom
+Anzahl der gleichzeitig koaleszierenden Blasen
+Frequenzfaktor 
+(mol/(m2s))(m3/mol)n
+chemische Reaktionsgeschwindigkeitskonstante 
+(mol/(m2s))(m3/mol)n
+Diffusionsgeschwindigkeit durch die Aschehülle 
+m/s
+Diffusionsgeschwindigkeit durch die Gasgrenzschicht 
+m/s
+Stoffaustauschkoeffizient zwischen Blase und Suspension 
+1/s
+Stoffaustauschkoeffizient zwischen Blase und „Cloud“-Zone 
+1/s
+Stoffaustauschkoeffizient zwischen „Cloud“-Zone und Suspension 
+1/s
+chemische Gleichgewichtskonstante
+aus Experimenten ermittelte chemische Gleichgewichtskonstante
+Länge 
+m
+Masse 
+kg
+bis zur Zeit t freigesetzter Massenanteil flüchtiger Bestandteile
+gesamter Massenanteil flüchtiger Bestandteile
+Massenstrom 
+kg/s
+Symbolverzeichnis
+Symbol 
+Bedeutung
+Einheit
+m2/s
+Temperaturleitfähigkeit
+Gewichtungsfaktor der Reaktionsrate der Ri
+Fläche
+Koksoberfläche
+Stoffmenge des Elementes i
+Widerstandsbeiwert der aufsteigenden Blase
+spezifische Wärmekapazität
+spezifische Wärmekapazität des Feststoffs
+spezifische Wärmekapazität des Wassers
+Strömungswiderstandsbeiwert
+Konzentration
+Gaskonzentration in der Blase
+Gaskonzentration in der Suspension
+Blasendurchmesser
+Behälterdurchmesser
+Blasenstartdurchmesser
+Blasendurchmesser in Abhängigkeit der Höhe über dem Düsenboden
+Blasendurchmesser an der Wirbelschichtoberfläche
+Partikeldurchmesser
+mittlerer Partikeldurchmesser
+Partikelgrenzdurchmesser
+Brennstoffpartikeldurchmesser
+mittlerer Brennstoffpartikeldurchmesser
+Diffusivität
+Aktivierungsenergie
+Mittelwert der Aktivierungsenergie
+flächenbezogene Blasenfrequenz
+Volumenanteil des Blasen-Wakes an der gesamten Blase
+Feststoffaustrag an der Wirbelbettoberfläche
+Feststoffaustrag an der Bettoberfläche durch Roof-Mechanismus
+Feststoffaustrag an der Bettoberfläche durch Wake-Mechanismus
+Auftriebskraft
+Gewichtskraft
+Trägheitskraft
+Widerstandskraft
+Erdbeschleunigung
+° 
+*
+m2
+mol
+J/(kgK)
+J/(kgK)
+J/(kgK)
+mol/m3
+mol/m3
+mol/m3
+m
+m
+m
+m
+m
+m
+m
+m
+m
+m
+m2/s
+J/mol
+J/mol
+l/(m2 s)
+kg/(m2 s)
+kg/(m2 s)
+kg/(m2 s)
+N
+N
+N
+N
+m/s2

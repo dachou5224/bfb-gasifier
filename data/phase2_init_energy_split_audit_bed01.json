@@ -1,0 +1,90 @@
+{
+  "init_metrics": {
+    "rms_scaled": 0.11281505414397945,
+    "max_abs_scaled": 1.7066589600762867,
+    "max_bed_energy_abs_W": 32022610.954231396,
+    "gas_phase_split_rms": 0.04967070225967717,
+    "gas_phase_split_max_abs": 0.3124923030784636,
+    "solid_rms": 0.03975187235546002,
+    "energy_rms": 0.5043058369279779,
+    "merit_scaled": 0.5043058369279779
+  },
+  "group_rms": {
+    "gas_rms": 0.07088646379545332,
+    "solid_rms": 0.039751807148694265,
+    "energy_rms": 0.5043047252442636,
+    "gas_max_abs": 0.7172761309130329,
+    "solid_max_abs": 0.48655730329020724,
+    "energy_max_abs": 1.7066589600762867
+  },
+  "top_energy_cells": [
+    {
+      "index": 1,
+      "cell_type": "bed",
+      "T_K": 1103.5010450442571,
+      "energy_scaled": -1.7066589600762867,
+      "energy_abs_W": 32022610.954231396,
+      "bed_split_rms_scaled": 0.16431347563165555
+    },
+    {
+      "index": 0,
+      "cell_type": "bed",
+      "T_K": 1107.0484225290015,
+      "energy_scaled": 1.4202284055365908,
+      "energy_abs_W": 26648218.982551567,
+      "bed_split_rms_scaled": 3.7515431621347534e-10
+    },
+    {
+      "index": 10,
+      "cell_type": "freeboard",
+      "T_K": 1065.414047438162,
+      "energy_scaled": -0.39045151055550115,
+      "energy_abs_W": 7326171.843056387,
+      "bed_split_rms_scaled": null
+    },
+    {
+      "index": 3,
+      "cell_type": "bed",
+      "T_K": 1093.69967391346,
+      "energy_scaled": 0.04412040599470506,
+      "energy_abs_W": 827839.6988132166,
+      "bed_split_rms_scaled": 0.05120704180216852
+    },
+    {
+      "index": 2,
+      "cell_type": "bed",
+      "T_K": 1098.8269272956495,
+      "energy_scaled": 0.03497509864006536,
+      "energy_abs_W": 664738.628662669,
+      "bed_split_rms_scaled": 0.041543458835592725
+    },
+    {
+      "index": 4,
+      "cell_type": "bed",
+      "T_K": 1088.289899158538,
+      "energy_scaled": 0.02261809416680149,
+      "energy_abs_W": 422759.1109588276,
+      "bed_split_rms_scaled": 0.014388836901120455
+    },
+    {
+      "index": 5,
+      "cell_type": "bed",
+      "T_K": 1082.6776023805244,
+      "energy_scaled": 0.020259629527432384,
+      "energy_abs_W": 378710.3051054086,
+      "bed_split_rms_scaled": 0.016471294811413392
+    },
+    {
+      "index": 7,
+      "cell_type": "bed",
+      "T_K": 1071.0094547140534,
+      "energy_scaled": 0.009855736841810845,
+      "energy_abs_W": 183776.15563662158,
+      "bed_split_rms_scaled": 0.019394134410076532
+    }
+  ],
+  "init_phase_split_diag": {
+    "bed0_accepted": true,
+    "bed1_accepted": true
+  }
+}

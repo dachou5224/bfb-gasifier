@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 
+from src.core.species import N_GAS
+
 from src.core.cell_balances import calc_gas_balance_residual
 from src.core.phase_gate_checks import gate_20_elemental_closure
 
@@ -16,7 +18,7 @@ def test_conservation_elemental_closure_is_hard_gate() -> None:
 
 def test_conservation_gas_exchange_is_strictly_internal() -> None:
     """相间交换在总气相上应内部抵消。"""
-    n_ex = np.array([1.0, -2.0, 0.5] + [0.0] * 8, dtype=np.float64)
+    n_ex = np.array([1.0, -2.0, 0.5] + [0.0] * (N_GAS - 3), dtype=np.float64)
     zero = np.zeros_like(n_ex)
     res = calc_gas_balance_residual(
         N_zu_d=zero,
@@ -31,4 +33,4 @@ def test_conservation_gas_exchange_is_strictly_internal() -> None:
         R_gas_b=zero,
         N_b=zero,
     )
-    np.testing.assert_allclose(res[:11] + res[11:], 0.0)
+    np.testing.assert_allclose(res[:N_GAS] + res[N_GAS:], 0.0)

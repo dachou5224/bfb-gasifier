@@ -25,7 +25,7 @@ def _exp_clipped(x: float) -> float:
 
 
 # 反应 ID（与 gas_reactions 一致）
-REACTION_R5 = "R5"   # 2 CO + O2 -> 2 CO2
+REACTION_R5 = "R5"   # CO + 1/2 O2 -> CO2（Hamel §5.2.1）
 REACTION_R7 = "R7"   # CH4 + H2O -> CO + 3 H2
 REACTION_R8 = "R8"   # CO + H2O <-> CO2 + H2 (WGSR)
 
@@ -37,8 +37,8 @@ def _delta_g0(reaction_id: str, T: float) -> float:
     以正向反应（消耗左侧、生成右侧）定义。
     """
     if reaction_id == REACTION_R5:
-        # 2 CO + O2 -> 2 CO2
-        dG = 2 * gibbs_molar("CO2", T) - 2 * gibbs_molar("CO", T) - gibbs_molar("O2", T)
+        # CO + 1/2 O2 -> CO2
+        dG = gibbs_molar("CO2", T) - gibbs_molar("CO", T) - 0.5 * gibbs_molar("O2", T)
     elif reaction_id == REACTION_R7:
         # CH4 + H2O -> CO + 3 H2
         dG = (
@@ -127,9 +127,9 @@ def calc_reaction_quotient(
         return max(y_dict.get(sp, 0.0), 1e-30) * P
 
     if reaction_id == REACTION_R5:
-        # 2 CO + O2 -> 2 CO2
-        # Q_p = P_CO2^2 / (P_CO^2 * P_O2)
-        return p("CO2") ** 2 / (p("CO") ** 2 * p("O2"))
+        # CO + 1/2 O2 -> CO2
+        # Q_p = P_CO2 / (P_CO * P_O2^0.5)
+        return p("CO2") / (p("CO") * (p("O2") ** 0.5))
     if reaction_id == REACTION_R7:
         # CH4 + H2O -> CO + 3 H2
         # Q_p = (P_CO * P_H2^3) / (P_CH4 * P_H2O)

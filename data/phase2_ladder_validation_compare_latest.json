@@ -1,0 +1,202 @@
+{
+  "max_global_iter": 20,
+  "case_key": "CASE_HTW_WESSELING_1",
+  "results": [
+    {
+      "level": "baseline",
+      "wall_time_s": 194.02051150999998,
+      "converged_fully": false,
+      "rms_scaled_final": 0.014825376587893435,
+      "nr_outer_iters": 13,
+      "validation_candidate_ok": false,
+      "validation_candidate_reasons": [
+        "solver_not_converged"
+      ],
+      "T_exit_K": 1112.4350641973965,
+      "err_T_vs_best": 0.0067544069666102555,
+      "pass_T": true,
+      "carbon_conv_pct": 100.0,
+      "species_vs_json": {
+        "CO": {
+          "sim": 0.09108676040020255,
+          "ref_json": 0.13,
+          "rel_err": 0.2993326123061342,
+          "pass": false
+        },
+        "CO2": {
+          "sim": 0.16403541668949964,
+          "ref_json": 0.11,
+          "rel_err": 0.4912310608136331,
+          "pass": false
+        },
+        "H2": {
+          "sim": 0.11519539602497034,
+          "ref_json": 0.12,
+          "rel_err": 0.04003836645858049,
+          "pass": true
+        },
+        "CH4": {
+          "sim": 1.1875340688130212e-06,
+          "ref_json": 0.028,
+          "rel_err": 0.999957588068971,
+          "pass": false
+        }
+      },
+      "species_pass_count_json": 1,
+      "overrides": {
+        "nr_line_search_gas_phase_split_merit_thesis": false,
+        "nr_refresh_hydrodynamics_on_accepted_step_thesis": false,
+        "nr_bottom_bc_aware_bed0_bed1_joint_x0_thesis": false,
+        "nr_enforce_gas_phase_split_convergence_thesis": false,
+        "vorab_bottom_temperature_cap_K_thesis": 1325.0,
+        "freeboard_trajectory_coeff_model": "stable_mixed_drag_split"
+      }
+    },
+    {
+      "level": "p0",
+      "wall_time_s": 274.90411992099996,
+      "converged_fully": false,
+      "rms_scaled_final": 0.012068836665662117,
+      "nr_outer_iters": 19,
+      "validation_candidate_ok": false,
+      "validation_candidate_reasons": [
+        "solver_not_converged"
+      ],
+      "T_exit_K": 1133.8646527884973,
+      "err_T_vs_best": 0.012379154275444039,
+      "pass_T": true,
+      "carbon_conv_pct": 100.0,
+      "species_vs_json": {
+        "CO": {
+          "sim": 0.0936773807959114,
+          "ref_json": 0.13,
+          "rel_err": 0.2794047631083739,
+          "pass": false
+        },
+        "CO2": {
+          "sim": 0.16235831909857737,
+          "ref_json": 0.11,
+          "rel_err": 0.47598471907797607,
+          "pass": false
+        },
+        "H2": {
+          "sim": 0.11228026789430937,
+          "ref_json": 0.12,
+          "rel_err": 0.06433110088075525,
+          "pass": true
+        },
+        "CH4": {
+          "sim": 0.0005003407783327679,
+          "ref_json": 0.028,
+          "rel_err": 0.9821306864881154,
+          "pass": false
+        }
+      },
+      "species_pass_count_json": 1,
+      "overrides": {
+        "nr_line_search_gas_phase_split_merit_thesis": true,
+        "nr_refresh_hydrodynamics_on_accepted_step_thesis": true,
+        "nr_bottom_bc_aware_bed0_bed1_joint_x0_thesis": true,
+        "nr_enforce_gas_phase_split_convergence_thesis": true,
+        "vorab_bottom_temperature_cap_K_thesis": 1325.0,
+        "freeboard_trajectory_coeff_model": "stable_mixed_drag_split"
+      }
+    },
+    {
+      "level": "p1",
+      "wall_time_s": 117.48317487899999,
+      "converged_fully": true,
+      "rms_scaled_final": 0.00515609588484194,
+      "nr_outer_iters": 7,
+      "validation_candidate_ok": true,
+      "validation_candidate_reasons": [],
+      "T_exit_K": 1118.6295732388385,
+      "err_T_vs_best": 0.0012235953224656473,
+      "pass_T": true,
+      "carbon_conv_pct": 100.0,
+      "species_vs_json": {
+        "CO": {
+          "sim": 0.08081930615591859,
+          "ref_json": 0.13,
+          "rel_err": 0.378313029569857,
+          "pass": false
+        },
+        "CO2": {
+          "sim": 0.16912545983065821,
+          "ref_json": 0.11,
+          "rel_err": 0.537504180278711,
+          "pass": false
+        },
+        "H2": {
+          "sim": 0.10448304138256542,
+          "ref_json": 0.12,
+          "rel_err": 0.12930798847862146,
+          "pass": true
+        },
+        "CH4": {
+          "sim": 0.00191834088868957,
+          "ref_json": 0.028,
+          "rel_err": 0.9314878254039439,
+          "pass": false
+        }
+      },
+      "species_pass_count_json": 1,
+      "overrides": {
+        "nr_line_search_gas_phase_split_merit_thesis": true,
+        "nr_refresh_hydrodynamics_on_accepted_step_thesis": true,
+        "nr_bottom_bc_aware_bed0_bed1_joint_x0_thesis": true,
+        "nr_enforce_gas_phase_split_convergence_thesis": true,
+        "vorab_bottom_temperature_cap_K_thesis": 1180.0,
+        "freeboard_trajectory_coeff_model": "stable_mixed_drag_split"
+      }
+    },
+    {
+      "level": "p2",
+      "wall_time_s": 203.880515812,
+      "converged_fully": true,
+      "rms_scaled_final": 0.005631665029118937,
+      "nr_outer_iters": 15,
+      "validation_candidate_ok": true,
+      "validation_candidate_reasons": [],
+      "T_exit_K": 1125.7597208098637,
+      "err_T_vs_best": 0.005142607865949701,
+      "pass_T": true,
+      "carbon_conv_pct": 100.0,
+      "species_vs_json": {
+        "CO": {
+          "sim": 0.08523032292933085,
+          "ref_json": 0.13,
+          "rel_err": 0.3443821313128397,
+          "pass": false
+        },
+        "CO2": {
+          "sim": 0.16638478141590962,
+          "ref_json": 0.11,
+          "rel_err": 0.5125889219628147,
+          "pass": false
+        },
+        "H2": {
+          "sim": 0.10853395354924843,
+          "ref_json": 0.12,
+          "rel_err": 0.09555038708959641,
+          "pass": true
+        },
+        "CH4": {
+          "sim": 0.00036221077776965534,
+          "ref_json": 0.028,
+          "rel_err": 0.9870639007939409,
+          "pass": false
+        }
+      },
+      "species_pass_count_json": 1,
+      "overrides": {
+        "nr_line_search_gas_phase_split_merit_thesis": true,
+        "nr_refresh_hydrodynamics_on_accepted_step_thesis": true,
+        "nr_bottom_bc_aware_bed0_bed1_joint_x0_thesis": true,
+        "nr_enforce_gas_phase_split_convergence_thesis": true,
+        "vorab_bottom_temperature_cap_K_thesis": 1180.0,
+        "freeboard_trajectory_coeff_model": "exact_hamel"
+      }
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+164
+A 1 Berechnung des chemischen Gleichgewichts in der Gasphase
+Al Berechnung des chemischen Gleichgewichts in der Gasphase
+165
+X a ü N J
+j Ns-Nfj+l
+Mit Definition einer von der Zusammensetzung unabhängigen Konstanten Cj und neuer
+Lagrange’scher Multiplikatoren 2,:
+(A.4)
+Die Gleichung für die Gibbs‘sche Enthalpie ergibt sich unter Berücksichtigung der konstanten
+Anteile durch die Quell-/Senken-Substanzen zu:
+(A.12)
+(A.13)
+(A.14)
+(A.15)
+Ns
+Ns-y<j 
+Ns
+G=’£f t J N J = YPJ N J +
+j=l 
+j=l 
+j=Ns -My+I
+(A.5)
+mit 
+=konst.
+j=Ns -N(
+l
+(A.6)
+folgt aus Gleichung (A.l 1):
+Y 
+c j +ln \ V 
+“EA 
+Y a ij =0
+j=i 
+) <=/ 
+/=/
+Die Zahl der im Gleichgewicht zu berechnenden Substanzen ist damit um 
+verringert. Mit
+dem chemischen Potential für ideale Gase:
+Gleichung (A.14) kann man nach den Molanteilen auflösen:
+J = l,Ns-NQ
+(A.7)
+Aus formalen Gründen wird i durch k in der Klammer des Ausdrucks (A.l 5) ersetzt:
+Zur Bestimmung des Extremums unter Berücksichtigung von Nebenbedingungen kann die
+Methode von Lagrange eingesetzt werden. Da die Nebenbedingung im Lösungsfall zu Null
+wird, kann man die Zielfunktion durch Addition des Produktes aus Lagrange’sehen Multipli-
+kator und Nebenbedingung erweitern (Hoffmann 1971). Mit Einführung Lagrange’scher Mul-
+tiplikatoren und Addition der Massenbilanz (A.2) zur Gibbs‘schen Enthalpie (A.5) ergibt sich
+folgender, zu minimierender Ausdruck:
+j = l,Ns-NQ
+(A.16)
+N -yj = N j = N ■ expl
+Gleichung (A.16) wird in Gleichung (A.10) eingesetzt:
+«S-Wy f 
+7 
+-
+X a u' N-exp\
+j=i 
+L
+=0
+i = 1,NE
+(A.17)
+J’Ns-N +l
+(A.8)
+Division der Gleichung (A.l 7) durch die Gesamtmolzahl N liefert:
+< 
+Ar/.f 
++
+X a iJ ’ ex P\ ~ c J + Y, Zk- a kj\~ bi' - z = °
+J=l 
+l 
+*=/ 
+J
+Mit der Ableitung nach den Variablen Nj und 2/
+i = 1,N E
+(A.18)
+(A.9)
+Gleichungssystem (A.l 8) enthält N E Gleichungen und NE+1 Unbekannte. Zur Lösung fehlt
+die weitere Beziehung, dass die Summe der Stoffkonzentrationen Eins ergeben muss:
+V.-Vy 
+vs.
+E 
+yj+ 
+5Ly +j =1
+(A.i9)
+j=l 
+J=NS-Ny+I
+Die Gleichung für die Stoflkonzentration (A.l 5) in die Bedingung (A.l 9) eingesetzt ergibt:
+Ns~ N(j ( 
+*'/■ 
+A 
+i 
+Ns
+exp -c j+ X 
+-av +- 
+E N J= ;
+i = l.N E
+(A.20)
+;■=/ l 
+<■=/ 
+J 
+N j Ns-Nft+l
+E
+7=/ 
+< 
+7= 
+“ 
++/ 
+J
+(A.10)
+Das chemische Potential (A.7) in Gleichung (A.9) eingesetzt und mit dem Produkt aus Gas-
+konstante und Temperatur dividiert ergibt :
+(A.ll)

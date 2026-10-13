@@ -1,0 +1,21 @@
+{
+  "snapshot_date": "2026-09-17",
+  "probe_date": "2026-09-16",
+  "head": "098c8cf6766606a491e70ef176c2493b4cd676be",
+  "note": "Dirty worktree. Closure probes and selected short tests only. No production edits or full E8 solve performed by this review.",
+  "test_result": "11 passed, 2 warnings in 3.40s",
+  "sha256": {
+    "docs/audit_reports/named_f_e8_review_2026-09-16.md": "2df71e81ed38c9b26d3d35466b184ad6fc64a0a8058699d3398a05aa47463117",
+    "docs/audit_reports/named_f_e8_review_2026-09-16/probe_closures.py": "ab4401a9347fba6881ecca49e6999f8359bff30eb81df9ec118599e1cc2a6535",
+    "docs/audit_reports/named_f_e8_review_2026-09-16/probe_result.json": "7b86d9dac4e1de58c821b38de7bc303b6a847960a4ac5e4b167253967b9693f2",
+    "docs/handoff_named_f_e8_2026-09-16.md": "5569556ede0f55bb73e9387aa244ddb02a4143bdae8a5514e4b99f7d0577f3fa",
+    "src/solvers/wirsum_1997_named_f.py": "fe7dde6bfabcc0f12a9f4c51375591f44a48731a1751ab7002757b40ea58815f",
+    "src/solvers/wirsum_1997_named_f_e8.py": "09d949920842b0166cfb211c22a8440c08a75dd20d7ac8dd41a9fc214e618f4b",
+    "src/solvers/wirsum_1997_named_f_e7.py": "0c488749789ffc319e5ed0aca835a9589632b687fd48975ad87a5741130618fb",
+    "src/solvers/wirsum_1997_named_f_continuation.py": "8bd19f0b3e46e428c5152ce927c83d7e0e25b04e38a43be5851763bcfd135623",
+    "src/solvers/wirsum_1997_pyrolysis_ledger.py": "b2d8a655dc0bac399234b83ea77a6a57cfb5bb4629076bb8308ca4003ba11fd5",
+    "src/solvers/wirsum_1997_coupled_f_two_bin_pyro.py": "d2e54fe2b254a48adf0651762ef6c2bf747720caa8f61044067e120ad109052a",
+    "src/kinetics/gas_reactions.py": "2f784dc3680c55a5fc416a295c7b1f18c117e85757ec27c036b676805c7ff2a3",
+    "src/core/solid_transport_reduced.py": "e8c3c363b6560b2d30a08c3011f0ade7bb1eb9729e5c215c48ca32c93132abf4"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "knife": "cell_stream_phase_closure",
+  "date": "2026-07-25",
+  "config": "p2 / max_global_iter=8 / 10 bed cells (本构建无 FB/side block)",
+  "formula": {
+    "dense_2_4": "0 = zu_d + rez_d + in_d + R_d - N_d + N_ex",
+    "bubble_2_5": "0 = zu_b + rez_b + in_b + R_b - N_b - N_ex",
+    "N_ex": "code N_ex = -ex_bd (正=气泡→悬浮)",
+    "axial_gas_bed": "curr.N_b_in = prev.N_b; curr.N_d_in = prev.N_d",
+    "solid_holdup": "0 = zu+rez+in+auf_in+ab_in+R+mig - (K_auf+K_ab)*m"
+  },
+  "axial_routing": {
+    "gas_bed_to_bed": "CLOSED (gap=0 machine precision)",
+    "solid_auf_bed_to_bed": "CLOSED (gap=0)",
+    "solid_ab_from_above": "CLOSED for bed0–8; bed9 ab_in from top_downflow/recycle path"
+  },
+  "cell_residuals_o8": {
+    "nr": {
+      "converged": false,
+      "rms_scaled_final": 0.0281,
+      "rms_scaled_gas_combined": 0.00383,
+      "rms_scaled_gas_phase_split": 0.0171,
+      "max_abs_scaled_gas_phase_split": 0.102
+    },
+    "pattern": "下层(bed0–1): combined 与 phase 残差同量级 → 总摩尔+分相都未闭合；上层(bed3–9): combined≪phase (比 8–70×) → 总物种近似守恒，分相靠 N_ex 未收敛",
+    "worst": {
+      "bed0_dense_CO_mol_s": -4.61,
+      "bed0_bubble_CO_mol_s": 3.49,
+      "bed0_combined_H2_mol_s": -2.19,
+      "bed0_N_ex_L1_mol_s": 38.6,
+      "bed0_N_ex_CO": -15.4,
+      "note": "密相产 CO≈16.5，气泡耗 CO≈11.0；N_ex 把 CO 从密相抽到气泡供 R5"
+    },
+    "solid_char": {
+      "max_abs_res_kg_s": "~0.01–0.02",
+      "relative_to_flux": "~1–2% on ~1 kg/s auf/ab",
+      "note": "相对气相分相残差更小；与未收敛外环一致"
+    }
+  },
+  "verdict": {
+    "routing_closure": "PASS",
+    "phase_equation_closure_at_o8": "FAIL_expected_unconverged",
+    "dominant_issue": "gas_phase_split（非轴向断链）",
+    "production_change": false
+  },
+  "artifacts": [
+    "scripts/audit_cell_stream_phase_closure_lu.py",
+    "data/phase2_cell_stream_phase_closure_o8.json",
+    "data/phase2_cell_stream_phase_closure_deep_o8.json"
+  ]
+}

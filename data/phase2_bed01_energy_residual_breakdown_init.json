@@ -1,0 +1,86 @@
+{
+  "ladder_p2_energy_mode": "hamel_eq27_explicit",
+  "cfg_heat_loss_frac": 0.1,
+  "bed0": {
+    "cell_index": 0,
+    "T_K": 1107.0484225290015,
+    "T_in_gas_K": 293.0,
+    "T_zu_gas_K": 293.0,
+    "T_in_solid_K": 293.0,
+    "T_zu_solid_K": 293.15,
+    "vorab_t_budget_K": 1180.0,
+    "heat_loss_mode": "hamel_eq27_explicit",
+    "heat_loss_frac": 0.00435025558137403,
+    "H_in_W": -10391830.315960938,
+    "H_in_terms_W": {
+      "gas_axial_in_W": 0.0,
+      "gas_zu_W": -2194296.428798652,
+      "gas_rez_W": 0.0,
+      "solid_rez_W": 0.0,
+      "solid_axial_in_W": 0.0,
+      "solid_zu_W": -8197533.887162287,
+      "solid_auf_in_W": 0.0,
+      "solid_ab_in_W": 0.0
+    },
+    "H_out_W": -37125454.815753885,
+    "H_out_gas_W": -2204685.7226926736,
+    "H_out_solid_W": -34920769.09306121,
+    "Q_loss_W": 85405.51724137932,
+    "residual_W": 26648218.982551567,
+    "closure_check_W": 26648218.982551567,
+    "gas_holdup_mol_s": 164.05347414393046,
+    "gas_inflow_mol_s": 62.52193276174871,
+    "solid_holdup_kg_s": 3.0329729013270463,
+    "solid_outflow_kg_s": 3.3599461170666807,
+    "dominant_in_term": "solid_zu_W",
+    "dominant_in_term_W": -8197533.887162287
+  },
+  "bed1": {
+    "cell_index": 1,
+    "T_K": 1103.5010450442571,
+    "T_in_gas_K": 1107.0484225290015,
+    "T_zu_gas_K": 293.15,
+    "T_in_solid_K": 1107.0484225290015,
+    "T_zu_solid_K": 293.15,
+    "vorab_t_budget_K": 1161.6444444444444,
+    "heat_loss_mode": "hamel_eq27_explicit",
+    "heat_loss_frac": 0.00435025558137403,
+    "H_in_W": -37660571.02066838,
+    "H_in_terms_W": {
+      "gas_axial_in_W": -2204685.7226926736,
+      "gas_zu_W": -489551.43680660485,
+      "gas_rez_W": 0.0,
+      "solid_rez_W": 0.0,
+      "solid_axial_in_W": -45564.768107894,
+      "solid_zu_W": 0.0,
+      "solid_auf_in_W": -34920769.09306121,
+      "solid_ab_in_W": 0.0
+    },
+    "H_out_W": -5723365.583678364,
+    "H_out_gas_W": -2075984.531001216,
+    "H_out_solid_W": -3647381.052677148,
+    "Q_loss_W": 85405.51724137932,
+    "residual_W": -32022610.954231396,
+    "closure_check_W": -32022610.954231396,
+    "gas_holdup_mol_s": 61.73065094041864,
+    "gas_inflow_mol_s": 178.0040030138488,
+    "solid_holdup_kg_s": 4.032408757471641,
+    "solid_outflow_kg_s": 0.3500116167673717,
+    "dominant_in_term": "solid_auf_in_W",
+    "dominant_in_term_W": -34920769.09306121
+  },
+  "interpretation": {
+    "bed0": {
+      "residual_sign": "positive => H_in > H_out+Q_loss (inventory/store too cold or inflow too hot)",
+      "H_out_minus_in_plus_loss_W": -26648218.982551567,
+      "gas_out_fraction_of_Hout": -2204685722692673.5,
+      "solid_out_fraction_of_Hout": -3.492076909306121e+16
+    },
+    "bed1": {
+      "residual_sign": "positive => H_in > H_out+Q_loss (inventory/store too cold or inflow too hot)",
+      "H_out_minus_in_plus_loss_W": 32022610.954231396,
+      "gas_out_fraction_of_Hout": -2075984531001216.0,
+      "solid_out_fraction_of_Hout": -3647381052677148.0
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "source": "Wirsum alignment stage F5 bed-FB-cyclone handoff",
+  "solved": false,
+  "not_a_furnace_convergence_claim": true,
+  "units": {
+    "gas": "mol/s",
+    "solid": "kg/s"
+  },
+  "topology": "bed \u2192 freeboard \u2192 cyclone(2) \u2192 return \u2192 bed",
+  "fine_recycle_closed": {
+    "fate": "reaches_next_cell",
+    "N_fb": 1.8,
+    "m_leave_char_kg_s": 0.8302694400000001,
+    "N_fb_handoff_gap": 0.0,
+    "m_leave_handoff_gap": 0.0,
+    "eject_minus_return_leave": 0.0,
+    "leave_minus_fly_under": 2.220446049250313e-16,
+    "m_rez_kg_s": 0.0,
+    "F_bed": -0.5102694400000001,
+    "dF_bed_dMret": 0.0,
+    "physical_convergence": true,
+    "residual_l2": 3.188872858294072e-16
+  },
+  "fine_recycle_open": {
+    "fate": "reaches_next_cell",
+    "N_fb": 1.8,
+    "m_leave_char_kg_s": 0.8302694400000001,
+    "N_fb_handoff_gap": 0.0,
+    "m_leave_handoff_gap": 0.0,
+    "eject_minus_return_leave": 0.0,
+    "leave_minus_fly_under": 2.220446049250313e-16,
+    "m_rez_kg_s": 0.7664025600000002,
+    "F_bed": 0.2561331200000001,
+    "dF_bed_dMret": 1.0,
+    "physical_convergence": true,
+    "residual_l2": 3.188872858294072e-16
+  },
+  "coarse_recycle_closed": {
+    "fate": "returns",
+    "N_fb": 1.8,
+    "m_leave_char_kg_s": 0.0,
+    "N_fb_handoff_gap": 0.0,
+    "m_leave_handoff_gap": 0.0,
+    "eject_minus_return_leave": 0.0,
+    "leave_minus_fly_under": 0.0,
+    "m_rez_kg_s": 0.0,
+    "F_bed": 0.32,
+    "dF_bed_dMret": 0.0,
+    "physical_convergence": true,
+    "residual_l2": 0.0
+  },
+  "outer_criteria": {
+    "temperature": "not_covered",
+    "total_gas": "covered",
+    "phase_split": "not_covered",
+    "hydro_exchange": "frozen_context",
+    "solid_bidirectional": "covered",
+    "solid_holdup": "not_covered",
+    "pyrolysis_release": "not_covered",
+    "bed_surface_fallback_entrainment": "covered",
+    "element_balance": "not_covered",
+    "energy": "not_covered"
+  },
+  "outer_criteria_keys": [
+    "temperature",
+    "total_gas",
+    "phase_split",
+    "hydro_exchange",
+    "solid_bidirectional",
+    "solid_holdup",
+    "pyrolysis_release",
+    "bed_surface_fallback_entrainment",
+    "element_balance",
+    "energy"
+  ],
+  "not": [
+    "engineering_lapple_1951",
+    "constant_eta",
+    "evaluate_interface"
+  ],
+  "note": "N_fb \u4e0e m_leave \u53ea\u7b97\u4e00\u6b21\uff0c\u65cb\u98ce cell \u539f\u6837\u63a5\u6536\u3002\u7c97\u7c92\u56de\u843d\u5219\u65cb\u98ce\u56fa\u76f8\u5165\u53e3\u4e3a 0\u3002\u751f\u4ea7\u8def\u5f84\u672a\u6539\u3002"
+}

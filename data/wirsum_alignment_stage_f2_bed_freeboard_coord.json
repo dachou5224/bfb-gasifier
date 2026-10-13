@@ -1,0 +1,90 @@
+{
+  "source": "Wirsum alignment stage F2 bed-freeboard coordination",
+  "solved": false,
+  "not_a_furnace_convergence_claim": true,
+  "units": {
+    "gas": "mol/s",
+    "solid": "kg/s",
+    "T": "K",
+    "Q_wall": "W",
+    "d50": "m"
+  },
+  "inner_Q0": {
+    "N_d": 0.5135429062560901,
+    "N_b": 0.4864570937439102,
+    "N_fb": 1.0000000000000004,
+    "T": 1100.0,
+    "residual_gas_max": 4.440892098500626e-16,
+    "residual_T": 0.0
+  },
+  "outer_Q0": {
+    "fate": "reaches_next_cell",
+    "m_eject_kg_s": [
+      0.8302694400000001,
+      0.20756736000000003
+    ],
+    "m_leave_kg_s": [
+      0.8302694400000001,
+      0.20756736000000003
+    ],
+    "m_recycle_kg_s": [
+      0.8302581945023202,
+      0.20756454862558005
+    ],
+    "m_flyash_kg_s": [
+      1.124549767994587e-05,
+      2.8113744199864676e-06
+    ],
+    "gas_gap_mol_s": 0.0,
+    "solid_gaps": {
+      "eject_minus_return_leave_kg_s": 0.0,
+      "leave_minus_catch_fly_kg_s": 0.0,
+      "recycle_kg_s": 0.8302581945023202
+    },
+    "eta": 0.9999864556044843,
+    "d50_m": 7.360592087256507e-07,
+    "cyclone_model": "engineering_lapple_1951"
+  },
+  "repeat_outer_gap": {
+    "eta": 0.0,
+    "recycle_kg_s": 0.0
+  },
+  "inner_Qwall": {
+    "T": 1007.7396346918117,
+    "eta_leave": 0.9999852156091916,
+    "d50_m": 7.690151985463365e-07,
+    "eta_at_Q0_cut": 0.47811390842833434
+  },
+  "constant_eta_minus_lapple_Q0": -0.04998645560448434,
+  "reaction": {
+    "model": "named_absent",
+    "r_outer_mol_s": 0.0,
+    "r_inner_mol_s": 0.0,
+    "gap_mol_s": 0.0
+  },
+  "outer_criteria": {
+    "temperature": "covered",
+    "total_gas": "covered",
+    "phase_split": "not_covered",
+    "hydro_exchange": "frozen_context",
+    "solid_bidirectional": "covered",
+    "solid_holdup": "not_covered",
+    "pyrolysis_release": "not_covered",
+    "bed_surface_fallback_entrainment": "covered",
+    "element_balance": "not_covered",
+    "energy": "not_covered"
+  },
+  "outer_criteria_keys": [
+    "temperature",
+    "total_gas",
+    "phase_split",
+    "hydro_exchange",
+    "solid_bidirectional",
+    "solid_holdup",
+    "pyrolysis_release",
+    "bed_surface_fallback_entrainment",
+    "element_balance",
+    "energy"
+  ],
+  "note": "\u5185\u5c42\u89e3\u793a\u8e2a\u4e0e T\uff1b\u5916\u5c42\u7528 T \u66f4\u65b0 Lapple \u03b7\u3002Hamel \u65cb\u98ce\u4ecd\u662f cell \u62d3\u6251\uff0c\u4e0d\u662f\u672c\u5f0f\u3002\u751f\u4ea7\u8def\u5f84\u672a\u6539\u3002"
+}

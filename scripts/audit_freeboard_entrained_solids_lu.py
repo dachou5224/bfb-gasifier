@@ -15,35 +15,29 @@
 
 from __future__ import annotations
 
+from _lu_harness import (
+    build_phase2_config,
+    phase2_solve_kwargs,
+)
+
 import math
-import sys
-from pathlib import Path
 
 import numpy as np
-
-REPO_ROOT = Path(__file__).resolve().parent.parent
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
 
 from src.core.cell import S_ASH, S_CHAR
 from src.core.reactor import Reactor
 from _nr_monitor import print_nr_monitor, solve_with_nr_monitor
-from tests.validation_case_utils import (
-    PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS,
-    build_phase2_htw_lu_freeboard_reactor_config,
-)
-
 
 F_W = 0.25
 ZETA_W = 0.40
 
 
 def main() -> int:
-    cfg = build_phase2_htw_lu_freeboard_reactor_config()
+    cfg = build_phase2_config()
     reactor = Reactor(cfg)
     result, monitor = solve_with_nr_monitor(
         reactor,
-        PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS,
+        phase2_solve_kwargs(),
         check_x0=True,
     )
 

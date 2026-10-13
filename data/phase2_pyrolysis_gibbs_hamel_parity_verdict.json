@@ -1,0 +1,96 @@
+{
+  "knife": "pyrolysis_gas_gibbs_vs_hamel_43_A1",
+  "date": "2026-07-27",
+  "scope": "§4.3 gasförmige Pyrolyseprodukte + Anhang A1 (pyrolysis wrapper)",
+  "evidence_chain": [
+    "PDF §4.3 pp.69–70 (data/hamel_pdf_p43_extract.txt, p44)",
+    "docs/hamel_submodels/07_appendix_a1_gibbs_solver.md",
+    "docs/audit_reports/hamel_parity_a1_gibbs_2026-07-06.md",
+    "src/solvers/vorabrechnung/vorab_gibbs_seed.py",
+    "src/thermodynamics/gibbs_hamel_reduced.py",
+    "src/core/cell_pyrolysis.py"
+  ],
+  "hamel_43_formula": {
+    "4.26": "x_C,Gas = x_C,B(waf) − x_Koks − x_C,Teer·x_C,B(waf)",
+    "4.27": "x_H,Gas from fuel H minus tar H (H/C = coal)",
+    "other_elements": "其余元素全部进气相",
+    "species_example": [
+      "CO",
+      "CO2",
+      "CH4",
+      "C2H4",
+      "NH3",
+      "H2S",
+      "H2O",
+      "H2"
+    ],
+    "method": "Holub & Vonka (1976) 自由焓最小；详推 Anhang A1",
+    "eqs": [
+      "(4.28) G=Σ μ_j n_j → min",
+      "(4.30) Σ a_ij n_j = b_i",
+      "(4.31) Lagrange"
+    ]
+  },
+  "parity_table": [
+    {
+      "item": "A1 降阶 Newton (A.21)–(A.28)/(A.30)",
+      "code": "ReducedHamelGibbsSolver.solve",
+      "verdict": "一致",
+      "note": "2026-07-06 a1-gibbs 审计主干同构；默认 hamel_a40 + holub_vonka_a34"
+    },
+    {
+      "item": "§4.3 问题设定：Koks/Teer 后剩余元素 → 气相平衡",
+      "code": "allocate_pyrolysis_products_hamel → solve_pyrolysis_gas_gibbs_composition",
+      "verdict": "部分一致",
+      "note": "结构对：Teer/N/S 先分出再 Gibbs。Cell 路径用 VM 原子池+f_tar，不是全文 Eq.4.26–4.27 对整燃料 waf 一次分配（增量 DAEM 语境下可接受）。"
+    },
+    {
+      "item": "候选物种集",
+      "code": "_PYROLYSIS_GIBBS_CANDIDATES",
+      "verdict": "部分一致",
+      "note": "有 CO/CO2/CH4/H2/H2O；缺 C2H4。NH3/H2S 在 Gibbs 前固定分出（近似 N_Q），与论文「例如含 NH3/H2S」略有路径差。"
+    },
+    {
+      "item": "元素守恒 An=b（式 4.30 / A.2）",
+      "code": "_hamel_project_pyrolysis_element_pool_for_a1",
+      "verdict": "不一致（工程投影）",
+      "note": "当五主组分对 Teer 后池 An=b 不可行时，改为 An≤b 投影并缩小 C 预算。§4.3 未写此步；是导致 LU 上 H₂≈0、过剩 C 打回焦炭的关键非同构点。"
+    },
+    {
+      "item": "Holub–Vonka 自由焓最小",
+      "code": "ReducedHamelGibbsSolver + μ°(T)",
+      "verdict": "一致",
+      "note": "与 Anhang A1 / §4.3 引用 Holub & Vonka (1976) 同构"
+    },
+    {
+      "item": "初值 / 收敛判据",
+      "code": "_solve_pyrolysis_gibbs_reduced",
+      "verdict": "部分一致",
+      "note": "solver 默认 hamel_a40+A34；热解路径常先 NNLS seed→infer_lambda_from_mole_guess，并 omega=0.85、closure_rel_tol=1e-6（工程）。"
+    },
+    {
+      "item": "T 地板 / 升温续算",
+      "code": "pyrolysis_gibbs_temperature_floor_K + T_schedule",
+      "verdict": "有意偏离",
+      "note": "冷 Vorab 数值桥；Hamel §4.3 要求局部 T,P 下求解，无 750K floor/升档表。"
+    },
+    {
+      "item": "灵敏度 remap（CH4→H2+CO 等）",
+      "code": "apply_pyrolysis_ch4_to_h2_co_split / co_reduce_h2_inject",
+      "verdict": "有意偏离（默认关）",
+      "note": "默认 frac=0，不进入生产路径"
+    }
+  ],
+  "stats": {
+    "一致": 2,
+    "部分一致": 3,
+    "不一致": 1,
+    "有意偏离": 2
+  },
+  "bottom_line": "A1 求解器主干与 Hamel 一致；§4.3 调用链大体同构。最大缺口是热解元素池的 An≤b 投影（缺 C2H4 加剧不可行），这不是论文写法，却主导了「无自由 H₂」的数值吸引子。",
+  "recommended_next": [
+    "评估加入 C2H4（及是否仍需投影）能否在 An=b 下可行并放出 H₂",
+    "或仅在 An=b 可行时跳过投影，量化投影对 LU 组成的影响",
+    "将本条写入 hamel_isomorphic_gap_implementation_checklist §0.5（若尚未登记）"
+  ]
+}

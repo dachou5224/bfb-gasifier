@@ -1,0 +1,92 @@
+Im Simulationsmodell werden dem Reaktor wie in der realen Anlage ein oder mehrere Gas-
+ströme zugeführt. Solche Gasströme sind z.B. Wirbelluft oder Sekundärluft. Jeder dieser
+Gasströme enthalte eine bestimmte Gruppe ausschließlich gasförmiger chemischer Substanzen
+mit bekannter Summenformel. Bezeichnet man mit Qi die Menge der chemischen Substanzen
+des Gasstroms i mit den Substanzen
+a jti eQi 
+; = l,2,...,M,i, 
+i=l,2,...,ATG
+(2.4)
+so erhält man die Menge der zu bilanzierenden Stoffe V als Vereinigungsmenge aller Mengen
+Qi
+V = Q\ u Q2 U . . . U QNG
+(2.5)
+Im Simulationsmodell können dem Reaktor wie in der realen Anlage ein oder mehrere Brenn-
+stoffströme zugeführt werden. Brennstoffe durchlaufen im Modell grundsätzlich einen Trock-
+nungs- und Pyrolyseprozeß, gleichgültig, ob es sich um einen festen, flüssigen oder gasförmigen
+Brennstoff handelt. Während des Trocknungs- und Pyrolyseprozesses wird innerhalb des Re-
+aktors durch jeden Brennstoff i die Menge der chemischen Substanzen Bi freigesetzt.
+b jS eBi 
+j = l,2,...,7VP>i, 
+z = l,2,...,7VBr
+(2.6)
+Die Menge der zu bilanzierenden Stoffe wird um die neu hinzukommenden Substanzen erwei-
+tert.
+V = V U Bi U B2 U . . . U BNßr
+(2.7)
+Die durch Gasströme und Pyrolyseprozesse dem Reaktor zugeführten chemischen Substanzen
+durchlaufen im Reaktor komplexe Verbrennungsreaktionen. Im Modell muß die Gesamtheit
+aller ablaufenden Reaktionen durch einen begrenzten Satz von Umsatzreaktionen beschrieben
+werden, für welche auch verläßliche kinetische Daten verfügbar sind. Die zur Beschreibung
+des Umsatzgeschehens zu verwendenden stöchiometrischen Reaktionsgleichungen werden vom
+Benutzer vorgegeben.
+Bezeichnet man mit 
+die Menge aller Edukte und Produkte jeder stöchiometrischen Reak-
+tionsgleichung i
+Cjti € TZi 
+j = 1, 2, . . . , 
+i = 1, 2, . . . , Nums
+(2.8)
+so erhält man die Menge der zu bilanzierenden Stoffe durch Erweitern der Menge V um die
+neu hinzukommenden Substanzen.
+V" = V U Hi U 7£2 U . . . U H Numa
+(2.9)
+2.3.2 Formulierung der Bilanzgleichungen
+Die integrierten Bilanzgleichungen für die Erhaltung der Stoffart und der Energie an einem
+makroskopischen Bilanzraum sind von Bird, Stuart und Lightfoot [14] in allgemeiner Form
+konstanten mittleren Partikeldurchmesser an. Feine Partikel werden als Flugstaub aus der
+Anlage ausgetragen. Sie bewegen sich im Modell wie die gasförmigen Stoffe nur in Richtung
+der Rauchgasströmung und sind nicht dem blaseninduzierten Vermischungsverhalten der Fest-
+stoffe unterworfen. Im Gegensatz dazu wird für grobe Partikel eine innere Rückvermischung
+berücksichtigt. Weiterhin existieren die groben Partikel in verschiedenen Partikelgrößenklas-
+sen. Die Berechnung der Partikelgrößenverteilung für Feststoffe wie z.B. Koks erfolgt bei
+Bürkle [19] global für die gesamte Anlage, was jedoch im Berechnungsergebnis zu identischen
+Massenanteilen der einzelnen Größenklassen in jedem Teil der Anlage führt. Dersch [29] hat in
+seine Arbeit aufbauend auf dem Modell von Bürkle eine Einteilung der bilanzierten Feststoffe in
+10 diskrete Partikelgrößenklassen und die separate Bilanzierung jeder Partikelgrößenklasse in
+jedem Bilanzraum vorgenommen. Damit wurde eine simultane Berechnung der Partikelgrößen-
+verteilung der Feststoffe in jeder Zelle der Anlage möglich, was eine exaktere Beschreibung
+der Gas-Feststoff-Reaktionen mit Koks, insbesondere der CO-Bildung und der NO-Reduktion
+an Koks, erlaubte. In der vorliegenden Arbeit wurde der Ansatz der separaten Bilanzierung
+diskreter Partikelgrößenklassen übernommen und auf eine beliebige Anzahl von verschiedenen
+Feststoffen mit jeweils einer beliebigen Anzahl von Partikelgrößenklassen erweitert.
+Die Energiestrombilanz wird jeweils für den gesamten Bilanzraum formuliert - unabhängig
+davon, ob im Modell eine oder zwei Phasen berücksichtigt werden. Dies ist ausreichend, da
+nur eine mittlere Temperatur für jeden Bilanzraum berechnet werden soll. Sind bei einer
+Simulation lediglich Reaktionsabläufe bei einer vorgegebenen Temperatur zu untersuchen, so
+können die Energieströme als Bilanzvariable eliminiert werden.
+Für die Anzahl der Bilanzvariablen je Bilanzraum ergibt sich somit
+NFa t
+Nßu = N Phs NGas 4- 
+NdPtk + 1 
+(2.1)
+k=l
+bei Bilanzierung der Energieströme oder
+NFat
+Nßii = N Pfl3 NGas + 
+NdPik , 
+(2.2)
+k=i
+wenn die Energieströme nicht bilanziert werden. Hierbei ist:
+Nphs die Anzahl der Phasen je Bilanzraum,
+NGas
+die Anzahl der verschiedenen bilanzierten gasförmigen Stoffe,
+NFst
+die Anzahl der verschiedenen bilanzierten Feststoffsorten und
+Ndp,k die Anzahl der Partikelgrößenklassen jeder Feststoffsorte.
+Da für alle Bilanzräume Nz dieselben Größen bilanziert werden, ist die gesamte Anzahl aller
+Bilanzvariablen im Simulationsmodell
+Mot = NZ NBÜ . 
+(2.3)
+16
+17

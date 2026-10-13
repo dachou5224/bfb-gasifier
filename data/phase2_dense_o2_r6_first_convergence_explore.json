@@ -1,0 +1,777 @@
+{
+  "knife": "dense_O2_r6_first_convergence_explore",
+  "date": "2026-07-27",
+  "note": "用户允许 T0 变冷；沿 R6-first 密相 O2 分配探索收敛与出口组成/温度",
+  "true_dry_target_CO_CO2": {
+    "CO": 0.157,
+    "CO2": 0.133
+  },
+  "runs": {
+    "proportional_o8": {
+      "wall_s": 151.854782336,
+      "convergence": {
+        "converged": false,
+        "converged_outer": false,
+        "converged_inner_nr": true,
+        "converged_fully": false,
+        "rms_scaled_final": 0.028092213736688004,
+        "max_abs_scaled_final": 0.09467191849032001,
+        "rms_scaled_gas_combined_final": 0.00382566533972964,
+        "rms_scaled_gas_phase_split_final": 0.01712342405529317
+      },
+      "exit_gas_dry": {
+        "CO": 0.12509097284445553,
+        "CO2": 0.1513731487200997,
+        "H2": 0.15124181927192126,
+        "CH4": 7.147405109657767e-06,
+        "H2O": 0.0,
+        "N2": 0.5701347994553027,
+        "O2": 0.0
+      },
+      "exit_gas_wet_or_raw": {
+        "CO": 0.10869244528762868,
+        "CO2": 0.13152921678636362,
+        "H2": 0.13141510368502465,
+        "CH4": 6.210431665568649e-06,
+        "H2O": 0.13109280946040455,
+        "N2": 0.49539422459704163,
+        "O2": 0.0
+      },
+      "score_abs_CO_CO2": 0.05028217587564415,
+      "T_exit_K": 972.1144446297026,
+      "T_bed0_K": 1250.0,
+      "T_bed_top_K": 972.1144446297026,
+      "T_bed_min_K": 972.1144446297026,
+      "T_bed_max_K": 1296.7447596289583,
+      "T_axial": [
+        {
+          "i": 0,
+          "type": "bed",
+          "T_K": 1250.0,
+          "h_m": 0.3
+        },
+        {
+          "i": 1,
+          "type": "bed",
+          "T_K": 1296.7447596289583,
+          "h_m": 0.8999999999999999
+        },
+        {
+          "i": 2,
+          "type": "bed",
+          "T_K": 1216.4952946006638,
+          "h_m": 1.5
+        },
+        {
+          "i": 3,
+          "type": "bed",
+          "T_K": 1155.802707190186,
+          "h_m": 2.0999999999999996
+        },
+        {
+          "i": 4,
+          "type": "bed",
+          "T_K": 1111.2836865120912,
+          "h_m": 2.6999999999999997
+        },
+        {
+          "i": 5,
+          "type": "bed",
+          "T_K": 1075.57865850269,
+          "h_m": 3.3
+        },
+        {
+          "i": 6,
+          "type": "bed",
+          "T_K": 1044.893430239959,
+          "h_m": 3.9
+        },
+        {
+          "i": 7,
+          "type": "bed",
+          "T_K": 1016.8905615588242,
+          "h_m": 4.5
+        },
+        {
+          "i": 8,
+          "type": "bed",
+          "T_K": 992.2712756849977,
+          "h_m": 5.1
+        },
+        {
+          "i": 9,
+          "type": "bed",
+          "T_K": 972.1144446297026,
+          "h_m": 5.699999999999999
+        }
+      ],
+      "result_keys_sample": [
+        "T_profile",
+        "axial_xi_reactor",
+        "axial_z_m",
+        "bed0_energy_residual_W",
+        "bed0_fresh_solid_enthalpy_W",
+        "bed0_recycle_solid_T_K",
+        "bed0_recycle_solid_ash_kg_s",
+        "bed0_recycle_solid_char_kg_s",
+        "bed0_recycle_solid_enthalpy_W",
+        "bed_T_profile",
+        "bed_axial_xi",
+        "bed_axial_z_m",
+        "bed_bulk_solid_fraction_profile",
+        "bed_eps_b_profile",
+        "bed_eps_d_void_profile",
+        "bed_exit_gas",
+        "bed_exit_gas_dry",
+        "bed_top_downflow_solid_T_K",
+        "bed_top_downflow_solid_enthalpy_W",
+        "bed_u0_profile_m_s",
+        "carbon_conv",
+        "converged",
+        "converged_fully",
+        "converged_inner_nr",
+        "converged_outer",
+        "cyclone_T",
+        "cyclone_char_flow_up_kg_s",
+        "cyclone_char_inventory_kg_s",
+        "exit_gas",
+        "exit_gas_dry",
+        "freeboard_T_profile",
+        "freeboard_active",
+        "freeboard_axial_xi",
+        "freeboard_axial_z_m",
+        "freeboard_bed_top_age_quadrature_diag",
+        "freeboard_bed_top_char_conversion",
+        "freeboard_bed_top_char_conversion_local",
+        "freeboard_bed_top_char_conversion_proxy_total",
+        "freeboard_bed_top_char_conversion_used",
+        "freeboard_bed_top_combustion_conversion_proxy"
+      ]
+    },
+    "proportional_o20": {
+      "wall_s": 170.492628532,
+      "convergence": {
+        "converged": true,
+        "converged_outer": true,
+        "converged_inner_nr": true,
+        "converged_fully": true,
+        "rms_scaled_final": 0.028092213736686942,
+        "max_abs_scaled_final": 0.09467191849032001,
+        "rms_scaled_gas_combined_final": 0.0038256653397379463,
+        "rms_scaled_gas_phase_split_final": 0.017123424055299027
+      },
+      "exit_gas_dry": {
+        "CO": 0.12509097284445553,
+        "CO2": 0.1513731487200997,
+        "H2": 0.15124181927192126,
+        "CH4": 7.147405109657767e-06,
+        "H2O": 0.0,
+        "N2": 0.5701347994553027,
+        "O2": 0.0
+      },
+      "exit_gas_wet_or_raw": {
+        "CO": 0.10869244528762868,
+        "CO2": 0.13152921678636362,
+        "H2": 0.13141510368502465,
+        "CH4": 6.210431665568649e-06,
+        "H2O": 0.13109280946040455,
+        "N2": 0.49539422459704163,
+        "O2": 0.0
+      },
+      "score_abs_CO_CO2": 0.05028217587564415,
+      "T_exit_K": 972.1144446297026,
+      "T_bed0_K": 1250.0,
+      "T_bed_top_K": 972.1144446297026,
+      "T_bed_min_K": 972.1144446297026,
+      "T_bed_max_K": 1296.7447596289583,
+      "T_axial": [
+        {
+          "i": 0,
+          "type": "bed",
+          "T_K": 1250.0,
+          "h_m": 0.3
+        },
+        {
+          "i": 1,
+          "type": "bed",
+          "T_K": 1296.7447596289583,
+          "h_m": 0.8999999999999999
+        },
+        {
+          "i": 2,
+          "type": "bed",
+          "T_K": 1216.4952946006638,
+          "h_m": 1.5
+        },
+        {
+          "i": 3,
+          "type": "bed",
+          "T_K": 1155.802707190186,
+          "h_m": 2.0999999999999996
+        },
+        {
+          "i": 4,
+          "type": "bed",
+          "T_K": 1111.2836865120912,
+          "h_m": 2.6999999999999997
+        },
+        {
+          "i": 5,
+          "type": "bed",
+          "T_K": 1075.57865850269,
+          "h_m": 3.3
+        },
+        {
+          "i": 6,
+          "type": "bed",
+          "T_K": 1044.893430239959,
+          "h_m": 3.9
+        },
+        {
+          "i": 7,
+          "type": "bed",
+          "T_K": 1016.8905615588242,
+          "h_m": 4.5
+        },
+        {
+          "i": 8,
+          "type": "bed",
+          "T_K": 992.2712756849977,
+          "h_m": 5.1
+        },
+        {
+          "i": 9,
+          "type": "bed",
+          "T_K": 972.1144446297026,
+          "h_m": 5.699999999999999
+        }
+      ],
+      "result_keys_sample": [
+        "T_profile",
+        "axial_xi_reactor",
+        "axial_z_m",
+        "bed0_energy_residual_W",
+        "bed0_fresh_solid_enthalpy_W",
+        "bed0_recycle_solid_T_K",
+        "bed0_recycle_solid_ash_kg_s",
+        "bed0_recycle_solid_char_kg_s",
+        "bed0_recycle_solid_enthalpy_W",
+        "bed_T_profile",
+        "bed_axial_xi",
+        "bed_axial_z_m",
+        "bed_bulk_solid_fraction_profile",
+        "bed_eps_b_profile",
+        "bed_eps_d_void_profile",
+        "bed_exit_gas",
+        "bed_exit_gas_dry",
+        "bed_top_downflow_solid_T_K",
+        "bed_top_downflow_solid_enthalpy_W",
+        "bed_u0_profile_m_s",
+        "carbon_conv",
+        "converged",
+        "converged_fully",
+        "converged_inner_nr",
+        "converged_outer",
+        "cyclone_T",
+        "cyclone_char_flow_up_kg_s",
+        "cyclone_char_inventory_kg_s",
+        "exit_gas",
+        "exit_gas_dry",
+        "freeboard_T_profile",
+        "freeboard_active",
+        "freeboard_axial_xi",
+        "freeboard_axial_z_m",
+        "freeboard_bed_top_age_quadrature_diag",
+        "freeboard_bed_top_char_conversion",
+        "freeboard_bed_top_char_conversion_local",
+        "freeboard_bed_top_char_conversion_proxy_total",
+        "freeboard_bed_top_char_conversion_used",
+        "freeboard_bed_top_combustion_conversion_proxy"
+      ]
+    },
+    "r6_first_o8": {
+      "wall_s": 158.822063791,
+      "convergence": {
+        "converged": true,
+        "converged_outer": true,
+        "converged_inner_nr": true,
+        "converged_fully": true,
+        "rms_scaled_final": 0.015558403943130331,
+        "max_abs_scaled_final": 0.06183327931629337,
+        "rms_scaled_gas_combined_final": 0.006728974706671081,
+        "rms_scaled_gas_phase_split_final": 0.015558403943130331
+      },
+      "exit_gas_dry": {
+        "CO": 0.16323870231706586,
+        "CO2": 0.11084280986770172,
+        "H2": 0.1252304490714458,
+        "CH4": 0.0,
+        "H2O": 0.0,
+        "N2": 0.5984291226443816,
+        "O2": 0.0
+      },
+      "exit_gas_wet_or_raw": {
+        "CO": 0.1334919927978716,
+        "CO2": 0.09064411421143825,
+        "H2": 0.10240991853175221,
+        "CH4": 0.0,
+        "H2O": 0.18222828959651916,
+        "N2": 0.4893784071801504,
+        "O2": 0.0
+      },
+      "score_abs_CO_CO2": 0.02839589244936415,
+      "T_exit_K": 991.3448172860227,
+      "T_bed0_K": 923.4375,
+      "T_bed_top_K": 991.3448172860227,
+      "T_bed_min_K": 923.4375,
+      "T_bed_max_K": 1355.265602932418,
+      "T_axial": [
+        {
+          "i": 0,
+          "type": "bed",
+          "T_K": 923.4375,
+          "h_m": 0.3
+        },
+        {
+          "i": 1,
+          "type": "bed",
+          "T_K": 1355.265602932418,
+          "h_m": 0.8999999999999999
+        },
+        {
+          "i": 2,
+          "type": "bed",
+          "T_K": 1260.226379772307,
+          "h_m": 1.5
+        },
+        {
+          "i": 3,
+          "type": "bed",
+          "T_K": 1191.5710618607684,
+          "h_m": 2.0999999999999996
+        },
+        {
+          "i": 4,
+          "type": "bed",
+          "T_K": 1141.5481621104668,
+          "h_m": 2.6999999999999997
+        },
+        {
+          "i": 5,
+          "type": "bed",
+          "T_K": 1102.258017195865,
+          "h_m": 3.3
+        },
+        {
+          "i": 6,
+          "type": "bed",
+          "T_K": 1068.8639707365282,
+          "h_m": 3.9
+        },
+        {
+          "i": 7,
+          "type": "bed",
+          "T_K": 1039.3720509424477,
+          "h_m": 4.5
+        },
+        {
+          "i": 8,
+          "type": "bed",
+          "T_K": 1013.257447141833,
+          "h_m": 5.1
+        },
+        {
+          "i": 9,
+          "type": "bed",
+          "T_K": 991.3448172860227,
+          "h_m": 5.699999999999999
+        }
+      ],
+      "result_keys_sample": [
+        "T_profile",
+        "axial_xi_reactor",
+        "axial_z_m",
+        "bed0_energy_residual_W",
+        "bed0_fresh_solid_enthalpy_W",
+        "bed0_recycle_solid_T_K",
+        "bed0_recycle_solid_ash_kg_s",
+        "bed0_recycle_solid_char_kg_s",
+        "bed0_recycle_solid_enthalpy_W",
+        "bed_T_profile",
+        "bed_axial_xi",
+        "bed_axial_z_m",
+        "bed_bulk_solid_fraction_profile",
+        "bed_eps_b_profile",
+        "bed_eps_d_void_profile",
+        "bed_exit_gas",
+        "bed_exit_gas_dry",
+        "bed_top_downflow_solid_T_K",
+        "bed_top_downflow_solid_enthalpy_W",
+        "bed_u0_profile_m_s",
+        "carbon_conv",
+        "converged",
+        "converged_fully",
+        "converged_inner_nr",
+        "converged_outer",
+        "cyclone_T",
+        "cyclone_char_flow_up_kg_s",
+        "cyclone_char_inventory_kg_s",
+        "exit_gas",
+        "exit_gas_dry",
+        "freeboard_T_profile",
+        "freeboard_active",
+        "freeboard_axial_xi",
+        "freeboard_axial_z_m",
+        "freeboard_bed_top_age_quadrature_diag",
+        "freeboard_bed_top_char_conversion",
+        "freeboard_bed_top_char_conversion_local",
+        "freeboard_bed_top_char_conversion_proxy_total",
+        "freeboard_bed_top_char_conversion_used",
+        "freeboard_bed_top_combustion_conversion_proxy"
+      ]
+    },
+    "r6_first_o20": {
+      "wall_s": 149.98528782700004,
+      "convergence": {
+        "converged": true,
+        "converged_outer": true,
+        "converged_inner_nr": true,
+        "converged_fully": true,
+        "rms_scaled_final": 0.015558403943130331,
+        "max_abs_scaled_final": 0.06183327931629337,
+        "rms_scaled_gas_combined_final": 0.006728974706671081,
+        "rms_scaled_gas_phase_split_final": 0.015558403943130331
+      },
+      "exit_gas_dry": {
+        "CO": 0.16323870231706586,
+        "CO2": 0.11084280986770172,
+        "H2": 0.1252304490714458,
+        "CH4": 0.0,
+        "H2O": 0.0,
+        "N2": 0.5984291226443816,
+        "O2": 0.0
+      },
+      "exit_gas_wet_or_raw": {
+        "CO": 0.1334919927978716,
+        "CO2": 0.09064411421143825,
+        "H2": 0.10240991853175221,
+        "CH4": 0.0,
+        "H2O": 0.18222828959651916,
+        "N2": 0.4893784071801504,
+        "O2": 0.0
+      },
+      "score_abs_CO_CO2": 0.02839589244936415,
+      "T_exit_K": 991.3448172860227,
+      "T_bed0_K": 923.4375,
+      "T_bed_top_K": 991.3448172860227,
+      "T_bed_min_K": 923.4375,
+      "T_bed_max_K": 1355.265602932418,
+      "T_axial": [
+        {
+          "i": 0,
+          "type": "bed",
+          "T_K": 923.4375,
+          "h_m": 0.3
+        },
+        {
+          "i": 1,
+          "type": "bed",
+          "T_K": 1355.265602932418,
+          "h_m": 0.8999999999999999
+        },
+        {
+          "i": 2,
+          "type": "bed",
+          "T_K": 1260.226379772307,
+          "h_m": 1.5
+        },
+        {
+          "i": 3,
+          "type": "bed",
+          "T_K": 1191.5710618607684,
+          "h_m": 2.0999999999999996
+        },
+        {
+          "i": 4,
+          "type": "bed",
+          "T_K": 1141.5481621104668,
+          "h_m": 2.6999999999999997
+        },
+        {
+          "i": 5,
+          "type": "bed",
+          "T_K": 1102.258017195865,
+          "h_m": 3.3
+        },
+        {
+          "i": 6,
+          "type": "bed",
+          "T_K": 1068.8639707365282,
+          "h_m": 3.9
+        },
+        {
+          "i": 7,
+          "type": "bed",
+          "T_K": 1039.3720509424477,
+          "h_m": 4.5
+        },
+        {
+          "i": 8,
+          "type": "bed",
+          "T_K": 1013.257447141833,
+          "h_m": 5.1
+        },
+        {
+          "i": 9,
+          "type": "bed",
+          "T_K": 991.3448172860227,
+          "h_m": 5.699999999999999
+        }
+      ],
+      "result_keys_sample": [
+        "T_profile",
+        "axial_xi_reactor",
+        "axial_z_m",
+        "bed0_energy_residual_W",
+        "bed0_fresh_solid_enthalpy_W",
+        "bed0_recycle_solid_T_K",
+        "bed0_recycle_solid_ash_kg_s",
+        "bed0_recycle_solid_char_kg_s",
+        "bed0_recycle_solid_enthalpy_W",
+        "bed_T_profile",
+        "bed_axial_xi",
+        "bed_axial_z_m",
+        "bed_bulk_solid_fraction_profile",
+        "bed_eps_b_profile",
+        "bed_eps_d_void_profile",
+        "bed_exit_gas",
+        "bed_exit_gas_dry",
+        "bed_top_downflow_solid_T_K",
+        "bed_top_downflow_solid_enthalpy_W",
+        "bed_u0_profile_m_s",
+        "carbon_conv",
+        "converged",
+        "converged_fully",
+        "converged_inner_nr",
+        "converged_outer",
+        "cyclone_T",
+        "cyclone_char_flow_up_kg_s",
+        "cyclone_char_inventory_kg_s",
+        "exit_gas",
+        "exit_gas_dry",
+        "freeboard_T_profile",
+        "freeboard_active",
+        "freeboard_axial_xi",
+        "freeboard_axial_z_m",
+        "freeboard_bed_top_age_quadrature_diag",
+        "freeboard_bed_top_char_conversion",
+        "freeboard_bed_top_char_conversion_local",
+        "freeboard_bed_top_char_conversion_proxy_total",
+        "freeboard_bed_top_char_conversion_used",
+        "freeboard_bed_top_combustion_conversion_proxy"
+      ]
+    },
+    "r6_first_o40": {
+      "wall_s": 159.27350336400002,
+      "convergence": {
+        "converged": true,
+        "converged_outer": true,
+        "converged_inner_nr": true,
+        "converged_fully": true,
+        "rms_scaled_final": 0.015558403943130331,
+        "max_abs_scaled_final": 0.06183327931629337,
+        "rms_scaled_gas_combined_final": 0.006728974706671081,
+        "rms_scaled_gas_phase_split_final": 0.015558403943130331
+      },
+      "exit_gas_dry": {
+        "CO": 0.16323870231706586,
+        "CO2": 0.11084280986770172,
+        "H2": 0.1252304490714458,
+        "CH4": 0.0,
+        "H2O": 0.0,
+        "N2": 0.5984291226443816,
+        "O2": 0.0
+      },
+      "exit_gas_wet_or_raw": {
+        "CO": 0.1334919927978716,
+        "CO2": 0.09064411421143825,
+        "H2": 0.10240991853175221,
+        "CH4": 0.0,
+        "H2O": 0.18222828959651916,
+        "N2": 0.4893784071801504,
+        "O2": 0.0
+      },
+      "score_abs_CO_CO2": 0.02839589244936415,
+      "T_exit_K": 991.3448172860227,
+      "T_bed0_K": 923.4375,
+      "T_bed_top_K": 991.3448172860227,
+      "T_bed_min_K": 923.4375,
+      "T_bed_max_K": 1355.265602932418,
+      "T_axial": [
+        {
+          "i": 0,
+          "type": "bed",
+          "T_K": 923.4375,
+          "h_m": 0.3
+        },
+        {
+          "i": 1,
+          "type": "bed",
+          "T_K": 1355.265602932418,
+          "h_m": 0.8999999999999999
+        },
+        {
+          "i": 2,
+          "type": "bed",
+          "T_K": 1260.226379772307,
+          "h_m": 1.5
+        },
+        {
+          "i": 3,
+          "type": "bed",
+          "T_K": 1191.5710618607684,
+          "h_m": 2.0999999999999996
+        },
+        {
+          "i": 4,
+          "type": "bed",
+          "T_K": 1141.5481621104668,
+          "h_m": 2.6999999999999997
+        },
+        {
+          "i": 5,
+          "type": "bed",
+          "T_K": 1102.258017195865,
+          "h_m": 3.3
+        },
+        {
+          "i": 6,
+          "type": "bed",
+          "T_K": 1068.8639707365282,
+          "h_m": 3.9
+        },
+        {
+          "i": 7,
+          "type": "bed",
+          "T_K": 1039.3720509424477,
+          "h_m": 4.5
+        },
+        {
+          "i": 8,
+          "type": "bed",
+          "T_K": 1013.257447141833,
+          "h_m": 5.1
+        },
+        {
+          "i": 9,
+          "type": "bed",
+          "T_K": 991.3448172860227,
+          "h_m": 5.699999999999999
+        }
+      ],
+      "result_keys_sample": [
+        "T_profile",
+        "axial_xi_reactor",
+        "axial_z_m",
+        "bed0_energy_residual_W",
+        "bed0_fresh_solid_enthalpy_W",
+        "bed0_recycle_solid_T_K",
+        "bed0_recycle_solid_ash_kg_s",
+        "bed0_recycle_solid_char_kg_s",
+        "bed0_recycle_solid_enthalpy_W",
+        "bed_T_profile",
+        "bed_axial_xi",
+        "bed_axial_z_m",
+        "bed_bulk_solid_fraction_profile",
+        "bed_eps_b_profile",
+        "bed_eps_d_void_profile",
+        "bed_exit_gas",
+        "bed_exit_gas_dry",
+        "bed_top_downflow_solid_T_K",
+        "bed_top_downflow_solid_enthalpy_W",
+        "bed_u0_profile_m_s",
+        "carbon_conv",
+        "converged",
+        "converged_fully",
+        "converged_inner_nr",
+        "converged_outer",
+        "cyclone_T",
+        "cyclone_char_flow_up_kg_s",
+        "cyclone_char_inventory_kg_s",
+        "exit_gas",
+        "exit_gas_dry",
+        "freeboard_T_profile",
+        "freeboard_active",
+        "freeboard_axial_xi",
+        "freeboard_axial_z_m",
+        "freeboard_bed_top_age_quadrature_diag",
+        "freeboard_bed_top_char_conversion",
+        "freeboard_bed_top_char_conversion_local",
+        "freeboard_bed_top_char_conversion_proxy_total",
+        "freeboard_bed_top_char_conversion_used",
+        "freeboard_bed_top_combustion_conversion_proxy"
+      ]
+    }
+  },
+  "summary": {
+    "r6_first_converges_fully": true,
+    "stable_o8_o20_o40": true,
+    "r6_first_exit_dry": {
+      "CO": 0.16323870231706586,
+      "CO2": 0.11084280986770172,
+      "H2": 0.1252304490714458,
+      "CH4": 0.0,
+      "H2O": 0.0,
+      "N2": 0.5984291226443816,
+      "O2": 0.0
+    },
+    "r6_first_T_K": {
+      "bed0": 923.4375,
+      "bed_top_exit": 991.3448172860227,
+      "bed_min": 923.4375,
+      "bed_max": 1355.265602932418,
+      "axial_bed": [
+        923.4375,
+        1355.265602932418,
+        1260.226379772307,
+        1191.5710618607684,
+        1141.5481621104668,
+        1102.258017195865,
+        1068.8639707365282,
+        1039.3720509424477,
+        1013.257447141833,
+        991.3448172860227
+      ]
+    },
+    "r6_first_rms_scaled_final": 0.015558403943130331,
+    "vs_proportional_o20": {
+      "exit_dry": {
+        "CO": 0.12509097284445553,
+        "CO2": 0.1513731487200997,
+        "H2": 0.15124181927192126,
+        "CH4": 7.147405109657767e-06,
+        "H2O": 0.0,
+        "N2": 0.5701347994553027,
+        "O2": 0.0
+      },
+      "T_bed0_top": [
+        1250.0,
+        972.1144446297026
+      ],
+      "score_abs": 0.05028217587564415,
+      "r6_score_abs": 0.02839589244936415,
+      "delta_score_abs": -0.021886283426280004,
+      "prop_converged_fully": true
+    },
+    "true_dry_target": {
+      "CO": 0.157,
+      "CO2": 0.133
+    },
+    "gap_r6_first_to_target": {
+      "dCO": 0.006238702317065858,
+      "dCO2": -0.02215719013229829,
+      "note": "CO 略高、CO2 略低；abs 优于比例限幅"
+    },
+    "interpretation": "R6-first 在 o8 已 fully converged，加长到 o40 状态不变；床0 冷（923 K）但床1 升至 1355 K，出口/床顶 ~991 K；干基 CO/CO2/H2≈0.163/0.111/0.125，CH4≈0。"
+  }
+}

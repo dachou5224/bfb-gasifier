@@ -1,0 +1,60 @@
+{
+  "note": "CORE + bed0 R1 oxidizer seed 2 mol/s + same-phase clip (no O2-into-fuel)",
+  "wall_s": 23.340265437,
+  "rms_init": 0.031423376824642926,
+  "seed_diag": {
+    "enabled": 1.0,
+    "moved_o2": 4.8338722280783415,
+    "leftover_o2_d": 1.8397992565091303,
+    "seed_mol_s": 2.0,
+    "stoich_o2_d": 2.833872228078341
+  },
+  "rms_scaled_final": 0.016158584918156225,
+  "rms_scaled_gas_phase_split_final": 0.02811718709508811,
+  "n_acc": 3,
+  "accepted_lambda_history": [
+    0.5,
+    1.0,
+    0.5,
+    null
+  ],
+  "clip_best": [
+    {
+      "iter": 1,
+      "accepted_lambda": 0.5,
+      "line_search_failed": false,
+      "best_trial_rms_scaled": 0.02126929137956602,
+      "best_trial_lambda": 0.5
+    },
+    {
+      "iter": 2,
+      "accepted_lambda": 1.0,
+      "line_search_failed": false,
+      "best_trial_rms_scaled": 0.019713135074961207,
+      "best_trial_lambda": 1.0
+    },
+    {
+      "iter": 1,
+      "accepted_lambda": 0.5,
+      "line_search_failed": false,
+      "best_trial_rms_scaled": 0.016397889199397105,
+      "best_trial_lambda": 0.5
+    },
+    {
+      "iter": 2,
+      "accepted_lambda": null,
+      "line_search_failed": true,
+      "best_trial_rms_scaled": 0.016397917979715987,
+      "best_trial_lambda": 0.00048828125
+    }
+  ],
+  "fast_ox_projections": 17,
+  "y_co_top": 0.00668724270971718,
+  "bed0_T": 1000.2342809997469,
+  "bed0_N_d_O2": 3.0353918625005902,
+  "bed0_N_b_O2": 2.6257639195562126,
+  "bed0_N_d_H2": 0.0,
+  "bed0_N_d_CO": 0.0,
+  "bed0_Rd_O2": -1.7565113039925027,
+  "bed0_Nex_O2": 1.429899924679307
+}

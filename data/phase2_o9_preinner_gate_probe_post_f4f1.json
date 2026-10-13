@@ -1,0 +1,321 @@
+{
+  "n_outer": 8,
+  "final_split": 0.1803680993541371,
+  "final_energy": 0.19326467695122895,
+  "events": [
+    {
+      "check1_continuation": false,
+      "entry": {
+        "merit": 0.10459081971119895,
+        "split": 0.044254992463512034,
+        "energy": 0.10459081971119895,
+        "solid": 0.00113046641366152
+      },
+      "exit_true": {
+        "merit": 0.10459340976945097,
+        "split": 0.044254992463512034,
+        "energy": 0.10459340976945097,
+        "solid": 0.0011226554585886817
+      },
+      "holdup_changed": true,
+      "holdup_dE": 0.0009512082400066069,
+      "sticky_dE": 2.5900582520249626e-06,
+      "diag": {
+        "gate": false,
+        "holdup_reconciled": false,
+        "holdup_skipped_cont": false,
+        "run_holdup": true,
+        "energy_b": 0.10459340976945097,
+        "energy_a": 0.10616038588743888,
+        "bed0_accepted": false
+      }
+    },
+    {
+      "check1_continuation": true,
+      "entry": {
+        "merit": 0.1463934456936087,
+        "split": 0.0982830478874242,
+        "energy": 0.1463934456936087,
+        "solid": 0.005878634662592502
+      },
+      "exit_true": {
+        "merit": 0.1463934456936087,
+        "split": 0.0982830478874242,
+        "energy": 0.1463934456936087,
+        "solid": 0.005878634662592502
+      },
+      "holdup_changed": false,
+      "holdup_dE": 0.0,
+      "sticky_dE": 0.0,
+      "diag": {
+        "gate": false,
+        "holdup_reconciled": false,
+        "holdup_skipped_cont": true,
+        "run_holdup": false,
+        "energy_b": 0.1463934456936087,
+        "energy_a": 0.16215621208589404,
+        "bed0_accepted": false
+      }
+    },
+    {
+      "check1_continuation": false,
+      "entry": {
+        "merit": 0.1463934456936087,
+        "split": 0.0982830478874242,
+        "energy": 0.1463934456936087,
+        "solid": 0.005878634662592502
+      },
+      "exit_true": {
+        "merit": 0.1463934456936087,
+        "split": 0.0982830478874242,
+        "energy": 0.1463934456936087,
+        "solid": 0.005878634662592502
+      },
+      "holdup_changed": true,
+      "holdup_dE": 0.004908316974681137,
+      "sticky_dE": 0.0,
+      "diag": {
+        "gate": false,
+        "holdup_reconciled": false,
+        "holdup_skipped_cont": false,
+        "run_holdup": true,
+        "energy_b": 0.1463934456936087,
+        "energy_a": 0.16215621208589404,
+        "bed0_accepted": false
+      }
+    },
+    {
+      "check1_continuation": true,
+      "entry": {
+        "merit": 0.14979422239903908,
+        "split": 0.14480942878902225,
+        "energy": 0.14979422239903908,
+        "solid": 0.006177419646299559
+      },
+      "exit_true": {
+        "merit": 0.14979422239903908,
+        "split": 0.14480942878902225,
+        "energy": 0.14979422239903908,
+        "solid": 0.006177419646299559
+      },
+      "holdup_changed": false,
+      "holdup_dE": 0.0,
+      "sticky_dE": 0.0,
+      "diag": {
+        "gate": false,
+        "holdup_reconciled": false,
+        "holdup_skipped_cont": true,
+        "run_holdup": false,
+        "energy_b": 0.14979422239903908,
+        "energy_a": 0.15338131567729288,
+        "bed0_accepted": false
+      }
+    },
+    {
+      "check1_continuation": true,
+      "entry": {
+        "merit": 0.20024659355151497,
+        "split": 0.13781165694325512,
+        "energy": 0.20024659355151497,
+        "solid": 0.007708525394187974
+      },
+      "exit_true": {
+        "merit": 0.20024659355151497,
+        "split": 0.13781165694325512,
+        "energy": 0.20024659355151497,
+        "solid": 0.007708525394187974
+      },
+      "holdup_changed": false,
+      "holdup_dE": 0.0,
+      "sticky_dE": 0.0,
+      "diag": {
+        "gate": false,
+        "holdup_reconciled": false,
+        "holdup_skipped_cont": true,
+        "run_holdup": false,
+        "energy_b": 0.20024659355151497,
+        "energy_a": 0.20494475620027638,
+        "bed0_accepted": false
+      }
+    },
+    {
+      "check1_continuation": true,
+      "entry": {
+        "merit": 0.2000639775772983,
+        "split": 0.13996770562563488,
+        "energy": 0.2000639775772983,
+        "solid": 0.0077097797149442825
+      },
+      "exit_true": {
+        "merit": 0.2000639775772983,
+        "split": 0.13996770562563488,
+        "energy": 0.2000639775772983,
+        "solid": 0.0077097797149442825
+      },
+      "holdup_changed": false,
+      "holdup_dE": 0.0,
+      "sticky_dE": 0.0,
+      "diag": {
+        "gate": false,
+        "holdup_reconciled": false,
+        "holdup_skipped_cont": true,
+        "run_holdup": false,
+        "energy_b": 0.2000639775772983,
+        "energy_a": 0.2039348848674252,
+        "bed0_accepted": false
+      }
+    },
+    {
+      "check1_continuation": false,
+      "entry": {
+        "merit": 0.2000639775772983,
+        "split": 0.13996770562563488,
+        "energy": 0.2000639775772983,
+        "solid": 0.0077097797149442825
+      },
+      "exit_true": {
+        "merit": 0.2000639775772983,
+        "split": 0.13996770562563488,
+        "energy": 0.2000639775772983,
+        "solid": 0.0077097797149442825
+      },
+      "holdup_changed": true,
+      "holdup_dE": -0.009056193937828527,
+      "sticky_dE": 0.0,
+      "diag": {
+        "gate": false,
+        "holdup_reconciled": false,
+        "holdup_skipped_cont": false,
+        "run_holdup": true,
+        "energy_b": 0.2000639775772983,
+        "energy_a": 0.2039348848674252,
+        "bed0_accepted": false
+      }
+    },
+    {
+      "check1_continuation": true,
+      "entry": {
+        "merit": 0.20187406952739156,
+        "split": 0.1972222320839329,
+        "energy": 0.20187406952739156,
+        "solid": 0.007787801898831248
+      },
+      "exit_true": {
+        "merit": 0.18584587729127625,
+        "split": 0.16325967935413352,
+        "energy": 0.18584587729127625,
+        "solid": 0.007785154093064569
+      },
+      "holdup_changed": false,
+      "holdup_dE": 0.0,
+      "sticky_dE": -0.01602819223611532,
+      "diag": {
+        "gate": true,
+        "holdup_reconciled": false,
+        "holdup_skipped_cont": true,
+        "run_holdup": false,
+        "energy_b": 0.20187406952739156,
+        "energy_a": 0.18584587729127625,
+        "bed0_accepted": true
+      }
+    }
+  ],
+  "outer_compact": [
+    {
+      "O": 1,
+      "split": 0.0982830478874242,
+      "energy": 0.09037402568252914,
+      "dT": 66.650390625,
+      "ref_skip": false,
+      "holdup_skipped_cont": false,
+      "holdup_reconciled": false,
+      "gate": false,
+      "tcap0": 600.0,
+      "split_over_merit0": 0.42312501790989865
+    },
+    {
+      "O": 2,
+      "split": 0.0982830478874242,
+      "energy": 0.09037402568252914,
+      "dT": 0.0,
+      "ref_skip": true,
+      "holdup_skipped_cont": true,
+      "holdup_reconciled": false,
+      "gate": false,
+      "tcap0": 150.0,
+      "split_over_merit0": 1.0
+    },
+    {
+      "O": 3,
+      "split": 0.14480942878902225,
+      "energy": 0.1453505697424171,
+      "dT": 10.3271484375,
+      "ref_skip": false,
+      "holdup_skipped_cont": false,
+      "holdup_reconciled": false,
+      "gate": false,
+      "tcap0": 600.0,
+      "split_over_merit0": 0.6713623511063724
+    },
+    {
+      "O": 4,
+      "split": 0.13781165694325512,
+      "energy": 0.1378248554944719,
+      "dT": 76.50146484375,
+      "ref_skip": true,
+      "holdup_skipped_cont": true,
+      "holdup_reconciled": false,
+      "gate": false,
+      "tcap0": 150.0,
+      "split_over_merit0": 0.9962032661906197
+    },
+    {
+      "O": 5,
+      "split": 0.13996770562563488,
+      "energy": 0.1374672392324331,
+      "dT": 0.5859375,
+      "ref_skip": true,
+      "holdup_skipped_cont": true,
+      "holdup_reconciled": false,
+      "gate": false,
+      "tcap0": 150.0,
+      "split_over_merit0": 0.9794279652595587
+    },
+    {
+      "O": 6,
+      "split": 0.13996770562563488,
+      "energy": 0.1374672392324331,
+      "dT": 0.0,
+      "ref_skip": true,
+      "holdup_skipped_cont": true,
+      "holdup_reconciled": false,
+      "gate": false,
+      "tcap0": 150.0,
+      "split_over_merit0": 0.9975854294315348
+    },
+    {
+      "O": 7,
+      "split": 0.1972222320839329,
+      "energy": 0.19768659420483742,
+      "dT": 10.29052734375,
+      "ref_skip": false,
+      "holdup_skipped_cont": false,
+      "holdup_reconciled": false,
+      "gate": false,
+      "tcap0": 600.0,
+      "split_over_merit0": 0.699614729850884
+    },
+    {
+      "O": 8,
+      "split": 0.1803680993541371,
+      "energy": 0.1804787537206445,
+      "dT": 18.75,
+      "ref_skip": true,
+      "holdup_skipped_cont": true,
+      "holdup_reconciled": false,
+      "gate": true,
+      "tcap0": 150.0,
+      "split_over_merit0": 0.8910313490554764
+    }
+  ]
+}

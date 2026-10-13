@@ -1,0 +1,244 @@
+{
+  "source_sha256": "a4308c9ffc01bd956727b5133ace2c32db547c4f72edd3622b6fd4ffe5c5b54b",
+  "saved_root_source": "93991b9869c35c244c74c3ee165aee79f9ff9dcc8744073dbe51bec18f0103c2",
+  "root_cert": {
+    "passed": true,
+    "finite": true,
+    "in_domain": true,
+    "transport_closed": true,
+    "temperature_domain": "temporary_solver_domain_250_2500_K",
+    "blocks": {
+      "passed": true,
+      "gas_l2": 6.812571186875231e-07,
+      "solid_l2": 4.0480027577702155e-14,
+      "tar_l2": 2.3785329957008175e-17,
+      "energy_W": -4.656612873077393e-10
+    },
+    "energy_rows_W": [
+      -2.3283064365386963e-08,
+      2.2817403078079224e-08
+    ],
+    "gate_ratio": {
+      "gas": 0.6812571186875231,
+      "solid": 4.048002757770216e-08,
+      "tar": 2.3785329957008175e-11,
+      "energy_rows": [
+        2.3283064365386963e-08,
+        2.2817403078079224e-08
+      ]
+    }
+  },
+  "root_ledger": {
+    "units": {
+      "elements": "mol-atom/s",
+      "enthalpy": "W",
+      "mass": "kg/s"
+    },
+    "inlet_mol_s": {
+      "fuel": {
+        "C": 9.609558427655399,
+        "H": 8.646758325981079,
+        "O": 2.8921632819951553,
+        "N": 0.264185836463978,
+        "S": 0.08655165497271168
+      },
+      "moisture": {
+        "C": 0.0,
+        "H": 4.699118494791729,
+        "O": 2.3495592473958644,
+        "N": 0.0,
+        "S": 0.0
+      },
+      "oxidant": {
+        "C": 0.024159999999999994,
+        "H": 0.05435999999999998,
+        "O": 9.799320816350559,
+        "N": 37.90200703446049,
+        "S": 0.0
+      },
+      "total": {
+        "C": 9.633718427655399,
+        "H": 13.40023682077281,
+        "O": 15.041043345741578,
+        "N": 38.16619287092447,
+        "S": 0.08655165497271168
+      }
+    },
+    "outlet_mol_s": {
+      "gas": {
+        "C": 9.622668311272982,
+        "H": 12.424155907636887,
+        "O": 15.040463488084654,
+        "N": 37.902007034460496,
+        "S": 0.0
+      },
+      "tar": {
+        "C": 0.010373936608107166,
+        "H": 0.00888008973653973,
+        "O": 0.0,
+        "N": 0.0,
+        "S": 0.0
+      },
+      "char_fly": {
+        "C": 3.8745070067211915e-26,
+        "H": 0.0,
+        "O": 0.0,
+        "N": 0.0,
+        "S": 0.0
+      },
+      "unreleased": {
+        "C": 0.0006761797743154146,
+        "H": 0.001733612017534706,
+        "O": 0.0005798576568601542,
+        "N": 5.296733454204013e-05,
+        "S": 1.735297594097911e-05
+      },
+      "minor_bypass": {
+        "C": 0.0,
+        "H": 0.9654672113818492,
+        "O": 0.0,
+        "N": 0.26413286912943595,
+        "S": 0.0865343019967707
+      },
+      "total": {
+        "C": 9.633718427655404,
+        "H": 13.400236820772811,
+        "O": 15.041043345741514,
+        "N": 38.16619287092447,
+        "S": 0.08655165497271168
+      }
+    },
+    "ash_out_kg_s": 0.022781772286143507,
+    "ash_feed_kg_s": 0.022781772286143507,
+    "gap_mol_s": {
+      "C": -5.329070518200751e-15,
+      "H": -1.7763568394002505e-15,
+      "O": 6.394884621840902e-14,
+      "N": 0.0,
+      "S": 0.0
+    },
+    "interface_char": {
+      "bed_exit_up_kg_s": 0.005847217953799889,
+      "freeboard_inlet_up_kg_s": 0.005847217953799889,
+      "up_stream_paired": true,
+      "freeboard_return_after_reaction_kg_s": 0.0009052021361777504,
+      "bed_inlet_down_kg_s": 0.0009052021361777504,
+      "down_stream_paired": true,
+      "leave_after_reaction_kg_s": -5.550968166937874e-17,
+      "up_must_equal_down": false,
+      "excluded_from_external_gap": true
+    },
+    "enthalpy_W": {
+      "gas_in": -8546.425979062431,
+      "fuel_formation": -790673.2537522198,
+      "moisture_formation": -671574.5196831599,
+      "gas_out": -1469759.526700968,
+      "tar_out": 535.3462752418532,
+      "char_fly": 3.900142041321794e-22,
+      "ash_fly": -3838.6420546471554,
+      "unreleased": -153.9390539149618,
+      "minor_bypass": 2422.5621198463923,
+      "Q_W": 0.0,
+      "gap": -4.656612873077393e-10
+    },
+    "minor_bypass": {
+      "model": "inert_nh3_h2s_no_reaction",
+      "covers_subsequent_reactions": false,
+      "full_NS_model": false,
+      "n_NH3_mol_s": 0.26413286912943595,
+      "n_H2S_mol_s": 0.0865343019967707,
+      "enters_major_density": false,
+      "enters_particle_residence": false,
+      "molar_flow_treatment": "atom and enthalpy leave with the exit stream; not added to the seven-species molar total used for gas velocity"
+    },
+    "full_element_certification": false,
+    "h_o_gap_not_waived": true,
+    "unmodeled": {
+      "N": "allocated NH3 is an inert bypass, not an NH3 reaction model",
+      "S": "allocated H2S is an inert bypass, not an H2S reaction model"
+    },
+    "formation_enthalpy_is_not_a_heating_value": true,
+    "Q_is_not_compensated_by_formation_enthalpy": true
+  },
+  "root_w_leave": [
+    0.9999104503732078,
+    0.0
+  ],
+  "root_M_cyclone": [
+    2.2241445913984794e-25,
+    1.8614681463091294e-27
+  ],
+  "trial_saved_F_max_difference": 1.6951991460567584e-07,
+  "trial_w_leave": [
+    0.999913360562956,
+    0.999913360562956
+  ],
+  "trial_tau": [
+    25.233726555332833,
+    3051.574419684206
+  ],
+  "trial_solid_rows": {
+    "14": -4.698899998482756e-23,
+    "15": -5.210861616089524e-07,
+    "37": 1.7627988885000022e-05,
+    "38": 5.374214663865302e-26,
+    "39": 8.482063718062705e-09,
+    "46": -8.140700312015891e-17,
+    "47": -1.810811579515837e-05
+  },
+  "cyclone": {
+    "ka": 0.25,
+    "kb": 0.75,
+    "incoming_kg_s": 1.7627988884999605e-05,
+    "old_mass": [
+      2.2241445913984863e-25,
+      1.8614681463091337e-27
+    ],
+    "frozen_equilibrium_mass": [
+      2.1695986319999515e-05,
+      5.423996579999879e-06
+    ],
+    "log_growth_needed": [
+      46.026871659720626,
+      49.423754370638015
+    ],
+    "columns": [
+      {
+        "i": 37,
+        "physical_rows37_38": [
+          -1.000000000002735,
+          0.25
+        ],
+        "log_exact_rows37_38": [
+          -2.224144591404569e-25,
+          5.560361478496216e-26
+        ]
+      },
+      {
+        "i": 38,
+        "physical_rows37_38": [
+          0.7500000000042195,
+          -1.0
+        ],
+        "log_exact_rows37_38": [
+          1.3961011097397048e-27,
+          -1.8614681463091337e-27
+        ]
+      }
+    ]
+  },
+  "candidate_F_solid": {
+    "14": -4.922507584255538e-17,
+    "15": 1.575090357843682e-05,
+    "37": 0.0,
+    "38": 0.0,
+    "39": 8.482063718062705e-09,
+    "46": -8.140700312015891e-17,
+    "47": -1.810811579515837e-05
+  },
+  "candidate_energy": [
+    0.07597745838575065,
+    -1.0462480986025184
+  ],
+  "candidate_is_root": false
+}

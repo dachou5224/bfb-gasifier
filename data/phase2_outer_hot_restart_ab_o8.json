@@ -1,0 +1,207 @@
+{
+  "note": "单次 solve 内 CO 带宽后嵌套 skip_precalc；续算前须做 finalize 自由板 T 投影。中途门禁复位/同闭包二次 outer 证伪。",
+  "isomorph": {
+    "extent_limiters_enabled_thesis": false,
+    "vorab_transport_x0_fast_oxidation_closure_thesis": true,
+    "nr_line_search_fast_oxidation_projection_thesis": true,
+    "nr_outer_preinner_bed1_phase_split_thesis": true,
+    "nr_include_pyrolysis_gas_species_in_unknowns_thesis": true,
+    "nr_refresh_hydrodynamics_on_accepted_step_thesis": false,
+    "nr_line_search_syngas_collapse_guard_thesis": true
+  },
+  "ps": {
+    "nr_outer_preinner_upper_co_local2x2_thesis": true,
+    "nr_outer_preinner_upper_dense_syngas_absorb_thesis": true,
+    "nr_outer_preinner_upper_dense_absorb_species_thesis": [
+      "CO"
+    ],
+    "nr_outer_preinner_upper_dense_absorb_fraction_thesis": 0.3,
+    "nr_outer_preinner_upper_dense_absorb_mode_thesis": "phase_share",
+    "nr_outer_preinner_upper_dense_absorb_post_gate_thesis": true
+  },
+  "bonus_inner": 40,
+  "falsified_paths": {
+    "mid_loop_gate_reset": {
+      "note": "CO 带宽后中途复位 refresh/merit，n_outer=20 仍 bed2≈+65",
+      "CO": 0.1562,
+      "rms": 0.0587,
+      "bed2_R_H2O": 65.62
+    },
+    "same_closure_second_abgleich": {
+      "note": "同 `_solve_inner` 闭包二次 `_run_outer`，n_outer=20 仍 bed2≈+65",
+      "CO": 0.1559,
+      "rms": 0.0587,
+      "bed2_R_H2O": 65.62
+    },
+    "nested_without_fb_projection": {
+      "note": "嵌套 skip_precalc 但无 pre-cont freeboard T 投影 → bed2 仍 +65",
+      "CO": 0.1559,
+      "rms": 0.0587,
+      "bed2_R_H2O": 65.62
+    }
+  },
+  "arms": [
+    {
+      "label": "A_ps_o8",
+      "wall_s": 149.406517663,
+      "exit_CO": 0.15329987983075538,
+      "rms": 0.06093708765270558,
+      "split": 0.03932693104533581,
+      "energy": 0.06093708765270558,
+      "converged": false,
+      "n_outer": 10,
+      "hot_restart_meta": {
+        "enabled": false,
+        "triggered": false,
+        "y_co_top": NaN,
+        "threshold": 0.14,
+        "mode": "nested_skip_precalc"
+      },
+      "hot_restart_outer_n": 0,
+      "bed2": {
+        "R_H2O": 65.5439810368261,
+        "R_H2": -64.44085740339625,
+        "R_O2": -34.399411424314096,
+        "R_CO": 2.9117770275628545,
+        "T": 1150.577408971712,
+        "N_O2": 3.1855533705798954e-16
+      },
+      "overrides": {},
+      "max_global_iter": 8
+    },
+    {
+      "label": "B_hot_restart_nested_skip_precalc",
+      "wall_s": 179.17806853099998,
+      "exit_CO": 0.15575528797535995,
+      "rms": 0.050064826531133325,
+      "split": 0.041911879193333085,
+      "energy": NaN,
+      "converged": false,
+      "n_outer": 20,
+      "hot_restart_meta": {
+        "enabled": true,
+        "triggered": true,
+        "y_co_top": 0.15329987983075535,
+        "threshold": 0.14,
+        "mode": "nested_skip_precalc",
+        "cont_max_iter": 8,
+        "y_co_top_at_trigger": 0.15329987983075535,
+        "pre_cont_freeboard_T_projection": true
+      },
+      "hot_restart_outer_n": 10,
+      "bed2": {
+        "R_H2O": -2.6142946811479755
+      },
+      "overrides": {
+        "nr_outer_hot_restart_after_y_co_thesis": true,
+        "nr_outer_hot_restart_y_co_threshold_thesis": 0.14,
+        "nr_outer_hot_restart_bonus_inner_budget_thesis": 40
+      },
+      "max_global_iter": 8,
+      "note": "含续算前 freeboard T 投影；与 D2 oracle 对齐"
+    },
+    {
+      "label": "C_ps_o16_no_restart",
+      "wall_s": 162.303221382,
+      "exit_CO": 0.1562275791104867,
+      "rms": 0.058816490022284534,
+      "split": 0.039207056459107645,
+      "energy": 0.056983845760481704,
+      "converged": false,
+      "n_outer": 16,
+      "hot_restart_meta": {
+        "enabled": false,
+        "triggered": false,
+        "y_co_top": NaN,
+        "threshold": 0.14,
+        "mode": "nested_skip_precalc"
+      },
+      "hot_restart_outer_n": 0,
+      "bed2": {
+        "R_H2O": 65.60998920153284,
+        "R_H2": -64.50686556004416,
+        "R_O2": -34.399411424314096,
+        "R_CO": 2.851953282962787,
+        "T": 1150.577408971712,
+        "N_O2": 3.1855533705798954e-16
+      },
+      "overrides": {},
+      "max_global_iter": 16
+    },
+    {
+      "label": "D_twostage_skip_precalc",
+      "stage_a": {
+        "label": "D1_ps_o8",
+        "wall_s": 117.63239800600002,
+        "exit_CO": 0.15329987983075538,
+        "rms": 0.06093708765270558,
+        "split": 0.03932693104533581,
+        "energy": 0.06093708765270558,
+        "converged": false,
+        "n_outer": 10,
+        "hot_restart_meta": {
+          "enabled": false,
+          "triggered": false,
+          "y_co_top": NaN,
+          "threshold": 0.14,
+          "mode": "nested_skip_precalc"
+        },
+        "hot_restart_outer_n": 0,
+        "bed2": {
+          "R_H2O": 65.5439810368261,
+          "R_H2": -64.44085740339625,
+          "R_O2": -34.399411424314096,
+          "R_CO": 2.9117770275628545,
+          "T": 1150.577408971712,
+          "N_O2": 3.1855533705798954e-16
+        }
+      },
+      "stage_b": {
+        "label": "D2_skip_precalc_o8",
+        "wall_s": 95.80815518500003,
+        "exit_CO": 0.15575528797535995,
+        "rms": 0.050064826531133325,
+        "split": 0.041911879193333085,
+        "energy": 0.0489452864988469,
+        "converged": false,
+        "n_outer": 10,
+        "hot_restart_meta": {
+          "enabled": false,
+          "triggered": false,
+          "y_co_top": NaN,
+          "threshold": 0.14,
+          "mode": "nested_skip_precalc"
+        },
+        "hot_restart_outer_n": 0,
+        "bed2": {
+          "R_H2O": -2.6142946811479755,
+          "R_H2": 3.717849669947226,
+          "R_O2": 0.0,
+          "R_CO": 3.3766886579874487,
+          "T": 1150.5757760712088,
+          "N_O2": 0.0
+        }
+      },
+      "exit_CO": 0.15575528797535995,
+      "rms": 0.050064826531133325,
+      "split": 0.041911879193333085,
+      "energy": 0.0489452864988469,
+      "converged": false,
+      "bed2": {
+        "R_H2O": -2.6142946811479755,
+        "R_H2": 3.717849669947226,
+        "R_O2": 0.0,
+        "R_CO": 3.3766886579874487,
+        "T": 1150.5757760712088,
+        "N_O2": 0.0
+      },
+      "wall_s": 213.44055319100005
+    }
+  ],
+  "verdict": {
+    "hot_restart_heals_bed2": true,
+    "requires_pre_cont_freeboard_T_projection": true,
+    "default_on": false,
+    "B_matches_D2_oracle": true
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "continuation": false,
+  "new_root": false,
+  "source_sha256": "6fc03eb5e7c9c38745a5d3363024fbfeb7459bb411e83b0570e4c406549ea737",
+  "source_file_count": 127,
+  "s040": {
+    "passed_block_gates": true,
+    "transport_closed": true,
+    "gate_ratio": {
+      "gas": 0.36551556558276393,
+      "solid": 0.9285028991390789,
+      "tar": 0.1699301826421169,
+      "energy_rows": [
+        0.06788930349284783,
+        0.0683011669316329
+      ]
+    },
+    "cho_gap_mol_s": {
+      "C": 8.055230856696127e-05,
+      "H": 2.862642876522159e-06,
+      "O": -3.762799183348875e-07
+    },
+    "enthalpy_gap_W": -0.13619047042448074
+  },
+  "derivative_relative_to_h_1e-4": {
+    "0.001": 3.2630096270405286e-06,
+    "0.0001": 0.0,
+    "1e-05": 3.2665986425278896e-08
+  },
+  "full_minus_frozen_hydro_relative": 0.0021657838013446245,
+  "linearization_at_fixed_x": [
+    {
+      "ds": 0.002,
+      "remainder_l2": 15.220609405731484,
+      "remainder_over_ds2": 3805152.351432871,
+      "energy_remainder_W": [
+        -15.220609392796177,
+        0.0006031939410604537
+      ]
+    },
+    {
+      "ds": 0.001,
+      "remainder_l2": 3.7994337672543,
+      "remainder_over_ds2": 3799433.7672543004,
+      "energy_remainder_W": [
+        -3.799433764012065,
+        0.00015090324450284243
+      ]
+    },
+    {
+      "ds": 0.0005,
+      "remainder_l2": 0.9491341856450083,
+      "remainder_over_ds2": 3796536.7425800334,
+      "energy_remainder_W": [
+        -0.9491341848333832,
+        3.773908247239888e-05
+      ]
+    }
+  ],
+  "offset_transform_error_l2": 9.53429063553061e-09,
+  "ds_0_002": {
+    "subproblem": {
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_success": true,
+      "solver_status": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_nit": 108,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 5.879879808978861,
+      "inexact_descent": false,
+      "active_bound_count": 1,
+      "v_abs_max": 0.250000000602577,
+      "objective": "gate_ratio_phi",
+      "fallback_success": null,
+      "fallback_status": null,
+      "fallback_message": null,
+      "fallback_feasible": null
+    },
+    "predicted_phi": 15.23213765075807,
+    "predicted_energy_W": [
+      -1.0876213352748891,
+      -0.9999999999993179
+    ],
+    "passes_1W_and_phi20_screen": false,
+    "screen_is_not_a_branch_test": true,
+    "max_state_change": 0.8005167431265363,
+    "same_s_phi": 44822.405598433994,
+    "same_s_energy_W": [
+      3454.9204711549683,
+      -2.2440385099616833
+    ],
+    "shifted_s_phi": 102.15601634364226,
+    "shifted_s_energy_W": [
+      -1.3886409669648856,
+      -2.0407111450331286
+    ],
+    "probe_is_not_a_root": true
+  },
+  "s048_local_subproblem": {
+    "subproblem": {
+      "linear_status": 0,
+      "subproblem_solved": false,
+      "solver_success": false,
+      "solver_status": 8,
+      "solver_message": "Positive directional derivative for linesearch",
+      "solver_nit": 160,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 6.304642047802241,
+      "inexact_descent": false,
+      "active_bound_count": 0,
+      "v_abs_max": 0.0,
+      "objective": "gate_ratio_phi",
+      "fallback_success": false,
+      "fallback_status": 0,
+      "fallback_message": "The maximum number of function evaluations is exceeded.",
+      "fallback_feasible": true
+    },
+    "predicted_phi": 14058.402162480363,
+    "predicted_energy_W": [
+      -0.6315956951584667,
+      -0.9999997820705175
+    ],
+    "entrance_phi": 14058.402162480364
+  }
+}

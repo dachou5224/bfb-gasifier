@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """Analyze k10 units and magnitude"""
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path('.').resolve()))
+import _lu_harness  # noqa: F401
 
 from src.kinetics.tar_reactions import R10_k0_AROM, R10_E_Rg_AROM
 from src.kinetics.arrhenius import k_hobbs

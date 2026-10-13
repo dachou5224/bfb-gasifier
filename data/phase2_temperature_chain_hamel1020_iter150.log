@@ -1,0 +1,9 @@
+Phase2 temperature chain | fixed50 r5=0.25 vm_zone=0 | max_global_iter=150
+ref CO=0.13 CO2=0.11
+label                  conv     rms     CO    CO2  bed0   Tpk xi_pk  T_bed  T_all  score
+=========================================================================================================
+seed_hamel_1020_1100      Y  0.0077  0.079  0.169   930  1103  0.10   66.5   66.5  1.067
+=========================================================================================================
+best T_rmse (full): seed_hamel_1020_1100 (66.5 K)
+best score: seed_hamel_1020_1100 (1.067)
+Wrote data/phase2_temperature_chain_hamel1020_iter150.json

@@ -1,6 +1,6 @@
 """相体积分率：n_RZ、床层级 dense fraction、epsilon_b。
 
-Source: specs/02_hydrodynamics.md §3; Hamel (1999)
+Source: docs/hamel_submodels/03_hydrodynamics_core_chain.md §3; Hamel (1999)
 注意：n_RZ 必须按 Re_s 分段计算，禁止使用常数 4.65。
 """
 
@@ -18,7 +18,7 @@ def calc_n_rz(Re_s: float) -> float:
     - 1 <= Re_s < 500: n = 4.4 * Re_s^(-0.10)
     - Re_s >= 500: n = 2.4
 
-    Source: specs/02_hydrodynamics.md §3（要求分段）
+    Source: docs/hamel_submodels/03_hydrodynamics_core_chain.md §3（要求分段）
     """
     assert Re_s >= 0.0, "Re_s 必须非负"
     if Re_s < 0.2:
@@ -35,7 +35,7 @@ def calc_epsilon_b(u0: float, u_mf: float, u_b: float) -> float:
 
     epsilon_b = (u0 - u_mf) / u_b
 
-    Source: specs/02_hydrodynamics.md §2–§3
+    Source: docs/hamel_submodels/03_hydrodynamics_core_chain.md §2–§3
     """
     assert u0 >= 0.0 and u_mf >= 0.0 and u_b > 0.0, "速度输入需满足 u_b > 0"
     eps_b = (u0 - u_mf) / u_b
@@ -46,7 +46,7 @@ def calc_epsilon_d(epsilon_b: float) -> float:
     """计算床层级 dense / suspension phase 体积分率 = 1 - epsilon_b。
 
     注意这不是 dense phase 内部孔隙率；后者应使用 ``calc_emulsion_porosity``。
-    Source: specs/02_hydrodynamics.md §3
+    Source: docs/hamel_submodels/03_hydrodynamics_core_chain.md §3
     """
     assert 0.0 <= epsilon_b < 1.0, "epsilon_b 必须在 [0,1)"
     return 1.0 - epsilon_b

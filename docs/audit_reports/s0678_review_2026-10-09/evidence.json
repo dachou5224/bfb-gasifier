@@ -1,0 +1,350 @@
+{
+  "source_sha256": "e8cf120bec2092b716977d3fc9d2a3351193c05c8024a76c791b8662fa769fd7",
+  "s": 0.6780000000000003,
+  "cert": {
+    "passed": true,
+    "finite": true,
+    "in_domain": true,
+    "transport_closed": true,
+    "temperature_domain": "temporary_solver_domain_250_2500_K",
+    "blocks": {
+      "passed": true,
+      "gas_l2": 2.1135437649218204e-07,
+      "solid_l2": 4.059041311168882e-09,
+      "tar_l2": 5.971631051462722e-15,
+      "energy_W": 3.958120942115784e-09
+    },
+    "energy_rows_W": [
+      -1.909211277961731e-08,
+      2.3050233721733093e-08
+    ],
+    "gate_ratio": {
+      "gas": 0.21135437649218206,
+      "solid": 0.0040590413111688825,
+      "tar": 5.971631051462722e-09,
+      "energy_rows": [
+        1.909211277961731e-08,
+        2.3050233721733093e-08
+      ]
+    }
+  },
+  "ledger": {
+    "units": {
+      "elements": "mol-atom/s",
+      "enthalpy": "W",
+      "mass": "kg/s"
+    },
+    "inlet_mol_s": {
+      "fuel": {
+        "C": 8.744700085081073,
+        "H": 7.933729124696706,
+        "O": 2.6534086544763,
+        "N": 0.2566160417228899,
+        "S": 0.08407166485888043
+      },
+      "moisture": {
+        "C": 0.0,
+        "H": 4.305599820900091,
+        "O": 2.1527999104500455,
+        "N": 0.0,
+        "S": 0.0
+      },
+      "oxidant": {
+        "C": 0.025759999999999977,
+        "H": 0.05795999999999995,
+        "O": 9.126364822077335,
+        "N": 35.441516794091726,
+        "S": 0.0
+      },
+      "total": {
+        "C": 8.770460085081073,
+        "H": 12.297288945596796,
+        "O": 13.93257338700368,
+        "N": 35.69813283581462,
+        "S": 0.08407166485888043
+      }
+    },
+    "outlet_mol_s": {
+      "gas": {
+        "C": 8.762304038170162,
+        "H": 11.351366131948403,
+        "O": 13.93199650940693,
+        "N": 35.441516794091726,
+        "S": 0.0
+      },
+      "tar": {
+        "C": 0.007488803018990861,
+        "H": 0.006410415384256178,
+        "O": 0.0,
+        "N": 0.0,
+        "S": 0.0
+      },
+      "char_fly": {
+        "C": 3.8745070067211886e-26,
+        "H": 0.0,
+        "O": 0.0,
+        "N": 0.0,
+        "S": 0.0
+      },
+      "unreleased": {
+        "C": 0.0006672438930831211,
+        "H": 0.0017248721129283176,
+        "O": 0.0005768775969501964,
+        "N": 5.579089569872143e-05,
+        "S": 1.827802133439766e-05
+      },
+      "minor_bypass": {
+        "C": 0.0,
+        "H": 0.9377875261566655,
+        "O": 0.0,
+        "N": 0.25656025082719114,
+        "S": 0.08405338683754603
+      },
+      "total": {
+        "C": 8.770460085082236,
+        "H": 12.297288945602252,
+        "O": 13.932573387003881,
+        "N": 35.69813283581462,
+        "S": 0.08407166485888043
+      }
+    },
+    "ash_out_kg_s": 0.020835427951875648,
+    "ash_feed_kg_s": 0.020835427951875273,
+    "gap_mol_s": {
+      "C": -1.163513729807164e-12,
+      "H": -5.4569682106375694e-12,
+      "O": -2.007283228522283e-13,
+      "N": 0.0,
+      "S": 0.0
+    },
+    "interface_char": {
+      "bed_exit_up_kg_s": 0.006087588925730486,
+      "freeboard_inlet_up_kg_s": 0.006087588925730486,
+      "up_stream_paired": true,
+      "freeboard_return_after_reaction_kg_s": 0.004630466997244314,
+      "bed_inlet_down_kg_s": 0.004630466997244314,
+      "down_stream_paired": true,
+      "leave_after_reaction_kg_s": -7.844592266203857e-17,
+      "up_must_equal_down": false,
+      "excluded_from_external_gap": true
+    },
+    "enthalpy_W": {
+      "gas_in": -8746.734170681424,
+      "fuel_formation": -723122.6528433487,
+      "moisture_formation": -615334.7984039366,
+      "gas_out": -1347674.0472260332,
+      "tar_out": 395.4440510798607,
+      "char_fly": 4.070532252689172e-22,
+      "ash_fly": -2700.649866607988,
+      "unreleased": -152.48161537738883,
+      "minor_bypass": 2927.549238967923,
+      "Q_W": 0.0,
+      "gap": 3.958120942115784e-09
+    },
+    "minor_bypass": {
+      "model": "inert_nh3_h2s_no_reaction",
+      "covers_subsequent_reactions": false,
+      "full_NS_model": false,
+      "n_NH3_mol_s": 0.25656025082719114,
+      "n_H2S_mol_s": 0.08405338683754603,
+      "enters_major_density": false,
+      "enters_particle_residence": false,
+      "molar_flow_treatment": "atom and enthalpy leave with the exit stream; not added to the seven-species molar total used for gas velocity"
+    },
+    "full_element_certification": false,
+    "h_o_gap_not_waived": true,
+    "unmodeled": {
+      "N": "allocated NH3 is an inert bypass, not an NH3 reaction model",
+      "S": "allocated H2S is an inert bypass, not an H2S reaction model"
+    },
+    "formation_enthalpy_is_not_a_heating_value": true,
+    "Q_is_not_compensated_by_formation_enthalpy": true
+  },
+  "tau": [
+    28.475375778205738,
+    4.21785540820608
+  ],
+  "columns": [
+    {
+      "state_index": 48,
+      "samples": [
+        {
+          "h": 1e-05,
+          "full_coarse_fb": 0.0030796963430834707,
+          "used_coarse_fb": 0.0019693811400261067,
+          "missing_coarse_fb": 0.001110315203057364,
+          "tau_log_derivative": [
+            -0.08605928112359605,
+            1.011378133064511
+          ],
+          "tau_term_expected": 0.0011103151977549608,
+          "full_energy": [
+            -1630140.6297832725,
+            1625259.2692850155
+          ],
+          "used_energy": [
+            -1630140.6313457638,
+            1625259.2705459516
+          ],
+          "max_raw_difference": 0.48786834598922724
+        },
+        {
+          "h": 1e-06,
+          "full_coarse_fb": 0.00307969634039465,
+          "used_coarse_fb": 0.0019693811400261067,
+          "missing_coarse_fb": 0.0011103152003685431,
+          "tau_log_derivative": [
+            -0.08605928236704585,
+            1.0113781319098791
+          ],
+          "tau_term_expected": 0.0011103151964873782,
+          "full_energy": [
+            -1630140.6299462542,
+            1625259.269378148
+          ],
+          "used_energy": [
+            -1630140.6313457638,
+            1625259.2705459516
+          ],
+          "max_raw_difference": 0.3989327458437515
+        }
+      ]
+    },
+    {
+      "state_index": 49,
+      "samples": [
+        {
+          "h": 1e-05,
+          "full_coarse_fb": 0.039831619644845134,
+          "used_coarse_fb": -0.01782617867662935,
+          "missing_coarse_fb": 0.05765779832147448,
+          "tau_log_derivative": [
+            -76.59910471886633,
+            52.52007497165145
+          ],
+          "tau_term_expected": 0.05765779931543663,
+          "full_energy": [
+            -7828.494021669029,
+            -1571735.6352950444
+          ],
+          "used_energy": [
+            -7828.493835404515,
+            -1571735.6360983104
+          ],
+          "max_raw_difference": 0.05765779832147448
+        },
+        {
+          "h": 1e-06,
+          "full_coarse_fb": 0.03983161967120209,
+          "used_coarse_fb": -0.01782617867662935,
+          "missing_coarse_fb": 0.05765779834783144,
+          "tau_log_derivative": [
+            -76.5991046609571,
+            52.520074115935955
+          ],
+          "tau_term_expected": 0.057657798376011614,
+          "full_energy": [
+            -7828.493951819837,
+            -1571735.6353998184
+          ],
+          "used_energy": [
+            -7828.493835404515,
+            -1571735.6360983104
+          ],
+          "max_raw_difference": 0.05765779834783144
+        }
+      ]
+    },
+    {
+      "state_index": 16,
+      "samples": [
+        {
+          "h": 1e-05,
+          "full_coarse_fb": 0.015119701937996945,
+          "used_coarse_fb": 0.00022332621393557177,
+          "missing_coarse_fb": 0.014896375724061373,
+          "tau_log_derivative": [
+            -15.437615216207233,
+            13.56900159570351
+          ],
+          "tau_term_expected": 0.01489637574466912,
+          "full_energy": [
+            195.34183666110036,
+            -195.34183666110036
+          ],
+          "used_energy": [
+            195.34184481017292,
+            -195.34184481017292
+          ],
+          "max_raw_difference": 0.014896375724061373
+        },
+        {
+          "h": 1e-06,
+          "full_coarse_fb": 0.015119701936966955,
+          "used_coarse_fb": 0.00022332621393557177,
+          "missing_coarse_fb": 0.014896375723031383,
+          "tau_log_derivative": [
+            -15.4376152110558,
+            13.569001576119177
+          ],
+          "tau_term_expected": 0.01489637572316897,
+          "full_energy": [
+            195.3417668119073,
+            -195.3417668119073
+          ],
+          "used_energy": [
+            195.34184481017292,
+            -195.34184481017292
+          ],
+          "max_raw_difference": 0.014896375723031383
+        }
+      ]
+    },
+    {
+      "state_index": 19,
+      "samples": [
+        {
+          "h": 1e-05,
+          "full_coarse_fb": 0.003867284919601213,
+          "used_coarse_fb": -0.0013178928702495523,
+          "missing_coarse_fb": 0.0051851777898507655,
+          "tau_log_derivative": [
+            -5.756992608496602,
+            4.723141179319157
+          ],
+          "tau_term_expected": 0.0051851777896861516,
+          "full_energy": [
+            -1152.751490008086,
+            1152.751490008086
+          ],
+          "used_energy": [
+            -1152.7514865156263,
+            1152.7514865156263
+          ],
+          "max_raw_difference": 0.0051851777898507655
+        },
+        {
+          "h": 1e-06,
+          "full_coarse_fb": 0.0038672849329369,
+          "used_coarse_fb": -0.0013178928702495523,
+          "missing_coarse_fb": 0.005185177803186452,
+          "tau_log_derivative": [
+            -5.756992621286372,
+            4.723141190154934
+          ],
+          "tau_term_expected": 0.005185177801581928,
+          "full_energy": [
+            -1152.7515016496181,
+            1152.7515016496181
+          ],
+          "used_energy": [
+            -1152.7514865156263,
+            1152.7514865156263
+          ],
+          "max_raw_difference": 0.005185177803186452
+        }
+      ]
+    }
+  ],
+  "wall_s": 1.8176604010000001
+}

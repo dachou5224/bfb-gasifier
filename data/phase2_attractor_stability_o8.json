@@ -1,0 +1,896 @@
+{
+  "note": "§5.29 LSQ2+Ept x3 OMP=1 attractor stability",
+  "runs": [
+    {
+      "exit_CO": 0.1507876793887706,
+      "rms": 0.03867210201696797,
+      "T0": 1149.8845541737994,
+      "F0": -0.13318001394449813,
+      "T_profile": [
+        1149.8845541737994,
+        1150.5316159403565,
+        1150.5516803925868,
+        1150.5713428415606,
+        1150.6130437612192,
+        1150.6551044732823,
+        1150.693625416725,
+        1150.7293465864948,
+        1150.7727117778038,
+        1150.8169743409103
+      ],
+      "history_keys": [
+        "bed0_primary_rel_drift",
+        "bed_top_energy_passthrough_armed",
+        "bed_top_energy_passthrough_newly_armed",
+        "bed_top_energy_passthrough_y_co_top",
+        "check2_bridge_aligned_after",
+        "check2_bridge_enabled",
+        "check2_bridge_passes",
+        "dT_outer",
+        "dT_refresh",
+        "gas_phase_split_max_abs",
+        "gas_phase_split_rms",
+        "inner_budget_remaining_after",
+        "inner_converged",
+        "inner_group_history",
+        "inner_iter_cap",
+        "inner_n_iter",
+        "inner_n_newton_iters_attempted",
+        "inner_rms_scaled_final",
+        "lambda_seed_reset_by_refresh",
+        "lambda_seed_used",
+        "outer_aligned",
+        "outer_aligned_raw",
+        "outer_bed0_primary_check_pass",
+        "outer_bed0_primary_gate_enabled",
+        "outer_bed0_primary_tol",
+        "outer_dT_tol_effective",
+        "outer_dt_check_pass",
+        "outer_energy_rms_final",
+        "outer_gas_check_pass",
+        "outer_gas_split_gate_enabled",
+        "outer_gas_split_tol",
+        "outer_hot_restart_armed",
+        "outer_hot_restart_done",
+        "outer_hot_restart_pending",
+        "outer_hot_restart_stage",
+        "outer_hot_restarted",
+        "outer_iter",
+        "outer_merit_best_so_far",
+        "outer_merit_composite",
+        "postinner_holdup_reconciled"
+      ],
+      "history": [
+        {
+          "iter": 1,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": false
+        },
+        {
+          "iter": 2,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": false
+        },
+        {
+          "iter": 3,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 4,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 5,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 6,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 7,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 8,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 9,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 10,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 1,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 2,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 3,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 4,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 5,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 6,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 7,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 8,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 9,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 10,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        }
+      ],
+      "n_hist": 20,
+      "metrics": {
+        "exit_CO": 0.1507876793887706,
+        "rms": 0.03867210201696797,
+        "groups": {
+          "gas_rms": 0.020544956439183856,
+          "solid_rms": 0.0032287717723839047,
+          "energy_rms": 0.05469061115498409,
+          "gas_max_abs": 0.08859339532091862,
+          "solid_max_abs": 0.01697607839522127,
+          "energy_max_abs": 0.13318001394449813
+        },
+        "topk": [
+          {
+            "flat_k": 40,
+            "F_hat": -0.13318001394449813,
+            "abs": 0.13318001394449813,
+            "cell": 0,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 371,
+            "F_hat": 0.08859339532091862,
+            "abs": 0.08859339532091862,
+            "cell": 9,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "H2"
+          },
+          {
+            "flat_k": 372,
+            "F_hat": -0.07986398226839936,
+            "abs": 0.07986398226839936,
+            "cell": 9,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 163,
+            "F_hat": 0.07610942158090536,
+            "abs": 0.07610942158090536,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 330,
+            "F_hat": 0.07243743612201986,
+            "abs": 0.07243743612201986,
+            "cell": 8,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "H2"
+          },
+          {
+            "flat_k": 331,
+            "F_hat": -0.06509681351637926,
+            "abs": 0.06509681351637926,
+            "cell": 8,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "H2O"
+          }
+        ],
+        "bed2_RH2O": -3.5642042346544893,
+        "Fhat_T_bed9": -0.017093909314118902,
+        "res_E_bed9": -235333.2011891976,
+        "dm_bed9": -0.018861394921104058,
+        "flux_mismatch": 0.6836504476562008,
+        "stream_imbalance": 0.11801458211998055,
+        "bed9": {
+          "bed": 9.0,
+          "m_char": 13.308449269514258,
+          "m_ash": 4.221755862155466,
+          "support_char": 13.376834047781193,
+          "m_star_char": 13.117646990548407,
+          "m_in_char": 3.696960840665592,
+          "m_out_char": 3.6780613128365536,
+          "R_char": -0.07163162804997955,
+          "res_char": -0.0527321002209421,
+          "res_abs_max": 0.2138579984529061,
+          "over_support_char": -0.06838477826693479,
+          "over_mstar_char": 0.19080227896585156,
+          "K_sum_char_mean": 0.2763703898441353
+        }
+      },
+      "wall_s": 390.90473807
+    },
+    {
+      "exit_CO": 0.1507876793887706,
+      "rms": 0.03867210201696797,
+      "T0": 1149.8845541737994,
+      "F0": -0.13318001394449813,
+      "T_profile": [
+        1149.8845541737994,
+        1150.5316159403565,
+        1150.5516803925868,
+        1150.5713428415606,
+        1150.6130437612192,
+        1150.6551044732823,
+        1150.693625416725,
+        1150.7293465864948,
+        1150.7727117778038,
+        1150.8169743409103
+      ],
+      "history_keys": [
+        "bed0_primary_rel_drift",
+        "bed_top_energy_passthrough_armed",
+        "bed_top_energy_passthrough_newly_armed",
+        "bed_top_energy_passthrough_y_co_top",
+        "check2_bridge_aligned_after",
+        "check2_bridge_enabled",
+        "check2_bridge_passes",
+        "dT_outer",
+        "dT_refresh",
+        "gas_phase_split_max_abs",
+        "gas_phase_split_rms",
+        "inner_budget_remaining_after",
+        "inner_converged",
+        "inner_group_history",
+        "inner_iter_cap",
+        "inner_n_iter",
+        "inner_n_newton_iters_attempted",
+        "inner_rms_scaled_final",
+        "lambda_seed_reset_by_refresh",
+        "lambda_seed_used",
+        "outer_aligned",
+        "outer_aligned_raw",
+        "outer_bed0_primary_check_pass",
+        "outer_bed0_primary_gate_enabled",
+        "outer_bed0_primary_tol",
+        "outer_dT_tol_effective",
+        "outer_dt_check_pass",
+        "outer_energy_rms_final",
+        "outer_gas_check_pass",
+        "outer_gas_split_gate_enabled",
+        "outer_gas_split_tol",
+        "outer_hot_restart_armed",
+        "outer_hot_restart_done",
+        "outer_hot_restart_pending",
+        "outer_hot_restart_stage",
+        "outer_hot_restarted",
+        "outer_iter",
+        "outer_merit_best_so_far",
+        "outer_merit_composite",
+        "postinner_holdup_reconciled"
+      ],
+      "history": [
+        {
+          "iter": 1,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": false
+        },
+        {
+          "iter": 2,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": false
+        },
+        {
+          "iter": 3,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 4,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 5,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 6,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 7,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 8,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 9,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 10,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 1,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 2,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 3,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 4,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 5,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 6,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 7,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 8,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 9,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 10,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        }
+      ],
+      "n_hist": 20,
+      "metrics": {
+        "exit_CO": 0.1507876793887706,
+        "rms": 0.03867210201696797,
+        "groups": {
+          "gas_rms": 0.020544956439183856,
+          "solid_rms": 0.0032287717723839047,
+          "energy_rms": 0.05469061115498409,
+          "gas_max_abs": 0.08859339532091862,
+          "solid_max_abs": 0.01697607839522127,
+          "energy_max_abs": 0.13318001394449813
+        },
+        "topk": [
+          {
+            "flat_k": 40,
+            "F_hat": -0.13318001394449813,
+            "abs": 0.13318001394449813,
+            "cell": 0,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 371,
+            "F_hat": 0.08859339532091862,
+            "abs": 0.08859339532091862,
+            "cell": 9,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "H2"
+          },
+          {
+            "flat_k": 372,
+            "F_hat": -0.07986398226839936,
+            "abs": 0.07986398226839936,
+            "cell": 9,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 163,
+            "F_hat": 0.07610942158090536,
+            "abs": 0.07610942158090536,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 330,
+            "F_hat": 0.07243743612201986,
+            "abs": 0.07243743612201986,
+            "cell": 8,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "H2"
+          },
+          {
+            "flat_k": 331,
+            "F_hat": -0.06509681351637926,
+            "abs": 0.06509681351637926,
+            "cell": 8,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "H2O"
+          }
+        ],
+        "bed2_RH2O": -3.5642042346544893,
+        "Fhat_T_bed9": -0.017093909314118902,
+        "res_E_bed9": -235333.2011891976,
+        "dm_bed9": -0.018861394921104058,
+        "flux_mismatch": 0.6836504476562008,
+        "stream_imbalance": 0.11801458211998055,
+        "bed9": {
+          "bed": 9.0,
+          "m_char": 13.308449269514258,
+          "m_ash": 4.221755862155466,
+          "support_char": 13.376834047781193,
+          "m_star_char": 13.117646990548407,
+          "m_in_char": 3.696960840665592,
+          "m_out_char": 3.6780613128365536,
+          "R_char": -0.07163162804997955,
+          "res_char": -0.0527321002209421,
+          "res_abs_max": 0.2138579984529061,
+          "over_support_char": -0.06838477826693479,
+          "over_mstar_char": 0.19080227896585156,
+          "K_sum_char_mean": 0.2763703898441353
+        }
+      },
+      "wall_s": 348.69598875800006
+    },
+    {
+      "exit_CO": 0.1507876793887706,
+      "rms": 0.03867210201696797,
+      "T0": 1149.8845541737994,
+      "F0": -0.13318001394449813,
+      "T_profile": [
+        1149.8845541737994,
+        1150.5316159403565,
+        1150.5516803925868,
+        1150.5713428415606,
+        1150.6130437612192,
+        1150.6551044732823,
+        1150.693625416725,
+        1150.7293465864948,
+        1150.7727117778038,
+        1150.8169743409103
+      ],
+      "history_keys": [
+        "bed0_primary_rel_drift",
+        "bed_top_energy_passthrough_armed",
+        "bed_top_energy_passthrough_newly_armed",
+        "bed_top_energy_passthrough_y_co_top",
+        "check2_bridge_aligned_after",
+        "check2_bridge_enabled",
+        "check2_bridge_passes",
+        "dT_outer",
+        "dT_refresh",
+        "gas_phase_split_max_abs",
+        "gas_phase_split_rms",
+        "inner_budget_remaining_after",
+        "inner_converged",
+        "inner_group_history",
+        "inner_iter_cap",
+        "inner_n_iter",
+        "inner_n_newton_iters_attempted",
+        "inner_rms_scaled_final",
+        "lambda_seed_reset_by_refresh",
+        "lambda_seed_used",
+        "outer_aligned",
+        "outer_aligned_raw",
+        "outer_bed0_primary_check_pass",
+        "outer_bed0_primary_gate_enabled",
+        "outer_bed0_primary_tol",
+        "outer_dT_tol_effective",
+        "outer_dt_check_pass",
+        "outer_energy_rms_final",
+        "outer_gas_check_pass",
+        "outer_gas_split_gate_enabled",
+        "outer_gas_split_tol",
+        "outer_hot_restart_armed",
+        "outer_hot_restart_done",
+        "outer_hot_restart_pending",
+        "outer_hot_restart_stage",
+        "outer_hot_restarted",
+        "outer_iter",
+        "outer_merit_best_so_far",
+        "outer_merit_composite",
+        "postinner_holdup_reconciled"
+      ],
+      "history": [
+        {
+          "iter": 1,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": false
+        },
+        {
+          "iter": 2,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": false
+        },
+        {
+          "iter": 3,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 4,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 5,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 6,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 7,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 8,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 9,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 10,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 1,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 2,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 3,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 4,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 5,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 6,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 7,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 8,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 9,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        },
+        {
+          "iter": 10,
+          "rms": null,
+          "y_CO": null,
+          "accepted": null,
+          "trace_o2_rate_gate_armed": true
+        }
+      ],
+      "n_hist": 20,
+      "metrics": {
+        "exit_CO": 0.1507876793887706,
+        "rms": 0.03867210201696797,
+        "groups": {
+          "gas_rms": 0.020544956439183856,
+          "solid_rms": 0.0032287717723839047,
+          "energy_rms": 0.05469061115498409,
+          "gas_max_abs": 0.08859339532091862,
+          "solid_max_abs": 0.01697607839522127,
+          "energy_max_abs": 0.13318001394449813
+        },
+        "topk": [
+          {
+            "flat_k": 40,
+            "F_hat": -0.13318001394449813,
+            "abs": 0.13318001394449813,
+            "cell": 0,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 371,
+            "F_hat": 0.08859339532091862,
+            "abs": 0.08859339532091862,
+            "cell": 9,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "H2"
+          },
+          {
+            "flat_k": 372,
+            "F_hat": -0.07986398226839936,
+            "abs": 0.07986398226839936,
+            "cell": 9,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 163,
+            "F_hat": 0.07610942158090536,
+            "abs": 0.07610942158090536,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 330,
+            "F_hat": 0.07243743612201986,
+            "abs": 0.07243743612201986,
+            "cell": 8,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "H2"
+          },
+          {
+            "flat_k": 331,
+            "F_hat": -0.06509681351637926,
+            "abs": 0.06509681351637926,
+            "cell": 8,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "H2O"
+          }
+        ],
+        "bed2_RH2O": -3.5642042346544893,
+        "Fhat_T_bed9": -0.017093909314118902,
+        "res_E_bed9": -235333.2011891976,
+        "dm_bed9": -0.018861394921104058,
+        "flux_mismatch": 0.6836504476562008,
+        "stream_imbalance": 0.11801458211998055,
+        "bed9": {
+          "bed": 9.0,
+          "m_char": 13.308449269514258,
+          "m_ash": 4.221755862155466,
+          "support_char": 13.376834047781193,
+          "m_star_char": 13.117646990548407,
+          "m_in_char": 3.696960840665592,
+          "m_out_char": 3.6780613128365536,
+          "R_char": -0.07163162804997955,
+          "res_char": -0.0527321002209421,
+          "res_abs_max": 0.2138579984529061,
+          "over_support_char": -0.06838477826693479,
+          "over_mstar_char": 0.19080227896585156,
+          "K_sum_char_mean": 0.2763703898441353
+        }
+      },
+      "wall_s": 360.50690947600003
+    }
+  ]
+}

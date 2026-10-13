@@ -1,0 +1,52 @@
+{
+  "cases": [
+    {
+      "label": "baseline_off",
+      "axial_on": false,
+      "axial_cells": 0,
+      "bed_axial_primary_cells_profiled": 0.0,
+      "rms_scaled": 0.022520424291807086,
+      "gas_rms": 0.0,
+      "solid_rms": 0.012710355370729759,
+      "energy_rms": 0.07015829260470141,
+      "gas_phase_split_rms": 0.029443457677606057,
+      "max_abs_scaled": 0.2614404995581925
+    },
+    {
+      "label": "axial_cells2_bed1",
+      "axial_on": true,
+      "axial_cells": 2,
+      "bed_axial_primary_cells_profiled": 1.0,
+      "rms_scaled": 0.04326178942678299,
+      "gas_rms": 0.0,
+      "solid_rms": 0.05053732004695712,
+      "energy_rms": 0.09651213004855919,
+      "gas_phase_split_rms": 0.04458452078265198,
+      "max_abs_scaled": 0.33785942888295206
+    },
+    {
+      "label": "axial_cells3_bed12",
+      "axial_on": true,
+      "axial_cells": 3,
+      "bed_axial_primary_cells_profiled": 2.0,
+      "rms_scaled": 0.04469416391055884,
+      "gas_rms": 0.0,
+      "solid_rms": 0.05306462010073856,
+      "energy_rms": 0.08117849814873232,
+      "gas_phase_split_rms": 0.05515995956452789,
+      "max_abs_scaled": 0.2401875886474116
+    },
+    {
+      "label": "axial_full",
+      "axial_on": true,
+      "axial_cells": 0,
+      "bed_axial_primary_cells_profiled": 9.0,
+      "rms_scaled": 0.05327758094937039,
+      "gas_rms": 0.0,
+      "solid_rms": 0.061938376079013494,
+      "energy_rms": 0.1193219970997951,
+      "gas_phase_split_rms": 0.0603224383901905,
+      "max_abs_scaled": 0.34413150030058415
+    }
+  ]
+}

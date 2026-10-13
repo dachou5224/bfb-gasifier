@@ -1,0 +1,262 @@
+{
+  "ref_CO": 0.13,
+  "ref_CO2": 0.11,
+  "cases": [
+    {
+      "label": "wein_baseline",
+      "mode": "default",
+      "u_d_closure": "wein_locked",
+      "max_global_iter": 20,
+      "wall_s": 67.02085683600001,
+      "converged": true,
+      "rms_scaled_final": 0.008276287864895593,
+      "init": {
+        "u0": 1.00893177545413,
+        "u_d": 0.4548408572886225,
+        "eps_b": 0.3534909789865325,
+        "frozen_dense_frac": 0.19607454948861533,
+        "live_dense_frac": 0.19359116273681373,
+        "O2_zu_bubble_frac": 0.8039254505113845,
+        "O2_zu_d": 3.463628370385053,
+        "O2_zu_b": 7.768620782706729
+      },
+      "solve": {
+        "O2_zu_bubble_frac": 0.6916353685555794,
+        "bed0_y_CO": 0.08484091172382885,
+        "bed0_y_CO2": 0.15289281246767233,
+        "bed0_y_O2": 0.00520198199190593,
+        "bed0_T_K": 1030.0,
+        "bed0_R5_net_CO2_mol_s": 11.864232076171751,
+        "outlet_y_CO": 0.07640186971279801,
+        "outlet_y_CO2": 0.1721195739335946,
+        "outlet_T_K": 1038.0966130923866,
+        "delta_CO_vs_ref": -0.05359813028720199,
+        "delta_CO2_vs_ref": 0.06211957393359459
+      }
+    },
+    {
+      "label": "hilligardt_ud",
+      "mode": "default",
+      "u_d_closure": "hilligardt_eq311",
+      "max_global_iter": 20,
+      "wall_s": 111.19139262799999,
+      "converged": true,
+      "rms_scaled_final": 0.002371788061356549,
+      "init": {
+        "u0": 1.0198410074687139,
+        "u_d": 0.5487222361211831,
+        "eps_b": 0.2719875542057899,
+        "frozen_dense_frac": 0.3459964936039152,
+        "live_dense_frac": 0.38190592192299777,
+        "O2_zu_bubble_frac": 0.6540035063960847,
+        "O2_zu_d": 4.427595613959544,
+        "O2_zu_b": 6.8046535391322385
+      },
+      "solve": {
+        "O2_zu_bubble_frac": 0.6058139778050768,
+        "bed0_y_CO": 0.10137347869685857,
+        "bed0_y_CO2": 0.14716751998790287,
+        "bed0_y_O2": 0.00999638406152289,
+        "bed0_T_K": 1030.0,
+        "bed0_R5_net_CO2_mol_s": 10.378687665030302,
+        "outlet_y_CO": 0.08795228188472717,
+        "outlet_y_CO2": 0.16871284277260495,
+        "outlet_T_K": 991.8448072864716,
+        "delta_CO_vs_ref": -0.04204771811527283,
+        "delta_CO2_vs_ref": 0.05871284277260495
+      }
+    },
+    {
+      "label": "current_ud",
+      "mode": "default",
+      "u_d_closure": "current",
+      "max_global_iter": 20,
+      "wall_s": 260.45540322500005,
+      "converged": false,
+      "rms_scaled_final": 0.016495409189531254,
+      "init": {
+        "u0": 0.9719498780377483,
+        "u_d": 0.7793037249311215,
+        "eps_b": 0.09155663548616391,
+        "frozen_dense_frac": 0.6922258829334371,
+        "live_dense_frac": 0.6348880026997422,
+        "O2_zu_bubble_frac": 0.3077741170665629,
+        "O2_zu_d": 8.181428591675093,
+        "O2_zu_b": 3.0508205614166886
+      },
+      "solve": {
+        "O2_zu_bubble_frac": 0.27161261469853715,
+        "bed0_y_CO": 0.04658945554716062,
+        "bed0_y_CO2": 0.1681610373919884,
+        "bed0_y_O2": 0.0031582555464118515,
+        "bed0_T_K": 1030.0,
+        "bed0_R5_net_CO2_mol_s": 7.568829256505104,
+        "outlet_y_CO": 0.08829986038348592,
+        "outlet_y_CO2": 0.16858687757711288,
+        "outlet_T_K": 1001.1587256182034,
+        "delta_CO_vs_ref": -0.04170013961651409,
+        "delta_CO2_vs_ref": 0.05858687757711288
+      }
+    },
+    {
+      "label": "fixed_dense30",
+      "mode": "fixed_split",
+      "u_d_closure": "wein_locked",
+      "max_global_iter": 20,
+      "wall_s": 244.33313575000005,
+      "converged": false,
+      "rms_scaled_final": 0.0034320442141764574,
+      "init": {
+        "u0": 0.983127347529193,
+        "u_d": 0.4564802017451706,
+        "eps_b": 0.33798143479179754,
+        "frozen_dense_frac": NaN,
+        "live_dense_frac": 0.23439335482896756,
+        "O2_zu_bubble_frac": 0.7,
+        "O2_zu_d": 3.369674745927535,
+        "O2_zu_b": 7.862574407164247
+      },
+      "solve": {
+        "O2_zu_bubble_frac": 0.7,
+        "bed0_y_CO": 0.06399281724395109,
+        "bed0_y_CO2": 0.13723211393784635,
+        "bed0_y_O2": 0.00743451551920793,
+        "bed0_T_K": 1030.0,
+        "bed0_R5_net_CO2_mol_s": 8.828469284577697,
+        "outlet_y_CO": 0.0811674384352929,
+        "outlet_y_CO2": 0.16941993316347745,
+        "outlet_T_K": 1039.736889151905,
+        "delta_CO_vs_ref": -0.04883256156470711,
+        "delta_CO2_vs_ref": 0.05941993316347745
+      }
+    },
+    {
+      "label": "fixed_dense50",
+      "mode": "fixed_split",
+      "u_d_closure": "wein_locked",
+      "max_global_iter": 20,
+      "wall_s": 292.382396849,
+      "converged": false,
+      "rms_scaled_final": 0.007338556594592765,
+      "init": {
+        "u0": 1.091976396146913,
+        "u_d": 0.4571998442499404,
+        "eps_b": 0.3952649425045125,
+        "frozen_dense_frac": NaN,
+        "live_dense_frac": 0.27402192238694656,
+        "O2_zu_bubble_frac": 0.5,
+        "O2_zu_d": 5.616124576545891,
+        "O2_zu_b": 5.616124576545891
+      },
+      "solve": {
+        "O2_zu_bubble_frac": 0.5,
+        "bed0_y_CO": 0.05817684340414741,
+        "bed0_y_CO2": 0.17986156344863885,
+        "bed0_y_O2": 0.001929442785370285,
+        "bed0_T_K": 1030.0,
+        "bed0_R5_net_CO2_mol_s": 9.071035686410045,
+        "outlet_y_CO": 0.07796534771552749,
+        "outlet_y_CO2": 0.17241206631886885,
+        "outlet_T_K": 1041.0500458083093,
+        "delta_CO_vs_ref": -0.052034652284472516,
+        "delta_CO2_vs_ref": 0.06241206631886885
+      }
+    },
+    {
+      "label": "fixed_dense70",
+      "mode": "fixed_split",
+      "u_d_closure": "wein_locked",
+      "max_global_iter": 20,
+      "wall_s": 241.20864306500016,
+      "converged": true,
+      "rms_scaled_final": 0.010818890044302986,
+      "init": {
+        "u0": 1.0536579953974787,
+        "u_d": 0.45139510949251777,
+        "eps_b": 0.3806382994216362,
+        "frozen_dense_frac": NaN,
+        "live_dense_frac": 0.21851030721684825,
+        "O2_zu_bubble_frac": 0.30000000000000004,
+        "O2_zu_d": 7.862574407164247,
+        "O2_zu_b": 3.369674745927535
+      },
+      "solve": {
+        "O2_zu_bubble_frac": 0.30000000000000004,
+        "bed0_y_CO": 0.10918633250939963,
+        "bed0_y_CO2": 0.17197807600399068,
+        "bed0_y_O2": 0.00016111738993849128,
+        "bed0_T_K": 1030.0,
+        "bed0_R5_net_CO2_mol_s": 8.517238870716055,
+        "outlet_y_CO": 0.07666931374552693,
+        "outlet_y_CO2": 0.1730258622922454,
+        "outlet_T_K": 1025.016040134509,
+        "delta_CO_vs_ref": -0.05333068625447307,
+        "delta_CO2_vs_ref": 0.0630258622922454
+      }
+    },
+    {
+      "label": "u0_x0p9",
+      "mode": "u0_scale",
+      "u_d_closure": "wein_locked",
+      "max_global_iter": 20,
+      "wall_s": 166.11592874400003,
+      "converged": false,
+      "rms_scaled_final": 0.2992257569878371,
+      "init": {
+        "u0": 0.24684271740518096,
+        "u_d": 0.24692597418794196,
+        "eps_b": 0.01,
+        "frozen_dense_frac": 0.990116386642246,
+        "live_dense_frac": 0.9903624994220136,
+        "O2_zu_bubble_frac": 0.05000000000000004,
+        "O2_zu_d": 10.670636695437192,
+        "O2_zu_b": 0.5616124576545896
+      },
+      "solve": {
+        "O2_zu_bubble_frac": 0.05000000000000004,
+        "bed0_y_CO": 0.2526393690295247,
+        "bed0_y_CO2": 0.11521091642130674,
+        "bed0_y_O2": 0.07466763274846949,
+        "bed0_T_K": 1143.286753445223,
+        "bed0_R5_net_CO2_mol_s": -1.4279156346822148,
+        "outlet_y_CO": 0.2647112649430339,
+        "outlet_y_CO2": 0.16317944511337718,
+        "outlet_T_K": 1011.6367179410003,
+        "delta_CO_vs_ref": 0.13471126494303387,
+        "delta_CO2_vs_ref": 0.053179445113377175
+      }
+    },
+    {
+      "label": "u0_x1p1",
+      "mode": "u0_scale",
+      "u_d_closure": "wein_locked",
+      "max_global_iter": 20,
+      "wall_s": 200.90044825200016,
+      "converged": false,
+      "rms_scaled_final": 0.3056546880280743,
+      "init": {
+        "u0": 0.3016966546063323,
+        "u_d": 0.3017231461162977,
+        "eps_b": 0.01,
+        "frozen_dense_frac": 0.9899152254345649,
+        "live_dense_frac": 0.9901164332352062,
+        "O2_zu_bubble_frac": 0.05000000000000004,
+        "O2_zu_d": 10.670636695437192,
+        "O2_zu_b": 0.5616124576545896
+      },
+      "solve": {
+        "O2_zu_bubble_frac": 0.05000000000000004,
+        "bed0_y_CO": 0.22527341582370114,
+        "bed0_y_CO2": 0.11112915832311522,
+        "bed0_y_O2": 0.08643668569688226,
+        "bed0_T_K": 1145.8314679772468,
+        "bed0_R5_net_CO2_mol_s": 1.794679433384176,
+        "outlet_y_CO": 0.26104265514009717,
+        "outlet_y_CO2": 0.16416262947892177,
+        "outlet_T_K": 1011.5435195117619,
+        "delta_CO_vs_ref": 0.13104265514009716,
+        "delta_CO2_vs_ref": 0.05416262947892177
+      }
+    }
+  ]
+}

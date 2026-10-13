@@ -1,0 +1,49 @@
+{
+  "source": "Wirsum alignment stage F3 leaving-char R1 coordination",
+  "solved": false,
+  "not_a_furnace_convergence_claim": true,
+  "units": {
+    "gas": "mol/s",
+    "solid": "kg/s",
+    "holdup": "kg",
+    "r": "mol/s"
+  },
+  "m_leave_char_kg_s": 0.8302694400000001,
+  "K_fb_1_per_s": 1.0,
+  "K_fb_model": "engineering_K_fb_leave",
+  "newton": {
+    "physical_convergence": true,
+    "converged_newton": true,
+    "failure_reason": "newton_merit",
+    "residual_l2": 3.504819804726087e-11,
+    "iterations": 3
+  },
+  "root": {
+    "N_mol_s": [
+      0.017451846593829527,
+      0.3860513642628944,
+      0.0895224712747039,
+      10.0
+    ],
+    "M_kg": 0.8245573226613582,
+    "e1_mol_s": 0.475573835571854,
+    "alpha": 0.5941204757127858,
+    "C_O2_mol_m3": 0.45465079444405043,
+    "r_gap_mol_s": 0.0,
+    "carbon_gas_minus_e1": -3.425570938020428e-11
+  },
+  "inlet_extent_e1_mol_s": 8.386090259320575,
+  "inlet_minus_root_e1": 7.910516423748721,
+  "reactions": [
+    "R1"
+  ],
+  "not": [
+    "R2",
+    "R3",
+    "R4",
+    "R5",
+    "R12",
+    "fastox"
+  ],
+  "note": "r \u53ea\u6765\u81ea char_r1_extent / rate_R1\u3002K_fb \u662f\u5de5\u7a0b\u505c\u7559\uff0c\u4e0d\u662f Hamel\u3002\u751f\u4ea7\u8def\u5f84\u672a\u6539\u3002"
+}

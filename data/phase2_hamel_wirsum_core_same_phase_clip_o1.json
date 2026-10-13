@@ -1,0 +1,17 @@
+{
+  "note": "CORE + two-phase Startwert + per-phase fastox + same-phase oxidizer/fuel clip",
+  "wall_s": 18.536248604,
+  "rms_scaled_final": 0.03726589767905355,
+  "rms_scaled_gas_phase_split_final": 0.1351415294004071,
+  "n_acc": 1,
+  "accepted_lambda_history": [
+    1.0
+  ],
+  "best_trial_rms_scaled": 0.0345573883741943,
+  "best_trial_lambda": 1.0,
+  "accepted_lambda": 1.0,
+  "line_search_failed": false,
+  "fast_ox_projections": 1,
+  "same_phase_oxidizer_fuel_clip_components": 24,
+  "y_co_top": 0.0064711363689263805
+}

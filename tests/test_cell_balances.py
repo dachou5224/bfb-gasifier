@@ -12,13 +12,13 @@ from src.core.cell_balances import (
     calc_solid_balance_residual,
 )
 from src.core.cell_hydrodynamics import calc_cell_hydrodynamics, calc_phase_exchange
-from src.core.species import configure_tar_components_by_fuel
+from src.core.species import N_GAS, configure_tar_components_by_fuel
 from src.physics.freeboard import calc_beta_a, calc_u_gb
 from src.physics.phase_fractions import calc_visible_bubble_fraction
 
 
 def test_gas_balance_uses_shared_exchange_with_opposite_sign() -> None:
-    n_ex = np.array([1.0, -2.0, 0.5] + [0.0] * 8, dtype=np.float64)
+    n_ex = np.array([1.0, -2.0, 0.5] + [0.0] * (N_GAS - 3), dtype=np.float64)
     zero = np.zeros_like(n_ex)
 
     res = calc_gas_balance_residual(
@@ -35,9 +35,40 @@ def test_gas_balance_uses_shared_exchange_with_opposite_sign() -> None:
         N_b=zero,
     )
 
-    np.testing.assert_allclose(res[:11], n_ex)
-    np.testing.assert_allclose(res[11:], -n_ex)
-    np.testing.assert_allclose(res[:11] + res[11:], 0.0)
+    np.testing.assert_allclose(res[:N_GAS], n_ex)
+    np.testing.assert_allclose(res[N_GAS:], -n_ex)
+    np.testing.assert_allclose(res[:N_GAS] + res[N_GAS:], 0.0)
+
+
+def test_size_migration_per_class_holdup_differs_from_total_bed_proxy() -> None:
+    m_solid = np.array(
+        [
+            [0.1, 0.0, 0.0, 0.0],
+            [10.0, 0.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0, 0.0],
+        ],
+        dtype=np.float64,
+    )
+    r_solid = np.zeros_like(m_solid)
+    r_solid[:, 0] = np.array([-0.03, -0.06, -0.09], dtype=np.float64)
+    areas = np.array([0.4, 0.8, 1.2], dtype=np.float64)
+    d_p = np.array([1.0e-3, 2.0e-3, 3.0e-3], dtype=np.float64)
+    common = dict(
+        m_solid=m_solid,
+        R_solid=r_solid,
+        areas=areas,
+        d_p_classes=d_p,
+        rho_s=1400.0,
+        eps_mf=0.45,
+        V_d=0.08,
+        V_cell=0.1,
+        char_index=0,
+    )
+    res_holdup = calc_size_migration(**common, inventory_mode="per_class_holdup")
+    res_proxy = calc_size_migration(**common, inventory_mode="total_bed_proxy")
+    assert not np.allclose(res_holdup, res_proxy)
+    np.testing.assert_allclose(np.sum(res_holdup, axis=0), 0.0, atol=1e-12)
+    np.testing.assert_allclose(np.sum(res_proxy, axis=0), 0.0, atol=1e-12)
 
 
 def test_size_migration_transfers_mass_from_larger_to_smaller_class() -> None:
@@ -86,6 +117,23 @@ def test_solid_balance_adds_migration_and_sources() -> None:
         m_solid=m_solid,
     )
     np.testing.assert_allclose(res, -0.43)
+
+
+def test_solid_balance_legacy_stream_includes_axial_auf_ab_inflows() -> None:
+    shape = (2, 4)
+    m_solid = np.full(shape, 1.0, dtype=np.float64)
+    res = calc_solid_balance_residual(
+        m_solid_zu=np.full(shape, 0.3, dtype=np.float64),
+        m_solid_rez=np.full(shape, 0.2, dtype=np.float64),
+        m_solid_in=np.full(shape, 0.1, dtype=np.float64),
+        m_solid_auf_in=np.full(shape, 0.05, dtype=np.float64),
+        m_solid_ab_in=np.full(shape, 0.03, dtype=np.float64),
+        R_solid=np.full(shape, -0.05, dtype=np.float64),
+        size_migration=np.full(shape, 0.02, dtype=np.float64),
+        m_solid=m_solid,
+        solid_state_model="legacy_stream",
+    )
+    np.testing.assert_allclose(res, -0.35)
 
 
 def test_solid_balance_holdup_transport_uses_frozen_neighbor_inflows_and_k_out() -> None:
@@ -647,6 +695,6 @@ def test_hilligardt_ode_bubble_branch_is_available_for_hydrodynamics_audit() -> 
 
 
 def test_phase_exchange_is_zero_when_phase_concentrations_match() -> None:
-    C = np.array([1.0, 2.0, 3.0] + [0.0] * 8, dtype=np.float64)
+    C = np.array([1.0, 2.0, 3.0] + [0.0] * (N_GAS - 3), dtype=np.float64)
     n_ex = calc_phase_exchange(K_bd=3.0, V_b=0.1, C_b=C, C_d=C)
     np.testing.assert_allclose(n_ex, 0.0)

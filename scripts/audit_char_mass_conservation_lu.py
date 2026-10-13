@@ -9,6 +9,15 @@ not a calibration script.
 
 from __future__ import annotations
 
+from _lu_harness import (
+    add_max_global_iter_arg,
+    build_phase2_config,
+    load_case_lu,
+    phase1_global_nr_solve_kwargs,
+    phase2_solve_kwargs,
+    repo_root,
+)
+
 import argparse
 import json
 import sys
@@ -16,20 +25,11 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+ROOT = repo_root()
 
+from tests.validation_case_utils import build_phase1_htw_lu_global_nr_reactor_config
 from src.core.cell import S_ASH, S_CHAR
 from src.core.reactor import Reactor
-from tests.validation_case_utils import (
-    PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS,
-    PHASE2_HTW_LU_FREEBOARD_SOLVE_KWARGS,
-    build_phase1_htw_lu_global_nr_reactor_config,
-    build_phase2_htw_lu_freeboard_reactor_config,
-    load_case_LU,
-)
-
 _SOLID_COMPONENT_LABELS = {
     S_CHAR: "char",
     S_ASH: "ash",
@@ -349,10 +349,10 @@ def _freeboard_closure_transport_summary(reactor: Reactor, result: dict) -> dict
 
 
 def _build(mode: str) -> tuple[Reactor, dict]:
-    case = load_case_LU()
+    case = load_case_lu()
     if mode == "phase2":
-        return Reactor(build_phase2_htw_lu_freeboard_reactor_config(case)), dict(PHASE2_HTW_LU_FREEBOARD_SOLVE_KWARGS)
-    return Reactor(build_phase1_htw_lu_global_nr_reactor_config(case)), dict(PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS)
+        return Reactor(build_phase2_config(case)), phase2_solve_kwargs()
+    return Reactor(build_phase1_htw_lu_global_nr_reactor_config(case)), phase1_global_nr_solve_kwargs()
 
 
 def summarize_reactor_char_ledger(reactor: Reactor, result: dict, *, mode: str, solve_kwargs: dict) -> dict:

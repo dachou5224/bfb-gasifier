@@ -1,0 +1,221 @@
+{
+  "run": "p0_p1_p2_outer_fixed_local_fastox_phase2_o8",
+  "wall_s": 95.83641053500001,
+  "total_s": 104.107284525,
+  "cfg": {
+    "extent_limiters_enabled_thesis": false,
+    "nr_refresh_hydrodynamics_on_accepted_step_thesis": false,
+    "nr_line_search_fast_oxidation_projection_thesis": true,
+    "nr_outer_preinner_bed1_phase_split_thesis": true
+  },
+  "converged": false,
+  "converged_outer": false,
+  "converged_inner_nr": false,
+  "converged_fully": false,
+  "n_outer_iters": null,
+  "rms_scaled_final": 0.05505718144739773,
+  "rms_scaled_gas_phase_split_final": 0.05505718144739773,
+  "rms_scaled_energy_final": 0.04369283984009399,
+  "merit_composite_final": null,
+  "exit_gas_dry": {
+    "CO": 0.0,
+    "CO2": 0.10697833660215568,
+    "H2": 0.0263724890714762,
+    "CH4": 0.0019831221689521183,
+    "O2": 0.0,
+    "N2": 0.8640466816463519,
+    "H2S": 0.0,
+    "NH3": 0.000619370511064186
+  },
+  "carbon_conv": 1.0,
+  "counts_selected": {
+    "hydrodynamics_refresh_on_accept": 0,
+    "hydrodynamics_refresh_residual_recompute": 0,
+    "line_search_fast_ox_projections": 232,
+    "line_search_failures": 20,
+    "line_search_evaluations": 232,
+    "global_residual_calls": 262,
+    "jacobian_rebuilds": 10
+  },
+  "clip_history_len": 21,
+  "accepted_steps": 1,
+  "failed_ls_steps": 20,
+  "dir_diag_samples": [
+    {
+      "outer": 1,
+      "iter": 1,
+      "lam": 0.25,
+      "failed": false,
+      "merit_pre_refresh": 0.056032135382048785,
+      "merit_post_refresh": 0.056032135382048785,
+      "newton_linear_defect_rel": 0.014202302251022009,
+      "newton_clip_linear_defect_rel": 0.4213552456188566,
+      "best_trial_merit_scaled": 0.056032135382048785
+    },
+    {
+      "outer": 1,
+      "iter": 2,
+      "lam": null,
+      "failed": true,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 0.04747109919717253,
+      "newton_clip_linear_defect_rel": 0.10522609913336424,
+      "best_trial_merit_scaled": 0.1343831355152416
+    },
+    {
+      "outer": 1,
+      "iter": 3,
+      "lam": null,
+      "failed": true,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 0.04747109919717253,
+      "newton_clip_linear_defect_rel": 0.10522609913336424,
+      "best_trial_merit_scaled": 58.27038543266824
+    },
+    {
+      "outer": 2,
+      "iter": 1,
+      "lam": null,
+      "failed": true,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 1.2935831755536798e-05,
+      "newton_clip_linear_defect_rel": 0.050985833879319,
+      "best_trial_merit_scaled": 0.08516068081250157
+    },
+    {
+      "outer": 2,
+      "iter": 2,
+      "lam": null,
+      "failed": true,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 1.2935831755536798e-05,
+      "newton_clip_linear_defect_rel": 0.050985833879319,
+      "best_trial_merit_scaled": 4.665677875000085
+    },
+    {
+      "outer": 3,
+      "iter": 1,
+      "lam": null,
+      "failed": true,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 1.2935831755536798e-05,
+      "newton_clip_linear_defect_rel": 0.050985833879319,
+      "best_trial_merit_scaled": 0.08516068081250157
+    },
+    {
+      "outer": 3,
+      "iter": 2,
+      "lam": null,
+      "failed": true,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 1.2935831755536798e-05,
+      "newton_clip_linear_defect_rel": 0.050985833879319,
+      "best_trial_merit_scaled": 4.665677875000085
+    },
+    {
+      "outer": 4,
+      "iter": 1,
+      "lam": null,
+      "failed": true,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 1.2935831755536798e-05,
+      "newton_clip_linear_defect_rel": 0.050985833879319,
+      "best_trial_merit_scaled": 0.08516068081250157
+    },
+    {
+      "outer": 4,
+      "iter": 2,
+      "lam": null,
+      "failed": true,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 1.2935831755536798e-05,
+      "newton_clip_linear_defect_rel": 0.050985833879319,
+      "best_trial_merit_scaled": 4.665677875000085
+    },
+    {
+      "outer": 5,
+      "iter": 1,
+      "lam": null,
+      "failed": true,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 1.2935831755536798e-05,
+      "newton_clip_linear_defect_rel": 0.050985833879319,
+      "best_trial_merit_scaled": 0.08516068081250157
+    },
+    {
+      "outer": 5,
+      "iter": 2,
+      "lam": null,
+      "failed": true,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 1.2935831755536798e-05,
+      "newton_clip_linear_defect_rel": 0.050985833879319,
+      "best_trial_merit_scaled": 4.665677875000085
+    },
+    {
+      "outer": 6,
+      "iter": 1,
+      "lam": null,
+      "failed": true,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 1.2935831755536798e-05,
+      "newton_clip_linear_defect_rel": 0.050985833879319,
+      "best_trial_merit_scaled": 0.08516068081250157
+    },
+    {
+      "outer": 6,
+      "iter": 2,
+      "lam": null,
+      "failed": true,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 1.2935831755536798e-05,
+      "newton_clip_linear_defect_rel": 0.050985833879319,
+      "best_trial_merit_scaled": 4.665677875000085
+    },
+    {
+      "outer": 7,
+      "iter": 1,
+      "lam": null,
+      "failed": true,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 1.2935831755536798e-05,
+      "newton_clip_linear_defect_rel": 0.050985833879319,
+      "best_trial_merit_scaled": 0.08516068081250157
+    },
+    {
+      "outer": 7,
+      "iter": 2,
+      "lam": null,
+      "failed": true,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 1.2935831755536798e-05,
+      "newton_clip_linear_defect_rel": 0.050985833879319,
+      "best_trial_merit_scaled": 4.665677875000085
+    },
+    {
+      "outer": 8,
+      "iter": 1,
+      "lam": null,
+      "failed": true,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 1.2935831755536798e-05,
+      "newton_clip_linear_defect_rel": 0.050985833879319,
+      "best_trial_merit_scaled": 0.08516068081250157
+    }
+  ]
+}

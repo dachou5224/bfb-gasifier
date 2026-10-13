@@ -5,8 +5,8 @@ R11: 焦油转化（裂解/重整）— 气泡相 Serio 均相热裂解；悬浮
 
 Source:
 - Hamel (1999) §5.2.6, Eq.5.59, Table 5.4 (pp.95–98)
-- specs/species.md §2–3
-- docs/CLAUDE.md Phase 3.3
+- docs/hamel_submodels/06_kinetics_r1_r11_and_equilibrium_driving.md
+- docs/hamel_submodels/06_kinetics_r1_r11_and_equilibrium_driving.md
 """
 
 from __future__ import annotations
@@ -21,6 +21,7 @@ from src.core.species import (
     TarFuelType,
     TarSurrogate,
     calc_tar_surrogate_fractions,
+    get_tar_component_mapping,
 )
 from src.kinetics.arrhenius import k_standard
 
@@ -45,11 +46,14 @@ _TAR_STOICH_TABLE: Dict[TarReactionId, Dict[TarSurrogate, Dict[str, float]]] = {
 }
 
 
-@lru_cache(maxsize=8)
-def _r10_weighted_classes(fuel_type: TarFuelType) -> tuple[tuple[float, float, float], ...]:
-    """Cached (weight, k10, E/Rg) classes for default-fuel R10 calls."""
+@lru_cache(maxsize=32)
+def _r10_weighted_classes(
+    fuel_type: TarFuelType,
+    target_hc_ratio: float | None = None,
+) -> tuple[tuple[float, float, float], ...]:
+    """Cached (weight, k10, E/Rg) classes；权重与热解代理分率同源。"""
     classes: list[tuple[float, float, float]] = []
-    for surr, weight in calc_tar_surrogate_fractions(fuel_type).items():
+    for surr, weight in calc_tar_surrogate_fractions(fuel_type, target_hc_ratio).items():
         if weight <= 0.0:
             continue
         arom = surr in ("C6H6", "C10H8")
@@ -69,20 +73,22 @@ def _lumped_tar_stoichiometry_items(
     fuel_type: TarFuelType,
     target_hc_ratio: float | None = None,
 ) -> tuple[tuple[str, float], ...]:
+    """按 TAR1/TAR2 槽位加权；允许端点纯组分（一分率为 0）。"""
     fractions = calc_tar_surrogate_fractions(fuel_type, target_hc_ratio=target_hc_ratio)
+    mapping = get_tar_component_mapping(fuel_type)
     table = _TAR_STOICH_TABLE[reaction_id]
 
     lumped: Dict[str, float] = {"TAR1": 0.0, "TAR2": 0.0}
-    non_zero_surrogates = [(s, x) for s, x in fractions.items() if x > 0.0]
-    if len(non_zero_surrogates) != 2:
-        raise ValueError("两组分 tar 模型要求恰好两个非零代理组分")
-
-    for comp, (surrogate, x_s) in zip(("TAR1", "TAR2"), non_zero_surrogates):
-        lumped[comp] -= x_s
+    for comp in ("TAR1", "TAR2"):
+        surrogate = mapping[comp]
+        x_s = float(fractions.get(surrogate, 0.0))
         if x_s <= 0.0:
             continue
+        lumped[comp] -= x_s
         for species, nu in table[surrogate].items():
             lumped[species] = lumped.get(species, 0.0) + x_s * nu
+    if lumped["TAR1"] == 0.0 and lumped["TAR2"] == 0.0:
+        raise ValueError("tar 代理分率全为零，无法构造 lumped 计量")
     return tuple(lumped.items())
 
 
@@ -160,15 +166,17 @@ def rate_R10(
     C_O2: float,
     P: float,
     fuel_type: TarFuelType,
+    target_hc_ratio: float | None = None,
 ) -> float:
     """R10 焦油氧化 [mol/(m³·s)]，两组分代理按摩尔分率加权（芳香 vs 烯烃/烷烃）。
 
     Eq.5.59 (p.96)；气泡与悬浮相使用同一组热力学参数。
+    ``target_hc_ratio`` 与热解分配同源（Hamel §4.2 Teer H/C ≈ 燃料 H/C）。
 
     Source: Hamel (1999) §5.2.6, Table 5.4
     """
     r = 0.0
-    for w, k10, e_rg in _r10_weighted_classes(fuel_type):
+    for w, k10, e_rg in _r10_weighted_classes(fuel_type, target_hc_ratio):
         r += w * _r10_single_class(T, C_tar, C_O2, P, k10, e_rg)
     return r
 

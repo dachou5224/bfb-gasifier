@@ -1,0 +1,61 @@
+1 2 ______________________________ __________8 Diskussion der Ergebnisse und Ausblick
+sehen Inputmaterials als Pyrolysekoks anfällt. In einer zweiten Stufe wird dieser Pyrolysekoks
+in einem Wirbelschichtreaktor verbrannt. Die thermische Energie der dabei entstehenden
+Rauchgase wird genutzt, um in einem Crackreaktor die teerhaltigen Komponenten des Rohga-
+ses unter Verwendung von Wasserdampf zu cracken. Das Verfahren stellt eine optimale ver-
+fahrenstechnische Anpassung an den Brennstoff Biomasse dar, da die thermochemische Um-
+setzung durch Pyrolyse und die anschließende Verbrennung des Restkokses stattfindet. Bio-
+masse enthält bis zu 80 % flüchtige Bestandteile, die während der Pyrolyse schnell und mit
+geringem Energieaufwand freigesetzt werden. Da Pyrolysereaktor und Verbrennungswirbel-
+schicht gasseitig voneinander getrennt und lediglich durch die Feststoffströme miteinander
+gekoppelt sind, entfällt eine unerwünschte Verdünnung des Gases, so dass ein hochwertiges
+Produktgas erzeugt wird und die Wirbelschicht gleichzeitig mit Luft betrieben werden kann.
+Ziel ist ein hoher Kaltgaswirkungsgrad, wobei das Verfahren so zu gestalten ist, dass die Wir-
+belschichtfeuerung als Wärmequelle und als Schadstoffsenke für den Entgasungsreaktor ge-
+nutzt wird.
+Al Berechnung des chemischen Gleichgewichts in der Gasphase
+163
+A.l 
+Berechnung des chemischen Gleichgewichts in der Gasphase
+Die Bestimmung des Gleichgewichtszustandes in der Gasphase kann zum einen durch die
+Formulierung von Gleichgewichtskonstanten und zum anderen durch die Minimierung der
+freien Gibbs’sehen Enthalpie erfolgen. Die erstgenannte Methode setzt jedoch eine Auswahl
+von chemischen Reaktionen, die miteinander im Gleichgewicht stehen, voraus. Der bei tech-
+nisch bedeutsamen Prozessen häufig auftretende Fall, dass eine chemische Umsetzung nicht
+mehr eindeutig verläuft, sondern eine Vielzahl von Parallel- und Folgereaktionen auftreten,
+erfordert die Berechnung von Simultangleichgewichten. Bei derartigen Reaktionsverläufen
+bietet sich zur Berechnung der Gleichgewichtslagen die Methode der Minimierung der
+Gibbs’sehen freien Enthalpie an. Das bedeutet, dass sich ein reagierendes System dann im
+Gleichgewicht befindet, also Hin- und Rückreaktion gleich schnell sind und nach außen keine
+Veränderung mehr auftreten, wenn die Gibbs’sche freie Enthalpie ihren Minimalwert erreicht
+hat.
+Im folgenden werden die Gleichungen zur Berechnung des chemischen Gleichgewichtes in
+der Gasphase mit der Annahme, dass sich alle betrachteten Komponenten wie ideale Gase ver-
+halten und nur im gasförmigen Zustand vorliegen, hergeleitet. Im dargestellten Glei-
+chungssystem wird die Möglichkeit eingeräumt Gaskomponenten als Quell- oder Senken-
+terme zu betrachten und für die Gleichgewichtsberechnung als bekannt vorauszusetzen, was
+bedeutet, dass diese Gaskomponenten sich im Nichtgleichgewicht befinden.
+Für ein Gemisch von Ns Substanzen ist die Gibbs’sche freie Enthalpie durch die Summe der
+chemischen Potentiale der Komponenten gegeben:
+G = 
+(A-l)
+Als weitere Bedingung ist die Massenbilanz unter Berücksichtigung der NQ bekannten Quell-
+oder Senkensubstanzen zu erfüllen
+X au N J +
+E a v N J =b i 
+miti = l,N E
+(A.2)
+J-l 
+J-Ns-N0 +l
+wobei in Gleichung (A.2) mit Ns die Gesamtzahl der gasförmigen Substanzen und mit Ng die
+Anzahl der Quell-/Senken-Substanzen sowie deren bekannte Molmenge Nj gegeben ist. Die
+Koeffizienten a 
+entsprechen den Koeffizienten der Konstitutionsmatrix und stellen die
+Molmenge des Elementes i je Mol der Substanz J dar. Die Gesamtmolmenge des Elementes i
+je Mol Gesamtgemisch aller gasförmigen Substanzen wird durch den Ausdruck bf beschrie-
+ben. Daraus ergibt sich der korrigierte Massenanteil b* des Elementes i am verbleibenden
+Gasgemisch:
+Y Jaij N J =bt 
+i = l,N E
+(A.3)
+J-l

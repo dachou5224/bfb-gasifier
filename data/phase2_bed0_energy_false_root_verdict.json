@@ -1,0 +1,128 @@
+{
+  "knife": "bed0_energy_Fhat_false_root_vs_gas_coupling",
+  "date": "2026-07-27",
+  "constraint": "不抬 Tin；不用 r*_scale；不 ship 无 Hamel 同构改动；单路径 solve",
+  "true_dry_target": {
+    "CO": 0.157,
+    "CO2": 0.133
+  },
+  "hypothesis": [
+    "H1: bed0 T 贴上界 fence → 能量方程在界内无根，E_Fhat 为大假残差",
+    "H2: 气相未闭合是能量假根主因（gas-closed 显著改 T*）",
+    "H3: 抬 fence 使 T→T* 可消 E_Fhat 并改善出口 CO/CO2",
+    "H4: 能量债与 H2 过出口同向耦合（抬 fence 同时改善两者）"
+  ],
+  "baseline_o8": {
+    "exit": {
+      "CO": 0.12509097284445553,
+      "CO2": 0.1513731487200997,
+      "H2": 0.15124181927192126,
+      "CH4": 7.147405109657767e-06
+    },
+    "score_abs": 0.05028217587564415,
+    "T_K": 1250.0,
+    "T_bounds": [
+      750.0,
+      1250.0
+    ],
+    "at_upper_fence": true,
+    "residual_W": 1776360.7639400382,
+    "E_Fhat": 17.76360763940038,
+    "H_in_W": -10391830.315960938,
+    "H_out_gas_W": -6430695.531040231,
+    "H_out_solid_W": -5822901.066102125,
+    "Q_loss_W": 85405.51724137932,
+    "solid_m_in_out": [
+      0.9381666666666668,
+      0.5073221354790195
+    ],
+    "gas_Nin_Nout": [
+      62.52193276174871,
+      85.34449835070178
+    ],
+    "T_star_expanded_K": 1634.1795674987889,
+    "T_star_in_bounds": null,
+    "dE_dT_W_per_K": -4358.456764127128,
+    "gas_closed_T_star_K": 1673.8763272871754,
+    "H2_rc": -2.1897093705068693,
+    "fence_source": "init_precalc_step: _nr_temperature_max_K = min(2500, t_ref + upper_margin); cfg nr_temperature_fence_upper_margin_K_thesis=350 → o1 后 [750,1250]"
+  },
+  "falsification": {
+    "H1_fence_unsatisfiable_energy": "CONFIRMED — T*=1634∉[750,1250]；T=1250 贴上界；E≈+1.78e6 W",
+    "H2_gas_is_main_energy_driver": "FALSIFIED — gas-closed 仅使 T* 1634→1674（+40 K）",
+    "H3_lift_fence_helps_exit": "FALSIFIED — tmax1800 出口 abs 0.050→0.062（更差）",
+    "H4_energy_H2_same_direction": "FALSIFIED — 抬 fence 后 H2_rc −2.19→+1.96（过出口变欠出口）"
+  },
+  "AB": {
+    "off": {
+      "T": 1250.0,
+      "E_Fhat": 17.76360763940038,
+      "H2_rc": -2.1897093705068693,
+      "score_abs": 0.05028217587564415,
+      "exit": {
+        "CO": 0.12509097284445553,
+        "CO2": 0.1513731487200997,
+        "H2": 0.15124181927192126,
+        "CH4": 7.147405109657767e-06
+      }
+    },
+    "A_tmax1800_full_solve": {
+      "T": 1456.5409443640087,
+      "E_Fhat": 1.5509093890876875,
+      "H2_rc": 1.960115759841449,
+      "score_abs": 0.06165659491183996,
+      "exit": {
+        "CO": 0.11741787200204325,
+        "CO2": 0.1550744669138832,
+        "H2": 0.1470003213542054,
+        "CH4": 8.250728878097554e-06
+      },
+      "finding": "E_Fhat 17.8→1.55；T→1457；出口与 H2 均恶化"
+    },
+    "B_tmax2000_full_solve": {
+      "T": 1456.5409443640087,
+      "E_Fhat": 1.5509093890876875,
+      "H2_rc": 1.960115759841449,
+      "score_abs": 0.06165659491183996,
+      "finding": "与 A 同构 — 1800 已不绑定"
+    },
+    "C_warm_lift_after_o8": {
+      "T": 1456.701253482515,
+      "E_Fhat": 0.20474163305399867,
+      "H2_rc": 1.584365100772779,
+      "exit_top": {
+        "CO": 0.12521761864457243,
+        "CO2": 0.1510060395201251,
+        "H2": 0.14928816342313742,
+        "CH4": 0.00021348606105150135
+      },
+      "score_abs": 0.04978842087555266,
+      "finding": "E 大降、H2 翻号；床顶干基几乎不动 — 能量 fence 非出口 CO/CO2 主杠杆"
+    },
+    "prior_Tstar_then_NR_clipped": {
+      "note": "见 phase2_bed0_energy_false_root_ab_o8.json：T→1634 后 warm NR 在旧 fence 下 3 步拉回 1250"
+    }
+  },
+  "mechanism": {
+    "type": "NR_temperature_upper_fence_makes_energy_unsatisfiable",
+    "not_false_mathematical_root": "固定流股下 T*≈1634 唯一；1250 不是能量零点，是界约束投影点",
+    "gas_coupling": "弱（ΔT*≈40 K）；固相 m_out≪m_in（0.51 vs 0.94）影响焓出口，但匹配固相使残差更大",
+    "vs_exit_CO_CO2": "消能量残差 ≠ 改善干基结构；抬 fence 反而 CO↓/CO2↑",
+    "vs_H2_debt": "能量松弛与 H2 Nout 债反向耦合（热路径改变源汇）",
+    "why_E_Fhat_large": "ref_energy_W=1e5 下 1.78e6 W → F̂≈17.8，淹没 gas F̂≈0.03，解释前刀 merit 终态被能量主导"
+  },
+  "ship": {
+    "production_change": false,
+    "reason": "抬 T fence 虽物理上让能量可解，但出口 CO/CO2 恶化且无 Hamel 同构依据证明当前 margin 过紧；本刀否证「能量假根是出口偏差主因」",
+    "note_for_later": "若单独治理能量收敛，可评估 vorab_nr_temperature_fence_upper_anchor / nr_temperature_fence_upper_margin；勿与出口调参混做"
+  },
+  "next_knife": {
+    "primary": "dense_O2_R10_R6_competition_or_H4_FB",
+    "why": "能量 fence 与 H2 merit 均已否证为出口主杠杆；回到密相氧化/焦油竞争或自由板二次风",
+    "alt": [
+      "solid_m_out_vs_m_in_bed0_holdup_energy_carrier",
+      "outer_merit_gas_combined_max_without_lifting_T_fence",
+      "CH4_under_export_coupled_budget"
+    ]
+  }
+}

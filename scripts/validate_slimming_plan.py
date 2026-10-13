@@ -16,8 +16,9 @@ import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
+from _lu_harness import repo_root
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = repo_root()
 
 
 @dataclass
@@ -182,9 +183,13 @@ def main() -> int:
         "expected_gate_failures_before_p0": expected_stage_failures_hit,
         "unexpected_stage_failures": unexpected_stage_failures,
         "recommendation": (
-            "Proceed with P0 gate/index fixes, then rerun tier C."
-            if tier_a_ok and tier_b_ok
-            else "Do not slim yet; fix failing tier A/B checks first."
+            "Tier A/B 已通过；2026-07-04 Tier B/C 瘦身已落地。可选：Tier M 继续合并 audit 簇，或跑 --run-stages 做 tier C 全链回归。"
+            if tier_a_ok and tier_b_ok and not args.run_stages
+            else (
+                "Tier A/B 已通过；tier C 阶段结果见 unexpected_stage_failures。"
+                if tier_a_ok and tier_b_ok
+                else "Do not slim yet; fix failing tier A/B checks first."
+            )
         ),
     }
 

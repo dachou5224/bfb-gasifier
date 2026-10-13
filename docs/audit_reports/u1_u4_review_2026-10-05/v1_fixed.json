@@ -1,0 +1,88 @@
+{
+  "state": "U3 s=0.16 controlled, not a root",
+  "K_eject_matches_bed_face": true,
+  "K_bd_matches_bed_face": true,
+  "inner_status": "linear_step",
+  "F_calls": 96.0,
+  "J_calls": 1.0,
+  "optimizer_entrance": 0.003279121672725125,
+  "optimizer_best": 0.003279121672725125,
+  "rows": [
+    {
+      "alpha": 0.0,
+      "merit": 0.0027271624962056248,
+      "material_ratios": [
+        7.744681482914168,
+        1.4087303720743134,
+        19.052660343170825
+      ],
+      "energy_W": [
+        -0.0010975685727316886,
+        0.0001356380234938115
+      ],
+      "material_improved": true,
+      "transport_closed": true
+    },
+    {
+      "alpha": 0.001,
+      "merit": 0.002724518259867616,
+      "material_ratios": [
+        7.7379993189307665,
+        1.4073215283622798,
+        19.033622447959083
+      ],
+      "energy_W": [
+        -0.001096576190320775,
+        0.00013569212751463056
+      ],
+      "material_improved": true,
+      "transport_closed": true
+    },
+    {
+      "alpha": 0.01,
+      "merit": 0.0027062057592414255,
+      "material_ratios": [
+        7.705181935729418,
+        1.3946419903004883,
+        18.861879074642562
+      ],
+      "energy_W": [
+        -0.0010971073352266103,
+        0.00015321787213906646
+      ],
+      "material_improved": true,
+      "transport_closed": true
+    },
+    {
+      "alpha": 0.1,
+      "merit": 0.0037010182316527434,
+      "material_ratios": [
+        9.88225469406099,
+        1.2678520933873823,
+        17.10892624692383
+      ],
+      "energy_W": [
+        -0.002038610226009041,
+        0.002007588656852022
+      ],
+      "material_improved": false,
+      "transport_closed": true
+    },
+    {
+      "alpha": 1.0,
+      "merit": 0.21877517490931156,
+      "material_ratios": [
+        686.5812338503671,
+        0.0007459430055565092,
+        45.23730685807846
+      ],
+      "energy_W": [
+        -0.10444989678217098,
+        0.17949483048869297
+      ],
+      "material_improved": false,
+      "transport_closed": true
+    }
+  ],
+  "small_step_material_improved": true
+}

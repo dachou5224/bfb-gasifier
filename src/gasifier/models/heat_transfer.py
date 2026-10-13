@@ -1,9 +1,14 @@
+"""Phase0 轴向热损失分布演示（已弃用）。
+
+Canonical：``ReactorConfig.heat_loss_frac`` + ``calc_energy_balance_residual``。
+"""
+
 from __future__ import annotations
 from src.gasifier.domain.config import PlantData, OperatingCondition
 from src.gasifier.models.correlations.heat_transfer_coeff import compound_heat_loss_fraction
 
 class HeatTransferModel:
-    """热传导与热损失模型：计算反应器的轴向热损失分布。"""
+    """Phase0 演示：床层单元热损失比例分配。"""
     def __init__(self, plant: PlantData, op: OperatingCondition):
         self.plant = plant
         self.op = op

@@ -61,6 +61,29 @@ def test_linear_holdup_converges_in_one_full_newton_step() -> None:
     np.testing.assert_allclose(result.F, 0.0, atol=1e-12)
 
 
+def test_trial_in_domain_skips_negative_residual_eval() -> None:
+    evals: list[np.ndarray] = []
+
+    def residual(x: np.ndarray) -> np.ndarray:
+        evals.append(np.asarray(x, dtype=np.float64).copy())
+        assert np.all(x >= 0.0)
+        return x + 1.0  # [与 x 同形] 根在负域
+
+    def jacobian(x: np.ndarray) -> np.ndarray:
+        return np.eye(x.size)
+
+    def in_domain(x: np.ndarray) -> bool:
+        return bool(np.all(np.asarray(x) >= 0.0))
+
+    x0 = np.array([0.25], dtype=np.float64)
+    result = wirsum_1997_strict_newton(
+        residual, jacobian, x0, trial_in_domain=in_domain, max_iter=8
+    )
+    assert all(float(v[0]) >= 0.0 for v in evals)
+    assert not result.converged
+    assert result.failure_reason in {"line_search", "max_iter"}
+
+
 def test_K_zero_holdup_reports_singular_jacobian() -> None:
     z = np.zeros(N_CELLS, dtype=np.float64)
     m_feed = _feed_cell0(1.0)

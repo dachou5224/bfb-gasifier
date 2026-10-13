@@ -1,0 +1,43 @@
+{
+  "wesseling": {
+    "bed_geometric_volume_m3": 1.6964600329384885,
+    "V_d": 4.308469924923146,
+    "V_b": 1.346396851538483,
+    "sum_phase_to_bed_volume": 3.3333333333333335,
+    "w_undecided": [
+      1.0,
+      1.0
+    ],
+    "tau_s": [
+      0.0,
+      0.0
+    ],
+    "effective_tau_floor_s": [
+      1e-06,
+      1e-06
+    ]
+  },
+  "cold": {
+    "opened": [
+      44,
+      45,
+      7,
+      8,
+      10
+    ],
+    "remaining_zero_rows": [
+      {
+        "index": 9,
+        "F": 300143.954059018
+      },
+      {
+        "index": 11,
+        "F": 0.17872371700077447
+      }
+    ]
+  },
+  "timeout": {
+    "status": "timeout",
+    "stats_after_call": {}
+  }
+}

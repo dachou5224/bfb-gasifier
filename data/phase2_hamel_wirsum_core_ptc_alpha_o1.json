@@ -1,0 +1,81 @@
+{
+  "note": "CORE PTC α / deep LS to get Wirsum accept",
+  "arms": [
+    {
+      "label": "ptc_a1_deep24_o1",
+      "wall_s": 15.618570455,
+      "exit_CO": 0.012019832887329768,
+      "exit_H2": 1.3721405190538001e-09,
+      "rms": 0.020408806294065877,
+      "split": 0.039601795394646824,
+      "energy": 0.06849142153449753,
+      "converged": false,
+      "n_acc": 1,
+      "lambda_hist": [
+        3.814697265625e-06
+      ],
+      "ls_trials_hist": [
+        19
+      ],
+      "clip0": {
+        "failed": false,
+        "lam": 3.814697265625e-06,
+        "trials": 19,
+        "best_trial_rms": 0.020408806210896618,
+        "best_trial_lam": 3.814697265625e-06,
+        "linear_defect": 1.1813605838896146,
+        "clip_defect": 1.1371822879588855,
+        "max_abs_dT": 0.1538893994804922
+      },
+      "overrides": {
+        "nr_step_model_thesis": "ptc",
+        "nr_ptc_alpha0_thesis": 1.0,
+        "nr_line_search_max_trials_thesis": 24,
+        "nr_damping_halvings_thesis": 24,
+        "nr_lambda_min_thesis": 1e-08
+      },
+      "max_iter": 1
+    },
+    {
+      "label": "ptc_a1_deep24_o4",
+      "wall_s": 26.673257154,
+      "exit_CO": 0.012019831462183423,
+      "exit_H2": 1.7149611526305714e-09,
+      "rms": 0.02016963001512748,
+      "split": 0.03881180999508062,
+      "energy": 0.06849142414206665,
+      "converged": false,
+      "n_acc": 2,
+      "lambda_hist": [
+        3.814697265625e-06,
+        null,
+        9.5367431640625e-07,
+        null
+      ],
+      "ls_trials_hist": [
+        19,
+        24,
+        21,
+        24
+      ],
+      "clip0": {
+        "failed": false,
+        "lam": 3.814697265625e-06,
+        "trials": 19,
+        "best_trial_rms": 0.020408806210896618,
+        "best_trial_lam": 3.814697265625e-06,
+        "linear_defect": 1.1813605838896146,
+        "clip_defect": 1.1371822879588855,
+        "max_abs_dT": 0.1538893994804922
+      },
+      "overrides": {
+        "nr_step_model_thesis": "ptc",
+        "nr_ptc_alpha0_thesis": 1.0,
+        "nr_line_search_max_trials_thesis": 24,
+        "nr_damping_halvings_thesis": 24,
+        "nr_lambda_min_thesis": 1e-08
+      },
+      "max_iter": 4
+    }
+  ]
+}

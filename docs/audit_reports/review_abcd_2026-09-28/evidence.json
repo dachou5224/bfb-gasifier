@@ -1,0 +1,13 @@
+{
+  "synthetic_events": [
+    "initial integration undecided in cell 0",
+    "refined continuation reaches internal upper face at +1 s"
+  ],
+  "actual_result": [
+    "undecided",
+    5.0,
+    0
+  ],
+  "cell_integrations": 1,
+  "finding": "No integration in cell 1 follows the accepted internal-face event. This is a protocol reproduction, not a Wesseling trajectory result."
+}

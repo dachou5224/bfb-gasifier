@@ -1,0 +1,38 @@
+{
+  "dominant_species_bed0_dof6": "N2",
+  "phase_split_definition": "res_dense[sp] - res_bubble[sp] for MAJOR_NR_GAS_SPECIES (CO,CO2,H2,H2O,CH4,O2,N2)",
+  "init_root_cause": {
+    "mapping": "apply_vorabrechnung_bed_stream_mapping: N_d=N_zu_d, N_b=N_zu_b with gas_inlet_dense_frac=0.5",
+    "symptom_N2": "res_dense=+12.05, res_bubble=-12.05 (equal magnitude); N_d=N_b=N_zu_d=N_zu_b=21.13",
+    "init_bed0_split_rms_scaled": 0.176,
+    "init_N2_split_scaled": 0.303,
+    "init_CO_split_scaled": 0.252
+  },
+  "manual_bed0_preproj_rm0": {
+    "accepted": true,
+    "bed0_split_after_scaled": 5.5e-05,
+    "but_live_rm1_CO_split": 0.244,
+    "note": "LSQ at preproj_gas_rm=0 closes split without reactions; inner NR rm=1 immediately reopens CO/H2"
+  },
+  "manual_bed0_preproj_rm1": {
+    "bed0_split_after_scaled": 5.5e-05,
+    "global_split_after": 0.169,
+    "note": "bed0-only closure OK but global split worsens via BC coupling to upper beds"
+  },
+  "nr_plateau_bed0": {
+    "N2_res_pattern": "res_dense=-res_bubble again; N_d=N_b symmetric after refresh",
+    "worst_scaled_split": 0.827,
+    "driver_after_many_outer": "N2 primary + freeboard species"
+  },
+  "outer_preinner": {
+    "bed0_only_default": true,
+    "bed1_split_if_all_beds_preproj": 0.088,
+    "global_gate_rolls_back_when_merit_worse": true
+  },
+  "recommended_next": [
+    "Init: replace N_d=N_zu copy with exchange-aware primary partition (or one-shot bed0 phase-split at rm=1 before NR)",
+    "Pre-inner: rm=1 phase-split LSQ + bed1 scope, or split-aware merit on bed0-only DOFs",
+    "NR: merit uses global split — local bed0 fix can hurt global; need multi-bed coordinated closure"
+  ],
+  "audit_file": "data/phase2_bed0_phase_split_audit.json"
+}

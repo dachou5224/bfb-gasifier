@@ -1,0 +1,30 @@
+{
+  "bypass_case": {
+    "identity": "not a numerical root; s=0.22 feed with nonzero N/S and moisture",
+    "n_NH3_mol_s": 0.08326774215197014,
+    "n_H2S_mol_s": 0.027279891252144084,
+    "bypass_H_mol_atom_s": 0.3043630089601986,
+    "enters_major_density": false,
+    "covers_subsequent_reactions": false,
+    "gap_mol_s": {
+      "C": 0.593058305807142,
+      "H": 0.11830898688522584,
+      "O": -0.10000000000000009,
+      "N": 0.0,
+      "S": 0.0
+    }
+  },
+  "p3_residual_passing_ledger": {
+    "identity": "P3 endpoint, separate from the bypass case",
+    "gap_mol_s": {
+      "C": 1.1891864160062937e-09,
+      "H": 4.101578299220421e-09,
+      "O": 1.367193025458846e-09,
+      "N": 0.0,
+      "S": 0.0
+    },
+    "enthalpy_gap_W": -0.0002945455489680171,
+    "n_NH3_mol_s": 0.0,
+    "h_o_gap_not_waived": true
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "max_global_iter": 20,
+  "cases": [
+    {
+      "label": "baseline_off",
+      "blend": 0.35,
+      "wall_time_s": 311.080114242,
+      "init_rms_scaled": 0.023354435606379374,
+      "init_gas_phase_split_rms": 0.029578847682928983,
+      "converged": false,
+      "nr_outer_iters": 20,
+      "n_iter": 67,
+      "rms_scaled_final": 0.007122233646927309,
+      "rms_scaled_gas_phase_split_final": 0.007122233646927309,
+      "rms_scaled_solid_final": 0.009334401192059598,
+      "rms_scaled_energy_final": 0.004040219422327962
+    },
+    {
+      "label": "axial_blend020",
+      "blend": 0.2,
+      "wall_time_s": 275.22808461200003,
+      "init_rms_scaled": 0.043634651248252034,
+      "init_gas_phase_split_rms": 0.0416048356454407,
+      "converged": false,
+      "nr_outer_iters": 20,
+      "n_iter": 50,
+      "rms_scaled_final": 0.014219617608764319,
+      "rms_scaled_gas_phase_split_final": 0.012801275301589669,
+      "rms_scaled_solid_final": 0.014280682290407352,
+      "rms_scaled_energy_final": 0.026627255712413297
+    },
+    {
+      "label": "axial_blend035",
+      "blend": 0.35,
+      "wall_time_s": 294.97266107999997,
+      "init_rms_scaled": 0.04537887016528084,
+      "init_gas_phase_split_rms": 0.043345569561951465,
+      "converged": false,
+      "nr_outer_iters": 20,
+      "n_iter": 64,
+      "rms_scaled_final": 0.004205719512708067,
+      "rms_scaled_gas_phase_split_final": 0.003581510238984541,
+      "rms_scaled_solid_final": 0.004643741250113493,
+      "rms_scaled_energy_final": 0.012181706225243375
+    }
+  ]
+}

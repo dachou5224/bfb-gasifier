@@ -1,0 +1,46 @@
+{
+  "legacy_seed_only": {
+    "bed1": {
+      "bed": 1,
+      "T_K": 800.691233065481,
+      "energy_MW": 1.4924640231636241,
+      "solid_holdup_kg_s": 1.037758106179146,
+      "solid_out_kg_s": 0.054994735274549844,
+      "solid_auf_in_kg_s": 0.03685032855319433,
+      "auf_in_over_outflow": 0.6700701143341574,
+      "holdup_over_outflow": 18.870135495667963
+    },
+    "metrics": {
+      "rms_scaled": 0.07549666133144273,
+      "max_abs_scaled": 0.4669130718145655,
+      "max_bed_energy_abs_W": 4282927.142034566,
+      "gas_phase_split_rms": 0.24679566213066553,
+      "gas_phase_split_max_abs": 0.8557254219837138,
+      "solid_rms": 0.009158756167106851,
+      "energy_rms": 0.08305703591681371,
+      "merit_scaled": 0.24679566213066553
+    }
+  },
+  "holdup_align": {
+    "bed1": {
+      "bed": 1,
+      "T_K": 800.691233065481,
+      "energy_MW": 1.5960703042537217,
+      "solid_holdup_kg_s": 1.751993316598103,
+      "solid_out_kg_s": 0.09294124044530072,
+      "solid_auf_in_kg_s": 0.06253132469680235,
+      "auf_in_over_outflow": 0.6728049291918402,
+      "holdup_over_outflow": 18.850548025870328
+    },
+    "metrics": {
+      "rms_scaled": 0.07551392008605143,
+      "max_abs_scaled": 0.46701407060153866,
+      "max_bed_energy_abs_W": 3812616.8372793663,
+      "gas_phase_split_rms": 0.2473634797854483,
+      "gas_phase_split_max_abs": 0.855848945892451,
+      "solid_rms": 0.0075590859863087665,
+      "energy_rms": 0.08105878938303081,
+      "merit_scaled": 0.2473634797854483
+    }
+  }
+}

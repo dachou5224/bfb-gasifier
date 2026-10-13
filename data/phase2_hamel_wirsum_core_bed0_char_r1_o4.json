@@ -1,0 +1,21 @@
+{
+  "note": "CORE o4 after fastox+R1 char-O2 x0",
+  "wall_s": 35.538848287,
+  "n_acc": 4,
+  "lambda_hist": [
+    null,
+    null,
+    null,
+    null
+  ],
+  "rms_scaled_final": 0.022441103133455435,
+  "converged": false,
+  "max_abs_scaled_final": 0.2742363421648024,
+  "y_CO_exit": 0.012019838590470941,
+  "y_H2_exit": 0.0,
+  "bed0_T": 1150.234280999747,
+  "bed0_y_O2": 0.0,
+  "bed0_y_CO": 0.0,
+  "bed0_y_H2": 0.0,
+  "bed0_E_MW": -0.4193359991990869
+}

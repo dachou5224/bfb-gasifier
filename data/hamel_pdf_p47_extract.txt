@@ -1,0 +1,78 @@
+77
+5 Modellierung der chemischen Reaktionen
+76 
+5 Modellierung der chemischen Reaktionen
+Die Reaktionsrate eines Partikels ist demnach nur zu ermitteln, wenn dessen „Alter“ ausge-
+drückt durch den Umsatzgrad bekannt ist. Der Umsatzgrad des Partikels wird mit der Kinetik
+korreliert, wodurch alle die effektive Reaktionsgeschwindigkeit betreffenden Änderungen, die
+der Partikel erfährt, erfasst werden.
+Vergleichbar hiermit ist das „Shrinking core“-Modell, bei dem trotz gleicher Größe des unre-
+agierten Kems sich aufgrund der Ausgangsgröße des Partikels eine unterschiedlich dicke
+Ascheschicht um den Partikel befinden kann, was einen unterschiedlichen Diffusions-
+widerstand hervorruft. Das heißt, auch hier muss der Ausgangszustand jedes reagierenden
+Partikels zur korrekten Anwendung des Modells bekannt sein.
+Die Reaktion nach dem „Shrinking particle“-Modell dagegen wird zu jedem Zeitpunkt auf die
+aktuell vorliegende Partikeloberfläche bezogen, daher ist zur Berechnung der Reaktionsraten
+lediglich die Kenntnis der Partikelgröße notwendig.
+Partikel-
+altersklasse
+Kohlenstoff-
+umsatz
+Xc = 0,0
+Partikelgrößenklasse
+Verbrennung
+„Shrinking particle”
+„Shrinking density"
+Xc = 0,25
+- 0,50
+Xc = 0,75
+5.1.1.1 Formulierung der Bilanzgleichungen mit Partikelaltersverteilung
+Um neben der Partikelgrößenverteilung im Simulationsmodell eine Partikelaltersverteilung
+berücksichtigen zu können, ist das Bilanzierungsschema entsprechend zu erweitern. Zu jeder
+Partikelgrößenklasse ist eine Anzahl diskreter Partikelaltersklassen zuzuordnen. Das Partikel-
+alter kann über den Umsatzgrad X c definiert werden (siehe Bild 5.3). Die Anzahl der Partikel-
+altersklassen ist zwar beliebig vorzugeben, sollte aber so gewählt werden, dass der umsatzab-
+hängige Verlauf der verwendeten Kinetik wiedergegeben wird. Daher kann je nach verwen-
+deter Kinetik die optimale zu wählende Anzahl der Partikelaltersklassen variieren (siehe Bei-
+spiel in Bild 5.4). Die Anzahl der bilanzierten Variablen je Zelle erhöht sich durch die Be-
+rücksichtigung der „Alters“-Verteilung entsprechend zu:
+Nß U = 
+Phs * 
+Gas + 
+Aller J ) + 1 
+(5-4)
+j=l
+oder ohne Energiebilanz
+N Bil ~~ N pfa 'N Gas + 
+Alter,j ) 
+(5-5)
+j=!
+Xc = 1,0
+Bild 5.3: 
+Beispiel für die Bilanzierung von Partikelgrößen- und -altersklassen.
+Normierte Reaktionsrate R*c/R*c.o
+— 
+Porenmodell 
+T = 3
+(Gleichung 5.2)
+| 
+| Na Partikelaltersklsssen
+1,0
+0,8-
+0,6-
+0,4-
+0,2-
+Xc.Na-t
+‘0,5
+kCJ
+0,0 4-
+0
+0,4 
+0,6
+Umsatz Xc
+Bild 5.4: 
+Bilanzierung von Partikel großen- und -altersklassen
+0,2
+0,8
+1
+wobei N A iter j die Anzahl der Partikelaltersklassen der Feststoffsorte j ist.

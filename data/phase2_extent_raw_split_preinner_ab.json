@@ -1,0 +1,146 @@
+{
+  "rows": [
+    {
+      "name": "base",
+      "rms": 0.07033124647957249,
+      "split": 0.07033124647957249,
+      "energy": 0.027047029593629045,
+      "conv": false,
+      "wall": 135.661053286,
+      "preinner": {
+        "split_rms_before": 0.07033124647957249,
+        "split_rms_after": 0.07033124647957249,
+        "bed0_accepted": false,
+        "bed1_accepted": null,
+        "bed_indices": null,
+        "merit_after": 0.07033124647957249
+      }
+    },
+    {
+      "name": "maxbed3",
+      "rms": 0.05584473450146813,
+      "split": 0.05584473450146813,
+      "energy": 0.0440385888804557,
+      "conv": false,
+      "wall": 137.723543168,
+      "preinner": {
+        "split_rms_before": 0.05584473450146813,
+        "split_rms_after": 0.05584473450146813,
+        "bed0_accepted": false,
+        "bed1_accepted": null,
+        "bed_indices": null,
+        "merit_after": 0.05584473450146813
+      }
+    },
+    {
+      "name": "maxbed9",
+      "rms": 0.06025786262535122,
+      "split": 0.04885744917052969,
+      "energy": 0.06025786262535122,
+      "conv": false,
+      "wall": 124.58855804500001,
+      "preinner": {
+        "split_rms_before": 0.04885744917052969,
+        "split_rms_after": 0.04885744917052969,
+        "bed0_accepted": false,
+        "bed1_accepted": null,
+        "bed_indices": null,
+        "merit_after": 0.06025786262535122
+      }
+    },
+    {
+      "name": "bed1",
+      "rms": 0.03701607687863128,
+      "split": 0.03701607687863128,
+      "energy": 0.013128652899412634,
+      "conv": false,
+      "wall": 177.247238031,
+      "preinner": {
+        "split_rms_before": 0.03701607687863128,
+        "split_rms_after": 0.03701607687863128,
+        "bed0_accepted": false,
+        "bed1_accepted": null,
+        "bed_indices": null,
+        "merit_after": 0.03701607687863128
+      }
+    },
+    {
+      "name": "maxbed9_bed1",
+      "rms": 0.04536770860132027,
+      "split": 0.044512149151636905,
+      "energy": 0.04536770860132027,
+      "conv": false,
+      "wall": 167.04624485399995,
+      "preinner": {
+        "split_rms_before": 0.044512149151636905,
+        "split_rms_after": 0.044512149151636905,
+        "bed0_accepted": false,
+        "bed1_accepted": null,
+        "bed_indices": null,
+        "merit_after": 0.04537124701932786
+      }
+    },
+    {
+      "name": "maxbed9_loose",
+      "rms": 0.06025786262535122,
+      "split": 0.04885744917052969,
+      "energy": 0.06025786262535122,
+      "conv": false,
+      "wall": 117.90535809000005,
+      "preinner": {
+        "split_rms_before": 0.04885744917052969,
+        "split_rms_after": 0.04885744917052969,
+        "bed0_accepted": false,
+        "bed1_accepted": null,
+        "bed_indices": null,
+        "merit_after": 0.06025786262535122
+      }
+    }
+  ],
+  "oneshot": {
+    "before": 0.07033124647957249,
+    "after": 0.021964229878800052,
+    "accepted": [
+      [
+        0,
+        false
+      ],
+      [
+        1,
+        true
+      ],
+      [
+        2,
+        true
+      ],
+      [
+        3,
+        true
+      ],
+      [
+        4,
+        true
+      ],
+      [
+        5,
+        true
+      ],
+      [
+        6,
+        true
+      ],
+      [
+        7,
+        true
+      ],
+      [
+        8,
+        true
+      ],
+      [
+        9,
+        true
+      ]
+    ]
+  }
+}

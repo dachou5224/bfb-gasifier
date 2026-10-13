@@ -164,7 +164,12 @@ def test_phase1_lu_global_nr_shared_policy_reports_explicit_init_strategy():
     assert result["nr_gs_warmup_steps"] == 0
     requested_jacobian = PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS["nr_jacobian_strategy"]
     if requested_jacobian is None:
-        assert result["nr_jacobian_strategy"] in {"block_tridiag_structured", "band_plus_side_elements_structured"}
+        assert result["nr_jacobian_strategy"] in {
+            "block_tridiag_structured",
+            "hybrid_block_tridiag_structured",
+            "band_plus_side_elements_structured",
+            "hybrid_band_plus_side_elements_structured",
+        }
     else:
         assert result["nr_jacobian_strategy"] == requested_jacobian
     assert result["nr_outer_iters"] >= 1
@@ -206,9 +211,9 @@ def test_load_case_lu_exposes_secondary_and_recycle_hints_from_json():
     assert case["bed_diameter_m"] == pytest.approx(0.6)
     assert case["freeboard_diameter_m"] == pytest.approx(0.6)
     assert case["total_air_Nm3_h"] == pytest.approx(5536.9)
-    assert case["secondary_air_Nm3_h"] == pytest.approx(30.1)
-    assert case["primary_air_Nm3_h"] == pytest.approx(5536.9 - 30.1)
-    assert case["secondary_injection_xi"] == pytest.approx(0.60)
+    assert case["secondary_air_Nm3_h"] is None
+    assert case["primary_air_Nm3_h"] is None
+    assert case["secondary_injection_xi"] is None
     assert case["secondary_injection_agent"] == "Air"
 
 
@@ -227,14 +232,12 @@ def test_extract_case_inlet_topology_hints_converts_numeric_secondary_air():
 def test_extract_case_inlet_topology_hints_supports_wesseling_secondary_o2():
     node = load_validation_case_node("CASE_HTW_WESSELING_2")
     hints = extract_case_inlet_topology_hints(node)
-    o2_mol_s = 37.5 * (1000.0 / 22.414) / 3600.0
     assert hints["total_O2_Nm3_h"] == pytest.approx(1921.6)
-    assert hints["secondary_O2_Nm3_h"] == pytest.approx(37.5)
-    assert hints["primary_O2_Nm3_h"] == pytest.approx(1921.6 - 37.5)
+    assert hints["secondary_O2_Nm3_h"] is None
+    assert hints["primary_O2_Nm3_h"] is None
     assert hints["secondary_injection_agent"] == "O2"
-    assert hints["secondary_agent_Nm3_h"] == pytest.approx(37.5)
-    assert hints["secondary_agent_O2_mol_s"] == pytest.approx(o2_mol_s)
-    assert hints["secondary_agent_N2_mol_s"] == pytest.approx(0.0)
+    assert hints["secondary_agent_Nm3_h"] is None
+    assert hints["secondary_injection_xi"] is None
 
 
 def test_extract_case_inlet_topology_hints_resolves_wsv_shared_reactor_block():

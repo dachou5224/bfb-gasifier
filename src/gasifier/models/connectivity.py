@@ -1,3 +1,10 @@
+"""Phase0 GlobalState 连接演示（已弃用）。
+
+Canonical BC / 预投影 / 固气传输：``src.core.connectivity``（``Reactor`` NR 主路径）。
+
+本模块 ``ConnectivityModel`` 仅为早期流程图占位，**不得**与 core 包并行演进。
+"""
+
 from __future__ import annotations
 import numpy as np
 from src.gasifier.domain.state import GlobalState
@@ -6,7 +13,10 @@ from src.core.species import GAS_SPECIES_INDEX, N_GAS
 from src.core.cell import S_CHAR, S_ASH, S_MOISTURE, S_VM, N_SOLID_COMP
 
 class ConnectivityModel:
-    """连接模型：负责在 GlobalState 中各单元之间路由流束 (Stream Routing)。"""
+    """Phase0 演示：在 GlobalState 上路由流束（非 production API）。
+
+    生产实现见 ``src.core.connectivity``（预投影、joint gate、NR 边界等）。
+    """
     
     def __init__(self, plant: PlantData, op: OperatingCondition):
         self.plant = plant

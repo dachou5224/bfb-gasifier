@@ -1,0 +1,66 @@
+{
+  "cases": [
+    {
+      "name": "T_plus_50K",
+      "status": "passed",
+      "elapsed_s": 58.602068826,
+      "budget_s": 120.0,
+      "outer_refreshes": 3,
+      "blocks": {
+        "passed": true,
+        "gas_l2": 5.387521875329684e-07,
+        "solid_l2": 4.505417407072454e-10,
+        "tar_l2": 3.5963152736293787e-09,
+        "energy_W": 0.0005889010353712365
+      },
+      "worst_row": {
+        "index": 49,
+        "value": 0.0006126599764684215
+      },
+      "T_bed": 1363.441210322442,
+      "T_fb": 1384.0930289520375
+    },
+    {
+      "name": "T_minus_50K",
+      "status": "passed",
+      "elapsed_s": 69.12011962899999,
+      "budget_s": 120.0,
+      "outer_refreshes": 3,
+      "blocks": {
+        "passed": true,
+        "gas_l2": 4.4183299648884325e-07,
+        "solid_l2": 3.704276449338045e-10,
+        "tar_l2": 2.9595766846693075e-09,
+        "energy_W": -0.000484747884911485
+      },
+      "worst_row": {
+        "index": 49,
+        "value": -0.0005042820848757401
+      },
+      "T_bed": 1363.4411111098825,
+      "T_fb": 1384.0930813881823
+    },
+    {
+      "name": "positive_half",
+      "status": "timeout",
+      "elapsed_s": 120.100274901,
+      "budget_s": 120.0,
+      "outer_refreshes": 0,
+      "blocks": null,
+      "worst_row": null,
+      "T_bed": 1363.4411286245822,
+      "T_fb": 1384.0930720853798
+    },
+    {
+      "name": "positive_double",
+      "status": "timeout",
+      "elapsed_s": 120.29859322100003,
+      "budget_s": 120.0,
+      "outer_refreshes": 0,
+      "blocks": null,
+      "worst_row": null,
+      "T_bed": 1363.4411286245822,
+      "T_fb": 1384.0930720853798
+    }
+  ]
+}

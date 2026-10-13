@@ -1,0 +1,80 @@
+{
+  "verdict": "energy_lift_is_inner_freeze_exit_not_vorab_refresh",
+  "summary": {
+    "refresh_max_abs_dE": 2.5900582520249626e-06,
+    "inners": [
+      {
+        "O": 1,
+        "nr_E": 0.09037589477340974,
+        "frozen_exit_E": 0.09037589477340974,
+        "live_E": 0.14641630161315594,
+        "gap_freeze_to_live": 0.056040406839746204
+      },
+      {
+        "O": 2,
+        "nr_E": 0.09037589477340974,
+        "frozen_exit_E": 0.09037589477340974,
+        "live_E": 0.14641630161315594,
+        "gap_freeze_to_live": 0.056040406839746204
+      },
+      {
+        "O": 3,
+        "nr_E": 0.14537313894099918,
+        "frozen_exit_E": 0.14537313894099918,
+        "live_E": 0.149817157727638,
+        "gap_freeze_to_live": 0.004444018786638831
+      }
+    ]
+  },
+  "hypotheses": {
+    "H_refresh": "REJECTED \u2014 Vorab refresh dE\u22480 on same cell set",
+    "H_postinner": "REJECTED \u2014 postinner holdup dE=0 in prior tight probe",
+    "H_freeze_exit": "CONFIRMED \u2014 live residual after disable_inner_nr_vorabrechnung_freeze >> frozen/nr_E when state moved",
+    "H_tcap_consequence": "STILL OPEN as downstream effect \u2014 elevated live entry energy can unlock 600K T-cap"
+  },
+  "hamel_boundary": "Inner freeze + outer Abgleich refresh is thesis-aligned (Bild 2.2). The live energy jump after unfreeze is the Check1-frozen vs Check2-live residual gap, not a Vorabrechnung refresh regression. Not a Hamel equation parity defect.",
+  "rows": [
+    {
+      "tag": "refresh",
+      "dE": 2.5900582520249626e-06,
+      "E_before": 0.10459081971119895,
+      "E_after": 0.10459340976945097
+    },
+    {
+      "tag": "inner",
+      "O": 1,
+      "nr_E": 0.09037589477340974,
+      "E_while_frozen_at_exit": 0.09037589477340974,
+      "E_after_unfreeze": 0.14641630161315594,
+      "gap_freeze_to_live": 0.056040406839746204,
+      "gap_nr_to_live": 0.056040406839746204,
+      "gap_nr_to_frozen": 0.0
+    },
+    {
+      "tag": "inner",
+      "O": 2,
+      "nr_E": 0.09037589477340974,
+      "E_while_frozen_at_exit": 0.09037589477340974,
+      "E_after_unfreeze": 0.14641630161315594,
+      "gap_freeze_to_live": 0.056040406839746204,
+      "gap_nr_to_live": 0.056040406839746204,
+      "gap_nr_to_frozen": 0.0
+    },
+    {
+      "tag": "refresh",
+      "dE": 0.0,
+      "E_before": 0.14641630161315594,
+      "E_after": 0.14641630161315594
+    },
+    {
+      "tag": "inner",
+      "O": 3,
+      "nr_E": 0.14537313894099918,
+      "E_while_frozen_at_exit": 0.14537313894099918,
+      "E_after_unfreeze": 0.149817157727638,
+      "gap_freeze_to_live": 0.004444018786638831,
+      "gap_nr_to_live": 0.004444018786638831,
+      "gap_nr_to_frozen": 0.0
+    }
+  ]
+}

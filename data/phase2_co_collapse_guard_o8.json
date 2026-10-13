@@ -1,0 +1,51 @@
+{
+  "run": "co_collapse_guard_p0p1p2_o8",
+  "wall_s": 91.510165535,
+  "total_s": 99.125107771,
+  "cfg": {
+    "extent_limiters_enabled_thesis": false,
+    "nr_refresh_hydrodynamics_on_accepted_step_thesis": false,
+    "nr_line_search_fast_oxidation_projection_thesis": true,
+    "nr_outer_preinner_bed1_phase_split_thesis": true,
+    "nr_line_search_syngas_collapse_guard_thesis": true,
+    "nr_line_search_syngas_collapse_ratio_thesis": 0.05
+  },
+  "holdup_after_external_init": {
+    "CO": 10.43549829767228,
+    "H2": 0.0,
+    "CH4": 0.8641357556431355
+  },
+  "holdup_final_bed": {
+    "CO": 10.43549829767228,
+    "H2": 0.0,
+    "CH4": 0.8641357556431355,
+    "syngas": 11.299634053315415
+  },
+  "converged": false,
+  "rms_scaled_final": 0.05907762356194485,
+  "rms_scaled_gas_phase_split_final": 0.03656881873970232,
+  "rms_scaled_energy_final": 0.05907762356194485,
+  "exit_gas_dry": {
+    "CO": 0.01128814005686301,
+    "CO2": 0.054461199980087284,
+    "H2": 0.0,
+    "CH4": 0.0,
+    "O2": 1.9444976970204472e-53,
+    "N2": 0.9342506599630497,
+    "H2S": 0.0,
+    "NH3": 0.0
+  },
+  "counts_selected": {
+    "hydrodynamics_refresh_on_accept": 0,
+    "line_search_fast_ox_projections": 220,
+    "line_search_failures": 20,
+    "line_search_syngas_collapse_rejects": 30,
+    "line_search_evaluations": 220,
+    "global_residual_calls": 250,
+    "jacobian_rebuilds": 10
+  },
+  "accepted_steps": null,
+  "failed_ls_steps": null,
+  "clip_history_len": 0,
+  "dir_diag_samples": []
+}

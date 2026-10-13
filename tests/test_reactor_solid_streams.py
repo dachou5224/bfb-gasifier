@@ -9,7 +9,10 @@ import pytest
 
 from src.core.connectivity import (
     _set_explicit_freeboard_inlet_from_prev,
+    align_bed_solid_holdup_to_auf_upflow_closure,
+    align_bed_solid_holdup_to_transport_inflow_support,
     cell_total_solid_holdup,
+    seed_and_align_bed_holdup_chain_for_init,
     seed_holdup_from_inflows,
     update_bed_solid_transport_coefficients,
     update_bed_solid_transport_inflows,
@@ -17,6 +20,7 @@ from src.core.connectivity import (
 )
 from src.core.cell import S_ASH, S_CHAR, S_MOISTURE, S_VM
 from src.core.freeboard_segment import simulate_freeboard
+from src.core.hamel_parity_defaults import LEGACY_BED_SOLID_STATE_MODEL
 from src.core.reactor import GAS_SPECIES, GAS_SPECIES_INDEX, Reactor, ReactorConfig, _propagated_solid_stream, _recycled_solid_stream
 from src.solvers.vorabrechnung import vorabrechnung_tau_for_cell
 
@@ -61,7 +65,14 @@ def test_propagated_solid_stream_can_keep_reactive_components_when_enabled():
 
 
 def test_propagate_upstream_filters_vm_and_moisture_from_solid_inlet():
-    reactor = Reactor(ReactorConfig(n_cells=3, solid_lower_inlet_frac=0.25, top_solid_inlet_frac=0.5))
+    reactor = Reactor(
+        ReactorConfig(
+            n_cells=3,
+            solid_lower_inlet_frac=0.25,
+            top_solid_inlet_frac=0.5,
+            bed_solid_state_model=LEGACY_BED_SOLID_STATE_MODEL,
+        )
+    )
     prev = reactor.cells[0]
     curr = reactor.cells[1]
     above = reactor.cells[2]
@@ -93,6 +104,7 @@ def test_propagate_upstream_allows_reactive_components_in_lower_zone_only():
             solid_lower_inlet_frac=0.0,
             allow_reactive_solid_propagation=True,
             reactive_solid_cutoff_xi=0.35,
+            bed_solid_state_model=LEGACY_BED_SOLID_STATE_MODEL,
         )
     )
     # cell 1 center xi=0.375 (>0.35), cell 0->1 should already be filtered.
@@ -171,7 +183,7 @@ def test_propagate_upstream_uses_cell_upflow_rates_under_holdup_transport():
     reactor = Reactor(ReactorConfig(n_cells=2, top_solid_inlet_frac=1.0))
     prev = reactor.cells[0]
     top = reactor.cells[1]
-    prev.solid_state_model = "holdup_transport"
+    top.solid_state_model = LEGACY_BED_SOLID_STATE_MODEL
     prev.m_solid[0, :] = np.array([2.0, 4.0, 6.0, 8.0], dtype=float)
     prev.K_solid_auf.fill(0.1)
     prev.K_solid_ab.fill(0.2)
@@ -182,7 +194,13 @@ def test_propagate_upstream_uses_cell_upflow_rates_under_holdup_transport():
 
 
 def test_top_cell_propagation_filters_vm_and_moisture_from_solid_inlet():
-    reactor = Reactor(ReactorConfig(n_cells=2, top_solid_inlet_frac=0.4))
+    reactor = Reactor(
+        ReactorConfig(
+            n_cells=2,
+            top_solid_inlet_frac=0.4,
+            bed_solid_state_model=LEGACY_BED_SOLID_STATE_MODEL,
+        )
+    )
     prev = reactor.cells[0]
     top = reactor.cells[1]
     prev.m_solid[0, :] = np.array([1.0, 2.0, 3.0, 4.0], dtype=float)
@@ -451,6 +469,120 @@ def test_seed_holdup_from_inflows_raises_underfilled_inventory_without_lowering(
     assert cell.m_solid[0, S_ASH] == pytest.approx(0.5)
 
 
+def test_align_upper_bed_holdup_matches_auf_inflow_support():
+    reactor = Reactor(ReactorConfig(n_cells=2, H_bed=2.0, D_bed=1.0, thesis_mode=True))
+    lower, upper = reactor.cells
+    for cell in reactor.cells:
+        cell.eps_b = 0.2
+        cell.u_b = 0.5
+        cell.solid_state_model = "holdup_transport"
+        cell.m_solid.fill(0.0)
+        cell.m_solid_zu.fill(0.0)
+        cell.m_solid_rez.fill(0.0)
+        cell.m_solid_in.fill(0.0)
+        cell.R_solid.fill(0.0)
+
+    lower.m_solid[0, S_CHAR] = 4.0
+    update_bed_solid_transport_coefficients(reactor.cells, reactor.config)
+    update_bed_solid_transport_inflows(reactor.cells)
+
+    auf_flux = float(np.sum(lower.K_solid_auf[:, S_CHAR] * lower.m_solid[:, S_CHAR]))
+    assert auf_flux > 0.0
+    assert float(np.sum(upper.m_solid_auf_in[:, S_CHAR])) == pytest.approx(auf_flux)
+
+    upper.m_solid[0, S_CHAR] = 0.05
+    changed = align_bed_solid_holdup_to_transport_inflow_support(upper)
+    assert changed is True
+
+    k_auf = float(upper.K_solid_auf[0, S_CHAR])
+    out_flux = k_auf * float(upper.m_solid[0, S_CHAR])
+    assert out_flux == pytest.approx(auf_flux, rel=1e-6)
+
+
+def test_align_upper_bed_holdup_reduces_overfilled_inventory():
+    reactor = Reactor(ReactorConfig(n_cells=2, H_bed=2.0, D_bed=1.0, thesis_mode=True))
+    lower, upper = reactor.cells
+    for cell in reactor.cells:
+        cell.eps_b = 0.2
+        cell.u_b = 0.5
+        cell.solid_state_model = "holdup_transport"
+        cell.m_solid.fill(0.0)
+        cell.m_solid_zu.fill(0.0)
+        cell.m_solid_rez.fill(0.0)
+        cell.m_solid_in.fill(0.0)
+        cell.R_solid.fill(0.0)
+
+    lower.m_solid[0, S_CHAR] = 4.0
+    update_bed_solid_transport_coefficients(reactor.cells, reactor.config)
+    update_bed_solid_transport_inflows(reactor.cells)
+
+    auf_flux = float(np.sum(lower.K_solid_auf[:, S_CHAR] * lower.m_solid[:, S_CHAR]))
+    upper.m_solid[0, S_CHAR] = 100.0
+    update_bed_solid_transport_inflows(reactor.cells)
+    assert float(np.sum(upper.K_solid_auf[:, S_CHAR] * upper.m_solid[:, S_CHAR])) > auf_flux * 1.5
+
+    changed = align_bed_solid_holdup_to_transport_inflow_support(upper, allow_reduce=True)
+    assert changed is True
+    out_flux = float(np.sum(upper.K_solid_auf[:, S_CHAR] * upper.m_solid[:, S_CHAR]))
+    assert out_flux == pytest.approx(auf_flux, rel=1e-6)
+
+
+def test_auf_upflow_closure_matches_inflow_when_k_ab_nonzero():
+    reactor = Reactor(ReactorConfig(n_cells=2, H_bed=2.0, D_bed=1.0, thesis_mode=True))
+    lower, upper = reactor.cells
+    for cell in reactor.cells:
+        cell.eps_b = 0.2
+        cell.u_b = 0.5
+        cell.solid_state_model = "holdup_transport"
+        cell.m_solid.fill(0.0)
+        cell.m_solid_zu.fill(0.0)
+        cell.m_solid_rez.fill(0.0)
+        cell.m_solid_in.fill(0.0)
+        cell.R_solid.fill(0.0)
+
+    lower.m_solid[0, S_CHAR] = 4.0
+    update_bed_solid_transport_coefficients(reactor.cells, reactor.config)
+    update_bed_solid_transport_inflows(reactor.cells)
+    upper.K_solid_ab[0, S_CHAR] = 0.05
+    upper.m_solid[0, S_CHAR] = 0.05
+    support_only = align_bed_solid_holdup_to_transport_inflow_support(upper, allow_reduce=True)
+    assert support_only is True
+    auf_flux = float(np.sum(upper.m_solid_auf_in[:, S_CHAR]))
+    out_after_support = float(np.sum(upper.K_solid_auf[:, S_CHAR] * upper.m_solid[:, S_CHAR]))
+    assert out_after_support < auf_flux * 0.99
+
+    changed = align_bed_solid_holdup_to_auf_upflow_closure(upper, allow_reduce=True)
+    assert changed is True
+    out_flux = float(np.sum(upper.K_solid_auf[:, S_CHAR] * upper.m_solid[:, S_CHAR]))
+    assert out_flux == pytest.approx(auf_flux, rel=1e-6)
+
+
+def test_seed_and_align_bed_holdup_chain_raises_bed1_char_inventory():
+    reactor = Reactor(ReactorConfig(n_cells=2, H_bed=2.0, D_bed=1.0, thesis_mode=True))
+    lower, upper = reactor.cells
+    for cell in reactor.cells:
+        cell.eps_b = 0.2
+        cell.u_b = 0.5
+        cell.solid_state_model = "holdup_transport"
+        cell.m_solid.fill(0.0)
+        cell.m_solid_zu.fill(0.0)
+        cell.m_solid_rez.fill(0.0)
+        cell.m_solid_in.fill(0.0)
+        cell.R_solid.fill(0.0)
+
+    lower.m_solid[0, S_CHAR] = 4.0
+    update_bed_solid_transport_coefficients(reactor.cells, reactor.config)
+
+    changed = seed_and_align_bed_holdup_chain_for_init(reactor.cells, reactor.config)
+    assert changed is True
+
+    auf_flux = float(np.sum(upper.m_solid_auf_in[:, S_CHAR]))
+    out_flux = float(np.sum(upper.K_solid_auf[:, S_CHAR] * upper.m_solid[:, S_CHAR]))
+    assert auf_flux > 0.0
+    assert out_flux == pytest.approx(auf_flux, rel=1e-5)
+    assert float(upper.m_solid[0, S_CHAR]) > 0.5
+
+
 def test_bed_solid_transport_backmix_coefficients_follow_top_down_continuity():
     reactor = Reactor(ReactorConfig(n_cells=2, H_bed=2.0, D_bed=1.0))
     lower, upper = reactor.cells
@@ -483,6 +615,43 @@ def test_bed_solid_transport_backmix_coefficients_follow_top_down_continuity():
     np.testing.assert_allclose(lower.K_solid_ab[:, S_ASH], expected_lower_kab_ash)
     np.testing.assert_allclose(lower.K_solid_ab[:, S_VM], 0.0)
     np.testing.assert_allclose(lower.K_solid_ab[:, S_MOISTURE], 0.0)
+
+
+def test_bed_transport_k_closure_uses_resident_char_ash_when_seeded():
+    """holdup_transport 已有 resident char/ash 时，K 闭合分母用 m_solid 而非几何床重。"""
+    from src.core.connectivity.solid_transport import (
+        cell_resident_holdup_for_transport_closure,
+        cell_total_solid_holdup,
+    )
+
+    reactor = Reactor(ReactorConfig(n_cells=2, H_bed=2.0, D_bed=1.0))
+    lower, upper = reactor.cells
+    for cell in reactor.cells:
+        cell.solid_state_model = "holdup_transport"
+        cell.eps_b = 0.2
+        cell.u_b = 0.5
+        cell.eps_d_voidage = 0.5
+        cell.m_solid.fill(0.0)
+        cell.m_solid_zu.fill(0.0)
+        cell.m_solid_rez.fill(0.0)
+        cell.R_solid.fill(0.0)
+    lower.m_solid[0, S_CHAR] = 0.8
+    lower.m_solid[0, S_ASH] = 0.1
+    lower.m_solid_zu[0, S_CHAR] = 10.0
+
+    geo = cell_total_solid_holdup(lower)
+    resident = cell_resident_holdup_for_transport_closure(lower, is_bottom_bed_cell=True)
+    assert resident == pytest.approx(0.9)
+    assert geo > resident * 10.0
+
+    update_bed_solid_transport_coefficients(reactor.cells, reactor.config)
+
+    holdup_lower = resident
+    holdup_upper = cell_resident_holdup_for_transport_closure(upper, is_bottom_bed_cell=False)
+    m_auf_lower = float(lower.K_solid_auf[0, S_CHAR]) * holdup_lower
+    m_auf_upper = float(upper.K_solid_auf[0, S_CHAR]) * holdup_upper
+    expected_lower_kab_char = max(-m_auf_lower + max(m_auf_lower - m_auf_upper, 0.0) + 10.0, 0.0) / holdup_lower
+    np.testing.assert_allclose(lower.K_solid_ab[0, S_CHAR], expected_lower_kab_char)
 
 
 def test_bed_solid_transport_inflows_use_neighbor_holdup_times_frozen_k():

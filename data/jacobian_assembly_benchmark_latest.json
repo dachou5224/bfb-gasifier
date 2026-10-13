@@ -1,0 +1,77 @@
+{
+  "cases": [
+    {
+      "case": "lu_3bed",
+      "runs": [
+        {
+          "label": "structured",
+          "strategy": "block_tridiag_structured",
+          "wall_s": 14.095635854,
+          "residual_cell_calls": 315,
+          "nnz": 4138,
+          "zero_cols": 0,
+          "zero_rows": 0,
+          "unexpected_block_count": 0,
+          "structure_validation_ok": true
+        },
+        {
+          "label": "hybrid",
+          "strategy": "hybrid_block_tridiag_structured",
+          "wall_s": 13.765356147999999,
+          "residual_cell_calls": 315,
+          "nnz": 4138,
+          "zero_cols": 0,
+          "zero_rows": 0,
+          "unexpected_block_count": 0,
+          "structure_validation_ok": true
+        },
+        {
+          "label": "dense",
+          "strategy": "dense_fd",
+          "wall_s": 13.782483764999998,
+          "residual_cell_calls": 315,
+          "nnz": 4138,
+          "zero_cols": 0,
+          "zero_rows": 0,
+          "unexpected_block_count": -1,
+          "structure_validation_ok": false
+        }
+      ],
+      "parity": {
+        "hybrid_vs_structured_max_abs": 1.7118306772090364e-11,
+        "structured_vs_dense_max_abs": 0.0
+      }
+    },
+    {
+      "case": "vtt_minimal_loop",
+      "runs": [
+        {
+          "label": "structured",
+          "strategy": "band_plus_side_elements_structured",
+          "wall_s": 1.2799984479999864,
+          "residual_cell_calls": 707,
+          "nnz": 3889,
+          "zero_cols": 2,
+          "zero_rows": 2,
+          "unexpected_block_count": 0,
+          "structure_validation_ok": true
+        },
+        {
+          "label": "hybrid",
+          "strategy": "hybrid_band_plus_side_elements_structured",
+          "wall_s": 1.3392940720000013,
+          "residual_cell_calls": 707,
+          "nnz": 3889,
+          "zero_cols": 2,
+          "zero_rows": 2,
+          "unexpected_block_count": 0,
+          "structure_validation_ok": true
+        }
+      ],
+      "parity": {
+        "hybrid_vs_structured_max_abs": 5.875185581094566e-11
+      }
+    }
+  ],
+  "note": "VTT skip dense (slow); LU includes dense_fd parity run"
+}

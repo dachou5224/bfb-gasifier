@@ -1,0 +1,1535 @@
+{
+  "note": "local2+phase_share rms/energy stack A/B; isomorphic",
+  "max_global_iter": 20,
+  "platform_y_CO": 0.154,
+  "arms": [
+    {
+      "label": "baseline",
+      "wall_s": 95.62900607099999,
+      "exit_CO": 0.032595263565180436,
+      "exit_H2": 5.149778595402785e-06,
+      "exit_CO2": 0.04709776889845402,
+      "rms": 0.04778673786398131,
+      "split": 0.04778673786398131,
+      "energy": 0.041579240906820476,
+      "max_abs": 0.12712135979952466,
+      "groups": {
+        "gas_rms": 0.027482616627294308,
+        "solid_rms": 0.003283861118954748,
+        "energy_rms": 0.05841712350024194,
+        "gas_max_abs": 0.12712135979952466,
+        "solid_max_abs": 0.018972276655793395,
+        "energy_max_abs": 0.0980441295739272
+      },
+      "topk": [
+        {
+          "flat_k": 129,
+          "F_hat": -0.12712135979952466,
+          "abs": 0.12712135979952466,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "N2"
+        },
+        {
+          "flat_k": 369,
+          "F_hat": 0.10492192249595847,
+          "abs": 0.10492192249595847,
+          "cell": 9,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "CO"
+        },
+        {
+          "flat_k": 327,
+          "F_hat": -0.0980441295739272,
+          "abs": 0.0980441295739272,
+          "cell": 7,
+          "cell_type": "bed",
+          "kind": "solid_or_other",
+          "local": 40
+        },
+        {
+          "flat_k": 40,
+          "F_hat": -0.093406787834487,
+          "abs": 0.093406787834487,
+          "cell": 0,
+          "cell_type": "bed",
+          "kind": "solid_or_other",
+          "local": 40
+        },
+        {
+          "flat_k": 409,
+          "F_hat": 0.08888732081135847,
+          "abs": 0.08888732081135847,
+          "cell": 9,
+          "cell_type": "bed",
+          "kind": "solid_or_other",
+          "local": 40
+        },
+        {
+          "flat_k": 328,
+          "F_hat": 0.08463057426166645,
+          "abs": 0.08463057426166645,
+          "cell": 8,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "CO"
+        },
+        {
+          "flat_k": 139,
+          "F_hat": -0.07988889768454038,
+          "abs": 0.07988889768454038,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "N2"
+        },
+        {
+          "flat_k": 371,
+          "F_hat": 0.07965848322884529,
+          "abs": 0.07965848322884529,
+          "cell": 9,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "H2"
+        },
+        {
+          "flat_k": 287,
+          "F_hat": 0.07107747179178407,
+          "abs": 0.07107747179178407,
+          "cell": 7,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "CO"
+        },
+        {
+          "flat_k": 385,
+          "F_hat": 0.06470717712664589,
+          "abs": 0.06470717712664589,
+          "cell": 9,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "N2"
+        },
+        {
+          "flat_k": 375,
+          "F_hat": -0.06470714425499918,
+          "abs": 0.06470714425499918,
+          "cell": 9,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "N2"
+        },
+        {
+          "flat_k": 246,
+          "F_hat": 0.0640668113533124,
+          "abs": 0.0640668113533124,
+          "cell": 6,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "CO"
+        }
+      ],
+      "history": {
+        "traj": [
+          {
+            "outer": 1,
+            "merit_best": 0.05909155329269138,
+            "split": 0.028959751780606984,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 2,
+            "merit_best": 0.0477850110397599,
+            "split": 0.04829082630416133,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 3,
+            "merit_best": 0.0477850110397599,
+            "split": 0.047919383529587634,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 4,
+            "merit_best": 0.0477850110397599,
+            "split": 0.04778673786398131,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 5,
+            "merit_best": 0.0477850110397599,
+            "split": 0.04778673786398131,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 6,
+            "merit_best": 0.0477850110397599,
+            "split": 0.04778673786398131,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 7,
+            "merit_best": 0.0477850110397599,
+            "split": 0.04778673786398131,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 8,
+            "merit_best": 0.0477850110397599,
+            "split": 0.04778673786398131,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 9,
+            "merit_best": 0.0477850110397599,
+            "split": 0.04778673786398131,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 10,
+            "merit_best": 0.0477850110397599,
+            "split": 0.04778673786398131,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          }
+        ],
+        "best_so_far_row": {
+          "outer": 2,
+          "merit_best": 0.0477850110397599,
+          "split": 0.04829082630416133,
+          "local2": false,
+          "absorb": false,
+          "addCO": 0.0
+        },
+        "n_outer": 10
+      },
+      "overrides": {},
+      "n_acc": 4,
+      "ls_fail": 20,
+      "converged": false
+    },
+    {
+      "label": "ps_stack_f1",
+      "wall_s": 180.66005736200003,
+      "exit_CO": 0.1626321819999821,
+      "exit_H2": 8.513012977916901e-06,
+      "exit_CO2": 0.03992155138450318,
+      "rms": 0.05877844710899144,
+      "split": 0.0391563125722743,
+      "energy": 0.05449205026548395,
+      "max_abs": 0.4292652977222327,
+      "groups": {
+        "gas_rms": 0.06618443121914956,
+        "solid_rms": 0.0036195033512040546,
+        "energy_rms": 0.06820997493803439,
+        "gas_max_abs": 0.4292652977222327,
+        "solid_max_abs": 0.023233377087775522,
+        "energy_max_abs": 0.17698714661190357
+      },
+      "topk": [
+        {
+          "flat_k": 85,
+          "F_hat": 0.4292652977222327,
+          "abs": 0.4292652977222327,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "H2O"
+        },
+        {
+          "flat_k": 95,
+          "F_hat": 0.41784985495754806,
+          "abs": 0.41784985495754806,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "H2O"
+        },
+        {
+          "flat_k": 84,
+          "F_hat": -0.4067782717267599,
+          "abs": 0.4067782717267599,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "H2"
+        },
+        {
+          "flat_k": 94,
+          "F_hat": -0.40440561877810577,
+          "abs": 0.40440561877810577,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "H2"
+        },
+        {
+          "flat_k": 87,
+          "F_hat": -0.22169643739364517,
+          "abs": 0.22169643739364517,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "O2"
+        },
+        {
+          "flat_k": 97,
+          "F_hat": -0.2035104022584299,
+          "abs": 0.2035104022584299,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "O2"
+        },
+        {
+          "flat_k": 409,
+          "F_hat": 0.17698714661190357,
+          "abs": 0.17698714661190357,
+          "cell": 9,
+          "cell_type": "bed",
+          "kind": "solid_or_other",
+          "local": 40
+        },
+        {
+          "flat_k": 129,
+          "F_hat": -0.11412688755938387,
+          "abs": 0.11412688755938387,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "N2"
+        },
+        {
+          "flat_k": 40,
+          "F_hat": -0.08082640598473775,
+          "abs": 0.08082640598473775,
+          "cell": 0,
+          "cell_type": "bed",
+          "kind": "solid_or_other",
+          "local": 40
+        },
+        {
+          "flat_k": 139,
+          "F_hat": -0.07372131533019702,
+          "abs": 0.07372131533019702,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "N2"
+        },
+        {
+          "flat_k": 136,
+          "F_hat": -0.0731091873383625,
+          "abs": 0.0731091873383625,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "H2O"
+        },
+        {
+          "flat_k": 221,
+          "F_hat": 0.0640056605346424,
+          "abs": 0.0640056605346424,
+          "cell": 5,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "N2"
+        }
+      ],
+      "history": {
+        "traj": [
+          {
+            "outer": 1,
+            "merit_best": 0.0686254797772781,
+            "split": 0.04822690443819047,
+            "local2": true,
+            "absorb": false,
+            "addCO": 8.622058359038597
+          },
+          {
+            "outer": 2,
+            "merit_best": 0.057601414879931936,
+            "split": 0.04885222742006343,
+            "local2": true,
+            "absorb": false,
+            "addCO": 4.8150910533092475
+          },
+          {
+            "outer": 3,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03966816819701288,
+            "local2": true,
+            "absorb": true,
+            "addCO": 5.988725869489068
+          },
+          {
+            "outer": 4,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03952200104522848,
+            "local2": false,
+            "absorb": true,
+            "addCO": 1.9053752159840247
+          },
+          {
+            "outer": 5,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03949767038220875,
+            "local2": false,
+            "absorb": true,
+            "addCO": 1.020895332381568
+          },
+          {
+            "outer": 6,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03940801533352753,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 7,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03940801533352753,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 8,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039307273615547804,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 9,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039307273615547804,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 10,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03923514586503047,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 11,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03923514586503047,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 12,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039190869760065354,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 13,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039190869760065354,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 14,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039166706171471236,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 15,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039166706171471236,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 16,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03915591652313452,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 17,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03915591652313452,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 18,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039153583441525405,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 19,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039153583441525405,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 20,
+            "merit_best": 0.057601414879931936,
+            "split": 0.0391563125722743,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          }
+        ],
+        "best_so_far_row": {
+          "outer": 2,
+          "merit_best": 0.057601414879931936,
+          "split": 0.04885222742006343,
+          "local2": true,
+          "absorb": false,
+          "addCO": 4.8150910533092475
+        },
+        "n_outer": 20
+      },
+      "overrides": {
+        "nr_outer_preinner_upper_co_local2x2_thesis": true,
+        "nr_outer_preinner_upper_dense_syngas_absorb_thesis": true,
+        "nr_outer_preinner_upper_dense_absorb_species_thesis": [
+          "CO"
+        ],
+        "nr_outer_preinner_upper_dense_absorb_fraction_thesis": 1.0,
+        "nr_outer_preinner_upper_dense_absorb_mode_thesis": "phase_share",
+        "nr_outer_preinner_upper_dense_absorb_post_gate_thesis": true
+      },
+      "n_acc": 5,
+      "ls_fail": 41,
+      "converged": false
+    },
+    {
+      "label": "ps_stack_f0.5",
+      "wall_s": 166.89211500299996,
+      "exit_CO": 0.15814309127759368,
+      "exit_H2": 8.558650852644417e-06,
+      "exit_CO2": 0.040135569002676695,
+      "rms": 0.05872963506450449,
+      "split": 0.03917448908115339,
+      "energy": 0.05430710874576483,
+      "max_abs": 0.4289415679430058,
+      "groups": {
+        "gas_rms": 0.06617711007385109,
+        "solid_rms": 0.003619931998575691,
+        "energy_rms": 0.06833314549995949,
+        "gas_max_abs": 0.4289415679430058,
+        "solid_max_abs": 0.023228517810608834,
+        "energy_max_abs": 0.17722475280802627
+      },
+      "topk": [
+        {
+          "flat_k": 85,
+          "F_hat": 0.4289415679430058,
+          "abs": 0.4289415679430058,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "H2O"
+        },
+        {
+          "flat_k": 95,
+          "F_hat": 0.41784985495754806,
+          "abs": 0.41784985495754806,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "H2O"
+        },
+        {
+          "flat_k": 84,
+          "F_hat": -0.4064545419873692,
+          "abs": 0.4064545419873692,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "H2"
+        },
+        {
+          "flat_k": 94,
+          "F_hat": -0.40440561877810577,
+          "abs": 0.40440561877810577,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "H2"
+        },
+        {
+          "flat_k": 87,
+          "F_hat": -0.22169643739364517,
+          "abs": 0.22169643739364517,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "O2"
+        },
+        {
+          "flat_k": 97,
+          "F_hat": -0.2035104022584299,
+          "abs": 0.2035104022584299,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "O2"
+        },
+        {
+          "flat_k": 409,
+          "F_hat": 0.17722475280802627,
+          "abs": 0.17722475280802627,
+          "cell": 9,
+          "cell_type": "bed",
+          "kind": "solid_or_other",
+          "local": 40
+        },
+        {
+          "flat_k": 129,
+          "F_hat": -0.11412688755938387,
+          "abs": 0.11412688755938387,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "N2"
+        },
+        {
+          "flat_k": 40,
+          "F_hat": -0.08082640598473775,
+          "abs": 0.08082640598473775,
+          "cell": 0,
+          "cell_type": "bed",
+          "kind": "solid_or_other",
+          "local": 40
+        },
+        {
+          "flat_k": 139,
+          "F_hat": -0.07372131533019702,
+          "abs": 0.07372131533019702,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "N2"
+        },
+        {
+          "flat_k": 136,
+          "F_hat": -0.0731091873383625,
+          "abs": 0.0731091873383625,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "H2O"
+        },
+        {
+          "flat_k": 221,
+          "F_hat": 0.0640056605346424,
+          "abs": 0.0640056605346424,
+          "cell": 5,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "N2"
+        }
+      ],
+      "history": {
+        "traj": [
+          {
+            "outer": 1,
+            "merit_best": 0.0686254797772781,
+            "split": 0.04822690443819047,
+            "local2": true,
+            "absorb": false,
+            "addCO": 4.3110291795192985
+          },
+          {
+            "outer": 2,
+            "merit_best": 0.057601414879931936,
+            "split": 0.04885222742006343,
+            "local2": true,
+            "absorb": false,
+            "addCO": 2.4075455266546237
+          },
+          {
+            "outer": 3,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03984797789941161,
+            "local2": true,
+            "absorb": true,
+            "addCO": 2.994362934744534
+          },
+          {
+            "outer": 4,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03967437502191929,
+            "local2": false,
+            "absorb": true,
+            "addCO": 1.9054923129920642
+          },
+          {
+            "outer": 5,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039602523473410915,
+            "local2": false,
+            "absorb": true,
+            "addCO": 1.36730818085687
+          },
+          {
+            "outer": 6,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03947867548050612,
+            "local2": false,
+            "absorb": true,
+            "addCO": 0.8077177673238476
+          },
+          {
+            "outer": 7,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03945792188841111,
+            "local2": false,
+            "absorb": true,
+            "addCO": 0.5348660008970842
+          },
+          {
+            "outer": 8,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03935797956670515,
+            "local2": false,
+            "absorb": true,
+            "addCO": 0.2359216607182102
+          },
+          {
+            "outer": 9,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03935414890543381,
+            "local2": false,
+            "absorb": true,
+            "addCO": 0.13681794175987472
+          },
+          {
+            "outer": 10,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03928147693295728,
+            "local2": false,
+            "absorb": true,
+            "addCO": 0.026816385412498533
+          },
+          {
+            "outer": 11,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039281246431704685,
+            "local2": false,
+            "absorb": true,
+            "addCO": 0.012450134307681271
+          },
+          {
+            "outer": 12,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039231381902770104,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 13,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039231381902770104,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 14,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039200515019579024,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 15,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039200515019579024,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 16,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039183604498725086,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 17,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039183604498725086,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 18,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039176067536380206,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 19,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039176067536380206,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 20,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03917448908115339,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          }
+        ],
+        "best_so_far_row": {
+          "outer": 2,
+          "merit_best": 0.057601414879931936,
+          "split": 0.04885222742006343,
+          "local2": true,
+          "absorb": false,
+          "addCO": 2.4075455266546237
+        },
+        "n_outer": 20
+      },
+      "overrides": {
+        "nr_outer_preinner_upper_co_local2x2_thesis": true,
+        "nr_outer_preinner_upper_dense_syngas_absorb_thesis": true,
+        "nr_outer_preinner_upper_dense_absorb_species_thesis": [
+          "CO"
+        ],
+        "nr_outer_preinner_upper_dense_absorb_fraction_thesis": 0.5,
+        "nr_outer_preinner_upper_dense_absorb_mode_thesis": "phase_share",
+        "nr_outer_preinner_upper_dense_absorb_post_gate_thesis": true
+      },
+      "n_acc": 5,
+      "ls_fail": 41,
+      "converged": false
+    },
+    {
+      "label": "ps_stack_f0.3",
+      "wall_s": 196.55706554600005,
+      "exit_CO": 0.1562275791104867,
+      "exit_H2": 8.578124708203958e-06,
+      "exit_CO2": 0.04022689113825798,
+      "rms": 0.058723089139840194,
+      "split": 0.039190352399954026,
+      "energy": 0.05458312074155256,
+      "max_abs": 0.4287870087651831,
+      "groups": {
+        "gas_rms": 0.06617706851057588,
+        "solid_rms": 0.003628330464318182,
+        "energy_rms": 0.06891383217446265,
+        "gas_max_abs": 0.4287870087651831,
+        "solid_max_abs": 0.0233079206134072,
+        "energy_max_abs": 0.17907070852744228
+      },
+      "topk": [
+        {
+          "flat_k": 85,
+          "F_hat": 0.4287870087651831,
+          "abs": 0.4287870087651831,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "H2O"
+        },
+        {
+          "flat_k": 95,
+          "F_hat": 0.41784985495754806,
+          "abs": 0.41784985495754806,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "H2O"
+        },
+        {
+          "flat_k": 84,
+          "F_hat": -0.4062999828285243,
+          "abs": 0.4062999828285243,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "H2"
+        },
+        {
+          "flat_k": 94,
+          "F_hat": -0.40440561877810577,
+          "abs": 0.40440561877810577,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "H2"
+        },
+        {
+          "flat_k": 87,
+          "F_hat": -0.22169643739364517,
+          "abs": 0.22169643739364517,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "O2"
+        },
+        {
+          "flat_k": 97,
+          "F_hat": -0.2035104022584299,
+          "abs": 0.2035104022584299,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "O2"
+        },
+        {
+          "flat_k": 409,
+          "F_hat": 0.17907070852744228,
+          "abs": 0.17907070852744228,
+          "cell": 9,
+          "cell_type": "bed",
+          "kind": "solid_or_other",
+          "local": 40
+        },
+        {
+          "flat_k": 129,
+          "F_hat": -0.11412688755938387,
+          "abs": 0.11412688755938387,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "N2"
+        },
+        {
+          "flat_k": 40,
+          "F_hat": -0.08082640598473775,
+          "abs": 0.08082640598473775,
+          "cell": 0,
+          "cell_type": "bed",
+          "kind": "solid_or_other",
+          "local": 40
+        },
+        {
+          "flat_k": 139,
+          "F_hat": -0.07372131533019702,
+          "abs": 0.07372131533019702,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "N2"
+        },
+        {
+          "flat_k": 136,
+          "F_hat": -0.0731091873383625,
+          "abs": 0.0731091873383625,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "H2O"
+        },
+        {
+          "flat_k": 221,
+          "F_hat": 0.0640056605346424,
+          "abs": 0.0640056605346424,
+          "cell": 5,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "N2"
+        }
+      ],
+      "history": {
+        "traj": [
+          {
+            "outer": 1,
+            "merit_best": 0.0686254797772781,
+            "split": 0.04822690443819047,
+            "local2": true,
+            "absorb": false,
+            "addCO": 2.586617507711579
+          },
+          {
+            "outer": 2,
+            "merit_best": 0.057601414879931936,
+            "split": 0.04885222742006343,
+            "local2": true,
+            "absorb": false,
+            "addCO": 1.4445273159927743
+          },
+          {
+            "outer": 3,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039931567876624156,
+            "local2": true,
+            "absorb": true,
+            "addCO": 1.7966177608467202
+          },
+          {
+            "outer": 4,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03978034304236756,
+            "local2": false,
+            "absorb": true,
+            "addCO": 1.3742399295294385
+          },
+          {
+            "outer": 5,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03971087785119717,
+            "local2": false,
+            "absorb": true,
+            "addCO": 1.1365150966296307
+          },
+          {
+            "outer": 6,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03957573500051359,
+            "local2": false,
+            "absorb": true,
+            "addCO": 0.8665609405872964
+          },
+          {
+            "outer": 7,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03953952981999101,
+            "local2": false,
+            "absorb": true,
+            "addCO": 0.7101884921516946
+          },
+          {
+            "outer": 8,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03942549928358277,
+            "local2": false,
+            "absorb": true,
+            "addCO": 0.5181817558092392
+          },
+          {
+            "outer": 9,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03940758227008134,
+            "local2": false,
+            "absorb": true,
+            "addCO": 0.41614416876934346
+          },
+          {
+            "outer": 10,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03932693104533581,
+            "local2": false,
+            "absorb": true,
+            "addCO": 0.2723110663079382
+          },
+          {
+            "outer": 11,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03931947248676802,
+            "local2": false,
+            "absorb": true,
+            "addCO": 0.2106982212422886
+          },
+          {
+            "outer": 12,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03926559030676787,
+            "local2": false,
+            "absorb": true,
+            "addCO": 0.11696987300416772
+          },
+          {
+            "outer": 13,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03926321330515136,
+            "local2": false,
+            "absorb": true,
+            "addCO": 0.08554509323506947
+          },
+          {
+            "outer": 14,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039228649111214355,
+            "local2": false,
+            "absorb": true,
+            "addCO": 0.032881284083098095
+          },
+          {
+            "outer": 15,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039228211538932044,
+            "local2": false,
+            "absorb": true,
+            "addCO": 0.02232235295644296
+          },
+          {
+            "outer": 16,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039207056459107645,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 17,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039207056459107645,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 18,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039195311715424425,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 19,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039195311715424425,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 20,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039190352399954026,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          }
+        ],
+        "best_so_far_row": {
+          "outer": 2,
+          "merit_best": 0.057601414879931936,
+          "split": 0.04885222742006343,
+          "local2": true,
+          "absorb": false,
+          "addCO": 1.4445273159927743
+        },
+        "n_outer": 20
+      },
+      "overrides": {
+        "nr_outer_preinner_upper_co_local2x2_thesis": true,
+        "nr_outer_preinner_upper_dense_syngas_absorb_thesis": true,
+        "nr_outer_preinner_upper_dense_absorb_species_thesis": [
+          "CO"
+        ],
+        "nr_outer_preinner_upper_dense_absorb_fraction_thesis": 0.3,
+        "nr_outer_preinner_upper_dense_absorb_mode_thesis": "phase_share",
+        "nr_outer_preinner_upper_dense_absorb_post_gate_thesis": true
+      },
+      "n_acc": 5,
+      "ls_fail": 41,
+      "converged": false
+    },
+    {
+      "label": "local2_only",
+      "wall_s": 196.47729994100007,
+      "exit_CO": 0.12200579212919908,
+      "exit_H2": 8.926036952305992e-06,
+      "exit_CO2": 0.04185841649435063,
+      "rms": 0.058359183853464607,
+      "split": 0.039796490914508514,
+      "energy": 0.05011937585428446,
+      "max_abs": 0.42588790709038155,
+      "groups": {
+        "gas_rms": 0.0662222361475827,
+        "solid_rms": 0.0034746075218229245,
+        "energy_rms": 0.0650186638980747,
+        "gas_max_abs": 0.42588790709038155,
+        "solid_max_abs": 0.022373779500571143,
+        "energy_max_abs": 0.1609590569973235
+      },
+      "topk": [
+        {
+          "flat_k": 85,
+          "F_hat": 0.42588790709038155,
+          "abs": 0.42588790709038155,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "H2O"
+        },
+        {
+          "flat_k": 95,
+          "F_hat": 0.41784985495754806,
+          "abs": 0.41784985495754806,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "H2O"
+        },
+        {
+          "flat_k": 94,
+          "F_hat": -0.40440561877810577,
+          "abs": 0.40440561877810577,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "H2"
+        },
+        {
+          "flat_k": 84,
+          "F_hat": -0.403400881509991,
+          "abs": 0.403400881509991,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "H2"
+        },
+        {
+          "flat_k": 87,
+          "F_hat": -0.22169643739364517,
+          "abs": 0.22169643739364517,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "O2"
+        },
+        {
+          "flat_k": 97,
+          "F_hat": -0.2035104022584299,
+          "abs": 0.2035104022584299,
+          "cell": 2,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "O2"
+        },
+        {
+          "flat_k": 409,
+          "F_hat": 0.1609590569973235,
+          "abs": 0.1609590569973235,
+          "cell": 9,
+          "cell_type": "bed",
+          "kind": "solid_or_other",
+          "local": 40
+        },
+        {
+          "flat_k": 129,
+          "F_hat": -0.11412688755938387,
+          "abs": 0.11412688755938387,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "N2"
+        },
+        {
+          "flat_k": 40,
+          "F_hat": -0.08082640598473775,
+          "abs": 0.08082640598473775,
+          "cell": 0,
+          "cell_type": "bed",
+          "kind": "solid_or_other",
+          "local": 40
+        },
+        {
+          "flat_k": 139,
+          "F_hat": -0.07372131533019702,
+          "abs": 0.07372131533019702,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "N2"
+        },
+        {
+          "flat_k": 136,
+          "F_hat": -0.0731091873383625,
+          "abs": 0.0731091873383625,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "H2O"
+        },
+        {
+          "flat_k": 371,
+          "F_hat": 0.06749442650798329,
+          "abs": 0.06749442650798329,
+          "cell": 9,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "H2"
+        }
+      ],
+      "history": {
+        "traj": [
+          {
+            "outer": 1,
+            "merit_best": 0.0686254797772781,
+            "split": 0.04822690443819047,
+            "local2": true,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 2,
+            "merit_best": 0.057601414879931936,
+            "split": 0.04885222742006343,
+            "local2": true,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 3,
+            "merit_best": 0.057601414879931936,
+            "split": 0.040070251158982315,
+            "local2": true,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 4,
+            "merit_best": 0.057601414879931936,
+            "split": 0.0400115374946552,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 5,
+            "merit_best": 0.057601414879931936,
+            "split": 0.0400115374946552,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 6,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03993220233477599,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 7,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03993220233477599,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 8,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03985528735122572,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 9,
+            "merit_best": 0.057601414879931936,
+            "split": 0.03985528735122572,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 10,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039796490914508514,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 11,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039796490914508514,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 12,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039796490914508514,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 13,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039796490914508514,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 14,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039796490914508514,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 15,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039796490914508514,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 16,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039796490914508514,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 17,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039796490914508514,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 18,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039796490914508514,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 19,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039796490914508514,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          },
+          {
+            "outer": 20,
+            "merit_best": 0.057601414879931936,
+            "split": 0.039796490914508514,
+            "local2": false,
+            "absorb": false,
+            "addCO": 0.0
+          }
+        ],
+        "best_so_far_row": {
+          "outer": 2,
+          "merit_best": 0.057601414879931936,
+          "split": 0.04885222742006343,
+          "local2": true,
+          "absorb": false,
+          "addCO": 0.0
+        },
+        "n_outer": 20
+      },
+      "overrides": {
+        "nr_outer_preinner_upper_co_local2x2_thesis": true
+      },
+      "n_acc": 5,
+      "ls_fail": 41,
+      "converged": false
+    }
+  ]
+}

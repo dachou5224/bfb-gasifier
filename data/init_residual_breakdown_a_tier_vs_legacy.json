@@ -1,0 +1,1179 @@
+{
+  "legacy": {
+    "n_dof": 538,
+    "rms_scaled": 0.019901380056376844,
+    "merit_scaled": 0.03508240951953093,
+    "max_abs_scaled": 0.24159017213251707,
+    "gas_rms": 0.01928799797663438,
+    "solid_rms": 0.007651302638972903,
+    "energy_rms": 0.06887133844394017,
+    "gas_combined_rms": 0.026049326170098877,
+    "gas_phase_split_rms": 0.03508240951953093,
+    "gas_max_abs": 0.12279087659479065,
+    "solid_max_abs": 0.06313017728486169,
+    "energy_max_abs": 0.24159017213251707,
+    "gas_phase_split_max_abs": 0.24542850664708654,
+    "component_max_rms": 0.06887133844394017,
+    "per_cell": [
+      {
+        "cell_index": 0,
+        "cell_type": "bed",
+        "T_K": 1169.5303870213904,
+        "rms_scaled": 0.04322988324258654,
+        "max_abs_scaled": 0.24159017213251707,
+        "gas_rms": 0.030041727129187953,
+        "solid_rms": 0.0032079305070658024,
+        "energy_scaled": -0.24159017213251707,
+        "energy_raw_W": -4533036.929779796
+      },
+      {
+        "cell_index": 1,
+        "cell_type": "bed",
+        "T_K": 1041.3268922943325,
+        "rms_scaled": 0.045007690435510325,
+        "max_abs_scaled": 0.1604004475170912,
+        "gas_rms": 0.05352723543940029,
+        "solid_rms": 0.0010435011381141881,
+        "energy_scaled": -0.1604004475170912,
+        "energy_raw_W": -3009647.063579022
+      },
+      {
+        "cell_index": 2,
+        "cell_type": "bed",
+        "T_K": 1143.2888888888888,
+        "rms_scaled": 0.013997290690289627,
+        "max_abs_scaled": 0.07799009868673303,
+        "gas_rms": 0.009875308816924947,
+        "solid_rms": 1.33506828209855e-06,
+        "energy_scaled": -0.07799009868673303,
+        "energy_raw_W": -1463354.2183587342
+      },
+      {
+        "cell_index": 3,
+        "cell_type": "bed",
+        "T_K": 1124.9333333333334,
+        "rms_scaled": 0.020536773462147353,
+        "max_abs_scaled": 0.06313017728486169,
+        "gas_rms": 0.017353768683685027,
+        "solid_rms": 0.02373452474738483,
+        "energy_scaled": 0.0015819555735047757,
+        "energy_raw_W": 29682.759744194613
+      },
+      {
+        "cell_index": 4,
+        "cell_type": "bed",
+        "T_K": 1106.5777777777778,
+        "rms_scaled": 0.006973140920911117,
+        "max_abs_scaled": 0.020342066792916554,
+        "gas_rms": 0.005594148194259114,
+        "solid_rms": 0.007908404555769334,
+        "energy_scaled": -0.010810427081173872,
+        "energy_raw_W": -202839.64679975912
+      },
+      {
+        "cell_index": 5,
+        "cell_type": "bed",
+        "T_K": 1088.2222222222222,
+        "rms_scaled": 0.0048770813843475695,
+        "max_abs_scaled": 0.013808869740310176,
+        "gas_rms": 0.004700327227152097,
+        "solid_rms": 0.005148481288875555,
+        "energy_scaled": -0.001795584452860213,
+        "energy_raw_W": -33691.14961716713
+      },
+      {
+        "cell_index": 6,
+        "cell_type": "bed",
+        "T_K": 1069.8666666666666,
+        "rms_scaled": 0.003384748493153031,
+        "max_abs_scaled": 0.010305824652292217,
+        "gas_rms": 0.004405006067044214,
+        "solid_rms": 0.0019887562867396498,
+        "energy_scaled": 0.0015914824733920072,
+        "energy_raw_W": 29861.51614241203
+      },
+      {
+        "cell_index": 7,
+        "cell_type": "bed",
+        "T_K": 1051.511111111111,
+        "rms_scaled": 0.023865074886056634,
+        "max_abs_scaled": 0.07326274465226214,
+        "gas_rms": 0.030617610052907775,
+        "solid_rms": 0.004591697435129571,
+        "energy_scaled": -0.06465894492061283,
+        "energy_raw_W": -1213217.336527099
+      },
+      {
+        "cell_index": 8,
+        "cell_type": "bed",
+        "T_K": 1033.1555555555556,
+        "rms_scaled": 0.0034569666061308704,
+        "max_abs_scaled": 0.010502461351938112,
+        "gas_rms": 0.004381919163101217,
+        "solid_rms": 0.0017523946286392004,
+        "energy_scaled": 0.0066733269830962115,
+        "energy_raw_W": 125213.85862616193
+      },
+      {
+        "cell_index": 9,
+        "cell_type": "bed",
+        "T_K": 1014.8,
+        "rms_scaled": 0.0036267604963023804,
+        "max_abs_scaled": 0.009729470014964456,
+        "gas_rms": 0.003404256795758322,
+        "solid_rms": 0.0032622629124404758,
+        "energy_scaled": 0.009729470014964456,
+        "energy_raw_W": 182557.28904744977
+      },
+      {
+        "cell_index": 10,
+        "cell_type": "freeboard",
+        "T_K": 1017.2324761416348,
+        "rms_scaled": 0.0046952164620892075,
+        "max_abs_scaled": 0.01557207376103482,
+        "gas_rms": 2.4804567118370787e-05,
+        "solid_rms": 0.0,
+        "energy_scaled": 0.01557207376103482,
+        "energy_raw_W": 292184.01066955004
+      },
+      {
+        "cell_index": 11,
+        "cell_type": "freeboard",
+        "T_K": 1019.6766914615182,
+        "rms_scaled": 0.00012066613441679524,
+        "max_abs_scaled": 0.0003999044897551198,
+        "gas_rms": 4.897703744719153e-06,
+        "solid_rms": 0.0,
+        "energy_scaled": -0.0003999044897551198,
+        "energy_raw_W": -7503.541242771898
+      },
+      {
+        "cell_index": 12,
+        "cell_type": "freeboard",
+        "T_K": 1022.1039938484864,
+        "rms_scaled": 0.00011929804696907744,
+        "max_abs_scaled": 0.0003954514305732699,
+        "gas_rms": 4.128318962393414e-06,
+        "solid_rms": 0.0,
+        "energy_scaled": -0.0003954514305732699,
+        "energy_raw_W": -7419.987008989789
+      },
+      {
+        "cell_index": 13,
+        "cell_type": "freeboard",
+        "T_K": 1035.9772415611587,
+        "rms_scaled": 0.0013599673993059998,
+        "max_abs_scaled": 0.0037028759151582972,
+        "gas_rms": 0.001420848912593336,
+        "solid_rms": 0.0,
+        "energy_scaled": -0.00039561126721786045,
+        "energy_raw_W": -7422.986077231122
+      },
+      {
+        "cell_index": 14,
+        "cell_type": "freeboard",
+        "T_K": 1038.1824513996435,
+        "rms_scaled": 0.00012326468325871232,
+        "max_abs_scaled": 0.0003893326677042735,
+        "gas_rms": 3.944119342242467e-05,
+        "solid_rms": 0.0,
+        "energy_scaled": -0.0003893326677042735,
+        "energy_raw_W": -7305.178621691186
+      },
+      {
+        "cell_index": 15,
+        "cell_type": "freeboard",
+        "T_K": 1040.4398092165138,
+        "rms_scaled": 0.00011859295111175158,
+        "max_abs_scaled": 0.0003863779023425908,
+        "gas_rms": 2.3279358171299835e-05,
+        "solid_rms": 0.0,
+        "energy_scaled": -0.0003863779023425908,
+        "energy_raw_W": -7249.737374288146
+      },
+      {
+        "cell_index": 16,
+        "cell_type": "freeboard",
+        "T_K": 1042.7189961159456,
+        "rms_scaled": 0.00011644754412199082,
+        "max_abs_scaled": 0.00038342985899469836,
+        "gas_rms": 1.4635160005202323e-05,
+        "solid_rms": 0.0,
+        "energy_scaled": -0.00038342985899469836,
+        "energy_raw_W": -7194.422254270525
+      },
+      {
+        "cell_index": 17,
+        "cell_type": "freeboard",
+        "T_K": 1045.0034820620203,
+        "rms_scaled": 0.00011508164529687925,
+        "max_abs_scaled": 0.0003804957090783868,
+        "gas_rms": 9.511315889716085e-06,
+        "solid_rms": 0.0,
+        "energy_scaled": -0.0003804957090783868,
+        "energy_raw_W": -7139.367821340798
+      },
+      {
+        "cell_index": 18,
+        "cell_type": "cyclone",
+        "T_K": 1045.0034820620203,
+        "rms_scaled": 4.085876932004017e-17,
+        "max_abs_scaled": 5.778302571427453e-17,
+        "gas_rms": 0.0,
+        "solid_rms": 4.085876932004017e-17,
+        "energy_scaled": 0.0,
+        "energy_raw_W": 0.0
+      },
+      {
+        "cell_index": 19,
+        "cell_type": "return_leg",
+        "T_K": 1045.0034820620203,
+        "rms_scaled": 0.0,
+        "max_abs_scaled": 0.0,
+        "gas_rms": 0.0,
+        "solid_rms": 0.0,
+        "energy_scaled": 0.0,
+        "energy_raw_W": 0.0
+      }
+    ],
+    "top_equations": [
+      {
+        "rank": 1,
+        "label": "cell0:T:energy_balance",
+        "F_hat": -0.24159017213251707,
+        "F_raw": -4533036.929779796,
+        "scale": 18763333.333333336
+      },
+      {
+        "rank": 2,
+        "label": "cell1:T:energy_balance",
+        "F_hat": -0.1604004475170912,
+        "F_raw": -3009647.063579022,
+        "scale": 18763333.333333336
+      },
+      {
+        "rank": 3,
+        "label": "cell1:N2:dense_balance",
+        "F_hat": -0.12279087659479065,
+        "F_raw": -9.772342043309035,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 4,
+        "label": "cell1:N2:bubble_balance",
+        "F_hat": 0.12263763005229587,
+        "F_raw": 9.76014587962209,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 5,
+        "label": "cell1:CO:dense_balance",
+        "F_hat": 0.11716592758672198,
+        "F_raw": 9.32467909629371,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 6,
+        "label": "cell2:T:energy_balance",
+        "F_hat": -0.07799009868673303,
+        "F_raw": -1463354.2183587342,
+        "scale": 18763333.333333336
+      },
+      {
+        "rank": 7,
+        "label": "cell7:CO:dense_balance",
+        "F_hat": -0.07326274465226214,
+        "F_raw": -5.830633509818019,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 8,
+        "label": "cell1:H2O:dense_balance",
+        "F_hat": 0.06836333936685718,
+        "F_raw": 5.4407131379994125,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 9,
+        "label": "cell7:CO:bubble_balance",
+        "F_hat": -0.06699780948443,
+        "F_raw": -5.332037107242873,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 10,
+        "label": "cell0:H2O:bubble_balance",
+        "F_hat": 0.06664002157562927,
+        "F_raw": 5.303562468729629,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 11,
+        "label": "cell0:CO:bubble_balance",
+        "F_hat": 0.06551606151612735,
+        "F_raw": 5.214111831605203,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 12,
+        "label": "cell7:T:energy_balance",
+        "F_hat": -0.06465894492061283,
+        "F_raw": -1213217.336527099,
+        "scale": 18763333.333333336
+      },
+      {
+        "rank": 13,
+        "label": "cell3:char[k1]:solid_balance",
+        "F_hat": 0.06313017728486169,
+        "F_raw": 0.01221181978431747,
+        "scale": 0.19343870569560093
+      },
+      {
+        "rank": 14,
+        "label": "cell3:char[k0]:solid_balance",
+        "F_hat": 0.05733500577146329,
+        "F_raw": 0.0578983127427381,
+        "scale": 1.0098248349973165
+      },
+      {
+        "rank": 15,
+        "label": "cell7:H2:dense_balance",
+        "F_hat": -0.05432329668950373,
+        "F_raw": -4.323332896480923,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 16,
+        "label": "cell0:CO:dense_balance",
+        "F_hat": 0.052272406992122496,
+        "F_raw": 4.160112336682767,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 17,
+        "label": "cell7:H2:bubble_balance",
+        "F_hat": -0.04982935072116646,
+        "F_raw": -3.965681103899742,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 18,
+        "label": "cell1:O2:bubble_balance",
+        "F_hat": 0.049088377498294485,
+        "F_raw": 3.906710568142974,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 19,
+        "label": "cell3:H2:dense_balance",
+        "F_hat": 0.04839991431999827,
+        "F_raw": 3.851919057168292,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 20,
+        "label": "cell0:CO2:dense_balance",
+        "F_hat": -0.04788085152586455,
+        "F_raw": -3.8106093173333893,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 21,
+        "label": "cell3:ash[k8]:solid_balance",
+        "F_hat": -0.044614617144136504,
+        "F_raw": -0.042993029493005874,
+        "scale": 0.9636534446571229
+      },
+      {
+        "rank": 22,
+        "label": "cell3:ash[k9]:solid_balance",
+        "F_hat": -0.04406177795763895,
+        "F_raw": -0.008120224180118811,
+        "scale": 0.18429179566756487
+      },
+      {
+        "rank": 23,
+        "label": "cell1:CO2:bubble_balance",
+        "F_hat": 0.039789624557859324,
+        "F_raw": 3.166667033719561,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 24,
+        "label": "cell1:H2O:bubble_balance",
+        "F_hat": 0.038612431823371866,
+        "F_raw": 3.072979861094573,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 25,
+        "label": "cell1:H2:dense_balance",
+        "F_hat": 0.03831938812200834,
+        "F_raw": 3.049657906216671,
+        "scale": 79.58524537256721
+      }
+    ],
+    "top_families_by_rms": [
+      {
+        "family": "T:energy_balance",
+        "count": 18,
+        "rms_scaled": 0.07259676499572255,
+        "max_abs_scaled": 0.24159017213251707
+      },
+      {
+        "family": "CO:dense_balance",
+        "count": 10,
+        "rms_scaled": 0.04811409785319664,
+        "max_abs_scaled": 0.11716592758672198
+      },
+      {
+        "family": "N2:dense_balance",
+        "count": 10,
+        "rms_scaled": 0.03943135144664712,
+        "max_abs_scaled": 0.12279087659479065
+      },
+      {
+        "family": "N2:bubble_balance",
+        "count": 10,
+        "rms_scaled": 0.03937524119264135,
+        "max_abs_scaled": 0.12263763005229587
+      },
+      {
+        "family": "CO:bubble_balance",
+        "count": 10,
+        "rms_scaled": 0.030571210160995267,
+        "max_abs_scaled": 0.06699780948443
+      },
+      {
+        "family": "H2:dense_balance",
+        "count": 10,
+        "rms_scaled": 0.02676987493690681,
+        "max_abs_scaled": 0.05432329668950373
+      },
+      {
+        "family": "H2O:bubble_balance",
+        "count": 10,
+        "rms_scaled": 0.026614681359359016,
+        "max_abs_scaled": 0.06664002157562927
+      },
+      {
+        "family": "H2O:dense_balance",
+        "count": 10,
+        "rms_scaled": 0.02527023701777361,
+        "max_abs_scaled": 0.06836333936685718
+      },
+      {
+        "family": "H2:bubble_balance",
+        "count": 10,
+        "rms_scaled": 0.021652512210403856,
+        "max_abs_scaled": 0.04982935072116646
+      },
+      {
+        "family": "CO2:bubble_balance",
+        "count": 10,
+        "rms_scaled": 0.01996209287569546,
+        "max_abs_scaled": 0.039789624557859324
+      },
+      {
+        "family": "char[k1]:solid_balance",
+        "count": 12,
+        "rms_scaled": 0.019885681710385395,
+        "max_abs_scaled": 0.06313017728486169
+      },
+      {
+        "family": "CO2:dense_balance",
+        "count": 10,
+        "rms_scaled": 0.019698467957965253,
+        "max_abs_scaled": 0.04788085152586455
+      },
+      {
+        "family": "char[k0]:solid_balance",
+        "count": 12,
+        "rms_scaled": 0.018275698519527536,
+        "max_abs_scaled": 0.05733500577146329
+      },
+      {
+        "family": "CH4:dense_balance",
+        "count": 10,
+        "rms_scaled": 0.017321073462599375,
+        "max_abs_scaled": 0.03678399658622156
+      },
+      {
+        "family": "O2:bubble_balance",
+        "count": 10,
+        "rms_scaled": 0.015663666961804757,
+        "max_abs_scaled": 0.049088377498294485
+      },
+      {
+        "family": "ash[k8]:solid_balance",
+        "count": 12,
+        "rms_scaled": 0.013889244455069484,
+        "max_abs_scaled": 0.044614617144136504
+      },
+      {
+        "family": "ash[k9]:solid_balance",
+        "count": 12,
+        "rms_scaled": 0.013678197179441463,
+        "max_abs_scaled": 0.04406177795763895
+      },
+      {
+        "family": "CH4:bubble_balance",
+        "count": 10,
+        "rms_scaled": 0.011677732660660215,
+        "max_abs_scaled": 0.022729743021934472
+      },
+      {
+        "family": "O2:dense_balance",
+        "count": 10,
+        "rms_scaled": 0.007563050160830551,
+        "max_abs_scaled": 0.021687273684747092
+      },
+      {
+        "family": "char[k2]:solid_balance",
+        "count": 12,
+        "rms_scaled": 0.002726030857220634,
+        "max_abs_scaled": 0.005439543313137157
+      }
+    ],
+    "label": "legacy"
+  },
+  "a_tier": {
+    "n_dof": 538,
+    "rms_scaled": 0.022521362968288702,
+    "merit_scaled": 0.02874865780860901,
+    "max_abs_scaled": 0.26151768613752163,
+    "gas_rms": 0.02197778373860248,
+    "solid_rms": 0.012607344752184451,
+    "energy_rms": 0.07052895686441778,
+    "gas_combined_rms": 0.03436686058394601,
+    "gas_phase_split_rms": 0.02874865780860901,
+    "gas_max_abs": 0.10973539129171744,
+    "solid_max_abs": 0.032606384253718854,
+    "energy_max_abs": 0.26151768613752163,
+    "gas_phase_split_max_abs": 0.21947078258343328,
+    "component_max_rms": 0.07052895686441778,
+    "per_cell": [
+      {
+        "cell_index": 0,
+        "cell_type": "bed",
+        "T_K": 1180.0,
+        "rms_scaled": 0.04642778534754577,
+        "max_abs_scaled": 0.26151768613752163,
+        "gas_rms": 0.030923273691032344,
+        "solid_rms": 0.0065598478078994805,
+        "energy_scaled": -0.26151768613752163,
+        "energy_raw_W": -4906943.517560365
+      },
+      {
+        "cell_index": 1,
+        "cell_type": "bed",
+        "T_K": 1093.861962159607,
+        "rms_scaled": 0.04710085111110672,
+        "max_abs_scaled": 0.10973539129171744,
+        "gas_rms": 0.05895576875669445,
+        "solid_rms": 0.031843683271064536,
+        "energy_scaled": -0.03408871531463569,
+        "energy_raw_W": -639617.9283536144
+      },
+      {
+        "cell_index": 2,
+        "cell_type": "bed",
+        "T_K": 1143.2888888888888,
+        "rms_scaled": 0.030292290873584943,
+        "max_abs_scaled": 0.1346590673605457,
+        "gas_rms": 0.013909283057635816,
+        "solid_rms": 0.027946476356782712,
+        "energy_scaled": -0.1346590673605457,
+        "energy_raw_W": -2526652.967241706
+      },
+      {
+        "cell_index": 3,
+        "cell_type": "bed",
+        "T_K": 1124.9333333333334,
+        "rms_scaled": 0.005661071755786193,
+        "max_abs_scaled": 0.017074011061724407,
+        "gas_rms": 0.0030229052489498098,
+        "solid_rms": 0.007029849713139767,
+        "energy_scaled": 0.011950824562404724,
+        "energy_raw_W": 224237.30487258732
+      },
+      {
+        "cell_index": 4,
+        "cell_type": "bed",
+        "T_K": 1106.5777777777778,
+        "rms_scaled": 0.0032734581563720585,
+        "max_abs_scaled": 0.00963618525739048,
+        "gas_rms": 0.0030909596269595376,
+        "solid_rms": 0.0027874716656644473,
+        "energy_scaled": 0.00963618525739048,
+        "energy_raw_W": 180806.9560461701
+      },
+      {
+        "cell_index": 5,
+        "cell_type": "bed",
+        "T_K": 1088.2222222222222,
+        "rms_scaled": 0.03617590091149658,
+        "max_abs_scaled": 0.10604886981690391,
+        "gas_rms": 0.046003558125989344,
+        "solid_rms": 0.002044725930619272,
+        "energy_scaled": 0.10604886981690391,
+        "energy_raw_W": 1989830.2939978405
+      },
+      {
+        "cell_index": 6,
+        "cell_type": "bed",
+        "T_K": 1069.8666666666666,
+        "rms_scaled": 0.0012741924301671523,
+        "max_abs_scaled": 0.005070049930511355,
+        "gas_rms": 0.00047370361819800615,
+        "solid_rms": 0.0013485716825061686,
+        "energy_scaled": 0.005070049930511355,
+        "energy_raw_W": 95131.03686282807
+      },
+      {
+        "cell_index": 7,
+        "cell_type": "bed",
+        "T_K": 1051.511111111111,
+        "rms_scaled": 0.0016553876940953313,
+        "max_abs_scaled": 0.005562138668558745,
+        "gas_rms": 0.00048709495732770765,
+        "solid_rms": 0.0019579329484292166,
+        "energy_scaled": 0.005562138668558745,
+        "energy_raw_W": 104364.26188439061
+      },
+      {
+        "cell_index": 8,
+        "cell_type": "bed",
+        "T_K": 1033.1555555555556,
+        "rms_scaled": 0.0011252102430503806,
+        "max_abs_scaled": 0.005003663162873616,
+        "gas_rms": 0.0005081734054416992,
+        "solid_rms": 0.0010418390587375453,
+        "energy_scaled": 0.005003663162873616,
+        "energy_raw_W": 93885.39981271862
+      },
+      {
+        "cell_index": 9,
+        "cell_type": "bed",
+        "T_K": 1014.8,
+        "rms_scaled": 0.0014150419157816102,
+        "max_abs_scaled": 0.007290995474988787,
+        "gas_rms": 0.0005193713586319359,
+        "solid_rms": 0.0010849548695803855,
+        "energy_scaled": 0.007290995474988787,
+        "energy_raw_W": 136803.3784290396
+      },
+      {
+        "cell_index": 10,
+        "cell_type": "freeboard",
+        "T_K": 1023.7176935163916,
+        "rms_scaled": 0.003915885547122654,
+        "max_abs_scaled": 0.012987504353865283,
+        "gas_rms": 6.974655083128947e-06,
+        "solid_rms": 0.0,
+        "energy_scaled": 0.012987504353865283,
+        "energy_raw_W": 243688.87335969228
+      },
+      {
+        "cell_index": 11,
+        "cell_type": "freeboard",
+        "T_K": 1032.5493553482374,
+        "rms_scaled": 0.0004469587457778952,
+        "max_abs_scaled": 0.0014823943285797244,
+        "gas_rms": 1.9475510488114318e-07,
+        "solid_rms": 0.0,
+        "energy_scaled": -0.0014823943285797244,
+        "energy_raw_W": -27814.65891858423
+      },
+      {
+        "cell_index": 12,
+        "cell_type": "freeboard",
+        "T_K": 1041.296274950173,
+        "rms_scaled": 0.00044050724176328845,
+        "max_abs_scaled": 0.0014609972383631323,
+        "gas_rms": 1.4279134169130518e-10,
+        "solid_rms": 0.0,
+        "energy_scaled": -0.0014609972383631323,
+        "energy_raw_W": -27413.17818248691
+      },
+      {
+        "cell_index": 13,
+        "cell_type": "freeboard",
+        "T_K": 1055.808480491487,
+        "rms_scaled": 0.0012916899116212877,
+        "max_abs_scaled": 0.0037028759151582972,
+        "gas_rms": 0.0012751388366770867,
+        "solid_rms": 0.0,
+        "energy_scaled": -0.0014468243077873594,
+        "energy_raw_W": -27147.246761783492
+      },
+      {
+        "cell_index": 14,
+        "cell_type": "freeboard",
+        "T_K": 1064.3608975987263,
+        "rms_scaled": 0.0004337732214207136,
+        "max_abs_scaled": 0.001438634180056163,
+        "gas_rms": 2.8806216841085044e-06,
+        "solid_rms": 0.0,
+        "energy_scaled": -0.001438634180056163,
+        "energy_raw_W": -26993.572665120475
+      },
+      {
+        "cell_index": 15,
+        "cell_type": "freeboard",
+        "T_K": 1072.828254844535,
+        "rms_scaled": 0.00043043240401005774,
+        "max_abs_scaled": 0.0014275701381651698,
+        "gas_rms": 1.899980519137069e-06,
+        "solid_rms": 0.0,
+        "energy_scaled": -0.0014275701381651698,
+        "energy_raw_W": -26785.974359105807
+      },
+      {
+        "cell_index": 16,
+        "cell_type": "freeboard",
+        "T_K": 1081.2131737728123,
+        "rms_scaled": 0.00042712001612558455,
+        "max_abs_scaled": 0.0014165911859971515,
+        "gas_rms": 1.2649775294185112e-06,
+        "solid_rms": 0.0,
+        "energy_scaled": -0.0014165911859971515,
+        "energy_raw_W": -26579.972619926557
+      },
+      {
+        "cell_index": 17,
+        "cell_type": "freeboard",
+        "T_K": 1089.5177609408165,
+        "rms_scaled": 0.0004238342293496947,
+        "max_abs_scaled": 0.0014056966689221697,
+        "gas_rms": 8.287722281662535e-07,
+        "solid_rms": 0.0,
+        "energy_scaled": -0.0014056966689221697,
+        "energy_raw_W": -26375.55516454298
+      },
+      {
+        "cell_index": 18,
+        "cell_type": "cyclone",
+        "T_K": 1089.5177609408165,
+        "rms_scaled": 0.0,
+        "max_abs_scaled": 0.0,
+        "gas_rms": 0.0,
+        "solid_rms": 0.0,
+        "energy_scaled": 0.0,
+        "energy_raw_W": 0.0
+      },
+      {
+        "cell_index": 19,
+        "cell_type": "return_leg",
+        "T_K": 1089.5177609408165,
+        "rms_scaled": 0.0,
+        "max_abs_scaled": 0.0,
+        "gas_rms": 0.0,
+        "solid_rms": 0.0,
+        "energy_scaled": 0.0,
+        "energy_raw_W": 0.0
+      }
+    ],
+    "top_equations": [
+      {
+        "rank": 1,
+        "label": "cell0:T:energy_balance",
+        "F_hat": -0.26151768613752163,
+        "F_raw": -4906943.517560365,
+        "scale": 18763333.333333336
+      },
+      {
+        "rank": 2,
+        "label": "cell2:T:energy_balance",
+        "F_hat": -0.1346590673605457,
+        "F_raw": -2526652.967241706,
+        "scale": 18763333.333333336
+      },
+      {
+        "rank": 3,
+        "label": "cell1:N2:dense_balance",
+        "F_hat": -0.10973539129171744,
+        "F_raw": -8.733318042006008,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 4,
+        "label": "cell1:N2:bubble_balance",
+        "F_hat": 0.10973539129171583,
+        "F_raw": 8.73331804200588,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 5,
+        "label": "cell1:O2:bubble_balance",
+        "F_hat": 0.10831970716221417,
+        "F_raw": 8.62065047318944,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 6,
+        "label": "cell5:T:energy_balance",
+        "F_hat": 0.10604886981690391,
+        "F_raw": 1989830.2939978405,
+        "scale": 18763333.333333336
+      },
+      {
+        "rank": 7,
+        "label": "cell5:CO:dense_balance",
+        "F_hat": 0.10545983912764395,
+        "F_raw": 8.393047173925009,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 8,
+        "label": "cell5:CO:bubble_balance",
+        "F_hat": 0.09318630237063341,
+        "F_raw": 7.416254739529102,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 9,
+        "label": "cell1:H2:dense_balance",
+        "F_hat": -0.08412983620428187,
+        "F_raw": -6.695493657471661,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 10,
+        "label": "cell5:H2:dense_balance",
+        "F_hat": 0.08379222261143561,
+        "F_raw": 6.668624596843878,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 11,
+        "label": "cell5:H2:bubble_balance",
+        "F_hat": 0.07383597847163884,
+        "F_raw": 5.876254463988968,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 12,
+        "label": "cell1:CO:dense_balance",
+        "F_hat": -0.07274419538123701,
+        "F_raw": -5.7893646388457185,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 13,
+        "label": "cell1:O2:dense_balance",
+        "F_hat": 0.07122378773784134,
+        "F_raw": 5.668362623479747,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 14,
+        "label": "cell0:O2:dense_balance",
+        "F_hat": -0.07104335384462371,
+        "F_raw": -5.654002747814494,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 15,
+        "label": "cell1:H2O:bubble_balance",
+        "F_hat": 0.07045940096575028,
+        "F_raw": 5.607528714663335,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 16,
+        "label": "cell0:H2O:bubble_balance",
+        "F_hat": 0.06981057977799184,
+        "F_raw": 5.5558921212326595,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 17,
+        "label": "cell0:H2O:dense_balance",
+        "F_hat": 0.06765248667058946,
+        "F_raw": 5.384139751743195,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 18,
+        "label": "cell1:CO:bubble_balance",
+        "F_hat": -0.062301791027200744,
+        "F_raw": -4.958303326050178,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 19,
+        "label": "cell1:H2:bubble_balance",
+        "F_hat": -0.05937721387161032,
+        "F_raw": -4.725550135511509,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 20,
+        "label": "cell5:CO2:dense_balance",
+        "F_hat": -0.057446598208877105,
+        "F_raw": -4.571901614272765,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 21,
+        "label": "cell1:H2O:dense_balance",
+        "F_hat": 0.05589683021971192,
+        "F_raw": 4.448562948584503,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 22,
+        "label": "cell5:CO2:bubble_balance",
+        "F_hat": -0.051508833244799476,
+        "F_raw": -4.099343132642014,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 23,
+        "label": "cell5:CH4:dense_balance",
+        "F_hat": -0.04656671947743488,
+        "F_raw": -3.7060237958071602,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 24,
+        "label": "cell0:CH4:bubble_balance",
+        "F_hat": -0.045882941638484394,
+        "F_raw": -3.651605168713962,
+        "scale": 79.58524537256721
+      },
+      {
+        "rank": 25,
+        "label": "cell2:CO2:dense_balance",
+        "F_hat": 0.04322979247956585,
+        "F_raw": 3.4404536418914087,
+        "scale": 79.58524537256721
+      }
+    ],
+    "top_families_by_rms": [
+      {
+        "family": "T:energy_balance",
+        "count": 18,
+        "rms_scaled": 0.07434404822910921,
+        "max_abs_scaled": 0.26151768613752163
+      },
+      {
+        "family": "CO:dense_balance",
+        "count": 10,
+        "rms_scaled": 0.041085156004917994,
+        "max_abs_scaled": 0.10545983912764395
+      },
+      {
+        "family": "H2:dense_balance",
+        "count": 10,
+        "rms_scaled": 0.03815977357988316,
+        "max_abs_scaled": 0.08412983620428187
+      },
+      {
+        "family": "CO:bubble_balance",
+        "count": 10,
+        "rms_scaled": 0.035750737569098835,
+        "max_abs_scaled": 0.09318630237063341
+      },
+      {
+        "family": "N2:dense_balance",
+        "count": 10,
+        "rms_scaled": 0.034706431553915014,
+        "max_abs_scaled": 0.10973539129171744
+      },
+      {
+        "family": "N2:bubble_balance",
+        "count": 10,
+        "rms_scaled": 0.034706431553914625,
+        "max_abs_scaled": 0.10973539129171583
+      },
+      {
+        "family": "O2:bubble_balance",
+        "count": 10,
+        "rms_scaled": 0.03426162533288927,
+        "max_abs_scaled": 0.10831970716221417
+      },
+      {
+        "family": "O2:dense_balance",
+        "count": 10,
+        "rms_scaled": 0.031811925539360165,
+        "max_abs_scaled": 0.07122378773784134
+      },
+      {
+        "family": "H2O:bubble_balance",
+        "count": 10,
+        "rms_scaled": 0.031512511448145854,
+        "max_abs_scaled": 0.07045940096575028
+      },
+      {
+        "family": "H2:bubble_balance",
+        "count": 10,
+        "rms_scaled": 0.030131480082766983,
+        "max_abs_scaled": 0.07383597847163884
+      },
+      {
+        "family": "H2O:dense_balance",
+        "count": 10,
+        "rms_scaled": 0.02799975354978328,
+        "max_abs_scaled": 0.06765248667058946
+      },
+      {
+        "family": "CO2:dense_balance",
+        "count": 10,
+        "rms_scaled": 0.024006549971714582,
+        "max_abs_scaled": 0.057446598208877105
+      },
+      {
+        "family": "CO2:bubble_balance",
+        "count": 10,
+        "rms_scaled": 0.02315221117317993,
+        "max_abs_scaled": 0.051508833244799476
+      },
+      {
+        "family": "CH4:bubble_balance",
+        "count": 10,
+        "rms_scaled": 0.021001696714834484,
+        "max_abs_scaled": 0.045882941638484394
+      },
+      {
+        "family": "CH4:dense_balance",
+        "count": 10,
+        "rms_scaled": 0.016268638327193174,
+        "max_abs_scaled": 0.04656671947743488
+      },
+      {
+        "family": "char[k0]:solid_balance",
+        "count": 12,
+        "rms_scaled": 0.013496316716384479,
+        "max_abs_scaled": 0.030633553456603242
+      },
+      {
+        "family": "char[k1]:solid_balance",
+        "count": 12,
+        "rms_scaled": 0.013049045432965,
+        "max_abs_scaled": 0.030057930155066394
+      },
+      {
+        "family": "ash[k8]:solid_balance",
+        "count": 12,
+        "rms_scaled": 0.012818319211279539,
+        "max_abs_scaled": 0.032606384253718854
+      },
+      {
+        "family": "ash[k2]:solid_balance",
+        "count": 12,
+        "rms_scaled": 0.012759540465957089,
+        "max_abs_scaled": 0.03224031197305179
+      },
+      {
+        "family": "ash[k0]:solid_balance",
+        "count": 12,
+        "rms_scaled": 0.012748908936874437,
+        "max_abs_scaled": 0.032252856418299544
+      }
+    ],
+    "label": "a_tier"
+  },
+  "summary_delta": {
+    "rms_scaled": 0.0026199829119118584,
+    "merit_scaled": -0.006333751710921917,
+    "gas_rms": 0.0026897857619681,
+    "solid_rms": 0.0049560421132115486,
+    "energy_rms": 0.0016576184204776107,
+    "gas_phase_split_rms": -0.006333751710921917,
+    "max_abs_scaled": 0.01992751400500456
+  },
+  "a_tier_top_equations_vs_legacy": [
+    {
+      "label": "cell0:T:energy_balance",
+      "a_tier_F_hat": -0.26151768613752163,
+      "legacy_F_hat": -0.24159017213251707,
+      "delta_a_minus_legacy": -0.01992751400500456
+    },
+    {
+      "label": "cell2:T:energy_balance",
+      "a_tier_F_hat": -0.1346590673605457,
+      "legacy_F_hat": -0.07799009868673303,
+      "delta_a_minus_legacy": -0.05666896867381267
+    },
+    {
+      "label": "cell1:N2:dense_balance",
+      "a_tier_F_hat": -0.10973539129171744,
+      "legacy_F_hat": -0.12279087659479065,
+      "delta_a_minus_legacy": 0.013055485303073211
+    },
+    {
+      "label": "cell1:N2:bubble_balance",
+      "a_tier_F_hat": 0.10973539129171583,
+      "legacy_F_hat": 0.12263763005229587,
+      "delta_a_minus_legacy": -0.01290223876058004
+    },
+    {
+      "label": "cell1:O2:bubble_balance",
+      "a_tier_F_hat": 0.10831970716221417,
+      "legacy_F_hat": 0.049088377498294485,
+      "delta_a_minus_legacy": 0.05923132966391969
+    },
+    {
+      "label": "cell5:T:energy_balance",
+      "a_tier_F_hat": 0.10604886981690391,
+      "legacy_F_hat": 0.0,
+      "delta_a_minus_legacy": 0.10604886981690391
+    },
+    {
+      "label": "cell5:CO:dense_balance",
+      "a_tier_F_hat": 0.10545983912764395,
+      "legacy_F_hat": 0.0,
+      "delta_a_minus_legacy": 0.10545983912764395
+    },
+    {
+      "label": "cell5:CO:bubble_balance",
+      "a_tier_F_hat": 0.09318630237063341,
+      "legacy_F_hat": 0.0,
+      "delta_a_minus_legacy": 0.09318630237063341
+    },
+    {
+      "label": "cell1:H2:dense_balance",
+      "a_tier_F_hat": -0.08412983620428187,
+      "legacy_F_hat": 0.03831938812200834,
+      "delta_a_minus_legacy": -0.12244922432629021
+    },
+    {
+      "label": "cell5:H2:dense_balance",
+      "a_tier_F_hat": 0.08379222261143561,
+      "legacy_F_hat": 0.0,
+      "delta_a_minus_legacy": 0.08379222261143561
+    },
+    {
+      "label": "cell5:H2:bubble_balance",
+      "a_tier_F_hat": 0.07383597847163884,
+      "legacy_F_hat": 0.0,
+      "delta_a_minus_legacy": 0.07383597847163884
+    },
+    {
+      "label": "cell1:CO:dense_balance",
+      "a_tier_F_hat": -0.07274419538123701,
+      "legacy_F_hat": 0.11716592758672198,
+      "delta_a_minus_legacy": -0.189910122967959
+    },
+    {
+      "label": "cell1:O2:dense_balance",
+      "a_tier_F_hat": 0.07122378773784134,
+      "legacy_F_hat": 0.0,
+      "delta_a_minus_legacy": 0.07122378773784134
+    },
+    {
+      "label": "cell0:O2:dense_balance",
+      "a_tier_F_hat": -0.07104335384462371,
+      "legacy_F_hat": 0.0,
+      "delta_a_minus_legacy": -0.07104335384462371
+    },
+    {
+      "label": "cell1:H2O:bubble_balance",
+      "a_tier_F_hat": 0.07045940096575028,
+      "legacy_F_hat": 0.038612431823371866,
+      "delta_a_minus_legacy": 0.03184696914237841
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "solver": "phase2_freeboard_global_nr",
+  "case_key": "CASE_HTW_WESSELING_1",
+  "max_global_iter": 20,
+  "wall_time_s": 280.038218218,
+  "converged": true,
+  "converged_fully": true,
+  "rms_scaled_final": 0.005461852783361167,
+  "nr_outer_iters": 15,
+  "validation_candidate_ok": true,
+  "validation_candidate_reasons": [],
+  "T_exit_K": 1127.7165115058633,
+  "T_ref_json_K": 1100.0,
+  "T_ref_meas_K": 1120.0,
+  "err_T_vs_best": 0.006889742415949383,
+  "pass_T": true,
+  "carbon_conv_pct": 100.0,
+  "carbon_ref_pct": 95.0,
+  "carbon_rel_err": 0.05263157894736842,
+  "pass_carbon": true,
+  "exit_gas_dry": {
+    "CO": 0.08587569827815032,
+    "CO2": 0.16683132953341215,
+    "H2": 0.10727884157773938,
+    "CH4": 0.002151467314022079,
+    "O2": 0.0,
+    "N2": 0.635439330568099,
+    "H2S": 0.0,
+    "NH3": 0.002423332728576922
+  },
+  "exit_gas_wet": {
+    "CO": 0.06958601062133818,
+    "CO2": 0.13518523751949207,
+    "H2": 0.08692920999948135,
+    "H2O": 0.18968914114366422,
+    "CH4": 0.0017433573218826927,
+    "O2": 0.0,
+    "N2": 0.5149033881844804,
+    "H2S": 0.0,
+    "NH3": 0.0019636528187939673,
+    "TAR1": 6.697845742666387e-10,
+    "TAR2": 1.7210823511594346e-09
+  },
+  "vs_json_fields": {
+    "CO": {
+      "sim": 0.08587569827815032,
+      "ref": 0.13,
+      "rel_err": 0.33941770555268985,
+      "pass": false
+    },
+    "CO2": {
+      "sim": 0.16683132953341215,
+      "ref": 0.11,
+      "rel_err": 0.5166484503037468,
+      "pass": false
+    },
+    "H2": {
+      "sim": 0.10727884157773938,
+      "ref": 0.12,
+      "rel_err": 0.10600965351883844,
+      "pass": true
+    },
+    "CH4": {
+      "sim": 0.002151467314022079,
+      "ref": 0.028,
+      "rel_err": 0.9231618816420686,
+      "pass": false
+    }
+  },
+  "vs_note_dry_basis": {
+    "CO": {
+      "sim": 0.08587569827815032,
+      "ref": 0.157,
+      "rel_err": 0.4530210300754757,
+      "pass": false
+    },
+    "CO2": {
+      "sim": 0.16683132953341215,
+      "ref": 0.133,
+      "rel_err": 0.2543708987474597,
+      "pass": false
+    },
+    "H2": {
+      "sim": 0.10727884157773938,
+      "ref": 0.145,
+      "rel_err": 0.26014592015352145,
+      "pass": false
+    },
+    "CH4": {
+      "sim": 0.002151467314022079,
+      "ref": 0.034,
+      "rel_err": 0.936721549587586,
+      "pass": false
+    }
+  },
+  "config_snapshot": {
+    "n_cells": 10,
+    "n_freeboard_cells": 8,
+    "freeboard_secondary_injection_xi": 0.6,
+    "freeboard_secondary_O2_mol_s": 0.07833645638142828,
+    "freeboard_trajectory_coeff_model": "exact_hamel"
+  }
+}

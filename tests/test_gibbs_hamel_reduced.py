@@ -4,6 +4,10 @@ import numpy as np
 import pytest
 
 from src.core.constants import P0, Rg
+from src.core.hamel_parity_defaults import (
+    HAMEL_GIBBS_INITIAL_GUESS_MODE,
+    HAMEL_GIBBS_TOL_MODE,
+)
 from src.thermodynamics.gibbs_hamel_reduced import ReducedHamelGibbsSolver
 
 
@@ -41,6 +45,20 @@ class _ToySpeciesDB:
 
 def _solver() -> ReducedHamelGibbsSolver:
     return ReducedHamelGibbsSolver(_ToySpeciesDB())
+
+
+def test_reduced_solver_defaults_use_hamel_a40_and_holub_tol() -> None:
+    solver = _solver()
+    _, diag = solver.solve(
+        T=1200.0,
+        P=101325.0,
+        elements={"C": 1.0, "O": 1.0},
+        candidates=["CO2", "CO", "O2"],
+        return_diag=True,
+    )
+    assert diag["initial_guess_mode"] == HAMEL_GIBBS_INITIAL_GUESS_MODE
+    assert diag["tol_mode"] == HAMEL_GIBBS_TOL_MODE
+    assert diag["converged"] is True
 
 
 def test_reduced_solver_rejects_single_element_problem() -> None:
@@ -131,6 +149,78 @@ def test_reduced_jacobian_fd_matches_analytic_form() -> None:
     np.testing.assert_allclose(jac_fd, jac_analytic, rtol=1e-5, atol=1e-5)
 
 
+def test_infer_lambda_from_mole_guess_recovers_seed_direction() -> None:
+    solver = _solver()
+    candidates = ["CO2", "CO", "CH4", "H2", "H2O"]
+    elem_names = ["C", "H", "O"]
+    mole = {"CO2": 0.1, "CO": 0.5, "CH4": 0.2, "H2": 0.15, "H2O": 0.05}
+    lam = solver.infer_lambda_from_mole_guess(
+        mole_guess=mole,
+        elem_names=elem_names,
+        candidates=candidates,
+    )
+    assert lam.shape == (3,)
+    assert np.all(np.isfinite(lam))
+
+
+def test_reduced_solver_pyrolysis_pool_strict_an_eq_b_keeps_full_carbon() -> None:
+    """Teer 后池：严格 An=b 须用完全部 C（禁止二次划回 Koks）。"""
+    from src.solvers.vorabrechnung import _hamel_teer_gas_pool_strict_an_eq_b
+
+    # 无 C₂H₄ 候选时偏碳池不可行；用可被 CO/CH₄/H₂/H₂O 吃完的池
+    c_gas, h_atoms, o_atoms = 4.0, 12.0, 4.0
+    elems, mole_seed = _hamel_teer_gas_pool_strict_an_eq_b(
+        c_gas=c_gas,
+        h_gas=h_atoms,
+        o_gas=o_atoms,
+    )
+    assert elems["C"] == pytest.approx(4.0)
+    assert elems["H"] == pytest.approx(12.0)
+    assert elems["O"] == pytest.approx(4.0)
+    assert sum(mole_seed.values()) > 0.0
+
+
+def test_teer_gas_pool_raises_when_an_eq_b_infeasible() -> None:
+    """C 过多相对 H/O：气相候选无法 An=b → 报错（不静默吞 C）。"""
+    from src.solvers.vorabrechnung import _hamel_teer_gas_pool_strict_an_eq_b
+
+    with pytest.raises(RuntimeError, match="An=b 不可行"):
+        _hamel_teer_gas_pool_strict_an_eq_b(c_gas=20.0, h_gas=2.0, o_gas=1.0)
+
+
+def test_reduced_solver_hamel_a40_initial_guess_mode_converges() -> None:
+    solver = _solver()
+    out, diag = solver.solve(
+        T=1200.0,
+        P=101325.0,
+        elements={"C": 1.0, "O": 1.0},
+        candidates=["CO2", "CO", "O2"],
+        initial_guess_mode="hamel_a40",
+        return_diag=True,
+    )
+    assert diag["initial_guess_mode"] == "hamel_a40"
+    assert diag["converged"] is True
+    assert out["CO"] == pytest.approx(1.0, rel=0.0, abs=1e-8)
+
+
+def test_reduced_solver_holub_vonka_a34_mode_converges() -> None:
+    solver = _solver()
+    out, diag = solver.solve(
+        T=1200.0,
+        P=101325.0,
+        elements={"C": 1.0, "O": 1.0},
+        candidates=["CO2", "CO", "O2"],
+        tol=1e-8,
+        tol_mode="holub_vonka_a34",
+        return_diag=True,
+    )
+    assert diag["tol_mode"] == "holub_vonka_a34"
+    assert diag["converged"] is True
+    assert diag.get("converged_by") == "holub_vonka_a34"
+    assert float(diag["holub_vonka_a34"]) < 1e-8
+    assert out["CO"] == pytest.approx(1.0, rel=0.0, abs=1e-8)
+
+
 def test_reduced_solver_closure_relaxed_flag_when_ls_residual_above_tol(monkeypatch: pytest.MonkeyPatch) -> None:
     solver = _solver()
 
@@ -147,6 +237,7 @@ def test_reduced_solver_closure_relaxed_flag_when_ls_residual_above_tol(monkeypa
         lambda0=np.array([0.0, -40.0]),
         max_iter=0,
         tol=1e-10,
+        tol_mode="l2_residual",
         return_diag=True,
     )
     assert out["CO"] > 0.0

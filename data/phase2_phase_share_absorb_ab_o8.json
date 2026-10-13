@@ -1,0 +1,381 @@
+{
+  "note": "local2 + post-gate phase_share absorb A/B",
+  "arms": [
+    {
+      "label": "baseline",
+      "wall_s": 92.88042634199999,
+      "exit_CO": 0.032595263565180436,
+      "rms": 0.04778673786398131,
+      "split": 0.04778673786398131,
+      "energy": 0.041579240906820476,
+      "ls_fail": 20,
+      "n_acc": 4,
+      "local2_hits": [],
+      "local2_n_accepted": 0,
+      "overrides": {}
+    },
+    {
+      "label": "local2",
+      "wall_s": 91.373869449,
+      "exit_CO": 0.12200579212919908,
+      "rms": 0.058359183853464607,
+      "split": 0.039796490914508514,
+      "energy": 0.05011937585428446,
+      "ls_fail": 21,
+      "n_acc": 5,
+      "local2_hits": [
+        {
+          "outer": 1,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 2,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 3,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 4,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 5,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 6,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 7,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 8,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 9,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 10,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      ],
+      "local2_n_accepted": 3,
+      "overrides": {
+        "nr_outer_preinner_upper_co_local2x2_thesis": true
+      }
+    },
+    {
+      "label": "local2+ps_abs",
+      "wall_s": 92.90404533099996,
+      "exit_CO": 0.12200579212919908,
+      "rms": 0.058359183853464607,
+      "split": 0.039796490914508514,
+      "energy": 0.05011937585428446,
+      "ls_fail": 21,
+      "n_acc": 5,
+      "local2_hits": [
+        {
+          "outer": 1,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 2,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 3,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 4,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 5,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 6,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 7,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 8,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 9,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 10,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      ],
+      "local2_n_accepted": 3,
+      "overrides": {
+        "nr_outer_preinner_upper_co_local2x2_thesis": true,
+        "nr_outer_preinner_upper_dense_syngas_absorb_thesis": true,
+        "nr_outer_preinner_upper_dense_absorb_species_thesis": [
+          "CO"
+        ],
+        "nr_outer_preinner_upper_dense_absorb_fraction_thesis": 1.0,
+        "nr_outer_preinner_upper_dense_absorb_mode_thesis": "phase_share",
+        "nr_outer_preinner_upper_dense_absorb_post_gate_thesis": true
+      }
+    },
+    {
+      "label": "local2+ps_abs0.6",
+      "wall_s": 107.35714236999996,
+      "exit_CO": 0.12200579212919908,
+      "rms": 0.058359183853464607,
+      "split": 0.039796490914508514,
+      "energy": 0.05011937585428446,
+      "ls_fail": 21,
+      "n_acc": 5,
+      "local2_hits": [
+        {
+          "outer": 1,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 2,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 3,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 4,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 5,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 6,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 7,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 8,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 9,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 10,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      ],
+      "local2_n_accepted": 3,
+      "overrides": {
+        "nr_outer_preinner_upper_co_local2x2_thesis": true,
+        "nr_outer_preinner_upper_dense_syngas_absorb_thesis": true,
+        "nr_outer_preinner_upper_dense_absorb_species_thesis": [
+          "CO"
+        ],
+        "nr_outer_preinner_upper_dense_absorb_fraction_thesis": 0.6,
+        "nr_outer_preinner_upper_dense_absorb_mode_thesis": "phase_share",
+        "nr_outer_preinner_upper_dense_absorb_post_gate_thesis": true
+      }
+    }
+  ],
+  "platform_y_CO": 0.154
+}

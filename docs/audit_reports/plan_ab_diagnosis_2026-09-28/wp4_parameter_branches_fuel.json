@@ -1,0 +1,76 @@
+{
+  "same_parameter_initial_value": "cited wp1_three_cases.json; not rerun",
+  "e7_chain": {
+    "status": "not_rerun",
+    "reason": "solve_named_e8_from_e7 unchanged; prior timeout remains hydro 0.925 fate 0"
+  },
+  "cold_start": "cited wp1 cold_start; not rerun",
+  "parameter_branch": [
+    {
+      "name": "fuel_plus_5pct",
+      "class": "parameter_branch",
+      "target_factor": 1.05,
+      "certified_factor": 1.025,
+      "reached_target": false,
+      "elapsed_s": 300.257544895,
+      "path": [
+        {
+          "factor": 1.05,
+          "passed": false,
+          "reason": "deadline",
+          "elapsed_s": 120.005618105,
+          "merit": 3154.1919894297357,
+          "gate_ratio": {
+            "gas": 8660.232020475269,
+            "solid": 146.4760638649416,
+            "tar": 167.66524257481754,
+            "energy_sum_W": -3154.0767103748512
+          },
+          "T_bed": 1363.4411286245822,
+          "T_fb": 1384.0930720853798,
+          "gas_l2": 0.008660232020475268,
+          "worst_index": 48,
+          "worst_value": -3154.1918649932486
+        },
+        {
+          "factor": 1.025,
+          "passed": true,
+          "reason": "block_gates",
+          "elapsed_s": 117.7810787,
+          "merit": 3.470352017481522e-05,
+          "gate_ratio": {
+            "gas": 0.03302632008061742,
+            "solid": 2.4216754624324667e-05,
+            "tar": 0.00018575298185469032,
+            "energy_sum_W": 3.327032027300447e-05
+          },
+          "T_bed": 1360.1374855106683,
+          "T_fb": 1369.3731785904602,
+          "gas_l2": 3.3026320080617416e-08,
+          "worst_index": 49,
+          "worst_value": 3.4523269277997315e-05
+        },
+        {
+          "factor": 1.05,
+          "passed": false,
+          "reason": "deadline",
+          "elapsed_s": 61.33928667699999,
+          "merit": 1577.0960022348906,
+          "gate_ratio": {
+            "gas": 4326.91061253281,
+            "solid": 73.23807022443788,
+            "tar": 83.83232622525986,
+            "energy_sum_W": -1577.0281919532863
+          },
+          "T_bed": 1360.1374855106683,
+          "T_fb": 1369.3731785904602,
+          "gas_l2": 0.00432691061253281,
+          "worst_index": 48,
+          "worst_value": -1577.0959397005208
+        }
+      ],
+      "T_bed": 1360.1374855106683,
+      "T_fb": 1369.3731785904602
+    }
+  ]
+}

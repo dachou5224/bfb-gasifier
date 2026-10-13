@@ -1,0 +1,155 @@
+166
+Al Berechnung des chemischen Gleichgewichts in der Gasphase
+Al Berechnung des chemischen Gleichgewichts in der Gasphase
+167
+Es liegen mit dem Gleichungssystem (A.18) und der Gleichung (A.20) NE+1 Gleichungen für
+die NE+1 Unbekannten vor. Durch Auflösen der 1. Gleichung von (A.18) nach z und einset-
+zen von z in die restlichen Gleichungen von (A.18) und in (A.20) wird das Gleichungssystem
+auf NE reduziert. Auflösen der 1. Gleichung von (A.18) nach z liefert:
+Anwendung des Newton-Verfahrens auf das Gleichungssystem (A.26) mit
+2 = -F(l) 
+(A.27)
+führt auf NE lineare Gleichungen zur Berechnung der Korrekturen für die Lagrange’sehen
+Multiplikatoren AX :
+1 
+( 
+&
+Z = T7
+j=i 
+k 
+k=i
+(A.21)
+f 
+NE
+1
+exp 
++ 
+-akJ \M S
+k 
+k=1
+7
+= -F( )
+(A.28)
+Im weiteren wird z aus Gleichung (A.21) in die restlichen Gleichungen von (A.18) eingesetzt:
+- ex P\ ~ C J + L 
+2 * - a ki “77 
+L 
+a u - ex P\ ~ c i + L 
+; -t
+J=1 
+k 
+k=l 
+J 
+0/ 
+j=l 
+k 
+k=l
+Umstellen von Gleichung (A.28) liefert:
+N E ">>-»<> 
+Ns-Ny 
+..
+i = l' 
+<A'29>
+S~1 J=1 
+J~1
+Zur Berechnung der verbesserten Werte 
+empfehlen Holub und Vonka (1976) die Ver-
+wendung eines Dämpfungsparameters 7 :
+42)=4/)+ 
+(/) 
+(A-30>
+■ a kj =0
+(A.22)
+Aus (A.22) erhält man durch Umformen:
+X-A'o 
+, + Ns -N„
+i=l 
+i=l
+i = 2,NE
+(A.23)
+Durch Einsetzen von z aus Gleichung (A.21) in die zusätzliche Bedingung (A.20) ergibt sich:
+Ns - 'o 
+r
+£exp|-c,
+>/ l
+IM?
+Dieser Dämpfungsparameter mit 0 < 77 < 1 sollte so gewählt werden, daß die Ungleichung
+2 
+a lg ' 
+k ~ c j <0
+k=l
+(A-31)
+J-1,N S
+(A.24)
+1 ÄZA/ =7
+Jl=Ns -N t,+l
+erfüllt ist, was der Bedingung 0<j/y <1entspricht. Die Gesamtmolzahl erhält man, indem man
+die Massenbilanz (A.3) durch die Gesamtmolzahl teilt,
+i-LN
+E
+(A.32)
+j=l 
+M 
+™ l=Ns -N (J+l
+Gleichung (A.24) lässt sich vereinfachen zu:
+j V.s'-A'p 
+Ns
+j=l 
+J=1 
+l=Ns -N ()+J
+Nun bleibt das Gleichungssystem, bestehend aus Gleichung (A.23) und Gleichung (A.25) zu-
+sammengefasst, mit NE Gleichungen für die 
+Unbekannten (k = 1,NE) zu lösen:
+/ 
+N,.. 
+k
+S 
+• ex P\ ~ c j + zL k- a/y = d t
+i - 1,NE
+(A.26)
+J=1 
+l 
+*=/ 
+)
+für i = 1 gilt: 
+d, = 1
+l 
+Ns
+q ü =I 
++ TV a IJ 
+Y 
+n l
+b l 
+!=Ns -N Q +l
+für i = 2,NE gilt: 
+dt = 0
+b*
+q‘J ~ a ü
+expi-Cj + 
+k
+(A.25)
+über alle Elemente summiert und nach N auflöst:
+A\-
+Z°,7 
+/+
+/=As- j +/
+i=l
+N = —
+(A.33)
+Als Abbruchkriterium geben Holub und Vonka (1976) folgende Größe an:
+A7 
+A's-A'c. 
+vl
+p 
+= E 
+/_
+Z 
+a t'’Tq 
+<4
+'
+M 
+j=l 
+°i I
+(A.34)
+Zur vollständigen Beschreibung der Methode fehlt noch die Bestimmung der Startwerte, die
+das Lösungsverfahren zur Berechnung benötigt. Aus Gleichung (A.15) folgt:

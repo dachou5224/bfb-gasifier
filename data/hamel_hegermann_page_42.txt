@@ -1,0 +1,138 @@
+4 Trocknung und Pyrolyse des Brennstoffs
+4 Trocknung und Pyrolyse des Brennstoffs
+64
+65
+, 
+in 
+kg C im Koks
+C.Koks ,n
+• --------— -------
+kg C im Brennstoff (waf)
+0,70
+0,65
+= 1.073 k
+ws = 1.173 KZ
+1.273
+0,60
+0,55
+Rhein. Braunkohle - Koks
+0,50
+0 
+0,5 
+1,0 
+1,5 
+2,0 
+2,5
+Druck in MPa
+während sich der nach der Pyrolyse im Teer vorliegenden Kohlenstoffanteil aus:
+„ 
+r 
+• 
+kgCimTeer
+X C .Teer = 
+’ P H'S ’ »'S + & 
+ln
+kg 
+c 
+jm Brennsto
+ff 
+'
+x c,Koks berechnet
+0,70 rz---------------
+Igo
+0,65
+0,60
+0,55
+Rhein. Braunkohle - Koks
+0,50
+0,50 
+0,55 
+0,60 
+0,65 
+0,70
+berechnet. Die Gesamtmasse des aus der Pyrolyse hervorgegangenen Kokses bezogen auf die
+wasser- und aschefreie Brennstoffsubstanz ist:
+kg Koks
+kg Brennstoff (waJ)
+(4.23)
+x Koks.B( waf ) ~ x C,B(waf) ‘ X C,Koks
+Die Gesamtmasse des Teers bezogen auf die wasser- und aschefreie Brennstoffsubstanz ergibt
+sich aus der Annahme, dass das molare H/C-Verhältnis des Teeres gleich dem der Ausgangs-
+kohle ist zu:
+kg Teer
+kg Brennstoff (waf)
+x H,B(waf)
+x C,B(waf )
+(4.24)
+x c,Koks gemessen
+x Teer,B( waf ) ~ X C,B( waf ) ’ x C,Tee>
+Bild 4.8: In Abhängigkeit von Druck und Temperatur in der Wirbelschicht nach Gleichung
+(4.21) berechneter Kohlenstoffanteil im Koks aus der Pyrolyse Rheinischer
+Braunkohle (Teilbild A).Vergleich zwischen Messung und Berechnung des C-
+Anteils im Koks (Teilbild B). Die experimentellen Ergebnisse sind aus Heger-
+mann (1990) entnommen.
+Tabelle 4.3 enthält eine Übersicht der ermittelten Parameter zu den Gleichungen (4.21) und
+(4.22). Die Parameter wurden jeweils mit Hilfe der Methode der kleinsten Fehlerquadrate be-
+stimmt. In den Bildern 4.8 und 4.9 sind die von Hegermann (1990) gemessenen mit den nach
+Gleichung (4.21) und (4.22) berechneten Werten zur Verteilung des Kohlenstoffs nach der
+Pyrolyse in der Druckwirbelschicht dargestellt. Die Berechnung der Koks- und Teerausbeute
+liefert auch im Vergleich mit den in Kapitel 6 beschriebenen, experimentell unter atmosphäri-
+schen Wirbelschichtbedingungen ermittelten Daten eine zufriedenstellende Übereinstimmung.
+kg C im Teer
+kg C im Brennstoff (waf)
+0,4
+0,3
+'Tws = 1.073 K
+= 1.173 K
+/Tms = 1.273 K
+0,2
+.<>
+Rhein. Braunkohle - Teer
+0
+0 
+0,5 
+1,0 
+2,0
+Druck in MPa
+x c,Teer berechnet
+0,3 B
+0,2
+Rhein. Braunkohle - Teer
+0 k
+0 
+0,1 
+0,2 
+0,3
+Tabelle 4.3: Die zur Berechnung der Kohlenstoffmenge im Koks und im Teer nach der
+Pyrolyse Rheinischer Braunkohle benötigten empirischen Parameter nach
+Gleichung (4.21) und (4.22). Die Ermittlung der Parameter erfolgte aus den
+experimentellen Ergebnissen von Hegermann (1990).
+0,1
+Parameter für
+Rhein. Braunkohle
+C-Anteil im Koks
+Gleichung (4.21)
+C-Anteil im Teer
+Gleichung (4.22)
+0,3027
+-0,2168
+6
+0,1047
+0,04148
+&
+0,9356
+0,1566
+6
+-0,08578
+1,333
+Gültigkeitsbereich
+1.073 K<T WS
+1-273 K
+0,1 MPa <P ws 
+2,5 MPa
+x c,Teer gemessen
+Bild 4.9: In Abhängigkeit von Druck und Temperatur in der Wirbelschicht nach Gleichung
+(4.22) berechneter Kohlenstoffanteil im Teer aus der Pyrolyse Rheinischer Braun-
+kohle (Teilbild A).Vergleich zwischen Messung und Berechnung des C-Anteils
+im Teer (Teilbild B). Die experimentellen Ergebnisse sind aus Hegermann (1990)
+entnommen.

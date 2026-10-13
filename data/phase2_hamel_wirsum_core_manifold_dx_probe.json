@@ -1,0 +1,7 @@
+{
+  "note": "CORE first Newton dx vs per-phase fastox; overlap-tangent clip probe",
+  "rms0": 0.047560738463108314,
+  "solve_best_trial_rms": null,
+  "solve_best_trial_lambda": null,
+  "n_acc": null
+}

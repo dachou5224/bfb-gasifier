@@ -1,0 +1,106 @@
+zugeführten Luft- und Brennstoffströme oder die Menge, Eigenschaften und Korngrößenvertei-
+lung des Wirbelschichtinventars. Eine Zusammenstellung der unabhängigen Modellvariablen
+enthält Tabelle 2.1.
+Tabelle 2.2. Zusammenstellung der im Simulationsmodell berücksichtigten Phänomene mit Angabe bere-
+chenbarer Prozeßgrößen
+Teilmodelle für:
+| abhängige, berechenbare Prozeßgrößen
+Strömungsmechanik im
+Bereich der Wirbelschicht
+• minimale Fluidisierungsgeschwindigkeit, Gasgeschwindigkeit,
+Porosität und Druckverlust
+• Blasengröße, Blasenwachstum und Blasenvolumenanteil, Gas-
+austausch zwischen Blase und Emulsion
+• Feststoffbewegung, Feststoffholdup und Feststoffausstoß in
+den Freiraum (Inertmaterial und aktive Feststoffe)
+Strömungsmechanik im
+Bereich des Freiraums
+• Gasgeschwindigkeit, Gasvermischungsvorgänge
+• Feststoffbewegung (Trajektorie einzelner Partikel),
+Feststoffholdup
+quasi-stationäre vertikale
+Verteilung der
+Klärschlammpartikel
+(Segregation)
+• axiales Konzentrationsprofil der Brennstoffpartikel in
+Abhängigkeit von Durchmesser, Dichte und Gesamtmasse
+innerhalb der Wirbelschicht
+Trocknungs-, Entgasungs-
+und SehrumpfungsVorgänge
+am Klärschlammpartikel
+• Freisetzungsrate von Wasser und Pyrolyseprodukten
+• Zusammensetzung der Pyrolyseprodukte
+• Partikelgrößenverteilung und Holdup jeder Partikelgrößen-
+klasse (Brennstoffe)
+physikalische und chemische
+Vorgänge an „aktiven“
+Gasen und Feststoffen
+• Umsatzraten der Gase (alle relevanten Reaktionsgleichungen)
+• Umsatz aller Feststoffsorten und aller Partikelgrößenklassen
+(alle relevanten Reaktionsgleichungen)
+• Feststoffumsatz durch Fragmentierung und Abrieb
+• Massenströme, Holdup und Verteilung aller bilanzierter Parti-
+kelgrößenklassen
+• Freisetzung von Wärme durch chemische Reaktion
+Wärmeübergang zwischen
+Freiraum und Wirbelschicht
+• Wärmestrom durch Partikelkonvektion
+• instationäre Aufheizung von Feststoffpartikeln im FYeiraum
+(nur Inertmaterial)
+• Wärmeaufnahme von Feststoffpartikeln, mittlere Temperatur
+der Feststoffpartikel
+• Wärmestrom durch Gasstrahlung
+integrale Größen
+• Leistung, Ausbrand, Feststoffaustrag, Emissionen
+• Gesamtenergiebilanz für Wirbelschicht und Freiraum
+Tabelle 2.1. Zusammenstellung unabhängiger Modellparameter für Simulationsrechnüngen. Einteilung in
+Anlageparameter und Betriebsparameter.
+Anlageparameter
+Betriebsparameter
+• Anlagekonfiguration und geometrische
+Abmessungen
+• Lage der Zufuhrstellen für Klärschlamm
+und Stützbrennstoffe
+• Lage der Luftzufuhrstellen
+• Lage von Rauchgasrückführungen
+• Massenströme von Klärschlamm und
+Stützbrennstoffen
+• Immediat- und
+Elementarzusammensetzung und
+Heizwert aller Brennstoffe
+• Anfangspartikeldurchmesser von
+Klärschlamm
+• Partikelgrößenverteilung von Kohle (wenn
+Stützbrennstoff)
+• Volumenströme von Wirbelluft und
+Sekundärluft
+• Zusammensetzung aller eintretenden
+Luft(Gas)ströme
+• Temperatur aller eintretender Brennstoff-
+und Luft(Gas)ströme
+• Zusammensetzung, Gesamtmasse und
+Partikelgrößenverteilung des
+_______Feststoffinventars_____
+Abhängige Modellvariablen ergeben sich prinzipiell für alle im Gesamtmodell beschriebenen
+Prozesse. Der Umfang der zugänglichen Information bei der Berechnung steht somit in direk-
+tem Zusammenhang zur Detailtiefe der Modellbildung. Zusätzlich lassen sich aus berechneten
+abhängigen Modellvariablen integrale Größen wie Leistung, Wirkungsgrad, Ausbrand oder
+Emissionen ableiten. Eine Zusammenstellung der wesentlichen durch Teilmodelle beschriebe-
+nene Phänomene und Prozesse sowie der berechenbaren abhängigen Modellvariablen enthält
+Tabelle 2.2.
+2.2 
+Struktur des Modells
+Verfahrenstechnik und speziell zur Lösung der dabei entstehenden Gleichungssysteme ent-
+wickelt. Hartleben [47] wandte erstmals das von Wozny entwickelte Lösungsverfahren auf das
+Zellenmodell von Rajan und Wen an. Diese Methode der Modellierung wurde nachfolgend
+von anderen Autoren (Bürkle [19], Schöler [120], Edelmann [34], Dersch [29] und Heinbockel
+Z 
+d » V? 
+1
+"nd w“ |W31’ 
+i“) 
+«»j n«i
+g 
+n komplexen Anlagen der thermischen
+13
+12

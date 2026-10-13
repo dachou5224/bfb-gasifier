@@ -1,0 +1,33 @@
+{
+  "verdict": "bed0_energy_not_from_source_freeze; cold_anchor_index_leap was harmful; hybrid keeps bed0 pin + O2/xi upper beds",
+  "hypotheses": {
+    "H_source_refresh": "REJECTED \u2014 full drying/pyro refresh after O1 \u0394T leaves E RMS unchanged (0.1028)",
+    "H_hydro_only_refresh": "REJECTED \u2014 same",
+    "H_cold_anchor_index_leap": "CONFIRMED \u2014 j>0 index leap vs O2/xi caused elevated residuals; hybrid fixes",
+    "H_disable_cold_anchor": "PARTIAL \u2014 S\u21920.017 but max|dT|~400\u2013600 (violent)",
+    "H_seed900": "PARTIAL \u2014 S\u21920.016 E\u21920.071 but max|dT|~595",
+    "H_soft_0.2": "REJECTED for split \u2014 S worse (0.093) at seed700"
+  },
+  "fix": {
+    "hybrid_cold_anchor": "derive_nr_temperature_seed: bed0 pin only; upper beds O2/xi",
+    "soft_knob": "vorab_nr_temperature_seed_bed0_soft_progress_thesis (default 0)"
+  },
+  "probes": {
+    "hybrid_700": {
+      "final_split": 0.08618,
+      "final_energy": 0.10211,
+      "max_dT": 29.44
+    },
+    "baseline_pre_hybrid_ref": {
+      "final_split": 0.085,
+      "final_energy": 0.195,
+      "max_dT": 172
+    },
+    "no_cold_anchor": {
+      "final_split": 0.017,
+      "final_energy": 0.075,
+      "max_dT": 450
+    }
+  },
+  "next": "split floor ~0.086 under stable hybrid; further gains need bed0 soft/seed with T-cap budget per outer, or phase-split physics (N2) \u2014 not source re-budget"
+}

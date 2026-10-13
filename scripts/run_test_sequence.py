@@ -60,9 +60,9 @@ STAGES: tuple[Stage, ...] = (
         commands=(
             "python3 -m pytest "
             "tests/test_global_nr_solver.py::test_resolve_nr_init_strategy_prefers_vorabrechnung_by_default "
-            "tests/test_global_nr_solver.py::test_reactor_rejects_non_nr_solver_even_in_thesis_mode "
-            "tests/test_global_nr_solver.py::test_gauss_seidel_solver_is_rejected_under_nr_only_policy "
-            "tests/test_global_nr_solver.py::test_gauss_seidel_solver_still_rejected_even_with_legacy_flag "
+            "tests/test_global_nr_solver.py::test_reactor_rejects_gauss_seidel_solver[thesis_mode] "
+            "tests/test_global_nr_solver.py::test_reactor_rejects_gauss_seidel_solver[nr_only] "
+            "tests/test_global_nr_solver.py::test_reactor_rejects_gauss_seidel_solver[legacy_flag_ignored] "
             "tests/test_global_nr_solver.py::test_non_thesis_mode_rejects_gs_warmup_under_nr_only_policy "
             "tests/test_solver_sequence.py::test_refresh_cell_vorabrechnung_runs_hydrodynamics_then_cache_update "
             "tests/test_solver_sequence.py::test_refresh_cell_vorabrechnung_force_invalidates_before_recompute "
@@ -239,11 +239,7 @@ def main() -> int:
                     return ret.returncode
         if stage.id == "40_phase_gates" and args.include_heavy_audits:
             heavy_cmds = (
-                "python3 scripts/run_phase_gate_00.py --strict",
-                "python3 scripts/run_phase_gate_10.py",
-                "python3 scripts/run_phase_gate_20.py",
-                "python3 scripts/run_phase_gate_30.py",
-                "python3 scripts/run_phase_gate_40.py",
+                "python3 scripts/run_phase_gate.py all --strict",
             )
             for cmd in heavy_cmds:
                 print(f"$ {cmd}")

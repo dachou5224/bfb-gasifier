@@ -1,0 +1,917 @@
+{
+  "final": {
+    "rms": 0.03701723582182412,
+    "split": 0.03701723582182412,
+    "energy": 0.013306440097176431,
+    "wall_s": 210.163169095
+  },
+  "n_trial_evals": 268,
+  "n_attempts": 32,
+  "late_failed": [
+    {
+      "clip": {
+        "iter": 1,
+        "failed": true,
+        "lam": null,
+        "trials": 12,
+        "best_merit_clip": 0.04456145681944812,
+        "best_rms_clip": 0.016730826309353426
+      },
+      "current": {
+        "merit_F": 0.04033651472350076,
+        "split_F": 0.03701723582182412,
+        "energy_F": 0.04033651472350076,
+        "cur_driver": "energy"
+      },
+      "best": {
+        "accepted": false,
+        "reason": "merit_not_decreased",
+        "merit_F": 0.04033651472350076,
+        "merit_trial": 0.04456145681944812,
+        "split_F": 0.03701723582182412,
+        "split_trial": 0.04456145681944812,
+        "energy_F": 0.04033651472350076,
+        "energy_trial": 0.021850098242675,
+        "rms_trial": 0.016730826309353426,
+        "gas_trial": 0.02245532153629114,
+        "d_merit": 0.004224942095947357,
+        "d_split": 0.0075442209976240016,
+        "d_energy": -0.018486416480825763,
+        "cur_driver": "energy",
+        "trial_driver": "split",
+        "nm": false,
+        "split_leaders": [],
+        "energy_leaders": [
+          {
+            "abs": 0.06253070528904088,
+            "cell": 15,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.0459546980841778,
+            "cell": 12,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.03712683092053288,
+            "cell": 10,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.028785987157947487,
+            "cell": 17,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.027516531984977693,
+            "cell": 16,
+            "type": "freeboard"
+          }
+        ]
+      },
+      "reject_reasons": {
+        "merit_not_decreased": 12
+      }
+    },
+    {
+      "clip": {
+        "iter": 2,
+        "failed": true,
+        "lam": null,
+        "trials": 12,
+        "best_merit_clip": 0.05003489096179189,
+        "best_rms_clip": 0.017007871481078823
+      },
+      "current": {
+        "merit_F": 0.04033651472350076,
+        "split_F": 0.03701723582182412,
+        "energy_F": 0.04033651472350076,
+        "cur_driver": "energy"
+      },
+      "best": {
+        "accepted": false,
+        "reason": "merit_not_decreased",
+        "merit_F": 0.04033651472350076,
+        "merit_trial": 0.05003489096179189,
+        "split_F": 0.03701723582182412,
+        "split_trial": 0.05003489096179189,
+        "energy_F": 0.04033651472350076,
+        "energy_trial": 0.024873828070519292,
+        "rms_trial": 0.017007871481078823,
+        "gas_trial": 0.022631009283686408,
+        "d_merit": 0.009698376238291125,
+        "d_split": 0.01301765513996777,
+        "d_energy": -0.01546268665298147,
+        "cur_driver": "energy",
+        "trial_driver": "split",
+        "nm": false,
+        "split_leaders": [],
+        "energy_leaders": [
+          {
+            "abs": 0.08800721075078602,
+            "cell": 9,
+            "type": "bed"
+          },
+          {
+            "abs": 0.03467262965848167,
+            "cell": 10,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.03068370021987648,
+            "cell": 15,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.026343769304180184,
+            "cell": 12,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.020334005550694673,
+            "cell": 1,
+            "type": "bed"
+          }
+        ]
+      },
+      "reject_reasons": {
+        "merit_not_decreased": 12
+      }
+    },
+    {
+      "clip": {
+        "iter": 1,
+        "failed": true,
+        "lam": null,
+        "trials": 12,
+        "best_merit_clip": 0.04456145681944812,
+        "best_rms_clip": 0.016730826309353426
+      },
+      "current": {
+        "merit_F": 0.04033651472350076,
+        "split_F": 0.03701723582182412,
+        "energy_F": 0.04033651472350076,
+        "cur_driver": "energy"
+      },
+      "best": {
+        "accepted": false,
+        "reason": "merit_not_decreased",
+        "merit_F": 0.04033651472350076,
+        "merit_trial": 0.04456145681944812,
+        "split_F": 0.03701723582182412,
+        "split_trial": 0.04456145681944812,
+        "energy_F": 0.04033651472350076,
+        "energy_trial": 0.021850098242675,
+        "rms_trial": 0.016730826309353426,
+        "gas_trial": 0.02245532153629114,
+        "d_merit": 0.004224942095947357,
+        "d_split": 0.0075442209976240016,
+        "d_energy": -0.018486416480825763,
+        "cur_driver": "energy",
+        "trial_driver": "split",
+        "nm": false,
+        "split_leaders": [],
+        "energy_leaders": [
+          {
+            "abs": 0.06253070528904088,
+            "cell": 15,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.0459546980841778,
+            "cell": 12,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.03712683092053288,
+            "cell": 10,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.028785987157947487,
+            "cell": 17,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.027516531984977693,
+            "cell": 16,
+            "type": "freeboard"
+          }
+        ]
+      },
+      "reject_reasons": {
+        "merit_not_decreased": 12
+      }
+    },
+    {
+      "clip": {
+        "iter": 2,
+        "failed": true,
+        "lam": null,
+        "trials": 12,
+        "best_merit_clip": 0.05003489096179189,
+        "best_rms_clip": 0.017007871481078823
+      },
+      "current": {
+        "merit_F": 0.04033651472350076,
+        "split_F": 0.03701723582182412,
+        "energy_F": 0.04033651472350076,
+        "cur_driver": "energy"
+      },
+      "best": {
+        "accepted": false,
+        "reason": "merit_not_decreased",
+        "merit_F": 0.04033651472350076,
+        "merit_trial": 0.05003489096179189,
+        "split_F": 0.03701723582182412,
+        "split_trial": 0.05003489096179189,
+        "energy_F": 0.04033651472350076,
+        "energy_trial": 0.024873828070519292,
+        "rms_trial": 0.017007871481078823,
+        "gas_trial": 0.022631009283686408,
+        "d_merit": 0.009698376238291125,
+        "d_split": 0.01301765513996777,
+        "d_energy": -0.01546268665298147,
+        "cur_driver": "energy",
+        "trial_driver": "split",
+        "nm": false,
+        "split_leaders": [],
+        "energy_leaders": [
+          {
+            "abs": 0.08800721075078602,
+            "cell": 9,
+            "type": "bed"
+          },
+          {
+            "abs": 0.03467262965848167,
+            "cell": 10,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.03068370021987648,
+            "cell": 15,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.026343769304180184,
+            "cell": 12,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.020334005550694673,
+            "cell": 1,
+            "type": "bed"
+          }
+        ]
+      },
+      "reject_reasons": {
+        "merit_not_decreased": 12
+      }
+    },
+    {
+      "clip": {
+        "iter": 1,
+        "failed": true,
+        "lam": null,
+        "trials": 12,
+        "best_merit_clip": 0.04456145681944812,
+        "best_rms_clip": 0.016730826309353426
+      },
+      "current": {
+        "merit_F": 0.04033651472350076,
+        "split_F": 0.03701723582182412,
+        "energy_F": 0.04033651472350076,
+        "cur_driver": "energy"
+      },
+      "best": {
+        "accepted": false,
+        "reason": "merit_not_decreased",
+        "merit_F": 0.04033651472350076,
+        "merit_trial": 0.04456145681944812,
+        "split_F": 0.03701723582182412,
+        "split_trial": 0.04456145681944812,
+        "energy_F": 0.04033651472350076,
+        "energy_trial": 0.021850098242675,
+        "rms_trial": 0.016730826309353426,
+        "gas_trial": 0.02245532153629114,
+        "d_merit": 0.004224942095947357,
+        "d_split": 0.0075442209976240016,
+        "d_energy": -0.018486416480825763,
+        "cur_driver": "energy",
+        "trial_driver": "split",
+        "nm": false,
+        "split_leaders": [],
+        "energy_leaders": [
+          {
+            "abs": 0.06253070528904088,
+            "cell": 15,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.0459546980841778,
+            "cell": 12,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.03712683092053288,
+            "cell": 10,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.028785987157947487,
+            "cell": 17,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.027516531984977693,
+            "cell": 16,
+            "type": "freeboard"
+          }
+        ]
+      },
+      "reject_reasons": {
+        "merit_not_decreased": 12
+      }
+    },
+    {
+      "clip": {
+        "iter": 2,
+        "failed": true,
+        "lam": null,
+        "trials": 12,
+        "best_merit_clip": 0.05003489096179189,
+        "best_rms_clip": 0.017007871481078823
+      },
+      "current": {
+        "merit_F": 0.04033651472350076,
+        "split_F": 0.03701723582182412,
+        "energy_F": 0.04033651472350076,
+        "cur_driver": "energy"
+      },
+      "best": {
+        "accepted": false,
+        "reason": "merit_not_decreased",
+        "merit_F": 0.04033651472350076,
+        "merit_trial": 0.05003489096179189,
+        "split_F": 0.03701723582182412,
+        "split_trial": 0.05003489096179189,
+        "energy_F": 0.04033651472350076,
+        "energy_trial": 0.024873828070519292,
+        "rms_trial": 0.017007871481078823,
+        "gas_trial": 0.022631009283686408,
+        "d_merit": 0.009698376238291125,
+        "d_split": 0.01301765513996777,
+        "d_energy": -0.01546268665298147,
+        "cur_driver": "energy",
+        "trial_driver": "split",
+        "nm": false,
+        "split_leaders": [],
+        "energy_leaders": [
+          {
+            "abs": 0.08800721075078602,
+            "cell": 9,
+            "type": "bed"
+          },
+          {
+            "abs": 0.03467262965848167,
+            "cell": 10,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.03068370021987648,
+            "cell": 15,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.026343769304180184,
+            "cell": 12,
+            "type": "freeboard"
+          },
+          {
+            "abs": 0.020334005550694673,
+            "cell": 1,
+            "type": "bed"
+          }
+        ]
+      },
+      "reject_reasons": {
+        "merit_not_decreased": 12
+      }
+    }
+  ],
+  "late_reason_totals": {
+    "merit_not_decreased": 72
+  },
+  "late_best_trial_driver": {
+    "split": 6
+  },
+  "late_largest_rise": {
+    "split": 6
+  },
+  "plateau_merit_not_decreased": [
+    {
+      "merit_F": 0.04033651472350076,
+      "merit_trial": 0.05003489096179189,
+      "split_F": 0.03701723582182412,
+      "split_trial": 0.05003489096179189,
+      "energy_F": 0.04033651472350076,
+      "energy_trial": 0.024873828070519292,
+      "rms_trial": 0.017007871481078823,
+      "d_merit": 0.009698376238291125,
+      "d_split": 0.01301765513996777,
+      "d_energy": -0.01546268665298147,
+      "cur_driver": "energy",
+      "trial_driver": "split",
+      "energy_leaders": [
+        {
+          "abs": 0.08800721075078602,
+          "cell": 9,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03467262965848167,
+          "cell": 10,
+          "type": "freeboard"
+        },
+        {
+          "abs": 0.03068370021987648,
+          "cell": 15,
+          "type": "freeboard"
+        },
+        {
+          "abs": 0.026343769304180184,
+          "cell": 12,
+          "type": "freeboard"
+        },
+        {
+          "abs": 0.020334005550694673,
+          "cell": 1,
+          "type": "bed"
+        }
+      ],
+      "split_leaders": []
+    },
+    {
+      "merit_F": 0.04033651472350076,
+      "merit_trial": 94.43548913864998,
+      "split_F": 0.03701723582182412,
+      "split_trial": 94.43548913864998,
+      "energy_F": 0.04033651472350076,
+      "energy_trial": 0.0317006367309597,
+      "rms_trial": 50.68194123158054,
+      "d_merit": 94.39515262392648,
+      "d_split": 94.39847190282816,
+      "d_energy": -0.008635877992541063,
+      "cur_driver": "energy",
+      "trial_driver": "split",
+      "energy_leaders": [
+        {
+          "abs": 0.12497409811216044,
+          "cell": 9,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03345842574568114,
+          "cell": 10,
+          "type": "freeboard"
+        },
+        {
+          "abs": 0.02848257960049667,
+          "cell": 1,
+          "type": "bed"
+        },
+        {
+          "abs": 0.025040522447773453,
+          "cell": 8,
+          "type": "bed"
+        },
+        {
+          "abs": 0.02472070351579802,
+          "cell": 14,
+          "type": "freeboard"
+        }
+      ],
+      "split_leaders": []
+    },
+    {
+      "merit_F": 0.04033651472350076,
+      "merit_trial": 105.3902846738034,
+      "split_F": 0.03701723582182412,
+      "split_trial": 15.570905249464321,
+      "energy_F": 0.04033651472350076,
+      "energy_trial": 0.035873049836115826,
+      "rms_trial": 105.3902846738034,
+      "d_merit": 105.34994815907989,
+      "d_split": 15.533888013642496,
+      "d_energy": -0.004463464887384937,
+      "cur_driver": "energy",
+      "trial_driver": "rms",
+      "energy_leaders": [
+        {
+          "abs": 0.14328723821790218,
+          "cell": 9,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03506764313390894,
+          "cell": 1,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03282876620055239,
+          "cell": 10,
+          "type": "freeboard"
+        },
+        {
+          "abs": 0.02937772686212144,
+          "cell": 8,
+          "type": "bed"
+        },
+        {
+          "abs": 0.02701487510485202,
+          "cell": 14,
+          "type": "freeboard"
+        }
+      ],
+      "split_leaders": []
+    },
+    {
+      "merit_F": 0.04033651472350076,
+      "merit_trial": 99.51450368229271,
+      "split_F": 0.03701723582182412,
+      "split_trial": 1.2275506323902512,
+      "energy_F": 0.04033651472350076,
+      "energy_trial": 0.03807788618654388,
+      "rms_trial": 99.51450368229271,
+      "d_merit": 99.4741671675692,
+      "d_split": 1.190533396568427,
+      "d_energy": -0.0022586285369568804,
+      "cur_driver": "energy",
+      "trial_driver": "rms",
+      "energy_leaders": [
+        {
+          "abs": 0.1525187301416524,
+          "cell": 9,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03836152045607978,
+          "cell": 1,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03259967942298109,
+          "cell": 10,
+          "type": "freeboard"
+        },
+        {
+          "abs": 0.03151029589057817,
+          "cell": 8,
+          "type": "bed"
+        },
+        {
+          "abs": 0.028168883343889187,
+          "cell": 14,
+          "type": "freeboard"
+        }
+      ],
+      "split_leaders": []
+    },
+    {
+      "merit_F": 0.04033651472350076,
+      "merit_trial": 79.07097757138062,
+      "split_F": 0.03701723582182412,
+      "split_trial": 1.2164199038805648,
+      "energy_F": 0.04033651472350076,
+      "energy_trial": 0.03920110255729492,
+      "rms_trial": 79.07097757138062,
+      "d_merit": 79.03064105665712,
+      "d_split": 1.1794026680587406,
+      "d_energy": -0.001135412166205843,
+      "cur_driver": "energy",
+      "trial_driver": "rms",
+      "energy_leaders": [
+        {
+          "abs": 0.15713445199369674,
+          "cell": 9,
+          "type": "bed"
+        },
+        {
+          "abs": 0.04000879507551326,
+          "cell": 1,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03257658040480534,
+          "cell": 8,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03248502188810047,
+          "cell": 10,
+          "type": "freeboard"
+        },
+        {
+          "abs": 0.02874762385268613,
+          "cell": 14,
+          "type": "freeboard"
+        }
+      ],
+      "split_leaders": []
+    },
+    {
+      "merit_F": 0.04033651472350076,
+      "merit_trial": 58.96436024004762,
+      "split_F": 0.03701723582182412,
+      "split_trial": 1.3617835951829425,
+      "energy_F": 0.04033651472350076,
+      "energy_trial": 0.039767347733548564,
+      "rms_trial": 58.96436024004762,
+      "d_merit": 58.92402372532412,
+      "d_split": 1.3247663593611183,
+      "d_energy": -0.0005691669899521995,
+      "cur_driver": "energy",
+      "trial_driver": "rms",
+      "energy_leaders": [
+        {
+          "abs": 0.1594423068909294,
+          "cell": 9,
+          "type": "bed"
+        },
+        {
+          "abs": 0.04083251632096539,
+          "cell": 1,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03310972266191853,
+          "cell": 8,
+          "type": "bed"
+        },
+        {
+          "abs": 0.032427664607874974,
+          "cell": 10,
+          "type": "freeboard"
+        },
+        {
+          "abs": 0.029037428879665924,
+          "cell": 14,
+          "type": "freeboard"
+        }
+      ],
+      "split_leaders": []
+    },
+    {
+      "merit_F": 0.04033651472350076,
+      "merit_trial": 42.76833241792271,
+      "split_F": 0.03701723582182412,
+      "split_trial": 1.100818054221395,
+      "energy_F": 0.04033651472350076,
+      "energy_trial": 0.04005157708845774,
+      "rms_trial": 42.76833241792271,
+      "d_merit": 42.72799590319921,
+      "d_split": 1.0638008183995709,
+      "d_energy": -0.0002849376350430241,
+      "cur_driver": "energy",
+      "trial_driver": "rms",
+      "energy_leaders": [
+        {
+          "abs": 0.1605962328321824,
+          "cell": 9,
+          "type": "bed"
+        },
+        {
+          "abs": 0.04124439792089096,
+          "cell": 1,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03337629379047671,
+          "cell": 8,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03239897884253908,
+          "cell": 10,
+          "type": "freeboard"
+        },
+        {
+          "abs": 0.029182440167155273,
+          "cell": 14,
+          "type": "freeboard"
+        }
+      ],
+      "split_leaders": []
+    },
+    {
+      "merit_F": 0.04033651472350076,
+      "merit_trial": 30.619818870899454,
+      "split_F": 0.03701723582182412,
+      "split_trial": 0.8217363022057602,
+      "energy_F": 0.04033651472350076,
+      "energy_trial": 0.04019396221069265,
+      "rms_trial": 30.619818870899454,
+      "d_merit": 30.579482356175955,
+      "d_split": 0.7847190663839361,
+      "d_energy": -0.0001425525128081126,
+      "cur_driver": "energy",
+      "trial_driver": "rms",
+      "energy_leaders": [
+        {
+          "abs": 0.16117319542594621,
+          "cell": 9,
+          "type": "bed"
+        },
+        {
+          "abs": 0.041450343964311985,
+          "cell": 1,
+          "type": "bed"
+        },
+        {
+          "abs": 0.0335095793547554,
+          "cell": 8,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03238463417893674,
+          "cell": 10,
+          "type": "freeboard"
+        },
+        {
+          "abs": 0.02925497301426444,
+          "cell": 14,
+          "type": "freeboard"
+        }
+      ],
+      "split_leaders": []
+    },
+    {
+      "merit_F": 0.04033651472350076,
+      "merit_trial": 21.78395323912308,
+      "split_F": 0.03701723582182412,
+      "split_trial": 0.59710703329522,
+      "energy_F": 0.04033651472350076,
+      "energy_trial": 0.04026522162086222,
+      "rms_trial": 21.78395323912308,
+      "d_merit": 21.74361672439958,
+      "d_split": 0.5600897974733958,
+      "d_energy": -7.129310263854355e-05,
+      "cur_driver": "energy",
+      "trial_driver": "rms",
+      "energy_leaders": [
+        {
+          "abs": 0.16146167662861208,
+          "cell": 9,
+          "type": "bed"
+        },
+        {
+          "abs": 0.04155331829678171,
+          "cell": 1,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03357622213689515,
+          "cell": 8,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03237746140194935,
+          "cell": 10,
+          "type": "freeboard"
+        },
+        {
+          "abs": 0.02929124623987799,
+          "cell": 14,
+          "type": "freeboard"
+        }
+      ],
+      "split_leaders": []
+    },
+    {
+      "merit_F": 0.04033651472350076,
+      "merit_trial": 15.449330647801435,
+      "split_F": 0.03701723582182412,
+      "split_trial": 0.429932546610612,
+      "energy_F": 0.04033651472350076,
+      "energy_trial": 0.040300867944085876,
+      "rms_trial": 15.449330647801435,
+      "d_merit": 15.408994133077934,
+      "d_split": 0.39291531078878783,
+      "d_energy": -3.5646779414887086e-05,
+      "cur_driver": "energy",
+      "trial_driver": "rms",
+      "energy_leaders": [
+        {
+          "abs": 0.16160591720638834,
+          "cell": 9,
+          "type": "bed"
+        },
+        {
+          "abs": 0.04160480579069294,
+          "cell": 1,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03360954352796423,
+          "cell": 8,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03237387490216392,
+          "cell": 10,
+          "type": "freeboard"
+        },
+        {
+          "abs": 0.02930938455335053,
+          "cell": 14,
+          "type": "freeboard"
+        }
+      ],
+      "split_leaders": []
+    },
+    {
+      "merit_F": 0.04033651472350076,
+      "merit_trial": 10.939433351874845,
+      "split_F": 0.03701723582182412,
+      "split_trial": 0.3093214139800638,
+      "energy_F": 0.04033651472350076,
+      "energy_trial": 0.0403186952485378,
+      "rms_trial": 10.939433351874845,
+      "d_merit": 10.899096837151344,
+      "d_split": 0.2723041781582397,
+      "d_energy": -1.7819474962960102e-05,
+      "cur_driver": "energy",
+      "trial_driver": "rms",
+      "energy_leaders": [
+        {
+          "abs": 0.16167803748938733,
+          "cell": 9,
+          "type": "bed"
+        },
+        {
+          "abs": 0.04163054961956686,
+          "cell": 1,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03362620422349956,
+          "cell": 8,
+          "type": "bed"
+        },
+        {
+          "abs": 0.032372081624449454,
+          "cell": 10,
+          "type": "freeboard"
+        },
+        {
+          "abs": 0.0293184541352723,
+          "cell": 14,
+          "type": "freeboard"
+        }
+      ],
+      "split_leaders": []
+    },
+    {
+      "merit_F": 0.04033651472350076,
+      "merit_trial": 7.7396251378285905,
+      "split_F": 0.03701723582182412,
+      "split_trial": 0.22371086487151026,
+      "energy_F": 0.04033651472350076,
+      "energy_trial": 0.04032760993501658,
+      "rms_trial": 7.7396251378285905,
+      "d_merit": 7.699288623105089,
+      "d_split": 0.18669362904968614,
+      "d_energy": -8.904788484184745e-06,
+      "cur_driver": "energy",
+      "trial_driver": "rms",
+      "energy_leaders": [
+        {
+          "abs": 0.16171409762941605,
+          "cell": 9,
+          "type": "bed"
+        },
+        {
+          "abs": 0.04164342155448233,
+          "cell": 1,
+          "type": "bed"
+        },
+        {
+          "abs": 0.03363453457126643,
+          "cell": 8,
+          "type": "bed"
+        },
+        {
+          "abs": 0.032371184978637335,
+          "cell": 10,
+          "type": "freeboard"
+        },
+        {
+          "abs": 0.029322989032531572,
+          "cell": 14,
+          "type": "freeboard"
+        }
+      ],
+      "split_leaders": []
+    }
+  ]
+}

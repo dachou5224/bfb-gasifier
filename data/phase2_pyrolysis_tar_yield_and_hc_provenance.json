@@ -1,0 +1,79 @@
+{
+  "title": "热解→TAR1/TAR2 产率路径 + H/C 0.856/1.364 PDF 溯源闭合",
+  "date": "2026-07-27",
+  "HC_provenance_CLOSED": {
+    "coal_0.856": {
+      "hamel_text": "§5.2.6：Kapitel 6 Braunkohle molares H/C = 0,856；代理 = Benzol + Naphtalin",
+      "pdf_extract": "data/hamel_target_pages_fitz.txt PAGE 57 TEXT（thesis pp.94–96 区）",
+      "table": "Tabelle 6.1 Rhein. Braunkohle waf: C=66.85, H=4.77",
+      "table_extract": "data/hamel_1999_extracted.txt（Tabelle 6.1 / PAGE 61 附近）",
+      "recompute_C12_H1": 0.856245325355273,
+      "match": "0.856245 → 论文 0,856（整数原子量）"
+    },
+    "biomass_1.364": {
+      "hamel_text": "§5.2.6：Kapitel 6 Holz molares H/C ≈ 1,364；苯+萘盖不住 → Naphtalin + Hexadekan C16H34",
+      "table": "Tabelle 6.1 Holz waf: C=52.25, H=5.94",
+      "recompute_C12_H1": 1.3642105263157895,
+      "match": "1.364211 → 论文 1,364"
+    },
+    "physical_meaning": [
+      "数值是 Kapitel 6 实验室燃料的摩尔 H/C，不是任意标定。",
+      "§4.2：流化床煤焦油近似 Teer H/C = 原煤 H/C（Baumann/Möller, Khan, Tyler）。",
+      "§5.2.6：两代理摩尔比调到复现 Gesamtteer 的该 H/C。",
+      "因此「焦油 H/C 对齐燃料 H/C」是 Hamel 显式假设；与 feedstock 对不上才不正常——对不上时应用燃料自身 H/C（或回退到 Tabelle 6.1 锚点）。"
+    ],
+    "code_update": "src/core/species.py TAR_TARGET_HC_RATIO 注释已写入上述页锚与 Tabelle 6.1 重算"
+  },
+  "pyrolysis_tar_yield_path": {
+    "chain": [
+      "1. DAEM：m_vm_rel = m_vm_in × x_vm（Eq.4.10–4.12）",
+      "2. vm_element_molar_rates：把 VM 质量流按 C_dry/H_dry/O_dry（×daf 校正）换成原子流 nC,nH,nO",
+      "3. f_tar = pyrolysis_tar_carbon_frac（默认 0.2，clip 到 [0,0.9]）",
+      "4. tar_carbon = f_tar × nC（VM 碳原子池的份额，不是燃料总碳 Xc,Teer）",
+      "5. calc_tar_surrogate_fractions(fuel, target_hc)：TAR1/TAR2 摩尔分率",
+      "6. nt_total = tar_carbon / mean_C_atoms；n_TAR1/2 = frac × nt_total",
+      "7. 从 nH 扣掉 tar 带走的 H；剩余 (c_gas,h_gas,o_gas) → §4.3 Gibbs → CO/CO2/CH4/H2/H2O",
+      "8. N→NH3, S→H2S 先分出"
+    ],
+    "code_entry": [
+      "src/core/cell_pyrolysis.py::_allocate_pyrolysis_tar_and_minors",
+      "src/core/cell_pyrolysis.py::calc_drying_pyrolysis_sources",
+      "SolidState.pyrolysis_tar_carbon_frac 默认 0.2（cell.py）"
+    ],
+    "target_HC_runtime": {
+      "primary": "用当前燃料 ultimate 原子 H/C = (H_dry/1.00794)/(C_dry/12.011)",
+      "fallback": "超出代理对可表示范围 → ValueError → TAR_TARGET_HC_RATIO 默认（现已 PDF 闭合）",
+      "LU": {
+        "C_H_wf": [
+          61.5,
+          4.1
+        ],
+        "atomic_HC": 0.7944,
+        "coal_pair_range": [
+          0.8,
+          1.0
+        ],
+        "behavior": "0.794<0.8 → 回退 0.856 → C6H6:C10H8≈0.28:0.72",
+        "note": "LU/Wesseling wf 分析 ≠ Tabelle 6.1 lab waf（66.85/4.77→0.856）；回退到论文 Ch.6 锚点"
+      }
+    },
+    "vs_hamel_Xc_Teer": {
+      "hamel": "Rheinische Braunkohle：Hegermann (1990) Eq.4.21–4.22 给 Xc,Koks / Xc,Teer = f(P,T)；图 4.9 大气压高温约 0.1–0.3 量级",
+      "code": "固定 pyrolysis_tar_carbon_frac=0.2，作用于 VM 碳池，未实现 Eq.4.21–4.22",
+      "verdict": "产率是工程常数近似，不是 Hegermann 相关式；0.2 落在图 4.9 球区，但分母口径是 VM-C 而非燃料总 C",
+      "severity": "部分一致（有意简化）"
+    }
+  },
+  "minor_nuance_fraction_blend": {
+    "code": "r_target = x·r_A + (1-x)·r_B（摩尔分率加权各代理 H/C）→ x_C6H6=0.28 @ 0.856",
+    "atom_total_Gesamtteer": "nH/nC = (6x+8(1-x))/(6x+10(1-x))=0.856 → x_C6H6≈0.393",
+    "code_atom_HC_at_0.28": 0.8378,
+    "severity": "部分一致：论文写 Gesamtteer H/C，更贴原子比；代码用比率线性混合。量级差有限，非原料映射错误"
+  },
+  "strict_conclusions": {
+    "HC_gap_closed": true,
+    "tar_yield_definition": "f_tar×VM碳原子 → TAR1/TAR2；组成由 fuel_type 代理对 + 目标 H/C 决定",
+    "LU_path_ok": "映射 coal=(苯,萘) 正确；产率用常数 0.2；H/C 超范围回退到 Tabelle 6.1 的 0.856",
+    "open_vs_hamel": "未实现 Hegermann Xc,Teer(P,T)；分率混合用 mole-avg 而非 atom-total"
+  }
+}

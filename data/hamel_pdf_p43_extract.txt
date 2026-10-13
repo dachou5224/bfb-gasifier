@@ -1,0 +1,106 @@
+4 Trocknung, und, Pyrolyse, des, Brennstoffs,
+69
+4 Trocknung und Pyrolyse des Brennstoffs
+68
+gemessene relative Freisetzung
+Die beste Anpassung mit Gleichung (4.25) an die Messdaten wurde mit folgenden Parametern
+erreicht:
+£ = -0,002437 
+und 
+& = 0,3718
+Bild 4.13 zeigt den Vergleich der Messdaten mit den nach Gleichung (4.25) berechneten
+Werten. Mit dieser empirischen Korrelation wird im folgenden die Ausbeute an flüchtigen
+Bestandteilen bezogen auf die Flüchtigen nach Standardversuch (DIN 51720) aus der Wirbel-
+schichtpyrolyse abgeschätzt.
+x
+F|/xF|,o gemessen
+Flüchtiger xF/x FI 0 in Gew.-% (waf)
+1,0
+1,0
+; Oß
+©2o
+Q/p
+/o
+0,8
+0,8
+0,6
+0,6
+0,4
+0,4
+0,2
+0,2
+verschiedene Hölzer
+verschiedene Hölzer
+0,0
+0,0 *—
+600
+0,0 
+0,2 
+0,4 
+0,6 
+0,8 
+1,0
+800 
+1.000 
+1.200
+Temperatur in K
+xF/ x
+F|.o berechnet
+Relative Freisetzung Flüchtiger xFI/x FI0
+in Gew.-% bez. auf Brennstoff (waf)
+1,0
+X o o
+„ O
+0,8
+0,6
+X
+□ Birkenrinde
+(Arpiainen und Lappi 1989)
+A Holzabfall
+(Home und Williams 1996)
+X Birkenspäne
+(Corella et al. 1988)
+O Holz Möbelproduktion
+(eigene Messung)
+0,4
+A A
+□
+0,2
+1.200
+1.000
+800
+600
+Bild 4.13: In Abhängigkeit der Wirbelschichttemperatur nach Gleichung (4.25) berechnete
+Flüchtigenausbeute bezogen auf den nach Standardversuch bestimmten Flüchti-
+genanteil (Teilbild A). Vergleich zwischen Messung und Berechnung der relativen
+Flüchtigenausbeute (Teilbild B).
+4.3 
+Berechnung der Zusammensetzung der gasförmigen Pyrolyseprodukte
+Da die Ausbeute an Koks und Teer für den jeweiligen Brennstoff berechnet wird, werden die
+verbleibenden Elemente den gasförmigen Pyrolyseprodukten zugeordnet. Für die in die Gas-
+phase übergegangene Masse der Elemente Kohlenstoff und Wasserstoff gilt:
+in kSCimGas 
+(< 26)
+kg Brennstoff (vafi
+XC.B( waf ) 
+x Koks.Bf waf ) 
+x C,Teer ' X C,B( waf )
+in 
+(4 .27 )
+kg Brennstoff (waj)
+x H.B(waf)
+x H,Gas 
+x H,B(waf ) 
+x C,B(waf ) ' x C,Teer '
+x C,B(waf)
+Alle weiteren ehemals in der Kohle enthaltenen Elemente gehen vollständig in die Gasphase
+über. Mit der Vorgabe der in der Gasphase zu berücksichtigenden Substanzen, z.B. CO, CO2,
+CH4, C2H4, NH3, H2S, H2O, H2, erfolgt die Berechnung der Gleichgewichtszusammensetzung
+der Gasphase auf der Basis der Arbeit von Holub und Vonka (1976) durch Minimierung der
+Freien Enthalpie. Im chemischen Gleichgewicht nimmt die Freie Enthalpie G eines Systems
+ein Minimum an. Bei konstantem Druck und konstanter Temperatur gilt:
+Temperatur in K
+Bild 4.12: Flüchtigenffeisetzung bezogen auf den nach Standardversuch (DIN 51720) be-
+stimmten Flüchtigengehalt in Abhängigkeit der Wirbelschichttemperatur. Die aus
+der Literatur herangezogenen Ergebnisse sowie die einbezogenen eigenen Mes-
+sungen wurden in Laborwirbelschichtanlagen durchgefiihrt.

@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "transport_closed": true,
+  "gas_l2": 2.689695091237561e-07,
+  "solid_l2": 2.2570025502819425e-10,
+  "tar_l2": 1.7987352919255094e-09,
+  "energy_W": -0.0002945455489680171,
+  "T_bed": 1363.4411286245822,
+  "T_fb": 1384.0930720853798,
+  "name": "P3",
+  "x_source": "/Users/liuzhen/AI-projects/bfb-gasifier/docs/audit_reports/p2_hydro_coupling_2026-09-24/bfb_p3_e11.npz"
+}

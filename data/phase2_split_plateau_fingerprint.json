@@ -1,0 +1,99 @@
+{
+  "finger": [
+    {
+      "O": 1,
+      "skip": false,
+      "dT": 66.650390625,
+      "split": 0.0982830478874242,
+      "energy": 0.09037402568252914,
+      "inner_n": 10,
+      "inner_conv": false,
+      "n_hist": 10,
+      "ls_fail": null
+    },
+    {
+      "O": 2,
+      "skip": true,
+      "dT": 0.0,
+      "split": 0.0982830478874242,
+      "energy": 0.09037402568252914,
+      "inner_n": 2,
+      "inner_conv": false,
+      "n_hist": 2,
+      "ls_fail": null
+    },
+    {
+      "O": 3,
+      "skip": false,
+      "dT": 3.2958984375,
+      "split": 0.14510906990468192,
+      "energy": 0.14581284777694647,
+      "inner_n": 4,
+      "inner_conv": false,
+      "n_hist": 4,
+      "ls_fail": null
+    },
+    {
+      "O": 4,
+      "skip": true,
+      "dT": 0.03662109375,
+      "split": 0.14581894696716607,
+      "energy": 0.14580244097238218,
+      "inner_n": 4,
+      "inner_conv": false,
+      "n_hist": 4,
+      "ls_fail": null
+    },
+    {
+      "O": 5,
+      "skip": true,
+      "dT": 0.0,
+      "split": 0.14581894696716607,
+      "energy": 0.14580244097238218,
+      "inner_n": 2,
+      "inner_conv": false,
+      "n_hist": 2,
+      "ls_fail": null
+    },
+    {
+      "O": 6,
+      "skip": false,
+      "dT": 0.0,
+      "split": 0.14581894696716607,
+      "energy": 0.14700198890634533,
+      "inner_n": 1,
+      "inner_conv": false,
+      "n_hist": 1,
+      "ls_fail": null
+    },
+    {
+      "O": 7,
+      "skip": true,
+      "dT": 0.03662109375,
+      "split": 0.14643517403107983,
+      "energy": 0.14699200250594896,
+      "inner_n": 4,
+      "inner_conv": false,
+      "n_hist": 4,
+      "ls_fail": null
+    },
+    {
+      "O": 8,
+      "skip": true,
+      "dT": 8.203125,
+      "split": 0.12486365565776206,
+      "energy": 0.14375217208915875,
+      "inner_n": 3,
+      "inner_conv": false,
+      "n_hist": 3,
+      "ls_fail": null
+    }
+  ],
+  "asserts": {
+    "o1_moved_T": true,
+    "late_dT_tiny": false,
+    "split_elevated": true,
+    "energy_tracks_split": true,
+    "not_inner_converged": true
+  }
+}

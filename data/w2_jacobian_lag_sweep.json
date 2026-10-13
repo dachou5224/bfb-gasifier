@@ -1,0 +1,195 @@
+{
+  "case": "CASE_HTW_WESSELING_2",
+  "rows": [
+    {
+      "variant": "lag_2",
+      "overrides": {
+        "nr_jacobian_lag_steps": 2
+      },
+      "lag": 2,
+      "wall_s": 656.4,
+      "converged_fully": false,
+      "outer_iters": 80,
+      "inner_iters": 89,
+      "rms": 0.5690119468812005,
+      "inner_s": 415.7,
+      "jacobian_build_s": 375.8,
+      "linear_solve_s": 0.5,
+      "jac_rebuilds": 85,
+      "jac_reuses": 84,
+      "T_exit": 2037.9461875681845,
+      "CO": 0.2004150516738431,
+      "CO2": 0.5039987365816999,
+      "H2": 0.18141739758382175
+    },
+    {
+      "variant": "lag_3",
+      "overrides": {
+        "nr_jacobian_lag_steps": 3
+      },
+      "lag": 3,
+      "wall_s": 524.3,
+      "converged_fully": false,
+      "outer_iters": 80,
+      "inner_iters": 93,
+      "rms": 0.5679505258877254,
+      "inner_s": 334.2,
+      "jacobian_build_s": 302.3,
+      "linear_solve_s": 0.4,
+      "jac_rebuilds": 85,
+      "jac_reuses": 89,
+      "T_exit": 2027.9852500681845,
+      "CO": 0.2031906413403454,
+      "CO2": 0.5019200502240033,
+      "H2": 0.18447036696418959
+    },
+    {
+      "variant": "lag_4",
+      "overrides": {
+        "nr_jacobian_lag_steps": 4
+      },
+      "lag": 4,
+      "wall_s": 709.8,
+      "converged_fully": true,
+      "outer_iters": 61,
+      "inner_iters": 314,
+      "rms": 0.02743552457266309,
+      "inner_s": 569.0,
+      "jacobian_build_s": 480.1,
+      "linear_solve_s": 1.9,
+      "jac_rebuilds": 115,
+      "jac_reuses": 254,
+      "T_exit": 1095.2006393468462,
+      "CO": 0.2595405074293049,
+      "CO2": 0.39034850314324143,
+      "H2": 0.31568944856508385
+    },
+    {
+      "variant": "lag_5",
+      "overrides": {
+        "nr_jacobian_lag_steps": 5
+      },
+      "lag": 5,
+      "wall_s": 453.1,
+      "converged_fully": false,
+      "outer_iters": 80,
+      "inner_iters": 93,
+      "rms": 0.5672858870333872,
+      "inner_s": 278.9,
+      "jacobian_build_s": 251.3,
+      "linear_solve_s": 0.5,
+      "jac_rebuilds": 82,
+      "jac_reuses": 92,
+      "T_exit": 2049.6649375681845,
+      "CO": 0.19561779751402358,
+      "CO2": 0.5072243871116673,
+      "H2": 0.17642289995407115
+    },
+    {
+      "variant": "lag_6",
+      "overrides": {
+        "nr_jacobian_lag_steps": 6
+      },
+      "lag": 6,
+      "wall_s": 134.1,
+      "converged_fully": true,
+      "outer_iters": 15,
+      "inner_iters": 89,
+      "rms": 0.019395732795803478,
+      "inner_s": 81.1,
+      "jacobian_build_s": 64.2,
+      "linear_solve_s": 0.3,
+      "jac_rebuilds": 22,
+      "jac_reuses": 80,
+      "T_exit": 1105.2525371806105,
+      "CO": 0.2708588834406914,
+      "CO2": 0.37622204562145406,
+      "H2": 0.3276766026165186
+    },
+    {
+      "variant": "lag_7",
+      "overrides": {
+        "nr_jacobian_lag_steps": 7
+      },
+      "lag": 7,
+      "wall_s": 169.5,
+      "converged_fully": true,
+      "outer_iters": 24,
+      "inner_iters": 119,
+      "rms": 0.026938240692236486,
+      "inner_s": 108.7,
+      "jacobian_build_s": 85.5,
+      "linear_solve_s": 0.6,
+      "jac_rebuilds": 29,
+      "jac_reuses": 113,
+      "T_exit": 1071.772412514276,
+      "CO": 0.2504392078435224,
+      "CO2": 0.39488355743467396,
+      "H2": 0.3293997585238646
+    },
+    {
+      "variant": "lag_8",
+      "overrides": {
+        "nr_jacobian_lag_steps": 8
+      },
+      "lag": 8,
+      "wall_s": 473.9,
+      "converged_fully": false,
+      "outer_iters": 80,
+      "inner_iters": 94,
+      "rms": 0.5674517478536402,
+      "inner_s": 299.3,
+      "jacobian_build_s": 268.4,
+      "linear_solve_s": 0.6,
+      "jac_rebuilds": 80,
+      "jac_reuses": 95,
+      "T_exit": 2049.5184531931845,
+      "CO": 0.19567032593178119,
+      "CO2": 0.5072236593466874,
+      "H2": 0.17647870894100226
+    },
+    {
+      "variant": "hydro_refresh_off",
+      "overrides": {
+        "nr_refresh_hydrodynamics_on_accepted_step_thesis": false
+      },
+      "lag": 4,
+      "wall_s": 447.2,
+      "converged_fully": false,
+      "outer_iters": 80,
+      "inner_iters": 93,
+      "rms": 0.568701335666766,
+      "inner_s": 281.6,
+      "jacobian_build_s": 254.9,
+      "linear_solve_s": 0.5,
+      "jac_rebuilds": 82,
+      "jac_reuses": 93,
+      "T_exit": 2030.4754844431845,
+      "CO": 0.20195049221573297,
+      "CO2": 0.5025753391985137,
+      "H2": 0.180863070379777
+    },
+    {
+      "variant": "lag5_hydro_off",
+      "overrides": {
+        "nr_jacobian_lag_steps": 5,
+        "nr_refresh_hydrodynamics_on_accepted_step_thesis": false
+      },
+      "lag": 5,
+      "wall_s": 419.4,
+      "converged_fully": true,
+      "outer_iters": 56,
+      "inner_iters": 180,
+      "rms": 0.02325593026374553,
+      "inner_s": 279.6,
+      "jacobian_build_s": 241.6,
+      "linear_solve_s": 1.0,
+      "jac_rebuilds": 66,
+      "jac_reuses": 166,
+      "T_exit": 1113.2323365098275,
+      "CO": 0.2690883900299174,
+      "CO2": 0.3800021124278762,
+      "H2": 0.32226873591138167
+    }
+  ]
+}

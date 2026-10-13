@@ -8,7 +8,7 @@ Wirsum (1997) §2.3.3：解 ``J Δx = −F``（Eq. 2.21），再取最小 ``j≥
 
 `ReactorConfig.nr_solver_mode='wirsum_1997_strict'` 会关掉上述可由 config 开关的工程桥，并强制 `holdup_k0_anchor='none'`。生产 `solve_global_nr` 仍用缩放 RMS 接受步；原文 ``||F||₂`` 只保证在 `wirsum_1997_strict_newton` 上。
 
-对照：`docs/wirsum_1997_nr_solver_notes.md`；固相 `K=0` 奇异见 `docs/solid_balance_formulation_audit.md`。
+对照：`docs/wirsum_1997_nr_solver_notes.md`；固相 `K=0` 奇异见 `docs/solid_balance_formulation_audit.md`。具名核打开快氧化时，每一档 \(s\) 的内层就是本 Newton；路径见 `docs/wirsum_1997_named_f_rate_continuation.md`。
 
 ## P2.1 四组 A/B（三格 holdup，`x0 = 0.05 kg`）
 

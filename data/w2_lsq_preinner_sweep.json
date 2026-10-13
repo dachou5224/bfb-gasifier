@@ -1,0 +1,89 @@
+{
+  "case": "CASE_HTW_WESSELING_2",
+  "rows": [
+    {
+      "variant": "baseline",
+      "description": "新默认 tol=0.03 + solid_energy_off",
+      "wall_s": 524.2,
+      "converged_fully": true,
+      "outer_iters": 61,
+      "rms": 0.02743552457266309,
+      "preinner_s": 70.1,
+      "inner_s": 417.3,
+      "T_exit": 1095.2006393468462,
+      "CO": 0.2595405074293049,
+      "CO2": 0.39034850314324143,
+      "H2": 0.31568944856508385
+    },
+    {
+      "variant": "lsq_nfev_16",
+      "description": "holdup LSQ max_nfev 32→16",
+      "wall_s": 535.0,
+      "converged_fully": true,
+      "outer_iters": 61,
+      "rms": 0.02743552457266309,
+      "preinner_s": 69.9,
+      "inner_s": 419.4,
+      "T_exit": 1095.2006393468462,
+      "CO": 0.2595405074293049,
+      "CO2": 0.39034850314324143,
+      "H2": 0.31568944856508385
+    },
+    {
+      "variant": "lsq_nfev_12",
+      "description": "holdup LSQ max_nfev 32→12",
+      "wall_s": 520.8,
+      "converged_fully": true,
+      "outer_iters": 61,
+      "rms": 0.02743552457266309,
+      "preinner_s": 66.9,
+      "inner_s": 416.8,
+      "T_exit": 1095.2006393468462,
+      "CO": 0.2595405074293049,
+      "CO2": 0.39034850314324143,
+      "H2": 0.31568944856508385
+    },
+    {
+      "variant": "lsq_skip_tight",
+      "description": "initial solid RMS scaled<0.02 跳过 LSQ",
+      "wall_s": 501.6,
+      "converged_fully": true,
+      "outer_iters": 61,
+      "rms": 0.02743552457266309,
+      "preinner_s": 67.5,
+      "inner_s": 397.8,
+      "T_exit": 1095.2006393468462,
+      "CO": 0.2595405074293049,
+      "CO2": 0.39034850314324143,
+      "H2": 0.31568944856508385
+    },
+    {
+      "variant": "lsq_skip_loose",
+      "description": "initial solid RMS scaled<0.01 跳过 LSQ",
+      "wall_s": 457.1,
+      "converged_fully": true,
+      "outer_iters": 61,
+      "rms": 0.02743552457266309,
+      "preinner_s": 61.3,
+      "inner_s": 359.0,
+      "T_exit": 1095.2006393468462,
+      "CO": 0.2595405074293049,
+      "CO2": 0.39034850314324143,
+      "H2": 0.31568944856508385
+    },
+    {
+      "variant": "combo_nfev16_skip",
+      "description": "nfev=16 + skip<0.02",
+      "wall_s": 534.7,
+      "converged_fully": true,
+      "outer_iters": 61,
+      "rms": 0.02743552457266309,
+      "preinner_s": 72.0,
+      "inner_s": 425.7,
+      "T_exit": 1095.2006393468462,
+      "CO": 0.2595405074293049,
+      "CO2": 0.39034850314324143,
+      "H2": 0.31568944856508385
+    }
+  ]
+}

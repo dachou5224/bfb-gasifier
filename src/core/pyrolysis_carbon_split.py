@@ -18,10 +18,12 @@ def resolve_pyrolysis_carbon_fractions(
     T_K: float,
     pyrolysis_tar_carbon_frac: float = 0.2,
 ) -> tuple[float, float]:
-    """返回 ``(f_koks, f_tar)``，均为相对输入 ``nC`` 的碳分率 [-]。
+    """返回 ``(f_koks, f_tar)``。
 
-    ``coal`` + ``hegermann``：Eq.4.21 / 4.22。
-    其它：``f_koks=0``，``f_tar`` 用调用方固定值。
+    ``coal`` + ``hegermann``：Eq.4.21 / 4.22 的 **燃料 waf 碳** 分率，
+    不是 VM 池分率。生产 ``allocate_*`` 仍把它们乘到调用方的 ``nC`` 上；
+    若 ``nC`` 是 ``nC_vm``，这是具名基准错位，本函数不自动改写。
+    其它：``f_koks=0``，``f_tar`` 用调用方固定值（相对传入 ``nC``）。
     """
     mode = str(yield_mode).strip().lower()
     fuel = str(fuel_type).strip().lower()

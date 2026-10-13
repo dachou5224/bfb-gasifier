@@ -1,0 +1,22 @@
+{
+  "note": "fast oxidation at end of init after abgleich",
+  "seed": 1250.0,
+  "oxidation_diag": {
+    "enabled": 1.0,
+    "cells_touched": 10.0,
+    "xi12_total": 49.4528976354685,
+    "xi5_total": 29.746196138843736,
+    "xi6_total": 1.7893591487660847
+  },
+  "init_rms": 21855.953841598075,
+  "wall_s": 80.11073302599999,
+  "rms": 0.7194268781686732,
+  "converged": false,
+  "exit_dry": {
+    "CO": 0.1654560442783852,
+    "CO2": 0.09199091937264331,
+    "H2": 0.0,
+    "CH4": 0.0,
+    "O2": 7.21741088442377e-11
+  }
+}

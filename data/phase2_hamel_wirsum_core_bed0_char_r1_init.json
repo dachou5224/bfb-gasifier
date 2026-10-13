@@ -1,0 +1,75 @@
+{
+  "note": "CORE init bed0 after fastox+R1 ± local solve",
+  "arms": [
+    {
+      "label": "char_r1_plus_solve",
+      "T": 1150.234280999747,
+      "E_MW": -0.2747776418916584,
+      "y_O2": 0.0,
+      "y_CO": 0.0,
+      "y_H2": 0.0,
+      "y_CO2": 0.15451498973239391,
+      "N_O2": 0.0,
+      "N_CO": 0.0,
+      "N_H2": 0.0,
+      "R_O2": 0.0,
+      "R_CO": 2.2095333092624054,
+      "R_H2": 2.479130929061924,
+      "m_char": 2.693598771743898,
+      "fastox": {
+        "enabled": 1.0,
+        "cells_touched": 10.0,
+        "xi12_total": 37.4574192131936,
+        "xi5_total": 27.801575814897447,
+        "xi6_total": 7.722904127978118,
+        "xi10_total": 0.34149291449686037,
+        "xi_r1_total": 5.966563881449766,
+        "phase_update_local": 0.0
+      },
+      "bottom_solve": {
+        "enabled": 1.0,
+        "accepted": 0.0,
+        "rms_before": 0.06856699714967776,
+        "rms_after": 0.06856699714967776,
+        "rms_attempt": 0.06947976167514139,
+        "T_after": 1150.234280999747,
+        "T_attempt": 1148.8074239115392,
+        "overlap_before": 0.0,
+        "overlap_after": 0.0,
+        "overlap_attempt": 2.143804033871083e-11,
+        "solver_converged": 1.0,
+        "solver_rms": 0.06947976167514139
+      }
+    },
+    {
+      "label": "char_r1_no_solve",
+      "T": 1150.234280999747,
+      "E_MW": -0.34246235283509835,
+      "y_O2": 0.0,
+      "y_CO": 0.0,
+      "y_H2": 0.0,
+      "y_CO2": 0.15451498973239391,
+      "N_O2": 0.0,
+      "N_CO": 0.0,
+      "N_H2": 0.0,
+      "R_O2": 0.0,
+      "R_CO": 2.2095333092624054,
+      "R_H2": 2.479130929061924,
+      "m_char": 2.693598771743898,
+      "fastox": {
+        "enabled": 1.0,
+        "cells_touched": 10.0,
+        "xi12_total": 37.4574192131936,
+        "xi5_total": 27.801575814897447,
+        "xi6_total": 7.722904127978118,
+        "xi10_total": 0.34149291449686037,
+        "xi_r1_total": 5.966563881449766,
+        "phase_update_local": 0.0
+      },
+      "bottom_solve": {
+        "enabled": 0.0,
+        "accepted": 0.0
+      }
+    }
+  ]
+}

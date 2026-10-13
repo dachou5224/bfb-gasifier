@@ -13,10 +13,8 @@ older bar-basis calculation only as a sensitivity comparison.
 from __future__ import annotations
 
 import math
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(".").resolve()))
+import _lu_harness  # noqa: F401
 
 from src.core.constants import Rg
 from src.kinetics.arrhenius import k_hobbs

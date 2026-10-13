@@ -1,0 +1,48 @@
+{
+  "verdict": "post-K-fix energy spike is real but Check1-continuation refresh/dT knobs trade split for maxE; keep defaults OFF",
+  "hypotheses": {
+    "H_energy_dominates_merit": "CONFIRMED \u2014 final E\u22480.155 >> S\u22480.044; top cells bed9/2/1",
+    "H_N2_split_floor": "REJECTED post-K-fix \u2014 top gas hits are H2O/H2/CO",
+    "H_force_all_refresh": "PARTIAL \u2014 maxE\u2193 S\u2191(0.15) and stalls; not default",
+    "H_energy_regress_reallow": "PARTIAL \u2014 maxE 1.06\u21920.92 but final S 0.044\u21920.081; default OFF",
+    "H_continuation_dT_cap": "REJECTED for default \u2014 S\u21920.27"
+  },
+  "knob_ab": {
+    "off": {
+      "S": 0.04394238677717179,
+      "E": 0.15525833643249767,
+      "max_E": 1.0588919944781985
+    },
+    "energy_1.25": {
+      "S": 0.08125428779553384,
+      "E": 0.15876385880726004,
+      "max_E": 0.9178310729225275
+    },
+    "energy_1.5": {
+      "S": 0.08125428779553384,
+      "E": 0.15876385880726004,
+      "max_E": 0.9178310729225275
+    },
+    "cont100": {
+      "S": 0.27568422010813065,
+      "E": 0.23543659127483813,
+      "max_E": 0.9506467168557825
+    },
+    "cont150": {
+      "S": 0.2709087214951454,
+      "E": 0.33636070593016326,
+      "max_E": 0.9659294918491154
+    },
+    "both_1.25_100": {
+      "S": 0.24748250454689877,
+      "E": 0.19347759064929132,
+      "max_E": 0.748834665364116
+    }
+  },
+  "infra_kept_defaults_off": {
+    "nr_check1_energy_regress_refresh_ratio_thesis": 0.0,
+    "nr_inner_abs_dT_budget_check1_continuation_K_thesis": 0.0
+  },
+  "best_current": "K-refresh fix only (seed850+budget350): S\u22480.044 E\u22480.155",
+  "next_knife": "energy floor at bed9/bed2 (H2O/enthalpy), not refresh gate; or init energy before O1 (~0.27)"
+}

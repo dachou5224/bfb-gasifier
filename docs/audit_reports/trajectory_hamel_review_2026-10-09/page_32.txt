@@ -1,0 +1,86 @@
+46
+3 Strömunzsmechanik
+3 Strömungsmechgnik
+47
+ct
+-[l + 0.15-Ren'687 )+ ----------- 
+-------—
+Re V
+’ 
+1+4,25 ■IO4 -Re' 116
+Do et al. (1972)
+„ 
+24 lunmn/t 
+. 
+0 
+1
+0,1806 ' R
+' 
+6880,95
+Re
+Turton u. Levenspiel
+zit. in Haider u. Levenspiel (1989)
+21,5 
+6,5 
+...
+Cuf — -------1— . 
++ 0,23
+Re 
+Re
+Muschelknautz (1988 )
+zit. in Hannes (1996)
+Widerstandsbeiwert
+1fr» 
+|
+------ GL (3.84) nach Haider und Levenspiel (1989)
+------ GL (3.85)
+103
+102
+101
+0,7 r 
+-
+. ------  (|)s = 0,85 E
+10°
+4>s= 1.0 —
+1fr 1 -I-
+1fr 2
+10°
+102
+104
+Reynolds-Zahl
+Bild 3.8: 
+Berechnete Widerstandsbeiwerte cw für Einzelpartikel in Abhängigkeit der Rey-
+nolds-Zahl unter Variation der Partikelsphärizität 
+Berechnungsansätze nach
+Haider und Levenspiel (1989) und nach Gleichung (3.85).
+Mit Gleichung (3.85) lässt sich die Differentialgleichung für die Partikelbewegung (3.82) in
+folgender Form schreiben:
+- 
+= A-uj, + B-u P +C 
+(3.88)
+mit den Koeffizienten
+A =-(+)-■ z — 
+(3.89)
+Pp 'dp
+(3.90)
+p P -dp 
+4 
+pp -dp 
+p P
+Pg
+(3.91)
+Bewegt sich ein Partikel langsamer als das ihn umgebende Gas oder fällt ein Partikel entgegen
+dem Gasstrom, so sind zur Berechnung der Koeffizienten A, B und C die in Klammem ste-
+henden Vorzeichen gültig. Ist die Partikelgeschwindigkeit größer als die Gasgeschwindigkeit
+gelten entsprechend die nicht in Klammem stehenden Vorzeichen. In Abhängigkeit des Aus-
+drucks
+A = 4AC-B 2
+(3.92)
+nimmt die Lösung der Differentialgleichung (3.88) zwei unterschiedliche Formen an
+(Bronstein 1989). Für den
+Fall V.A>0
+ergibt die Integration der Differentialgleichung (3.88) für die Partikelgeschwindigkeit als
+Funktion der Flugzeit
+Up (t) = ~ 
+tan
+(3-93)

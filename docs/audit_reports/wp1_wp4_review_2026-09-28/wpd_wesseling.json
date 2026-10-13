@@ -1,0 +1,67 @@
+{
+  "transport_closed": false,
+  "w_undecided": [
+    1.0,
+    1.0
+  ],
+  "prediction": null,
+  "reason": "transport_not_closed",
+  "trajectory_continue_s": 15.0,
+  "blocks": {
+    "passed": false,
+    "gas_l2": 56.988575192845424,
+    "solid_l2": 0.30931450100651825,
+    "tar_l2": 1.1165973787572998,
+    "energy_W": -7280512.313450087
+  },
+  "gap_mol_s": {
+    "C": 39.4951581123047,
+    "H": 48.81488829048259,
+    "O": 19.256545039068918,
+    "N": 0.3725301607881306,
+    "S": 0.12204704981548055
+  },
+  "enthalpy_gap_W": -7280512.313450087,
+  "input_path": {
+    "s_named_kernel": 0.0,
+    "s_wesseling1": 1.0,
+    "intermediate_name": "not CASE_HTW_WESSELING_1",
+    "quantities": {
+      "area_m2": {
+        "named": 0.126,
+        "target": 0.2827433388230814,
+        "ratio": 2.243994752564138
+      },
+      "H_bed_m": {
+        "named": 1.0,
+        "target": 6.0,
+        "ratio": 6.0
+      },
+      "H_freeboard_m": {
+        "named": 2.0,
+        "target": 8.5,
+        "ratio": 4.25
+      },
+      "O2_mol_s": {
+        "named": 0.4,
+        "target": 14.409396904712331,
+        "ratio": 36.023492261780824
+      },
+      "fuel_C_mol_s": {
+        "named": 0.3574796668246607,
+        "target": 39.91875343435184,
+        "ratio": 111.66719995275001
+      }
+    },
+    "target_reached": false,
+    "cold_start_of_target_run": false
+  },
+  "full_element_certification": false,
+  "wesseling2_missing": [
+    "bed_material",
+    "bed_particle_diameter_mm",
+    "steam_kg_h",
+    "primary_O2_Nm3_h"
+  ],
+  "wesseling2_solved": false
+}

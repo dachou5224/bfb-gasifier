@@ -169,6 +169,12 @@ def disable_inner_nr_vorabrechnung_freeze(cell: "Cell") -> None:
 
 def invalidate_vorabrechnung_cache(cell: "Cell") -> None:
     """Explicitly invalidate Vorabrechnung caches for outer-loop rebuild."""
+    if bool(getattr(cell, "_vorab_drying_pyro_sources_frozen", False)):
+        cell._vorab_hydro_cache_valid = False
+        cell._vorab_solid_transport_cache_valid = False
+        cell._freeze_vorabrechnung_inner_nr = False
+        cell._hydro_cache_valid = False
+        return
     cell._vm_cache_valid = False
     cell._vorab_hydro_cache_valid = False
     cell._vorab_solid_transport_cache_valid = False

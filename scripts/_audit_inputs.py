@@ -9,16 +9,15 @@ by the LU validation scripts.
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 from typing import Any
 
-sys.path.insert(0, str(Path(".").resolve()))
+import _lu_harness  # noqa: F401
 
+from _lu_harness import load_case_lu
 from tests.validation_case_utils import (  # noqa: E402
     build_phase1_htw_lu_global_nr_reactor_config,
     build_phase1_htw_lu_reactor_config,
     build_phase2_htw_lu_freeboard_reactor_config,
-    load_case_LU,
 )
 
 
@@ -57,7 +56,7 @@ def _nm3h_air_to_mol_s(air_nm3_h: float) -> tuple[float, float]:
 
 
 def main() -> int:
-    case = load_case_LU()
+    case = load_case_lu()
     phase1 = build_phase1_htw_lu_reactor_config(case)
     thesis = build_phase1_htw_lu_global_nr_reactor_config(case)
     phase2 = build_phase2_htw_lu_freeboard_reactor_config(case)

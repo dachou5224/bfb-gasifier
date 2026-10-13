@@ -1,0 +1,56 @@
+{
+  "smoke": "p1_outer_fixed_hydro_phase2_o4",
+  "wall_s": 26.672506196,
+  "total_s": 34.62671281,
+  "refresh_on_accept_cfg": false,
+  "converged": false,
+  "rms_scaled_final": 0.15194861034018833,
+  "rms_scaled_gas_phase_split_final": 0.05277602973635201,
+  "rms_scaled_energy_final": 0.15194861034018833,
+  "counts_selected": {
+    "hydrodynamics_refresh_on_accept": 0,
+    "hydrodynamics_refresh_residual_recompute": 0,
+    "line_search_fast_ox_projections": 37,
+    "line_search_failures": 3,
+    "global_residual_calls": 43
+  },
+  "clip_history_len": 4,
+  "dir_diag_samples": [
+    {
+      "outer": 1,
+      "iter": 1,
+      "lam": 1.0,
+      "merit_pre_refresh": 0.053519939524590214,
+      "merit_post_refresh": 0.053519939524590214,
+      "newton_linear_defect_rel": 0.014202302251022009,
+      "newton_clip_linear_defect_rel": 0.4213552456188566
+    },
+    {
+      "outer": 1,
+      "iter": 2,
+      "lam": null,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 0.19301117722070532,
+      "newton_clip_linear_defect_rel": 0.47825020506336896
+    },
+    {
+      "outer": 2,
+      "iter": 1,
+      "lam": null,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 0.03186093573256548,
+      "newton_clip_linear_defect_rel": 0.0775878213458546
+    },
+    {
+      "outer": 2,
+      "iter": 2,
+      "lam": null,
+      "merit_pre_refresh": null,
+      "merit_post_refresh": null,
+      "newton_linear_defect_rel": 0.03186093573256548,
+      "newton_clip_linear_defect_rel": 0.0775878213458546
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "e8": {
+    "endpoint_certified": true,
+    "in_domain": true,
+    "coupling": "composite_P",
+    "residual_l2": 0.00024435194701495806,
+    "gas_mol_s_l2": 6.636714049722886e-07,
+    "gas_mol_s_linf": 3.4916204545699115e-07,
+    "solid_kg_s_l2": 4.280741857584572e-10,
+    "solid_kg_s_linf": 4.2807418569081046e-10,
+    "tar_mol_s_l2": 4.270099870717975e-09,
+    "energy_W": -0.0002443510456942022,
+    "energy_W_abs": 0.0002443510456942022,
+    "q_consistency_l2": 8.19656408780647,
+    "n_unknowns": 45,
+    "enabled_rxns": [
+      "R10",
+      "R11",
+      "R12",
+      "R2",
+      "R3",
+      "R4",
+      "R5",
+      "R6",
+      "R7",
+      "R8"
+    ],
+    "rate_scale": 1.0,
+    "clip_applied": false
+  },
+  "e8_recertify_seconds": 0.27227425299999997,
+  "p3": {
+    "passed": true,
+    "gas_l2": 2.689695091237561e-07,
+    "solid_l2": 2.2570025502819425e-10,
+    "tar_l2": 1.7987352919255094e-09,
+    "energy_W": -0.0002945455489680171
+  },
+  "p3_energy_rows_W": [
+    1.1901880498044193e-05,
+    -0.0003064474294660613
+  ],
+  "single_call_seconds": {
+    "P": 0.09917869199999996,
+    "frozen_F": 0.002025933000000091
+  },
+  "timing_note": "One call, not a solver benchmark."
+}

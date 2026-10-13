@@ -1,0 +1,109 @@
+6 Experimentelle Untersuchungen in der Wirbelschicht
+100
+6 Experimentelle Untersuchungen in der Wirbelschicht
+101
+nert und in Pelletform mit Durchmessern von ca. 5 - 10 mm gepresst vorlag und Hausmüll,
+der ebenfalls zerkleinert und in Pelletform (ca. 10-30 mm) gepresst zur Verfügung stand. Der
+eingesetzte Holzabfall stammte aus der Möbelproduktion, dessen Staub und Späne sich im
+wesentlichen aus Kiefer und Tropenhölzem zusammensetzten.
+Für die Versuche wurden die Restkunststoffpellets auf einen Durchmesser von ca. 4 mm und
+die Hausmüllpellets auf ca. 8 mm zerkleinert. Die aus jeweils mehreren Proben ermittelte Zu-
+sammensetzung ist in Tabelle 6.1 angegeben (Hamel und Krumm 1998).
+Die genannten Stoffe wurden bisher in technisch betriebenen Vergasern der Fa. Rheinbraun
+zusammen mit Rheinischer Braunkohle vergast (Schumacher et al. 1993, Schiffer et al. 1995,
+Wischnewski et al. 1998). Um die Vergasung der genannten Reststoffe für die Simulation
+zugänglich zu machen, sind Informationen zum Pyrolyseverhalten und zur Reaktivität der
+Stoffe notwendig. Die in der atmosphärischen Wirbelschicht durchgeführten Untersuchungen
+sind zwar nicht ohne weiteres auf den höheren Vergaserdruck extrapolierbar, sie liefern aber
+dennoch wertvolle Hinweise zur Pyrolyseproduktausbeute und erlauben im Vergleich zum
+Bei der vorliegenden Laborwirbelschicht handelt es sich um eine erweiterte Version der be-
+reits von Wirsum (1998) zu Verbrennungsversuchen von Klärschlamm verwendeten Anlage.
+Erweiterungen wurden im Bereich der Mischvorrichtung und der Vorheizung für das Fluidi-
+sierungsmedium durchgeführt. Außerdem wurde das Gasanalysesystem um die Komponenten
+CH4, C2H4, H2 und um einen zweiten CO-Analysator mit einem erweiterten Messbereich er-
+gänzt. Gleichzeitig wurde die Messgasführung modifiziert, um einerseits die zusätzlichen
+Analysatoren aufzunehmen und um andererseits die Totzeit des gesamten Gasentnahmesys-
+tems zu verkürzen.
+Um den aktuellen Zustand des Gasentnahmesystems zu berücksichtigen, wurden durch eigene
+Untersuchungen Totzeit und dynamisches Verhalten bestimmt. Dazu wurden aus einer mittels
+Gaslanze in der Wirbelschicht aufgegebenen Sprungfunktion und dem vom jeweiligen Analy-
+satormodul gemessenen Konzentrationsverlauf die jeweilige Analysatortotzeit und die Mo-
+dellparameter für ein dynamisches System identifiziert. Mit Hilfe der bestimmten Systempa-
+rameter ajj und bjj wird aus den Messwerten der Gasanalysatoren nach Gleichung (6.1) auf
+den Zustand in der Wirbelschicht zurückgerechnet.
+Tabelle 6.1: Elementarzusammensetzung und Kurzanalyse der in der Laborwirbelschicht
+untersuchten Stoffe.
+mit j ~ Analysator O2, CO2...
+(6.1)
+5
+Brennstoff
+Wasser*
+Asche
+Flüchtige*
+C**
+H**
+S**
+N"
+0"’
+Rhein. Braunkohle
+10,8
+3,49
+45,97
+66,85
+4,77
+0,38
+0,60
+27,40
+Restkunststoff
+2,0
+10,72
+82,67
+75,39
+9,02
+0,29
+0,70
+14,60
+Hausmüll
+1,5
+11,94
+76,44
+56,60
+7,68
+0,32
+0,70
+34,70 |
+Holz
+8,9
+0,51
+70,79
+52,25
+5,94
+0,02
+0,04
+41,75
+Die Berechnungen, daraus beispielhaft Bild 6.2 ausgewählt, zeigen, dass bei der isolierten
+Untersuchung der „langsamen“ Restkoksverbrennung, der gemessene und numerisch korri-
+gierte Verlauf der Restkoksverbrennung, ersichtlich an den O2-, CO2- und CO-Konzen-
+trationen qualitativ übereinstimmen. Lediglich im Bereich der schnellen Konzentrationsan-
+stiege zu Beginn der Restkoksverbrennung ist die Auswirkung der dynamischen Rückrech-
+nung (Bild 6.2 B) erkennbar. Die zurückgerechneten zeitlichen Verläufe der „schnellen“ Py-
+rolyse zeigen erwartungsgemäß deutliche Unterschiede zum tatsächlich im Gasanalysator ge-
+messenen Verlauf. Eine Auswertung der Restkoksverbrennung mittels der in Kapitel 6.3.2
+beschriebenen Methodik zeigte keine Auswirkung auf die aus allen Versuchen ermittelten
+kinetischen Parameter. Bei der Betrachtung der Kinetik der Pyrolyse (siehe Kapitel 4.1.2) hin-
+gegen zeigte sich, dass die Berücksichtigung des dynamischen Verhaltens von Messgasent-
+nahme- und -analysesystem erforderlich ist.
+Bei allen in den weiteren Kapiteln dargestellten Konzentrationsverläufen handelt es sich um
+die mit der Totzeit korrigierten und die um das dynamische Systemverhalten zurückgerech-
+neten Konzentrationsverläufe.
+in Gew.-% bezogen auf analysenfeuchte Probe
+in Gew.-% bezogen auf wasser- und aschefreie Probe (waf)
+*** aus Differenz in Gew.-% bezogen auf wasser- und aschefreie Probe (waf)
+Referenzbrennstoff Rheinische Braunkohle eine Einordnung der Reaktivität der Reststoffe.
+6.1.3 Messdatenaufbereitung
+Da die Messungen der Rauchgaskonzentrationen nicht „in-situ“ durchgeführt werden können,
+geben die aufgezeichneten Verläufe, insbesondere im Falle sehr schneller dynamischer Vor-
+gänge, nicht die realen Vorgänge im Reaktor wieder. Wirsum (1998) modelliert aus diesem
+Grund die Gasaufbereitung und das Meßsystem mit einem dynamischen Modell fünfter Ord-
+nung mit Totzeit und berechnet invers aus den gemessenen Konzentrationen auf die im Re-
+aktor vorliegenden Konzentrationen zurück.

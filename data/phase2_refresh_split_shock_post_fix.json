@@ -1,0 +1,1478 @@
+{
+  "ladder_level": "p2",
+  "init": {
+    "label": "init",
+    "metrics": {
+      "rms_scaled": 0.0322844453883643,
+      "max_abs_scaled": 0.4216905457225611,
+      "max_bed_energy_abs_W": 3645112.000717452,
+      "gas_phase_split_rms": 0.044254992463512034,
+      "gas_phase_split_max_abs": 0.18589055047980144,
+      "solid_rms": 0.00113046641366152,
+      "energy_rms": 0.10459081971119895,
+      "merit_scaled": 0.10459081971119895,
+      "max_bed_energy_scaled": 0.19426782736102957
+    },
+    "global_group": {
+      "gas_rms": 0.035037868452082316,
+      "solid_rms": 0.0011226554585886817,
+      "energy_rms": 0.10459340976945097,
+      "gas_max_abs": 0.23899326169622453,
+      "solid_max_abs": 0.014249731784190768,
+      "energy_max_abs": 0.4216905457225611
+    },
+    "global_gas": {
+      "gas_combined_rms": 0.04997518194226285,
+      "gas_phase_split_rms": 0.044254992463512034,
+      "gas_combined_max_abs": 0.29209597291264766,
+      "gas_phase_split_max_abs": 0.18589055047980144
+    },
+    "bed_aggregate_split_rms": {
+      "bed0": 0.0005580958597492435,
+      "bed1": 0.046648487064267746
+    },
+    "cell_rows": [
+      {
+        "cell_index": 1,
+        "cell_type": "bed",
+        "T_K": 800.691233065481,
+        "split_rms": 0.10761220250511964,
+        "split_max_abs": 0.18589055047980144,
+        "preproj_major_split_rms": 8.56434354145234,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.23899326169622453,
+            "bubble": 0.0531027112164231,
+            "dense_minus_bubble": 0.18589055047980144,
+            "abs_split": 0.18589055047980144
+          },
+          {
+            "species": "H2",
+            "dense": 0.18369766448127406,
+            "bubble": 0.024397666976313126,
+            "dense_minus_bubble": 0.15929999750496093,
+            "abs_split": 0.15929999750496093
+          },
+          {
+            "species": "CO2",
+            "dense": 0.1145643442974218,
+            "bubble": 0.029179404157258122,
+            "dense_minus_bubble": 0.08538494014016368,
+            "abs_split": 0.08538494014016368
+          },
+          {
+            "species": "N2",
+            "dense": 0.09420189361369115,
+            "bubble": 0.02426588428927549,
+            "dense_minus_bubble": 0.06993600932441565,
+            "abs_split": 0.06993600932441565
+          }
+        ],
+        "split_variance_fraction": 0.5912872279820113
+      },
+      {
+        "cell_index": 3,
+        "cell_type": "bed",
+        "T_K": 905.6460986440103,
+        "split_rms": 0.05967015618213753,
+        "split_max_abs": 0.14429958986138336,
+        "preproj_major_split_rms": 4.748864021174825,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "N2",
+            "dense": -0.0727517172281925,
+            "bubble": -0.21705130708957587,
+            "dense_minus_bubble": 0.14429958986138336,
+            "abs_split": 0.14429958986138336
+          },
+          {
+            "species": "H2O",
+            "dense": 0.0028035017701353694,
+            "bubble": -0.04532216826043255,
+            "dense_minus_bubble": 0.04812567003056792,
+            "abs_split": 0.04812567003056792
+          },
+          {
+            "species": "CO",
+            "dense": 0.020185726889070076,
+            "bubble": -0.01995435092521606,
+            "dense_minus_bubble": 0.040140077814286135,
+            "abs_split": 0.040140077814286135
+          },
+          {
+            "species": "CO2",
+            "dense": 0.0015351671269931584,
+            "bubble": -0.006345640459149318,
+            "dense_minus_bubble": 0.007880807586142477,
+            "abs_split": 0.007880807586142477
+          }
+        ],
+        "split_variance_fraction": 0.1817982954368158
+      },
+      {
+        "cell_index": 2,
+        "cell_type": "bed",
+        "T_K": 858.0014805215837,
+        "split_rms": 0.03470703526906387,
+        "split_max_abs": 0.06296050690346582,
+        "preproj_major_split_rms": 2.7621679180427927,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.05348952071030275,
+            "bubble": -0.00947098619316306,
+            "dense_minus_bubble": 0.06296050690346582,
+            "abs_split": 0.06296050690346582
+          },
+          {
+            "species": "N2",
+            "dense": 0.03496032401061424,
+            "bubble": -0.008526589754696622,
+            "dense_minus_bubble": 0.04348691376531086,
+            "abs_split": 0.04348691376531086
+          },
+          {
+            "species": "CO2",
+            "dense": -0.030129342550791124,
+            "bubble": 0.004841334016550274,
+            "dense_minus_bubble": -0.0349706765673414,
+            "abs_split": 0.0349706765673414
+          },
+          {
+            "species": "H2",
+            "dense": 0.02702330939288624,
+            "bubble": -4.4651473539764174e-05,
+            "dense_minus_bubble": 0.027067960866426002,
+            "abs_split": 0.027067960866426002
+          }
+        ],
+        "split_variance_fraction": 0.06150500979388474
+      },
+      {
+        "cell_index": 9,
+        "cell_type": "bed",
+        "T_K": 1120.0,
+        "split_rms": 0.026055238528956713,
+        "split_max_abs": 0.06486561668355692,
+        "preproj_major_split_rms": 2.0736125515677877,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.026618863527108627,
+            "bubble": -0.03824675315644829,
+            "dense_minus_bubble": 0.06486561668355692,
+            "abs_split": 0.06486561668355692
+          },
+          {
+            "species": "N2",
+            "dense": -0.00830458135497209,
+            "bubble": 0.00830458135497209,
+            "dense_minus_bubble": -0.01660916270994418,
+            "abs_split": 0.01660916270994418
+          },
+          {
+            "species": "H2O",
+            "dense": 0.025514177759470912,
+            "bubble": 0.014270260027136118,
+            "dense_minus_bubble": 0.011243917732334794,
+            "abs_split": 0.011243917732334794
+          },
+          {
+            "species": "CO2",
+            "dense": 0.012378590539804472,
+            "bubble": 0.021682453086681056,
+            "dense_minus_bubble": -0.009303862546876583,
+            "abs_split": 0.009303862546876583
+          }
+        ],
+        "split_variance_fraction": 0.034662953495440685
+      },
+      {
+        "cell_index": 8,
+        "cell_type": "bed",
+        "T_K": 1089.045280088747,
+        "split_rms": 0.025242103716029023,
+        "split_max_abs": 0.06242000002633773,
+        "preproj_major_split_rms": 2.0088990179599606,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.024962055135737012,
+            "bubble": -0.03745794489060071,
+            "dense_minus_bubble": 0.06242000002633773,
+            "abs_split": 0.06242000002633773
+          },
+          {
+            "species": "H2O",
+            "dense": 0.028145422841579542,
+            "bubble": 0.012312185384926353,
+            "dense_minus_bubble": 0.015833237456653187,
+            "abs_split": 0.015833237456653187
+          },
+          {
+            "species": "N2",
+            "dense": -0.006861728110720716,
+            "bubble": 0.006861728110720582,
+            "dense_minus_bubble": -0.013723456221441298,
+            "abs_split": 0.013723456221441298
+          },
+          {
+            "species": "CO2",
+            "dense": 0.010840230352942522,
+            "bubble": 0.020276716390809274,
+            "dense_minus_bubble": -0.009436486037866752,
+            "abs_split": 0.009436486037866752
+          }
+        ],
+        "split_variance_fraction": 0.03253318265164128
+      },
+      {
+        "cell_index": 7,
+        "cell_type": "bed",
+        "T_K": 1056.7018693019418,
+        "split_rms": 0.024056002149147267,
+        "split_max_abs": 0.058154296602175096,
+        "preproj_major_split_rms": 1.9145028337228898,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.022863344390621845,
+            "bubble": -0.035290952211553255,
+            "dense_minus_bubble": 0.058154296602175096,
+            "abs_split": 0.058154296602175096
+          },
+          {
+            "species": "H2O",
+            "dense": 0.031064488255944097,
+            "bubble": 0.009547108080056451,
+            "dense_minus_bubble": 0.021517380175887647,
+            "abs_split": 0.021517380175887647
+          },
+          {
+            "species": "CO2",
+            "dense": 0.00755953447447731,
+            "bubble": 0.01903075077726151,
+            "dense_minus_bubble": -0.011471216302784202,
+            "abs_split": 0.011471216302784202
+          },
+          {
+            "species": "CH4",
+            "dense": -0.01515463068102253,
+            "bubble": -0.00874172069611844,
+            "dense_minus_bubble": -0.00641290998490409,
+            "abs_split": 0.00641290998490409
+          }
+        ],
+        "split_variance_fraction": 0.029547610504519456
+      },
+      {
+        "cell_index": 6,
+        "cell_type": "bed",
+        "T_K": 1022.6933175811942,
+        "split_rms": 0.0236012180296759,
+        "split_max_abs": 0.05384874755006602,
+        "preproj_major_split_rms": 1.8783087279832138,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.02101343183023849,
+            "bubble": -0.03283531571982753,
+            "dense_minus_bubble": 0.05384874755006602,
+            "abs_split": 0.05384874755006602
+          },
+          {
+            "species": "H2O",
+            "dense": 0.033736273693877494,
+            "bubble": 0.006896708633791715,
+            "dense_minus_bubble": 0.02683956506008578,
+            "abs_split": 0.02683956506008578
+          },
+          {
+            "species": "CO2",
+            "dense": 0.005120180617948816,
+            "bubble": 0.017177913794402925,
+            "dense_minus_bubble": -0.01205773317645411,
+            "abs_split": 0.01205773317645411
+          },
+          {
+            "species": "CH4",
+            "dense": -0.01673230619157097,
+            "bubble": -0.007884474228344662,
+            "dense_minus_bubble": -0.008847831963226308,
+            "abs_split": 0.008847831963226308
+          }
+        ],
+        "split_variance_fraction": 0.028440962626634966
+      },
+      {
+        "cell_index": 5,
+        "cell_type": "bed",
+        "T_K": 986.6303421415876,
+        "split_rms": 0.021216995943879623,
+        "split_max_abs": 0.04624571396966081,
+        "preproj_major_split_rms": 1.688559828262423,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.016567788002258124,
+            "bubble": -0.029677925967402687,
+            "dense_minus_bubble": 0.04624571396966081,
+            "abs_split": 0.04624571396966081
+          },
+          {
+            "species": "H2O",
+            "dense": 0.03099945566954411,
+            "bubble": 0.0047867339831566555,
+            "dense_minus_bubble": 0.026212721686387455,
+            "abs_split": 0.026212721686387455
+          },
+          {
+            "species": "CO2",
+            "dense": 0.003634545484372614,
+            "bubble": 0.015046221153092558,
+            "dense_minus_bubble": -0.011411675668719944,
+            "abs_split": 0.011411675668719944
+          },
+          {
+            "species": "CH4",
+            "dense": -0.016142027311425323,
+            "bubble": -0.007129771222719199,
+            "dense_minus_bubble": -0.009012256088706124,
+            "abs_split": 0.009012256088706124
+          }
+        ],
+        "split_variance_fraction": 0.02298493312288711
+      },
+      {
+        "cell_index": 4,
+        "cell_type": "bed",
+        "T_K": 947.9308981227557,
+        "split_rms": 0.018366579456080397,
+        "split_max_abs": 0.03379731216889693,
+        "preproj_major_split_rms": 1.4617087326669105,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.009193484775301358,
+            "bubble": -0.02460382739359557,
+            "dense_minus_bubble": 0.03379731216889693,
+            "abs_split": 0.03379731216889693
+          },
+          {
+            "species": "H2O",
+            "dense": 0.025014669279473968,
+            "bubble": 0.0019329438935978104,
+            "dense_minus_bubble": 0.02308172538587616,
+            "abs_split": 0.02308172538587616
+          },
+          {
+            "species": "N2",
+            "dense": 0.01047852181951858,
+            "bubble": -0.01047852181951858,
+            "dense_minus_bubble": 0.02095704363903716,
+            "abs_split": 0.02095704363903716
+          },
+          {
+            "species": "CO2",
+            "dense": -0.0019140162782328638,
+            "bubble": 0.011176110483931304,
+            "dense_minus_bubble": -0.013090126762164167,
+            "abs_split": 0.013090126762164167
+          }
+        ],
+        "split_variance_fraction": 0.017223920873496484
+      },
+      {
+        "cell_index": 0,
+        "cell_type": "bed",
+        "T_K": 700.0,
+        "split_rms": 0.0005580958597492435,
+        "split_max_abs": 0.00080898628505424,
+        "preproj_major_split_rms": 0.04441619593955742,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO2",
+            "dense": 0.013206153781216133,
+            "bubble": 0.012397167496161893,
+            "dense_minus_bubble": 0.00080898628505424,
+            "abs_split": 0.00080898628505424
+          },
+          {
+            "species": "CH4",
+            "dense": -0.026006293572467247,
+            "bubble": -0.026737582712543825,
+            "dense_minus_bubble": 0.0007312891400765784,
+            "abs_split": 0.0007312891400765784
+          },
+          {
+            "species": "H2",
+            "dense": 0.008688038742547952,
+            "bubble": 0.008027912438677688,
+            "dense_minus_bubble": 0.0006601263038702645,
+            "abs_split": 0.0006601263038702645
+          },
+          {
+            "species": "CO",
+            "dense": 0.04179690495042951,
+            "bubble": 0.04126508832462243,
+            "dense_minus_bubble": 0.0005318166258070772,
+            "abs_split": 0.0005318166258070772
+          }
+        ],
+        "split_variance_fraction": 1.5903512668002628e-05
+      }
+    ],
+    "vorab_signature": "vorab:v1:n=200;vm=10;sum=2.58691465e+04;sumsq=3.53884391e+07"
+  },
+  "after_first_refresh": {
+    "label": "after_first_refresh",
+    "metrics": {
+      "rms_scaled": 0.03228463502788481,
+      "max_abs_scaled": 0.4216905457225611,
+      "max_bed_energy_abs_W": 3645153.9480082635,
+      "gas_phase_split_rms": 0.044254992463512034,
+      "gas_phase_split_max_abs": 0.18589055047980144,
+      "solid_rms": 0.0011226554585886817,
+      "energy_rms": 0.10459340976945097,
+      "merit_scaled": 0.10459340976945097,
+      "max_bed_energy_scaled": 0.1942700629601135
+    },
+    "global_group": {
+      "gas_rms": 0.035037868452082316,
+      "solid_rms": 0.0011226554585886817,
+      "energy_rms": 0.10459340976945097,
+      "gas_max_abs": 0.23899326169622453,
+      "solid_max_abs": 0.014249731784190768,
+      "energy_max_abs": 0.4216905457225611
+    },
+    "global_gas": {
+      "gas_combined_rms": 0.04997518194226285,
+      "gas_phase_split_rms": 0.044254992463512034,
+      "gas_combined_max_abs": 0.29209597291264766,
+      "gas_phase_split_max_abs": 0.18589055047980144
+    },
+    "bed_aggregate_split_rms": {
+      "bed0": 0.0005580958597492435,
+      "bed1": 0.046648487064267746
+    },
+    "cell_rows": [
+      {
+        "cell_index": 1,
+        "cell_type": "bed",
+        "T_K": 800.691233065481,
+        "split_rms": 0.10761220250511964,
+        "split_max_abs": 0.18589055047980144,
+        "preproj_major_split_rms": 8.56434354145234,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.23899326169622453,
+            "bubble": 0.0531027112164231,
+            "dense_minus_bubble": 0.18589055047980144,
+            "abs_split": 0.18589055047980144
+          },
+          {
+            "species": "H2",
+            "dense": 0.18369766448127406,
+            "bubble": 0.024397666976313126,
+            "dense_minus_bubble": 0.15929999750496093,
+            "abs_split": 0.15929999750496093
+          },
+          {
+            "species": "CO2",
+            "dense": 0.1145643442974218,
+            "bubble": 0.029179404157258122,
+            "dense_minus_bubble": 0.08538494014016368,
+            "abs_split": 0.08538494014016368
+          },
+          {
+            "species": "N2",
+            "dense": 0.09420189361369115,
+            "bubble": 0.02426588428927549,
+            "dense_minus_bubble": 0.06993600932441565,
+            "abs_split": 0.06993600932441565
+          }
+        ],
+        "split_variance_fraction": 0.5912872279820113
+      },
+      {
+        "cell_index": 3,
+        "cell_type": "bed",
+        "T_K": 905.6460986440103,
+        "split_rms": 0.05967015618213753,
+        "split_max_abs": 0.14429958986138336,
+        "preproj_major_split_rms": 4.748864021174825,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "N2",
+            "dense": -0.0727517172281925,
+            "bubble": -0.21705130708957587,
+            "dense_minus_bubble": 0.14429958986138336,
+            "abs_split": 0.14429958986138336
+          },
+          {
+            "species": "H2O",
+            "dense": 0.0028035017701353694,
+            "bubble": -0.04532216826043255,
+            "dense_minus_bubble": 0.04812567003056792,
+            "abs_split": 0.04812567003056792
+          },
+          {
+            "species": "CO",
+            "dense": 0.020185726889070076,
+            "bubble": -0.01995435092521606,
+            "dense_minus_bubble": 0.040140077814286135,
+            "abs_split": 0.040140077814286135
+          },
+          {
+            "species": "CO2",
+            "dense": 0.0015351671269931584,
+            "bubble": -0.006345640459149318,
+            "dense_minus_bubble": 0.007880807586142477,
+            "abs_split": 0.007880807586142477
+          }
+        ],
+        "split_variance_fraction": 0.1817982954368158
+      },
+      {
+        "cell_index": 2,
+        "cell_type": "bed",
+        "T_K": 858.0014805215837,
+        "split_rms": 0.03470703526906387,
+        "split_max_abs": 0.06296050690346582,
+        "preproj_major_split_rms": 2.7621679180427927,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.05348952071030275,
+            "bubble": -0.00947098619316306,
+            "dense_minus_bubble": 0.06296050690346582,
+            "abs_split": 0.06296050690346582
+          },
+          {
+            "species": "N2",
+            "dense": 0.03496032401061424,
+            "bubble": -0.008526589754696622,
+            "dense_minus_bubble": 0.04348691376531086,
+            "abs_split": 0.04348691376531086
+          },
+          {
+            "species": "CO2",
+            "dense": -0.030129342550791124,
+            "bubble": 0.004841334016550274,
+            "dense_minus_bubble": -0.0349706765673414,
+            "abs_split": 0.0349706765673414
+          },
+          {
+            "species": "H2",
+            "dense": 0.02702330939288624,
+            "bubble": -4.4651473539764174e-05,
+            "dense_minus_bubble": 0.027067960866426002,
+            "abs_split": 0.027067960866426002
+          }
+        ],
+        "split_variance_fraction": 0.06150500979388474
+      },
+      {
+        "cell_index": 9,
+        "cell_type": "bed",
+        "T_K": 1120.0,
+        "split_rms": 0.026055238528956713,
+        "split_max_abs": 0.06486561668355692,
+        "preproj_major_split_rms": 2.0736125515677877,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.026618863527108627,
+            "bubble": -0.03824675315644829,
+            "dense_minus_bubble": 0.06486561668355692,
+            "abs_split": 0.06486561668355692
+          },
+          {
+            "species": "N2",
+            "dense": -0.00830458135497209,
+            "bubble": 0.00830458135497209,
+            "dense_minus_bubble": -0.01660916270994418,
+            "abs_split": 0.01660916270994418
+          },
+          {
+            "species": "H2O",
+            "dense": 0.025514177759470912,
+            "bubble": 0.014270260027136118,
+            "dense_minus_bubble": 0.011243917732334794,
+            "abs_split": 0.011243917732334794
+          },
+          {
+            "species": "CO2",
+            "dense": 0.012378590539804472,
+            "bubble": 0.021682453086681056,
+            "dense_minus_bubble": -0.009303862546876583,
+            "abs_split": 0.009303862546876583
+          }
+        ],
+        "split_variance_fraction": 0.034662953495440685
+      },
+      {
+        "cell_index": 8,
+        "cell_type": "bed",
+        "T_K": 1089.045280088747,
+        "split_rms": 0.025242103716029023,
+        "split_max_abs": 0.06242000002633773,
+        "preproj_major_split_rms": 2.0088990179599606,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.024962055135737012,
+            "bubble": -0.03745794489060071,
+            "dense_minus_bubble": 0.06242000002633773,
+            "abs_split": 0.06242000002633773
+          },
+          {
+            "species": "H2O",
+            "dense": 0.028145422841579542,
+            "bubble": 0.012312185384926353,
+            "dense_minus_bubble": 0.015833237456653187,
+            "abs_split": 0.015833237456653187
+          },
+          {
+            "species": "N2",
+            "dense": -0.006861728110720716,
+            "bubble": 0.006861728110720582,
+            "dense_minus_bubble": -0.013723456221441298,
+            "abs_split": 0.013723456221441298
+          },
+          {
+            "species": "CO2",
+            "dense": 0.010840230352942522,
+            "bubble": 0.020276716390809274,
+            "dense_minus_bubble": -0.009436486037866752,
+            "abs_split": 0.009436486037866752
+          }
+        ],
+        "split_variance_fraction": 0.03253318265164128
+      },
+      {
+        "cell_index": 7,
+        "cell_type": "bed",
+        "T_K": 1056.7018693019418,
+        "split_rms": 0.024056002149147267,
+        "split_max_abs": 0.058154296602175096,
+        "preproj_major_split_rms": 1.9145028337228898,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.022863344390621845,
+            "bubble": -0.035290952211553255,
+            "dense_minus_bubble": 0.058154296602175096,
+            "abs_split": 0.058154296602175096
+          },
+          {
+            "species": "H2O",
+            "dense": 0.031064488255944097,
+            "bubble": 0.009547108080056451,
+            "dense_minus_bubble": 0.021517380175887647,
+            "abs_split": 0.021517380175887647
+          },
+          {
+            "species": "CO2",
+            "dense": 0.00755953447447731,
+            "bubble": 0.01903075077726151,
+            "dense_minus_bubble": -0.011471216302784202,
+            "abs_split": 0.011471216302784202
+          },
+          {
+            "species": "CH4",
+            "dense": -0.01515463068102253,
+            "bubble": -0.00874172069611844,
+            "dense_minus_bubble": -0.00641290998490409,
+            "abs_split": 0.00641290998490409
+          }
+        ],
+        "split_variance_fraction": 0.029547610504519456
+      },
+      {
+        "cell_index": 6,
+        "cell_type": "bed",
+        "T_K": 1022.6933175811942,
+        "split_rms": 0.0236012180296759,
+        "split_max_abs": 0.05384874755006602,
+        "preproj_major_split_rms": 1.8783087279832138,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.02101343183023849,
+            "bubble": -0.03283531571982753,
+            "dense_minus_bubble": 0.05384874755006602,
+            "abs_split": 0.05384874755006602
+          },
+          {
+            "species": "H2O",
+            "dense": 0.033736273693877494,
+            "bubble": 0.006896708633791715,
+            "dense_minus_bubble": 0.02683956506008578,
+            "abs_split": 0.02683956506008578
+          },
+          {
+            "species": "CO2",
+            "dense": 0.005120180617948816,
+            "bubble": 0.017177913794402925,
+            "dense_minus_bubble": -0.01205773317645411,
+            "abs_split": 0.01205773317645411
+          },
+          {
+            "species": "CH4",
+            "dense": -0.01673230619157097,
+            "bubble": -0.007884474228344662,
+            "dense_minus_bubble": -0.008847831963226308,
+            "abs_split": 0.008847831963226308
+          }
+        ],
+        "split_variance_fraction": 0.028440962626634966
+      },
+      {
+        "cell_index": 5,
+        "cell_type": "bed",
+        "T_K": 986.6303421415876,
+        "split_rms": 0.021216995943879623,
+        "split_max_abs": 0.04624571396966081,
+        "preproj_major_split_rms": 1.688559828262423,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.016567788002258124,
+            "bubble": -0.029677925967402687,
+            "dense_minus_bubble": 0.04624571396966081,
+            "abs_split": 0.04624571396966081
+          },
+          {
+            "species": "H2O",
+            "dense": 0.03099945566954411,
+            "bubble": 0.0047867339831566555,
+            "dense_minus_bubble": 0.026212721686387455,
+            "abs_split": 0.026212721686387455
+          },
+          {
+            "species": "CO2",
+            "dense": 0.003634545484372614,
+            "bubble": 0.015046221153092558,
+            "dense_minus_bubble": -0.011411675668719944,
+            "abs_split": 0.011411675668719944
+          },
+          {
+            "species": "CH4",
+            "dense": -0.016142027311425323,
+            "bubble": -0.007129771222719199,
+            "dense_minus_bubble": -0.009012256088706124,
+            "abs_split": 0.009012256088706124
+          }
+        ],
+        "split_variance_fraction": 0.02298493312288711
+      },
+      {
+        "cell_index": 4,
+        "cell_type": "bed",
+        "T_K": 947.9308981227557,
+        "split_rms": 0.018366579456080397,
+        "split_max_abs": 0.03379731216889693,
+        "preproj_major_split_rms": 1.4617087326669105,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.009193484775301358,
+            "bubble": -0.02460382739359557,
+            "dense_minus_bubble": 0.03379731216889693,
+            "abs_split": 0.03379731216889693
+          },
+          {
+            "species": "H2O",
+            "dense": 0.025014669279473968,
+            "bubble": 0.0019329438935978104,
+            "dense_minus_bubble": 0.02308172538587616,
+            "abs_split": 0.02308172538587616
+          },
+          {
+            "species": "N2",
+            "dense": 0.01047852181951858,
+            "bubble": -0.01047852181951858,
+            "dense_minus_bubble": 0.02095704363903716,
+            "abs_split": 0.02095704363903716
+          },
+          {
+            "species": "CO2",
+            "dense": -0.0019140162782328638,
+            "bubble": 0.011176110483931304,
+            "dense_minus_bubble": -0.013090126762164167,
+            "abs_split": 0.013090126762164167
+          }
+        ],
+        "split_variance_fraction": 0.017223920873496484
+      },
+      {
+        "cell_index": 0,
+        "cell_type": "bed",
+        "T_K": 700.0,
+        "split_rms": 0.0005580958597492435,
+        "split_max_abs": 0.00080898628505424,
+        "preproj_major_split_rms": 0.04441619593955742,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO2",
+            "dense": 0.013206153781216133,
+            "bubble": 0.012397167496161893,
+            "dense_minus_bubble": 0.00080898628505424,
+            "abs_split": 0.00080898628505424
+          },
+          {
+            "species": "CH4",
+            "dense": -0.026006293572467247,
+            "bubble": -0.026737582712543825,
+            "dense_minus_bubble": 0.0007312891400765784,
+            "abs_split": 0.0007312891400765784
+          },
+          {
+            "species": "H2",
+            "dense": 0.008688038742547952,
+            "bubble": 0.008027912438677688,
+            "dense_minus_bubble": 0.0006601263038702645,
+            "abs_split": 0.0006601263038702645
+          },
+          {
+            "species": "CO",
+            "dense": 0.04179690495042951,
+            "bubble": 0.04126508832462243,
+            "dense_minus_bubble": 0.0005318166258070772,
+            "abs_split": 0.0005318166258070772
+          }
+        ],
+        "split_variance_fraction": 1.5903512668002628e-05
+      }
+    ],
+    "vorab_signature": "vorab:v1:n=200;vm=10;sum=2.58691485e+04;sumsq=3.53884391e+07"
+  },
+  "after_preinner_bridge": {
+    "label": "after_preinner_bridge",
+    "metrics": {
+      "rms_scaled": 0.032583721644563565,
+      "max_abs_scaled": 0.42357179941432843,
+      "max_bed_energy_abs_W": 3895934.4082788583,
+      "gas_phase_split_rms": 0.044256501618578366,
+      "gas_phase_split_max_abs": 0.18589054883126838,
+      "solid_rms": 0.0008779887152426058,
+      "energy_rms": 0.10709540675864047,
+      "merit_scaled": 0.10709540675864047,
+      "max_bed_energy_scaled": 0.20763551651868134
+    },
+    "global_group": {
+      "gas_rms": 0.03503793272876151,
+      "solid_rms": 0.000896290315037489,
+      "energy_rms": 0.10554209260606595,
+      "gas_max_abs": 0.23899326004769147,
+      "solid_max_abs": 0.008965318616835572,
+      "energy_max_abs": 0.42357179941432843
+    },
+    "global_gas": {
+      "gas_combined_rms": 0.049974802429453,
+      "gas_phase_split_rms": 0.044256501618578366,
+      "gas_combined_max_abs": 0.2920959712641146,
+      "gas_phase_split_max_abs": 0.18589054883126838
+    },
+    "bed_aggregate_split_rms": {
+      "bed0": 0.0005580958597492435,
+      "bed1": 0.04665007786603436
+    },
+    "cell_rows": [
+      {
+        "cell_index": 1,
+        "cell_type": "bed",
+        "T_K": 800.691233065481,
+        "split_rms": 0.1076122018767648,
+        "split_max_abs": 0.18589054883126838,
+        "preproj_major_split_rms": 8.564343491444564,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.23899326004769147,
+            "bubble": 0.0531027112164231,
+            "dense_minus_bubble": 0.18589054883126838,
+            "abs_split": 0.18589054883126838
+          },
+          {
+            "species": "H2",
+            "dense": 0.18369766277886954,
+            "bubble": 0.024397666976313126,
+            "dense_minus_bubble": 0.1592999958025564,
+            "abs_split": 0.1592999958025564
+          },
+          {
+            "species": "CO2",
+            "dense": 0.11456434425103401,
+            "bubble": 0.029179404157258122,
+            "dense_minus_bubble": 0.0853849400937759,
+            "abs_split": 0.0853849400937759
+          },
+          {
+            "species": "N2",
+            "dense": 0.09420189361369115,
+            "bubble": 0.02426588428927549,
+            "dense_minus_bubble": 0.06993600932441565,
+            "abs_split": 0.06993600932441565
+          }
+        ],
+        "split_variance_fraction": 0.5912468957525479
+      },
+      {
+        "cell_index": 3,
+        "cell_type": "bed",
+        "T_K": 905.6460986440103,
+        "split_rms": 0.05966963920247624,
+        "split_max_abs": 0.14429958986138336,
+        "preproj_major_split_rms": 4.748822877221628,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "N2",
+            "dense": -0.0727517172281925,
+            "bubble": -0.21705130708957587,
+            "dense_minus_bubble": 0.14429958986138336,
+            "abs_split": 0.14429958986138336
+          },
+          {
+            "species": "H2O",
+            "dense": 0.002776004169527828,
+            "bubble": -0.04532216826043255,
+            "dense_minus_bubble": 0.048098172429960374,
+            "abs_split": 0.048098172429960374
+          },
+          {
+            "species": "CO",
+            "dense": 0.02020849447474155,
+            "bubble": -0.01995435092521606,
+            "dense_minus_bubble": 0.04016284539995761,
+            "abs_split": 0.04016284539995761
+          },
+          {
+            "species": "CO2",
+            "dense": 0.0015390901232505104,
+            "bubble": -0.006345640459149318,
+            "dense_minus_bubble": 0.00788473058239983,
+            "abs_split": 0.00788473058239983
+          }
+        ],
+        "split_variance_fraction": 0.18178274697906796
+      },
+      {
+        "cell_index": 2,
+        "cell_type": "bed",
+        "T_K": 858.0014805215837,
+        "split_rms": 0.034707034076941694,
+        "split_max_abs": 0.06296050332769063,
+        "preproj_major_split_rms": 2.762167823167457,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.05348951713452757,
+            "bubble": -0.00947098619316306,
+            "dense_minus_bubble": 0.06296050332769063,
+            "abs_split": 0.06296050332769063
+          },
+          {
+            "species": "N2",
+            "dense": 0.03496032401061424,
+            "bubble": -0.008526589754696622,
+            "dense_minus_bubble": 0.04348691376531086,
+            "abs_split": 0.04348691376531086
+          },
+          {
+            "species": "CO2",
+            "dense": -0.030129342692617706,
+            "bubble": 0.004841334016550274,
+            "dense_minus_bubble": -0.03497067670916798,
+            "abs_split": 0.03497067670916798
+          },
+          {
+            "species": "H2",
+            "dense": 0.027023305655547298,
+            "bubble": -4.4651473539764174e-05,
+            "dense_minus_bubble": 0.02706795712908706,
+            "abs_split": 0.02706795712908706
+          }
+        ],
+        "split_variance_fraction": 0.061500810975619234
+      },
+      {
+        "cell_index": 9,
+        "cell_type": "bed",
+        "T_K": 1120.0,
+        "split_rms": 0.026069013025107238,
+        "split_max_abs": 0.06490478363277404,
+        "preproj_major_split_rms": 2.074708798223811,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.026658030476325745,
+            "bubble": -0.03824675315644829,
+            "dense_minus_bubble": 0.06490478363277404,
+            "abs_split": 0.06490478363277404
+          },
+          {
+            "species": "N2",
+            "dense": -0.00830458135497209,
+            "bubble": 0.00830458135497209,
+            "dense_minus_bubble": -0.01660916270994418,
+            "abs_split": 0.01660916270994418
+          },
+          {
+            "species": "H2O",
+            "dense": 0.02549106275221078,
+            "bubble": 0.014270260027136118,
+            "dense_minus_bubble": 0.011220802725074664,
+            "abs_split": 0.011220802725074664
+          },
+          {
+            "species": "CO2",
+            "dense": 0.012370564568825985,
+            "bubble": 0.021682453086681056,
+            "dense_minus_bubble": -0.00931188851785507,
+            "abs_split": 0.00931188851785507
+          }
+        ],
+        "split_variance_fraction": 0.03469724688674737
+      },
+      {
+        "cell_index": 8,
+        "cell_type": "bed",
+        "T_K": 1089.045280088747,
+        "split_rms": 0.025249413070088562,
+        "split_max_abs": 0.06244335095134644,
+        "preproj_major_split_rms": 2.0094807346963037,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.024985406060745726,
+            "bubble": -0.03745794489060071,
+            "dense_minus_bubble": 0.06244335095134644,
+            "abs_split": 0.06244335095134644
+          },
+          {
+            "species": "H2O",
+            "dense": 0.02812820894396044,
+            "bubble": 0.012312185384926353,
+            "dense_minus_bubble": 0.01581602355903409,
+            "abs_split": 0.01581602355903409
+          },
+          {
+            "species": "N2",
+            "dense": -0.006861728110720716,
+            "bubble": 0.006861728110720582,
+            "dense_minus_bubble": -0.013723456221441298,
+            "abs_split": 0.013723456221441298
+          },
+          {
+            "species": "CO2",
+            "dense": 0.01083716183924771,
+            "bubble": 0.020276716390809274,
+            "dense_minus_bubble": -0.009439554551561565,
+            "abs_split": 0.009439554551561565
+          }
+        ],
+        "split_variance_fraction": 0.032549806619376696
+      },
+      {
+        "cell_index": 7,
+        "cell_type": "bed",
+        "T_K": 1056.7018693019418,
+        "split_rms": 0.024058643213782895,
+        "split_max_abs": 0.058164844269129504,
+        "preproj_major_split_rms": 1.9147130234999605,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.022873892057576246,
+            "bubble": -0.035290952211553255,
+            "dense_minus_bubble": 0.058164844269129504,
+            "abs_split": 0.058164844269129504
+          },
+          {
+            "species": "H2O",
+            "dense": 0.03105506381326879,
+            "bubble": 0.009547108080056451,
+            "dense_minus_bubble": 0.02150795573321234,
+            "abs_split": 0.02150795573321234
+          },
+          {
+            "species": "CO2",
+            "dense": 0.0075589728623377565,
+            "bubble": 0.01903075077726151,
+            "dense_minus_bubble": -0.011471777914923754,
+            "abs_split": 0.011471777914923754
+          },
+          {
+            "species": "CH4",
+            "dense": -0.015154620394402978,
+            "bubble": -0.00874172069611844,
+            "dense_minus_bubble": -0.0064128996982845375,
+            "abs_split": 0.0064128996982845375
+          }
+        ],
+        "split_variance_fraction": 0.029552083250947592
+      },
+      {
+        "cell_index": 6,
+        "cell_type": "bed",
+        "T_K": 1022.6933175811942,
+        "split_rms": 0.023602568683128364,
+        "split_max_abs": 0.053854504814929205,
+        "preproj_major_split_rms": 1.8784162200696417,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.021019189095101677,
+            "bubble": -0.03283531571982753,
+            "dense_minus_bubble": 0.053854504814929205,
+            "abs_split": 0.053854504814929205
+          },
+          {
+            "species": "H2O",
+            "dense": 0.03373235233140707,
+            "bubble": 0.006896708633791715,
+            "dense_minus_bubble": 0.026835643697615354,
+            "abs_split": 0.026835643697615354
+          },
+          {
+            "species": "CO2",
+            "dense": 0.005119262666752434,
+            "bubble": 0.017177913794402925,
+            "dense_minus_bubble": -0.012058651127650491,
+            "abs_split": 0.012058651127650491
+          },
+          {
+            "species": "CH4",
+            "dense": -0.01673229444941904,
+            "bubble": -0.007884474228344662,
+            "dense_minus_bubble": -0.008847820221074377,
+            "abs_split": 0.008847820221074377
+          }
+        ],
+        "split_variance_fraction": 0.028442278092364673
+      },
+      {
+        "cell_index": 5,
+        "cell_type": "bed",
+        "T_K": 986.6303421415876,
+        "split_rms": 0.021217903010633272,
+        "split_max_abs": 0.046248418482311135,
+        "preproj_major_split_rms": 1.6886320173925817,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.016570492514908445,
+            "bubble": -0.029677925967402687,
+            "dense_minus_bubble": 0.046248418482311135,
+            "abs_split": 0.046248418482311135
+          },
+          {
+            "species": "H2O",
+            "dense": 0.030999270083588312,
+            "bubble": 0.0047867339831566555,
+            "dense_minus_bubble": 0.026212536100431658,
+            "abs_split": 0.026212536100431658
+          },
+          {
+            "species": "CO2",
+            "dense": 0.0036333006295056315,
+            "bubble": 0.015046221153092558,
+            "dense_minus_bubble": -0.011412920523586927,
+            "abs_split": 0.011412920523586927
+          },
+          {
+            "species": "CH4",
+            "dense": -0.016142027311388873,
+            "bubble": -0.007129771222719199,
+            "dense_minus_bubble": -0.009012256088669674,
+            "abs_split": 0.009012256088669674
+          }
+        ],
+        "split_variance_fraction": 0.022985330775297852
+      },
+      {
+        "cell_index": 4,
+        "cell_type": "bed",
+        "T_K": 947.9308981227557,
+        "split_rms": 0.018368793211331412,
+        "split_max_abs": 0.03382989283115994,
+        "preproj_major_split_rms": 1.4618849149217572,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO",
+            "dense": 0.00922606543756437,
+            "bubble": -0.02460382739359557,
+            "dense_minus_bubble": 0.03382989283115994,
+            "abs_split": 0.03382989283115994
+          },
+          {
+            "species": "H2O",
+            "dense": 0.02497946709140389,
+            "bubble": 0.0019329438935978104,
+            "dense_minus_bubble": 0.02304652319780608,
+            "abs_split": 0.02304652319780608
+          },
+          {
+            "species": "N2",
+            "dense": 0.01047852181951858,
+            "bubble": -0.01047852181951858,
+            "dense_minus_bubble": 0.02095704363903716,
+            "abs_split": 0.02095704363903716
+          },
+          {
+            "species": "CO2",
+            "dense": -0.0019115174653043707,
+            "bubble": 0.011176110483931304,
+            "dense_minus_bubble": -0.013087627949235675,
+            "abs_split": 0.013087627949235675
+          }
+        ],
+        "split_variance_fraction": 0.01722689823996986
+      },
+      {
+        "cell_index": 0,
+        "cell_type": "bed",
+        "T_K": 700.0,
+        "split_rms": 0.0005580958597492435,
+        "split_max_abs": 0.00080898628505424,
+        "preproj_major_split_rms": 0.04441619593955742,
+        "n_split_terms": 7,
+        "top_species": [
+          {
+            "species": "CO2",
+            "dense": 0.013206153781216133,
+            "bubble": 0.012397167496161893,
+            "dense_minus_bubble": 0.00080898628505424,
+            "abs_split": 0.00080898628505424
+          },
+          {
+            "species": "CH4",
+            "dense": -0.026006293572467247,
+            "bubble": -0.026737582712543825,
+            "dense_minus_bubble": 0.0007312891400765784,
+            "abs_split": 0.0007312891400765784
+          },
+          {
+            "species": "H2",
+            "dense": 0.008688038742547952,
+            "bubble": 0.008027912438677688,
+            "dense_minus_bubble": 0.0006601263038702645,
+            "abs_split": 0.0006601263038702645
+          },
+          {
+            "species": "CO",
+            "dense": 0.04179690495042951,
+            "bubble": 0.04126508832462243,
+            "dense_minus_bubble": 0.0005318166258070772,
+            "abs_split": 0.0005318166258070772
+          }
+        ],
+        "split_variance_fraction": 1.5902428060922515e-05
+      }
+    ],
+    "vorab_signature": "vorab:v1:n=200;vm=10;sum=2.58691485e+04;sumsq=3.53884391e+07"
+  },
+  "init_to_refresh_delta": {
+    "merit_delta": 2.5900582520249626e-06,
+    "split_delta": 0.0,
+    "energy_delta": 2.5900582520249626e-06,
+    "rms_delta": 1.896395205105983e-07,
+    "bed_aggregate_delta": {
+      "bed0": 0.0,
+      "bed1": 0.0
+    },
+    "top_cell_deltas": []
+  },
+  "refresh_to_preinner_delta": {
+    "merit_delta": 0.0025019969891895005,
+    "split_delta": 1.5091550663315356e-06,
+    "energy_delta": 0.0025019969891895005,
+    "rms_delta": 0.0002990866166787537,
+    "bed_aggregate_delta": {
+      "bed0": 0.0,
+      "bed1": 1.590801766614136e-06
+    },
+    "top_cell_deltas": [
+      {
+        "cell_index": 9,
+        "cell_type": "bed",
+        "split_rms_before": 0.026055238528956713,
+        "split_rms_after": 0.026069013025107238,
+        "split_rms_delta": 1.3774496150524562e-05,
+        "worst_species_before": {
+          "species": "CO",
+          "dense": 0.026618863527108627,
+          "bubble": -0.03824675315644829,
+          "dense_minus_bubble": 0.06486561668355692,
+          "abs_split": 0.06486561668355692
+        },
+        "worst_species_after": {
+          "species": "CO",
+          "dense": 0.026658030476325745,
+          "bubble": -0.03824675315644829,
+          "dense_minus_bubble": 0.06490478363277404,
+          "abs_split": 0.06490478363277404
+        }
+      },
+      {
+        "cell_index": 8,
+        "cell_type": "bed",
+        "split_rms_before": 0.025242103716029023,
+        "split_rms_after": 0.025249413070088562,
+        "split_rms_delta": 7.309354059539114e-06,
+        "worst_species_before": {
+          "species": "CO",
+          "dense": 0.024962055135737012,
+          "bubble": -0.03745794489060071,
+          "dense_minus_bubble": 0.06242000002633773,
+          "abs_split": 0.06242000002633773
+        },
+        "worst_species_after": {
+          "species": "CO",
+          "dense": 0.024985406060745726,
+          "bubble": -0.03745794489060071,
+          "dense_minus_bubble": 0.06244335095134644,
+          "abs_split": 0.06244335095134644
+        }
+      },
+      {
+        "cell_index": 7,
+        "cell_type": "bed",
+        "split_rms_before": 0.024056002149147267,
+        "split_rms_after": 0.024058643213782895,
+        "split_rms_delta": 2.6410646356278544e-06,
+        "worst_species_before": {
+          "species": "CO",
+          "dense": 0.022863344390621845,
+          "bubble": -0.035290952211553255,
+          "dense_minus_bubble": 0.058154296602175096,
+          "abs_split": 0.058154296602175096
+        },
+        "worst_species_after": {
+          "species": "CO",
+          "dense": 0.022873892057576246,
+          "bubble": -0.035290952211553255,
+          "dense_minus_bubble": 0.058164844269129504,
+          "abs_split": 0.058164844269129504
+        }
+      },
+      {
+        "cell_index": 4,
+        "cell_type": "bed",
+        "split_rms_before": 0.018366579456080397,
+        "split_rms_after": 0.018368793211331412,
+        "split_rms_delta": 2.2137552510154146e-06,
+        "worst_species_before": {
+          "species": "CO",
+          "dense": 0.009193484775301358,
+          "bubble": -0.02460382739359557,
+          "dense_minus_bubble": 0.03379731216889693,
+          "abs_split": 0.03379731216889693
+        },
+        "worst_species_after": {
+          "species": "CO",
+          "dense": 0.00922606543756437,
+          "bubble": -0.02460382739359557,
+          "dense_minus_bubble": 0.03382989283115994,
+          "abs_split": 0.03382989283115994
+        }
+      },
+      {
+        "cell_index": 6,
+        "cell_type": "bed",
+        "split_rms_before": 0.0236012180296759,
+        "split_rms_after": 0.023602568683128364,
+        "split_rms_delta": 1.3506534524629354e-06,
+        "worst_species_before": {
+          "species": "CO",
+          "dense": 0.02101343183023849,
+          "bubble": -0.03283531571982753,
+          "dense_minus_bubble": 0.05384874755006602,
+          "abs_split": 0.05384874755006602
+        },
+        "worst_species_after": {
+          "species": "CO",
+          "dense": 0.021019189095101677,
+          "bubble": -0.03283531571982753,
+          "dense_minus_bubble": 0.053854504814929205,
+          "abs_split": 0.053854504814929205
+        }
+      }
+    ]
+  },
+  "preinner_bridge_diag": {
+    "enabled": true,
+    "max_bed_index": 0.0,
+    "global_gate_pass": false,
+    "split_only_fallback": false,
+    "merit_driven": true,
+    "tier_plan": {
+      "merit_driven": true,
+      "run_split_tier": true,
+      "run_solid_energy_tier": false,
+      "run_holdup_reconcile": true,
+      "run_bed0_resplit": false,
+      "split_rms": 0.044254992463512034,
+      "energy_rms": 0.10459340976945097,
+      "solid_rms": 0.0011226554585886817,
+      "merit_scaled": 0.10459340976945097,
+      "max_bed_energy_scaled": 0.1942700629601135,
+      "holdup_flux_mismatch": 0.7214732689662535,
+      "holdup_stream_imbalance": 0.08211418270455959,
+      "holdup_transport_mismatch": false,
+      "split_shock": false,
+      "split_dominates_merit": false,
+      "tau_split": 0.03,
+      "tau_energy": 0.05,
+      "tau_solid": 0.01
+    },
+    "holdup_reconciled": true,
+    "holdup_flux_mismatch_before": 0.7214732689662535,
+    "merit_before": 0.10459340976945097,
+    "merit_after": 0.10459340976945097,
+    "split_rms_before": 0.044254992463512034,
+    "split_rms_after": 0.044254992463512034,
+    "solid_rms_before": 0.0011226554585886817,
+    "solid_rms_after": 0.0011226554585886817,
+    "energy_rms_before": 0.10459340976945097,
+    "energy_rms_after": 0.10459340976945097,
+    "bed0_accepted": true,
+    "bed1_split_accepted": false,
+    "bed1_energy_t_accepted": false,
+    "solid_preprojections_accepted": 0.0,
+    "bed0_resplit_after_solid_energy": false
+  }
+}

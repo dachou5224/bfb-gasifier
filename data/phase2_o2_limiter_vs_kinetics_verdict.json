@@ -1,0 +1,95 @@
+{
+  "knife": "o2_limiter_vs_kinetic_competition",
+  "date": "2026-07-27",
+  "user_premise": "动力学与参数已 Hamel 同构后，O2 消耗/分配应由各反应速率方程与温度决定，经守恒闭合涌现，而不应靠人为优先级或预限幅改写 extent。",
+  "agreement": true,
+  "nuance": "连续时间/ODE 图像正确；当前是代数 NR 单元格：一次残差用当前 C 算 raw extent。关限幅时单步可宣称 O2 消耗 ≫ 供给，残差病态，NR 未能把 C_O2 压到速率自洽。",
+  "same_state": {
+    "proportional": {
+      "lf_d": 0.2490682859768179,
+      "demand_raw_d": 22.569482722827807,
+      "demand_lim_d": 5.621342377158127,
+      "net_r6_r10": [
+        0.5323080136452036,
+        6.572162666232658
+      ]
+    },
+    "no_o2_limit": {
+      "overdraw_d": 15.437442398651038,
+      "R_O2": -29.632700004481922,
+      "net_r6_r10": [
+        1.6844107476926227,
+        27.27758459998628
+      ],
+      "note": "纯动力学在 T=1250、当前 C 下仍是 R10≫R6；与 R6-first 方向相反"
+    }
+  },
+  "full_solve": {
+    "proportional_o8": {
+      "score_abs": 0.05028217587564415,
+      "CO_CO2_H2": [
+        0.12509097284445553,
+        0.1513731487200997,
+        0.15124181927192126
+      ],
+      "converged_fully": false,
+      "rms": 0.028092213736688004
+    },
+    "no_o2_limit_o8": {
+      "score_abs": 0.16147148908000242,
+      "CO_CO2_H2": [
+        0.06097069484799588,
+        0.1984421839279983,
+        0.13303674519311162
+      ],
+      "converged_fully": false,
+      "rms": 0.9649626155513167
+    },
+    "no_o2_limit_keep_co_ch4_o8": {
+      "score_abs": 0.16147148908000242,
+      "CO_CO2_H2": [
+        0.06097069484799588,
+        0.1984421839279983,
+        0.13303674519311162
+      ],
+      "converged_fully": false,
+      "rms": 0.9649626155513167
+    },
+    "no_o2_limit_o20": {
+      "score_abs": 0.16147148908000242,
+      "CO_CO2_H2": [
+        0.06097069484799588,
+        0.1984421839279983,
+        0.13303674519311162
+      ],
+      "converged_fully": false,
+      "rms": 0.9649626155513167
+    },
+    "no_o2_limit_keep_co_ch4_o20": {
+      "score_abs": 0.16147148908000242,
+      "CO_CO2_H2": [
+        0.06097069484799588,
+        0.1984421839279983,
+        0.13303674519311162
+      ],
+      "converged_fully": false,
+      "rms": 0.9649626155513167
+    }
+  },
+  "falsification": {
+    "delete_limiter_lets_NR_self_allocate_O2_and_fixes_exit": "FALSIFIED — CO/CO2→0.061/0.198，rms≈0.96，o8≡o20 不收敛",
+    "r6_first_matches_raw_kinetic_partition": "FALSIFIED — raw 无限幅份额 R10 仍主导；R6-first 人为反转"
+  },
+  "conclusion": {
+    "intuition_ok": true,
+    "code_gap": "比例 O2 extent 限幅切断「速率→分配」涌现",
+    "delete_limiter_alone": "失败",
+    "r6_first": "出口有效但反动力学、非同构",
+    "next": [
+      "按各反应 raw 速率比例分配有限 O2（动力学加权，非固定优先级）",
+      "单元格内对 C_O2 子步积分至供给约束",
+      "查 Hamel PDF 如何处理瞬时 O2 不足",
+      "供给侧减弱密相 O2 饥饿，使限幅少触发"
+    ]
+  }
+}

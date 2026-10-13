@@ -1,0 +1,349 @@
+{
+  "_meta": {
+    "description": "Validation 装置实测数据的原始文献书目与可访问链接（Hamel 1999 为二次汇编）",
+    "compiled_from": "Hamel (1999/2001 VDI 469) Literaturverzeichnis + 公开 DOI/VTT CRIS 核对",
+    "notes": [
+      "role=primary：装置实测/工况表/graph 的原始出处；role=secondary：Hamel 论文或综述性二次来源",
+      "role=engineering：装置工艺/尺寸背景，非 Table 7.x 逐点数据",
+      "无公开 URL 的条目标注 access_note，需机构馆藏或联系原作者"
+    ]
+  },
+  "refs": {
+    "hamel_2001_vdi469": {
+      "short_key": "Hamel (2001)",
+      "authors": "Hamel, S.",
+      "title": "Mathematische Modellierung und experimentelle Untersuchung der Vergasung verschiedener fester Brennstoffe in atmosphärischen und druckaufgeladenen stationären Wirbelschichten",
+      "venue": "Fortschr.-Ber. VDI Reihe 6 Nr. 469, VDI Verlag, Düsseldorf",
+      "year": 2001,
+      "type": "dissertation_monograph",
+      "isbn": "3-18-346906-5",
+      "issn": "0178-9414",
+      "doi": null,
+      "urls": [
+        "https://www.vdi-verlag.de/"
+      ],
+      "access_note": "本地 PDF：docs/_2001_VDI-Dis._…Brennstoffe.pdf（.gitignore）；Table 7.1–7.4 二次汇编 SSOT",
+      "data_use": "Chapter 7 Table 7.1–7.4、Fig 7.4–7.17 验证工况数字化来源",
+      "hamel_citation": "Hamel S (1999/2001) Ch.7–8"
+    },
+    "rheinbraun_krupp_uhde_1997": {
+      "short_key": "Rheinbraun & Krupp-Uhde (1997)",
+      "authors": "Rheinbraun AG; Krupp Uhde GmbH",
+      "title": "Interne Mitteilung: Messdaten aus dem Betrieb der HTW-Druckvergasungsanlage und der HTW-Demonstrationsanlage",
+      "venue": "Internal report (cited in Hamel 2001 Literaturverzeichnis)",
+      "year": 1997,
+      "type": "internal_report",
+      "doi": null,
+      "urls": [],
+      "access_note": "非公开内部报告；Hamel Table 7.1 实测出口/工况的直接数据来源，需通过 RWE/thyssenkrupp 档案或 Hamel 1999 合作方",
+      "data_use": "HTW Wesseling Sim 1–2、Berrenrath Sim 3：Table 7.1 输入 + Fig 7.4–7.6 出口/轴向",
+      "hamel_citation": "RHEINBRAUN AG; KRUPP UHDE GMBH (1997)"
+    },
+    "hamel_et_al_1999_iscs": {
+      "short_key": "Hamel et al. (1999)",
+      "authors": "Hamel, S.; Krumm, W.; Abraham, R.; Mittelstadt, A.; Karkowski, G.",
+      "title": "Modelling of Pressurized Fluidized Bed Gasification in Comparison with Experimental Data from a Commercial Scale and Pilot Scale HTW-Gasification Plant",
+      "venue": "Proceedings of 4th International Symposium on Coal Science, Beijing",
+      "year": 1999,
+      "pages": "411-420",
+      "type": "conference_proceedings",
+      "doi": null,
+      "urls": [],
+      "access_note": "会议论文；与 Rheinbraun 1997 内部数据及 HTW 运行经验相关，公开获取需检索 ISCS 1999 论文集",
+      "data_use": "HTW 示范/中试尺度模型-实测对比背景",
+      "hamel_citation": "HAMEL, S.; KRUMM, W.; ABRAHAM, R.; … (1999)"
+    },
+    "adlhoch_1992a_vgb": {
+      "short_key": "Adlhoch et al. (1992a)",
+      "authors": "Adlhoch, W.; Keller, J.; Herbert, P. K.",
+      "title": "Das Rheinbraun-HTW-Kohlevergasungsverfahren",
+      "venue": "VGB Kraftwerkstechnik",
+      "year": 1992,
+      "volume": "72",
+      "issue": "4",
+      "pages": "345-348",
+      "type": "journal",
+      "doi": null,
+      "urls": [],
+      "access_note": "VGB 会员/馆藏；HTW 工艺与中试/示范装置工程背景",
+      "data_use": "Wesseling Pilot 装置描述、设计意图",
+      "hamel_citation": "ADLHOCH et al. (1992a)"
+    },
+    "adlhoch_1992b_cit": {
+      "short_key": "Adlhoch et al. (1992b)",
+      "authors": "Adlhoch, W.; Meyer, B.; Schumacher, H.-J.",
+      "title": "Stand der HTW-Vergasungstechnologie",
+      "venue": "Chemie Ingenieur Technik",
+      "year": 1992,
+      "volume": "64",
+      "issue": "5",
+      "pages": "476",
+      "type": "journal",
+      "doi": "10.1002/cite.330640527",
+      "urls": [
+        "https://doi.org/10.1002/cite.330640527"
+      ],
+      "access_note": null,
+      "data_use": "HTW 技术状态综述；Wesseling 6.5 t/h 设计能力",
+      "hamel_citation": "ADLHOCH et al. (1992b)"
+    },
+    "schumacher_1993_braunkohle": {
+      "short_key": "Schumacher et al. (1993)",
+      "authors": "Schumacher, H.-J.; Meyer, B.; Brüngel, N.; Renzenbrink, W.",
+      "title": "Das Rheinbraun Hoch-Temperatur-Winkler (HTW)-Verfahren zur Kohleveredelung — Betriebsergebnisse der 25 bar HTW-Druckvergasungsanlage",
+      "venue": "Braunkohle",
+      "year": 1993,
+      "volume": "45",
+      "issue": "11",
+      "pages": "12-17",
+      "type": "journal",
+      "doi": null,
+      "urls": [
+        "https://www.osti.gov/etdeweb/biblio/5641048"
+      ],
+      "access_note": "OSTI/ETDEWEB 书目记录；1989–1992 Wesseling 25 bar 中试运行总结",
+      "data_use": "HTW Wesseling 运行期、Agent 类型、褐煤/烟煤试验背景",
+      "hamel_citation": "SCHUMACHER et al. (1993)"
+    },
+    "schumacher_1993_process": {
+      "short_key": "Schumacher et al. (1993) [process]",
+      "authors": "Schumacher, H.-J.; et al.",
+      "title": "HTW process — secondary air staging in freeboard (cited in Hamel §7.1.2)",
+      "venue": "See Schumacher et al. (1993) Braunkohle; also NETL HTW overview",
+      "year": 1993,
+      "type": "engineering_note",
+      "doi": null,
+      "urls": [
+        "https://netl.doe.gov/sites/default/files/netl-file/GTC9808P.pdf"
+      ],
+      "access_note": "NETL 文档为 HTW 工艺英文综述，含 Berrenrath 示范厂运行统计",
+      "data_use": "自由板二级风/温度控制工艺背景",
+      "hamel_citation": "Schumacher et al. (1993) in Hamel §7.1.2"
+    },
+    "kurkela_stahlberg_1992_part1": {
+      "short_key": "Kurkela & Ståhlberg (1992) I",
+      "authors": "Kurkela, E.; Ståhlberg, P.",
+      "title": "Air gasification of peat, wood and brown coal in a pressurized fluidized-bed reactor. I. Carbon conversion, gas yields and tar formation",
+      "venue": "Fuel Processing Technology",
+      "year": 1992,
+      "volume": "31",
+      "issue": "1",
+      "pages": "1-21",
+      "type": "journal",
+      "doi": "10.1016/0378-3820(92)90038-R",
+      "urls": [
+        "https://doi.org/10.1016/0378-3820(92)90038-R",
+        "https://www.sciencedirect.com/science/article/pii/037838209290038R",
+        "https://cris.vtt.fi/en/publications/air-gasification-of-peat-wood-and-brown-coal-in-a-pressurized-flu"
+      ],
+      "access_note": null,
+      "data_use": "VTT 加压 BFB Table 7.2 工况、出口气、C 转化；Fig 7.8/7.9/7.10 原始实测",
+      "hamel_citation": "KURKELA; STAHLBERG (1992) Part I"
+    },
+    "kurkela_stahlberg_1992_part2": {
+      "short_key": "Kurkela & Ståhlberg (1992) II",
+      "authors": "Kurkela, E.; Ståhlberg, P.",
+      "title": "Air gasification of peat, wood and brown coal in a pressurized fluidized-bed reactor. II. Formation of nitrogen compounds",
+      "venue": "Fuel Processing Technology",
+      "year": 1992,
+      "volume": "31",
+      "issue": "1",
+      "pages": "23-32",
+      "type": "journal",
+      "doi": "10.1016/0378-3820(92)90039-S",
+      "urls": [
+        "https://doi.org/10.1016/0378-3820(92)90039-S",
+        "https://www.sciencedirect.com/science/article/abs/pii/037838209290039S"
+      ],
+      "access_note": null,
+      "data_use": "VTT 加压 NH₃/HCN（Peat/Coal/Wood）；补充 Table 7.2 氮组分",
+      "hamel_citation": "KURKELA; STAHLBERG (1992) Part II"
+    },
+    "kurkela_et_al_1993_vtt161": {
+      "short_key": "Kurkela et al. (1993)",
+      "authors": "Kurkela, E.; Ståhlberg, P.; Laatikainen, J.",
+      "title": "Pressurized fluid-bed gasification experiments with wood, peat and coal at VTT in 1991–1992. Part 1. Test facilities and gasification experiments with sawdust",
+      "venue": "VTT Publications 161",
+      "year": 1993,
+      "type": "research_report",
+      "isbn": "951-38-4399-8",
+      "doi": null,
+      "urls": [
+        "https://cris.vtt.fi/en/publications/pressurized-fluidized-bed-gasification-experiments-with-wood-peat/",
+        "https://www.osti.gov/etdeweb/servlets/purl/593634"
+      ],
+      "access_note": "VTT 报告全文可通过 VTT CRIS / OSTI 获取；装置几何与 cyclone 细节",
+      "data_use": "VTT 加压装置工程描述（Hamel §7.1.3 引用）",
+      "hamel_citation": "KURKELA et al. (1993) VTT Publ. 161"
+    },
+    "kurkela_et_al_1995_vtt249": {
+      "short_key": "Kurkela et al. (1995)",
+      "authors": "Kurkela, E.; Laatikainen-Luntama, J.; Ståhlberg, P.",
+      "title": "Pressurised fluidised-bed gasification experiments with wood, peat and coal at VTT in 1991–1994. Part 2. Experiences from peat and coal gasification and hot gas filtration",
+      "venue": "VTT Publications 249",
+      "year": 1995,
+      "type": "research_report",
+      "isbn": "951-38-4949-X",
+      "doi": null,
+      "urls": [
+        "https://cris.vtt.fi/en/publications/pressurised-fluidised-bed-gasification-experiments-with-wood-peat/"
+      ],
+      "access_note": "VTT Part 2；泥炭/褐煤扩展试验与热气体过滤",
+      "data_use": "VTT 加压装置补充运行经验",
+      "hamel_citation": "Kurkela et al. (1995) VTT Publ. 249"
+    },
+    "leppalahti_kurkela_1991_fuel": {
+      "short_key": "Leppälahti & Kurkela (1991)",
+      "authors": "Leppälahti, J.; Kurkela, E.",
+      "title": "Behaviour of nitrogen compounds and tars in fluidized bed air gasification of peat",
+      "venue": "Fuel",
+      "year": 1991,
+      "volume": "70",
+      "issue": "4",
+      "pages": "491-497",
+      "type": "journal",
+      "doi": "10.1016/0016-2361(91)90026-7",
+      "urls": [
+        "https://doi.org/10.1016/0016-2361(91)90026-7",
+        "https://www.sciencedirect.com/science/article/abs/pii/0016236191900267"
+      ],
+      "access_note": null,
+      "data_use": "VTT 常压 BFB Table 7.3 Cases A–E；NH₃/HCN、tar；Fig 7.12/7.13 原始实测",
+      "hamel_citation": "LEPPÄLAHTI; KURKELA (1991)"
+    },
+    "leppalahti_kurkela_1992_particle": {
+      "short_key": "Leppälahti & Kurkela (1992)",
+      "authors": "Leppälahti, J.; Kurkela, E.",
+      "title": "Particle size distribution for peat feed (cited in Hamel §7.1.4 for Table 7.3)",
+      "venue": "See Leppälahti & Kurkela (1991) and related VTT peat gasification reports",
+      "year": 1992,
+      "type": "engineering_note",
+      "doi": null,
+      "urls": [],
+      "access_note": "Hamel 引用 1992 粒径分布；常压 Case D/E 进料筛分",
+      "data_use": "VTT 常压泥炭颗粒粒径分布",
+      "hamel_citation": "Leppälahti & Kurkela (1992) in Hamel §7.1.4"
+    },
+    "hoyer_et_al_1999_bmbf": {
+      "short_key": "Hoyer et al. (1999)",
+      "authors": "Hoyer, L.; Härtel, J.; Käferstein, P.; Gohla, M.; Tepper, H.; Jäger, W.; Pfund, M.",
+      "title": "Entwicklung und Projektierung einer Wirbelschicht-Vergasungsanlage zur dezentralen energetischen Verwertung von Abfallfraktionen und biogenen Reststoffen",
+      "venue": "Forschungsbericht BMBF (FUEGO 001620167)",
+      "year": 1999,
+      "type": "research_report",
+      "doi": null,
+      "urls": [],
+      "access_note": "德国 BMBF 项目报告；需 DTU/机构仓储或联系 Magdeburg 课题组",
+      "data_use": "WSV 400 装置设计与运行描述（Hamel §7.1.5）",
+      "hamel_citation": "HOYER et al. (1999)"
+    },
+    "hamel_et_al_2000b_dgmk": {
+      "short_key": "Hamel et al. (2000b)",
+      "authors": "Hamel, S.; Krumm, W.; Tepper, H.; Käferstein, P.",
+      "title": "Theoretische und experimentelle Untersuchung des Betriebsverhaltens einer Wirbelschichtanlage zur Holzvergasung",
+      "venue": "DGMK-Tagungsbericht 2000-1",
+      "year": 2000,
+      "pages": "7-14",
+      "type": "conference_proceedings",
+      "doi": null,
+      "urls": [],
+      "access_note": "DGMK 会议论文；与 WSV 400 / Käferstein 合作",
+      "data_use": "WSV 400 木材气化实验与模型对比补充",
+      "hamel_citation": "HAMEL et al. (2000b)"
+    },
+    "netl_htw_overview": {
+      "short_key": "Uhde/NETL HTW overview",
+      "authors": "thyssenkrupp Uhde / NETL compilation",
+      "title": "High Temperature Winkler (HTW) Coal Gasification",
+      "venue": "NETL Gasification Technologies Conference paper (GTC9808P)",
+      "year": 1998,
+      "type": "technical_report",
+      "doi": null,
+      "urls": [
+        "https://netl.doe.gov/sites/default/files/netl-file/GTC9808P.pdf"
+      ],
+      "access_note": "英文公开综述；Berrenrath 67000 h、Wesseling/Berrenrath 尺度对比",
+      "data_use": "HTW 两装置运行史与规模背景（非 Table 7.1 逐点数据）",
+      "hamel_citation": "Supplementary public overview"
+    }
+  },
+  "plant_literature_map": {
+    "PLANT_HTW_WESSELING": {
+      "primary_data": [
+        "rheinbraun_krupp_uhde_1997"
+      ],
+      "secondary_compilation": [
+        "hamel_2001_vdi469"
+      ],
+      "engineering_background": [
+        "adlhoch_1992a_vgb",
+        "adlhoch_1992b_cit",
+        "schumacher_1993_braunkohle",
+        "hamel_et_al_1999_iscs",
+        "netl_htw_overview"
+      ],
+      "hamel_tables_figures": [
+        "Table 7.1 Sim 1–2",
+        "Fig 7.4 (Sim 1 axial)",
+        "Fig 7.5 (Sim 2 axial + exit)"
+      ]
+    },
+    "PLANT_HTW_BERRENRATH": {
+      "primary_data": [
+        "rheinbraun_krupp_uhde_1997"
+      ],
+      "secondary_compilation": [
+        "hamel_2001_vdi469"
+      ],
+      "engineering_background": [
+        "adlhoch_1992a_vgb",
+        "schumacher_1993_process",
+        "hamel_et_al_1999_iscs",
+        "netl_htw_overview"
+      ],
+      "hamel_tables_figures": [
+        "Table 7.1 Sim 3",
+        "Fig 7.6 (axial + exit)"
+      ]
+    },
+    "PLANT_VTT": {
+      "primary_data": [
+        "kurkela_stahlberg_1992_part1",
+        "leppalahti_kurkela_1991_fuel"
+      ],
+      "secondary_compilation": [
+        "hamel_2001_vdi469"
+      ],
+      "engineering_background": [
+        "kurkela_et_al_1993_vtt161",
+        "kurkela_et_al_1995_vtt249",
+        "kurkela_stahlberg_1992_part2",
+        "leppalahti_kurkela_1992_particle"
+      ],
+      "hamel_tables_figures": [
+        "Table 7.2 (pressurized Sim 1–15)",
+        "Table 7.3 (atmospheric Cases A–E)",
+        "Fig 7.7–7.10 (pressurized)",
+        "Fig 7.11–7.13 (atmospheric)"
+      ]
+    },
+    "PLANT_WSV400": {
+      "primary_data": [
+        "hoyer_et_al_1999_bmbf"
+      ],
+      "secondary_compilation": [
+        "hamel_2001_vdi469"
+      ],
+      "engineering_background": [
+        "hamel_et_al_2000b_dgmk"
+      ],
+      "hamel_tables_figures": [
+        "Table 7.4 Cases A–F",
+        "Fig 7.14 (geometry)",
+        "Fig 7.16 (Case A axial)",
+        "Fig 7.17 (Cases A–F parity)"
+      ],
+      "data_provider_note": "Table 7.4 实验数据由 Prof. Dr.-Ing. habil. P. Käferstein（Universität Magdeburg）提供（Hamel §7.1.5）"
+    }
+  }
+}

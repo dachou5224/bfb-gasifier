@@ -1,0 +1,334 @@
+{
+  "note": "upper CO local 2x2 preinner A/B; isomorphic o8",
+  "max_global_iter": 8,
+  "arms": [
+    {
+      "label": "baseline",
+      "wall_s": 121.343163699,
+      "exit_CO": 0.03266295426713553,
+      "rms": 0.05020559784564186,
+      "split": 0.050204813900953923,
+      "energy": 0.04168325690672808,
+      "ls_fail": 21,
+      "n_acc": 8,
+      "local2_hits": [],
+      "local2_n_accepted": 0,
+      "overrides": {}
+    },
+    {
+      "label": "local2x2_post_gate",
+      "wall_s": 121.636810406,
+      "exit_CO": 0.112725099413974,
+      "rms": 0.08691698644142308,
+      "split": 0.0520798578874593,
+      "energy": 0.08691698644142308,
+      "ls_fail": 16,
+      "n_acc": 6,
+      "local2_hits": [
+        {
+          "outer": 1,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 2,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 3,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 4,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 5,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 6,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 7,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 8,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      ],
+      "local2_n_accepted": 2,
+      "overrides": {
+        "nr_outer_preinner_upper_co_local2x2_thesis": true
+      }
+    },
+    {
+      "label": "local2x2_bundle",
+      "wall_s": 133.90844381,
+      "exit_CO": 0.07047261629639938,
+      "rms": 0.0632369600730628,
+      "split": 0.06027663575116241,
+      "energy": 0.05125527566397263,
+      "ls_fail": 20,
+      "n_acc": 6,
+      "local2_hits": [
+        {
+          "outer": 1,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 2,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 3,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 4,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 5,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 6,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 7,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 8,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 9,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 10,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      ],
+      "local2_n_accepted": 1,
+      "overrides": {
+        "nr_outer_preinner_upper_co_local2x2_thesis": true,
+        "nr_outer_preinner_upper_co_local2x2_post_gate_thesis": false
+      }
+    },
+    {
+      "label": "local2x2_post+soft_CO",
+      "wall_s": 107.327973187,
+      "exit_CO": 0.11394762913559564,
+      "rms": 0.08549346948475546,
+      "split": 0.051273996388048255,
+      "energy": 0.08549346948475546,
+      "ls_fail": 16,
+      "n_acc": 7,
+      "local2_hits": [
+        {
+          "outer": 1,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 2,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 3,
+          "accepted": true,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 4,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 5,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 6,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 7,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "outer": 8,
+          "accepted": false,
+          "beds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      ],
+      "local2_n_accepted": 2,
+      "overrides": {
+        "nr_outer_preinner_upper_co_local2x2_thesis": true,
+        "nr_outer_preinner_upper_dense_syngas_absorb_thesis": true,
+        "nr_outer_preinner_upper_dense_absorb_species_thesis": [
+          "CO"
+        ],
+        "nr_outer_preinner_upper_dense_absorb_fraction_thesis": 0.1,
+        "nr_outer_preinner_upper_dense_absorb_skip_local_gate_thesis": true
+      }
+    }
+  ]
+}

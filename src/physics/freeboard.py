@@ -1,6 +1,6 @@
 """自由板区颗粒轨迹与夹带：beta_A、u_gb、C_D_haider。
 
-Source: specs/02_hydrodynamics.md §5; docs/CLAUDE.md Phase 2.4
+Source: docs/hamel_submodels/04_freeboard_particle_trajectory_analytic.md; docs/README.md
 """
 
 from __future__ import annotations
@@ -17,11 +17,57 @@ def calc_u_gb(u_b: float, scale: float = 1.0) -> float:
     因此默认 ``scale=1.0``。颗粒起始速度 ``u_p,0`` 与其不同，
     见 ``src/core/freeboard_segment.py::_build_velocity_samples``。
 
-    Source: docs/CLAUDE.md §当前已知缺口(4)
+    Source: docs/hamel_submodels/04_freeboard_particle_trajectory_analytic.md Eq.3.76
     """
     assert u_b >= 0.0, "u_b 必须非负 [m/s]"
     assert scale > 0.0, "scale 必须大于 0"
     return scale * u_b
+
+
+def calc_u_p0_demich_bohnet(
+    u_b: float,
+    d_b: float,
+    d_p: float,
+    rho_g: float,
+    rho_p: float,
+) -> float:
+    """Demnich & Bohnet 颗粒初始速度 Eq. (3.70) [m/s]。
+
+    u_{P,m} = 0.092 · u_b · d_b^{1.5} · (3 d_P/d_b)^{0.3} · sqrt(ρ_g/ρ_P)
+
+    Source: ``docs/hamel_submodels/04_freeboard_particle_trajectory_analytic.md``; Hamel Eq. 3.70
+    """
+    assert u_b >= 0.0 and d_b > 0.0 and d_p > 0.0 and rho_g > 0.0 and rho_p > 0.0
+    ratio = max(3.0 * d_p / d_b, 1e-12)
+    return (
+        0.092
+        * u_b
+        * (d_b**1.5)
+        * (ratio**0.3)
+        * math.sqrt(rho_g / rho_p)
+    )
+
+
+def calc_u_p0_son(u_b: float, d_b: float) -> float:
+    """Son et al. 平均初始速度 Eq. (3.71) [m/s]。
+
+    ū_{P,0} = 7.92·10^{-6} · u_b · d_b^{1.5}
+
+    Source: ``docs/hamel_submodels/04_freeboard_particle_trajectory_analytic.md``; Hamel Eq. 3.71
+    """
+    assert u_b >= 0.0 and d_b > 0.0
+    return 7.92e-6 * u_b * (d_b**1.5)
+
+
+def calc_u_p0_martens(u_b: float) -> float:
+    """Martens (1984) 50% 分位初始速度 [m/s]。
+
+    u_{P,0,50} = 1.53 · u_b
+
+    Source: ``docs/hamel_submodels/04_freeboard_particle_trajectory_analytic.md``; Hamel Eq. 3.71 对照
+    """
+    assert u_b >= 0.0
+    return 1.53 * u_b
 
 
 def calc_cd_haider(Re_p: float, phi_s: float) -> float:

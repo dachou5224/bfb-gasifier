@@ -1,0 +1,31 @@
+{
+  "head": "098c8cf6766606a491e70ef176c2493b4cd676be",
+  "scope": "current dirty worktree, not HEAD alone",
+  "files_sha256": {
+    "src/core/energy_balance_defaults.py": "732411b555261436adbbdb4b6b789a9d92f1dae6fec871723fe5aa9956be5fee",
+    "src/core/cell_balances.py": "3fcc7888cedc64ff26120a854446a17e2b4a7f6614eeb9131ab81b6f800ed55b",
+    "src/core/species.py": "c930f1be54a3fbb62cf610ac9a68182b4a1c2724be27756a76a0387b1fcc3248",
+    "src/core/cell.py": "199c0fc4d37bfa78c817878576853b529cae098b4bf86abdae77658175d8b109",
+    "src/core/cell_kinetics.py": "d4ab6a5841409684e481cf2d6e0a15e12bcdbd371987003189e1a01664411e7e",
+    "src/core/cell_residual_pipeline.py": "98ef9df28b48d26ab9157a6cb96348e49af2f508295295cb11c9b2a8ed536d7c",
+    "src/core/connectivity/solid_transport.py": "b83dc011436f21419ba7e5daf38e43c5e68f8c4a51e90089a70531bcbbe928aa",
+    "src/core/connectivity/nr_boundary.py": "d017ce791160bb7342b50116af148c978ab866b949edea81e87fa359843df2ee",
+    "src/core/reactor.py": "ed9a8f75952e56f1ba5eac3e6996bc5eb2dbf0f2f89554b68691d902825ad110",
+    "src/core/freeboard_bridge.py": "2aec0dcf2135edba30822ed0722167c5b64243b78a860fafe511e401f61febd5",
+    "src/kinetics/hamel_r6_h2_reference.py": "b5356246f2869541a427b52f4cb26bb280afe1d42c32a3956ded0a169f51902b",
+    "src/kinetics/gas_reactions.py": "687d3e9c84348197a2336d94e7b70ce2d8725b4cbe293cf096b06080ef326916",
+    "src/kinetics/arrhenius.py": "6426a080bff0d993ce967adbe0ecaa3fca7000608a572e88ca9622103305c513",
+    "src/solvers/vorabrechnung/vorab_policy.py": "37b68d350ff9b58e58ec8bc2d500e1dd38edaa56d63dfe271b6722e0c5cdb7dd",
+    "src/solvers/vorabrechnung/vorab_refresh.py": "e2a74a305746a2ec2985d4a138f462837e8e358e1ef8b7ce294f9fa9a6c2a332",
+    "src/solvers/vorabrechnung/vorab_budgets.py": "b5a6b94f8fa249efd660c8d3d8d79c6e244b2ec42dabdc70396e176520d00994",
+    "src/solvers/nr_indexing.py": "dabdfa057c5149305be2df65ac4c4ed46bf66bcd89cdbf55a9753686af87c491",
+    "src/solvers/global_nr_solver.py": "a5717e45b3064bd8438681c463933ead06a19c77de106add4b1f1f892ccb2753",
+    "src/solvers/jacobian_transport_freeze.py": "978b0656e1179fb244db210339bf050367f95e758e874f08f2227421b5d4547b",
+    "src/solvers/wirsum_1997_strict.py": "1148b84acc8cde7d1458a233854cb3c62f5db060e4f913bc41e7370cd2e7d663",
+    "src/solvers/outer_loop.py": "bde51336102c7e229ae6087aa37e0bfdd940bb1b1a847d7a2e4fd17845fa7412",
+    "tests/global_nr_fixtures.py": "d3b3694e320903f384d8e3bc32119056d96a140258bdae5121a81fe9e8c0cd6b"
+  },
+  "tests": "11 passed in 13.93s: test_wirsum_residual_purity.py + test_wirsum_1997_energy_leftover.py + test_wirsum_1997_holdup_startwert.py",
+  "no_production_edits": true,
+  "no_global_newton_run": true
+}

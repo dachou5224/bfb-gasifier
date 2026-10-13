@@ -1,0 +1,48 @@
+{
+  "max_global_iter": 20,
+  "results": [
+    {
+      "level": "p2",
+      "max_global_iter": 20,
+      "wall_time_s": 135.891735727,
+      "init_rms_scaled": 0.11281485987861864,
+      "init_max_abs_scaled": 1.7066589600762867,
+      "init_solid_rms": 0.039751807148694265,
+      "init_energy_rms": 0.5043047252442636,
+      "init_split_max": 0.3124923030784636,
+      "zone_bed1_energy_t_preprojection": false,
+      "zone_solid_preprojections_accepted": 0.0,
+      "outer_preinner_last_split_rms_after": 0.0770896637182563,
+      "outer_preinner_last_solid_rms_after": 0.009847027603058597,
+      "outer_preinner_last_energy_rms_after": 0.10836547308485528,
+      "outer_preinner_last_bed0_accepted": true,
+      "joint_accepted": false,
+      "joint_global_gate_pass": false,
+      "joint_gas_relax": 0.0,
+      "joint_merit_scaled_before": 0.0,
+      "joint_merit_scaled_after": 0.0,
+      "bed0_T_K": 1400.3083067182251,
+      "converged": false,
+      "nr_outer_iters": 20,
+      "nr_outer_max": 20,
+      "n_iter": 50,
+      "rms_scaled_final": 0.10836547308485528,
+      "rms_scaled_solid_final": 0.009847027603058597,
+      "rms_scaled_energy_final": 0.10836547308485528,
+      "rms_scaled_gas_phase_split_final": 0.0770896637182563,
+      "max_abs_scaled_final": 0.3651505849173123,
+      "max_abs_scaled_gas_phase_split_final": 0.39988534650561147,
+      "line_search_failures": 0,
+      "hydro_refresh_on_accept": 30,
+      "nr_include_pyrolysis_gas_in_unknowns": true,
+      "overrides": {
+        "nr_line_search_gas_phase_split_merit_thesis": true,
+        "nr_refresh_hydrodynamics_on_accepted_step_thesis": true,
+        "nr_bottom_bc_aware_bed0_bed1_joint_x0_thesis": true,
+        "nr_enforce_gas_phase_split_convergence_thesis": true,
+        "vorab_bottom_temperature_cap_K_thesis": 1180.0,
+        "freeboard_trajectory_coeff_model": "exact_hamel"
+      }
+    }
+  ]
+}

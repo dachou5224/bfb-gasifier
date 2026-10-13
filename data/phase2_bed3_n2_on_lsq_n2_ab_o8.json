@@ -1,0 +1,813 @@
+{
+  "note": "bed3 N2 on LSQ n=2 stack + targeted split A/B; §5.24",
+  "arms": [
+    {
+      "label": "lsq_n2_base",
+      "wall_s": 331.46632854300003,
+      "metrics": {
+        "exit_CO": 0.1556728902840912,
+        "rms": 0.04015700148525038,
+        "groups": {
+          "gas_rms": 0.022937926524572782,
+          "solid_rms": 0.003437376791074115,
+          "energy_rms": 0.056807081355934645,
+          "gas_max_abs": 0.12572410937386289,
+          "solid_max_abs": 0.0192222636132022,
+          "energy_max_abs": 0.10713845829765688
+        },
+        "topk": [
+          {
+            "flat_k": 129,
+            "F_hat": -0.12572410937386289,
+            "abs": 0.12572410937386289,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "N2"
+          },
+          {
+            "flat_k": 163,
+            "F_hat": 0.10713845829765688,
+            "abs": 0.10713845829765688,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 327,
+            "F_hat": 0.09446321437572641,
+            "abs": 0.09446321437572641,
+            "cell": 7,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 40,
+            "F_hat": -0.08082640598473775,
+            "abs": 0.08082640598473775,
+            "cell": 0,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 136,
+            "F_hat": -0.06682835022422916,
+            "abs": 0.06682835022422916,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "bubble",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 205,
+            "F_hat": 0.06493514267279187,
+            "abs": 0.06493514267279187,
+            "cell": 5,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "CO"
+          }
+        ],
+        "bed2_RH2O": -2.997691616461461,
+        "Fhat_T_bed9": -0.017038990856278413,
+        "res_E_bed9": -234302.74785859138,
+        "dm_bed9": -0.008725307920207648,
+        "flux_mismatch": 0.46514920807694493,
+        "stream_imbalance": 0.04300264485760272,
+        "bed9": {
+          "bed": 9.0,
+          "m_char": 7.210141818133713,
+          "m_ash": 2.1838273942573823,
+          "support_char": 7.227290902916594,
+          "m_star_char": 7.1401451538198275,
+          "m_in_char": 4.018024141268531,
+          "m_out_char": 4.008490079670088,
+          "R_char": -0.0484488210566466,
+          "res_char": -0.038914759458203746,
+          "res_abs_max": 0.1397287637833453,
+          "over_support_char": -0.01714908478288027,
+          "over_mstar_char": 0.06999666431388582,
+          "K_sum_char_mean": 0.5559516276904042
+        }
+      },
+      "bed3_n2": {
+        "T": 1150.5668733823536,
+        "N_d": 34.35633926822444,
+        "N_b": 26.905311199948553,
+        "y_d": 0.6466277071869844,
+        "y_b": 0.6356363267906872,
+        "dy": 0.010991380396297212,
+        "N_ex": -3.795723862114821,
+        "R_d": 0.0,
+        "R_b": 0.0,
+        "in_d": 28.146279036572903,
+        "in_b": 18.165426111837004,
+        "res_d": -2.4143363695367146,
+        "res_b": -12.53560895022637,
+        "res_sum": -14.949945319763085,
+        "res_split": 10.121272580689656,
+        "split_rms_major": 3.5356178429541254,
+        "Fhat_T": 0.10713845829765688,
+        "N_tot": 61.26165046817299,
+        "Fhat_N2_dense": NaN,
+        "Fhat_N2_bubble": NaN
+      },
+      "overrides": {
+        "nr_outer_preinner_bed_top_solid_holdup_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_after_y_co_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_y_co_threshold_thesis": 0.14,
+        "nr_outer_preinner_bed_top_solid_holdup_n_beds_thesis": 2
+      }
+    },
+    {
+      "label": "lsq_n2_maxbed3",
+      "wall_s": 312.792148892,
+      "metrics": {
+        "exit_CO": 0.1565652038436904,
+        "rms": 0.048789574411088374,
+        "groups": {
+          "gas_rms": 0.022363703120489898,
+          "solid_rms": 0.003450848606231248,
+          "energy_rms": 0.056844037244931735,
+          "gas_max_abs": 0.1021136647876923,
+          "solid_max_abs": 0.019389230076568766,
+          "energy_max_abs": 0.10647208766171525
+        },
+        "topk": [
+          {
+            "flat_k": 163,
+            "F_hat": 0.10647208766171525,
+            "abs": 0.10647208766171525,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 129,
+            "F_hat": -0.1021136647876923,
+            "abs": 0.1021136647876923,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "N2"
+          },
+          {
+            "flat_k": 327,
+            "F_hat": 0.09610745805044031,
+            "abs": 0.09610745805044031,
+            "cell": 7,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 139,
+            "F_hat": -0.08461784832930971,
+            "abs": 0.08461784832930971,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "bubble",
+            "species": "N2"
+          },
+          {
+            "flat_k": 40,
+            "F_hat": -0.08008295395026453,
+            "abs": 0.08008295395026453,
+            "cell": 0,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 205,
+            "F_hat": 0.066056728498974,
+            "abs": 0.066056728498974,
+            "cell": 5,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "CO"
+          }
+        ],
+        "bed2_RH2O": -3.0095992606069726,
+        "Fhat_T_bed9": -0.016933304689423164,
+        "res_E_bed9": -232319.72308116406,
+        "dm_bed9": -0.00967694877622094,
+        "flux_mismatch": 0.4620278066674548,
+        "stream_imbalance": 0.0425651131217323,
+        "bed9": {
+          "bed": 9.0,
+          "m_char": 7.197236717986476,
+          "m_ash": 2.177157370529792,
+          "support_char": 7.214273721916594,
+          "m_star_char": 7.127415054179167,
+          "m_in_char": 4.027215178378407,
+          "m_out_char": 4.0177046325540875,
+          "R_char": -0.04848700764197882,
+          "res_char": -0.038976461817659916,
+          "res_abs_max": 0.139810736995301,
+          "over_support_char": -0.017037003930119143,
+          "over_mstar_char": 0.06982166380730895,
+          "K_sum_char_mean": 0.5582287744563853
+        }
+      },
+      "bed3_n2": {
+        "T": 1150.566684147466,
+        "N_d": 36.549292919489474,
+        "N_b": 24.66792155433484,
+        "y_d": 0.6401826908077662,
+        "y_b": 0.6409344047653678,
+        "dy": -0.0007517139576015408,
+        "N_ex": 0.25978424160756886,
+        "R_d": 0.0,
+        "R_b": 0.0,
+        "in_d": 28.162767609861337,
+        "in_b": 18.19337357375562,
+        "res_d": -8.646309551235706,
+        "res_b": -6.2147637389716515,
+        "res_sum": -14.861073290207358,
+        "res_split": -2.431545812264055,
+        "split_rms_major": 1.0982161990539343,
+        "Fhat_T": 0.10647208766171525,
+        "N_tot": 61.21721447382431,
+        "Fhat_N2_dense": NaN,
+        "Fhat_N2_bubble": NaN
+      },
+      "overrides": {
+        "nr_outer_preinner_bed_top_solid_holdup_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_after_y_co_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_y_co_threshold_thesis": 0.14,
+        "nr_outer_preinner_bed_top_solid_holdup_n_beds_thesis": 2,
+        "nr_outer_preinner_phase_split_max_bed_index_thesis": 3
+      }
+    },
+    {
+      "label": "lsq_n2_target_bed3_after_y_co",
+      "wall_s": 295.164841744,
+      "metrics": {
+        "exit_CO": 0.1556728902840912,
+        "rms": 0.040112799656790155,
+        "groups": {
+          "gas_rms": 0.02192452770175218,
+          "solid_rms": 0.003438240923467436,
+          "energy_rms": 0.05674458871309701,
+          "gas_max_abs": 0.1055568650970283,
+          "solid_max_abs": 0.0192222636132022,
+          "energy_max_abs": 0.10677870604327028
+        },
+        "topk": [
+          {
+            "flat_k": 163,
+            "F_hat": 0.10677870604327028,
+            "abs": 0.10677870604327028,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 129,
+            "F_hat": -0.1055568650970283,
+            "abs": 0.1055568650970283,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "N2"
+          },
+          {
+            "flat_k": 327,
+            "F_hat": 0.09446321437572641,
+            "abs": 0.09446321437572641,
+            "cell": 7,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 139,
+            "F_hat": -0.08229133779255256,
+            "abs": 0.08229133779255256,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "bubble",
+            "species": "N2"
+          },
+          {
+            "flat_k": 40,
+            "F_hat": -0.08082640598473775,
+            "abs": 0.08082640598473775,
+            "cell": 0,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 164,
+            "F_hat": 0.06601407768881139,
+            "abs": 0.06601407768881139,
+            "cell": 4,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "CO"
+          }
+        ],
+        "bed2_RH2O": -2.997691616461461,
+        "Fhat_T_bed9": -0.017038990856278413,
+        "res_E_bed9": -234302.74785859138,
+        "dm_bed9": -0.008725307920207648,
+        "flux_mismatch": 0.46481240959829506,
+        "stream_imbalance": 0.04274094455115935,
+        "bed9": {
+          "bed": 9.0,
+          "m_char": 7.210141818133713,
+          "m_ash": 2.1838273942573823,
+          "support_char": 7.227290902916594,
+          "m_star_char": 7.1401451538198275,
+          "m_in_char": 4.018024141268531,
+          "m_out_char": 4.008490079670088,
+          "R_char": -0.0484488210566466,
+          "res_char": -0.038914759458203746,
+          "res_abs_max": 0.1397287637833453,
+          "over_support_char": -0.01714908478288027,
+          "over_mstar_char": 0.06999666431388582,
+          "K_sum_char_mean": 0.5559516276904042
+        }
+      },
+      "bed3_n2": {
+        "T": 1150.5668733823536,
+        "N_d": 36.78458084269369,
+        "N_b": 24.477069625479295,
+        "y_d": 0.6414793269899836,
+        "y_b": 0.6421671701839741,
+        "dy": -0.0006878431939905116,
+        "N_ex": 0.2375327966148174,
+        "R_d": 0.0,
+        "R_b": 0.0,
+        "in_d": 28.146279036572903,
+        "in_b": 18.165426111837004,
+        "res_d": -8.875834602735607,
+        "res_b": -6.074110717027474,
+        "res_sum": -14.949945319763081,
+        "res_split": -2.8017238857081326,
+        "split_rms_major": 1.211614514965653,
+        "Fhat_T": 0.10677870604327028,
+        "N_tot": 61.26165046817299,
+        "Fhat_N2_dense": NaN,
+        "Fhat_N2_bubble": NaN
+      },
+      "overrides": {
+        "nr_outer_preinner_bed_top_solid_holdup_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_after_y_co_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_y_co_threshold_thesis": 0.14,
+        "nr_outer_preinner_bed_top_solid_holdup_n_beds_thesis": 2,
+        "nr_outer_preinner_targeted_phase_split_beds_thesis": [
+          3
+        ],
+        "nr_outer_preinner_targeted_phase_split_after_y_co_thesis": true,
+        "nr_outer_preinner_targeted_phase_split_y_co_threshold_thesis": 0.14
+      }
+    },
+    {
+      "label": "lsq_n2_target_bed3_5_after_y_co",
+      "wall_s": 294.01221081799997,
+      "metrics": {
+        "exit_CO": 0.1556723805540472,
+        "rms": 0.04013642556836879,
+        "groups": {
+          "gas_rms": 0.021284247637617885,
+          "solid_rms": 0.0034397810978946263,
+          "energy_rms": 0.05677798424357416,
+          "gas_max_abs": 0.10555614964672233,
+          "solid_max_abs": 0.01922204089673886,
+          "energy_max_abs": 0.10677752325454175
+        },
+        "topk": [
+          {
+            "flat_k": 163,
+            "F_hat": 0.10677752325454175,
+            "abs": 0.10677752325454175,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 129,
+            "F_hat": -0.10555614964672233,
+            "abs": 0.10555614964672233,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "N2"
+          },
+          {
+            "flat_k": 327,
+            "F_hat": 0.09446243960608774,
+            "abs": 0.09446243960608774,
+            "cell": 7,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 139,
+            "F_hat": -0.08229091302044869,
+            "abs": 0.08229091302044869,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "bubble",
+            "species": "N2"
+          },
+          {
+            "flat_k": 40,
+            "F_hat": -0.08082636784684931,
+            "abs": 0.08082636784684931,
+            "cell": 0,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 164,
+            "F_hat": 0.06601376067391794,
+            "abs": 0.06601376067391794,
+            "cell": 4,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "CO"
+          }
+        ],
+        "bed2_RH2O": -2.9976528899650656,
+        "Fhat_T_bed9": -0.017033090035254453,
+        "res_E_bed9": -234192.02878677845,
+        "dm_bed9": -0.00871350571615892,
+        "flux_mismatch": 0.4648100728811404,
+        "stream_imbalance": 0.042740756934510085,
+        "bed9": {
+          "bed": 9.0,
+          "m_char": 7.210125810770609,
+          "m_ash": 2.1838254380080873,
+          "support_char": 7.227258915071149,
+          "m_star_char": 7.1401135152011905,
+          "m_in_char": 4.018025591385068,
+          "m_out_char": 4.008500368565683,
+          "R_char": -0.04844885882236713,
+          "res_char": -0.03892363600298303,
+          "res_abs_max": 0.13973410971653877,
+          "over_support_char": -0.01713310430053877,
+          "over_mstar_char": 0.0700122955694191,
+          "K_sum_char_mean": 0.5559542889775538
+        }
+      },
+      "bed3_n2": {
+        "T": 1150.5655536113852,
+        "N_d": 36.784483191374996,
+        "N_b": 24.477121904382045,
+        "y_d": 0.6414798037717481,
+        "y_b": 0.6421676385331213,
+        "dy": -0.0006878347613732405,
+        "N_ex": 0.23752977327466954,
+        "R_d": 0.0,
+        "R_b": 0.0,
+        "in_d": 28.146241347882505,
+        "in_b": 18.16550917299172,
+        "res_d": -8.87577161676716,
+        "res_b": -6.074082958115657,
+        "res_sum": -14.949854574882817,
+        "res_split": -2.8016886586515035,
+        "split_rms_major": 1.2116053366569284,
+        "Fhat_T": 0.10677752325454175,
+        "N_tot": 61.26160509575704,
+        "Fhat_N2_dense": NaN,
+        "Fhat_N2_bubble": NaN
+      },
+      "overrides": {
+        "nr_outer_preinner_bed_top_solid_holdup_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_after_y_co_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_y_co_threshold_thesis": 0.14,
+        "nr_outer_preinner_bed_top_solid_holdup_n_beds_thesis": 2,
+        "nr_outer_preinner_targeted_phase_split_beds_thesis": [
+          3,
+          5
+        ],
+        "nr_outer_preinner_targeted_phase_split_after_y_co_thesis": true
+      }
+    },
+    {
+      "label": "energy_pt_after_y_co",
+      "wall_s": 182.535560647,
+      "metrics": {
+        "exit_CO": 0.15591848210567383,
+        "rms": 0.039511301582532854,
+        "groups": {
+          "gas_rms": 0.022437835192795356,
+          "solid_rms": 0.00362584797727497,
+          "energy_rms": 0.039394587922226665,
+          "gas_max_abs": 0.12571505307891534,
+          "solid_max_abs": 0.023312831455288688,
+          "energy_max_abs": 0.08082640598473775
+        },
+        "topk": [
+          {
+            "flat_k": 129,
+            "F_hat": -0.12571505307891534,
+            "abs": 0.12571505307891534,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "N2"
+          },
+          {
+            "flat_k": 40,
+            "F_hat": -0.08082640598473775,
+            "abs": 0.08082640598473775,
+            "cell": 0,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 136,
+            "F_hat": -0.06689955609936467,
+            "abs": 0.06689955609936467,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "bubble",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 221,
+            "F_hat": 0.0640056605346424,
+            "abs": 0.0640056605346424,
+            "cell": 5,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "bubble",
+            "species": "N2"
+          },
+          {
+            "flat_k": 211,
+            "F_hat": -0.06400562397466063,
+            "abs": 0.06400562397466063,
+            "cell": 5,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "N2"
+          },
+          {
+            "flat_k": 139,
+            "F_hat": -0.06213314981066554,
+            "abs": 0.06213314981066554,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "bubble",
+            "species": "N2"
+          }
+        ],
+        "bed2_RH2O": -2.612770013372909,
+        "Fhat_T_bed9": -0.008699497865808762,
+        "res_E_bed9": -77826.06104741246,
+        "dm_bed9": 0.26785186832968044,
+        "flux_mismatch": 0.4208345626598302,
+        "stream_imbalance": 0.051929931951702916,
+        "bed9": {
+          "bed": 9.0,
+          "m_char": 7.279510892585462,
+          "m_ash": 2.0828458979019335,
+          "support_char": 6.849087131809184,
+          "m_star_char": 6.761189733199923,
+          "m_in_char": 3.8004195657908753,
+          "m_out_char": 4.039252982647022,
+          "R_char": -0.048772484132278256,
+          "res_char": -0.2876059009884256,
+          "res_abs_max": 0.3322650236761375,
+          "over_support_char": 0.43042376077627725,
+          "over_mstar_char": 0.5183211593855386,
+          "K_sum_char_mean": 0.5548797223122779
+        }
+      },
+      "bed3_n2": {
+        "T": 1150.5668733823536,
+        "N_d": 34.35633926822444,
+        "N_b": 26.905311199948553,
+        "y_d": 0.6466277071869844,
+        "y_b": 0.6356363267906872,
+        "dy": 0.010991380396297212,
+        "N_ex": -3.795723862114821,
+        "R_d": 0.0,
+        "R_b": 0.0,
+        "in_d": 28.14699978402847,
+        "in_b": 18.164705364381437,
+        "res_d": -2.4136156220811475,
+        "res_b": -12.536329697681937,
+        "res_sum": -14.949945319763085,
+        "res_split": 10.12271407560079,
+        "split_rms_major": 3.428707825419114,
+        "Fhat_T": 0.05492938953606914,
+        "N_tot": 61.26165046817299,
+        "Fhat_N2_dense": NaN,
+        "Fhat_N2_bubble": NaN
+      },
+      "overrides": {
+        "nr_bed_top_solid_energy_passthrough_thesis": true,
+        "nr_bed_top_solid_energy_passthrough_after_y_co_thesis": true,
+        "nr_bed_top_solid_energy_passthrough_y_co_threshold_thesis": 0.14
+      }
+    },
+    {
+      "label": "lsq_n2_plus_energy_pt",
+      "wall_s": 332.9078001490002,
+      "metrics": {
+        "exit_CO": 0.15399638326254847,
+        "rms": 0.03961260150786087,
+        "groups": {
+          "gas_rms": 0.022405945000719903,
+          "solid_rms": 0.003330572793329498,
+          "energy_rms": 0.04086792579567258,
+          "gas_max_abs": 0.12570223130151018,
+          "solid_max_abs": 0.01871069945323184,
+          "energy_max_abs": 0.0808263442021628
+        },
+        "topk": [
+          {
+            "flat_k": 129,
+            "F_hat": -0.12570223130151018,
+            "abs": 0.12570223130151018,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "N2"
+          },
+          {
+            "flat_k": 40,
+            "F_hat": -0.0808263442021628,
+            "abs": 0.0808263442021628,
+            "cell": 0,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 136,
+            "F_hat": -0.06697623736858327,
+            "abs": 0.06697623736858327,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "bubble",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 221,
+            "F_hat": 0.0640056605346424,
+            "abs": 0.0640056605346424,
+            "cell": 5,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "bubble",
+            "species": "N2"
+          },
+          {
+            "flat_k": 211,
+            "F_hat": -0.06400562397466063,
+            "abs": 0.06400562397466063,
+            "cell": 5,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "N2"
+          },
+          {
+            "flat_k": 139,
+            "F_hat": -0.062145971588070725,
+            "abs": 0.062145971588070725,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "bubble",
+            "species": "N2"
+          }
+        ],
+        "bed2_RH2O": -2.634712096487546,
+        "Fhat_T_bed9": -0.010052342039791462,
+        "res_E_bed9": -103209.92723190784,
+        "dm_bed9": -0.0015152497256893938,
+        "flux_mismatch": 0.43705814383773833,
+        "stream_imbalance": 0.022853127394075686,
+        "bed9": {
+          "bed": 9.0,
+          "m_char": 6.650396655506608,
+          "m_ash": 2.0235591529319366,
+          "support_char": 6.655965191784826,
+          "m_star_char": 6.574952552973199,
+          "m_in_char": 3.673736923498832,
+          "m_out_char": 3.670663389196041,
+          "R_char": -0.04471464526883211,
+          "res_char": -0.041641110966040784,
+          "res_abs_max": 0.12893317889502054,
+          "over_support_char": -0.005568536278218628,
+          "over_mstar_char": 0.07544410253340905,
+          "K_sum_char_mean": 0.5519465348216015
+        }
+      },
+      "bed3_n2": {
+        "T": 1150.5668733823536,
+        "N_d": 34.35633926822444,
+        "N_b": 26.905311199948553,
+        "y_d": 0.6466277071869844,
+        "y_b": 0.6356363267906872,
+        "dy": 0.010991380396297212,
+        "N_ex": -3.795723862114821,
+        "R_d": 0.0,
+        "R_b": 0.0,
+        "in_d": 28.148020208329374,
+        "in_b": 18.163684940080532,
+        "res_d": -2.4125951977802433,
+        "res_b": -12.537350121982842,
+        "res_sum": -14.949945319763085,
+        "res_split": 10.124754924202598,
+        "split_rms_major": 3.4332480888748518,
+        "Fhat_T": 0.05671038470598677,
+        "N_tot": 61.26165046817299,
+        "Fhat_N2_dense": NaN,
+        "Fhat_N2_bubble": NaN
+      },
+      "overrides": {
+        "nr_outer_preinner_bed_top_solid_holdup_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_after_y_co_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_y_co_threshold_thesis": 0.14,
+        "nr_outer_preinner_bed_top_solid_holdup_n_beds_thesis": 2,
+        "nr_bed_top_solid_energy_passthrough_thesis": true,
+        "nr_bed_top_solid_energy_passthrough_after_y_co_thesis": true,
+        "nr_bed_top_solid_energy_passthrough_y_co_threshold_thesis": 0.14
+      }
+    }
+  ],
+  "posthoc_on_lsq_n2": {
+    "before": {
+      "T": 1150.5668733823536,
+      "N_d": 34.35633926822444,
+      "N_b": 26.905311199948553,
+      "y_d": 0.6466277071869844,
+      "y_b": 0.6356363267906872,
+      "dy": 0.010991380396297212,
+      "N_ex": -3.795723862114821,
+      "R_d": 0.0,
+      "R_b": 0.0,
+      "in_d": 28.146279036572903,
+      "in_b": 18.165426111837004,
+      "res_d": -2.4143363695367146,
+      "res_b": -12.53560895022637,
+      "res_sum": -14.949945319763085,
+      "res_split": 10.121272580689656,
+      "split_rms_major": 3.5356178429541254,
+      "Fhat_T": 0.10713845829765688,
+      "N_tot": 61.26165046817299,
+      "Fhat_N2_dense": NaN,
+      "Fhat_N2_bubble": NaN
+    },
+    "after_split_lsq": {
+      "T": 1150.5668733823536,
+      "N_d": 35.78183675846138,
+      "N_b": 25.479813709711607,
+      "y_d": 0.6415640118047234,
+      "y_b": 0.6420209406653797,
+      "dy": -0.00045692886065629157,
+      "N_ex": 0.15779159670828802,
+      "R_d": 0.0,
+      "R_b": 0.0,
+      "in_d": 28.146279036572903,
+      "in_b": 18.165426111837004,
+      "res_d": -7.793349318596766,
+      "res_b": -7.1565960011663154,
+      "res_sum": -14.949945319763081,
+      "res_split": -0.6367533174304505,
+      "split_rms_major": 0.9104370840979946,
+      "Fhat_T": 0.10682834744479924,
+      "N_tot": 61.26165046817299,
+      "Fhat_N2_dense": NaN,
+      "Fhat_N2_bubble": NaN,
+      "accepted": true
+    }
+  }
+}

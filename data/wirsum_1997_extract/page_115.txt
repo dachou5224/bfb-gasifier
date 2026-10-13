@@ -1,0 +1,100 @@
+[142] WERTHER, J.: 
+Strömungsmechanische Grundlagen der Wirbelschichttechnik. In:
+Chem.-Ing.-Tech. 49 (1977), Nr. 3, S. 193-202
+[143] WERTHER, J.: Fundamentals of fluidized bed technology. In: Ger. Chem. Eng. (1983),
+Nr. 6, S. 228-235
+[144] WERTHER, J. ; HEMBACH, F.: Messungen von Gaskonzentrations- und Temperaturpro-
+filen. Hamburg-Harburg, TU, Versuchsbericht, 1988
+[145] WERTHER, J. ; OGADA, T. ; PHILIPPEN, Ch.: Sewage sludge combustion in the flui-
+dized bed -comparison of stationary and circulating fluidized bed techniques. In: Int.
+Conference on Fluidized Bed Combustion, 1995, S. 951-962
+[146] WlNTRUFF, I.: Theoretische Untersuchung und Modellierung des Bewegungs- und Ver-
+mischungsverhaltens von Klärschlamm in einer blasenbildenden Wirbelschicht. Siegen,
+Universität, Institut für Energietechnik, Studienarbeit, 1995
+[147] WlNTRUFF, L: Experimentelle Untersuchung des Bewegungs- und Vermischungsverhal-
+tens großer Brennstoffpartikel in einer blasenbildenden Wirbelschicht. Siegen, Univer-
+sität, Institut für Energietechnik, Diplomarbeit, 1996
+[148] WITTE, H.: Untersuchungen zum Eintrag von organischen Schadstoffen in Boden und
+Pflanze durch die landwirtschaftliche Klärschlammverwertung. In: ATV Dokumentation
+und Schriftenreihe aus Wissenschaft und Praxis. 1989 (Band 22)
+[149] WOZNY, G.: Phasengleichgewichte starker Elektrolyte aus Dampfdruckmessungen und
+deren Anwendung zur Auslegung von Trennkolonnen bei thermochemischen Wasserzer-
+setzungsprozessen. Aachen, RWTH, Dissertation, 1979
+[150] YOSHIDA, K. , KAEYAMA, H. ; SHIMIZU, F.: Mechanism of particle mixingand Segrega-
+tion in gas fluidized beds. In: GRACE, J.R. (Hrsg.) ; MATSEN, J.R. (Hrsg.): Fluidization.
+1980, S. 389-396
+[151] ZELKOWSKI, J.: Kohleverbrennung. Essen : VGB-Kraftwerkstechnik GmbH, 1986
+FORTSCHRITT-BERICHTE VDI
+Bereits veröffentlicht wurden in der Reihe 6
+„Energietechnik" u.a.
+DM
+Nr. 378 K. PONWEISER: Numerische Simulation von dynamischen Strömungsvorgängen
+in netzwerkartigen Rohrkonstruktionen. 1997. ISBN 3-1 8-337806-X
+Nr. 377 H.-Chr. MAGEL: Simulation chemischer Reaktionskinetik in turbulenten Flammen
+mit detaillierten und globalen Mechanismen. 1997. ISBN 3-18-337706-3
+Nr. 376 R. PÖTTER: Untersuchung netzunabhängiger Photovoltaikanlagen mit Speicher-
+systemen. 1997. ISBN 3-18-337606-7
+Nr. 375 M. SKIBA: Ein Verfahren zur Standortevaluation energetischer Nutzungsmöglich-
+keiten der solaren Einstrahlung. 1997. ISBN 3-18-337506-0
+Nr. 374 R. FAATZ: Modellierung und Berechnung von Kombikraftwerken mit Druckwirbel-
+schicht und vor- sowie nachgeschalteten Gasturbinen bei Voll- und Teillast.
+1997. ISBN 3-18-337406-4
+59,00
+85,00
+84,00
+114,00
+103,00
+80,00
+85,00
+110,00
+68,00
+73,00
+120,00
+93,00
+54,00
+90,00
+109,00
+92,00
+C. RIEGLER: Modulares Leistungsberechnungsverfahren für Turboflugtriebwerke
+mit Kennfelddarstellung für Wärmeübertragungsvorgänge. 1 997
+ISBN 3-18-337306-8
+W. HIRTZ: Zur Methodik der Bewertung von Technikanlagen am Beispiel der
+Emissionen, Ressourcen und des Flächenbedarfs von Photovoltaik. 1997.
+ISBN 3-18-337206-1
+H. VOGELSANG: Energie-Management-System zur optimalen Auslegung von
+Blockheizkraftwerken. 1997. ISBN 3-1 8-337106-5
+C. AUDY: Das instationäre Betriebsverhalten von solardynamischen Energie-
+versorgungsanlagen mit Stirlingmotor für Raumstationen. 1997.
+ISBN 3-18-337006-9
+A. RÖTHIG: Optimaler Primärenergie- und Kraftwerkseinsatz in elektrischen
+Energieversorgungssystemen - Strukturelle Analyse und mathematisches Verfahren.
+1997. ISBN 3-18-336906-0
+D. BOEDDICKER: Thermodynamische und energiewirtschaftliche Bewertung
+eines Kombi-Kraftwerks mit integrierter Kohlevergasung und CO 2-Rezyklierung.
+1997. ISBN 3-18-336806-4
+D. WERNICKE: Methoden und Strategien zur Beurteilung von Abnahmeversuchen
+an Naßkühltürmen. 1997. ISBN 3-1 8-336706-8
+H.-J. WAGNER: Emissionen von Luftschadstoffen und CO 2 bei Herstellung und
+Betrieb von ausgewählten thermischen Solaranlagen. 1997. ISBN 3-18-336606-1
+H. DOSDALL: Simulation und Untersuchung des stationären und instationären
+Betriebsverhaltens der Heißgasschraubenmaschine. 1997. ISBN 3-1 8-336506-5
+J. HERMANN: Anregungsmechanismen und aktive Dämpfung (AIC) selbsterregter
+Verbrennungsschwingungen in Flüssigkraftstoffsystemen. 1997.
+ISBN 3-18-336406-9
+U. JOHÄNNTGEN: Wirkungsgraderhöhung von Dampfkraftwerken durch
+kühlwasserseitige Bypaßschaltung zur Optimierung des Kalten Endes. 1 997.
+ISBN 3-18-336306-2
+Nr. 373
+Nr. 372
+Nr. 371
+Nr. 370
+Nr. 369
+Nr. 368
+Nr. 367
+Nr. 366
+Nr. 365
+Nr. 364
+Nr. 363
+VDI VERLAG 
+40001 Düsseldorf
+210

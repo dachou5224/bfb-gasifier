@@ -1,0 +1,2403 @@
+{
+  "solve": {
+    "converged": false,
+    "converged_outer": false,
+    "converged_inner_nr": false,
+    "converged_fully": false,
+    "rms_scaled_final": 0.047560738463108314,
+    "rms_scaled_gas_final": 0.0635735287608361,
+    "rms_scaled_solid_final": 0.0034397889433212267,
+    "rms_scaled_energy_final": 0.06595716914827393,
+    "rms_scaled_gas_combined_final": 0.02980003873360232,
+    "rms_scaled_gas_phase_split_final": 0.17334455350471892,
+    "rms_scaled_component_max_final": 0.06595716914827393,
+    "max_abs_scaled_gas_final": 0.6670578359764242,
+    "max_abs_scaled_solid_final": 0.0233026665052951,
+    "max_abs_scaled_energy_final": 0.23245004418053622,
+    "max_abs_scaled_gas_combined_final": 0.14818992270840542,
+    "max_abs_scaled_gas_phase_split_final": 1.2940471495892898,
+    "max_abs_scaled_final": 0.6670578359764242,
+    "n_iter": 1,
+    "residual": 5534609.694561629,
+    "norm_history": [
+      0.047560738466632536
+    ],
+    "nr_init_strategy": "vorabrechnung",
+    "nr_init_s_total": 8.725182002999999,
+    "nr_vorabrechnung_s": 8.725180215999998,
+    "nr_vorabrechnung_policy": "single_shot_sources_outer_refresh_hydrodynamics_fixed_inner",
+    "nr_gs_warmup_steps": 0,
+    "nr_outer_max": 2,
+    "nr_outer_iters": 1,
+    "nr_outer_history": [
+      {
+        "outer_iter": 1,
+        "vorabrechnung_signature_before_refresh": "vorab:v1:n=200;vm=10;sum=2.05697695e+04;sumsq=2.11426408e+07",
+        "vorabrechnung_signature": "vorab:v1:n=200;vm=10;sum=2.05726511e+04;sumsq=2.11428600e+07",
+        "refresh_skipped_for_check1_gate": false,
+        "dT_refresh": 0.0,
+        "signature_changed_by_refresh": true,
+        "refresh_seed_reset_threshold": 11.50917771362183,
+        "lambda_seed_reset_by_refresh": false,
+        "lambda_seed_used": 0.5,
+        "inner_iter_cap": 1,
+        "inner_budget_remaining_after": 0,
+        "outer_hot_restarted": false,
+        "outer_hot_restart_armed": false,
+        "outer_hot_restart_pending": false,
+        "outer_hot_restart_done": false,
+        "dT_outer": 0.0,
+        "inner_n_iter": 1,
+        "inner_n_newton_iters_attempted": 1,
+        "inner_rms_scaled_final": 0.047560738463108314,
+        "outer_energy_rms_final": 0.06595716914827393,
+        "outer_merit_composite": 0.047560738463108314,
+        "outer_merit_best_so_far": 0.047560738463108314,
+        "inner_converged": false,
+        "preinner_phase_split_enabled": true,
+        "preinner_split_rms_before": 0.173857772072189,
+        "preinner_split_rms_after": 0.17334455350471892,
+        "preinner_merit_before": 0.0875650276554957,
+        "preinner_merit_after": 0.06656167574022902,
+        "preinner_bed0_accepted": false,
+        "preinner_bed1_accepted": true,
+        "preinner_bed2_accepted": false,
+        "preinner_global_gate_pass": true,
+        "preinner_split_only_fallback": false,
+        "preinner_solid_rms_before": 0.003501254755303658,
+        "preinner_solid_rms_after": 0.0034422277740334076,
+        "preinner_energy_rms_before": 0.0875650276554957,
+        "preinner_energy_rms_after": 0.06656167574022902,
+        "preinner_merit_driven": true,
+        "preinner_skipped_all_tiers": false,
+        "preinner_holdup_reconciled": true,
+        "preinner_holdup_flux_mismatch_before": 0.4831723407055063,
+        "preinner_holdup_skipped_check1_continuation": false,
+        "preinner_run_holdup_reconcile": true,
+        "preinner_split_shock": true,
+        "postinner_holdup_reconciled": false,
+        "preinner_bed1_energy_t_accepted": false,
+        "upper_dense_absorb_enabled": false,
+        "upper_dense_absorb_accepted": false,
+        "upper_dense_absorb_beds": [],
+        "upper_dense_absorb_added_CO_mol_s": 0.0,
+        "upper_dense_absorb_added_H2_mol_s": 0.0,
+        "upper_co_local2x2_enabled": false,
+        "upper_co_local2x2_accepted": false,
+        "upper_co_local2x2_beds": [],
+        "upper_co_bridge_frozen": false,
+        "y_co_top": NaN,
+        "y_co_top_post": NaN,
+        "trace_o2_rate_gate_armed": false,
+        "trace_o2_rate_gate_newly_armed": false,
+        "trace_o2_rate_gate_y_co_top": 0.012019838590470941,
+        "bed_top_energy_passthrough_armed": false,
+        "bed_top_energy_passthrough_newly_armed": false,
+        "bed_top_energy_passthrough_y_co_top": 0.012019838590470941,
+        "inner_group_history": [],
+        "outer_aligned": false,
+        "outer_aligned_raw": false,
+        "outer_dT_tol_effective": 1.0,
+        "gas_phase_split_rms": 0.17334455350471892,
+        "gas_phase_split_max_abs": 1.2940471495892898,
+        "bed0_primary_rel_drift": 0.8883470058085666,
+        "outer_gas_split_gate_enabled": true,
+        "outer_gas_split_tol": 0.05,
+        "outer_bed0_primary_gate_enabled": false,
+        "outer_bed0_primary_tol": 0.1,
+        "check2_bridge_enabled": false,
+        "check2_bridge_passes": 0.0,
+        "check2_bridge_aligned_after": false,
+        "outer_dt_check_pass": true,
+        "outer_gas_check_pass": false,
+        "outer_bed0_primary_check_pass": true,
+        "reaction_continuation_stage": 1,
+        "reaction_rate_multiplier": 1.0
+      }
+    ],
+    "nr_outer_hot_restart": {
+      "enabled": false,
+      "triggered": false,
+      "y_co_top": NaN,
+      "threshold": 0.14,
+      "mode": "nested_skip_precalc"
+    },
+    "nr_vorabrechnung_signatures": [
+      "vorab:v1:n=200;vm=10;sum=2.05726511e+04;sumsq=2.11428600e+07"
+    ],
+    "nr_inner_tol_rms": 0.03,
+    "nr_jacobian_strategy": "hybrid_band_plus_side_elements_structured",
+    "nr_layout_audit": [
+      {
+        "index": 0,
+        "cell_type": "bed",
+        "gas_mode": "two_phase",
+        "gas_unknown_count": 20,
+        "solid_unknown_count": 20,
+        "unknown_count": 41,
+        "residual_count": 41
+      },
+      {
+        "index": 1,
+        "cell_type": "bed",
+        "gas_mode": "two_phase",
+        "gas_unknown_count": 20,
+        "solid_unknown_count": 20,
+        "unknown_count": 41,
+        "residual_count": 41
+      },
+      {
+        "index": 2,
+        "cell_type": "bed",
+        "gas_mode": "two_phase",
+        "gas_unknown_count": 20,
+        "solid_unknown_count": 20,
+        "unknown_count": 41,
+        "residual_count": 41
+      },
+      {
+        "index": 3,
+        "cell_type": "bed",
+        "gas_mode": "two_phase",
+        "gas_unknown_count": 20,
+        "solid_unknown_count": 20,
+        "unknown_count": 41,
+        "residual_count": 41
+      },
+      {
+        "index": 4,
+        "cell_type": "bed",
+        "gas_mode": "two_phase",
+        "gas_unknown_count": 20,
+        "solid_unknown_count": 20,
+        "unknown_count": 41,
+        "residual_count": 41
+      },
+      {
+        "index": 5,
+        "cell_type": "bed",
+        "gas_mode": "two_phase",
+        "gas_unknown_count": 20,
+        "solid_unknown_count": 20,
+        "unknown_count": 41,
+        "residual_count": 41
+      },
+      {
+        "index": 6,
+        "cell_type": "bed",
+        "gas_mode": "two_phase",
+        "gas_unknown_count": 20,
+        "solid_unknown_count": 20,
+        "unknown_count": 41,
+        "residual_count": 41
+      },
+      {
+        "index": 7,
+        "cell_type": "bed",
+        "gas_mode": "two_phase",
+        "gas_unknown_count": 20,
+        "solid_unknown_count": 20,
+        "unknown_count": 41,
+        "residual_count": 41
+      },
+      {
+        "index": 8,
+        "cell_type": "bed",
+        "gas_mode": "two_phase",
+        "gas_unknown_count": 20,
+        "solid_unknown_count": 20,
+        "unknown_count": 41,
+        "residual_count": 41
+      },
+      {
+        "index": 9,
+        "cell_type": "bed",
+        "gas_mode": "two_phase",
+        "gas_unknown_count": 20,
+        "solid_unknown_count": 20,
+        "unknown_count": 41,
+        "residual_count": 41
+      },
+      {
+        "index": 10,
+        "cell_type": "freeboard",
+        "gas_mode": "single",
+        "gas_unknown_count": 10,
+        "solid_unknown_count": 0,
+        "unknown_count": 11,
+        "residual_count": 11
+      },
+      {
+        "index": 11,
+        "cell_type": "freeboard",
+        "gas_mode": "single",
+        "gas_unknown_count": 10,
+        "solid_unknown_count": 0,
+        "unknown_count": 11,
+        "residual_count": 11
+      },
+      {
+        "index": 12,
+        "cell_type": "freeboard",
+        "gas_mode": "single",
+        "gas_unknown_count": 10,
+        "solid_unknown_count": 0,
+        "unknown_count": 11,
+        "residual_count": 11
+      },
+      {
+        "index": 13,
+        "cell_type": "freeboard",
+        "gas_mode": "single",
+        "gas_unknown_count": 10,
+        "solid_unknown_count": 0,
+        "unknown_count": 11,
+        "residual_count": 11
+      },
+      {
+        "index": 14,
+        "cell_type": "freeboard",
+        "gas_mode": "single",
+        "gas_unknown_count": 10,
+        "solid_unknown_count": 0,
+        "unknown_count": 11,
+        "residual_count": 11
+      },
+      {
+        "index": 15,
+        "cell_type": "freeboard",
+        "gas_mode": "single",
+        "gas_unknown_count": 10,
+        "solid_unknown_count": 0,
+        "unknown_count": 11,
+        "residual_count": 11
+      },
+      {
+        "index": 16,
+        "cell_type": "freeboard",
+        "gas_mode": "single",
+        "gas_unknown_count": 10,
+        "solid_unknown_count": 0,
+        "unknown_count": 11,
+        "residual_count": 11
+      },
+      {
+        "index": 17,
+        "cell_type": "freeboard",
+        "gas_mode": "single",
+        "gas_unknown_count": 10,
+        "solid_unknown_count": 0,
+        "unknown_count": 11,
+        "residual_count": 11
+      },
+      {
+        "index": 18,
+        "cell_type": "cyclone",
+        "gas_mode": "none",
+        "gas_unknown_count": 0,
+        "solid_unknown_count": 20,
+        "unknown_count": 21,
+        "residual_count": 21
+      },
+      {
+        "index": 19,
+        "cell_type": "return_leg",
+        "gas_mode": "none",
+        "gas_unknown_count": 0,
+        "solid_unknown_count": 20,
+        "unknown_count": 21,
+        "residual_count": 21
+      }
+    ],
+    "nr_jacobian_structure": {
+      "main_chain_blocks": 20,
+      "band_block_count": 58,
+      "side_element_count": 0,
+      "side_tail_block_count": 3,
+      "side_head_block_count": 10,
+      "unexpected_block_count": 0,
+      "unexpected_blocks": [],
+      "structure_validation_ok": true
+    },
+    "nr_linear_solver_backend": "structured_direct",
+    "nr_linear_solver_backend_last": "structured_direct",
+    "nr_side_element_count": 0,
+    "nr_band_block_count": 58,
+    "nr_structure_validation_ok": true,
+    "nr_linear_fallback_used": false,
+    "nr_schur_size": 0,
+    "nr_jacobian_lag_steps": 6,
+    "nr_reaction_continuation_active": false,
+    "nr_reaction_continuation_stages": [
+      1.0
+    ],
+    "nr_reaction_continuation_target_cells": 0,
+    "nr_gs_warmup_s": 0.0,
+    "nr_outer_refresh_s_total": 0.07533548400000001,
+    "nr_inner_solve_s_total": 6.539329923,
+    "nr_preinner_s_total": 0.8033372679999999,
+    "nr_inner_budget_total": 1,
+    "nr_inner_budget_used": 1,
+    "nr_total_s": 16.264958991,
+    "nr_timing": {
+      "initial_residual_s": 0.020650101000001087,
+      "jacobian_build_s": 6.169050731000002,
+      "linear_solve_s": 0.011152788000000413,
+      "band_lu_s": 0.007095016000000953,
+      "side_update_s": 0.0,
+      "line_search_residual_s": 0.2655670049999941,
+      "final_residual_s": 0.02361878800000028,
+      "total_s": 6.533860491000002
+    },
+    "nr_counts": {
+      "global_residual_calls": 15,
+      "jacobian_cell_residual_calls": 2196,
+      "jacobian_nnz_last": 6845,
+      "jacobian_zero_cols_last": 3,
+      "jacobian_zero_rows_last": 2,
+      "jacobian_rebuilds": 1,
+      "jacobian_reuses": 0,
+      "line_search_evaluations": 12,
+      "line_search_backtracks": 11,
+      "line_search_failures": 1,
+      "line_search_retries": 0,
+      "linear_regularized_solves": 1,
+      "linear_lstsq_fallbacks": 0,
+      "structured_fallbacks": 0,
+      "nr_schur_size_last": 0,
+      "line_search_cap_hits": 1
+    },
+    "nr_accepted_lambda_history": [
+      null
+    ],
+    "nr_line_search_trial_counts": [
+      12
+    ],
+    "nr_clip_history": [
+      {
+        "iter": 1,
+        "accepted_lambda": null,
+        "line_search_trials": 12,
+        "line_search_failed": true,
+        "best_trial_rms_scaled": 3610.805726874543,
+        "best_trial_merit_scaled": 3610.805726874543,
+        "best_trial_lambda": 0.00048828125,
+        "clipped_fraction": 0.7944444444444444,
+        "clipped_components": 429,
+        "temp_clipped_cells": 0,
+        "max_abs_dT_step": 110.46783330177973,
+        "newton_linear_defect_rel": 0.0026985098553369688,
+        "newton_clip_linear_defect_rel": 0.666165047972813,
+        "newton_clip_displacement_rel": 0.11879055934280404,
+        "outer_iter": 1,
+        "reaction_continuation_stage": 1,
+        "reaction_rate_multiplier": 1.0
+      }
+    ],
+    "carbon_conv": 1.0,
+    "bed_T_profile": [
+      1150.234280999747,
+      1150.411506236259,
+      1150.5530675201503,
+      1150.6176022925815,
+      1150.6758988735962,
+      1150.729791634978,
+      1150.7803405533214,
+      1150.8282275068343,
+      1150.8739235924597,
+      1150.917771362183
+    ],
+    "bed_u0_profile_m_s": [
+      1.027181715160237,
+      0.9628281673139758,
+      0.9566766286951249,
+      1.0690481945949328,
+      1.069065749622624,
+      1.069115820111979,
+      1.0691627839158917,
+      1.0692072745512688,
+      1.0692497297031338,
+      1.0692904676284298
+    ],
+    "bed_eps_b_profile": [
+      0.34007672293917623,
+      0.32629420434377937,
+      0.32810966245768564,
+      0.38926645134057886,
+      0.3947377561816831,
+      0.4003297382024113,
+      0.40603203422643436,
+      0.4118306066676858,
+      0.41773822975124913,
+      0.42374888533530375
+    ],
+    "bed_eps_d_void_profile": [
+      0.5145832025537156,
+      0.5149312628845806,
+      0.5149212250503666,
+      0.5148359475968013,
+      0.5148355405892965,
+      0.5148350812905249,
+      0.5148346505086687,
+      0.5148342424293875,
+      0.5148338530355852,
+      0.5148334794062306
+    ],
+    "bed_bulk_solid_fraction_profile": [
+      0.3203378437111221,
+      0.3267936194863018,
+      0.3259197418355215,
+      0.2963059634061909,
+      0.2936517293238231,
+      0.29093897381751677,
+      0.2881726757011871,
+      0.2853596492959198,
+      0.28249369959626586,
+      0.2795777482901519
+    ],
+    "bed_exit_gas": {
+      "CO": 0.012019838590470941,
+      "CO2": 0.04643853062877498,
+      "H2": 0.0,
+      "H2O": 0.26061405912566576,
+      "CH4": 0.0,
+      "O2": 0.0,
+      "N2": 0.6809275716550884,
+      "H2S": 0.0,
+      "NH3": 0.0,
+      "TAR1": 0.0,
+      "TAR2": 0.0
+    },
+    "bed_exit_gas_dry": {
+      "CO": 0.016256514934889502,
+      "CO2": 0.06280688888114477,
+      "H2": 0.0,
+      "CH4": 0.0,
+      "O2": 0.0,
+      "N2": 0.920936596183966,
+      "H2S": 0.0,
+      "NH3": 0.0
+    },
+    "bed_axial_z_m": [
+      0.3,
+      0.8999999999999999,
+      1.5,
+      2.0999999999999996,
+      2.6999999999999997,
+      3.3,
+      3.9,
+      4.5,
+      5.1,
+      5.699999999999999
+    ],
+    "bed_axial_xi": [
+      0.049999999999999996,
+      0.15,
+      0.25,
+      0.3499999999999999,
+      0.44999999999999996,
+      0.5499999999999999,
+      0.65,
+      0.75,
+      0.85,
+      0.9499999999999998
+    ],
+    "reaction_numbering": {
+      "authority": "hamel_1999_thesis",
+      "impl_to_thesis": {
+        "R1": "R1",
+        "R2": "R2",
+        "R3": "R4",
+        "R4": "R3",
+        "R5": "R5",
+        "R6": "R7",
+        "R7": "R9",
+        "R8": "R8",
+        "R9": null,
+        "R10": "R10",
+        "R11": "R11",
+        "R11b": "R11",
+        "R11d": "R11",
+        "R12": "R6"
+      },
+      "thesis_to_impl_primary": {
+        "R1": "R1",
+        "R2": "R2",
+        "R3": "R4",
+        "R4": "R3",
+        "R5": "R5",
+        "R6": "R12",
+        "R7": "R6",
+        "R8": "R8",
+        "R9": "R7",
+        "R10": "R10",
+        "R11": "R11"
+      }
+    },
+    "thesis_connectivity_topology": {
+      "mode": "hamel_minimal_connectivity",
+      "blocks": [
+        {
+          "block_id": "primary_gas_feed",
+          "kind": "side_feed",
+          "axial_index": null,
+          "xi_reactor": null,
+          "solver_coupling": "boundary_condition",
+          "solver_cell_index": null
+        },
+        {
+          "block_id": "fuel_feed",
+          "kind": "side_feed",
+          "axial_index": null,
+          "xi_reactor": null,
+          "solver_coupling": "boundary_condition",
+          "solver_cell_index": null
+        },
+        {
+          "block_id": "bed_cell_0",
+          "kind": "bed_cell",
+          "axial_index": 0,
+          "xi_reactor": 0.020689655172413793,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 0
+        },
+        {
+          "block_id": "bed_cell_1",
+          "kind": "bed_cell",
+          "axial_index": 1,
+          "xi_reactor": 0.06206896551724138,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 1
+        },
+        {
+          "block_id": "bed_cell_2",
+          "kind": "bed_cell",
+          "axial_index": 2,
+          "xi_reactor": 0.10344827586206896,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 2
+        },
+        {
+          "block_id": "bed_cell_3",
+          "kind": "bed_cell",
+          "axial_index": 3,
+          "xi_reactor": 0.14482758620689656,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 3
+        },
+        {
+          "block_id": "bed_cell_4",
+          "kind": "bed_cell",
+          "axial_index": 4,
+          "xi_reactor": 0.18620689655172415,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 4
+        },
+        {
+          "block_id": "bed_cell_5",
+          "kind": "bed_cell",
+          "axial_index": 5,
+          "xi_reactor": 0.2275862068965517,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 5
+        },
+        {
+          "block_id": "bed_cell_6",
+          "kind": "bed_cell",
+          "axial_index": 6,
+          "xi_reactor": 0.2689655172413793,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 6
+        },
+        {
+          "block_id": "bed_cell_7",
+          "kind": "bed_cell",
+          "axial_index": 7,
+          "xi_reactor": 0.3103448275862069,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 7
+        },
+        {
+          "block_id": "bed_cell_8",
+          "kind": "bed_cell",
+          "axial_index": 8,
+          "xi_reactor": 0.35172413793103446,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 8
+        },
+        {
+          "block_id": "bed_cell_9",
+          "kind": "bed_cell",
+          "axial_index": 9,
+          "xi_reactor": 0.3931034482758621,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 9
+        },
+        {
+          "block_id": "bed_freeboard_interface",
+          "kind": "interface_block",
+          "axial_index": 10,
+          "xi_reactor": 0.41379310344827586,
+          "solver_coupling": "explicit_handoff",
+          "solver_cell_index": null
+        },
+        {
+          "block_id": "freeboard_cell_0",
+          "kind": "freeboard_cell",
+          "axial_index": 0,
+          "xi_reactor": 0.4504310344827586,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 10
+        },
+        {
+          "block_id": "freeboard_cell_1",
+          "kind": "freeboard_cell",
+          "axial_index": 1,
+          "xi_reactor": 0.5237068965517241,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 11
+        },
+        {
+          "block_id": "freeboard_cell_2",
+          "kind": "freeboard_cell",
+          "axial_index": 2,
+          "xi_reactor": 0.5969827586206896,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 12
+        },
+        {
+          "block_id": "freeboard_cell_3",
+          "kind": "freeboard_cell",
+          "axial_index": 3,
+          "xi_reactor": 0.6702586206896551,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 13
+        },
+        {
+          "block_id": "freeboard_cell_4",
+          "kind": "freeboard_cell",
+          "axial_index": 4,
+          "xi_reactor": 0.7435344827586207,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 14
+        },
+        {
+          "block_id": "freeboard_cell_5",
+          "kind": "freeboard_cell",
+          "axial_index": 5,
+          "xi_reactor": 0.8168103448275862,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 15
+        },
+        {
+          "block_id": "freeboard_cell_6",
+          "kind": "freeboard_cell",
+          "axial_index": 6,
+          "xi_reactor": 0.8900862068965517,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 16
+        },
+        {
+          "block_id": "freeboard_cell_7",
+          "kind": "freeboard_cell",
+          "axial_index": 7,
+          "xi_reactor": 0.9633620689655172,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 17
+        },
+        {
+          "block_id": "secondary_inlet_block",
+          "kind": "side_feed",
+          "axial_index": 3,
+          "xi_reactor": null,
+          "solver_coupling": "explicit_side_feed",
+          "solver_cell_index": null
+        },
+        {
+          "block_id": "system_exit",
+          "kind": "system_exit",
+          "axial_index": null,
+          "xi_reactor": null,
+          "solver_coupling": "postprocess",
+          "solver_cell_index": null
+        },
+        {
+          "block_id": "cyclone_block",
+          "kind": "cyclone",
+          "axial_index": 0,
+          "xi_reactor": null,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 18
+        },
+        {
+          "block_id": "return_leg_block",
+          "kind": "return_leg",
+          "axial_index": 0,
+          "xi_reactor": null,
+          "solver_coupling": "explicit_state",
+          "solver_cell_index": 19
+        }
+      ],
+      "edges": [
+        {
+          "from_block": "primary_gas_feed",
+          "to_block": "bed_cell_0",
+          "kind": "side_feed",
+          "direction": "into_reactor",
+          "solver_coupling": "boundary_condition",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "zu"
+        },
+        {
+          "from_block": "fuel_feed",
+          "to_block": "bed_cell_0",
+          "kind": "side_feed",
+          "direction": "into_reactor",
+          "solver_coupling": "boundary_condition",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "zu"
+        },
+        {
+          "from_block": "bed_cell_0",
+          "to_block": "bed_cell_1",
+          "kind": "axial_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_0",
+          "to_block": "bed_cell_1",
+          "kind": "wake_solid_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "bubble_wake_carrying",
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_1",
+          "to_block": "bed_cell_0",
+          "kind": "internal_zirkulation",
+          "direction": "downward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "mass_continuity_backmixing",
+          "stream_class": "ab"
+        },
+        {
+          "from_block": "bed_cell_1",
+          "to_block": "bed_cell_2",
+          "kind": "axial_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_1",
+          "to_block": "bed_cell_2",
+          "kind": "wake_solid_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "bubble_wake_carrying",
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_2",
+          "to_block": "bed_cell_1",
+          "kind": "internal_zirkulation",
+          "direction": "downward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "mass_continuity_backmixing",
+          "stream_class": "ab"
+        },
+        {
+          "from_block": "bed_cell_2",
+          "to_block": "bed_cell_3",
+          "kind": "axial_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_2",
+          "to_block": "bed_cell_3",
+          "kind": "wake_solid_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "bubble_wake_carrying",
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_3",
+          "to_block": "bed_cell_2",
+          "kind": "internal_zirkulation",
+          "direction": "downward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "mass_continuity_backmixing",
+          "stream_class": "ab"
+        },
+        {
+          "from_block": "bed_cell_3",
+          "to_block": "bed_cell_4",
+          "kind": "axial_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_3",
+          "to_block": "bed_cell_4",
+          "kind": "wake_solid_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "bubble_wake_carrying",
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_4",
+          "to_block": "bed_cell_3",
+          "kind": "internal_zirkulation",
+          "direction": "downward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "mass_continuity_backmixing",
+          "stream_class": "ab"
+        },
+        {
+          "from_block": "bed_cell_4",
+          "to_block": "bed_cell_5",
+          "kind": "axial_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_4",
+          "to_block": "bed_cell_5",
+          "kind": "wake_solid_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "bubble_wake_carrying",
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_5",
+          "to_block": "bed_cell_4",
+          "kind": "internal_zirkulation",
+          "direction": "downward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "mass_continuity_backmixing",
+          "stream_class": "ab"
+        },
+        {
+          "from_block": "bed_cell_5",
+          "to_block": "bed_cell_6",
+          "kind": "axial_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_5",
+          "to_block": "bed_cell_6",
+          "kind": "wake_solid_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "bubble_wake_carrying",
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_6",
+          "to_block": "bed_cell_5",
+          "kind": "internal_zirkulation",
+          "direction": "downward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "mass_continuity_backmixing",
+          "stream_class": "ab"
+        },
+        {
+          "from_block": "bed_cell_6",
+          "to_block": "bed_cell_7",
+          "kind": "axial_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_6",
+          "to_block": "bed_cell_7",
+          "kind": "wake_solid_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "bubble_wake_carrying",
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_7",
+          "to_block": "bed_cell_6",
+          "kind": "internal_zirkulation",
+          "direction": "downward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "mass_continuity_backmixing",
+          "stream_class": "ab"
+        },
+        {
+          "from_block": "bed_cell_7",
+          "to_block": "bed_cell_8",
+          "kind": "axial_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_7",
+          "to_block": "bed_cell_8",
+          "kind": "wake_solid_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "bubble_wake_carrying",
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_8",
+          "to_block": "bed_cell_7",
+          "kind": "internal_zirkulation",
+          "direction": "downward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "mass_continuity_backmixing",
+          "stream_class": "ab"
+        },
+        {
+          "from_block": "bed_cell_8",
+          "to_block": "bed_cell_9",
+          "kind": "axial_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_8",
+          "to_block": "bed_cell_9",
+          "kind": "wake_solid_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "bubble_wake_carrying",
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_cell_9",
+          "to_block": "bed_cell_8",
+          "kind": "internal_zirkulation",
+          "direction": "downward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": "suspension_phase_only",
+          "mechanism": "mass_continuity_backmixing",
+          "stream_class": "ab"
+        },
+        {
+          "from_block": "bed_cell_9",
+          "to_block": "bed_freeboard_interface",
+          "kind": "bubble_rupture_handoff",
+          "direction": "upward",
+          "solver_coupling": "explicit_handoff",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "bed_freeboard_interface",
+          "to_block": "freeboard_cell_0",
+          "kind": "freeboard_entry",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "freeboard_cell_0",
+          "to_block": "freeboard_cell_1",
+          "kind": "axial_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "freeboard_cell_1",
+          "to_block": "freeboard_cell_2",
+          "kind": "axial_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "freeboard_cell_2",
+          "to_block": "freeboard_cell_3",
+          "kind": "axial_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "freeboard_cell_3",
+          "to_block": "freeboard_cell_4",
+          "kind": "axial_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "freeboard_cell_4",
+          "to_block": "freeboard_cell_5",
+          "kind": "axial_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "freeboard_cell_5",
+          "to_block": "freeboard_cell_6",
+          "kind": "axial_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "freeboard_cell_6",
+          "to_block": "freeboard_cell_7",
+          "kind": "axial_upflow",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "secondary_inlet_block",
+          "to_block": "freeboard_cell_3",
+          "kind": "side_feed",
+          "direction": "into_reactor",
+          "solver_coupling": "explicit_side_feed",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "zu"
+        },
+        {
+          "from_block": "freeboard_cell_7",
+          "to_block": "cyclone_block",
+          "kind": "cyclone_inlet",
+          "direction": "upward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "auf"
+        },
+        {
+          "from_block": "cyclone_block",
+          "to_block": "system_exit",
+          "kind": "gas_exit",
+          "direction": "out_of_system",
+          "solver_coupling": "postprocess",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "postprocess"
+        },
+        {
+          "from_block": "cyclone_block",
+          "to_block": "return_leg_block",
+          "kind": "solid_separation",
+          "direction": "downward",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "rez"
+        },
+        {
+          "from_block": "return_leg_block",
+          "to_block": "bed_cell_0",
+          "kind": "external_zirkulation",
+          "direction": "downward_to_bottom",
+          "solver_coupling": "explicit_state",
+          "phase_scope": null,
+          "mechanism": null,
+          "stream_class": "rez"
+        }
+      ],
+      "counts": {
+        "n_blocks": 25,
+        "n_edges": 43,
+        "n_bed_blocks": 10,
+        "n_freeboard_blocks": 8,
+        "n_cross_links": 2
+      },
+      "freeboard_active": true,
+      "recycle_active": true,
+      "secondary_injection_active": true,
+      "metadata": {
+        "preset": "hamel_minimal_connectivity",
+        "explicit_side_blocks": true,
+        "n_cyclone_stages": 1,
+        "n_return_legs": 1,
+        "return_leg_bed_targets": [
+          0
+        ]
+      }
+    },
+    "side_block_active": true,
+    "bed0_energy_residual_W": -38924.51565361403,
+    "bed0_recycle_solid_char_kg_s": 0.0,
+    "bed0_recycle_solid_ash_kg_s": 0.0,
+    "bed0_recycle_solid_T_K": 728.8663636266847,
+    "bed0_recycle_solid_enthalpy_W": 0.0,
+    "bed0_fresh_solid_enthalpy_W": -8197533.887162287,
+    "bed_top_downflow_solid_enthalpy_W": -14201186.58779264,
+    "bed_top_downflow_solid_T_K": 1098.2656390558077,
+    "freeboard_active": true,
+    "freeboard_closure_mode": "explicit_cells_with_external_closure",
+    "freeboard_beta_A": 7.8799981126097105,
+    "freeboard_trajectory_model": "analytical_wirsum",
+    "freeboard_trajectory_solver": "wirsum_analytical_exact_hamel_coeffs",
+    "freeboard_trajectory_coeff_model": "exact_hamel",
+    "freeboard_trajectory_diag": {
+      "delta_pos": 30,
+      "delta_zero": 0,
+      "delta_neg": 50,
+      "disc_pos": 50,
+      "disc_zero": 0,
+      "disc_neg": 30,
+      "sign_switch": 30,
+      "fallbacks": 18,
+      "returns": 32,
+      "fallback_no_event": 0,
+      "fallback_boundary_velocity": 18,
+      "fallback_delta_neg_time": 0
+    },
+    "freeboard_trajectory_coeff_diag": {
+      "re_p_min": 1e-09,
+      "re_p_max": 571.7301181803513,
+      "cd_min": 1.377851523201588,
+      "cd_max": 24000182916.722862,
+      "re_p_active_min": 23.56501728843048,
+      "re_p_active_max": 571.7301181803513,
+      "cd_active_min": 1.377851523201588,
+      "cd_active_max": 2.7967438276357335,
+      "z_drag": 1.6340590020945793,
+      "exact_delta_pos": 30,
+      "exact_delta_zero": 0,
+      "exact_delta_neg": 50,
+      "exact_a_rel_max": 0.0,
+      "exact_b_rel_max": 0.0,
+      "exact_c_rel_max": 0.0,
+      "exact_dp_grav_min": 0.00012202064785240604,
+      "exact_dp_grav_max": 0.00012202064785240604,
+      "exact_dp_ratio_min": 12.293001441972123,
+      "exact_dp_ratio_max": 24.586002883944246
+    },
+    "freeboard_exact_dp_grav_min_m": 0.00012202064785240604,
+    "freeboard_exact_dp_grav_max_m": 0.00012202064785240604,
+    "freeboard_bed_top_d_p_eff_min_m": 0.0015,
+    "freeboard_bed_top_d_p_eff_max_m": 0.003,
+    "freeboard_required_dp_scale_for_smallest_eff_to_grav": 0.08134709856827069,
+    "freeboard_required_spm_conversion_for_smallest_input_to_grav": 0.9994616977410511,
+    "freeboard_secondary_injection_applied": true,
+    "freeboard_secondary_injection_segment": 3,
+    "freeboard_secondary_local_refine": 1,
+    "freeboard_secondary_injection_mode": "lumped",
+    "freeboard_secondary_observation_z_m": [
+      3.71875
+    ],
+    "freeboard_secondary_observation_xi": [
+      0.6702586206896551
+    ],
+    "freeboard_secondary_observation_slice_global_index": [
+      3
+    ],
+    "freeboard_secondary_observation_segment_index": [
+      3
+    ],
+    "freeboard_secondary_observation_slice_index_within_segment": [
+      0
+    ],
+    "freeboard_secondary_observation_pre_mix_T": [
+      989.8214153838126
+    ],
+    "freeboard_secondary_observation_post_mix_pre_rxn_T": [
+      987.0002375871081
+    ],
+    "freeboard_secondary_observation_post_rxn_T": [
+      949.2395258435863
+    ],
+    "freeboard_secondary_observation_pre_mix_wet_gas": {
+      "CO": [
+        0.011976905586609604
+      ],
+      "CO2": [
+        0.04648146363263632
+      ],
+      "H2": [
+        4.2933003861339136e-05
+      ],
+      "H2O": [
+        0.2605711261218044
+      ],
+      "CH4": [
+        0.0
+      ],
+      "O2": [
+        0.0
+      ],
+      "N2": [
+        0.6809275716550884
+      ],
+      "H2S": [
+        0.0
+      ],
+      "NH3": [
+        0.0
+      ],
+      "TAR1": [
+        0.0
+      ],
+      "TAR2": [
+        0.0
+      ]
+    },
+    "freeboard_secondary_observation_post_mix_pre_rxn_wet_gas": {
+      "CO": [
+        0.011920610646607061
+      ],
+      "CO2": [
+        0.046262987233410525
+      ],
+      "H2": [
+        4.2731206255185736e-05
+      ],
+      "H2O": [
+        0.2593463660362091
+      ],
+      "CH4": [
+        0.0
+      ],
+      "O2": [
+        0.0009870610831024162
+      ],
+      "N2": [
+        0.6814402437944158
+      ],
+      "H2S": [
+        0.0
+      ],
+      "NH3": [
+        0.0
+      ],
+      "TAR1": [
+        0.0
+      ],
+      "TAR2": [
+        0.0
+      ]
+    },
+    "freeboard_secondary_observation_post_rxn_wet_gas": {
+      "CO": [
+        0.009999089398669302
+      ],
+      "CO2": [
+        0.04824199599017325
+      ],
+      "H2": [
+        0.0
+      ],
+      "H2O": [
+        0.25964538309552504
+      ],
+      "CH4": [
+        0.0
+      ],
+      "O2": [
+        4.719963643680355e-29
+      ],
+      "N2": [
+        0.6821135315156324
+      ],
+      "H2S": [
+        0.0
+      ],
+      "NH3": [
+        0.0
+      ],
+      "TAR1": [
+        0.0
+      ],
+      "TAR2": [
+        0.0
+      ]
+    },
+    "freeboard_entrained_eject_flux_kg_m2_s": 4.995755755533197,
+    "freeboard_entrained_eject_char_ash_kg_s": 1.4125166622640817,
+    "freeboard_bed_top_char_conversion": 0.0,
+    "freeboard_bed_top_char_conversion_used": 0.3282365498471955,
+    "freeboard_bed_top_char_conversion_local": 0.0,
+    "freeboard_bed_top_char_conversion_proxy_total": 0.3282365498471955,
+    "freeboard_bed_top_combustion_share_proxy": 0.0,
+    "freeboard_bed_top_combustion_conversion_proxy": 0.0,
+    "freeboard_bed_top_gasification_age_proxy": 0.3282365498471955,
+    "freeboard_bed_top_age_quadrature_diag": {},
+    "freeboard_bed_top_r1_char_consumption_kg_s": 0.0,
+    "freeboard_bed_top_hetero_char_consumption_kg_s": 0.5279796637522005,
+    "freeboard_bed_top_up_char_kg_s": 1.0805543767073147,
+    "freeboard_bed_top_d_p_input_m": [
+      0.0015,
+      0.0016666666666666668,
+      0.0018333333333333333,
+      0.002,
+      0.0021666666666666666,
+      0.002333333333333333,
+      0.0025,
+      0.0026666666666666666,
+      0.0028333333333333335,
+      0.003
+    ],
+    "freeboard_bed_top_d_p_eff_m": [
+      0.0015,
+      0.0016666666666666668,
+      0.0018333333333333333,
+      0.002,
+      0.0021666666666666666,
+      0.002333333333333333,
+      0.0025,
+      0.0026666666666666666,
+      0.0028333333333333335,
+      0.003
+    ],
+    "freeboard_entrained_exit_char_kg_s": 0.0,
+    "freeboard_entrained_exit_ash_kg_s": 0.0,
+    "freeboard_entrained_return_char_kg_s": 0.9682271495229183,
+    "freeboard_entrained_return_ash_kg_s": 0.3158402453745135,
+    "freeboard_cyclone_capture_char_kg_s": 0.0,
+    "freeboard_cyclone_capture_ash_kg_s": 0.0,
+    "freeboard_cyclone_recycle_candidate_char_ash_kg_s": 0.0,
+    "freeboard_T_profile": [
+      1123.3899143205792,
+      1070.5088237363575,
+      1017.1915498436308,
+      974.6864999999998,
+      921.0954999999999,
+      866.7869674929233,
+      811.7011908544141,
+      755.7965
+    ],
+    "freeboard_axial_z_m": [
+      6.53125,
+      7.59375,
+      8.65625,
+      9.71875,
+      10.78125,
+      11.84375,
+      12.90625,
+      13.96875
+    ],
+    "freeboard_axial_xi": [
+      0.4504310344827586,
+      0.5237068965517241,
+      0.5969827586206896,
+      0.6702586206896551,
+      0.7435344827586207,
+      0.8168103448275862,
+      0.8900862068965517,
+      0.9633620689655172
+    ],
+    "freeboard_tau_profile_s": [
+      1.2552585015084632,
+      1.0169468492645632,
+      1.0670431572639856,
+      1.1239131172643282,
+      1.177385959798961,
+      1.2353606856269808,
+      1.3126371813707691,
+      1.4015625753666223
+    ],
+    "freeboard_u0_profile_m_s": [
+      1.02037261739063,
+      0.9710554990841559,
+      0.9196022838765762,
+      0.8852062036487849,
+      0.8349196138244614,
+      0.7839353894380906,
+      0.732205777030837,
+      0.6796988632985628
+    ],
+    "freeboard_eps_b_profile": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_eps_d_void_profile": [
+      0.9990899851066194,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "freeboard_solid_holdup_char_profile_kg": [
+      0.2537431142669343,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_solid_holdup_ash_profile_kg": [
+      0.07431521363286214,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_solid_holdup_char_before_profile_kg": [
+      0.47107922060980656,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_solid_holdup_ash_before_profile_kg": [
+      0.1478614396431914,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_transport_char_delta_profile_kg": [
+      -0.21733610634287226,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "reactor_bed_char_inventory_kg": 73.61289745125099,
+    "reactor_visible_char_inventory_kg": 73.86664056551793,
+    "freeboard_char_holdup_to_bed_inventory_ratio_profile": [
+      0.003446992620212671,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_char_holdup_before_to_bed_inventory_ratio_profile": [
+      0.0063994114743516455,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_char_holdup_to_visible_inventory_ratio_profile": [
+      0.0034351516777302235,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_char_holdup_before_to_visible_inventory_ratio_profile": [
+      0.00637742852528904,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_equiv_char_residence_time_before_profile_s": [
+      471079220609.8066,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_equiv_char_residence_time_profile_s": [
+      253743114266.9343,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_explicit_char_sink_applied_profile_kg": [
+      0.001295038674824747,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_char_reaction_source_profile_mol_s": [
+      0.11902492286494042,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_u_gb_profile_m_s": [
+      1.0625159262815425,
+      1.0211312024803911,
+      0.9718225347902326,
+      0.9204020781398418,
+      0.8857295792672958,
+      0.83568425214683,
+      0.7847106898067879,
+      0.7329924121510538
+    ],
+    "freeboard_u_p_mean_profile_m_s": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_u_t_mean_profile_m_s": [
+      2.0505585487443714,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_carry_ratio_profile": [
+      0.5181592727172595,
+      1021131202480.3911,
+      971822534790.2327,
+      920402078139.8418,
+      885729579267.2958,
+      835684252146.83,
+      784710689806.788,
+      732992412151.0538
+    ],
+    "freeboard_hold_time_mean_profile_s": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_hold_time_max_profile_s": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_hold_time_to_tau_mean_ratio_profile": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_hold_time_to_tau_max_ratio_profile": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_gas_profiles_wet": {
+      "CO": [
+        0.011976905586609604,
+        0.011976905586609604,
+        0.011976905586609604,
+        0.009999089398669302,
+        0.009999089398669302,
+        0.009999089398669302,
+        0.009999089398669302,
+        0.009999089398669302
+      ],
+      "CO2": [
+        0.04648146363263632,
+        0.04648146363263632,
+        0.04648146363263632,
+        0.04824199599017325,
+        0.04824199599017325,
+        0.04824199599017325,
+        0.04824199599017325,
+        0.04824199599017325
+      ],
+      "H2": [
+        4.2933003861339136e-05,
+        4.2933003861339136e-05,
+        4.2933003861339136e-05,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "H2O": [
+        0.2605711261218044,
+        0.2605711261218044,
+        0.2605711261218044,
+        0.25964538309552504,
+        0.25964538309552504,
+        0.25964538309552504,
+        0.25964538309552504,
+        0.25964538309552504
+      ],
+      "CH4": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "O2": [
+        0.0,
+        0.0,
+        0.0,
+        4.719963643680355e-29,
+        2.594967227206898e-52,
+        4.336834304182061e-53,
+        2.0543902294025605e-53,
+        1.4258493949726363e-53
+      ],
+      "N2": [
+        0.6809275716550884,
+        0.6809275716550884,
+        0.6809275716550884,
+        0.6821135315156324,
+        0.6821135315156324,
+        0.6821135315156324,
+        0.6821135315156324,
+        0.6821135315156324
+      ],
+      "H2S": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "NH3": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "TAR1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "TAR2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "freeboard_reaction_diag": {
+      "R1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R3": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R4": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R5": [
+        0.0,
+        0.0,
+        0.0,
+        0.15328162185671124,
+        7.484445923260566e-27,
+        3.4271475212616526e-50,
+        3.6192713631229295e-51,
+        9.966771443569253e-52
+      ],
+      "R6": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R7": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R8": [
+        0.003391290906145318,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R10": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R11": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R11b": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R11d": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R12": [
+        0.0,
+        0.0,
+        0.0,
+        0.003391290906145318,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "freeboard_reaction_diag_impl": {
+      "R1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R3": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R4": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R5": [
+        0.0,
+        0.0,
+        0.0,
+        0.15328162185671124,
+        7.484445923260566e-27,
+        3.4271475212616526e-50,
+        3.6192713631229295e-51,
+        9.966771443569253e-52
+      ],
+      "R6": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R7": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R8": [
+        0.003391290906145318,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R10": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R11": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R11b": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R11d": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R12": [
+        0.0,
+        0.0,
+        0.0,
+        0.003391290906145318,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "freeboard_reaction_diag_thesis": {
+      "R1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R4": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R3": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R5": [
+        0.0,
+        0.0,
+        0.0,
+        0.15328162185671124,
+        7.484445923260566e-27,
+        3.4271475212616526e-50,
+        3.6192713631229295e-51,
+        9.966771443569253e-52
+      ],
+      "R7": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R9": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R8": [
+        0.003391290906145318,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R10": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R11": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R6": [
+        0.0,
+        0.0,
+        0.0,
+        0.003391290906145318,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "freeboard_reaction_diag_labeling": "impl_ids",
+    "freeboard_explicit_reaction_diag_impl": {
+      "R1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R2": [
+        0.11734859224773228,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R3": [
+        1.0660757217160074e-08,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R4": [
+        0.0016763412779653552,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "freeboard_entrained_char_kg_s": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_entrained_ash_kg_s": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_entrained_return_char_profile_kg_s": [
+      0.9682271495229183,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_entrained_return_ash_profile_kg_s": [
+      0.3158402453745135,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_entrained_solid_density_kg_m3": [
+      2.0602868613819822,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "freeboard_entrained_catalyst_density_kg_m3": [
+      0.4841978531500486,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "T_profile": [
+      1150.234280999747,
+      1150.411506236259,
+      1150.5530675201503,
+      1150.6176022925815,
+      1150.6758988735962,
+      1150.729791634978,
+      1150.7803405533214,
+      1150.8282275068343,
+      1150.8739235924597,
+      1150.917771362183,
+      1123.3899143205792,
+      1070.5088237363575,
+      1017.1915498436308,
+      974.6864999999998,
+      921.0954999999999,
+      866.7869674929233,
+      811.7011908544141,
+      755.7965
+    ],
+    "axial_z_m": [
+      0.3,
+      0.8999999999999999,
+      1.5,
+      2.0999999999999996,
+      2.6999999999999997,
+      3.3,
+      3.9,
+      4.5,
+      5.1,
+      5.699999999999999,
+      6.53125,
+      7.59375,
+      8.65625,
+      9.71875,
+      10.78125,
+      11.84375,
+      12.90625,
+      13.96875
+    ],
+    "axial_xi_reactor": [
+      0.020689655172413793,
+      0.06206896551724137,
+      0.10344827586206896,
+      0.14482758620689654,
+      0.18620689655172412,
+      0.2275862068965517,
+      0.2689655172413793,
+      0.3103448275862069,
+      0.35172413793103446,
+      0.393103448275862,
+      0.4504310344827586,
+      0.5237068965517241,
+      0.5969827586206896,
+      0.6702586206896551,
+      0.7435344827586207,
+      0.8168103448275862,
+      0.8900862068965517,
+      0.9633620689655172
+    ],
+    "exit_gas": {
+      "CO": 0.009999089398669295,
+      "CO2": 0.048241995990173266,
+      "H2": 0.0,
+      "H2O": 0.25964538309552515,
+      "CH4": 0.0,
+      "O2": 1.4302960282370533e-53,
+      "N2": 0.6821135315156324,
+      "H2S": 0.0,
+      "NH3": 0.0,
+      "TAR1": 0.0,
+      "TAR2": 0.0
+    },
+    "exit_gas_dry": {
+      "CO": 0.013505810824111387,
+      "CO2": 0.06516066070051638,
+      "H2": 0.0,
+      "CH4": 0.0,
+      "O2": 1.9319066776639e-53,
+      "N2": 0.9213335284753724,
+      "H2S": 0.0,
+      "NH3": 0.0
+    },
+    "reactor_exit_T": 728.8663636266847,
+    "cyclone_T": 728.8663636266847,
+    "return_leg_T": 728.8663636266847,
+    "cyclone_char_flow_up_kg_s": 0.0,
+    "return_leg_char_flow_down_kg_s": 0.0,
+    "cyclone_char_inventory_kg_s": 0.0,
+    "return_leg_char_inventory_kg_s": 0.0,
+    "freeboard_result_closure_refreshed": false,
+    "freeboard_result_boundary_refreshed": false,
+    "freeboard_result_closure_refresh_reason": "diagnostic_only_no_state_mutation",
+    "freeboard_pre_result_refresh_bed_top_up_char_kg_s": 0.9682271495229189,
+    "freeboard_pre_result_refresh_current_bed_top_up_char_kg_s": 1.0805543767073147,
+    "freeboard_current_bed_top_up_char_kg_s": 1.0805543767073147,
+    "freeboard_pre_result_refresh_gap_current_bed_top_kg_s": 0.1123272271843958,
+    "freeboard_post_result_refresh_bed_top_up_char_kg_s": 0.9682271495229189,
+    "freeboard_post_result_refresh_gap_current_bed_top_kg_s": 0.1123272271843958,
+    "freeboard_result_closure_refresh_iters": 0
+  },
+  "lambda": [],
+  "n_acc": 0,
+  "wall_s": 16.573571752
+}

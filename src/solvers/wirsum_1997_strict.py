@@ -36,6 +36,11 @@ JacobianRefresh = Literal["fresh", "frozen"]
 
 ResidualFn = Callable[[npt.NDArray[np.float64]], npt.NDArray[np.float64]]
 JacobianFn = Callable[[npt.NDArray[np.float64]], npt.NDArray[np.float64]]
+# 返回 Δx、用于停机的秩、条件数。缺省走原始 J 的 SVD 秩。
+LinearSolveFn = Callable[
+    [npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64]],
+    tuple[npt.NDArray[np.float64], int, float],
+]
 
 
 def resolve_nr_solver_mode(configured: str) -> str:
@@ -54,9 +59,12 @@ def apply_wirsum_1997_strict_config(cfg: Any) -> None:
 
     不改 ``solve_global_nr`` 内部的缩放 RMS merit；Eq. 2.23 的 ``||F||₂``
     只由 ``wirsum_1997_strict_newton`` 实现。
+    不改 ``thesis_vorab_sources_single_shot`` 与 ``vorab_outer_source_policy``。
     """
     cfg.nr_solver_mode = NR_SOLVER_MODE_WIRSUM_1997_STRICT
     cfg.holdup_k0_anchor = "none"
+    cfg.solid_transport_inventory_mode = "species_own_inventory"
+    cfg.solid_transport_bottom_no_penetration = True
     cfg.nr_step_model_thesis = "newton"
     cfg.nr_prefer_full_step_thesis = True
     cfg.nr_enforce_gas_phase_split_convergence_thesis = False
@@ -150,10 +158,15 @@ def wirsum_1997_strict_newton(
     lambda_min: float = 1.0 / 4096.0,
     tol_merit: float = 1.0e-10,
     tol_step: float = 1.0e-12,
+    trial_in_domain: Callable[[npt.NDArray[np.float64]], bool] | None = None,
+    linear_solve_fn: LinearSolveFn | None = None,
 ) -> WirsumStrictSolveResult:
     """对任意 ``F(x)`` 跑 Wirsum 二分阻尼 Newton。
 
     ``scale`` 仅 ``merit_kind='scaled_rms'`` 使用，单位与 ``F`` 相同。
+    ``trial_in_domain`` 为 None 时保持原行为；给定时越界试探缩短 α，
+    且不调用 ``residual_fn``。线搜索 merit 仍是 ``raw_l2`` 或具名 scaled_rms。
+    ``linear_solve_fn`` 只替换 ``J Δx = -F`` 与秩判定；不改 merit。
     """
     if merit_kind not in {"raw_l2", "scaled_rms"}:
         raise ValueError(f"未知 merit_kind={merit_kind!r}")
@@ -196,18 +209,32 @@ def wirsum_1997_strict_newton(
                 J = J_frozen
             assert J.shape == (x.size, x.size), "J 必须是 n×n"
             diag = jacobian_diagnostics(J)
-            cond_last = float(diag.cond)
             n_zero_rows = int(diag.n_zero_rows)
             n_zero_cols = int(diag.n_zero_cols)
-            rank_last = int(diag.rank)
-            if diag.rank < diag.n:
-                failure = "singular_jacobian"
-                break
-            try:
-                dx = np.linalg.solve(J, -F)
-            except np.linalg.LinAlgError:
-                failure = "singular_jacobian"
-                break
+            if linear_solve_fn is None:
+                cond_last = float(diag.cond)
+                rank_last = int(diag.rank)
+                if diag.rank < diag.n:
+                    failure = "singular_jacobian"
+                    break
+                try:
+                    dx = np.linalg.solve(J, -F)
+                except np.linalg.LinAlgError:
+                    failure = "singular_jacobian"
+                    break
+            else:
+                try:
+                    dx, rank_last, cond_last = linear_solve_fn(J, F, x)
+                    rank_last = int(rank_last)
+                    cond_last = float(cond_last)
+                except np.linalg.LinAlgError:
+                    failure = "singular_jacobian"
+                    rank_last = int(diag.rank)
+                    cond_last = float(diag.cond)
+                    break
+                if rank_last < int(J.shape[0]):
+                    failure = "singular_jacobian"
+                    break
 
             accepted = False
             alpha = 1.0
@@ -218,6 +245,9 @@ def wirsum_1997_strict_newton(
                 if alpha < float(lambda_min):
                     break
                 x_trial = x + alpha * dx
+                if trial_in_domain is not None and not trial_in_domain(x_trial):
+                    alpha *= 0.5
+                    continue
                 F_trial = np.asarray(residual_fn(x_trial), dtype=np.float64)
                 n_res += 1
                 merit_trial = eval_merit(F_trial, kind=merit_kind, scale=scale_arr)

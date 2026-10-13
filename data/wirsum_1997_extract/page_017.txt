@@ -1,0 +1,76 @@
+[51]) aufgegriffen und unter Einbeziehung weiterer Feuerungs- und Anlagenkomponenten wie
+Freiraum oder Dampferzeuger erweitert.
+Analog zu den oben genannten Arbeiten wird auch hier eine Beschreibung der zu berech-
+nenden Anlage durch ein Zellenmodell vorgenommen (siehe Darstellung in Bild 2.1). Die
+abstrahierten Betrachtung des Reaktors in Form von Bilanzräumen modellhaft beschreiben.
+Diese Prozesse werden durch separate Teilmodelle vor der Formulierung von Bilanzgleichungen
+berechnet. Die Ergebnisse werden anschließend auf das Zellenmodell abgebildet und liefern die
+zur Bilanzierung notwendigen Stoff- und Energieströme. Als Beispiel sei hier die Entgasung der
+Klärschlammpartikel angeführt. Ausgehend von unabhängigen Modellvariablen (s.o.) werden
+durch gekoppelte Teilmodelle für Segregation (Brennstoffverteilung), Brennstoffschrumpfung
+und -partikelgrößenverteilung und für Pyrolyse sowohl die freigesetzten Stoffströme der bei
+der Pyrolyse entstehenden chemischen Substanzen und des Brennstoffwassers als auch der
+Ort der Freisetzung berechnet. Hieraus lassen sich die jedem Bilailzraum zugeführten Anteile
+bestimmen. Da zur Berechnung einzelner Prozesse in der Regel der Temperaturverlauf und
+andere wesentliche Größen benötigt werden, muß zwischen Vorabrechnung und Zellenmodell
+iterativ ein Abgleich erfolgen. Neben diesen eigentlichen Prozeßmodellen finden sich im Re-
+chenprogramm zahlreiche Hilfsprogramme, insbesondere zur numerischen Aufbereitung und
+zur Ausgabe der Ergebnisse.
+2.3 
+Bilanzierung am Zellenmodell
+2.3.1 
+Wahl der bilanzierten Variablen
+Mit dem vorliegenden Zellenmodell können allgemein durchströmte Reaktoren mit interner
+Feststoffzirkulation, speziell Wirbelschichtreaktoren, modelliert werden. Die Zelleneinteilung
+sowie die Anzahl der bilanzierten Größen können hierbei beliebig gewählt werden.
+Bilanziert werden Gase und Feststoffe sowie Energieströme. Die Festlegung der gasförmigen
+und festen Stoffe, für die im Simulationsmodell Erhaltungsgleichungen formuliert werden, er-
+folgt entsprechend der Notwendigkeit, alle im Modell dem Reaktor zugeführten Stoffe, durch
+Pyrolyseprozesse freigesetzten Stoffe sowie alle durch chemische Reaktionsabläufe zusätz-
+lich entstehenden Stoffe qualitativ und quantitativ zu erfassen. Chemische Reaktionsabläufe
+können hierbei den brennstoffspezifischen Vorgängen entsprechend in unterschiedlicher De-
+tailtiefe berücksichtigt werden. Die ausgewählten Substanzen stellen den minimalen, zur
+vollständigen Beschreibung des Reaktionsgeschehens gerade notwendigen Satz von Bilanz-
+variablen dar.
+Jeder gasförmige Stoff ist, wenn zwei Phasen je Bilanzraum vorausgesetzt werden, in beiden
+Phasen gleichzeitig vorhanden. Weiterhin existiert ein Austausch jedes gasförmigen Stoffs
+zwischen den einzelnen Phasen. Für gasförmige Stoffe wird im Modell eine Bewegung aus-
+schließlich in Richtung der Rauchgasströmung angenommen.
+Feststoffe existieren per Definition nur in einer Phase des Bilanzraums, das ist bei blasenbil-
+denden Wirbelschichten die Emulsionsphase. Zur Bilanzierung der Feststoffe haben Bürkle
+[19] und Schöler [120] eine Unterteilung in einen „Grobanteil“ und einen „Feinanteil“ vor-
+genommen. Die Unterscheidung zwischen groben und feinen Partikeln bezieht sich auf das
+Vermischungs- und Austragsverhalten. Für die feinen Partikel nehmen die Autoren einen
+Strömungs-
+mechanik
+Mo
+Auswertung
+I 
+der
+Ergebnisse
+Trocknung
+u. Entgasung
+der
+Brennstoffe
+Zellen-
+modell
+Bild 2.1. Schematische Darstellung der Struktur des Gesamtmodells bestehend aus den hierarchischen Ebenen
+(von innen nach außen) Zellenmodell, Vorabrechnung und Modellkonfiguration.
+Einteilung der Anlage in Bilanzräume oder Zellen erfolgt eindimensional in Strömungsrich-
+tung. Die Grenzen der einzelnen Bilanzräume werden durch die Innenwände der modellier-
+ten Anlagekomponenten und durch senkrecht zur Strömungsrichtung verlaufende theoretische
+Schnittflächen gebildet. Innerhalb eines Bilanzraums ist die gleichzeitige Existenz von zwei
+Phasen möglich, wobei in der R.egel zwischen den einzelnen Phasen ein Stoffaustausch stattfin-
+det. Bei der modelltechnischen Beschreibung zirkulierender Wirbelschichten ist aufgrund der
+relativ homogenen Verteilung der Feststoffe in einem Bilanzraum die Annahme einer einzigen
+Phase ausreichend, während zur Beschreibung der Existenz von Blase und Gas/Feststoff-
+Suspension in blasenbildenden Wirbelschichten zwei Phasen je Bilanzraum zugrundegelegt
+werden müssen. Für jeden Bilanzraum des Modells, bei der Annahme von mehreren Pha-
+sen für jede Phase jedes Bilanzraums, werden Bilanzgleichungen für Gas- und Feststoffströme
+sowie für Energieströme formuliert. Die Bilanzgleichungen jeder Zelle sind entsprechend der
+Flußrichtung der Gas- und Feststoffpartikelströme miteinander verknüpft.
+Zahlreiche Prozesse - hierzu zählen insbesondere die Strömungsmechanik im Reaktor, die Se-
+gregation, die Trocknung und Entgasung der Brennstoffe oder der Wärmeübergang zwischen
+Freiraum und Wirbelschicht - lassen sich nur gesamtheitlich und zunächst unabhängig von der
+14
+15

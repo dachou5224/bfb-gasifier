@@ -1,0 +1,92 @@
+{
+  "elapsed_s": 617.584740686,
+  "budget_s": 600.0,
+  "timed_out": true,
+  "endpoint_certified": false,
+  "T_K": 1391.8134240352372,
+  "gas_mol_s_l2": 0.3674144153496519,
+  "energy_W": 3.266360569759854,
+  "n_scales": 15,
+  "last_scale": {
+    "hydro_scale": 0.925,
+    "fate_scale": 0.0,
+    "stage_passed": true
+  },
+  "continuation": [
+    {
+      "hydro_scale": 0.0,
+      "fate_scale": 0.0,
+      "stage_passed": true
+    },
+    {
+      "hydro_scale": 0.01,
+      "fate_scale": 0.0,
+      "stage_passed": true
+    },
+    {
+      "hydro_scale": 0.05,
+      "fate_scale": 0.0,
+      "stage_passed": true
+    },
+    {
+      "hydro_scale": 0.1,
+      "fate_scale": 0.0,
+      "stage_passed": true
+    },
+    {
+      "hydro_scale": 0.2,
+      "fate_scale": 0.0,
+      "stage_passed": true
+    },
+    {
+      "hydro_scale": 0.3,
+      "fate_scale": 0.0,
+      "stage_passed": true
+    },
+    {
+      "hydro_scale": 0.4,
+      "fate_scale": 0.0,
+      "stage_passed": true
+    },
+    {
+      "hydro_scale": 0.5,
+      "fate_scale": 0.0,
+      "stage_passed": true
+    },
+    {
+      "hydro_scale": 0.6,
+      "fate_scale": 0.0,
+      "stage_passed": true
+    },
+    {
+      "hydro_scale": 0.7,
+      "fate_scale": 0.0,
+      "stage_passed": true
+    },
+    {
+      "hydro_scale": 0.8,
+      "fate_scale": 0.0,
+      "stage_passed": true
+    },
+    {
+      "hydro_scale": 0.9,
+      "fate_scale": 0.0,
+      "stage_passed": true
+    },
+    {
+      "hydro_scale": 1.0,
+      "fate_scale": 0.0,
+      "stage_passed": false
+    },
+    {
+      "hydro_scale": 0.95,
+      "fate_scale": 0.0,
+      "stage_passed": false
+    },
+    {
+      "hydro_scale": 0.925,
+      "fate_scale": 0.0,
+      "stage_passed": true
+    }
+  ]
+}

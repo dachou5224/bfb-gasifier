@@ -1,0 +1,1641 @@
+{
+  "_meta": {
+    "description": "15 validation cases master summary — flattened from validation_cases.json",
+    "source": "data/validation_cases.json",
+    "literature_source": "data/validation_plant_literature.json",
+    "generated_by": "scripts/build_validation_cases_master_table.py",
+    "generated_on": "2026-09-07",
+    "case_count": 15,
+    "plant_group_count": 4,
+    "literature_ref_count": 16,
+    "notes": [
+      "15 case 对应 4 套物理装置；见 validation_plants 与每 case 的 plant_group",
+      "出口气组成优先取 validation_cases.json outputs；湿基/干基见 outlets.gas_basis",
+      "缺失字段在 JSON 中为 null；MD 表中以 — 表示",
+      "原始文献书目与链接见 validation_literature 与 MD §7"
+    ]
+  },
+  "validation_plants": {
+    "PLANT_HTW_WESSELING": {
+      "display_name": "HTW Wesseling Druckvergasungsanlage",
+      "display_name_zh": "HTW Wesseling 加压中试炉",
+      "validation_tier": "pilot",
+      "validation_tier_zh": "中试",
+      "country": "Germany",
+      "location": "DEA Mineralöl AG, Werk UK Wesseling",
+      "hamel_section": "§7.1.2, Bild 7.2",
+      "hamel_name_de": "HTW-Druckvergasungsanlage / Pilotanlage",
+      "operation_period": "1989–1992",
+      "operation_note": "面向 IGCC 联循环开发的 Pilotanlage；Table 7.1 Sim 1–2",
+      "data_provenance": "Rheinbraun AG & Krupp-Uhde GmbH (1997); Hamel Ch.7 Table 7.1 / Fig 7.4–7.5",
+      "design_highlights": {
+        "pressure_MPa": 2.5,
+        "bed_diameter_m": 0.6,
+        "reactor_height_to_cyclone_m": 14.5,
+        "expanded_bed_height_m": 6.0,
+        "design_capacity_dry_coal_t_h": 6.5
+      },
+      "case_ids": [
+        "CASE_HTW_WESSELING_1",
+        "CASE_HTW_WESSELING_2"
+      ],
+      "case_count": 2,
+      "validation_grouping": "同一中试炉两组对比工况（Air/Steam vs O₂/Steam）；可联合验收氧化剂分支与二级风"
+    },
+    "PLANT_HTW_BERRENRATH": {
+      "display_name": "HTW Demonstrationsanlage Berrenrath",
+      "display_name_zh": "HTW Berrenrath 示范工厂",
+      "validation_tier": "commercial_demo",
+      "validation_tier_zh": "工业示范",
+      "country": "Germany",
+      "location": "Rheinbraun Kohleveredlungsbetrieb Ville-Berrenrath",
+      "hamel_section": "§7.1.2, Bild 7.3",
+      "hamel_name_de": "HTW-Demonstrationsanlage",
+      "operation_period": "1986–1997",
+      "operation_note": "甲醇合成气示范；1993 起扩展废弃物共气化；Table 7.1 Sim 3",
+      "data_provenance": "Rheinbraun AG & Krupp-Uhde GmbH (1997); Hamel Ch.7 Table 7.1 / Fig 7.6",
+      "design_highlights": {
+        "pressure_MPa": 1.0,
+        "bed_diameter_m": 2.75,
+        "reactor_height_m": 23.0,
+        "design_capacity_dry_coal_t_h": 25
+      },
+      "case_ids": [
+        "CASE_HTW_BERRENRATH"
+      ],
+      "case_count": 1,
+      "validation_grouping": "工业尺度 O₂/Steam 单点；与 Wesseling 同分支但更大径、更少分级"
+    },
+    "PLANT_VTT": {
+      "display_name": "VTT Espoo BFB Versuchsanlage",
+      "display_name_zh": "VTT Espoo 实验台（常压+加压）",
+      "validation_tier": "lab_experimental",
+      "validation_tier_zh": "实验台",
+      "country": "Finland",
+      "location": "VTT Technical Research Centre, Laboratory of Fuel and Process Technology, Espoo",
+      "hamel_section": "§7.1.3 Bild 7.7 (pressurized); §7.1.4 Bild 7.11 (atmospheric)",
+      "hamel_name_de": "Versuchseinrichtung des VTT Finnland",
+      "operation_period": null,
+      "operation_note": "Hamel 未给装置运行年限；常压与加压为同一 VTT 实验体系，压力/氧化剂/燃料/循环为工况变量",
+      "data_provenance": "Pressurized: Kurkela & Ståhlberg (1992), Kurkela et al. (1993); Atmospheric: Leppälahti & Kurkela (1991)",
+      "design_highlights": {
+        "pressurized": {
+          "pressure_MPa_range": [
+            0.5,
+            1.0
+          ],
+          "bed_diameter_m": 0.15,
+          "freeboard_diameter_m": 0.25,
+          "total_height_m": 3.5,
+          "throughput_kg_h_range": [
+            25,
+            75
+          ]
+        },
+        "atmospheric": {
+          "pressure_MPa": 0.1,
+          "bed_diameter_m": 0.158,
+          "total_height_m": 3.65,
+          "design_throughput_kg_h": 10
+        }
+      },
+      "case_ids": [
+        "CASE_VTT_PRESSURIZED_COAL_1",
+        "CASE_VTT_PRESSURIZED_PEAT_6",
+        "CASE_VTT_PRESSURIZED_PEAT_13",
+        "CASE_VTT_PRESSURIZED_SAWDUST_14",
+        "CASE_VTT_ATMOSPHERIC_PEAT_D",
+        "CASE_VTT_ATMOSPHERIC_PEAT_E"
+      ],
+      "case_count": 6,
+      "validation_grouping": "按燃料(褐煤/泥炭/锯末)与压力(0.1 vs 0.4–1.0 MPa)分子组；Case D/E 专用于 fuel-N"
+    },
+    "PLANT_WSV400": {
+      "display_name": "WSV 400 Universität Magdeburg",
+      "display_name_zh": "马格德堡 WSV 400 研究炉",
+      "validation_tier": "research_pilot",
+      "validation_tier_zh": "100 kW 研究中试",
+      "country": "Germany",
+      "location": "Universität Magdeburg, Institut für Apparate- und Umwelttechnik",
+      "hamel_section": "§7.1.5, Bild 7.14",
+      "hamel_name_de": "Wirbelschichtversuchsanlage WSV 400",
+      "operation_period": null,
+      "operation_note": "100 kW 热输入木材气化；Table 7.4 Cases A–F 为 ER/进料量变工况",
+      "data_provenance": "Prof. Dr.-Ing. habil. P. Käferstein; Hoyer et al. (1999); Hamel Ch.7 Table 7.4 / Fig 7.16–7.17",
+      "design_highlights": {
+        "pressure_MPa": 0.1,
+        "thermal_input_kW": 100,
+        "bed_diameter_m": 0.4,
+        "freeboard_diameter_m": 0.6,
+        "total_height_m": 3.0
+      },
+      "case_ids": [
+        "CASE_WSV400_A",
+        "CASE_WSV400_B",
+        "CASE_WSV400_C",
+        "CASE_WSV400_D",
+        "CASE_WSV400_E",
+        "CASE_WSV400_F"
+      ],
+      "case_count": 6,
+      "validation_grouping": "同一炉 ER 扫描(A–F)；Case A 有轴向剖面，B–F 以 parity 出口为主；F 为不同燃料批次"
+    }
+  },
+  "validation_literature": {
+    "_meta": {
+      "description": "Validation 装置实测数据的原始文献书目与可访问链接（Hamel 1999 为二次汇编）",
+      "compiled_from": "Hamel (1999/2001 VDI 469) Literaturverzeichnis + 公开 DOI/VTT CRIS 核对",
+      "notes": [
+        "role=primary：装置实测/工况表/graph 的原始出处；role=secondary：Hamel 论文或综述性二次来源",
+        "role=engineering：装置工艺/尺寸背景，非 Table 7.x 逐点数据",
+        "无公开 URL 的条目标注 access_note，需机构馆藏或联系原作者"
+      ]
+    },
+    "refs": {
+      "hamel_2001_vdi469": {
+        "short_key": "Hamel (2001)",
+        "authors": "Hamel, S.",
+        "title": "Mathematische Modellierung und experimentelle Untersuchung der Vergasung verschiedener fester Brennstoffe in atmosphärischen und druckaufgeladenen stationären Wirbelschichten",
+        "venue": "Fortschr.-Ber. VDI Reihe 6 Nr. 469, VDI Verlag, Düsseldorf",
+        "year": 2001,
+        "type": "dissertation_monograph",
+        "isbn": "3-18-346906-5",
+        "issn": "0178-9414",
+        "doi": null,
+        "urls": [
+          "https://www.vdi-verlag.de/"
+        ],
+        "access_note": "本地 PDF：docs/_2001_VDI-Dis._…Brennstoffe.pdf（.gitignore）；Table 7.1–7.4 二次汇编 SSOT",
+        "data_use": "Chapter 7 Table 7.1–7.4、Fig 7.4–7.17 验证工况数字化来源",
+        "hamel_citation": "Hamel S (1999/2001) Ch.7–8"
+      },
+      "rheinbraun_krupp_uhde_1997": {
+        "short_key": "Rheinbraun & Krupp-Uhde (1997)",
+        "authors": "Rheinbraun AG; Krupp Uhde GmbH",
+        "title": "Interne Mitteilung: Messdaten aus dem Betrieb der HTW-Druckvergasungsanlage und der HTW-Demonstrationsanlage",
+        "venue": "Internal report (cited in Hamel 2001 Literaturverzeichnis)",
+        "year": 1997,
+        "type": "internal_report",
+        "doi": null,
+        "urls": [],
+        "access_note": "非公开内部报告；Hamel Table 7.1 实测出口/工况的直接数据来源，需通过 RWE/thyssenkrupp 档案或 Hamel 1999 合作方",
+        "data_use": "HTW Wesseling Sim 1–2、Berrenrath Sim 3：Table 7.1 输入 + Fig 7.4–7.6 出口/轴向",
+        "hamel_citation": "RHEINBRAUN AG; KRUPP UHDE GMBH (1997)"
+      },
+      "hamel_et_al_1999_iscs": {
+        "short_key": "Hamel et al. (1999)",
+        "authors": "Hamel, S.; Krumm, W.; Abraham, R.; Mittelstadt, A.; Karkowski, G.",
+        "title": "Modelling of Pressurized Fluidized Bed Gasification in Comparison with Experimental Data from a Commercial Scale and Pilot Scale HTW-Gasification Plant",
+        "venue": "Proceedings of 4th International Symposium on Coal Science, Beijing",
+        "year": 1999,
+        "pages": "411-420",
+        "type": "conference_proceedings",
+        "doi": null,
+        "urls": [],
+        "access_note": "会议论文；与 Rheinbraun 1997 内部数据及 HTW 运行经验相关，公开获取需检索 ISCS 1999 论文集",
+        "data_use": "HTW 示范/中试尺度模型-实测对比背景",
+        "hamel_citation": "HAMEL, S.; KRUMM, W.; ABRAHAM, R.; … (1999)"
+      },
+      "adlhoch_1992a_vgb": {
+        "short_key": "Adlhoch et al. (1992a)",
+        "authors": "Adlhoch, W.; Keller, J.; Herbert, P. K.",
+        "title": "Das Rheinbraun-HTW-Kohlevergasungsverfahren",
+        "venue": "VGB Kraftwerkstechnik",
+        "year": 1992,
+        "volume": "72",
+        "issue": "4",
+        "pages": "345-348",
+        "type": "journal",
+        "doi": null,
+        "urls": [],
+        "access_note": "VGB 会员/馆藏；HTW 工艺与中试/示范装置工程背景",
+        "data_use": "Wesseling Pilot 装置描述、设计意图",
+        "hamel_citation": "ADLHOCH et al. (1992a)"
+      },
+      "adlhoch_1992b_cit": {
+        "short_key": "Adlhoch et al. (1992b)",
+        "authors": "Adlhoch, W.; Meyer, B.; Schumacher, H.-J.",
+        "title": "Stand der HTW-Vergasungstechnologie",
+        "venue": "Chemie Ingenieur Technik",
+        "year": 1992,
+        "volume": "64",
+        "issue": "5",
+        "pages": "476",
+        "type": "journal",
+        "doi": "10.1002/cite.330640527",
+        "urls": [
+          "https://doi.org/10.1002/cite.330640527"
+        ],
+        "access_note": null,
+        "data_use": "HTW 技术状态综述；Wesseling 6.5 t/h 设计能力",
+        "hamel_citation": "ADLHOCH et al. (1992b)"
+      },
+      "schumacher_1993_braunkohle": {
+        "short_key": "Schumacher et al. (1993)",
+        "authors": "Schumacher, H.-J.; Meyer, B.; Brüngel, N.; Renzenbrink, W.",
+        "title": "Das Rheinbraun Hoch-Temperatur-Winkler (HTW)-Verfahren zur Kohleveredelung — Betriebsergebnisse der 25 bar HTW-Druckvergasungsanlage",
+        "venue": "Braunkohle",
+        "year": 1993,
+        "volume": "45",
+        "issue": "11",
+        "pages": "12-17",
+        "type": "journal",
+        "doi": null,
+        "urls": [
+          "https://www.osti.gov/etdeweb/biblio/5641048"
+        ],
+        "access_note": "OSTI/ETDEWEB 书目记录；1989–1992 Wesseling 25 bar 中试运行总结",
+        "data_use": "HTW Wesseling 运行期、Agent 类型、褐煤/烟煤试验背景",
+        "hamel_citation": "SCHUMACHER et al. (1993)"
+      },
+      "schumacher_1993_process": {
+        "short_key": "Schumacher et al. (1993) [process]",
+        "authors": "Schumacher, H.-J.; et al.",
+        "title": "HTW process — secondary air staging in freeboard (cited in Hamel §7.1.2)",
+        "venue": "See Schumacher et al. (1993) Braunkohle; also NETL HTW overview",
+        "year": 1993,
+        "type": "engineering_note",
+        "doi": null,
+        "urls": [
+          "https://netl.doe.gov/sites/default/files/netl-file/GTC9808P.pdf"
+        ],
+        "access_note": "NETL 文档为 HTW 工艺英文综述，含 Berrenrath 示范厂运行统计",
+        "data_use": "自由板二级风/温度控制工艺背景",
+        "hamel_citation": "Schumacher et al. (1993) in Hamel §7.1.2"
+      },
+      "kurkela_stahlberg_1992_part1": {
+        "short_key": "Kurkela & Ståhlberg (1992) I",
+        "authors": "Kurkela, E.; Ståhlberg, P.",
+        "title": "Air gasification of peat, wood and brown coal in a pressurized fluidized-bed reactor. I. Carbon conversion, gas yields and tar formation",
+        "venue": "Fuel Processing Technology",
+        "year": 1992,
+        "volume": "31",
+        "issue": "1",
+        "pages": "1-21",
+        "type": "journal",
+        "doi": "10.1016/0378-3820(92)90038-R",
+        "urls": [
+          "https://doi.org/10.1016/0378-3820(92)90038-R",
+          "https://www.sciencedirect.com/science/article/pii/037838209290038R",
+          "https://cris.vtt.fi/en/publications/air-gasification-of-peat-wood-and-brown-coal-in-a-pressurized-flu"
+        ],
+        "access_note": null,
+        "data_use": "VTT 加压 BFB Table 7.2 工况、出口气、C 转化；Fig 7.8/7.9/7.10 原始实测",
+        "hamel_citation": "KURKELA; STAHLBERG (1992) Part I"
+      },
+      "kurkela_stahlberg_1992_part2": {
+        "short_key": "Kurkela & Ståhlberg (1992) II",
+        "authors": "Kurkela, E.; Ståhlberg, P.",
+        "title": "Air gasification of peat, wood and brown coal in a pressurized fluidized-bed reactor. II. Formation of nitrogen compounds",
+        "venue": "Fuel Processing Technology",
+        "year": 1992,
+        "volume": "31",
+        "issue": "1",
+        "pages": "23-32",
+        "type": "journal",
+        "doi": "10.1016/0378-3820(92)90039-S",
+        "urls": [
+          "https://doi.org/10.1016/0378-3820(92)90039-S",
+          "https://www.sciencedirect.com/science/article/abs/pii/037838209290039S"
+        ],
+        "access_note": null,
+        "data_use": "VTT 加压 NH₃/HCN（Peat/Coal/Wood）；补充 Table 7.2 氮组分",
+        "hamel_citation": "KURKELA; STAHLBERG (1992) Part II"
+      },
+      "kurkela_et_al_1993_vtt161": {
+        "short_key": "Kurkela et al. (1993)",
+        "authors": "Kurkela, E.; Ståhlberg, P.; Laatikainen, J.",
+        "title": "Pressurized fluid-bed gasification experiments with wood, peat and coal at VTT in 1991–1992. Part 1. Test facilities and gasification experiments with sawdust",
+        "venue": "VTT Publications 161",
+        "year": 1993,
+        "type": "research_report",
+        "isbn": "951-38-4399-8",
+        "doi": null,
+        "urls": [
+          "https://cris.vtt.fi/en/publications/pressurized-fluidized-bed-gasification-experiments-with-wood-peat/",
+          "https://www.osti.gov/etdeweb/servlets/purl/593634"
+        ],
+        "access_note": "VTT 报告全文可通过 VTT CRIS / OSTI 获取；装置几何与 cyclone 细节",
+        "data_use": "VTT 加压装置工程描述（Hamel §7.1.3 引用）",
+        "hamel_citation": "KURKELA et al. (1993) VTT Publ. 161"
+      },
+      "kurkela_et_al_1995_vtt249": {
+        "short_key": "Kurkela et al. (1995)",
+        "authors": "Kurkela, E.; Laatikainen-Luntama, J.; Ståhlberg, P.",
+        "title": "Pressurised fluidised-bed gasification experiments with wood, peat and coal at VTT in 1991–1994. Part 2. Experiences from peat and coal gasification and hot gas filtration",
+        "venue": "VTT Publications 249",
+        "year": 1995,
+        "type": "research_report",
+        "isbn": "951-38-4949-X",
+        "doi": null,
+        "urls": [
+          "https://cris.vtt.fi/en/publications/pressurised-fluidised-bed-gasification-experiments-with-wood-peat/"
+        ],
+        "access_note": "VTT Part 2；泥炭/褐煤扩展试验与热气体过滤",
+        "data_use": "VTT 加压装置补充运行经验",
+        "hamel_citation": "Kurkela et al. (1995) VTT Publ. 249"
+      },
+      "leppalahti_kurkela_1991_fuel": {
+        "short_key": "Leppälahti & Kurkela (1991)",
+        "authors": "Leppälahti, J.; Kurkela, E.",
+        "title": "Behaviour of nitrogen compounds and tars in fluidized bed air gasification of peat",
+        "venue": "Fuel",
+        "year": 1991,
+        "volume": "70",
+        "issue": "4",
+        "pages": "491-497",
+        "type": "journal",
+        "doi": "10.1016/0016-2361(91)90026-7",
+        "urls": [
+          "https://doi.org/10.1016/0016-2361(91)90026-7",
+          "https://www.sciencedirect.com/science/article/abs/pii/0016236191900267"
+        ],
+        "access_note": null,
+        "data_use": "VTT 常压 BFB Table 7.3 Cases A–E；NH₃/HCN、tar；Fig 7.12/7.13 原始实测",
+        "hamel_citation": "LEPPÄLAHTI; KURKELA (1991)"
+      },
+      "leppalahti_kurkela_1992_particle": {
+        "short_key": "Leppälahti & Kurkela (1992)",
+        "authors": "Leppälahti, J.; Kurkela, E.",
+        "title": "Particle size distribution for peat feed (cited in Hamel §7.1.4 for Table 7.3)",
+        "venue": "See Leppälahti & Kurkela (1991) and related VTT peat gasification reports",
+        "year": 1992,
+        "type": "engineering_note",
+        "doi": null,
+        "urls": [],
+        "access_note": "Hamel 引用 1992 粒径分布；常压 Case D/E 进料筛分",
+        "data_use": "VTT 常压泥炭颗粒粒径分布",
+        "hamel_citation": "Leppälahti & Kurkela (1992) in Hamel §7.1.4"
+      },
+      "hoyer_et_al_1999_bmbf": {
+        "short_key": "Hoyer et al. (1999)",
+        "authors": "Hoyer, L.; Härtel, J.; Käferstein, P.; Gohla, M.; Tepper, H.; Jäger, W.; Pfund, M.",
+        "title": "Entwicklung und Projektierung einer Wirbelschicht-Vergasungsanlage zur dezentralen energetischen Verwertung von Abfallfraktionen und biogenen Reststoffen",
+        "venue": "Forschungsbericht BMBF (FUEGO 001620167)",
+        "year": 1999,
+        "type": "research_report",
+        "doi": null,
+        "urls": [],
+        "access_note": "德国 BMBF 项目报告；需 DTU/机构仓储或联系 Magdeburg 课题组",
+        "data_use": "WSV 400 装置设计与运行描述（Hamel §7.1.5）",
+        "hamel_citation": "HOYER et al. (1999)"
+      },
+      "hamel_et_al_2000b_dgmk": {
+        "short_key": "Hamel et al. (2000b)",
+        "authors": "Hamel, S.; Krumm, W.; Tepper, H.; Käferstein, P.",
+        "title": "Theoretische und experimentelle Untersuchung des Betriebsverhaltens einer Wirbelschichtanlage zur Holzvergasung",
+        "venue": "DGMK-Tagungsbericht 2000-1",
+        "year": 2000,
+        "pages": "7-14",
+        "type": "conference_proceedings",
+        "doi": null,
+        "urls": [],
+        "access_note": "DGMK 会议论文；与 WSV 400 / Käferstein 合作",
+        "data_use": "WSV 400 木材气化实验与模型对比补充",
+        "hamel_citation": "HAMEL et al. (2000b)"
+      },
+      "netl_htw_overview": {
+        "short_key": "Uhde/NETL HTW overview",
+        "authors": "thyssenkrupp Uhde / NETL compilation",
+        "title": "High Temperature Winkler (HTW) Coal Gasification",
+        "venue": "NETL Gasification Technologies Conference paper (GTC9808P)",
+        "year": 1998,
+        "type": "technical_report",
+        "doi": null,
+        "urls": [
+          "https://netl.doe.gov/sites/default/files/netl-file/GTC9808P.pdf"
+        ],
+        "access_note": "英文公开综述；Berrenrath 67000 h、Wesseling/Berrenrath 尺度对比",
+        "data_use": "HTW 两装置运行史与规模背景（非 Table 7.1 逐点数据）",
+        "hamel_citation": "Supplementary public overview"
+      }
+    },
+    "plant_literature_map": {
+      "PLANT_HTW_WESSELING": {
+        "primary_data": [
+          "rheinbraun_krupp_uhde_1997"
+        ],
+        "secondary_compilation": [
+          "hamel_2001_vdi469"
+        ],
+        "engineering_background": [
+          "adlhoch_1992a_vgb",
+          "adlhoch_1992b_cit",
+          "schumacher_1993_braunkohle",
+          "hamel_et_al_1999_iscs",
+          "netl_htw_overview"
+        ],
+        "hamel_tables_figures": [
+          "Table 7.1 Sim 1–2",
+          "Fig 7.4 (Sim 1 axial)",
+          "Fig 7.5 (Sim 2 axial + exit)"
+        ]
+      },
+      "PLANT_HTW_BERRENRATH": {
+        "primary_data": [
+          "rheinbraun_krupp_uhde_1997"
+        ],
+        "secondary_compilation": [
+          "hamel_2001_vdi469"
+        ],
+        "engineering_background": [
+          "adlhoch_1992a_vgb",
+          "schumacher_1993_process",
+          "hamel_et_al_1999_iscs",
+          "netl_htw_overview"
+        ],
+        "hamel_tables_figures": [
+          "Table 7.1 Sim 3",
+          "Fig 7.6 (axial + exit)"
+        ]
+      },
+      "PLANT_VTT": {
+        "primary_data": [
+          "kurkela_stahlberg_1992_part1",
+          "leppalahti_kurkela_1991_fuel"
+        ],
+        "secondary_compilation": [
+          "hamel_2001_vdi469"
+        ],
+        "engineering_background": [
+          "kurkela_et_al_1993_vtt161",
+          "kurkela_et_al_1995_vtt249",
+          "kurkela_stahlberg_1992_part2",
+          "leppalahti_kurkela_1992_particle"
+        ],
+        "hamel_tables_figures": [
+          "Table 7.2 (pressurized Sim 1–15)",
+          "Table 7.3 (atmospheric Cases A–E)",
+          "Fig 7.7–7.10 (pressurized)",
+          "Fig 7.11–7.13 (atmospheric)"
+        ]
+      },
+      "PLANT_WSV400": {
+        "primary_data": [
+          "hoyer_et_al_1999_bmbf"
+        ],
+        "secondary_compilation": [
+          "hamel_2001_vdi469"
+        ],
+        "engineering_background": [
+          "hamel_et_al_2000b_dgmk"
+        ],
+        "hamel_tables_figures": [
+          "Table 7.4 Cases A–F",
+          "Fig 7.14 (geometry)",
+          "Fig 7.16 (Case A axial)",
+          "Fig 7.17 (Cases A–F parity)"
+        ],
+        "data_provider_note": "Table 7.4 实验数据由 Prof. Dr.-Ing. habil. P. Käferstein（Universität Magdeburg）提供（Hamel §7.1.5）"
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "CASE_HTW_WESSELING_1",
+      "hamel_simulation_id": "1",
+      "hamel_table_ref": "Tabelle 7.1, Hamel (1999) Ch.7",
+      "comment": "HTW 加压中试炉 (Wesseling), Air/Steam 工况, Hamel (1999) Simulation Nr.1",
+      "plant": "HTW Wesseling",
+      "plant_group": {
+        "plant_group_id": "PLANT_HTW_WESSELING",
+        "plant_group_name_zh": "HTW Wesseling 加压中试炉",
+        "plant_group_name": "HTW Wesseling Druckvergasungsanlage",
+        "validation_tier": "pilot",
+        "validation_tier_zh": "中试",
+        "location": "DEA Mineralöl AG, Werk UK Wesseling",
+        "operation_period": "1989–1992",
+        "hamel_section": "§7.1.2, Bild 7.2",
+        "data_provenance": "Rheinbraun AG & Krupp-Uhde GmbH (1997); Hamel Ch.7 Table 7.1 / Fig 7.4–7.5",
+        "validation_grouping": "同一中试炉两组对比工况（Air/Steam vs O₂/Steam）；可联合验收氧化剂分支与二级风"
+      },
+      "country": "Germany",
+      "scale": "pilot",
+      "source_input": "Table 7.1",
+      "source_output": "Fig. 7.4, 7.5",
+      "reactor": {
+        "bed_diameter_m": "0.6",
+        "freeboard_diameter_m": "0.6",
+        "total_height_m": "14.5",
+        "bed_height_m": "6"
+      },
+      "fuel": {
+        "type": "Rhenish Brown Coal (Rhein. Braunkohle)",
+        "feed_rate_kg_h": "3377.4",
+        "proximate_analysis": {
+          "moisture_wt_pct": "16.9",
+          "ash_dry_wt_pct": "11.41",
+          "VM_daf_pct": "53.42"
+        },
+        "ultimate_analysis_dry_wt_pct": {
+          "C": "61.5",
+          "H": "4.1",
+          "O": "21.8",
+          "N": "0.68",
+          "S": "0.51"
+        },
+        "particle_diameter_mm": {
+          "mean_range": [
+            1.5,
+            3.0
+          ],
+          "max_feed": 6.0,
+          "n_size_classes": 10,
+          "_source": "Table A.2.1.1; Section 2.2.2: 10 discrete classes"
+        }
+      },
+      "inlets": {
+        "gasification_agent_type": "Air/Steam (Luft/Dampf)",
+        "pressure_MPa": "2.5",
+        "ER_lambda_O2": "0.337",
+        "T_inlet_K": "293",
+        "recirculation": true,
+        "secondary_air_Nm3_h": "30.1",
+        "total_air_Nm3_h": "5536.9",
+        "secondary_injection_xi": "0.6",
+        "secondary_injection_agent": "Air"
+      },
+      "outlets": {
+        "gas_basis": "wet",
+        "exit_temperature_K": "1100",
+        "carbon_conversion_pct": "95",
+        "CO": "0.13",
+        "CO2": "0.11",
+        "H2": "0.12",
+        "CH4": "0.028",
+        "H2O": "0.175",
+        "parity_plot_available": false,
+        "axial_profile_available": true,
+        "output_precision": "Digitized from Fig. 7.4 (p.129), ±5% reading error"
+      }
+    },
+    {
+      "case_id": "CASE_HTW_WESSELING_2",
+      "hamel_simulation_id": "2",
+      "hamel_table_ref": "Tabelle 7.1, Hamel (1999) Ch.7",
+      "comment": "HTW 加压中试炉 (Wesseling), O2/Steam 工况, Hamel (1999) Simulation Nr.2",
+      "plant": "HTW Wesseling",
+      "plant_group": {
+        "plant_group_id": "PLANT_HTW_WESSELING",
+        "plant_group_name_zh": "HTW Wesseling 加压中试炉",
+        "plant_group_name": "HTW Wesseling Druckvergasungsanlage",
+        "validation_tier": "pilot",
+        "validation_tier_zh": "中试",
+        "location": "DEA Mineralöl AG, Werk UK Wesseling",
+        "operation_period": "1989–1992",
+        "hamel_section": "§7.1.2, Bild 7.2",
+        "data_provenance": "Rheinbraun AG & Krupp-Uhde GmbH (1997); Hamel Ch.7 Table 7.1 / Fig 7.4–7.5",
+        "validation_grouping": "同一中试炉两组对比工况（Air/Steam vs O₂/Steam）；可联合验收氧化剂分支与二级风"
+      },
+      "country": "Germany",
+      "scale": "pilot",
+      "source_input": "Table 7.1",
+      "source_output": "Fig. 7.4, 7.5",
+      "reactor": {
+        "bed_diameter_m": "0.6",
+        "freeboard_diameter_m": "0.6",
+        "total_height_m": "14.5",
+        "bed_height_m": "6"
+      },
+      "fuel": {
+        "type": "Rhenish Brown Coal (Rhein. Braunkohle)",
+        "feed_rate_kg_h": "6858.9",
+        "proximate_analysis": {
+          "moisture_wt_pct": "15.8",
+          "ash_dry_wt_pct": "8.31",
+          "VM_daf_pct": "52.7"
+        },
+        "ultimate_analysis_dry_wt_pct": {
+          "C": "62.9",
+          "H": "4.03",
+          "O": "23.3",
+          "N": "0.88",
+          "S": "0.58"
+        },
+        "particle_diameter_mm": {
+          "mean_range": [
+            1.5,
+            3.0
+          ],
+          "max_feed": 6.0,
+          "n_size_classes": 10,
+          "_source": "Table A.2.1.1; Section 2.2.2"
+        }
+      },
+      "inlets": {
+        "gasification_agent_type": "O2/Steam (O2/Dampf)",
+        "pressure_MPa": "2.5",
+        "ER_lambda_O2": "0.268",
+        "T_inlet_K": "293",
+        "recirculation": true,
+        "secondary_O2_Nm3_h": "37.5",
+        "total_O2_Nm3_h": "1921.6",
+        "secondary_injection_xi": "0.6",
+        "secondary_injection_agent": "O2"
+      },
+      "outlets": {
+        "gas_basis": "wet",
+        "exit_temperature_K": "1220",
+        "exit_temperature_note": "model predicts faster T decay in upper freeboard than measured",
+        "carbon_conversion_pct": "97",
+        "CO": "0.335",
+        "CO2": "0.235",
+        "H2": "0.255",
+        "CH4": "0.048",
+        "H2O": "0.17",
+        "parity_plot_available": false,
+        "axial_profile_available": true,
+        "output_precision": "Digitized from Fig. 7.5 (p.130), ±5% reading error"
+      }
+    },
+    {
+      "case_id": "CASE_HTW_BERRENRATH",
+      "hamel_simulation_id": "3",
+      "hamel_table_ref": "Tabelle 7.1, Hamel (1999) Ch.7",
+      "comment": "HTW 示范工厂 (Berrenrath), 甲醇合成气, Hamel (1999) Simulation Nr.3",
+      "plant": "HTW Berrenrath",
+      "plant_group": {
+        "plant_group_id": "PLANT_HTW_BERRENRATH",
+        "plant_group_name_zh": "HTW Berrenrath 示范工厂",
+        "plant_group_name": "HTW Demonstrationsanlage Berrenrath",
+        "validation_tier": "commercial_demo",
+        "validation_tier_zh": "工业示范",
+        "location": "Rheinbraun Kohleveredlungsbetrieb Ville-Berrenrath",
+        "operation_period": "1986–1997",
+        "hamel_section": "§7.1.2, Bild 7.3",
+        "data_provenance": "Rheinbraun AG & Krupp-Uhde GmbH (1997); Hamel Ch.7 Table 7.1 / Fig 7.6",
+        "validation_grouping": "工业尺度 O₂/Steam 单点；与 Wesseling 同分支但更大径、更少分级"
+      },
+      "country": "Germany",
+      "scale": "commercial/demo",
+      "source_input": "Table 7.1",
+      "source_output": "Fig. 7.6",
+      "reactor": {
+        "bed_diameter_m": "2.75",
+        "freeboard_diameter_m": "2.75",
+        "total_height_m": "23"
+      },
+      "fuel": {
+        "type": "Rhenish Brown Coal (Rhein. Braunkohle)",
+        "feed_rate_kg_h": "25769",
+        "proximate_analysis": {
+          "moisture_wt_pct": "12.4",
+          "ash_dry_wt_pct": "12.1",
+          "VM_daf_pct": "53.38"
+        },
+        "ultimate_analysis_dry_wt_pct": {
+          "C": "61.1",
+          "H": "4.4",
+          "O": "20.7",
+          "N": "0.7",
+          "S": "1"
+        },
+        "particle_diameter_mm": {
+          "mean_range": [
+            1.5,
+            3.0
+          ],
+          "max_feed": 6.0,
+          "n_size_classes": 10,
+          "_source": "Table A.2.1.1; Section 2.2.2"
+        }
+      },
+      "inlets": {
+        "gasification_agent_type": "O2/Steam (O2/Dampf)",
+        "pressure_MPa": "1",
+        "ER_lambda_O2": "0.238",
+        "T_inlet_K": "293",
+        "recirculation": true
+      },
+      "outlets": {
+        "gas_basis": "wet",
+        "exit_temperature_K": "1050",
+        "exit_temperature_note": "model predicts slightly lower T_exit than measured — actual heat losses lower than modeled at demo scale",
+        "CO": "0.285",
+        "CO2": "0.205",
+        "H2": "0.255",
+        "CH4": "0.048",
+        "H2O": "0.195",
+        "parity_plot_available": false,
+        "axial_profile_available": true,
+        "output_precision": "Digitized from Fig. 7.6 (p.131), ±5% reading error"
+      }
+    },
+    {
+      "case_id": "CASE_VTT_PRESSURIZED_COAL_1",
+      "hamel_simulation_id": "1",
+      "hamel_table_ref": "Tabelle 7.2, Hamel (1999) Ch.7",
+      "comment": "VTT 加压 BFB (Finland), 褐煤 Case Nr.1, Hamel (1999)",
+      "plant": "VTT Pressurized BFB",
+      "plant_group": {
+        "plant_group_id": "PLANT_VTT",
+        "plant_group_name_zh": "VTT Espoo 实验台（常压+加压）",
+        "plant_group_name": "VTT Espoo BFB Versuchsanlage",
+        "validation_tier": "lab_experimental",
+        "validation_tier_zh": "实验台",
+        "location": "VTT Technical Research Centre, Laboratory of Fuel and Process Technology, Espoo",
+        "operation_period": null,
+        "hamel_section": "§7.1.3 Bild 7.7 (pressurized); §7.1.4 Bild 7.11 (atmospheric)",
+        "data_provenance": "Pressurized: Kurkela & Ståhlberg (1992), Kurkela et al. (1993); Atmospheric: Leppälahti & Kurkela (1991)",
+        "validation_grouping": "按燃料(褐煤/泥炭/锯末)与压力(0.1 vs 0.4–1.0 MPa)分子组；Case D/E 专用于 fuel-N"
+      },
+      "country": "Finland",
+      "scale": "lab/small pilot",
+      "source_input": "Table 7.2 (p.133)",
+      "source_output": "Fig. 7.8 (p.135)",
+      "reactor": {
+        "bed_diameter_m": "0.15",
+        "freeboard_diameter_m": "0.25",
+        "total_height_m": "3.5",
+        "bed_height_m": "1.2",
+        "secondary_air_port_mm": "800"
+      },
+      "fuel": {
+        "type": "Brown Coal (Braunkohle) — same reactor as peat cases",
+        "feed_rate_kg_h": "46.9",
+        "proximate_analysis": {
+          "moisture_wt_pct": "11.8",
+          "ash_dry_wt_pct": "4.3",
+          "VM_daf_pct": "53"
+        },
+        "ultimate_analysis_dry_wt_pct": {
+          "C": "63.8",
+          "H": "4.6",
+          "O": "26.2",
+          "N": "0.8",
+          "S": "0.3"
+        },
+        "particle_diameter_mm": {
+          "mean_range": [
+            1.0,
+            4.0
+          ],
+          "_source": "Hamel Ch.7 VTT/Kurkela typical feed; exact sieve not tabulated in Table 7.2"
+        }
+      },
+      "inlets": {
+        "gasification_agent_type": "Air/Steam",
+        "pressure_MPa": "0.5",
+        "ER_lambda_O2": "0.33",
+        "T_inlet_K": "293",
+        "recirculation": false,
+        "primary_air_Nm3_h": "51.8",
+        "secondary_air_Nm3_h": "30.1",
+        "total_air_Nm3_h": "81.9",
+        "steam_flow_kg_h": "6.8",
+        "secondary_injection_xi": "0.6"
+      },
+      "outlets": {
+        "gas_basis": "wet",
+        "exit_temperature_K": "980",
+        "carbon_conversion_pct": "78",
+        "CO": "0.16",
+        "CO2": "0.105",
+        "H2": "0.14",
+        "CH4": "0.045",
+        "H2O": "0.125",
+        "parity_plot_available": true,
+        "axial_profile_available": true,
+        "output_precision": "Digitized from Fig. 7.8 (p.135), ±5% reading error"
+      }
+    },
+    {
+      "case_id": "CASE_VTT_PRESSURIZED_PEAT_6",
+      "hamel_simulation_id": "6",
+      "hamel_table_ref": "Tabelle 7.2, Hamel (1999) Ch.7",
+      "comment": "VTT 加压 BFB (Finland), 泥炭 Case Nr.6 (无循环), Hamel (1999)",
+      "plant": "VTT Pressurized BFB",
+      "plant_group": {
+        "plant_group_id": "PLANT_VTT",
+        "plant_group_name_zh": "VTT Espoo 实验台（常压+加压）",
+        "plant_group_name": "VTT Espoo BFB Versuchsanlage",
+        "validation_tier": "lab_experimental",
+        "validation_tier_zh": "实验台",
+        "location": "VTT Technical Research Centre, Laboratory of Fuel and Process Technology, Espoo",
+        "operation_period": null,
+        "hamel_section": "§7.1.3 Bild 7.7 (pressurized); §7.1.4 Bild 7.11 (atmospheric)",
+        "data_provenance": "Pressurized: Kurkela & Ståhlberg (1992), Kurkela et al. (1993); Atmospheric: Leppälahti & Kurkela (1991)",
+        "validation_grouping": "按燃料(褐煤/泥炭/锯末)与压力(0.1 vs 0.4–1.0 MPa)分子组；Case D/E 专用于 fuel-N"
+      },
+      "country": "Finland",
+      "scale": "lab/small pilot",
+      "source_input": "Table 7.2 (p.133)",
+      "source_output": "Fig. 7.8, 7.9, 7.10",
+      "reactor": {
+        "bed_diameter_m": "0.15",
+        "freeboard_diameter_m": "0.25",
+        "total_height_m": "3.5",
+        "bed_height_m": "1.2",
+        "secondary_air_port_mm": "800"
+      },
+      "fuel": {
+        "type": "Finnish Peat (Finnischer Torf)",
+        "feed_rate_kg_h": "65.5",
+        "proximate_analysis": {
+          "moisture_wt_pct": "14.8",
+          "ash_dry_wt_pct": "4.3",
+          "VM_daf_pct": "68.4"
+        },
+        "ultimate_analysis_dry_wt_pct": {
+          "C": "54.5",
+          "H": "5.6",
+          "O": "33.6",
+          "N": "1.8",
+          "S": "0.25"
+        },
+        "particle_diameter_mm": {
+          "mean_range": [
+            1.0,
+            4.0
+          ],
+          "_source": "Biomass feed; peat typical"
+        }
+      },
+      "inlets": {
+        "gasification_agent_type": "Air/Steam",
+        "pressure_MPa": "0.5",
+        "ER_lambda_O2": "0.29",
+        "T_inlet_K": "293",
+        "recirculation": false,
+        "primary_air_Nm3_h": "60.7",
+        "secondary_air_Nm3_h": "21.9",
+        "total_air_Nm3_h": "82.6",
+        "steam_flow_kg_h": "15.5",
+        "secondary_injection_xi": "0.6"
+      },
+      "outlets": {
+        "gas_basis": "wet",
+        "exit_temperature_K": "1050",
+        "carbon_conversion_pct": "86.5",
+        "CO": "0.11",
+        "CO2": "0.14",
+        "H2": "0.09",
+        "CH4": "0.035",
+        "H2O": "0.185",
+        "parity_plot_available": true,
+        "axial_profile_available": true,
+        "output_precision": "Digitized from Fig. 7.9 (p.136), ±5% reading error"
+      }
+    },
+    {
+      "case_id": "CASE_VTT_PRESSURIZED_PEAT_13",
+      "hamel_simulation_id": "13",
+      "hamel_table_ref": "Tabelle 7.2, Hamel (1999) Ch.7",
+      "comment": "VTT 加压 BFB (Finland), 泥炭 Case Nr.13 (有循环), Hamel (1999)",
+      "plant": "VTT Pressurized BFB",
+      "plant_group": {
+        "plant_group_id": "PLANT_VTT",
+        "plant_group_name_zh": "VTT Espoo 实验台（常压+加压）",
+        "plant_group_name": "VTT Espoo BFB Versuchsanlage",
+        "validation_tier": "lab_experimental",
+        "validation_tier_zh": "实验台",
+        "location": "VTT Technical Research Centre, Laboratory of Fuel and Process Technology, Espoo",
+        "operation_period": null,
+        "hamel_section": "§7.1.3 Bild 7.7 (pressurized); §7.1.4 Bild 7.11 (atmospheric)",
+        "data_provenance": "Pressurized: Kurkela & Ståhlberg (1992), Kurkela et al. (1993); Atmospheric: Leppälahti & Kurkela (1991)",
+        "validation_grouping": "按燃料(褐煤/泥炭/锯末)与压力(0.1 vs 0.4–1.0 MPa)分子组；Case D/E 专用于 fuel-N"
+      },
+      "country": "Finland",
+      "scale": "lab/small pilot",
+      "source_input": "Table 7.2 (p.133)",
+      "source_output": "Fig. 7.8, 7.9, 7.10",
+      "reactor": {
+        "bed_diameter_m": "0.15",
+        "freeboard_diameter_m": "0.25",
+        "total_height_m": "3.5",
+        "bed_height_m": "1.2",
+        "secondary_air_port_mm": "800"
+      },
+      "fuel": {
+        "type": "Finnish Peat (Finnischer Torf)",
+        "feed_rate_kg_h": "50.2",
+        "proximate_analysis": {
+          "moisture_wt_pct": "16",
+          "ash_dry_wt_pct": "4.3",
+          "VM_daf_pct": "68.4"
+        },
+        "ultimate_analysis_dry_wt_pct": {
+          "C": "54.5",
+          "H": "5.6",
+          "O": "33.6",
+          "N": "1.8",
+          "S": "0.25"
+        },
+        "particle_diameter_mm": {
+          "mean_range": [
+            1.0,
+            4.0
+          ],
+          "_source": "Biomass feed; peat typical"
+        }
+      },
+      "inlets": {
+        "gasification_agent_type": "Air/Steam",
+        "pressure_MPa": "0.5",
+        "ER_lambda_O2": "0.41",
+        "T_inlet_K": "293",
+        "recirculation": true,
+        "primary_air_Nm3_h": "47",
+        "secondary_air_Nm3_h": "41.6",
+        "total_air_Nm3_h": "88.6",
+        "steam_flow_kg_h": "7.6",
+        "secondary_injection_xi": "0.6"
+      },
+      "outlets": {
+        "gas_basis": "wet",
+        "exit_temperature_K": "1175",
+        "exit_temperature_note": "Mean freeboard T (T_FRB) from Fig. 7.10/7.17 parity Messung axis; may differ from axial outlet profile at ξ=1",
+        "carbon_conversion_pct": "97",
+        "CO": "0.095",
+        "CO2": "0.15",
+        "H2": "0.09",
+        "CH4": "0.032",
+        "H2O": "0.16",
+        "parity_plot_available": true,
+        "axial_profile_available": false,
+        "output_precision": "Digitized from Fig. 7.10 parity (Messung axis), ±5% reading error"
+      }
+    },
+    {
+      "case_id": "CASE_VTT_PRESSURIZED_SAWDUST_14",
+      "hamel_simulation_id": "14",
+      "hamel_table_ref": "Tabelle 7.2, Hamel (1999) Ch.7",
+      "comment": "VTT 加压 BFB (Finland), 锯末 Case Nr.14 (无循环), Hamel (1999)",
+      "plant": "VTT Pressurized BFB",
+      "plant_group": {
+        "plant_group_id": "PLANT_VTT",
+        "plant_group_name_zh": "VTT Espoo 实验台（常压+加压）",
+        "plant_group_name": "VTT Espoo BFB Versuchsanlage",
+        "validation_tier": "lab_experimental",
+        "validation_tier_zh": "实验台",
+        "location": "VTT Technical Research Centre, Laboratory of Fuel and Process Technology, Espoo",
+        "operation_period": null,
+        "hamel_section": "§7.1.3 Bild 7.7 (pressurized); §7.1.4 Bild 7.11 (atmospheric)",
+        "data_provenance": "Pressurized: Kurkela & Ståhlberg (1992), Kurkela et al. (1993); Atmospheric: Leppälahti & Kurkela (1991)",
+        "validation_grouping": "按燃料(褐煤/泥炭/锯末)与压力(0.1 vs 0.4–1.0 MPa)分子组；Case D/E 专用于 fuel-N"
+      },
+      "country": "Finland",
+      "scale": "lab/small pilot",
+      "source_input": "Table 7.2 (p.133)",
+      "source_output": "Fig. 7.8, 7.9, 7.10",
+      "reactor": {
+        "bed_diameter_m": "0.15",
+        "freeboard_diameter_m": "0.25",
+        "total_height_m": "3.5",
+        "bed_height_m": "1.2",
+        "secondary_air_port_mm": "800"
+      },
+      "fuel": {
+        "type": "Sawdust (Sägemehl)",
+        "feed_rate_kg_h": "42.8",
+        "proximate_analysis": {
+          "moisture_wt_pct": "11.3",
+          "ash_dry_wt_pct": "0.2",
+          "VM_daf_pct": "83"
+        },
+        "ultimate_analysis_dry_wt_pct": {
+          "C": "50.2",
+          "H": "6.1",
+          "O": "43.4",
+          "N": "0.1",
+          "S": "0"
+        },
+        "particle_diameter_mm": {
+          "mean_range": [
+            0.1,
+            1.0
+          ],
+          "note": "Significant fine fraction <1mm → high elutriation into freeboard",
+          "_source": "Section 7.1 description"
+        }
+      },
+      "inlets": {
+        "gasification_agent_type": "Air/Steam",
+        "pressure_MPa": "0.4",
+        "ER_lambda_O2": "0.28",
+        "T_inlet_K": "293",
+        "recirculation": false,
+        "primary_air_Nm3_h": "39.1",
+        "secondary_air_Nm3_h": "11.6",
+        "total_air_Nm3_h": "50.7",
+        "steam_flow_kg_h": "2.9",
+        "secondary_injection_xi": "0.6"
+      },
+      "outlets": {
+        "gas_basis": "wet",
+        "exit_temperature_K": "1045",
+        "exit_temperature_note": "Mean freeboard T (T_FRB) from Fig. 7.10/7.17 parity Messung axis; may differ from axial outlet profile at ξ=1",
+        "carbon_conversion_pct": "93",
+        "CO": "0.155",
+        "CO2": "0.11",
+        "H2": "0.08",
+        "CH4": "0.052",
+        "H2O": "0.11",
+        "parity_plot_available": true,
+        "axial_profile_available": false,
+        "output_precision": "Digitized from Fig. 7.10 parity (Messung axis), ±5% reading error"
+      }
+    },
+    {
+      "case_id": "CASE_VTT_ATMOSPHERIC_PEAT_D",
+      "hamel_simulation_id": "D",
+      "hamel_table_ref": "Tabelle 7.3, Hamel (1999) Ch.7",
+      "comment": "VTT 常压 BFB (Finland), 泥炭 Case D (有循环) — fuel-N 验证, Hamel (1999)",
+      "plant": "VTT Atmospheric BFB",
+      "plant_group": {
+        "plant_group_id": "PLANT_VTT",
+        "plant_group_name_zh": "VTT Espoo 实验台（常压+加压）",
+        "plant_group_name": "VTT Espoo BFB Versuchsanlage",
+        "validation_tier": "lab_experimental",
+        "validation_tier_zh": "实验台",
+        "location": "VTT Technical Research Centre, Laboratory of Fuel and Process Technology, Espoo",
+        "operation_period": null,
+        "hamel_section": "§7.1.3 Bild 7.7 (pressurized); §7.1.4 Bild 7.11 (atmospheric)",
+        "data_provenance": "Pressurized: Kurkela & Ståhlberg (1992), Kurkela et al. (1993); Atmospheric: Leppälahti & Kurkela (1991)",
+        "validation_grouping": "按燃料(褐煤/泥炭/锯末)与压力(0.1 vs 0.4–1.0 MPa)分子组；Case D/E 专用于 fuel-N"
+      },
+      "country": "Finland",
+      "scale": "lab",
+      "source_input": "Table 7.3 (p.139)",
+      "source_output": "Fig. 7.12, 7.13",
+      "reactor": {
+        "bed_diameter_m": "0.15",
+        "freeboard_diameter_m": "0.25",
+        "total_height_m": "3.65",
+        "bed_height_m": "1.2",
+        "secondary_air_port_mm": "800"
+      },
+      "fuel": {
+        "type": "Finnish Peat (Finnischer Torf)",
+        "feed_rate_kg_h": "10.7",
+        "proximate_analysis": {
+          "moisture_wt_pct": "8.4",
+          "ash_dry_wt_pct": "4.3",
+          "VM_daf_pct": "68.4"
+        },
+        "ultimate_analysis_dry_wt_pct": {
+          "C": "54.5",
+          "H": "5.6",
+          "O": "33.6",
+          "N": "1.5",
+          "S": "0.2"
+        },
+        "particle_diameter_mm": {
+          "mean": 2.0,
+          "mean_range": [
+            1.0,
+            4.0
+          ],
+          "_source": "Case D specific: d_p = 2.0 mm"
+        }
+      },
+      "inlets": {
+        "gasification_agent_type": "Air (only, no steam)",
+        "pressure_MPa": "0.1",
+        "ER_lambda_O2": "0.26",
+        "T_inlet_K": "293",
+        "recirculation": true,
+        "primary_air_Nm3_h": "12.9",
+        "secondary_air_Nm3_h": "0",
+        "total_air_Nm3_h": "12.9",
+        "steam_flow_kg_h": "0"
+      },
+      "outlets": {
+        "gas_basis": "wet",
+        "exit_temperature_K": "920",
+        "carbon_conversion_pct": "82",
+        "CO": "0.118",
+        "CO2": "0.148",
+        "H2": "0.12",
+        "CH4": "0.042",
+        "H2O": "0.13",
+        "parity_plot_available": false,
+        "axial_profile_available": true,
+        "output_precision": "Digitized from Fig. 7.12 (p.140), ±5% reading error"
+      }
+    },
+    {
+      "case_id": "CASE_VTT_ATMOSPHERIC_PEAT_E",
+      "hamel_simulation_id": "E",
+      "hamel_table_ref": "Tabelle 7.3, Hamel (1999) Ch.7",
+      "comment": "VTT 常压 BFB (Finland), 泥炭 Case E (有循环), Hamel (1999)",
+      "plant": "VTT Atmospheric BFB",
+      "plant_group": {
+        "plant_group_id": "PLANT_VTT",
+        "plant_group_name_zh": "VTT Espoo 实验台（常压+加压）",
+        "plant_group_name": "VTT Espoo BFB Versuchsanlage",
+        "validation_tier": "lab_experimental",
+        "validation_tier_zh": "实验台",
+        "location": "VTT Technical Research Centre, Laboratory of Fuel and Process Technology, Espoo",
+        "operation_period": null,
+        "hamel_section": "§7.1.3 Bild 7.7 (pressurized); §7.1.4 Bild 7.11 (atmospheric)",
+        "data_provenance": "Pressurized: Kurkela & Ståhlberg (1992), Kurkela et al. (1993); Atmospheric: Leppälahti & Kurkela (1991)",
+        "validation_grouping": "按燃料(褐煤/泥炭/锯末)与压力(0.1 vs 0.4–1.0 MPa)分子组；Case D/E 专用于 fuel-N"
+      },
+      "country": "Finland",
+      "scale": "lab",
+      "source_input": "Table 7.3 (p.139)",
+      "source_output": "Fig. 7.12, 7.13",
+      "reactor": {
+        "bed_diameter_m": "0.15",
+        "freeboard_diameter_m": "0.25",
+        "total_height_m": "3.65",
+        "bed_height_m": "1.2",
+        "secondary_air_port_mm": "800"
+      },
+      "fuel": {
+        "type": "Finnish Peat (Finnischer Torf)",
+        "feed_rate_kg_h": "9.8",
+        "proximate_analysis": {
+          "moisture_wt_pct": "8.4",
+          "ash_dry_wt_pct": "4.3",
+          "VM_daf_pct": "68.4"
+        },
+        "ultimate_analysis_dry_wt_pct": {
+          "C": "54.5",
+          "H": "5.6",
+          "O": "33.6",
+          "N": "1.5",
+          "S": "0.2"
+        },
+        "particle_diameter_mm": {
+          "mean": 2.0,
+          "mean_range": [
+            1.0,
+            4.0
+          ],
+          "_source": "same peat feed as Case D"
+        }
+      },
+      "inlets": {
+        "gasification_agent_type": "Air (only, no steam)",
+        "pressure_MPa": "0.1",
+        "ER_lambda_O2": "0.29",
+        "T_inlet_K": "293",
+        "recirculation": true,
+        "primary_air_Nm3_h": "13",
+        "secondary_air_Nm3_h": "0",
+        "total_air_Nm3_h": "13",
+        "steam_flow_kg_h": "0"
+      },
+      "outlets": {
+        "gas_basis": "wet",
+        "exit_temperature_K": "1100",
+        "exit_temperature_note": "Mean freeboard T (T_FRB) from Fig. 7.13 parity Messung axis; may differ from axial outlet profile at ξ=1",
+        "carbon_conversion_pct": "91",
+        "CO": "0.112",
+        "CO2": "0.152",
+        "H2": "0.118",
+        "CH4": "0.045",
+        "H2O": "0.142",
+        "parity_plot_available": true,
+        "axial_profile_available": false,
+        "output_precision": "Digitized from Fig. 7.13 parity (Messung axis), ±5% reading error"
+      }
+    },
+    {
+      "case_id": "CASE_WSV400_A",
+      "hamel_simulation_id": "A",
+      "hamel_table_ref": "Tabelle 7.4, Hamel (1999) Ch.7",
+      "comment": "WSV 400 Magdeburg, Wood Case A (primary reference), Hamel (1999)",
+      "plant": "WSV 400 Magdeburg",
+      "plant_group": {
+        "plant_group_id": "PLANT_WSV400",
+        "plant_group_name_zh": "马格德堡 WSV 400 研究炉",
+        "plant_group_name": "WSV 400 Universität Magdeburg",
+        "validation_tier": "research_pilot",
+        "validation_tier_zh": "100 kW 研究中试",
+        "location": "Universität Magdeburg, Institut für Apparate- und Umwelttechnik",
+        "operation_period": null,
+        "hamel_section": "§7.1.5, Bild 7.14",
+        "data_provenance": "Prof. Dr.-Ing. habil. P. Käferstein; Hoyer et al. (1999); Hamel Ch.7 Table 7.4 / Fig 7.16–7.17",
+        "validation_grouping": "同一炉 ER 扫描(A–F)；Case A 有轴向剖面，B–F 以 parity 出口为主；F 为不同燃料批次"
+      },
+      "country": "Germany",
+      "scale": "pilot",
+      "source_input": "Table 7.4 (p.143)",
+      "source_output": "Fig. 7.16, 7.17",
+      "reactor": {
+        "bed_diameter_m": "0.4",
+        "freeboard_diameter_m": "0.6",
+        "total_height_m": "3",
+        "bed_height_m": "1.2",
+        "fuel_inlet_mm_above_nozzle": "200"
+      },
+      "fuel": {
+        "type": "Natural Wood (Holz)",
+        "feed_rate_kg_h": "35.2",
+        "proximate_analysis": {
+          "moisture_wt_pct": "27.3",
+          "ash_dry_wt_pct": "6.34",
+          "VM_daf_pct": "93.62"
+        },
+        "ultimate_analysis_dry_wt_pct": {
+          "C": "46.27",
+          "H": "5.94",
+          "O": "41.01",
+          "N": "0.4",
+          "S": "0.01"
+        },
+        "particle_diameter_mm": {
+          "equiv_diameter_range_mm": [
+            2,
+            26
+          ],
+          "dominant_class_mm": [
+            14,
+            17
+          ]
+        }
+      },
+      "inlets": {
+        "gasification_agent_type": "Air (only, no steam)",
+        "pressure_MPa": "0.1",
+        "ER_lambda_O2": "0.453",
+        "T_inlet_K": "293",
+        "recirculation": false,
+        "primary_air_Nm3_h": "50",
+        "secondary_air_Nm3_h": "0",
+        "total_air_Nm3_h": "50",
+        "steam_flow_kg_h": "0"
+      },
+      "outlets": {
+        "gas_basis": "dry",
+        "exit_temperature_K": "980",
+        "exit_temperature_note": "simulation 980 K vs measured ~960 K — good agreement",
+        "CO": "0.152",
+        "CO2": "0.132",
+        "H2": "0.11",
+        "CH4": "0.022",
+        "parity_plot_available": true,
+        "axial_profile_available": true,
+        "output_precision": "Digitized from Fig. 7.16 (p.145), ±5% reading error"
+      }
+    },
+    {
+      "case_id": "CASE_WSV400_B",
+      "hamel_simulation_id": "B",
+      "hamel_table_ref": "Tabelle 7.4, Hamel (1999) Ch.7",
+      "comment": "WSV 400 Magdeburg, Wood Case B, Hamel (1999)",
+      "plant": "WSV 400 Magdeburg",
+      "plant_group": {
+        "plant_group_id": "PLANT_WSV400",
+        "plant_group_name_zh": "马格德堡 WSV 400 研究炉",
+        "plant_group_name": "WSV 400 Universität Magdeburg",
+        "validation_tier": "research_pilot",
+        "validation_tier_zh": "100 kW 研究中试",
+        "location": "Universität Magdeburg, Institut für Apparate- und Umwelttechnik",
+        "operation_period": null,
+        "hamel_section": "§7.1.5, Bild 7.14",
+        "data_provenance": "Prof. Dr.-Ing. habil. P. Käferstein; Hoyer et al. (1999); Hamel Ch.7 Table 7.4 / Fig 7.16–7.17",
+        "validation_grouping": "同一炉 ER 扫描(A–F)；Case A 有轴向剖面，B–F 以 parity 出口为主；F 为不同燃料批次"
+      },
+      "country": null,
+      "scale": "pilot",
+      "source_input": "Table 7.4",
+      "source_output": "Fig. 7.16, 7.17",
+      "reactor": {
+        "bed_diameter_m": "0.4",
+        "freeboard_diameter_m": "0.6",
+        "total_height_m": "3",
+        "bed_height_m": "1.2",
+        "fuel_inlet_mm_above_nozzle": "200"
+      },
+      "fuel": {
+        "type": "Natural Wood (Holz)",
+        "feed_rate_kg_h": "44.4",
+        "proximate_analysis": {
+          "moisture_wt_pct": "25.8",
+          "ash_dry_wt_pct": "0.23",
+          "VM_daf_pct": "93.05"
+        },
+        "ultimate_analysis_dry_wt_pct": {
+          "C": "46.27",
+          "H": "5.94",
+          "O": "41.01",
+          "N": "0.4",
+          "S": "0.01"
+        },
+        "particle_diameter_mm": {
+          "equiv_diameter_range_mm": [
+            2,
+            26
+          ]
+        }
+      },
+      "inlets": {
+        "gasification_agent_type": "Air (only)",
+        "pressure_MPa": "0.1",
+        "ER_lambda_O2": "0.35",
+        "T_inlet_K": "293",
+        "recirculation": false,
+        "primary_air_Nm3_h": "50",
+        "total_air_Nm3_h": "50"
+      },
+      "outlets": {
+        "gas_basis": "dry",
+        "exit_temperature_K": "1010",
+        "exit_temperature_note": "Mean freeboard T (T_FRB) from Fig. 7.10/7.17 parity Messung axis; may differ from axial outlet profile at ξ=1",
+        "CO": "0.155",
+        "CO2": "0.128",
+        "H2": "0.16",
+        "CH4": "0.028",
+        "parity_plot_available": true,
+        "axial_profile_available": false,
+        "output_precision": "Digitized from Fig. 7.17 parity (Messung axis), ±5% reading error"
+      }
+    },
+    {
+      "case_id": "CASE_WSV400_C",
+      "hamel_simulation_id": "C",
+      "hamel_table_ref": "Tabelle 7.4, Hamel (1999) Ch.7",
+      "comment": "WSV 400 Magdeburg, Wood Case C, Hamel (1999)",
+      "plant": "WSV 400 Magdeburg",
+      "plant_group": {
+        "plant_group_id": "PLANT_WSV400",
+        "plant_group_name_zh": "马格德堡 WSV 400 研究炉",
+        "plant_group_name": "WSV 400 Universität Magdeburg",
+        "validation_tier": "research_pilot",
+        "validation_tier_zh": "100 kW 研究中试",
+        "location": "Universität Magdeburg, Institut für Apparate- und Umwelttechnik",
+        "operation_period": null,
+        "hamel_section": "§7.1.5, Bild 7.14",
+        "data_provenance": "Prof. Dr.-Ing. habil. P. Käferstein; Hoyer et al. (1999); Hamel Ch.7 Table 7.4 / Fig 7.16–7.17",
+        "validation_grouping": "同一炉 ER 扫描(A–F)；Case A 有轴向剖面，B–F 以 parity 出口为主；F 为不同燃料批次"
+      },
+      "country": null,
+      "scale": "pilot",
+      "source_input": "Table 7.4",
+      "source_output": "Fig. 7.16, 7.17",
+      "reactor": {
+        "bed_diameter_m": "0.4",
+        "freeboard_diameter_m": "0.6",
+        "total_height_m": "3",
+        "bed_height_m": "1.2",
+        "fuel_inlet_mm_above_nozzle": "200"
+      },
+      "fuel": {
+        "type": "Natural Wood (Holz)",
+        "feed_rate_kg_h": "38.8",
+        "proximate_analysis": {
+          "moisture_wt_pct": "25.8",
+          "ash_dry_wt_pct": "0.23",
+          "VM_daf_pct": "93.05"
+        },
+        "ultimate_analysis_dry_wt_pct": {
+          "C": "46.27",
+          "H": "5.94",
+          "O": "41.01",
+          "N": "0.4",
+          "S": "0.01"
+        },
+        "particle_diameter_mm": {
+          "equiv_diameter_range_mm": [
+            2,
+            26
+          ]
+        }
+      },
+      "inlets": {
+        "gasification_agent_type": "Air (only)",
+        "pressure_MPa": "0.1",
+        "ER_lambda_O2": "0.4",
+        "T_inlet_K": "293",
+        "recirculation": false,
+        "primary_air_Nm3_h": "50",
+        "total_air_Nm3_h": "50"
+      },
+      "outlets": {
+        "gas_basis": "dry",
+        "exit_temperature_K": "1115",
+        "exit_temperature_note": "Mean freeboard T (T_FRB) from Fig. 7.10/7.17 parity Messung axis; may differ from axial outlet profile at ξ=1",
+        "CO": "0.168",
+        "CO2": "0.132",
+        "H2": "0.17",
+        "CH4": "0.024",
+        "parity_plot_available": true,
+        "axial_profile_available": false,
+        "output_precision": "Digitized from Fig. 7.17 parity (Messung axis), ±5% reading error"
+      }
+    },
+    {
+      "case_id": "CASE_WSV400_D",
+      "hamel_simulation_id": "D",
+      "hamel_table_ref": "Tabelle 7.4, Hamel (1999) Ch.7",
+      "comment": "WSV 400 Magdeburg, Wood Case D, Hamel (1999)",
+      "plant": "WSV 400 Magdeburg",
+      "plant_group": {
+        "plant_group_id": "PLANT_WSV400",
+        "plant_group_name_zh": "马格德堡 WSV 400 研究炉",
+        "plant_group_name": "WSV 400 Universität Magdeburg",
+        "validation_tier": "research_pilot",
+        "validation_tier_zh": "100 kW 研究中试",
+        "location": "Universität Magdeburg, Institut für Apparate- und Umwelttechnik",
+        "operation_period": null,
+        "hamel_section": "§7.1.5, Bild 7.14",
+        "data_provenance": "Prof. Dr.-Ing. habil. P. Käferstein; Hoyer et al. (1999); Hamel Ch.7 Table 7.4 / Fig 7.16–7.17",
+        "validation_grouping": "同一炉 ER 扫描(A–F)；Case A 有轴向剖面，B–F 以 parity 出口为主；F 为不同燃料批次"
+      },
+      "country": null,
+      "scale": "pilot",
+      "source_input": "Table 7.4",
+      "source_output": "Fig. 7.16, 7.17",
+      "reactor": {
+        "bed_diameter_m": "0.4",
+        "freeboard_diameter_m": "0.6",
+        "total_height_m": "3",
+        "bed_height_m": "1.2",
+        "fuel_inlet_mm_above_nozzle": "200"
+      },
+      "fuel": {
+        "type": "Natural Wood (Holz)",
+        "feed_rate_kg_h": "34.5",
+        "proximate_analysis": {
+          "moisture_wt_pct": "25.8",
+          "ash_dry_wt_pct": "0.23",
+          "VM_daf_pct": "93.05"
+        },
+        "ultimate_analysis_dry_wt_pct": {
+          "C": "46.27",
+          "H": "5.94",
+          "O": "41.01",
+          "N": "0.4",
+          "S": "0.01"
+        },
+        "particle_diameter_mm": {
+          "equiv_diameter_range_mm": [
+            2,
+            26
+          ]
+        }
+      },
+      "inlets": {
+        "gasification_agent_type": "Air (only)",
+        "pressure_MPa": "0.1",
+        "ER_lambda_O2": "0.45",
+        "T_inlet_K": "293",
+        "recirculation": false,
+        "primary_air_Nm3_h": "50",
+        "total_air_Nm3_h": "50"
+      },
+      "outlets": {
+        "gas_basis": "dry",
+        "exit_temperature_K": "1120",
+        "exit_temperature_note": "Mean freeboard T (T_FRB) from Fig. 7.10/7.17 parity Messung axis; may differ from axial outlet profile at ξ=1",
+        "CO": "0.178",
+        "CO2": "0.135",
+        "H2": "0.18",
+        "CH4": "0.02",
+        "parity_plot_available": true,
+        "axial_profile_available": false,
+        "output_precision": "Digitized from Fig. 7.17 parity (Messung axis), ±5% reading error"
+      }
+    },
+    {
+      "case_id": "CASE_WSV400_E",
+      "hamel_simulation_id": "E",
+      "hamel_table_ref": "Tabelle 7.4, Hamel (1999) Ch.7",
+      "comment": "WSV 400 Magdeburg, Wood Case E, Hamel (1999)",
+      "plant": "WSV 400 Magdeburg",
+      "plant_group": {
+        "plant_group_id": "PLANT_WSV400",
+        "plant_group_name_zh": "马格德堡 WSV 400 研究炉",
+        "plant_group_name": "WSV 400 Universität Magdeburg",
+        "validation_tier": "research_pilot",
+        "validation_tier_zh": "100 kW 研究中试",
+        "location": "Universität Magdeburg, Institut für Apparate- und Umwelttechnik",
+        "operation_period": null,
+        "hamel_section": "§7.1.5, Bild 7.14",
+        "data_provenance": "Prof. Dr.-Ing. habil. P. Käferstein; Hoyer et al. (1999); Hamel Ch.7 Table 7.4 / Fig 7.16–7.17",
+        "validation_grouping": "同一炉 ER 扫描(A–F)；Case A 有轴向剖面，B–F 以 parity 出口为主；F 为不同燃料批次"
+      },
+      "country": null,
+      "scale": "pilot",
+      "source_input": "Table 7.4",
+      "source_output": "Fig. 7.16, 7.17",
+      "reactor": {
+        "bed_diameter_m": "0.4",
+        "freeboard_diameter_m": "0.6",
+        "total_height_m": "3",
+        "bed_height_m": "1.2",
+        "fuel_inlet_mm_above_nozzle": "200"
+      },
+      "fuel": {
+        "type": "Natural Wood (Holz)",
+        "feed_rate_kg_h": "31.1",
+        "proximate_analysis": {
+          "moisture_wt_pct": "25.8",
+          "ash_dry_wt_pct": "0.23",
+          "VM_daf_pct": "93.05"
+        },
+        "ultimate_analysis_dry_wt_pct": {
+          "C": "46.27",
+          "H": "5.94",
+          "O": "41.01",
+          "N": "0.4",
+          "S": "0.01"
+        },
+        "particle_diameter_mm": {
+          "equiv_diameter_range_mm": [
+            2,
+            26
+          ]
+        }
+      },
+      "inlets": {
+        "gasification_agent_type": "Air (only)",
+        "pressure_MPa": "0.1",
+        "ER_lambda_O2": "0.5",
+        "T_inlet_K": "293",
+        "recirculation": false,
+        "primary_air_Nm3_h": "50",
+        "total_air_Nm3_h": "50"
+      },
+      "outlets": {
+        "gas_basis": "dry",
+        "exit_temperature_K": "1135",
+        "exit_temperature_note": "Mean freeboard T (T_FRB) from Fig. 7.10/7.17 parity Messung axis; may differ from axial outlet profile at ξ=1",
+        "CO": "0.188",
+        "CO2": "0.142",
+        "H2": "0.19",
+        "CH4": "0.018",
+        "parity_plot_available": true,
+        "axial_profile_available": false,
+        "output_precision": "Digitized from Fig. 7.17 parity (Messung axis), ±5% reading error"
+      }
+    },
+    {
+      "case_id": "CASE_WSV400_F",
+      "hamel_simulation_id": "F",
+      "hamel_table_ref": "Tabelle 7.4, Hamel (1999) Ch.7",
+      "comment": "WSV 400 Magdeburg, Wood Case F (different fuel batch), Hamel (1999)",
+      "plant": "WSV 400 Magdeburg",
+      "plant_group": {
+        "plant_group_id": "PLANT_WSV400",
+        "plant_group_name_zh": "马格德堡 WSV 400 研究炉",
+        "plant_group_name": "WSV 400 Universität Magdeburg",
+        "validation_tier": "research_pilot",
+        "validation_tier_zh": "100 kW 研究中试",
+        "location": "Universität Magdeburg, Institut für Apparate- und Umwelttechnik",
+        "operation_period": null,
+        "hamel_section": "§7.1.5, Bild 7.14",
+        "data_provenance": "Prof. Dr.-Ing. habil. P. Käferstein; Hoyer et al. (1999); Hamel Ch.7 Table 7.4 / Fig 7.16–7.17",
+        "validation_grouping": "同一炉 ER 扫描(A–F)；Case A 有轴向剖面，B–F 以 parity 出口为主；F 为不同燃料批次"
+      },
+      "country": null,
+      "scale": "pilot",
+      "source_input": "Table 7.4",
+      "source_output": "Fig. 7.16, 7.17",
+      "reactor": {
+        "bed_diameter_m": "0.4",
+        "freeboard_diameter_m": "0.6",
+        "total_height_m": "3",
+        "bed_height_m": "1.2",
+        "fuel_inlet_mm_above_nozzle": "200"
+      },
+      "fuel": {
+        "type": "Natural Wood (Holz) — different batch",
+        "feed_rate_kg_h": "33.5",
+        "proximate_analysis": {
+          "moisture_wt_pct": "22.8",
+          "ash_dry_wt_pct": "0.23",
+          "VM_daf_pct": "93.05"
+        },
+        "ultimate_analysis_dry_wt_pct": {
+          "C": "51.85",
+          "H": "6.15",
+          "O": "41.6",
+          "N": "0.14",
+          "S": "0.01"
+        },
+        "particle_diameter_mm": {
+          "equiv_diameter_range_mm": [
+            2,
+            26
+          ]
+        }
+      },
+      "inlets": {
+        "gasification_agent_type": "Air (only)",
+        "pressure_MPa": "0.1",
+        "ER_lambda_O2": "0.45",
+        "T_inlet_K": "293",
+        "recirculation": false,
+        "primary_air_Nm3_h": "50",
+        "total_air_Nm3_h": "50"
+      },
+      "outlets": {
+        "gas_basis": "dry",
+        "exit_temperature_K": "1105",
+        "exit_temperature_note": "Mean freeboard T (T_FRB) from Fig. 7.10/7.17 parity Messung axis; may differ from axial outlet profile at ξ=1",
+        "CO": "0.148",
+        "CO2": "0.13",
+        "H2": "0.15",
+        "CH4": "0.025",
+        "parity_plot_available": true,
+        "axial_profile_available": false,
+        "output_precision": "Digitized from Fig. 7.17 parity (Messung axis), ±5% reading error"
+      }
+    }
+  ]
+}

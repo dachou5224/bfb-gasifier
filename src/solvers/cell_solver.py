@@ -190,6 +190,7 @@ def solve_cell(
     skip_homotopy: bool = False,
     skip_multistart: bool = False,
     temperature_cap_K: float | None = None,
+    temperature_floor_K: float = 300.0,
     verbose: bool = False,
 ) -> dict:
     """稳健地求解单个 cell 的守恒方程（有界 least_squares）。
@@ -204,13 +205,16 @@ def solve_cell(
         可选温度上界 [K]。用于 GS 底部 stiff continuation，将 full solve
         约束在 Vorabrechnung 参考窗口附近，避免从同一 warm-start 直接跳到
         明显过热的局部分支。
+    temperature_floor_K:
+        温度下界 [K]。底格 Startwert 求解须抬离 300 K 冷根（handoff §5.30）。
     """
     x0 = _pack_state(cell)
     x0_raw = x0.copy()
     n_vars = len(x0)
 
     lower_bounds = np.zeros(n_vars)
-    lower_bounds[-1] = 300.0
+    T_floor = float(max(temperature_floor_K, 300.0))
+    lower_bounds[-1] = T_floor
     upper_bounds = np.full(n_vars, np.inf)
     upper_bounds[-1] = 3000.0
     if temperature_cap_K is not None:

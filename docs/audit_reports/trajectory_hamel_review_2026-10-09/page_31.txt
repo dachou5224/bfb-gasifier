@@ -1,0 +1,103 @@
+3 Strömungsmechanik
+44
+3 Strömungsmechanik
+45
+( U P 
+Ug )' \( U p 
+u g
+' 
+2
+~ CW ' Pg '
+zurück. Al Taweel et al. (1989) berücksichtigt sowohl den Einfluss der Form, als auch den
+Einfluss von intern im Partikelballen zirkulierendem Gas auf den Widerstandsbeiwert.
+Die Lösung der Partikelbewegungsgleichung (3.82) erfolgt mit dem Ziel, die Aufenthaltszei-
+ten jeder Partikelklasse im Freiraum zu ermitteln, um somit den Feststoffgehalt in den Bilanz-
+raumen berechnen zu können. Bürkle (1991) schlägt zur Lösung der Partikelbewegungsglei-
+chung die numerische Integration mit einem Runge-Kutta-Verfahren vor. Dies fuhrt bei der
+Berechnung der gesamten Feststoffbewegung mit hinreichender Genauigkeit, selbst bei leis-
+tungsfähigen Rechnern, zu unakzeptabel langen Rechenzeiten. Daher wird hier dem Vor-
+schlag von Wirsum (1998) gefolgt, der durch geeignete Wahl der Gleichung für den Wider-
+standsbeiwert die Partikelbewegungsgleichung in eine analytisch lösbare Form überfuhrt. Der
+Ansatz für den Widerstandsbeiwert lautet:
+(3-81)
+Fw
+Die Richtung der Widerstandskraft F& ist von der Relativgeschwindigkeit zwischen Partikel
+und Gas abhängig. Für den Fall, dass sich der Partikel schneller als das den Partikel umgeben-
+de Gas (up > Ug) bewegt oder der Partikel (up < 0) fallt, ist die Widerstandskraft der Trägheits-
+kraft Fr entgegengerichtet. Steigt ein Partikel jedoch auf, wobei er sich langsamer bewegt als
+das ihn umgebende Gas (uP > 0, uP < ug ), wirkt die Widerstandskraft als Schleppkraft. Durch
+Einsetzen der Gleichungen für die Einzelkräfte in die Kräftebilanz folgt die Differentialglei-
+chung für die Partikelbewegung im Freiraum
+dup 
+-3-c,y -Pg-n r | | (pp-Pg)-g
+dt 
+4 * p P ’ d P
+p p
+24
+cir = —
+Re
+(3.85)
+mit
+Dabei ist z der Wert von cw für sehr große Reynolds-Zahlen Re 
+der unter Zuhilfenahme der
+von Haider und Levenspiel (1989) vorgeschlagenen Gleichung (3.84) ermittelt wird.
+z = — 
+[/ +(s,l 716 -e- 4-0655
+)■ Re J0.0964+0. 
+s , 1 75,69
+Re + 5,378 -e6'2122
+(3.83)
+= u p -u g .
+Bei der Berechnung der Partikelflugbahnen wird in der Regel eine kugelförmige Form der
+Partikel vorausgesetzt, da sich für kugelförmige Einzelpartikel der Widerstandsbeiwert c w mit
+hoher Genauigkeit durch Formeln approximieren lässt. In der Literatur vorgestellte Berech-
+nungsgleichungen für den Widerstandsbeiwert im Falle der Einzelkugelumströmung sind in
+Tabelle 3.1 zusammengestellt. Die Berechnung des Widerstandsbeiwertes nicht-kugelför-
+miger Partikel mit den in Tabelle 3.1 aufgeführten Gleichungen stellt jedoch eine Vereinfa-
+chung dar. Martens (1984) schlägt vor, die von der Kugelgestalt abweichende Partikelform bei
+der Berechnung des Widerstandsbeiwertes durch einen Formfaktor zu berücksichtigen. Haider
+und Levenspiel (1989) fassen zahlreiche Untersuchungsergebnisse zum Widerstandsbeiwert
+sowohl kugelförmiger als auch nicht-kugelförmiger Partikel in Abhängigkeit der Partikel-
+Sphärizität zusammen. Die Sphärizität <j)s der Partikel ist definiert als das Verhältnis der Ober-
+fläche einer dem Partikel volumengleichen Kugel bezogen auf die tatsächliche Oberfläche des
+Partikels. Gleichung (3.84) repräsentiert die von Haider und Levenspiel (1989) vorgenomme-
+ne Parameteranpassung experimenteller Ergebnisse über Widerstandskoeffizienten von kugel-
+förmigen Partikeln mit <|>s = 1 bis zu scheibenförmigen Partikeln mit einer Sphärizität von 
+=
+0,026
+mit
+v z
+(3-87)
+Bild 3.8 zeigt den Vergleich der nach Haider und Levenspiel (1989) berechneten Wider-
+standsbeiwerte mit der Approximation durch Gleichung (3.85). Die Berechnung der Bahnkur-
+ven erfolgt im weiteren unter der Annahme einer Verteilung des Partikelformfaktors im Inter-
+vall 0,3 < & < 1,0. Der entsprechende Mittelwert der Sphärizität ist eine Eingabegröße des
+Simulationsprogramms, sind keine Angaben bekannt, wird den Berechnungen eine mittlere
+Sphärizität von </)s = 0,8 zugrundegelegt.
+Tabelle 3.1: 
+Berechnungsgleichungen für den Widerstandsbeiwert 
+eines kugelförmigen
+Einzelpartikels.
+\l + [8 ,1716- e - 4065
+)■ Re (0.0964+0M 
+>y TW-Rejgf 
+*
+Re 1 
+v
+’ 
+J
+Re4-5,378-e6'2' 22
+c w -
+24 
+4
+cnr
+-----h ~T== + 0’4
+Re 
+ÖRe
+Kaskas (1964)
+1 ( [72 
+, 1
+Martin (1984)
+Für die Beschreibung der Bewegung von Partikelgruppen oder -ballen im Freiraum mittels
+Gleichung (3.82) greifen Fung und Hamdullahpur (1993) auf die von Al Taweel et al. (1989)
+veröffentlichte Gleichung zur Berechnung des Widerstandsbeiwertes eines Partikelballens

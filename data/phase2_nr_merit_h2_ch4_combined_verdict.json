@@ -1,0 +1,162 @@
+{
+  "knife": "nr_merit_scale_weight_H2_CH4_combined",
+  "date": "2026-07-27",
+  "constraint": "不抬 Tin；不用 r*_scale；不 ship 无 Hamel 同构的生产改动；单路径 solve",
+  "true_dry_target": {
+    "CO": 0.157,
+    "CO2": 0.133
+  },
+  "hypothesis": [
+    "H1: 线搜索 merit=max(RMS, phase_split) 不约束 combined → H2 过出口可与 merit 下降并存",
+    "H2: merit 再取 max(gas_combined_max_abs) 可压 H2_rc",
+    "H3: 仅对 H2/CH4 product_max 加权比全物种 combined_max 更对准出口结构",
+    "H4: combined_rms 因稀释太弱，不足以钉住 H2"
+  ],
+  "baseline_dilution": {
+    "exit": {
+      "CO": 0.12509097284445553,
+      "CO2": 0.1513731487200997,
+      "H2": 0.15124181927192126,
+      "CH4": 7.147405109657767e-06
+    },
+    "score_abs": 0.05028217587564415,
+    "wall_s": 181.417064681,
+    "metrics": {
+      "rms": 1.0741480707277238,
+      "merit_split": 1.0741480707277238,
+      "gas_combined_rms": 0.005132668639718201,
+      "gas_combined_max_abs": 0.027514011677114904,
+      "gas_phase_split_rms": 0.01712342405529317,
+      "c0_H2_Fc": -0.027514011677114904,
+      "c0_CH4_Fc": 0.0166778634288628,
+      "product_max_abs": 0.027514011677114904,
+      "n_combined": 100,
+      "H2_share_of_combined_ssq": 0.28735673433700415,
+      "H2": {
+        "R": 5.173696835956092,
+        "Nout": 7.363406206462962,
+        "rc": -2.1897093705068693,
+        "zu": 0.0,
+        "N_ex": -2.275629159987175
+      }
+    },
+    "top5_combined": [
+      [
+        "c0.H2",
+        -0.027514011677114904
+      ],
+      [
+        "c1.CO",
+        0.019463243390169152
+      ],
+      [
+        "c1.H2O",
+        -0.018155847991428782
+      ],
+      [
+        "c0.CH4",
+        0.0166778634288628
+      ],
+      [
+        "c0.H2O",
+        0.014887201214948301
+      ]
+    ],
+    "note": "H2_Fc≈comb_max；comb_rms≪|H2_Fc| 因多方程稀释；merit_split 由 phase_split 主导时可忽略 combined",
+    "energy_dominates_final_rms": true,
+    "note_extended": "终态 energy_rms≈6.9、bed0 energy F_hat≈17.8 主导 overall RMS≈1.07；H2_Fc≈0.028 对终态 merit 不可见。但线搜索过程中 overall rms 中位≈0.04，gas_combined_max 在 56% 调用上绑定 merit。"
+  },
+  "AB": {
+    "off": {
+      "exit": {
+        "CO": 0.12509097284445553,
+        "CO2": 0.1513731487200997,
+        "H2": 0.15124181927192126,
+        "CH4": 7.147405109657767e-06
+      },
+      "score_abs": 0.05028217587564415,
+      "H2_rc": -2.1897093705068693,
+      "H2_Fc": -0.027514011677114904,
+      "wall_s": 157.20745737299998
+    },
+    "A_combined_rms": {
+      "exit": {
+        "CO": 0.12509097284445553,
+        "CO2": 0.1513731487200997,
+        "H2": 0.15124181927192126,
+        "CH4": 7.147405109657767e-06
+      },
+      "score_abs": 0.05028217587564415,
+      "H2_rc": -2.1897093705068693,
+      "H2_Fc": -0.027514011677114904,
+      "finding": "与 off 同构 — combined_rms 过弱（稀释）"
+    },
+    "B_combined_max": {
+      "exit": {
+        "CO": 0.1302557581018473,
+        "CO2": 0.1456166586902242,
+        "H2": 0.14805102254831665,
+        "CH4": 0.0
+      },
+      "score_abs": 0.03936090058837688,
+      "H2_rc": -1.0809541183528744,
+      "H2_Fc": -0.013582343225713996,
+      "d_score_abs": -0.010921275287267274,
+      "d_H2_rc": 1.108755252153995,
+      "finding": "H2_rc -2.19→-1.08；出口 abs 0.050→0.039（CO↑ CO2↓）；线搜索 56% 绑定"
+    },
+    "C_product_max_H2_CH4": {
+      "exit": {
+        "CO": 0.12462788234030088,
+        "CO2": 0.15118115194024545,
+        "H2": 0.14963046425156087,
+        "CH4": 0.0
+      },
+      "score_abs": 0.050553269599944564,
+      "H2_rc": -2.3923415019115466,
+      "H2_Fc": -0.030060113413134984,
+      "finding": "更差 — 仅钉 H2/CH4 与 CO 等物种 combined 冲突，不可取"
+    },
+    "D_combined_max_plus_energy": {
+      "exit": {
+        "CO": 0.1302557581018473,
+        "CO2": 0.1456166586902242,
+        "H2": 0.14805102254831665,
+        "CH4": 0.0
+      },
+      "score_abs": 0.03936090058837688,
+      "H2_rc": -1.0809541183528744,
+      "H2_Fc": -0.013582343225713996,
+      "energy_rms": 4.44422289684997,
+      "wall_s": 144.13772524599997,
+      "finding": "与 B 出口/H2_rc 同构；energy_rms 4.44（基线~6.9）略降，但未额外改善 CO/CO2。说明本刀杠杆主要来自 combined_max，非 energy 项。"
+    }
+  },
+  "falsification": {
+    "H1_merit_ignores_combined": "CONFIRMED — 默认 merit 无 combined；终态被 energy 淹没",
+    "H2_combined_max_helps": "CONFIRMED — 出口与 H2_rc 均改善，仍未达干基验收",
+    "H3_product_only_better": "FALSIFIED — product_max 恶化 H2_rc",
+    "H4_combined_rms_enough": "FALSIFIED — 与 off 无差",
+    "scale_ref_gas_is_root_cause": "WEAK — 缩放使 |rc|/ref≈0.028，但真正屏蔽的是 energy 主导 + merit 不含 combined"
+  },
+  "mechanism": {
+    "type": "line_search_merit_blind_to_product_combined_under_energy_dominance",
+    "final_state": "energy F_hat ≫ gas → overall RMS 不反映 H2 债",
+    "during_LS": "rms 中位低时 combined_max 可绑定并改变接受步",
+    "vs_prior_knife": "每 outer 投影钉 Nout 是外部补丁；本刀证明内层 merit 结构可部分内化该压力"
+  },
+  "ship": {
+    "production_change": false,
+    "reason": "combined_max merit 是数值杠杆、非 Hamel 同构；出口仍远未验收（abs≈0.039 vs 目标≈0）；终态 energy 残差仍巨大，需先弄清能量假收敛再考虑正式开关",
+    "candidate_flag_if_later": "nr_line_search_gas_combined_max_merit_thesis"
+  },
+  "next_knife": {
+    "primary": "bed0_energy_Fhat_false_root_vs_gas_coupling",
+    "why": "终态 bed0 energy F_hat≈18 主导 RMS，可能与 H2/出口耦合；先分清能量方程 vs 假收敛",
+    "alt": [
+      "outer_merit_include_gas_combined_max",
+      "H4_FB_secondary_air",
+      "dense_O2_R10_R6_competition"
+    ]
+  }
+}

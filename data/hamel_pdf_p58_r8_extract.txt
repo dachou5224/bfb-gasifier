@@ -1,0 +1,145 @@
+5 Modellierung der chemischen Reaktionen
+%
+5 Modellierung der chemischen Reaktionen
+97
+Cm H„ + ™O2 ->m-CO + yH
+2
+(5.58)
+Die Kinetik dieser Reaktion berechnet sich nach Siminski et al. (1972) zitiert in Smoot und
+Smoot und Smith (1985) zu:
+Rc
+= 
+(559)
+mit dem Frequenzfaktor und der Aktivierungsenergie für
+/.5
+Oiefine: 
+k }0 =59,8 -----—----------7~— 
+(5.60)
+mol0 -5 -K-Pa 0J
+s
+E/Rg = 12.200 K
+m 1,5
+Aromaten: 
+k l0 = 20.700 -----—---------- — 
+(5.61)
+mol0,5 ■ K ■ Pa0,3 ■ s
+E/Rg= 9.650 K
+Die Umsetzung des Teeres in Form von Sekundärpyrolyse oder Dampfreformierung wird zu-
+sammenfassend durch die stöchiometrischen Reaktionsgleichungen (5.55) und (5.56) be-
+schrieben. Der Vorgang des thermischen Crackens und der Dampfreformierung von höheren
+Kohlenwasserstoffen wird durch die Gegenwart von Feststoffen katalysiert. Tabelle 5.4 fasst
+die von verschiedenen Autoren ermittelten kinetischen Parameter der homogenen und der
+heterogen katalysierten Sekundärpyrolyse von Teeren aus Kohlen und Biomasse zusammen.
+Alle Parameter beziehen sich dabei auf die Annahme einer Einzelreaktion erster Ordnung. Die
+mit der Annahme einer Einzelreaktion erster Ordnung von Serio et al. (1983, 1987) ermittel-
+ten kinetischen Parameter der Teerpyrolyse erscheinen gering im Vergleich zu Ergebnissen
+von Kohlenwasserstoffen. Ein daraufhin von Serio et al. (1983, 1987) angewendetes 3-
+Komponenten-Modell liefert deutlich höhere Werte für die kinetischen Parameter. Dabei wur-
+de angenommen, dass sich der Teer aus drei Komponenten mit unterschiedlicher Reaktivität
+zusammensetzt, wobei die dritte Komponente unter den Versuchsbedingungen als nicht um-
+setzbar betrachtet wird.
+Wen und Cain (1984) nehmen dagegen zur Korrelation ihrer eigenen Versuchergebnisse eine
+Vielzahl paralleler Reaktionen erster Ordnung an, die mit einer Gauß-Verteilung der Aktivie-
+rungsenergie beschrieben werden können.
+Experimentelle Ergebnisse von Corella et al. (1991) zur Sekundärpyrolyse von Biomassetee-
+ren in einem Wirbelbett aus Sand deuten ebenfalls daraufhin, dass die Teere aus Fraktionen
+unterschiedlicher Reaktivität bestehen. Corella et al. (1991) geben für eine Einzelreaktion
+erster Ordnung als Ergebnis ihrer Messungen schließlich zwei Aktivierungsenergien für unter-
+schiedliche Temperaturintervalle an.
+Da in der Regel keine Informationen über die Zusammensetzung oder zur Reaktivität der Tee-
+re aus den Stoffen, deren Vergasung simuliert werden soll, bekannt sind, wird im Rahmen
+dieser Arbeit zur Abschätzung der Sekundärreaktionen und der Sekundärpyrolyse des Teers
+auf die von Corella et al. (1991) und Serio et al. (1987) ermittelten kinetischen Parameter zu-
+rückgegriffen. Die Ergebnisse von Serio et al. (1987) zur homogenen Teerpyrolyse werden
+dabei für die feststofffreie Blasenphase und die in der Wirbelschicht ermittelten Parameter
+von Corella et al. (1991) in der Suspensionsphase zugrundegelegt.
+Tabelle 5.4: Ergebnisse zur Pyrolyse und katalytischen Umsetzung von Teeren aus der
+Pyrolyse und Vergasung von Kohlen und Biomassen. Die kinetischen
+Parameter gelten jeweils für eine Einzelreakion erster Ordnung.
+Stoff
+Reaktor
+Temp.-
+intervall
+°C
+Frequenz-
+faktor
+1/s
+Aktivierungs-
+energie
+kJ/mol **
+Bettmaterial
+Gas
+Quelle
+Teer aus der
+Pyrolyse von
+Pittsburgh #8
+FB
+550-850
+8,18-IO3
+86,3
+Quarz
+He
+Wen und Cain
+1984
+' Teer aus der
+Pyrolyse von
+Biomasse
+LR
+FB
+FB
+600-800
+- 
+’
+90,0
+77,0
+46,1
+Sand
+Dolomit
+Rohgas/He
+Rohgas/He
+Rohgas/He
+Donnot et al.
+1985
+Teer aus der
+Pyrolyse von
+Pittsburgh #8
+LR
+500-900
+5,42*104
+9,96-102
+100,5
+64,5
+-
+He
+He
+Serio et al.
+1987
+Teer aus der
+Vergasung von
+Biomasse
+WS
+600-740
+740-900
+7,5-10"4
+0,7 **>
+5,9
+63,1
+Sand
+Sand
+Rohgas
+Rohgas
+Corella et al.
+1991
+Teer aus der
+Vergasung
+FB
+550-950
+1,510'°
+252,0
+Dolomit
+Rohgas
+Simell 1996
+WS = Wirbelschicht, FB = Festbett, LR = leerer Reaktor
+** Gültig für eine Reaktion erster Ordnung, bezogen auf das Reaktionsvolumen (R eeo in mol-(s-m’)*1 ).
+Gültig für eine Reaktion erster Ordnung, bezogen auf die Masse des Katalysators ( R_<Tccjj in mol(s-kg Kat)*' )•
+Der Frequenzfaktor hat die Einheit m3-(s kg ut)"’

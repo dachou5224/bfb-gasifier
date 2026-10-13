@@ -16,15 +16,12 @@
 from __future__ import annotations
 
 import copy
-import sys
 from contextlib import contextmanager
 from dataclasses import dataclass
-from pathlib import Path
 
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT))
+import _lu_harness  # noqa: F401
 
 import src.kinetics.char_reactions as cr
 import src.kinetics.gas_reactions as gr
@@ -35,7 +32,8 @@ from src.kinetics.char_reactions import d_core_from_spm_char_conversion, rate_R1
 from src.kinetics.gas_reactions import rate_R5_bubble, rate_R5_suspension, rate_R6, rate_R9, rate_R12
 from src.kinetics.tar_reactions import get_lumped_tar_stoichiometry, rate_R10
 from src.solvers.cell_solver import solve_cell
-from tests.validation_case_utils import build_phase1_htw_lu_refined_config, load_case_LU
+from _lu_harness import load_case_lu
+from tests.validation_case_utils import build_phase1_htw_lu_refined_config
 
 
 @dataclass
@@ -65,7 +63,7 @@ def kinetics_scaling(r5_scale: float, r6_scale: float, r4_scale: float):
 
 
 def _build_reactor(sc: Scenario) -> Reactor:
-    case = load_case_LU()
+    case = load_case_lu()
     cfg = build_phase1_htw_lu_refined_config(case, n_fine=3, dh_fine=0.15)
     cfg.gas_inlet_dense_frac = sc.dense
     cfg.heat_loss_frac = sc.heat_loss
@@ -114,7 +112,7 @@ def _oxygen_breakdown(cell) -> dict:
 
     D_g = gas_diffusivity_correlation(T, P)
 
-    r5b = rate_R5_bubble(T, C_b[idx["CO"]], C_b[idx["O2"]], P, y_b, idx) * cell.V_b
+    r5b = rate_R5_bubble(T, C_b[idx["CO"]], C_b[idx["O2"]], C_b[idx["H2O"]], P, y_b, idx) * cell.V_b
     r6b = rate_R6(T, C_b[idx["CH4"]], C_b[idx["O2"]]) * cell.V_b
     r12b = rate_R12(T, C_b[idx["H2"]], C_b[idx["O2"]], P, y_b, idx) * cell.V_b if cell.enable_r12 else 0.0
     r5d = rate_R5_suspension(T, C_d[idx["CO"]], C_d[idx["O2"]], C_d[idx["H2O"]], P, y_d, idx) * cell.V_d

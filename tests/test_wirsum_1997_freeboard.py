@@ -25,7 +25,9 @@ from src.physics.wirsum_1997_freeboard import (
     calc_u_p0_wirsum_1997,
     calc_wake_mass_flux_engineering,
     classify_particle_fate,
+    classify_particle_fate_branching,
     eject_size_class_mass_flows,
+    hamel_eq386_asymptotic_z,
     integrate_quadratic_analytical,
     integrate_quadratic_rk4,
     particle_acceleration_cw,
@@ -222,3 +224,69 @@ def test_default_z_is_inside_wirsum_range() -> None:
     assert z == WIRSUM_1997_Z_DRAG_DEFAULT
     with pytest.raises(ValueError, match="drag z"):
         wirsum_1997_drag_z(0.0)
+
+
+def test_hamel_eq386_z_depends_on_phi() -> None:
+    z08 = hamel_eq386_asymptotic_z(0.8)
+    z10 = hamel_eq386_asymptotic_z(1.0)
+    z03 = hamel_eq386_asymptotic_z(0.3)
+    assert z08 == pytest.approx(73.69 * np.exp(-5.0784 * 0.8), rel=0.0, abs=1e-12)
+    assert z08 > 1.2
+    assert z10 < z08 < z03
+    hamel = resolve_freeboard_model(FREEBOARD_MODEL_HAMEL_EXTENDED)
+    assert hamel.drag == "hamel_z_exp"
+    with pytest.raises(ValueError, match="phi_s"):
+        hamel_eq386_asymptotic_z(0.2)
+
+
+def test_branch_acceleration_matches_force_across_ug() -> None:
+    common = dict(u_g=1.2, rho_g=0.35, rho_p=1700.0, d_p=7.0e-4, mu_g=2.0e-5, z=1.27)
+    for u_p in (1.2 + 1e-6, 1.2 - 1e-6):
+        a, b, c, _ = wirsum_1997_abc(u_p=u_p, **common)
+        poly = a * u_p * u_p + b * u_p + c
+        force = particle_acceleration_cw(u_p, **common)
+        assert poly == pytest.approx(force, rel=0.0, abs=1e-10)
+
+
+def test_return_event_is_bed_surface_not_apex() -> None:
+    # 无阻力竖直上抛：顶点 u=0 时 z>0，必须继续落到 z=0
+    fate = classify_particle_fate_branching(
+        0.40,
+        u_g=0.0,
+        rho_g=1.0,
+        rho_p=2000.0,
+        d_p=2.0e-3,
+        mu_g=2.0e-5,
+        z=0.44,
+        cell_height=2.0,
+        dt=5.0e-4,
+        t_max=2.0,
+    )
+    assert fate == "returns"
+    high = classify_particle_fate_branching(
+        8.0,
+        u_g=2.0,
+        rho_g=0.3,
+        rho_p=800.0,
+        d_p=5.0e-5,
+        mu_g=2.0e-5,
+        z=0.44,
+        cell_height=0.05,
+        dt=5.0e-4,
+        t_max=1.0,
+    )
+    assert high == "reaches_next_cell"
+
+
+def test_gaussian_weights_are_named_truncation() -> None:
+    from src.physics.wirsum_1997_freeboard import GAUSSIAN_SAMPLE_MODE
+
+    assert GAUSSIAN_SAMPLE_MODE == "truncated_pm_2sigma_uniform_xi"
+    u5, w5 = build_launch_velocity_samples(1.2, 0.6, 5)
+    u21, w21 = build_launch_velocity_samples(1.2, 0.6, 21)
+    assert w5.sum() == pytest.approx(1.0)
+    assert w21.sum() == pytest.approx(1.0)
+    mean5 = float(np.dot(u5, w5))
+    mean21 = float(np.dot(u21, w21))
+    assert abs(mean5 - mean21) < 0.05
+    assert WIRSUM_1997_VELOCITY_SIGMA == pytest.approx(0.6)

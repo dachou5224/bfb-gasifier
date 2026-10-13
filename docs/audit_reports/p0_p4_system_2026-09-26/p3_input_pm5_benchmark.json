@@ -1,0 +1,75 @@
+{
+  "cases": [
+    {
+      "name": "air_plus_5pct",
+      "status": "passed",
+      "elapsed_s": 110.449316406,
+      "budget_s": 120.0,
+      "outer_refreshes": 3,
+      "blocks": {
+        "passed": true,
+        "gas_l2": 1.9270346238135312e-07,
+        "solid_l2": 1.7909627952667038e-10,
+        "tar_l2": 1.5480216936907296e-09,
+        "energy_W": -0.0001451781572541222
+      },
+      "worst_row": {
+        "index": 49,
+        "value": -0.00015310768503695726
+      },
+      "T_bed": 1378.6096856323284,
+      "T_fb": 1429.9406574871098
+    },
+    {
+      "name": "air_minus_5pct",
+      "status": "timeout",
+      "elapsed_s": 120.082479749,
+      "budget_s": 120.0,
+      "outer_refreshes": 0,
+      "blocks": null,
+      "worst_row": null,
+      "T_bed": 1363.4411286245822,
+      "T_fb": 1384.0930720853798
+    },
+    {
+      "name": "fuel_plus_5pct",
+      "status": "timeout",
+      "elapsed_s": 120.08619523200002,
+      "budget_s": 120.0,
+      "outer_refreshes": 1,
+      "blocks": {
+        "passed": false,
+        "gas_l2": 0.0008545147101344957,
+        "solid_l2": 2.2544653744117026e-06,
+        "tar_l2": 3.053221092144634e-05,
+        "energy_W": 0.9430254062754102
+      },
+      "worst_row": {
+        "index": 49,
+        "value": 0.9456484220427228
+      },
+      "T_bed": 1356.2954423528906,
+      "T_fb": 1355.390730250254
+    },
+    {
+      "name": "fuel_minus_5pct",
+      "status": "passed",
+      "elapsed_s": 92.651530734,
+      "budget_s": 120.0,
+      "outer_refreshes": 3,
+      "blocks": {
+        "passed": true,
+        "gas_l2": 4.972690863900862e-08,
+        "solid_l2": 4.399309949267313e-11,
+        "tar_l2": 3.734500691969124e-10,
+        "energy_W": -5.1841692766174674e-05
+      },
+      "worst_row": {
+        "index": 49,
+        "value": -5.427389987744391e-05
+      },
+      "T_bed": 1368.892297662812,
+      "T_fb": 1413.8532844219744
+    }
+  ]
+}

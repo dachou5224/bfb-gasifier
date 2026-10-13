@@ -1,0 +1,120 @@
+{
+  "title": "CO/CO2 结构扭转回溯与 Hamel 同构审计",
+  "date": "2026-07-27",
+  "critical_clarification": "扭转出口 CO/CO2 结构偏差的杠杆是运行时诊断补丁 「密相 O2：R6-first（焦油 R10 仅吃剩余）」；并未写入/提交生产代码 src/core/cell_kinetics.py。仓库生产路径仍是比例 O2 限幅 limit_factor_o2_dense。",
+  "timeline_of_this_thread": [
+    {
+      "knife": "bed0 H2 Nout vs R",
+      "change": "诊断投影 Nout→R；每 outer 可钉住 H2 combined",
+      "shipped": false,
+      "hamel": "无同构依据（数值投影）",
+      "effect_on_CO_CO2": "小幅 abs 0.050→0.046"
+    },
+    {
+      "knife": "NR merit combined_max",
+      "change": "线搜索 merit 取 max(…, gas_combined_max_abs)",
+      "shipped": false,
+      "hamel": "无（求解器工程）",
+      "effect_on_CO_CO2": "abs 0.050→0.039"
+    },
+    {
+      "knife": "bed0 energy T fence",
+      "change": "抬 _nr_temperature_max_K",
+      "shipped": false,
+      "hamel": "fence 本身是工程；抬 fence 恶化出口",
+      "effect_on_CO_CO2": "abs 变差 0.050→0.062"
+    },
+    {
+      "knife": "dense O2 R10–R6 + r6_first explore",
+      "change": "运行时 patch build_reaction_sources：密相先满足 R1/R5/R6/R12，R10 吃剩余 O2",
+      "shipped": false,
+      "hamel": "见下方 parity 表 — 与论文不一致",
+      "effect_on_CO_CO2": "abs 0.050→0.028；CO/CO2 0.125/0.151 → 0.163/0.111；fully converge"
+    }
+  ],
+  "production_code_state": {
+    "cell_kinetics_O2_alloc": "proportional shared limiter (limit_factor = 0.995*supply/demand)",
+    "r6_first_in_repo": false,
+    "uncommitted_related_edits": [
+      "src/core/cell.py: holdup_transport 下 _compute_char_conversion 计入 m_solid_auf/ab_in（X/SPM）— 前序炭转化修复，非本刀 O2 分配",
+      "src/core/cell_kinetics.py: r2/r5_bubble/r8_scale 与 R5 H2O 项等（工作区未提交 diff）— 非 r6_first"
+    ],
+    "baseline_harness_scales": "Phase2 仍用 r5_scale=0.25、r7_scale=2.5 等（既有调参，非本线程新引入）"
+  },
+  "hamel_parity_table": [
+    {
+      "item": "R10 速率 Eq.5.59 / k10 Eq.5.60–5.61",
+      "hamel": "k·T·P^0.3·C_tar^0.5·C_O2；芳香/烯烃分参数",
+      "code": "tar_reactions.rate_R10 + k_hobbs；Pa^0.3",
+      "verdict": "一致",
+      "evidence": "docs/hamel_submodels/06 §(5.59)；checklist P1 已闭合；audit_hamel_consistency PASS；前刀 phase2_bed0_r10_tar_h2_ch4_verdict"
+    },
+    {
+      "item": "R10 计量 Eq.5.52–5.54",
+      "hamel": "C6H6/C10H8/C16H34 + O2 → CO + H2（无 CH4）",
+      "code": "TAR_STOICH_R10 / get_lumped_tar_stoichiometry",
+      "verdict": "一致",
+      "evidence": "前刀 parity PASS"
+    },
+    {
+      "item": "R6 CH4 氧化 Eq.5.40–5.41（thesis R7）",
+      "hamel": "r = k·C_CH4·C_O2",
+      "code": "gas_reactions.rate_R6 + k_jensen_r7",
+      "verdict": "一致",
+      "evidence": "audit_hamel_consistency Eq.5.40/5.41 PASS"
+    },
+    {
+      "item": "多相反应同时消耗 O2（物理）",
+      "hamel": "各反应独立按局部 C_i,T 写速率；O2 守恒由摩尔平衡/NR 求解体现，未见「预先按供给比例缩放全部 extent」条文",
+      "code_production": "先算 raw extent，再 limit_factor_o2_* 同因子缩放 R5/R6/R1/R10…",
+      "verdict": "工程护栏 / 论文未载 — 有意偏离（数值守恒）",
+      "evidence": "cell_kinetics.py L205–264；hamel_submodels/06 无 O2 budget limiter 方程"
+    },
+    {
+      "item": "比例 O2 限幅 0.995·supply",
+      "hamel": "无对应方程",
+      "code_production": "o2_budget = 0.995 * o2_supply；factor = min(1, budget/demand)",
+      "verdict": "不一致（工程）",
+      "note": "目的是防止单步 extent 吃穿 O2；Hamel 离散求解是否依赖此类护栏未在转录中出现"
+    },
+    {
+      "item": "R6-first / R10-last 优先级分配（诊断补丁）",
+      "hamel": "无反应优先级/排队吃 O2 的规定；速率由浓度决定，非剩余配额",
+      "code_diagnostic": "密相 core（R1/R5/R6/R12）先按自身 limiter 吃满，ext10d 仅用 leftover",
+      "verdict": "不一致（诊断干预）",
+      "note": "这正是扭转 CO/CO2 的杠杆；同态下 net_r10≈0、R6 抬升；全炉收敛但床0 冷、CO 略高 CO2 仍低",
+      "risk": "若 ship 会把「动力学竞争」换成「人为优先级」，偏离 Hamel 同构；出口改善不能当作 parity 修复"
+    },
+    {
+      "item": "r10_scale / r5_scale 倍率",
+      "hamel": "无",
+      "code": "配置可调；本线程未用 r10_scale 验收；基线 r5_scale=0.25 为既有 Phase2 设置",
+      "verdict": "不一致（调参）— 约束上不得用作掩盖 parity 的验收手段"
+    }
+  ],
+  "mechanism_why_exit_flipped": {
+    "at_bed0_o8_proportional": "密相 O2 demand 中 R10≈72.5%、R6≈27.5%，lf_d≈0.25 → 两者同被压到 1/4",
+    "r6_first_same_state": "R6 提到接近满额度，R10≈关掉 → CH4 被烧掉、R10 产 CO/H2 消失；CO/CO2 源汇结构重排",
+    "full_solve": "吸引子：干基 CO/CO2≈0.163/0.111（目标 0.157/0.133），abs 优于比例路径；非 Hamel 速率式修正的结果"
+  },
+  "what_is_NOT_the_hamel_fix": [
+    "R10/R6 速率公式本身（已与 Hamel 一致）",
+    "R10 计量（已一致）",
+    "H2 Nout 投影、combined_max merit、抬 T fence（均未 ship，且非本扭转主因）"
+  ],
+  "strict_conclusion": {
+    "did_we_fix_a_Hamel_bug": false,
+    "did_we_find_engineering_lever": true,
+    "lever": "密相多反应 O2 竞争的离散分配规则（比例 vs 优先级）",
+    "hamel_status_of_lever": "论文未规定 → 任一规则都是工程选择；R6-first 比比例限幅更远离「各反应按自身动力学」",
+    "can_claim_isomorphic_closure": false,
+    "recommendation": "1) 勿将 r6_first 直接 ship 为 Hamel 同构修复；2) 在 gap checklist 登记「细胞级 O2 extent 限幅」为 B-tier/工程桥；3) 若要同构推进：查 Hamel 原文单元格内多反应同时积分/是否依赖负浓度抑制，或减弱护栏让 NR 自己闭合 O2，而非改优先级；4) 出口已扭转说明杠杆在 O2 分配，下一步应找 Hamel 相容的分配/供给表述（如 N_ex、轴向 O2、二次风）"
+  },
+  "artifacts": [
+    "data/phase2_dense_o2_r10_r6_verdict.json",
+    "data/phase2_dense_o2_r6_first_convergence_explore.json",
+    "data/phase2_bed0_r10_tar_h2_ch4_verdict.json",
+    "docs/hamel_submodels/06_kinetics_r1_r11_and_equilibrium_driving.md",
+    "docs/hamel_isomorphic_gap_implementation_checklist.md"
+  ]
+}

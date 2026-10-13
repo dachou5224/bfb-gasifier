@@ -68,3 +68,17 @@ def k_jensen_r7(A: float, E_T: float, T: float) -> float:
         t = float(T)
         return (A / t) * math.exp(_clamp_exp_arg(-E_T / t))
     return (A / T) * np.exp(np.clip(-E_T / T, -100.0, 100.0))
+
+
+def k_jensen_h2(A: float, E_T: float, T: float) -> float:
+    """形式 D：H₂ 氧化（Hamel Eq. 5.39 / Jensen et al. 1995）。
+
+    k = A * T^1.5 * exp(-E_T / T)，其中 E_T = E/Rg [K]
+
+    Ref: Hamel (1999) Eq. 5.39
+    """
+    if _is_scalar_temperature(T):
+        t = float(max(T, 300.0))
+        return A * (t**1.5) * math.exp(_clamp_exp_arg(-E_T / t))
+    t = np.maximum(T, 300.0)
+    return A * (t**1.5) * np.exp(np.clip(-E_T / t, -100.0, 100.0))

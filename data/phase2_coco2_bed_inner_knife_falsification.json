@@ -1,0 +1,100 @@
+{
+  "knife": "bed_inner_R5_O2_split",
+  "date": "2026-07-17",
+  "baseline_p2_o8": {
+    "exit_dry_CO_CO2": [
+      0.1164,
+      0.1516
+    ],
+    "true_dry_target": [
+      0.157,
+      0.133
+    ]
+  },
+  "mechanism_confirmed": {
+    "bed0": {
+      "CO_src_dense_mol_s": 7.88,
+      "CO_src_bubble_mol_s": -9.25,
+      "CO2_src_bubble_mol_s": 9.25,
+      "O2_sink_bubble_mol_s": 4.62,
+      "O2_sink_dense_mol_s": 4.62,
+      "N_ex_CO": -9.3,
+      "N_ex_O2": 0.31,
+      "note": "密相产 CO → N_ex 进气泡 → R5 氧化为 CO₂；气泡 R5 为供应限幅（lim_co≈lim_o2≈0.013）"
+    },
+    "R1_extent_bed0": 0.00015,
+    "o2_transfer_potential_bd": 0.0,
+    "dense_o2_shortfall": 0.0,
+    "bubble_has_slack_after_R5": false
+  },
+  "candidates_tested": [
+    {
+      "id": "G1_apply_o2_transfer_potential",
+      "result": "FALSIFIED_for_current_state",
+      "evidence": "data/phase2_coco2_bed0_o2_sinks_o8.json: xfer=0, lim_d=1, shortfall_d=0",
+      "reason": "密相 O₂ 预算无缺口；跨相松弛项无法接入"
+    },
+    {
+      "id": "phase2_precalc_hydrodynamic_inlet",
+      "result": "WORSE_o8",
+      "evidence": "data/phase2_coco2_inlet_split_parity_o8.json",
+      "exit_dry_CO_CO2": [
+        0.0108,
+        0.0953
+      ],
+      "reason": "hydro dense_frac≈0.37 更偏气泡，R5b 更大；床顶 O₂ 残留"
+    },
+    {
+      "id": "disable_staged_primary",
+      "result": "WORSE_o8",
+      "evidence": "data/phase2_coco2_staged_primary_ab_o8.json",
+      "exit_dry_CO_CO2": [
+        0.0316,
+        0.1866
+      ]
+    },
+    {
+      "id": "exclude_N_ex_from_CO_limiter_alone",
+      "result": "NOT_IMPLEMENTED_predicted_pathology",
+      "reason": "bed0 本地 CO 入口≈0，去掉 N_ex 后 lim_co→0 ⇒ R5≈0 ⇒ 气泡 O₂ 穿透（与 r5_bubble_bed0=0 同类）"
+    },
+    {
+      "id": "R5_stoich_CO_half_O2",
+      "result": "NO_LEVERAGE_when_supply_limited",
+      "reason": "Hamel R5 写 CO+½O₂→CO₂；供应限幅下改计量不改变 CO 消耗量"
+    },
+    {
+      "id": "prior_falsified_knobs",
+      "result": "ALREADY_FALSIFIED",
+      "items": [
+        "gas_inlet_dense_frac",
+        "gas_inlet_o2_dense_frac",
+        "r5_bubble_scale_bed0",
+        "global r5_scale as acceptance"
+      ],
+      "ref": "docs/audit_reports/hamel_parity_uncertainty_2026-07-14.md"
+    }
+  ],
+  "revised_next_paths": [
+    {
+      "id": "H3_lower_bed_T_parity",
+      "why": "bed1 T≈1355 K vs Bild ~1000 K；虽 R5 已供应限幅，过热仍锁定氧化窗口并抑制气化优势",
+      "do_not": [
+        "抬 T_inlet",
+        "默认抬围栏"
+      ]
+    },
+    {
+      "id": "H4_fb_secondary_nr",
+      "why": "并行结构债；床顶 CO₂ 已高故不能单独背锅，但文献 dip+recover 仍缺失"
+    },
+    {
+      "id": "ex_bd_CO_partition_deeper",
+      "why": "N_ex_CO≈−9.3 与 dense/bubble 反应不对称是直接链条；需 PDF/Eq.2.4–2.5 级审查是否存在数值闭包过度氧化，而非再调 scale"
+    }
+  ],
+  "unique_next_recommendation": {
+    "path": "ex_bd_CO_partition_deeper",
+    "rationale": "G1（o2_transfer）与入口/staged/限幅捷径均已否证或恶化。当前可证链条是：密相产 CO + 气泡供应限幅 R5 + N_ex(CO) 大通量。下一刀应审交换/相区反应闭包是否让 R5 在代数限幅层过度兑现交换 CO，而不是再动 r5_scale / dense_frac。"
+  }
+}

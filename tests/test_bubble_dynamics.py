@@ -94,6 +94,9 @@ def test_bubble_rise_velocity_supports_heinbockel_pressure_form() -> None:
     assert legacy > hein
     assert hein >= u_bs
 
+    hein_vb = bubble_rise_velocity(u0, u_mf, d_b, P=P, v_b=0.5, strategy="heinbockel_eq343")
+    assert np.isclose(hein_vb, 0.76 * (u0 - u_mf) * ((P / P0_HAMEL) ** 0.2 - 1.0) + 0.5 * u_bs)
+
 
 def test_integrate_bubble_diameter_supports_heinbockel_ode_branch() -> None:
     kwargs = {

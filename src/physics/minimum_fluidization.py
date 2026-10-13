@@ -2,7 +2,7 @@
 
 通过 Archimedes 数和 Ergun 方程求解 Re_mf，进而计算 u_mf。
 
-Source: specs/02_hydrodynamics.md §1; Hamel (1999) Eq.4.2; Ergun (1952)
+Source: docs/hamel_submodels/03_hydrodynamics_core_chain.md §1; Hamel (1999) Eq.4.2; Ergun (1952)
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ def calc_archimedes(
     -------
     Ar : Archimedes 数 [-]
 
-    Source: Hamel (1999); specs/02_hydrodynamics.md §1
+    Source: Hamel (1999); docs/hamel_submodels/03_hydrodynamics_core_chain.md §1
     """
     assert d_p > 0 and mu_g > 0 and rho_g > 0, "输入参数必须为正"
     return rho_g * (rho_s - rho_g) * g * d_p**3 / mu_g**2
@@ -62,7 +62,7 @@ def calc_re_mf(
     -------
     Re_mf : 最小流化 Reynolds 数 [-]
 
-    Source: specs/02_hydrodynamics.md §1, Eq.4.2; Ergun (1952)
+    Source: docs/hamel_submodels/03_hydrodynamics_core_chain.md §1, Eq.4.2; Ergun (1952)
     """
     assert Ar >= 0, f"Ar must be non-negative, got {Ar}"
     e3 = eps_mf**3
@@ -93,7 +93,7 @@ def calc_u_mf(
     -------
     u_mf : 最小流化速度 [m/s]
 
-    Source: specs/02_hydrodynamics.md §1
+    Source: docs/hamel_submodels/03_hydrodynamics_core_chain.md §1
     """
     return Re_mf * mu_g / (rho_g * d_p)
 
@@ -121,7 +121,7 @@ def compute_u_mf(
     -------
     u_mf : 最小流化速度 [m/s]
 
-    Source: specs/02_hydrodynamics.md §1
+    Source: docs/hamel_submodels/03_hydrodynamics_core_chain.md §1
     """
     Ar = calc_archimedes(rho_g, rho_s, d_p, mu_g)
     Re_mf = calc_re_mf(Ar, eps_mf, phi_s)

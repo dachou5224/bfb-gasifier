@@ -97,12 +97,18 @@ from src.solvers.vorabrechnung.vorab_refresh import (
     refresh_vorabrechnung_for_cells,
 )
 from src.solvers.vorabrechnung.vorab_policy import (
+    VORAB_OUTER_SOURCE_AUTO,
+    VORAB_OUTER_SOURCE_ENGINEERING_SINGLE_SHOT,
+    VORAB_OUTER_SOURCE_HAMEL_OUTER_REFRESH,
     cell_vorab_drying_pyro_sources_frozen,
     clear_vorab_drying_pyro_source_freeze_for_cells,
     freeze_vorab_drying_pyro_sources_for_cells,
+    resolve_vorab_outer_source_policy,
+    resolve_vorab_outer_source_policy_name,
     thesis_vorab_sources_single_shot_enabled,
     vorab_outer_may_refresh_drying_pyro_sources,
     vorab_refresh_policy_label,
+    vorab_tau_model_label,
 )
 
 __all__ = [
@@ -187,8 +193,14 @@ __all__ = [
     "seed_major_product_holdup_from_vorab_gas_balance",
     "seed_pyrolysis_gas_dense_holdup_for_nr_x0",
     "solve_pyrolysis_gas_gibbs_composition",
+    "VORAB_OUTER_SOURCE_AUTO",
+    "VORAB_OUTER_SOURCE_ENGINEERING_SINGLE_SHOT",
+    "VORAB_OUTER_SOURCE_HAMEL_OUTER_REFRESH",
+    "resolve_vorab_outer_source_policy",
+    "resolve_vorab_outer_source_policy_name",
     "thesis_vorab_sources_single_shot_enabled",
     "vorab_outer_may_refresh_drying_pyro_sources",
     "vorab_refresh_policy_label",
+    "vorab_tau_model_label",
     "vorabrechnung_tau_for_cell",
 ]

@@ -1,0 +1,7 @@
+# 仅索引模型源码与测试（排除 data/、scripts/、archive/ 等 audit 噪声）
+*
+!src/
+!src/**
+!tests/
+!tests/**
+!app.py

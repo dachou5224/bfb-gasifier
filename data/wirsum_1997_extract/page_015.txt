@@ -1,0 +1,85 @@
+2 
+Modellbeschreibung
+2.1 
+Modellelemente
+Bei der mathematischen Modellierung von Feuerungsanlagen mit blasenbildender Wirbel-
+schicht sind eine Vielzahl gekoppelter physikalischer und chemischer Vorgänge zu berücksich-
+tigen. Diese sind zum Teil anlagen- oder prozeßspezifisch wie die Gas- und Feststoffbewegung
+in Wirbelbett und Freiraum und zum Teil brennstoffspezifisch wie die Trocknung, Entgasung
+und Verbrennung oder die Verteilung des Brennstoffs. Die Modellierung blasenbildender Wir-
+belschichten zur Verbrenung von Kohlen ist in sehr detaillierter Form von Bürkle [19] beschrie-
+ben worden. Viele der dort verwendeten Modellansätze, insbesondere die zur Beschreibung
+der Strömungsmechanik, behalten auch für die Klärschlammverbrennung in blasenbildenden
+Wirbelschichten ihre Gültigkeit und bilden eine wesentliche Grundlage der hier angewandten
+Berechnungen.
+Die Verbrennung von wasserhaltigen schlammförmigen Reststoffen führt zu einigen Besonder-
+heiten im Betriebsverhalten, welche im Modell zusätzlich berücksichtigt werden müssen. Bei
+den brennstoffspezifischen Vorgängen sind dies die Entgasung und die gleichzeitige Formände-
+rung der Klärschlammpartikel sowie die Verbrennung der Entgasungsprodukte. Hier ist ins-
+besondere die Umsetzung der flüchtigen Bestandteile wichtig, da Klärschlämme bis zu 90 %
+Flüchtige, bezogen auf den brennbaren Anteil, enthalten können. Zu berücksichtigende pro-
+zeßspezifische Phänomene umfassen die quasi-stationäre vertikale Verteilung der Klärschlamm-
+partikel sowie Wärmeübertragungsmechanismen zwischen Freiraum und Wirbelschicht. Da
+allgemein eine direkte Abhängigkeit von der Feststoffbewegung und der Strömungsstruktur
+im Reaktor vorliegt, ist die Beschreibung der Strömungsmechanik ein wesentlicher Bestand-
+teil des Gesamtmodells.
+Die theoretische Grundlage der verschiedenen Teilmodelle bilden die Erhaltungsgleichungen
+sowie empirische Modellansätze. Letztere sind im Falle der Segregation und des Abbrandver-
+haltens der Klärschlammpartikel anhand eigener experimenteller Untersuchungen entwickelt
+oder verifiziert worden. Um das Gesamtmodell auf verschiedene Anlagengeometrien und Be-
+triebsarten anwenden zu können, werden bei der Modellierung anlagenspezifische Korrelati-
+onsgleichungen vermieden.
+Bei der Modellformulierung wird prinzipiell zwischen unabhängigen Modellvariablen und ab-
+hängigen Modellvariablen unterschieden, wobei sich die Einordnung solcher am realen Prozeß
+orientiert. Die unabhängigen Modellvariablen stellen die Eingabegrößen für die Modellrech-
+nungen dar, während die Werte der abhängigen Modellvariablen den ausgehend von den Einga-
+begrößen berechneten Betriebszustand der modellierten Anlage wiedergeben. Eine weitere Un-
+tmeüung der unabhängigen Modellvariablen unterscheidet zwischen Anlageparametern und
+Betriebsparametern. Anlageparameter sind solche, die die Abmessungen des Reaktors, die
+Lage der Luft- und Brennstoffzufuhrstellen und andere konstruktive Merkmale definieren.
+Betriebsparameter bestimmen u.a. den Zustand, die Zusammensetzung sowie die Mengen der
+11
+■ Zentrifugal
+■ Reingas
+□ Klärschlamm
+■ 
+Asche
+100
+80
+(%)
+60
+40
+20
+0
+Pb 
+Cd 
+Cr 
+Cu 
+Ni 
+Hg 
+Zn
+Schwermetalle
+Bild 1.7. Verteilung der im Klärschlamm enthaltenen Schwermetalle auf die bei der Verbrennung anfallen-
+den Reststoffe (aus Stäubli [124]). Als Zentrifugat wird das bei der mechanischen Entwässerung anfallende
+Abwasser bezeichnet (siehe auch Darstellung in Bild 1.6).
+trieb der Anlage werden Temperaturen innerhalb der Wirbelschicht von 700 bis 750 °C erreicht.
+Oberhalb der Wirbelschichtoberfläche findet der chemische Umsatz von aus der Wirbelschicht
+ausgetragenen Brennstoffbestandteilen statt, wodurch sich im Freiraum eine deutlich höhere
+Temperatur einstellt. Die Rauchgastemperaturen am Ofenkopf betragen in der Regel 850 °C.
+Die Asche des Klärschlamms wird nahezu vollständig mit dem Rauchgasstrom aus dem Reak-
+tor ausgetragen und in der nachgeschalteten Rauchgasreinigung (Elektrofilter) abgeschieden.
+Die heißen Rauchgase werden im Abhitzekessel zur Bereitstellung von Prozeßdampf und zur
+Vorwärmung der Wirbelluft verwendet.
+Die aus dem Wirbelschichtreaktor abgeführten Prozeßprodukte sind Staub und ein mit Schad-
+stoffen beladenes Rauchgas. Die Asche weist in der Regel sehr niedrige Glühverluste von
+weniger als 1 Gew.% auf (Stäubli [124]). Die im Klärschlamm enthaltenen Schwermetalle
+werden mit Ausnahme des leichtflüchtigen Quecksilbers fast vollständig in die Flugasche ein-
+gebunden (siehe Darstellung in Bild 1.7). Da die Verbrennung des Klärschlamms jedoch
+bei relativ niedriger Temperatur abläuft und die Asche nicht aufgeschmolzen wird, ist die
+in der Rauchgasreinigung anfallende Klärschlammasche nicht laugungsresistent (Marb [80]).
+Chlorierte Kohlenwasserstoffverbindungen im Klärschlamm werden innerhalb der Feuerung
+weitgehend zerstört. Für Dioxine und Furane konnten an der Verbrennungsanlage Berlin-
+Ruhleben (Lungwitz [78]) nur sehr niedrige Konzentrationswerte im Rauchgas von etwa 0,005
+ng/m 
+tr nachgewiesen werden.
+10

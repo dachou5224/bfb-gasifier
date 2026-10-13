@@ -1,0 +1,20 @@
+{
+  "label": "B_nested_with_fb_proj",
+  "exit_CO": 0.15575528797535995,
+  "rms": 0.050064826531133325,
+  "split": 0.041911879193333085,
+  "bed2_R_H2O": -2.6142946811479755,
+  "converged": false,
+  "hot_restart": {
+    "enabled": true,
+    "triggered": true,
+    "y_co_top": 0.15329987983075535,
+    "threshold": 0.14,
+    "mode": "nested_skip_precalc",
+    "cont_max_iter": 8,
+    "y_co_top_at_trigger": 0.15329987983075535,
+    "pre_cont_freeboard_T_projection": true
+  },
+  "n_outer": 20,
+  "wall_s": 179.17806853099998
+}

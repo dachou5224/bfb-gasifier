@@ -1,0 +1,13 @@
+{
+  "s": 0.16,
+  "inner_status": "least_squares",
+  "checkpoint": "least_squares_x",
+  "F_calls": 392.0,
+  "J_calls": 4.0,
+  "inner_merit_entrance": 0.003591449744083014,
+  "inner_merit_best": 0.003116581890780251,
+  "inner_merit_returned": 0.003116581890780251,
+  "full_merit_returned": 0.004004588077769852,
+  "returned_inner_not_worse": true,
+  "outer_gate_unchanged": "full P still required; this record is not an accepted root"
+}

@@ -1,0 +1,378 @@
+{
+  "symptom": "O9 composite/split jump +0.030 under refresh_skipped continuation",
+  "evidence_files": [
+    "data/phase2_full_sim_merit_trace_p40_post_fix.json",
+    "data/phase2_o9_preinner_gate_probe.json"
+  ],
+  "verdict": {
+    "primary_mechanism": "inner_T_cap_disabled_by_energy_spike",
+    "supporting_mechanisms": [
+      "preinner_global_gate_always_fails",
+      "holdup_reconcile_sticky_across_gate_rollback",
+      "diag_reports_zero_merit_delta_while_state_changes",
+      "refresh_skipped_check1_continuation"
+    ]
+  },
+  "causal_chain_O9": [
+    "Every outer: holdup_flux_mismatch~0.57-0.72 triggers T1 reconcile; global merit gate fails; split-only fallback fails.",
+    "Gate rollback restores snapshot taken AFTER holdup reconcile \u2192 holdup changes stick; reported energy_before==energy_after is false.",
+    "O8\u2192O9: preinner entry energy jumps 0.104\u21920.157 (refresh skipped); solid residual also elevated.",
+    "O9 inner start: split/merit=0.789 < 0.85 \u2192 resolve_inner_t_max_step_K returns 600K (cap off).",
+    "Inner takes large \u0394T (dT_outer=300K); split climbs 0.119\u21920.149; plateau break."
+  ],
+  "O8_vs_O9": {
+    "O8": {
+      "outer": 8,
+      "split_end": 0.11921761557542619,
+      "energy_end": 0.10450814159411621,
+      "dT_outer": 46.875,
+      "refresh_skipped": true,
+      "gate_pass": false,
+      "bed0_accepted_flag": true,
+      "holdup_flux": 0.5814053557023184,
+      "holdup_reconciled": true,
+      "inner_start_split": 0.11803203354192521,
+      "inner_start_energy": 0.12212152316349396,
+      "inner_start_split_over_merit": 0.966512949432396,
+      "t_max_step_K_start": 150.0,
+      "t_cap_active": true
+    },
+    "O9": {
+      "outer": 9,
+      "split_end": 0.14918780464344808,
+      "energy_end": 0.11548311603246324,
+      "dT_outer": 300.0,
+      "refresh_skipped": true,
+      "gate_pass": false,
+      "bed0_accepted_flag": true,
+      "holdup_flux": 0.6517968854160561,
+      "holdup_reconciled": true,
+      "inner_start_split": 0.11925992218370059,
+      "inner_start_energy": 0.1512422019209528,
+      "inner_start_split_over_merit": 0.7885360082633031,
+      "t_max_step_K_start": 600.0,
+      "t_cap_active": false
+    }
+  },
+  "outer_tcap_table": [
+    {
+      "outer": 1,
+      "split_end": 0.10331070762220279,
+      "energy_end": 0.10330702513394631,
+      "dT_outer": 24.57275390625,
+      "refresh_skipped": false,
+      "gate_pass": false,
+      "bed0_accepted_flag": true,
+      "holdup_flux": 0.7214732689662535,
+      "holdup_reconciled": true,
+      "inner_start_split": 0.044256501618578366,
+      "inner_start_energy": 0.10553288725523954,
+      "inner_start_split_over_merit": 0.4193621795975368,
+      "t_max_step_K_start": 600.0,
+      "t_cap_active": false
+    },
+    {
+      "outer": 2,
+      "split_end": 0.10331552031034161,
+      "energy_end": 0.10736099477856421,
+      "dT_outer": 0.0,
+      "refresh_skipped": true,
+      "gate_pass": false,
+      "bed0_accepted_flag": true,
+      "holdup_flux": 0.6703167820716716,
+      "holdup_reconciled": true,
+      "inner_start_split": 0.10331552031034161,
+      "inner_start_energy": 0.10631732638332782,
+      "inner_start_split_over_merit": 0.9717655985613937,
+      "t_max_step_K_start": 150.0,
+      "t_cap_active": true
+    },
+    {
+      "outer": 3,
+      "split_end": 0.10548444587786632,
+      "energy_end": 0.10551517063905759,
+      "dT_outer": 2.9296875,
+      "refresh_skipped": false,
+      "gate_pass": false,
+      "bed0_accepted_flag": true,
+      "holdup_flux": 0.6736625419194795,
+      "holdup_reconciled": true,
+      "inner_start_split": 0.1033215701029459,
+      "inner_start_energy": 0.10674201928839827,
+      "inner_start_split_over_merit": 0.9679559258082713,
+      "t_max_step_K_start": 150.0,
+      "t_cap_active": true
+    },
+    {
+      "outer": 4,
+      "split_end": 0.10732506768543491,
+      "energy_end": 0.10732626210453713,
+      "dT_outer": 2.490234375,
+      "refresh_skipped": true,
+      "gate_pass": false,
+      "bed0_accepted_flag": true,
+      "holdup_flux": 0.6488319020269886,
+      "holdup_reconciled": true,
+      "inner_start_split": 0.10549259892970213,
+      "inner_start_energy": 0.10854185915709165,
+      "inner_start_split_over_merit": 0.9719070573226837,
+      "t_max_step_K_start": 150.0,
+      "t_cap_active": true
+    },
+    {
+      "outer": 5,
+      "split_end": 0.10921053146694934,
+      "energy_end": 0.10921731712691732,
+      "dT_outer": 2.4169921875,
+      "refresh_skipped": true,
+      "gate_pass": false,
+      "bed0_accepted_flag": true,
+      "holdup_flux": 0.6329896175571215,
+      "holdup_reconciled": true,
+      "inner_start_split": 0.10733550523379258,
+      "inner_start_energy": 0.11101824747512458,
+      "inner_start_split_over_merit": 0.9668275952369255,
+      "t_max_step_K_start": 150.0,
+      "t_cap_active": true
+    },
+    {
+      "outer": 6,
+      "split_end": 0.11325804631528631,
+      "energy_end": 0.11101873457886417,
+      "dT_outer": 4.7607421875,
+      "refresh_skipped": true,
+      "gate_pass": false,
+      "bed0_accepted_flag": true,
+      "holdup_flux": 0.6144627387121253,
+      "holdup_reconciled": true,
+      "inner_start_split": 0.1092221670066839,
+      "inner_start_energy": 0.11385070309170903,
+      "inner_start_split_over_merit": 0.9593455643282524,
+      "t_max_step_K_start": 150.0,
+      "t_cap_active": true
+    },
+    {
+      "outer": 7,
+      "split_end": 0.11801786627588207,
+      "energy_end": 0.11436576635320767,
+      "dT_outer": 4.6875,
+      "refresh_skipped": true,
+      "gate_pass": false,
+      "bed0_accepted_flag": true,
+      "holdup_flux": 0.5747584719651329,
+      "holdup_reconciled": true,
+      "inner_start_split": 0.1132707784426407,
+      "inner_start_energy": 0.11812213835062986,
+      "inner_start_split_over_merit": 0.9589292915305297,
+      "t_max_step_K_start": 150.0,
+      "t_cap_active": true
+    },
+    {
+      "outer": 8,
+      "split_end": 0.11921761557542619,
+      "energy_end": 0.10450814159411621,
+      "dT_outer": 46.875,
+      "refresh_skipped": true,
+      "gate_pass": false,
+      "bed0_accepted_flag": true,
+      "holdup_flux": 0.5814053557023184,
+      "holdup_reconciled": true,
+      "inner_start_split": 0.11803203354192521,
+      "inner_start_energy": 0.12212152316349396,
+      "inner_start_split_over_merit": 0.966512949432396,
+      "t_max_step_K_start": 150.0,
+      "t_cap_active": true
+    },
+    {
+      "outer": 9,
+      "split_end": 0.14918780464344808,
+      "energy_end": 0.11548311603246324,
+      "dT_outer": 300.0,
+      "refresh_skipped": true,
+      "gate_pass": false,
+      "bed0_accepted_flag": true,
+      "holdup_flux": 0.6517968854160561,
+      "holdup_reconciled": true,
+      "inner_start_split": 0.11925992218370059,
+      "inner_start_energy": 0.1512422019209528,
+      "inner_start_split_over_merit": 0.7885360082633031,
+      "t_max_step_K_start": 600.0,
+      "t_cap_active": false
+    }
+  ],
+  "sticky_holdup_probe": [
+    {
+      "outer": 1,
+      "entry_energy": 0.10459081971119895,
+      "exit_true_energy": 0.10709540675864047,
+      "holdup_dE": 0.0009512082400066069,
+      "sticky_dE": 0.0025045870474415255,
+      "sticky_dS": -0.00025247769841891426,
+      "holdup_changed": true,
+      "gate_reported": false,
+      "energy_reported_before": 0.10459340976945097,
+      "energy_reported_after": 0.10459340976945097,
+      "diag_lies_unchanged": true
+    },
+    {
+      "outer": 2,
+      "entry_energy": 0.10285067572329086,
+      "exit_true_energy": 0.10867795802800959,
+      "holdup_dE": 0.003417040738793592,
+      "sticky_dE": 0.0058272823047187255,
+      "sticky_dS": -0.00014135927410809795,
+      "holdup_changed": true,
+      "gate_reported": false,
+      "energy_reported_before": 0.10285067572329086,
+      "energy_reported_after": 0.10285067572329086,
+      "diag_lies_unchanged": true
+    },
+    {
+      "outer": 3,
+      "entry_energy": 0.10626794071328605,
+      "exit_true_energy": 0.10914196087065878,
+      "holdup_dE": 0.0004740785751122245,
+      "sticky_dE": 0.002874020157372731,
+      "sticky_dS": -0.00023405507954983183,
+      "holdup_changed": true,
+      "gate_reported": false,
+      "energy_reported_before": 0.10626794071328605,
+      "energy_reported_after": 0.10626794071328605,
+      "diag_lies_unchanged": true
+    },
+    {
+      "outer": 4,
+      "entry_energy": 0.10572336846962677,
+      "exit_true_energy": 0.11026540448146806,
+      "holdup_dE": 0.002259719134192345,
+      "sticky_dE": 0.004542036011841291,
+      "sticky_dS": -9.256971296297699e-05,
+      "holdup_changed": true,
+      "gate_reported": false,
+      "energy_reported_before": 0.10572336846962677,
+      "energy_reported_after": 0.10572336846962677,
+      "diag_lies_unchanged": true
+    },
+    {
+      "outer": 5,
+      "entry_energy": 0.1077863440538346,
+      "exit_true_energy": 0.11202156934345874,
+      "holdup_dE": 0.0025989616421808193,
+      "sticky_dE": 0.004235225289624139,
+      "sticky_dS": -5.0080737942730016e-05,
+      "holdup_changed": true,
+      "gate_reported": false,
+      "energy_reported_before": 0.1077863440538346,
+      "energy_reported_after": 0.1077863440538346,
+      "diag_lies_unchanged": true
+    },
+    {
+      "outer": 6,
+      "entry_energy": 0.10986116761834426,
+      "exit_true_energy": 0.11494888140332683,
+      "holdup_dE": 0.0030371243984278623,
+      "sticky_dE": 0.005087713784982573,
+      "sticky_dS": -2.645194846197165e-05,
+      "holdup_changed": true,
+      "gate_reported": false,
+      "energy_reported_before": 0.10986116761834426,
+      "energy_reported_after": 0.10986116761834426,
+      "diag_lies_unchanged": true
+    },
+    {
+      "outer": 7,
+      "entry_energy": 0.11239643374808697,
+      "exit_true_energy": 0.1203653117928887,
+      "holdup_dE": 0.004298487257401035,
+      "sticky_dE": 0.00796887804480173,
+      "sticky_dS": 4.9005700267203025e-05,
+      "holdup_changed": true,
+      "gate_reported": false,
+      "energy_reported_before": 0.11239643374808697,
+      "energy_reported_after": 0.11239643374808697,
+      "diag_lies_unchanged": true
+    },
+    {
+      "outer": 8,
+      "entry_energy": 0.11608372740321021,
+      "exit_true_energy": 0.12526509950491513,
+      "holdup_dE": 0.0047834476945032706,
+      "sticky_dE": 0.009181372101704915,
+      "sticky_dS": 9.972403783597723e-05,
+      "holdup_changed": true,
+      "gate_reported": false,
+      "energy_reported_before": 0.11608372740321021,
+      "energy_reported_after": 0.11608372740321021,
+      "diag_lies_unchanged": true
+    },
+    {
+      "outer": 9,
+      "entry_energy": 0.1574561590986489,
+      "exit_true_energy": 0.1756200851327513,
+      "holdup_dE": 0.008704392404071698,
+      "sticky_dE": 0.018163926034102384,
+      "sticky_dS": 2.5788784068675116e-05,
+      "holdup_changed": true,
+      "gate_reported": false,
+      "energy_reported_before": 0.1574561590986489,
+      "energy_reported_after": 0.1574561590986489,
+      "diag_lies_unchanged": true
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "claim": "O9 split jump from T-cap disable when energy dominates merit",
+      "status": "CONFIRMED",
+      "evidence": "O9 t_max_step_K=600, split/merit=0.789, dT_outer=300, split 0.119\u21920.149"
+    },
+    {
+      "id": "H2",
+      "claim": "Holdup reconcile survives global gate rollback (sticky)",
+      "status": "CONFIRMED",
+      "evidence": "probe: all 9 outers holdup_changed=True, sticky_dE>0, gate=False, diag energy unchanged"
+    },
+    {
+      "id": "H3",
+      "claim": "Preinner split projection is effectively noop after gate/fallback fail",
+      "status": "CONFIRMED",
+      "evidence": "preinner_split_before==after every outer; bed0_accepted flag is stale from rolled-back split_diag"
+    },
+    {
+      "id": "H4",
+      "claim": "refresh_skipped alone causes the +0.03 jump",
+      "status": "PARTIAL",
+      "evidence": "O4\u2013O8 also refresh_skipped without +0.03; necessary context but not sufficient without energy spike + T-cap off"
+    }
+  ],
+  "recommended_fixes_priority": [
+    {
+      "id": "F1",
+      "title": "Snapshot before holdup OR roll back holdup with global gate",
+      "where": "src/core/connectivity/preprojection.py::run_outer_preinner_start_value_bridge",
+      "why": "Stops sticky energy injection that disables T-cap"
+    },
+    {
+      "id": "F2",
+      "title": "Remeasure metrics_after after rollback (fix diag lie)",
+      "where": "same function return block",
+      "why": "Trace currently hides sticky deltas"
+    },
+    {
+      "id": "F3",
+      "title": "T-cap hysteresis: keep 150K cap if prior outer was split-dominant",
+      "where": "src/solvers/global_nr_solver.py::resolve_inner_t_max_step_K / nr_inner_step",
+      "why": "Prevents one energy spike from unlocking 600K steps that chase split"
+    },
+    {
+      "id": "F4",
+      "title": "Skip holdup reconcile on refresh_skipped continuation (or require gate)",
+      "where": "joint_gate.resolve_preinner_tier_plan or outer_loop preinner path",
+      "why": "Bild 2.2 continuation should stay in Newton, not re-algebra holdup"
+    }
+  ],
+  "non_goals": [
+    "Do not tune outer regression_rel (user hold)",
+    "Do not enable full bed2 T2 by default"
+  ]
+}

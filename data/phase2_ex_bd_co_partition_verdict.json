@@ -1,0 +1,91 @@
+{
+  "knife": "ex_bd_CO_partition_deeper",
+  "date": "2026-07-24",
+  "constraint": "不抬 Tin；不用 r*_scale 作验收；不默认改围栏；Hamel K_bd SoT=Eq.3.50",
+  "mechanism_confirmed": {
+    "bed0": {
+      "frac_bubble_CO_supply_from_N_ex": 1.0,
+      "N_ex_CO_mol_s": -9.296,
+      "R_b_CO_mol_s": -9.25,
+      "R_d_CO_mol_s": 11.991,
+      "R_d_CO2_mol_s": 0.016,
+      "lim_co": 0.0126,
+      "lim_o2_b": 0.0136,
+      "lim_o2_d": 1.0,
+      "binding": "both (CO≈O2)",
+      "note": "密相产 CO → N_ex 全额作为气泡 CO 供应 → 气泡 R5 几乎把交换 CO 氧化完；密相几乎不经 R5d 烧 CO（O2 多半进 R1）"
+    },
+    "artifact": "data/phase2_ex_bd_co_partition_decomp_o8.json"
+  },
+  "candidates_tested": [
+    {
+      "id": "disable_CO_supply_limiter",
+      "result": "WORSE",
+      "exit_CO_CO2": [
+        0.0046,
+        0.197
+      ],
+      "score_true": 1.452,
+      "artifact": "data/phase2_ex_bd_co_partition_ab_o8.json"
+    },
+    {
+      "id": "exclude_N_ex_from_CO_supply",
+      "result": "WORSE_pathology",
+      "exit_CO_CO2": [
+        0.0091,
+        0.0897
+      ],
+      "bed_O2": 0.046,
+      "score_true": 1.268
+    },
+    {
+      "id": "kbd_model_sit_grace_unfair_umf_fallback",
+      "result": "FALSE_POSITIVE_improvement",
+      "exit_CO_CO2": [
+        0.139,
+        0.138
+      ],
+      "score_true": 0.153,
+      "note": "u_mf=None→0.5*u_br 伪影，不得采信",
+      "artifact": "data/phase2_ex_bd_kbd_model_ab_o8.json"
+    },
+    {
+      "id": "kbd_model_sit_grace_fair_umf",
+      "result": "WORSE",
+      "exit_CO_CO2": [
+        0.0096,
+        0.0955
+      ],
+      "score_true": 1.221,
+      "artifact": "data/phase2_ex_bd_kbd_fair_umf_ab_o8.json"
+    },
+    {
+      "id": "kbd_model_kunii_preto",
+      "result": "NOT_BETTER_or_pathology",
+      "note": "kunii O2 穿透；preto score≈0.98；偏离 Hamel 3.50"
+    }
+  ],
+  "parity_notes": {
+    "Eq_2_4_2_5_exchange": "符号/结构与审计一致",
+    "CO_supply_limiter": "Hamel 无此限幅（B 档）；关掉/去 N_ex 信用均恶化",
+    "K_bd_SoT": "hamel_350 / Eq.3.50"
+  },
+  "ship": {
+    "production_change": false
+  },
+  "falsification": {
+    "algebraic_CO_limiter_is_overoxidation_lever": "FALSIFIED",
+    "switch_to_sit_grace_348_fixes_CO_CO2": "FALSIFIED_under_fair_u_mf"
+  },
+  "next_knife": {
+    "primary": "dense_R5d_vs_R1_O2_fate",
+    "why": "bed0 lim_o2_d=1 且 R_d_CO2≈0：密相 O2 不走 R5d 烧自产 CO，却经 N_ex 把 CO 送给气泡 R5",
+    "alt": "H4_fb_secondary_nr",
+    "do_not": [
+      "抬 Tin",
+      "改用 sit_grace 验收",
+      "r5_scale/dense_frac 掩盖",
+      "关掉 CO 供应限幅"
+    ]
+  }
+}

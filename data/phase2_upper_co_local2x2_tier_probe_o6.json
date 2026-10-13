@@ -1,0 +1,630 @@
+{
+  "note": "per-tier rms with local2x2",
+  "exit_CO": 0.07047261629639938,
+  "tier_log": [
+    {
+      "bridge": 1,
+      "steps": [
+        [
+          "start",
+          {
+            "rms_scaled": 0.021396073610880067,
+            "merit_scaled": 0.07477659808441188,
+            "gas_phase_split_rms": 0.03722767699398814,
+            "energy_rms": 0.07477659808441188,
+            "solid_rms": 0.0025253739905703627,
+            "max_abs_scaled": 0.24550464186172719
+          }
+        ],
+        [
+          "holdup",
+          {
+            "rms_scaled": 0.019723188994246237,
+            "merit_scaled": 0.0592327512679567,
+            "gas_phase_split_rms": 0.03805953032469073,
+            "energy_rms": 0.0592327512679567,
+            "solid_rms": 0.0025987420452666123,
+            "max_abs_scaled": 0.22470871655494495
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 0.019506360924890682,
+            "merit_scaled": 0.05909350892147612,
+            "gas_phase_split_rms": 0.03644617399131457,
+            "energy_rms": 0.05909350892147612,
+            "solid_rms": 0.002592563290436942,
+            "max_abs_scaled": 0.22132114722382829
+          }
+        ],
+        [
+          "local2(acc=True)",
+          {
+            "rms_scaled": 0.020531618564589058,
+            "merit_scaled": 0.06862433209710245,
+            "gas_phase_split_rms": 0.03495916998231638,
+            "energy_rms": 0.06862433209710245,
+            "solid_rms": 0.002897511392565892,
+            "max_abs_scaled": 0.22132114722382829
+          }
+        ]
+      ],
+      "global_gate": true,
+      "end": {
+        "rms_scaled": 0.020531618564589058,
+        "merit_scaled": 0.06862433209710245,
+        "gas_phase_split_rms": 0.03495916998231638,
+        "energy_rms": 0.06862433209710245,
+        "solid_rms": 0.002897511392565892,
+        "max_abs_scaled": 0.22132114722382829
+      }
+    },
+    {
+      "bridge": 2,
+      "steps": [
+        [
+          "start",
+          {
+            "rms_scaled": 0.0209271038282497,
+            "merit_scaled": 0.06861564373846184,
+            "gas_phase_split_rms": 0.03697467372800127,
+            "energy_rms": 0.06861564373846184,
+            "solid_rms": 0.0028971044823971137,
+            "max_abs_scaled": 0.22130928632697777
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 0.0209271038282497,
+            "merit_scaled": 0.06861564373846184,
+            "gas_phase_split_rms": 0.03697467372800127,
+            "energy_rms": 0.06861564373846184,
+            "solid_rms": 0.0028971044823971137,
+            "max_abs_scaled": 0.22130928632697777
+          }
+        ],
+        [
+          "local2(acc=True)",
+          {
+            "rms_scaled": 0.02300077613511629,
+            "merit_scaled": 0.08364719135083792,
+            "gas_phase_split_rms": 0.036549149535970105,
+            "energy_rms": 0.08364719135083792,
+            "solid_rms": 0.0031516175222577464,
+            "max_abs_scaled": 0.28074144964244735
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 0.0209271038282497,
+            "merit_scaled": 0.06861564373846184,
+            "gas_phase_split_rms": 0.03697467372800127,
+            "energy_rms": 0.06861564373846184,
+            "solid_rms": 0.0028971044823971137,
+            "max_abs_scaled": 0.22130928632697777
+          }
+        ]
+      ],
+      "global_gate": true,
+      "end": {
+        "rms_scaled": 0.0209271038282497,
+        "merit_scaled": 0.06861564373846184,
+        "gas_phase_split_rms": 0.03697467372800127,
+        "energy_rms": 0.06861564373846184,
+        "solid_rms": 0.0028971044823971137,
+        "max_abs_scaled": 0.22130928632697777
+      }
+    },
+    {
+      "bridge": 3,
+      "steps": [
+        [
+          "start",
+          {
+            "rms_scaled": 0.06323696007306281,
+            "merit_scaled": 0.06323696007306281,
+            "gas_phase_split_rms": 0.06027663575116241,
+            "energy_rms": 0.05125527566397298,
+            "solid_rms": 0.00335636732990494,
+            "max_abs_scaled": 0.901670339856855
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 13.534563934805147,
+            "merit_scaled": 13.534563934805147,
+            "gas_phase_split_rms": 0.05787654557641293,
+            "energy_rms": 0.05108613992173071,
+            "solid_rms": 0.003369967886400495,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ],
+        [
+          "local2(acc=True)",
+          {
+            "rms_scaled": 13.534568842120295,
+            "merit_scaled": 13.534568842120295,
+            "gas_phase_split_rms": 0.04928218043023513,
+            "energy_rms": 0.08672723320981407,
+            "solid_rms": 0.00371036592592973,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 13.534563934805147,
+            "merit_scaled": 13.534563934805147,
+            "gas_phase_split_rms": 0.05787654557641293,
+            "energy_rms": 0.05108613992173071,
+            "solid_rms": 0.003369967886400495,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ]
+      ],
+      "global_gate": false,
+      "end": {
+        "rms_scaled": 0.06323696007306281,
+        "merit_scaled": 0.06323696007306281,
+        "gas_phase_split_rms": 0.06027663575116241,
+        "energy_rms": 0.05125527566397298,
+        "solid_rms": 0.00335636732990494,
+        "max_abs_scaled": 0.901670339856855
+      }
+    },
+    {
+      "bridge": 4,
+      "steps": [
+        [
+          "start",
+          {
+            "rms_scaled": 0.0632369600730628,
+            "merit_scaled": 0.0632369600730628,
+            "gas_phase_split_rms": 0.06027663575116241,
+            "energy_rms": 0.05125527566397263,
+            "solid_rms": 0.00335636732990494,
+            "max_abs_scaled": 0.901670339856855
+          }
+        ],
+        [
+          "holdup",
+          {
+            "rms_scaled": 0.0632198277287443,
+            "merit_scaled": 0.0632198277287443,
+            "gas_phase_split_rms": 0.06019979023284433,
+            "energy_rms": 0.05052010203893902,
+            "solid_rms": 0.0031443330512223996,
+            "max_abs_scaled": 0.901670339856855
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 13.534563891690006,
+            "merit_scaled": 13.534563891690006,
+            "gas_phase_split_rms": 0.05787835679855804,
+            "energy_rms": 0.050468989174036485,
+            "solid_rms": 0.00315261595235062,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ],
+        [
+          "local2(acc=True)",
+          {
+            "rms_scaled": 13.534568125169665,
+            "merit_scaled": 13.534568125169665,
+            "gas_phase_split_rms": 0.04923631286501818,
+            "energy_rms": 0.08352793993689342,
+            "solid_rms": 0.003492926681339253,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 13.534563934805147,
+            "merit_scaled": 13.534563934805147,
+            "gas_phase_split_rms": 0.05787654557641293,
+            "energy_rms": 0.05108613992173038,
+            "solid_rms": 0.003369967886400495,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ]
+      ],
+      "global_gate": false,
+      "end": {
+        "rms_scaled": 0.0632369600730628,
+        "merit_scaled": 0.0632369600730628,
+        "gas_phase_split_rms": 0.06027663575116241,
+        "energy_rms": 0.05125527566397263,
+        "solid_rms": 0.00335636732990494,
+        "max_abs_scaled": 0.901670339856855
+      }
+    },
+    {
+      "bridge": 5,
+      "steps": [
+        [
+          "start",
+          {
+            "rms_scaled": 0.0632369600730628,
+            "merit_scaled": 0.0632369600730628,
+            "gas_phase_split_rms": 0.06027663575116241,
+            "energy_rms": 0.05125527566397263,
+            "solid_rms": 0.00335636732990494,
+            "max_abs_scaled": 0.901670339856855
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 13.534563934805147,
+            "merit_scaled": 13.534563934805147,
+            "gas_phase_split_rms": 0.05787654557641293,
+            "energy_rms": 0.05108613992173038,
+            "solid_rms": 0.003369967886400495,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ],
+        [
+          "local2(acc=True)",
+          {
+            "rms_scaled": 13.534568842120295,
+            "merit_scaled": 13.534568842120295,
+            "gas_phase_split_rms": 0.04928218043023513,
+            "energy_rms": 0.08672723320981388,
+            "solid_rms": 0.00371036592592973,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 13.534563934805147,
+            "merit_scaled": 13.534563934805147,
+            "gas_phase_split_rms": 0.05787654557641293,
+            "energy_rms": 0.05108613992173038,
+            "solid_rms": 0.003369967886400495,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ]
+      ],
+      "global_gate": false,
+      "end": {
+        "rms_scaled": 0.0632369600730628,
+        "merit_scaled": 0.0632369600730628,
+        "gas_phase_split_rms": 0.06027663575116241,
+        "energy_rms": 0.05125527566397263,
+        "solid_rms": 0.00335636732990494,
+        "max_abs_scaled": 0.901670339856855
+      }
+    },
+    {
+      "bridge": 6,
+      "steps": [
+        [
+          "start",
+          {
+            "rms_scaled": 0.0632369600730628,
+            "merit_scaled": 0.0632369600730628,
+            "gas_phase_split_rms": 0.06027663575116241,
+            "energy_rms": 0.05125527566397263,
+            "solid_rms": 0.00335636732990494,
+            "max_abs_scaled": 0.901670339856855
+          }
+        ],
+        [
+          "holdup",
+          {
+            "rms_scaled": 0.0632198277287443,
+            "merit_scaled": 0.0632198277287443,
+            "gas_phase_split_rms": 0.06019979023284433,
+            "energy_rms": 0.05052010203893902,
+            "solid_rms": 0.0031443330512223996,
+            "max_abs_scaled": 0.901670339856855
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 13.534563891690006,
+            "merit_scaled": 13.534563891690006,
+            "gas_phase_split_rms": 0.05787835679855804,
+            "energy_rms": 0.050468989174036485,
+            "solid_rms": 0.00315261595235062,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ],
+        [
+          "local2(acc=True)",
+          {
+            "rms_scaled": 13.534568125169665,
+            "merit_scaled": 13.534568125169665,
+            "gas_phase_split_rms": 0.04923631286501818,
+            "energy_rms": 0.08352793993689342,
+            "solid_rms": 0.003492926681339253,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 13.534563934805147,
+            "merit_scaled": 13.534563934805147,
+            "gas_phase_split_rms": 0.05787654557641293,
+            "energy_rms": 0.05108613992173038,
+            "solid_rms": 0.003369967886400495,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ]
+      ],
+      "global_gate": false,
+      "end": {
+        "rms_scaled": 0.0632369600730628,
+        "merit_scaled": 0.0632369600730628,
+        "gas_phase_split_rms": 0.06027663575116241,
+        "energy_rms": 0.05125527566397263,
+        "solid_rms": 0.00335636732990494,
+        "max_abs_scaled": 0.901670339856855
+      }
+    },
+    {
+      "bridge": 7,
+      "steps": [
+        [
+          "start",
+          {
+            "rms_scaled": 0.0632369600730628,
+            "merit_scaled": 0.0632369600730628,
+            "gas_phase_split_rms": 0.06027663575116241,
+            "energy_rms": 0.05125527566397263,
+            "solid_rms": 0.00335636732990494,
+            "max_abs_scaled": 0.901670339856855
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 13.534563934805147,
+            "merit_scaled": 13.534563934805147,
+            "gas_phase_split_rms": 0.05787654557641293,
+            "energy_rms": 0.05108613992173038,
+            "solid_rms": 0.003369967886400495,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ],
+        [
+          "local2(acc=True)",
+          {
+            "rms_scaled": 13.534568842120295,
+            "merit_scaled": 13.534568842120295,
+            "gas_phase_split_rms": 0.04928218043023513,
+            "energy_rms": 0.08672723320981388,
+            "solid_rms": 0.00371036592592973,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 13.534563934805147,
+            "merit_scaled": 13.534563934805147,
+            "gas_phase_split_rms": 0.05787654557641293,
+            "energy_rms": 0.05108613992173038,
+            "solid_rms": 0.003369967886400495,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ]
+      ],
+      "global_gate": false,
+      "end": {
+        "rms_scaled": 0.0632369600730628,
+        "merit_scaled": 0.0632369600730628,
+        "gas_phase_split_rms": 0.06027663575116241,
+        "energy_rms": 0.05125527566397263,
+        "solid_rms": 0.00335636732990494,
+        "max_abs_scaled": 0.901670339856855
+      }
+    },
+    {
+      "bridge": 8,
+      "steps": [
+        [
+          "start",
+          {
+            "rms_scaled": 0.0632369600730628,
+            "merit_scaled": 0.0632369600730628,
+            "gas_phase_split_rms": 0.06027663575116241,
+            "energy_rms": 0.05125527566397263,
+            "solid_rms": 0.00335636732990494,
+            "max_abs_scaled": 0.901670339856855
+          }
+        ],
+        [
+          "holdup",
+          {
+            "rms_scaled": 0.0632198277287443,
+            "merit_scaled": 0.0632198277287443,
+            "gas_phase_split_rms": 0.06019979023284433,
+            "energy_rms": 0.05052010203893902,
+            "solid_rms": 0.0031443330512223996,
+            "max_abs_scaled": 0.901670339856855
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 13.534563891690006,
+            "merit_scaled": 13.534563891690006,
+            "gas_phase_split_rms": 0.05787835679855804,
+            "energy_rms": 0.050468989174036485,
+            "solid_rms": 0.00315261595235062,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ],
+        [
+          "local2(acc=True)",
+          {
+            "rms_scaled": 13.534568125169665,
+            "merit_scaled": 13.534568125169665,
+            "gas_phase_split_rms": 0.04923631286501818,
+            "energy_rms": 0.08352793993689342,
+            "solid_rms": 0.003492926681339253,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 13.534563934805147,
+            "merit_scaled": 13.534563934805147,
+            "gas_phase_split_rms": 0.05787654557641293,
+            "energy_rms": 0.05108613992173038,
+            "solid_rms": 0.003369967886400495,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ]
+      ],
+      "global_gate": false,
+      "end": {
+        "rms_scaled": 0.0632369600730628,
+        "merit_scaled": 0.0632369600730628,
+        "gas_phase_split_rms": 0.06027663575116241,
+        "energy_rms": 0.05125527566397263,
+        "solid_rms": 0.00335636732990494,
+        "max_abs_scaled": 0.901670339856855
+      }
+    },
+    {
+      "bridge": 9,
+      "steps": [
+        [
+          "start",
+          {
+            "rms_scaled": 0.0632369600730628,
+            "merit_scaled": 0.0632369600730628,
+            "gas_phase_split_rms": 0.06027663575116241,
+            "energy_rms": 0.05125527566397263,
+            "solid_rms": 0.00335636732990494,
+            "max_abs_scaled": 0.901670339856855
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 13.534563934805147,
+            "merit_scaled": 13.534563934805147,
+            "gas_phase_split_rms": 0.05787654557641293,
+            "energy_rms": 0.05108613992173038,
+            "solid_rms": 0.003369967886400495,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ],
+        [
+          "local2(acc=True)",
+          {
+            "rms_scaled": 13.534568842120295,
+            "merit_scaled": 13.534568842120295,
+            "gas_phase_split_rms": 0.04928218043023513,
+            "energy_rms": 0.08672723320981388,
+            "solid_rms": 0.00371036592592973,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 13.534563934805147,
+            "merit_scaled": 13.534563934805147,
+            "gas_phase_split_rms": 0.05787654557641293,
+            "energy_rms": 0.05108613992173038,
+            "solid_rms": 0.003369967886400495,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ]
+      ],
+      "global_gate": false,
+      "end": {
+        "rms_scaled": 0.0632369600730628,
+        "merit_scaled": 0.0632369600730628,
+        "gas_phase_split_rms": 0.06027663575116241,
+        "energy_rms": 0.05125527566397263,
+        "solid_rms": 0.00335636732990494,
+        "max_abs_scaled": 0.901670339856855
+      }
+    },
+    {
+      "bridge": 10,
+      "steps": [
+        [
+          "start",
+          {
+            "rms_scaled": 0.0632369600730628,
+            "merit_scaled": 0.0632369600730628,
+            "gas_phase_split_rms": 0.06027663575116241,
+            "energy_rms": 0.05125527566397263,
+            "solid_rms": 0.00335636732990494,
+            "max_abs_scaled": 0.901670339856855
+          }
+        ],
+        [
+          "holdup",
+          {
+            "rms_scaled": 0.0632198277287443,
+            "merit_scaled": 0.0632198277287443,
+            "gas_phase_split_rms": 0.06019979023284433,
+            "energy_rms": 0.05052010203893902,
+            "solid_rms": 0.0031443330512223996,
+            "max_abs_scaled": 0.901670339856855
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 13.534563891690006,
+            "merit_scaled": 13.534563891690006,
+            "gas_phase_split_rms": 0.05787835679855804,
+            "energy_rms": 0.050468989174036485,
+            "solid_rms": 0.00315261595235062,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ],
+        [
+          "local2(acc=True)",
+          {
+            "rms_scaled": 13.534568125169665,
+            "merit_scaled": 13.534568125169665,
+            "gas_phase_split_rms": 0.04923631286501818,
+            "energy_rms": 0.08352793993689342,
+            "solid_rms": 0.003492926681339253,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ],
+        [
+          "split",
+          {
+            "rms_scaled": 13.534563934805147,
+            "merit_scaled": 13.534563934805147,
+            "gas_phase_split_rms": 0.05787654557641293,
+            "energy_rms": 0.05108613992173038,
+            "solid_rms": 0.003369967886400495,
+            "max_abs_scaled": 148.27113570045947
+          }
+        ]
+      ],
+      "global_gate": false,
+      "end": {
+        "rms_scaled": 0.0632369600730628,
+        "merit_scaled": 0.0632369600730628,
+        "gas_phase_split_rms": 0.06027663575116241,
+        "energy_rms": 0.05125527566397263,
+        "solid_rms": 0.00335636732990494,
+        "max_abs_scaled": 0.901670339856855
+      }
+    }
+  ]
+}

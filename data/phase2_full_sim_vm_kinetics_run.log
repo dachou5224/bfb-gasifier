@@ -1,0 +1,29 @@
+============================================================================================================
+LU global NR profile audit
+============================================================================================================
+NR monitor: wall=93.95s nr_total=93.90s rms=6.169e-03 n_iter=33 conv=True outer=True inner=True
+x0 sanity: ok=True finite=True nonneg=True molar_scale=True ratio=1.062e+00 T=[1139.5,1325.0] eps_b=[0.4102,0.4472] u_b=[0.6524,0.8747] Kbd=[13.4691,27.3954]
+init=vorabrechnung major_gibbs=hamel_reduced jacobian=None converged=True outer_iters=9 n_iter=33 rms=6.169e-03 nr_total_s=93.90s
+exit temperature: model=1102.9K ref=1100.0K abs_err=2.9K rel_err=0.26%
+exit gas dry:
+  CO   model=0.0854 ref=0.1300 abs_err=0.0446 rel_err=34.28%
+  CO2  model=0.1669 ref=0.1100 abs_err=0.0569 rel_err=51.74%
+  H2   model=0.1132 ref=0.1200 abs_err=0.0068 rel_err=5.66%
+  CH4  model=0.0000 ref=0.0280 abs_err=0.0280 rel_err=100.00%
+axial profile summary:
+  T_K          n= 9 MAE=81.0927 K RMSE=113.5774 K MAX=280.0000 K
+  CO_mol_wet   n= 7 MAE=0.0732 mol/mol RMSE=0.0838 mol/mol MAX=0.1228 mol/mol
+  CO2_mol_wet  n= 7 MAE=0.0659 mol/mol RMSE=0.0709 mol/mol MAX=0.1029 mol/mol
+  H2_mol_wet   n= 7 MAE=0.0751 mol/mol RMSE=0.0888 mol/mol MAX=0.1200 mol/mol
+  CH4_mol_wet  n= 7 MAE=0.0110 mol/mol RMSE=0.0128 mol/mol MAX=0.0250 mol/mol
+  O2_mol_wet   n= 9 MAE=0.0150 mol/mol RMSE=0.0260 mol/mol MAX=0.0606 mol/mol
+  H2O_mol_wet  n= 7 MAE=0.0218 mol/mol RMSE=0.0243 mol/mol MAX=0.0459 mol/mol
+------------------------------------------------------------------------------------------------------------
+worst profile points:
+  T_K          xi=0.00 model=1030.0000 ref=750.0000 err=+280.0000
+  CO_mol_wet   xi=1.00 model=0.0072 ref=0.1300 err=-0.1228
+  CO2_mol_wet  xi=0.45 model=0.0021 ref=0.1050 err=-0.1029
+  H2_mol_wet   xi=1.00 model=0.0000 ref=0.1200 err=-0.1200
+  CH4_mol_wet  xi=0.30 model=0.0000 ref=0.0250 err=-0.0250
+  O2_mol_wet   xi=0.45 model=0.0606 ref=0.0000 err=+0.0606
+  H2O_mol_wet  xi=0.45 model=0.1491 ref=0.1950 err=-0.0459

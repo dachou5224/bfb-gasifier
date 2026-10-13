@@ -1,0 +1,38 @@
+{
+  "rows": [
+    {
+      "run": "guard_o2",
+      "wall_s": 26.907283188,
+      "total_s": 36.184274553,
+      "co_after_external_init": 10.43549829767228,
+      "co_final_bed": 0.0,
+      "co_exit_dry": 0.0,
+      "rms": 0.05505718144739773,
+      "split": 0.05505718144739773,
+      "energy": 0.04369283984009399,
+      "accepted_steps": 1,
+      "failed_ls_steps": 1,
+      "syngas_collapse_rejects": 0,
+      "fastox_proj": 15,
+      "ls_failures": 1,
+      "converged": false
+    },
+    {
+      "run": "guard_o8",
+      "wall_s": 105.57438671700001,
+      "total_s": 114.618708369,
+      "co_after_external_init": 10.43549829767228,
+      "co_final_bed": 0.0,
+      "co_exit_dry": 0.0,
+      "rms": 0.05505718144739773,
+      "split": 0.05505718144739773,
+      "energy": 0.04369283984009399,
+      "accepted_steps": 1,
+      "failed_ls_steps": 20,
+      "syngas_collapse_rejects": 0,
+      "fastox_proj": 232,
+      "ls_failures": 20,
+      "converged": false
+    }
+  ]
+}

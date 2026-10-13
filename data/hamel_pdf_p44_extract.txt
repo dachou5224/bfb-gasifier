@@ -1,0 +1,91 @@
+4 Trocknung und Pyrolyse des Brennsto ffs
+5 Modellierung der chemischen Reaktionen
+70
+71
+*x
+G = 
+Pjnj = Mini 
+mit Ns “ Anzahl der Substanzen
+/=/
+(4.28)
+oder
+(4.29)
+Dabei sind die Elementbilanzen als Nebenbedingungen einzuhalten:
+a nj -bi — 0 
+i=l ,N E ; NE = Anzahl der Elemente
+J-i
+(4.30)
+5 
+Modellierung der chemischen Reaktionen
+Nachdem der Brennstoff in den Reaktor eingebracht wurde, findet zunächst die Trocknung
+und mit weiterer Aufheizung die Pyrolyse des Brennstoffs statt. Die freigesetzten Pyrolyse-
+produkte Koks, Teer und Gas reagieren mit dem Vergasungsmittel und untereinander. Ebenso
+können die Produkte aus den primären Vergasungsreaktionen wiederum sowohl mit dem Ver-
+gasungsmittel, als auch untereinander reagieren. Die Zusammensetzung des Produktgases
+hängt schließlich vom Zusammenspiel aller Reaktionen ab. Für die Berechnung der Umsatz-
+raten des Kokses und der gasförmigen Substanzen im Wirbelschichtreaktor werden im Modell
+die folgenden chemischen Reaktionsgleichungen berücksichtigt:
+mit ßi.j den stöchiometrischen Koeffizienten des Elementes i in der Summenformel der Sub-
+stanz j, b, der Stoffmenge des Elementes i und Nj der Stoffmenge der Substanz j. Durch die
+Anwendung der Methode der Lagrange'schen Multiplikatoren kann das Optimierungsproblem
+in ein System nichtlinearer Gleichungen umgeformt werden. Man definiert eine Funktion F in
+der Form:
+RI: Verbrennung 
+Reaktionsenthalpie (0,1013 MPa; 298,15 K)
+1 
+( 
+2 1 
+f 2 
+)
+C+~O 2
+— L cö+
+------ 1
+-393,5 <AH R < -110,5 kJ/molC
+l 
+&cj 
+)
+R2: heterogene Wassergasreaktion
+C + H2O -+CO + H2
++131,4 kJ/mol C
+R3: Boudouard-Reaktion
+A'x
+? = X 
+1 n j + S 
+Zua ij n J ~
+j=l 
+i=l 
+V=/
+(431)
+C + CO2
+2CO
++172,5 kJ/molC
+R4: hydrierende Vergasung
+C + 2 H2 -> CH4
+-74,9 kJ/mol C
+R5: Kohlenmonoxid-Oxidation
+CO + 1/2 O2 -> CO2
+-283 kJ/mol CO
+R6: Wasserstoff-Oxidation
+H2 + 1/2 O2 ->H2O
+-241,9 kJ/mol H2
+R7: Methan-Oxidation
+CH4 + 3/2 O2 -+CO + 2 H2O
+-519,4 kJ/mol CH4
+R8: homogene Wassergasreaktion
+CO + H2O 
+H2 + CO2
+-41,1 kJ/mol CO
+R9: Methan-Reformierung
+CH4 + H2O-+CO + 3H 2
++206,3 kJ/mol CH4
+RIO: Teer-Oxidation
+Teer + O2
+CO + H2
+AHR < 0
+RI 1: Teer-Umsetzung
+Teer + H2O 
+CO + H2 + CH4
+AHR >0
+Das Minimum dieser Funktion ist identisch mit dem Minimum der Gleichung (4.28) unter
+Einhaltung der Nebenbedingungen (430). Eine detaillierte Herleitung dieser Methode zur
+Berechnung des chemischen Gleichgewichtes ist im Anhang Al zu finden.

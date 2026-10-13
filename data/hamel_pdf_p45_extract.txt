@@ -1,0 +1,86 @@
+73
+72
+5 Modellierung der chemischen Reaktionen
+5 Modellierung der chemischen Reaktionen
+Fall der Vergasungsreaktionen durch katalytisch wirksame Bestandteile in der Asche und de-
+ren Zugänglichkeit innerhalb der Koks- und Aschestruktur beeinflusst. Die Porenstruktur
+selbst, und damit die zur Verfügung stehende Reaktionsoberfläche, wird wiederum teilweise
+durch die Eigenschaften des rohen Brennstoffs, wie den Flüchtigengehalt und z.T. den Was-
+sergehalt, aber auch durch die Betriebsbedingungen, wie Druck und Aufheizraten, geprägt.
+Zur mathematischen Beschreibung dieser Vorgänge existieren zahlreiche mehr oder weniger
+detaillierte Modelle. Bei der heterogenen Reaktion des Kohlenstoffs mit Sauerstoff wird bei
+der mathematischen Formulierung von Reaktormodellen meist davon ausgegangen, dass die
+Kokspartikel nach dem „Shrinking particle“-Modell reagieren. Das heißt, die Reaktionsrate ist
+proportional zur äußeren Oberfläche des Partikels und der fortschreitende Umsatz führt zu
+einer Abnahme des Partikeldurchmessers (siehe Bild 5.1). Experimentelle Untersuchungen
+von Pillai (1981), Halder und Saha (1991) und Winter et al. (1994) zeigen, dass diese Annah-
+men bei der Modellierung der Koksverbrennung insbesondere unter Wirbelschichtbe-
+dingungen zur Beschreibung des Abbrandverhaltens herangezogen werden können. Unter
+Berücksichtigung eines weiteren diffusiven Widerstandes in Form der den Partikel umgeben-
+den Ascheschicht, wird für sehr aschereiche Kohlen häufig das „Shrinking core“-Modell an-
+gewendet (Pillai 1981).
+Während es sich bei der Verbrennung um eine im Vergleich schnelle Reaktion handelt, die
+unter den betrachteten Reaktionsbedingungen überwiegend an der äußeren Oberfläche des
+Kokspartikels abläuft („Shrinking particle“ oder „Shrinking core“), handelt es sich bei der
+heterogenen Wassergasreaktion, der Boudouard-Reaktion und der hydrierenden Vergasung
+um vergleichsweise langsame Reaktionen. Die Vergasungsreaktionen laufen in stärkerem
+Maße auch an der inneren Reaktionsoberfläche ab. Zur Beschreibung der Veränderung des
+festen Reaktionspartners im Laufe der fortschreitenden Vergasung finden deshalb „Shrinking
+density“-Modelle Anwendung.
+Jüntgen und van Heek (1981) nennen die Reaktionen RI bis R4 sowie R8 und R9 zur Be-
+schreibung der Grundreaktionen der Vergasung. In der überwiegenden Anzahl der Modelle
+zur Simulation der Vergasung werden lediglich die heterogenen Koksvergasungsreaktionen
+RI bis R4 und die homogene Wassergasreaktion R8 berücksichtigt. Insbesondere in aktuelle-
+ren Arbeiten finden auch die anderen genannten Reaktionen Berücksichtigung, wobei bei der
+Modellierung der homogenen Gasphasenreaktionen entweder reaktionskinetische Ansätze
+oder die Annahme chemischen Gleichgewichtes zugrundegelegt wird. In dieser Arbeit werden
+die von Jüntgen und van Heek (1981) genannten Grundreaktionen um die Oxidation von
+Kohlenmonoxid, Wasserstoff und Methan sowie um die Oxidation und Umsetzung von Py-
+rolyseteeren erweitert. Dies ist notwendig, da in ausgeführten Vergasungsanlagen in der Regel
+eine gestufte Vergasungsmittelzugabe erfolgt, mit dem Ziel im Freiraum eine Nachvergasung
+der Teere und höheren Kohlenwasserstoffe zu erreichen. Daher sind neben den „klassischen“
+homogenen Vergasungsreaktionen R8 und R9 die Verbrennungsreaktionen R5, R6 und R7 zu
+berücksichtigen. Da der Einfluss verschiedener verfahrenstechnischer Maßnahmen auf den
+Teergehalt mit Hilfe des Simulationsprogramms untersucht werden soll, sind sowohl für die
+Oxidation der Teere (RIO), als auch für Crack- oder Zerfallsreaktionen in Anwesenheit von
+Wasserdampf (RI I) entsprechende Reaktionsgleichungen vorzusehen. Die Reaktionen RIO
+und RI 1 sind in ihrer Stöchiometrie von den Substanzen abhängig, die im Modell Teere und
+höhere Kohlenwasserstoffe repräsentieren. Die Umsätze aller im Modell integrierten Reaktio-
+nen werden mit Hilfe reaktionskinetischer Ansätze berechnet. Das Modell soll nach einer
+Überprüfung anhand von Messergebnissen im weiteren die Abschätzung des Einflusses ver-
+schiedener Betriebsparameter und des Einflusses von Geometrie und Reaktorhöhe auf die
+Gaszusammensetzung ermöglichen. Einzelheiten zu den kinetischen Ansätzen und Modellen
+die hier Verwendung finden sind in den folgenden Kapiteln dargestellt.
+5.1 
+Berechnung des Koksumsatzes
+Der Restkoksumsatz ist einer der entscheidenden Vorgänge in Wirbelschichtfeuerungs- und
+Wirbelschichtvergasungsanlagen. Die Reaktionskinetik des Restkokses bestimmt dessen
+Verteilung im Reaktor. Beides, Kinetik und Verteilung, sind die Haupteinflussgrößen auf den
+Wirkungsgrad der Verbrennung und Vergasung. Ferner wird im Fall der Verbrennung ein
+wesentlicher Teil der Schadstoffbildungsmechanismen durch die Anwesenheit von Koks be-
+einflusst und im Fall der Vergasung wird über den Einfluss des Kokses auf die Umsatzraten
+von unerwünschten höheren Kohlenwasserstoffen berichtet (Böhning et al. 2000). Der Umsatz
+von Koks ist eine komplexe heterogene Reaktion, die sich aus einer Reihe von physikalischen
+und chemischen Vorgängen und Wechselwirkungen zusammensetzt. Die wichtigsten rele-
+vanten Teilprozesse sind der Stoff- und Wärmetransport zwischen Partikel und Umgebung,
+die Porendiffusion der Reaktionspartner innerhalb des Partikels, der Wärmetransport im Par-
+tikel durch Wärmeleitung, die heterogene Reaktion und Adsorptions- und Desorptionsvorgän-
+ge sowie die Änderung der Porenstruktur. Die Reaktivität des Kokses wird insbesondere im
+„Shrinking density"-
+Modell
+Gasgrenz-
+schicht
+„Shrinking core”-
+Modell
+„Shrinking particle**-
+Modell
+Gasgrenz-
+schicht
+Asche-
+schicht
+reagierende
+Oberfläche
+des Partikels
+Bild 5.1: 
+Modelle für den Restkoksumsatz, ohne Berücksichtigung von Partikelgrößenände-
+rungen durch Fragmentierung

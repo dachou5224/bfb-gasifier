@@ -1,0 +1,452 @@
+{
+  "refined_root_cert": {
+    "passed": true,
+    "finite": true,
+    "in_domain": true,
+    "transport_closed": true,
+    "temperature_domain": "temporary_solver_domain_250_2500_K",
+    "blocks": {
+      "passed": true,
+      "gas_l2": 3.308122386525049e-07,
+      "solid_l2": 3.108117425159836e-09,
+      "tar_l2": 2.655123882561816e-11,
+      "energy_W": 4.1692983359098434e-06
+    },
+    "energy_rows_W": [
+      -6.647082045674324e-06,
+      1.0816380381584167e-05
+    ],
+    "gate_ratio": {
+      "gas": 0.3308122386525049,
+      "solid": 0.0031081174251598362,
+      "tar": 2.6551238825618163e-05,
+      "energy_rows": [
+        6.647082045674324e-06,
+        1.0816380381584167e-05
+      ]
+    }
+  },
+  "refined_trial_cert": {
+    "passed": true,
+    "finite": true,
+    "in_domain": true,
+    "transport_closed": true,
+    "temperature_domain": "temporary_solver_domain_250_2500_K",
+    "blocks": {
+      "passed": true,
+      "gas_l2": 1.2977433919180272e-07,
+      "solid_l2": 3.522774200513943e-09,
+      "tar_l2": 2.6814546912165484e-11,
+      "energy_W": -1.5156343579292297e-05
+    },
+    "energy_rows_W": [
+      8.926261216402054e-06,
+      -2.408260479569435e-05
+    ],
+    "gate_ratio": {
+      "gas": 0.12977433919180273,
+      "solid": 0.003522774200513943,
+      "tar": 2.6814546912165486e-05,
+      "energy_rows": [
+        8.926261216402054e-06,
+        2.408260479569435e-05
+      ]
+    }
+  },
+  "fingerprint": "87517b46118a1384e67083661eb8076a56d2579b57e8adb1fc845ba76b2a0ab6",
+  "saved_fingerprint": "87517b46118a1384e67083661eb8076a56d2579b57e8adb1fc845ba76b2a0ab6",
+  "root_s": 0.7440000000000001,
+  "root_cert": {
+    "passed": true,
+    "finite": true,
+    "in_domain": true,
+    "transport_closed": true,
+    "temperature_domain": "temporary_solver_domain_250_2500_K",
+    "blocks": {
+      "passed": true,
+      "gas_l2": 9.910098233061318e-08,
+      "solid_l2": 3.108117425159836e-09,
+      "tar_l2": 2.655123882561816e-11,
+      "energy_W": 4.1692983359098434e-06
+    },
+    "energy_rows_W": [
+      -6.647082045674324e-06,
+      1.0816380381584167e-05
+    ],
+    "gate_ratio": {
+      "gas": 0.09910098233061318,
+      "solid": 0.0031081174251598362,
+      "tar": 2.6551238825618163e-05,
+      "energy_rows": [
+        6.647082045674324e-06,
+        1.0816380381584167e-05
+      ]
+    }
+  },
+  "samples": [
+    {
+      "T": 1293.5836052101727,
+      "species": [
+        "CO2",
+        "CO",
+        "CH4",
+        "H2",
+        "H2O"
+      ],
+      "n": [
+        0.24546780186361858,
+        2.495654564563737,
+        0.16920238986213976,
+        3.3266509383717597,
+        0.5682705775618411
+      ],
+      "refined_n": [
+        0.2454678898534674,
+        2.4956542272883673,
+        0.16920263914766068,
+        3.3266502785050456,
+        0.5682707388575132
+      ],
+      "correction_L2": 8.031690568348709e-07,
+      "stationarity_before": [
+        7.31286879940285e-07,
+        1.7710186384078952e-07
+      ],
+      "stationarity_after": [
+        3.3928415632544784e-13,
+        1.0658141036401503e-13
+      ],
+      "diag": {
+        "converged": true,
+        "converged_by": "an_eq_b_min_G",
+        "solver_mode": "an_eq_b_min_G",
+        "message": "Optimization terminated successfully",
+        "opt_success": true,
+        "max_abs_element_closure": 4.440892098500626e-16,
+        "element_closure": {
+          "C": 4.440892098500626e-16,
+          "H": 0.0,
+          "O": 0.0
+        },
+        "pyrolysis_gibbs_elements": {
+          "C": 2.910324756289495,
+          "H": 8.46665259131576,
+          "O": 3.554860745852815
+        },
+        "G": -2011276.9029677266
+      }
+    },
+    {
+      "T": 1293.5836062101728,
+      "species": [
+        "CO2",
+        "CO",
+        "CH4",
+        "H2",
+        "H2O"
+      ],
+      "n": [
+        0.24546789236119962,
+        2.4956542409763447,
+        0.16920262296780303,
+        3.326650329571898,
+        0.5682707201734346
+      ],
+      "refined_n": [
+        0.2454678888762176,
+        2.4956542300924736,
+        0.16920263733665633,
+        3.3266502829803564,
+        0.5682707380272699
+      ],
+      "correction_L2": 5.3165768047372925e-08,
+      "stationarity_before": [
+        4.1481149182232e-08,
+        -1.8663691037090757e-08
+      ],
+      "stationarity_after": [
+        1.7763568394002505e-15,
+        0.0
+      ],
+      "diag": {
+        "converged": true,
+        "converged_by": "an_eq_b_min_G",
+        "solver_mode": "an_eq_b_min_G",
+        "message": "Optimization terminated successfully",
+        "opt_success": true,
+        "max_abs_element_closure": 4.440892098500626e-16,
+        "element_closure": {
+          "C": 0.0,
+          "H": 0.0,
+          "O": 4.440892098500626e-16
+        },
+        "pyrolysis_gibbs_elements": {
+          "C": 2.9103247563053474,
+          "H": 8.466652591361877,
+          "O": 3.5548607458721784
+        },
+        "G": -2011276.9043016229
+      }
+    },
+    {
+      "T": 1293.5836152101726,
+      "species": [
+        "CO2",
+        "CO",
+        "CH4",
+        "H2",
+        "H2O"
+      ],
+      "n": [
+        0.24546789531701857,
+        2.4956541233065854,
+        0.16920273782441456,
+        3.326649988133814,
+        0.5682708321058232
+      ],
+      "refined_n": [
+        0.2454678800805191,
+        2.4956542553309338,
+        0.16920262103656564,
+        3.3266503232608615,
+        0.5682707305544737
+      ],
+      "correction_L2": 3.923325064662228e-07,
+      "stationarity_before": [
+        -3.405647550636104e-07,
+        4.71040806360179e-09
+      ],
+      "stationarity_after": [
+        7.105427357601002e-14,
+        7.105427357601002e-15
+      ],
+      "diag": {
+        "converged": true,
+        "converged_by": "an_eq_b_min_G",
+        "solver_mode": "an_eq_b_min_G",
+        "message": "Optimization terminated successfully",
+        "opt_success": true,
+        "max_abs_element_closure": 4.440892098500626e-16,
+        "element_closure": {
+          "C": 4.440892098500626e-16,
+          "H": 0.0,
+          "O": 0.0
+        },
+        "pyrolysis_gibbs_elements": {
+          "C": 2.910324756448018,
+          "H": 8.466652591776933,
+          "O": 3.5548607460464456
+        },
+        "G": -2011276.9163066582
+      }
+    },
+    {
+      "T": 1293.5836552101728,
+      "species": [
+        "CO2",
+        "CO",
+        "CH4",
+        "H2",
+        "H2O"
+      ],
+      "n": [
+        0.24546783794077395,
+        2.4956542587072783,
+        0.1692026604340585,
+        3.326650163710553,
+        0.5682708122321417
+      ],
+      "refined_n": [
+        0.24546784098856814,
+        2.4956543675017038,
+        0.16920254859183875,
+        3.3266505022850064,
+        0.5682706973421278
+      ],
+      "correction_L2": 3.9011097645687156e-07,
+      "stationarity_before": [
+        -3.2476114242285803e-07,
+        6.402813568229249e-08
+      ],
+      "stationarity_after": [
+        7.105427357601002e-14,
+        1.7763568394002505e-14
+      ],
+      "diag": {
+        "converged": true,
+        "converged_by": "an_eq_b_min_G",
+        "solver_mode": "an_eq_b_min_G",
+        "message": "Optimization terminated successfully",
+        "opt_success": true,
+        "max_abs_element_closure": 0.0,
+        "element_closure": {
+          "C": 0.0,
+          "H": 0.0,
+          "O": 0.0
+        },
+        "pyrolysis_gibbs_elements": {
+          "C": 2.910324757082111,
+          "H": 8.466652593621623,
+          "O": 3.554860746820968
+        },
+        "G": -2011276.969662378
+      }
+    },
+    {
+      "T": 1293.5837052101726,
+      "species": [
+        "CO2",
+        "CO",
+        "CH4",
+        "H2",
+        "H2O"
+      ],
+      "n": [
+        0.24546781210322743,
+        2.495654605985371,
+        0.1692023397861303,
+        3.326651100794185,
+        0.5682705175972967
+      ],
+      "refined_n": [
+        0.24546779212365127,
+        2.4956545077151135,
+        0.1692024580359639,
+        3.326650726065108,
+        0.5682706558267064
+      ],
+      "correction_L2": 4.28448947952239e-07,
+      "stationarity_before": [
+        3.420549372634696e-07,
+        -1.2423790352045216e-07
+      ],
+      "stationarity_after": [
+        7.638334409421077e-14,
+        1.4210854715202004e-14
+      ],
+      "diag": {
+        "converged": true,
+        "converged_by": "an_eq_b_min_G",
+        "solver_mode": "an_eq_b_min_G",
+        "message": "Optimization terminated successfully",
+        "opt_success": true,
+        "max_abs_element_closure": 0.0,
+        "element_closure": {
+          "C": 0.0,
+          "H": 0.0,
+          "O": 0.0
+        },
+        "pyrolysis_gibbs_elements": {
+          "C": 2.9103247578747284,
+          "H": 8.466652595927485,
+          "O": 3.5548607477891223
+        },
+        "G": -2011277.0363570298
+      }
+    },
+    {
+      "T": 1293.5936052101727,
+      "species": [
+        "CO2",
+        "CO",
+        "CH4",
+        "H2",
+        "H2O"
+      ],
+      "n": [
+        0.24545790284358726,
+        2.495682618505909,
+        0.16918439347185382,
+        3.326695224011967,
+        0.568262515300894
+      ],
+      "refined_n": [
+        0.2454581172669867,
+        2.4956822688366236,
+        0.1691845287177397,
+        3.326695032697709,
+        0.5682624361233805
+      ],
+      "correction_L2": 4.789652149747978e-07,
+      "stationarity_before": [
+        4.09834665759945e-07,
+        6.585360132760343e-07
+      ],
+      "stationarity_after": [
+        1.4033219031261979e-13,
+        2.2026824808563106e-13
+      ],
+      "diag": {
+        "converged": true,
+        "converged_by": "an_eq_b_min_G",
+        "solver_mode": "an_eq_b_min_G",
+        "message": "Optimization terminated successfully",
+        "opt_success": true,
+        "max_abs_element_closure": 4.440892098500626e-16,
+        "element_closure": {
+          "C": 0.0,
+          "H": 0.0,
+          "O": -4.440892098500626e-16
+        },
+        "pyrolysis_gibbs_elements": {
+          "C": 2.9103249148213504,
+          "H": 8.466653052513138,
+          "O": 3.554860939493978
+        },
+        "G": -2011290.2419307055
+      }
+    },
+    {
+      "T": 1293.6836052101726,
+      "species": [
+        "CO2",
+        "CO",
+        "CH4",
+        "H2",
+        "H2O"
+      ],
+      "n": [
+        0.24537007782406622,
+        2.495934439393651,
+        0.16902182516839728,
+        3.3270968642666974,
+        0.5681880881730392
+      ],
+      "refined_n": [
+        0.24537020028675618,
+        2.4959345392022745,
+        0.1690216028970835,
+        3.3270976535433285,
+        0.5681877434390356
+      ],
+      "correction_L2": 9.034171475527015e-07,
+      "stationarity_before": [
+        -6.367058702494433e-07,
+        5.200579806796668e-07
+      ],
+      "stationarity_after": [
+        2.9665159217984183e-13,
+        4.973799150320701e-14
+      ],
+      "diag": {
+        "converged": true,
+        "converged_by": "an_eq_b_min_G",
+        "solver_mode": "an_eq_b_min_G",
+        "message": "Optimization terminated successfully",
+        "opt_success": true,
+        "max_abs_element_closure": 4.440892098500626e-16,
+        "element_closure": {
+          "C": 4.440892098500626e-16,
+          "H": 0.0,
+          "O": 0.0
+        },
+        "pyrolysis_gibbs_elements": {
+          "C": 2.910326342386114,
+          "H": 8.466657205553062,
+          "O": 3.5548626832148225
+        },
+        "G": -2011410.2955839362
+      }
+    }
+  ]
+}

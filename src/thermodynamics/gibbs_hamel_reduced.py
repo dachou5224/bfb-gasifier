@@ -9,6 +9,16 @@ import numpy as np
 from scipy.optimize import least_squares
 
 from src.core.constants import P0, Rg
+from src.core.hamel_parity_defaults import (
+    HAMEL_GIBBS_INITIAL_GUESS_MODE,
+    HAMEL_GIBBS_TOL_MODE,
+)
+from src.thermodynamics.gibbs_minimizer import (
+    hamel_a40_initial_guess,
+    holub_vonka_a34_relative_change,
+    normalize_gibbs_initial_guess_mode,
+    normalize_gibbs_tol_mode,
+)
 
 
 class SpeciesDB(Protocol):
@@ -39,9 +49,13 @@ class ReducedHamelGibbsSolver:
         max_iter: int = 80,
         omega: float = 1.0,
         lambda0: np.ndarray | None = None,
+        closure_rel_tol: float = 1e-3,
+        residual_rel_tol: float = 1e-2,
+        tol_mode: str = HAMEL_GIBBS_TOL_MODE,
+        initial_guess_mode: str = HAMEL_GIBBS_INITIAL_GUESS_MODE,
         return_diag: bool = False,
     ) -> Dict[str, float] | tuple[Dict[str, float], Dict[str, Any]]:
-        """求解入口（Hamel A1 Eq. A1-8/A1-27/A1-28 对应的降维系统）。"""
+        """求解入口：Hamel (1999) 降维链 (A.21)–(A.28) + 阻尼更新 (A.30)。"""
         orig_elem_names = list(elements.keys())
         orig_candidates = list(candidates)
         fixed_species: Dict[str, float] = {}
@@ -68,11 +82,16 @@ class ReducedHamelGibbsSolver:
         active_arr = np.array(active_idx, dtype=np.int64)
 
         lam = np.zeros(n_elem, dtype=np.float64)
+        guess_mode_norm = normalize_gibbs_initial_guess_mode(initial_guess_mode)
         if lambda0 is not None:
             lam0 = np.asarray(lambda0, dtype=np.float64).reshape(-1)
             if lam0.size == n_elem and np.all(np.isfinite(lam0)):
                 lam = np.clip(lam0, -80.0, 80.0)
                 lam[ref_idx] = 0.0
+        elif guess_mode_norm == "hamel_a40":
+            lam_a40, _ = hamel_a40_initial_guess(a, b, c)
+            lam = np.clip(lam_a40, -80.0, 80.0)
+            lam[ref_idx] = 0.0
         lam = self._coarse_lambda_seed(
             lam=lam,
             a=a,
@@ -82,12 +101,16 @@ class ReducedHamelGibbsSolver:
             active_idx=active_arr,
         )
         omega0 = float(np.clip(omega, 1e-6, 1.0))
+        tol_mode_norm = normalize_gibbs_tol_mode(tol_mode)
 
         diag: Dict[str, Any] = {
             "n_iter": 0,
             "converged": False,
             "n_backtracks": 0,
+            "tol_mode": tol_mode_norm,
+            "initial_guess_mode": guess_mode_norm,
             "final_residual": np.inf,
+            "holub_vonka_a34": np.inf,
             "lambda": lam.copy(),
             "ln_N": float("nan"),
             "reference_element_idx": int(ref_idx),
@@ -102,8 +125,9 @@ class ReducedHamelGibbsSolver:
             f = self._reduced_residual(aq=aq, b=b, ref_idx=ref_idx, active_idx=active_arr)
             fnorm = self._scaled_residual_norm(f=f, aq=aq, b=b, ref_idx=ref_idx, active_idx=active_arr)
             diag["final_residual"] = fnorm
-            if fnorm < tol:
+            if tol_mode_norm == "l2_residual" and fnorm < tol:
                 diag["converged"] = True
+                diag["converged_by"] = "l2_residual"
                 break
             g = self._calc_g(a, q)
             j = self._reduced_jacobian(g=g, b=b, ref_idx=ref_idx, active_idx=active_arr)
@@ -143,6 +167,13 @@ class ReducedHamelGibbsSolver:
                 if np.isfinite(fn_try) and fn_try <= fnorm * (1.0 - 1e-4 * eta):
                     lam = lam_try
                     accepted = True
+                    if tol_mode_norm == "holub_vonka_a34":
+                        q_new = self._calc_q(lam, a, c)
+                        eta_a34 = holub_vonka_a34_relative_change(q_new, q)
+                        diag["holub_vonka_a34"] = eta_a34
+                        if eta_a34 < tol:
+                            diag["converged"] = True
+                            diag["converged_by"] = "holub_vonka_a34"
                     break
                 eta *= 0.5
                 diag["n_backtracks"] = int(diag["n_backtracks"]) + 1
@@ -152,6 +183,8 @@ class ReducedHamelGibbsSolver:
                 omega0 *= 0.5
                 if omega0 < 1e-4:
                     break
+            elif bool(diag.get("converged", False)):
+                break
 
         if not bool(diag["converged"]):
             lam_ls, ls_norm = self._least_squares_refine(
@@ -166,8 +199,17 @@ class ReducedHamelGibbsSolver:
                 lam = lam_ls
                 diag["final_residual"] = float(ls_norm)
             diag["used_least_squares"] = True
-            if float(diag["final_residual"]) < tol:
+            if tol_mode_norm == "l2_residual" and float(diag["final_residual"]) < tol:
                 diag["converged"] = True
+                diag["converged_by"] = "l2_residual"
+
+        if not bool(diag.get("converged", False)) and tol_mode_norm == "holub_vonka_a34":
+            if float(diag.get("holub_vonka_a34", np.inf)) < tol:
+                diag["converged"] = True
+                diag["converged_by"] = "holub_vonka_a34"
+            elif float(diag.get("final_residual", np.inf)) < tol:
+                diag["converged"] = True
+                diag["converged_by"] = "holub_equilibrium_residual"
 
         q_final = self._calc_q(lam, a, c)
         aq_final = self._calc_aq(a, q_final)
@@ -199,8 +241,8 @@ class ReducedHamelGibbsSolver:
         diag["closure_rel"] = closure_rel
         if (
             not bool(diag.get("converged", False))
-            and closure_rel <= 1e-3
-            and float(diag.get("final_residual", np.inf)) <= 1e-2
+            and closure_rel <= float(closure_rel_tol)
+            and float(diag.get("final_residual", np.inf)) <= float(residual_rel_tol)
         ):
             diag["converged"] = True
             diag["converged_by"] = "closure_relaxed"
@@ -210,15 +252,61 @@ class ReducedHamelGibbsSolver:
             return out, diag
         return out
 
+    def infer_lambda_from_mole_guess(
+        self,
+        *,
+        mole_guess: Dict[str, float] | np.ndarray,
+        elem_names: List[str],
+        candidates: List[str],
+    ) -> np.ndarray:
+        """由可行摩尔 guess 反推 λ 初值（log 摩尔比最小二乘）。
+
+        Ref: Hamel (1999) (A.35) 邻域；工程扩展，非 (A.40) 完整联立 Newton。
+        """
+        n_elem = len(elem_names)
+        n_sp = len(candidates)
+        if isinstance(mole_guess, dict):
+            n = np.array([float(max(mole_guess.get(sp, 0.0), 0.0)) for sp in candidates], dtype=np.float64)
+        else:
+            n = np.asarray(mole_guess, dtype=np.float64).reshape(-1)
+        assert n.size == n_sp, f"mole_guess size {n.size} != candidates {n_sp}"
+        a = self._build_atom_matrix(elem_names, candidates)
+        assert a.shape == (n_elem, n_sp)
+
+        pos = n > 1.0e-18
+        if int(np.sum(pos)) <= 1:
+            return np.zeros(n_elem, dtype=np.float64)
+
+        pairs: list[np.ndarray] = []
+        targets: list[float] = []
+        for j in range(n_sp):
+            if not pos[j]:
+                continue
+            for k in range(j):
+                if not pos[k]:
+                    continue
+                pairs.append(a[:, j] - a[:, k])
+                targets.append(float(np.log(n[j] / n[k])))
+        if not pairs:
+            return np.zeros(n_elem, dtype=np.float64)
+
+        design = np.vstack(pairs)
+        rhs = np.asarray(targets, dtype=np.float64)
+        lam, *_ = np.linalg.lstsq(design, rhs, rcond=None)
+        lam = np.clip(np.asarray(lam, dtype=np.float64).reshape(-1), -80.0, 80.0)
+        if lam.size != n_elem:
+            return np.zeros(n_elem, dtype=np.float64)
+        return lam
+
     def _calc_q(self, lam: np.ndarray, a: np.ndarray, c: np.ndarray) -> np.ndarray:
-        """按 Hamel Eq. A1-8 的指数项构造 q_j(lambda)。"""
+        """指数项 q_j(λ)=exp(Σ_i a_ij λ_i − c_j)。Hamel (1999) (A.23)。"""
         assert a.shape[0] == lam.size and a.shape[1] == c.size
         expo = np.clip(a.T @ lam - c, -80.0, 80.0)
         q = np.exp(expo)
         return np.maximum(q, 1e-300)
 
     def _calc_aq(self, a: np.ndarray, q: np.ndarray) -> np.ndarray:
-        """元素加权和 A_i(lambda)=Σ_j a_ij q_j（Hamel A1 元素约束项）。"""
+        """A_i(λ)=Σ_j a_ij q_j。Hamel (1999) (A.25)。"""
         assert a.shape[1] == q.size
         return a @ q
 
@@ -235,7 +323,7 @@ class ReducedHamelGibbsSolver:
         ref_idx: int,
         active_idx: np.ndarray,
     ) -> np.ndarray:
-        """降维残差：b_ref*A_i - b_i*A_ref = 0（Hamel A1 消元后方程）。"""
+        """降阶残差 b_ref·A_i − b_i·A_ref = 0。Hamel (1999) (A.26)。"""
         assert aq.size == b.size
         a_ref = float(aq[ref_idx])
         b_ref = float(b[ref_idx])
@@ -249,7 +337,7 @@ class ReducedHamelGibbsSolver:
         ref_idx: int,
         active_idx: np.ndarray,
     ) -> np.ndarray:
-        """降维 Jacobian（对应 Hamel A1 Eq. A1-27/A1-28 的数值组装）。"""
+        """降阶 Jacobian。Hamel (1999) (A.27)–(A.28)。"""
         n_act = active_idx.size
         j = np.zeros((n_act, n_act), dtype=np.float64)
         for ri, i in enumerate(active_idx):
@@ -301,7 +389,7 @@ class ReducedHamelGibbsSolver:
         b: np.ndarray,
         ref_idx: int,
     ) -> tuple[np.ndarray, float]:
-        """由 z=A_ref/b_ref 与 n_j=q_j/z 恢复摩尔流（Hamel A1 消元回代）。"""
+        """z=A_ref/b_ref，n_j=q_j/z。Hamel (1999) (A.21) + (A.33) 回代。"""
         a_ref = max(float(aq[ref_idx]), 1e-300)
         b_ref = max(float(b[ref_idx]), 1e-300)
         z = a_ref / b_ref

@@ -1,0 +1,44 @@
+{
+  "case": "CASE_HTW_WESSELING_1",
+  "rows": [
+    {
+      "lag": 4,
+      "wall_s": 52.9,
+      "converged_fully": true,
+      "outer_iters": 4,
+      "rms": 0.02332733891565104,
+      "jacobian_build_s": 18.4,
+      "jac_rebuilds": 7,
+      "T_exit": 1117.0567178683236,
+      "CO": 0.08044375637972452,
+      "CO2": 0.16677942336878288,
+      "H2": 0.09910928521723462
+    },
+    {
+      "lag": 6,
+      "wall_s": 54.8,
+      "converged_fully": true,
+      "outer_iters": 7,
+      "rms": 0.020409512864544954,
+      "jacobian_build_s": 18.1,
+      "jac_rebuilds": 7,
+      "T_exit": 1120.3387965333686,
+      "CO": 0.08583462597336715,
+      "CO2": 0.16298251279767728,
+      "H2": 0.09284543339532829
+    },
+    {
+      "lag": 7,
+      "wall_s": 55.3,
+      "converged_fully": true,
+      "outer_iters": 8,
+      "rms": 0.019932568376427973,
+      "jacobian_build_s": 18.0,
+      "jac_rebuilds": 7,
+      "T_exit": 1110.8827084984123,
+      "CO": 0.08317421348511499,
+      "CO2": 0.16618228929382303,
+      "H2": 0.10098006663564475
+    }
+  ]
+}

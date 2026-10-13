@@ -1,10 +1,11 @@
 """动力学子模型：Arrhenius 工厂函数、炭反应、气相反应、焦油反应。"""
 
-from .arrhenius import k_hobbs, k_jensen_r7, k_standard
+from .arrhenius import k_hobbs, k_jensen_h2, k_jensen_r7, k_standard
 from .char_reactions import (
     D_d_A,
     D_A_ref,
     d_core_from_spm_char_conversion,
+    extent_R4,
     phi_c,
     rate_R1,
     rate_R2,
@@ -12,6 +13,7 @@ from .char_reactions import (
     rate_R4,
     rate_R4_effective,
     r1_hamel_kinetic_constants,
+    sherwood_number_eq517,
 )
 from .gas_reactions import (
     rate_R5_bubble,
@@ -26,6 +28,7 @@ from .tar_reactions import rate_R10, rate_R11, rate_R11_bubble, rate_R11_suspens
 
 __all__ = [
     "k_hobbs",
+    "k_jensen_h2",
     "k_jensen_r7",
     "k_standard",
     "D_d_A",
@@ -37,7 +40,9 @@ __all__ = [
     "rate_R3",
     "rate_R4",
     "rate_R4_effective",
+    "extent_R4",
     "r1_hamel_kinetic_constants",
+    "sherwood_number_eq517",
     "rate_R5_bubble",
     "rate_R5_suspension",
     "rate_R6",

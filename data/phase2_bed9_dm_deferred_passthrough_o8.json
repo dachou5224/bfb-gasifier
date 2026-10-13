@@ -1,0 +1,782 @@
+{
+  "note": "bed9 solid dm decomp + deferred bed-top energy passthrough; §5.20",
+  "arms": [
+    {
+      "label": "gate_hot_base",
+      "wall_s": 207.684029971,
+      "exit_CO": 0.15591848210567383,
+      "rms": 0.04898241139240332,
+      "split": 0.039511301582532854,
+      "energy": 0.04898241139240332,
+      "bed2_RH2O": -2.612770013372909,
+      "groups": {
+        "gas_rms": 0.022437835192795356,
+        "solid_rms": 0.00362584797727497,
+        "energy_rms": 0.06895928741262418,
+        "gas_max_abs": 0.12571505307891534,
+        "solid_max_abs": 0.023312831455288688,
+        "energy_max_abs": 0.17919313293780487
+      },
+      "topk": [
+        {
+          "flat_k": 409,
+          "F_hat": 0.17919313293780487,
+          "abs": 0.17919313293780487,
+          "cell": 9,
+          "cell_type": "bed",
+          "kind": "solid_or_other",
+          "local": 40
+        },
+        {
+          "flat_k": 129,
+          "F_hat": -0.12571505307891534,
+          "abs": 0.12571505307891534,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "N2"
+        },
+        {
+          "flat_k": 40,
+          "F_hat": -0.08082640598473775,
+          "abs": 0.08082640598473775,
+          "cell": 0,
+          "cell_type": "bed",
+          "kind": "solid_or_other",
+          "local": 40
+        },
+        {
+          "flat_k": 136,
+          "F_hat": -0.06689955609936467,
+          "abs": 0.06689955609936467,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "H2O"
+        },
+        {
+          "flat_k": 221,
+          "F_hat": 0.0640056605346424,
+          "abs": 0.0640056605346424,
+          "cell": 5,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "N2"
+        },
+        {
+          "flat_k": 211,
+          "F_hat": -0.06400562397466063,
+          "abs": 0.06400562397466063,
+          "cell": 5,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "N2"
+        },
+        {
+          "flat_k": 139,
+          "F_hat": -0.06213314981066554,
+          "abs": 0.06213314981066554,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "N2"
+        },
+        {
+          "flat_k": 205,
+          "F_hat": 0.059433320672661265,
+          "abs": 0.059433320672661265,
+          "cell": 5,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "CO"
+        }
+      ],
+      "bridge": {
+        "bed8": {
+          "T": 1150.7726011989107,
+          "model": "holdup_transport",
+          "m_up": 3.540381410139954,
+          "m_down": 2.0311089819326797,
+          "m_e_out": 5.571490392072634,
+          "m_in_all": 5.6160887883827515,
+          "m_auf_in": 2.543956421015678,
+          "m_ab_in": 3.072132367367074,
+          "m_hold": 7.286394190669502,
+          "char_up": 2.7760219475435566,
+          "ash_up": 0.7643594625963972,
+          "E_abs": 402484.14064281253,
+          "passthrough": false
+        },
+        "bed9": {
+          "T": 1150.8203488509819,
+          "model": "holdup_transport",
+          "m_up": 2.085815241322156,
+          "m_down": 3.072132367367074,
+          "m_e_out": 5.157947608689229,
+          "m_in_all": 4.890095740359548,
+          "m_auf_in": 3.540381410139954,
+          "m_ab_in": 1.3497143302195946,
+          "m_hold": 9.362356790487395,
+          "char_up": 1.621783393744702,
+          "ash_up": 0.46403184757745347,
+          "E_abs": 3362260.4843563456,
+          "passthrough": false
+        },
+        "fb0": {
+          "T": 973.4315522510078,
+          "model": "freeboard_closure",
+          "m_up": 0.0,
+          "m_down": 1.3497143302195946,
+          "m_e_out": 2.085815241322156,
+          "m_in_all": 2.085815241322156,
+          "m_auf_in": 0.0,
+          "m_ab_in": 0.0,
+          "m_hold": 0.35518334754457465,
+          "char_up": 0.0,
+          "ash_up": 0.0,
+          "E_abs": 0.46197284548543394,
+          "passthrough": false
+        },
+        "bed9_enthalpy": {
+          "H_in": -62100232.9340915,
+          "H_gas_out": -6602372.510506738,
+          "H_sol_Kout": -58945526.42518249,
+          "H_sol_Eout": -58945526.42518249,
+          "H_sol_pass": -55420034.36253735,
+          "res_Kout": 3447666.0015977323,
+          "res_Eout": 3447666.0015977323,
+          "res_pass": -77826.06104741246,
+          "dm_K_vs_in": 0.26785186832968044,
+          "dm_E_vs_in": 0.26785186832968044
+        },
+        "continuity": {
+          "bed8_up_minus_bed9_auf": 0.0,
+          "bed9_up_minus_fb0_auf_or_in": 0.0,
+          "fb0_down_minus_bed9_ab": 0.0
+        },
+        "Fhat_T_bed9": 0.17919313293780487,
+        "Fhat_T_bed0": -0.08082640598473775
+      },
+      "bed9_mass_decomp": {
+        "m_in_all": {
+          "char": 3.8004195657908753,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 1.0896761745686736,
+          "total": 4.890095740359548
+        },
+        "m_auf_in": {
+          "char": 2.7760219475435566,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.7643594625963972,
+          "total": 3.540381410139954
+        },
+        "m_ab_in": {
+          "char": 1.0243976182473182,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.3253167119722763,
+          "total": 1.3497143302195946
+        },
+        "m_solid_in": {
+          "char": 0.0,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0,
+          "total": 0.0
+        },
+        "m_zu": {
+          "char": 0.0,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0,
+          "total": 0.0
+        },
+        "m_rez": {
+          "char": 0.0,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0,
+          "total": 0.0
+        },
+        "m_out_Km": {
+          "char": 4.039252982647023,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 1.1186946260422073,
+          "total": 5.157947608689229
+        },
+        "m_out_masked": {
+          "char": 4.039252982647023,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 1.1186946260422073,
+          "total": 5.157947608689229
+        },
+        "m_in_masked_like_balance": {
+          "char": 3.8004195657908753,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 1.0896761745686736,
+          "total": 4.890095740359548
+        },
+        "R_solid": {
+          "char": -0.048772484132278256,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0,
+          "total": -0.048772484132278256
+        },
+        "size_migration": {
+          "char": 0.0,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0,
+          "total": 0.0
+        },
+        "dm_out_minus_in": {
+          "char": 0.23883341685614737,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.029018451473533546,
+          "total": 0.26785186832968094
+        },
+        "R_plus_mig": {
+          "char": -0.04877248413227825,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0,
+          "total": -0.04877248413227825
+        },
+        "budget_in_R_mig_minus_out": {
+          "char": -0.2876059009884256,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": -0.029018451473533637,
+          "total": -0.3166243524619592
+        },
+        "solid_res_sum": {
+          "char": -0.2876059009884256,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": -0.029018451473533637,
+          "total": -0.3166243524619592
+        },
+        "solid_res_abs_max": 0.3322650236761375,
+        "holdup": {
+          "char": 7.279510892585462,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 2.0828458979019335,
+          "total": 9.362356790487395
+        },
+        "K_auf_mean_char": 0.22278741218679513,
+        "K_ab_mean_char": 0.33209231012548274,
+        "K_auf_mean_vm": 0.0,
+        "K_ab_mean_vm": 0.0
+      },
+      "passthrough_armed": false,
+      "arm_hist": [
+        {
+          "outer": 0,
+          "trace_o2_rate_gate_armed": false,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 1,
+          "trace_o2_rate_gate_armed": false,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 2,
+          "trace_o2_rate_gate_armed": false,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 3,
+          "trace_o2_rate_gate_armed": false,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 4,
+          "trace_o2_rate_gate_armed": false,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 5,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": true
+        },
+        {
+          "outer": 6,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 7,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 8,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 9,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 10,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": true
+        },
+        {
+          "outer": 11,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 12,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 13,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 14,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 15,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 16,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 17,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 18,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 19,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        }
+      ],
+      "overrides": {}
+    },
+    {
+      "label": "passthrough_after_y_co",
+      "wall_s": 191.800405483,
+      "exit_CO": 0.15591848210567383,
+      "rms": 0.039511301582532854,
+      "split": 0.039511301582532854,
+      "energy": 0.027851426871395635,
+      "bed2_RH2O": -2.612770013372909,
+      "groups": {
+        "gas_rms": 0.022437835192795356,
+        "solid_rms": 0.00362584797727497,
+        "energy_rms": 0.039394587922226665,
+        "gas_max_abs": 0.12571505307891534,
+        "solid_max_abs": 0.023312831455288688,
+        "energy_max_abs": 0.08082640598473775
+      },
+      "topk": [
+        {
+          "flat_k": 129,
+          "F_hat": -0.12571505307891534,
+          "abs": 0.12571505307891534,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "N2"
+        },
+        {
+          "flat_k": 40,
+          "F_hat": -0.08082640598473775,
+          "abs": 0.08082640598473775,
+          "cell": 0,
+          "cell_type": "bed",
+          "kind": "solid_or_other",
+          "local": 40
+        },
+        {
+          "flat_k": 136,
+          "F_hat": -0.06689955609936467,
+          "abs": 0.06689955609936467,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "H2O"
+        },
+        {
+          "flat_k": 221,
+          "F_hat": 0.0640056605346424,
+          "abs": 0.0640056605346424,
+          "cell": 5,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "N2"
+        },
+        {
+          "flat_k": 211,
+          "F_hat": -0.06400562397466063,
+          "abs": 0.06400562397466063,
+          "cell": 5,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "N2"
+        },
+        {
+          "flat_k": 139,
+          "F_hat": -0.06213314981066554,
+          "abs": 0.06213314981066554,
+          "cell": 3,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "N2"
+        },
+        {
+          "flat_k": 205,
+          "F_hat": 0.059433320672661265,
+          "abs": 0.059433320672661265,
+          "cell": 5,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "dense",
+          "species": "CO"
+        },
+        {
+          "flat_k": 180,
+          "F_hat": 0.05843557500859188,
+          "abs": 0.05843557500859188,
+          "cell": 4,
+          "cell_type": "bed",
+          "kind": "gas",
+          "phase": "bubble",
+          "species": "N2"
+        }
+      ],
+      "bridge": {
+        "bed8": {
+          "T": 1150.7726011989107,
+          "model": "holdup_transport",
+          "m_up": 3.540381410139954,
+          "m_down": 2.0311089819326797,
+          "m_e_out": 5.571490392072634,
+          "m_in_all": 5.6160887883827515,
+          "m_auf_in": 2.543956421015678,
+          "m_ab_in": 3.072132367367074,
+          "m_hold": 7.286394190669502,
+          "char_up": 2.7760219475435566,
+          "ash_up": 0.7643594625963972,
+          "E_abs": 402484.14064281253,
+          "passthrough": false
+        },
+        "bed9": {
+          "T": 1150.8203488509819,
+          "model": "holdup_transport",
+          "m_up": 2.085815241322156,
+          "m_down": 3.072132367367074,
+          "m_e_out": 4.890095740359548,
+          "m_in_all": 4.890095740359548,
+          "m_auf_in": 3.540381410139954,
+          "m_ab_in": 1.3497143302195946,
+          "m_hold": 9.362356790487395,
+          "char_up": 1.621783393744702,
+          "ash_up": 0.46403184757745347,
+          "E_abs": 163231.57828879176,
+          "passthrough": true
+        },
+        "fb0": {
+          "T": 973.4315522510078,
+          "model": "freeboard_closure",
+          "m_up": 0.0,
+          "m_down": 1.3497143302195946,
+          "m_e_out": 2.085815241322156,
+          "m_in_all": 2.085815241322156,
+          "m_auf_in": 0.0,
+          "m_ab_in": 0.0,
+          "m_hold": 0.35518334754457465,
+          "char_up": 0.0,
+          "ash_up": 0.0,
+          "E_abs": 0.46197284548543394,
+          "passthrough": false
+        },
+        "bed9_enthalpy": {
+          "H_in": -62100232.9340915,
+          "H_gas_out": -6602372.510506738,
+          "H_sol_Kout": -58945526.42518249,
+          "H_sol_Eout": -55420034.36253735,
+          "H_sol_pass": -55420034.36253735,
+          "res_Kout": 3447666.0015977323,
+          "res_Eout": -77826.06104741246,
+          "res_pass": -77826.06104741246,
+          "dm_K_vs_in": 0.26785186832968044,
+          "dm_E_vs_in": 0.0
+        },
+        "continuity": {
+          "bed8_up_minus_bed9_auf": 0.0,
+          "bed9_up_minus_fb0_auf_or_in": 0.0,
+          "fb0_down_minus_bed9_ab": 0.0
+        },
+        "Fhat_T_bed9": -0.008699497865808762,
+        "Fhat_T_bed0": -0.08082640598473775
+      },
+      "bed9_mass_decomp": {
+        "m_in_all": {
+          "char": 3.8004195657908753,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 1.0896761745686736,
+          "total": 4.890095740359548
+        },
+        "m_auf_in": {
+          "char": 2.7760219475435566,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.7643594625963972,
+          "total": 3.540381410139954
+        },
+        "m_ab_in": {
+          "char": 1.0243976182473182,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.3253167119722763,
+          "total": 1.3497143302195946
+        },
+        "m_solid_in": {
+          "char": 0.0,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0,
+          "total": 0.0
+        },
+        "m_zu": {
+          "char": 0.0,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0,
+          "total": 0.0
+        },
+        "m_rez": {
+          "char": 0.0,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0,
+          "total": 0.0
+        },
+        "m_out_Km": {
+          "char": 4.039252982647023,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 1.1186946260422073,
+          "total": 5.157947608689229
+        },
+        "m_out_masked": {
+          "char": 4.039252982647023,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 1.1186946260422073,
+          "total": 5.157947608689229
+        },
+        "m_in_masked_like_balance": {
+          "char": 3.8004195657908753,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 1.0896761745686736,
+          "total": 4.890095740359548
+        },
+        "R_solid": {
+          "char": -0.048772484132278256,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0,
+          "total": -0.048772484132278256
+        },
+        "size_migration": {
+          "char": 0.0,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0,
+          "total": 0.0
+        },
+        "dm_out_minus_in": {
+          "char": 0.23883341685614737,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.029018451473533546,
+          "total": 0.26785186832968094
+        },
+        "R_plus_mig": {
+          "char": -0.04877248413227825,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 0.0,
+          "total": -0.04877248413227825
+        },
+        "budget_in_R_mig_minus_out": {
+          "char": -0.2876059009884256,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": -0.029018451473533637,
+          "total": -0.3166243524619592
+        },
+        "solid_res_sum": {
+          "char": -0.2876059009884256,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": -0.029018451473533637,
+          "total": -0.3166243524619592
+        },
+        "solid_res_abs_max": 0.3322650236761375,
+        "holdup": {
+          "char": 7.279510892585462,
+          "VM": 0.0,
+          "moisture": 0.0,
+          "ash": 2.0828458979019335,
+          "total": 9.362356790487395
+        },
+        "K_auf_mean_char": 0.22278741218679513,
+        "K_ab_mean_char": 0.33209231012548274,
+        "K_auf_mean_vm": 0.0,
+        "K_ab_mean_vm": 0.0
+      },
+      "passthrough_armed": true,
+      "arm_hist": [
+        {
+          "outer": 0,
+          "trace_o2_rate_gate_armed": false,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 1,
+          "trace_o2_rate_gate_armed": false,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 2,
+          "trace_o2_rate_gate_armed": false,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 3,
+          "trace_o2_rate_gate_armed": false,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 4,
+          "trace_o2_rate_gate_armed": false,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 5,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": true
+        },
+        {
+          "outer": 6,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 7,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 8,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 9,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 10,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": true
+        },
+        {
+          "outer": 11,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 12,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 13,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 14,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 15,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 16,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 17,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 18,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        },
+        {
+          "outer": 19,
+          "trace_o2_rate_gate_armed": true,
+          "trace_o2_rate_gate_newly_armed": false
+        }
+      ],
+      "overrides": {
+        "nr_bed_top_solid_energy_passthrough_thesis": true,
+        "nr_bed_top_solid_energy_passthrough_after_y_co_thesis": true,
+        "nr_bed_top_solid_energy_passthrough_y_co_threshold_thesis": 0.14
+      }
+    }
+  ]
+}

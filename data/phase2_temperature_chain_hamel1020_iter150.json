@@ -1,0 +1,90 @@
+{
+  "note": "temperature chain on fixed50+r5=0.25+vm_zone=0 baseline",
+  "max_global_iter": 150,
+  "best_converged_by_T_rmse_full": "seed_hamel_1020_1100",
+  "best_converged_by_score_total": "seed_hamel_1020_1100",
+  "results": [
+    {
+      "label": "seed_hamel_1020_1100",
+      "overrides": {
+        "vorab_nr_temperature_seed_mode_thesis": "budget_progress",
+        "vorab_nr_temperature_seed_bottom_K_thesis": 1020.0,
+        "vorab_nr_temperature_seed_top_K_thesis": 1100.0
+      },
+      "max_global_iter": 150,
+      "wall_time_s": 116.252397076,
+      "converged_fully": true,
+      "rms_scaled_final": 0.007746502420185267,
+      "nr_outer_iters": 9,
+      "reactor_exit_gas_dry": {
+        "CO": 0.07893366798889705,
+        "CO2": 0.16949894045544975
+      },
+      "score_exit_co_co2": 0.9337173972328526,
+      "score_total": 1.066637569279608,
+      "bed0_T_K": 929.7237763521516,
+      "bed_top_T_K": 1030.8741547431139,
+      "T_peak_K": 1102.8192979790228,
+      "T_peak_xi": 0.10344827586206896,
+      "T_peak_cell_type": "bed",
+      "T_rmse_bed_vs_hamel_K": 66.46008602337761,
+      "T_rmse_full_vs_hamel_K": 66.46008602337761,
+      "ref_dry": {
+        "CO": 0.13,
+        "CO2": 0.11
+      },
+      "axial_T_summary": [
+        {
+          "xi": 0.020689655172413793,
+          "T_K": 929.7237763521516,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.06206896551724137,
+          "T_K": 1033.8848348976373,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.10344827586206896,
+          "T_K": 1102.8192979790228,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.14482758620689654,
+          "T_K": 1084.6893709181911,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.18620689655172412,
+          "T_K": 1068.9823837051708,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2275862068965517,
+          "T_K": 1056.5442447087335,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.2689655172413793,
+          "T_K": 1046.3284369215662,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.3103448275862069,
+          "T_K": 1037.883609556101,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.35172413793103446,
+          "T_K": 1032.7874582692305,
+          "cell_type": "bed"
+        },
+        {
+          "xi": 0.393103448275862,
+          "T_K": 1030.8741547431139,
+          "cell_type": "bed"
+        }
+      ]
+    }
+  ]
+}

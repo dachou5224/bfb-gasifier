@@ -1,0 +1,53 @@
+{
+  "source": "Wirsum alignment Hamel Bild 7.7 cyclone cells",
+  "solved": false,
+  "not_a_furnace_convergence_claim": true,
+  "units": {
+    "gas": "mol/s",
+    "solid": "kg/s",
+    "holdup": "kg",
+    "K": "1/s"
+  },
+  "topology": "bed \u2192 freeboard \u2192 cyclone(n) \u2192 return \u2192 bed",
+  "n_cyc_frei_waehlbar": [
+    1,
+    2
+  ],
+  "K_model": "frozen_context",
+  "m_leave_char_kg_s": 0.8302694400000001,
+  "recycle_closed": {
+    "physical_convergence": true,
+    "residual_l2": 3.188872858294072e-16,
+    "m_rez_kg_s": 0.0,
+    "m_aus_kg_s": 0.7664025600000002,
+    "leave_minus_fly_under": 2.220446049250313e-16,
+    "dF_bed_dMret": 0.0,
+    "N_mol_s": [
+      1.8,
+      1.8
+    ]
+  },
+  "recycle_open": {
+    "physical_convergence": true,
+    "m_rez_kg_s": 0.7664025600000002,
+    "F_bed": 0.2561331200000001,
+    "dF_bed_dMret": 1.0,
+    "N_mol_s": [
+      1.8,
+      1.8
+    ]
+  },
+  "one_cell": {
+    "physical_convergence": true,
+    "leave_minus_fly_under": 0.0,
+    "N_mol_s": [
+      1.8
+    ]
+  },
+  "not": [
+    "engineering_lapple_1951",
+    "constant_eta",
+    "R1"
+  ],
+  "note": "\u65cb\u98ce\u662f cell \u8861\u7b97\u3002K \u662f\u51bb\u7ed3\u4e0a\u4e0b\u6587\uff0c\u4e0d\u662f\u8bba\u6587\u516c\u5f0f\u3002Lapple \u5bf9\u7167\u6838\u4e0d\u53c2\u4e0e\u672c\u6b8b\u5dee\u3002"
+}

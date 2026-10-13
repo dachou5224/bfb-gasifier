@@ -1,0 +1,101 @@
+{
+  "knife": "T_branch_o2_limiter_feedback",
+  "date": "2026-07-27",
+  "user_claim": "无限幅→高温分支，有限幅→相对低温且 CO/CO2 方向对；T 不完全是结果，也是原因：高温进一步推高不收敛与结构错误。",
+  "verdict_on_claim": {
+    "T_is_cause_and_result": "CONFIRMED — 反馈环成立",
+    "no_limit_equals_uniformly_hotter": "PARTIALLY — 床顶/中部更热，但 bed0 反而更冷（1100 vs 比例 1250 fence）",
+    "limiter_equals_uniformly_colder": "PARTIALLY — 出口更冷（972），bed0 贴上界更热",
+    "high_T_amplifies_pathology_without_limiter": "CONFIRMED（绝对 O2 需求）",
+    "high_T_increases_R10_share_vs_R6": "FALSIFIED on frozen-C — 升温时 R6 相对增长更快，R10/R6 下降"
+  },
+  "branch_table": {
+    "proportional": {
+      "T0_Tmax_Ttop": [
+        1250.0,
+        1296.7447596289583,
+        972.1144446297026
+      ],
+      "CO_CO2": [
+        0.12509097284445553,
+        0.1513731487200997
+      ],
+      "structure": "legacy_wrong (CO低/CO2高)",
+      "rms": 0.028092213736688004,
+      "net_r10_r6": [
+        6.572162666232658,
+        0.5323080136452036
+      ]
+    },
+    "no_o2_limit": {
+      "T0_Tmax_Ttop": [
+        1100.1411966718858,
+        1211.219698743406,
+        1136.0048906847755
+      ],
+      "CO_CO2": [
+        0.06097069484799588,
+        0.1984421839279983
+      ],
+      "structure": "legacy_wrong 更严重",
+      "rms": 0.9649626155513167,
+      "net_r10_r6": [
+        0.0,
+        0.9453418714328109
+      ],
+      "note": "吸引子上 tar 耗尽 net_r10≈0；病态来自求解/组成，非床0绝对更热"
+    },
+    "r6_first": {
+      "T0_Tmax_Ttop": [
+        923.4375,
+        1355.265602932418,
+        991.3448172860227
+      ],
+      "CO_CO2": [
+        0.16323870231706586,
+        0.11084280986770172
+      ],
+      "structure": "flipped_overshoot (方向对、略过冲)",
+      "rms": 0.015558403943130331
+    }
+  },
+  "frozen_C_T_sweep_key": {
+    "at_850K": {
+      "share_R10": 0.907,
+      "R10_over_R6": 9.79
+    },
+    "at_1250K": {
+      "share_R10": 0.725,
+      "R10_over_R6": 2.63
+    },
+    "at_1400K": {
+      "share_R10": 0.675,
+      "R10_over_R6": 2.08
+    },
+    "growth_1250_to_1400": {
+      "T1_T2": [
+        1250,
+        1400
+      ],
+      "R10_factor": 2.160799980537863,
+      "R6_factor": 2.733897453661007,
+      "share_R10_T1": 0.7246017691253576,
+      "share_R10_T2": 0.6752844165856773
+    },
+    "interpretation": "固定组成升温：R10、R6 绝对 O2 需求都暴涨（限幅压力↑）；但 R6 活化更陡，份额上 R10 相对下降。故「高温→R10更霸道」在相对份额上不成立；成立的是「高温→总透支更大→无限幅更难收敛」。"
+  },
+  "feedback_loop": [
+    "1. 限幅规则选择可行域 → 影响实现的 extent/放热/物种",
+    "2. 能量平衡 → 轴向 T（床0 fence / 床顶 / 热点）",
+    "3. T 进入 Arrhenius → 绝对 O2 需求与 R6/R10 相对权重变化",
+    "4. 若无限幅：大透支 → 残差病态 → 无法把 C_O2/组成拉回自洽 → 错误结构被锁死并反向加强",
+    "5. 若比例限幅：压住透支 → 可收敛的「较冷出口」分支，但 CO/CO2 仍 legacy_wrong",
+    "6. R6-first：另一可行域 → 冷床0+热床1，结构方向翻转（非动力学涌现）"
+  ],
+  "refined_statement": "同意：T 是原因的一部分，不是纯结果。更精确：限幅/分配规则选择分支 → T 剖面与组成耦合 → 又改变速率与 O2 饥饿程度。无限幅的问题核心是「高温（及错误组成）下绝对动力学透支炸掉 NR」，不是「高温让 R10 份额更高」（冻结 C 扫描显示相反）。",
+  "implication": "治理应同时看：① 护栏如何选分支；② 该分支上的 T 是否让绝对需求可被供给吸收；不能只调 T 或只删限幅。同构方向仍是让 O2 在自洽 C,T 下按速率竞争，而非优先级。",
+  "artifacts": [
+    "data/phase2_T_branch_o2_limiter_feedback.json",
+    "data/phase2_T_branch_o2_limiter_feedback_verdict.json"
+  ]
+}

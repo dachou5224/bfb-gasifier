@@ -9,31 +9,24 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
-REPO_ROOT = Path(__file__).resolve().parent.parent
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+from _lu_harness import (
+    build_phase2_config,
+    phase2_solve_kwargs,
+)
 
 from src.core.reactor import Reactor
 from _nr_monitor import print_nr_monitor, solve_with_nr_monitor
-from tests.validation_case_utils import (
-    PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS,
-    build_phase2_htw_lu_freeboard_reactor_config,
-)
-
 
 TRACK_SPECIES = ("CO", "CO2", "H2", "H2O", "CH4", "TAR1", "TAR2", "O2")
 TRACK_REACTIONS_THESIS = ("R5", "R6", "R7", "R8", "R9", "R10", "R11")
 
 
 def main() -> int:
-    cfg = build_phase2_htw_lu_freeboard_reactor_config()
+    cfg = build_phase2_config()
     reactor = Reactor(cfg)
     result, monitor = solve_with_nr_monitor(
         reactor,
-        dict(PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS),
+        phase2_solve_kwargs(),
         check_x0=True,
     )
 

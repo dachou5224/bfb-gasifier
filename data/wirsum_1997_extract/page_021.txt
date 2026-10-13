@@ -1,0 +1,82 @@
+den Vektor aller Nßu Bilanzvariablen einer Zelle z, mit
+X =f (xi,x 2, ... ,x Nz )
+den Vektor aller Bilanzvariablen in allen Zellen und mit
+Fi = ( .F,, ...
+den Vektor aller Bilanzgleichungen einer Zelle i, so hat das zu lösende nichtlineare Gleichungs-
+system die Form
+Das Newton-Verfahren konvergiert schnell für den Fall, daß die Startwerte x0 nahe genug
+an der Lösung x* liegen. Bei weit von der Lösung entfernten Startwerten ist hingegen oft
+Divergenz zu beobachten.
+Zur Lösung des Gleichungssystems wird daher die „gedämpfte“ Variante des Newton-Ver-
+fahrens angewandt. Eine Newton-Iterierte x(p+ D wird erst dann akzeptiert, wenn für die
+Euklidische Norm des Funktionsvektors gilt:
+||F 
+||2 < ||FW||2
+(2.23)
+Das Verfahrenschema zur Berechnung der Bilanzvariablen x* für den stationären Beharrungs-
+zustand erhält damit folgenden Ablauf:
+1. Auswählen von Startwerten für alle Bilanzvariablen x0 und initialisieren des
+Iterationszählers v = 0.
+2. Aufstellen des Funktionsvektors F(x (i/)) und der Funktionalmatrix F'(x 0).
+3. Berechnung von Ax 
++1 ) durch Lösen des linearen Gleichungssystems (2.21)
+4. Berechnen einer Zahl j so, daß gilt
+j = min {i | i > 0, ||F (x ("> + £Ax<"+1) ) ||2 < ||F (xM) ||2}
+5. Berechnung einer neuen Approximation für den Bilanzgleichungsvektor
+x (p+1 ) == 
+4-
+6. Wiederholen der Berechnungen ab Punkt 2.
+In Simulationsmodell wird die Lösungsbedingung F(x (p) ) = 0 durch Abbruchbedingungen für
+den Iterationsprozeß ersetzt. Mögliche Abbruchbedingungen sind:
+E » > 
+max
+2. ||x +1 ) — X (I/)|| < ö 
+, 
+<5>0
+3. ||F(x("+1 ))|| <e 
+, 
+6>0
+Das Zellenmodell zur Berechnung von durchströmten Reaktoren weist in der Struktur seiner
+Bilanzgleichungen eine besondere Form auf. Die Bilanzgleichungen einer Zelle F, sind in der
+Regel nur von den Bilanzvariablen derselben Zelle und von Bilanzvariablen der benachbarten
+Zellen abhängig. Ausnahmen bilden nur solche Zellen, in die Stoffströme oder Energieströme
+aus nicht benachbarten Zellen gelangen. Derartige Bilanzgleichungsstrukturen treten z.B. bei
+der Modellierung von zirkulierenden Wirbelschichtfeuerungen oder bei der Berechnung von
+partikelkonvektiven Wärmeströmen zwischen nicht benachbarten Zellen auf.
+Fi(x)
+F2(x)
+F(x) =
+(2-15)
+F wz (x)
+Eine geschätzte Ausgangslösung x0 erfüllt das Gleichungssystem in der Regel nicht. Vielmehr
+gilt
+F(xo) / 0 . 
+(2.16)
+Es soll nun em Ax so bestimmt werden, daß die Gleichung
+F(x 0 + Ax) = 0
+(2-17)
+erfüllt werden kann. Hierzu wird der Funktionsvektor bis einschließlich des linearen Glieds in
+eine Taylorreihe entwickelt:
+F(x 0 + Ax) = F(xo) + 
+Ax + . . . = Ö . 
+(2.18)
+Durch Umstellen der obigen Gleichung erhält man die Vorschrift zur Berechnung von Ax
+ax
+■'[(£)..] 
+F<x,)
+' 
+l219)
+Die Matrix, in der die partiellen Ableitungen des Funktionsvektors F zusammengefaßt sind,
+bezeichnet man als Funktional- oder Jacobi-Matrix.
+Zur praktischen Berechnung der Newton-Korrektur Ax wird Gleichung (2.19) in ein lineares
+Gleichungssystem überführt
+F'(x 0)Ax = -F(x 0) . 
+(2.21)
+Für Ax erhält man nach einer Auswertung von Gleichung (2.21) in der Regel keine exakte
+Lösung, da die Taylorentwicklung nur das lineare Glied berücksichtigt. Die exakte Lösung des
+Systems muß iterativ bestimmt werden, wobei folgende Vorschrift verwendet wird:
+X (v+1) =x
+M + 
+5x M
+22
+23

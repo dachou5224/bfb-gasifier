@@ -1,0 +1,29 @@
+{
+  "note": "R12/R5/R6/R10 on combined holdup + hydro redistribute; bed limiters off; fb dt bounds on",
+  "seed": 1250.0,
+  "oxidation_diag": {
+    "enabled": 1.0,
+    "cells_touched": 10.0,
+    "xi12_total": 50.95037303074338,
+    "xi5_total": 36.72722732696576,
+    "xi6_total": 0.8283620006783414,
+    "xi10_total": 0.2519117487378284
+  },
+  "init_rms": 0.02482694754188168,
+  "init_split": 0.04704408075139141,
+  "init_energy": 0.07703946244027644,
+  "wall_s": 156.410652415,
+  "rms": 0.06584274131682702,
+  "split_final": 0.0652820562517167,
+  "gas_final": 0.07272858003504734,
+  "energy_final": 0.06584274131682702,
+  "converged": false,
+  "exit_dry": {
+    "CO": 0.012078741489480783,
+    "CO2": 0.07955263287110015,
+    "H2": 0.0,
+    "CH4": 0.016117450454421398,
+    "O2": 2.3865489868170465e-22
+  },
+  "stall_note": "NR accepts ~2 damped steps then LS fails (split~0.07); not extent-limiter regression"
+}

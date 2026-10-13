@@ -1,0 +1,34 @@
+{
+  "conditional": true,
+  "passed": false,
+  "reason": "merit_reject",
+  "elapsed_s": 150.59903297099999,
+  "merit": 509754.35546487273,
+  "gate_ratio": {
+    "gas": 202312792.9561614,
+    "solid": 6416360.2344756955,
+    "tar": 2110565.135529196,
+    "energy_sum_W": -350004.2608149005
+  },
+  "T_bed": 1650.0,
+  "T_fb": 733.3333333333334,
+  "prediction": null,
+  "assumptions": {
+    "steam_kg_h": 0.0,
+    "steam_status": "assumed_zero_because_missing",
+    "secondary_air_placed_at_xi": false,
+    "heating_value_basis": "named-kernel schematic h_f, not Table 7.1",
+    "char_diameter_basis": "named-kernel bins, not the 1.5\u20133 mm fuel and not the missing bed material",
+    "Q_W": 0.0,
+    "launch_window_s": 5.0,
+    "H_bed_status": "section_7_1_2_note"
+  },
+  "initial_w_undecided": [
+    1.0,
+    1.0
+  ],
+  "initial_tau_s": [
+    0.0,
+    0.0
+  ]
+}

@@ -1,0 +1,111 @@
+5 Modellierung der chemischen Reaktionen
+92
+5 Modellierung der chemischen Reaktionen
+93
+Rhein.
+Braunkohle Torf Holz
+Wirbelschicht
+H
+D
+p
+VM
+A
+■
+•
+Kurkela u. Stahlberg (1992) 3,7 m 0,25 m 4-10 bar Luft/H2O
+—
+□
+— Leppälahti u. Kurkela (1991) 3,6 m 0,16 m
+1 bar
+Luft
+—
+—
+© de Souza - Santos (1994)
+6,15 m 0,45 m 21,7 bar O H.O
+—
+—
+0
+Narvaez et al. (1996)
+k. A.
+0,06 m
+1 bar
+Luft
+CO + H2O 
+H2 + CO2 
+-41,1 kJ/molCO 
+(5.42)
+Einige Autoren nehmen bei der Modellierung von technischen Vergasern die Einstellung des
+chemischen Gleichgewichtes der homogenen Wassergasreaktion an (Rhinehart 1987, Sett
+1988, Sowa 1991, Gockel 1994, Heil et al. 1995). Andere Autoren unterstellen eine unvoll-
+ständige Gleichgewichtseinstellung und benutzen zur Berechnung kinetische Ansätze (Wen
+und Chaung 1979, Govind und Shah 1984, Neogi et al. 1986, Weimer und Clough 1981). Ex-
+perimentelle Untersuchungen zur Vergasung von Kohlen und Biomassen in der Wirbelschicht
+zeigen, dass die Annahme des chemischen Gleichgewichtes unter Wirbelschichtbedingungen
+nur bedingt zulässig ist. Um die Gaszusammensetzung mit der Gleichgewichtslage der homo-
+genen Wassergasreaktion zu vergleichen, ist die Gleichgewichtskonstante Keq für ideales Gas,
+o
+Keq
+0,8
+0,6
+0,4
+—o
+o
+0,2
+0,0 +
+0
+1.050 
+1.100
+1.150 
+1.200 
+1.250
+Gleichgewichts-
+konstante
+Keq und Kexp
+der homogenen
+Wassergasreaktion
+r
+exp - 
+-------
+RT
+(5.43)
+K «,= K P
+im Vergleich zum experimentell ermittelten Verhältnis Kexp
+?CO • ?H 2O
+(5.44)
+in Bild 5.11 dargestellt. Die experimentell ermittelten K -Werte aus den jeweils angegebe-
+nen 
+Freiraumtemperaturen 
+und 
+den 
+Austrittsgaskonzentrationen 
+der 
+Luft-/Wasser-
+dampfvergasung von Braunkohle, Torf und Holz in der Druckwirbelschicht (Kurkela und
+Stahlberg 1992), der atmosphärischen Luftvergasung von Torf (Leppälahti und Kurkela 1991),
+Holz (Narvaez et al. 1996) sowie der Sauerstoff-/Wasserdampfvergasung von Holz (de Souza-
+Santos 1994) zeigen, dass die Gleichgewichtslage in der überwiegenden Zahl der dargestellten
+Fälle nicht erreicht wird. Insbesondere fallt auf, dass die 
+Werte der Torfvergasung ten-
+denziell oberhalb der berechneten Gleichgewichtskonstanten liegen, während im Fall der
+Holzvergasung alle eingetragenen Messpunkte unterhalb der berechneten Gleichgewichtskon-
+stanten liegen. Die Luft-/Wasserdampfvergasung von Rheinischer Braunkohle liefert dagegen
+Werte für Kexp, die deutlich oberhalb der Gleichgewichtslage zu finden sind. Dieses Verhalten
+wird auf die unterschiedliche Pyrolyse von Braunkohlen und Torf und auf deren katalytisch
+aktive Bestandteile im Gegensatz zur Biomasse erklärt (Kurkela und Stahlberg 1992). Schoe-
+ters et al. (1989) stellt bei Experimenten zur Holzvergasung in der Wirbelschicht fest, dass die
+Werte für Kexp ebenfalls deutlich unterhalb der theoretisch berechneten Gleichgewichtskon-
+stante liegen, sich mit zunehmender Temperatur aber dieser annähem.
+Freiraumtemperatur in K
+Bild 5.11: Berechnete Gleichgewichtskonstante der homogenen Wassergasreaktion und aus
+der Vergasung in der Wirbelschicht experimentell ermitteltes Verhältnis Kexp ver-
+schiedener Autoren in Abhängigkeit der Freiraumtemperatur.
+Auf der Basis eigener Untersuchungen zur Reaktion der homogenen Wassergasreaktion in
+Kontakt mit einem Hochtemperatur-Katalysator schlagen Singh und Saraf (1977) zur Berech-
+nung der Reaktionsrate eine Gleichung vor, die den Einfluss von Druck, Temperatur, Schwe-
+felwasserstoffkonzentration und Alter des Katalysators erfasst und die eigenen experimentel-
+len Ergebnisse gut wiedergibt. Das Modell von Singh und Saraf (1977) wurde von zahlreichen
+Autoren, die Reaktoren zur Vergasung von Kohle modellierten, übernommen. Lediglich der
+präexponentielle Faktor der Reaktionskinetik wurde zur Anpassung an eigene Ergebnisse als
+eine die unterschiedliche katalytische Aktivität des jeweiligen Feststoffs beschreibende Größe
+interpretiert (Wen und Chaung 1979, Govind und Shah 1984). Wen und Chaung (1979) geben
+für die homogene Wassergasreaktion die folgende Reaktionsrate in mol CO/(s kgAsche) an:

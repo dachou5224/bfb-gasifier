@@ -1,0 +1,51 @@
+{
+  "knife": "bed0_R7_CH4_H2_coupling_long_NR",
+  "date": "2026-07-25",
+  "default_r7_scale": 2.5,
+  "longer_NR": {
+    "result": "DOES_NOT_CLOSE_COMBINED",
+    "evidence": "o8 and o20 bed0 gaps identical: H2=-2.190, CH4=+1.327, CO=-1.122",
+    "o20_converged_flag": true,
+    "note": "converged=True 是缩放 merit，不代表 bed0 combined 摩尔债消失"
+  },
+  "R7_coupling_hypothesis": {
+    "result": "FALSIFIED_at_o8_state",
+    "ext7": 6e-09,
+    "r7_vol": 2.56e-08,
+    "why": "Hamel Eq.5.51 k*p_CH4 at T=1250K with coded A/E is kinetically dead; r7_scale=2.5 无济于事",
+    "prior_ext7_est_1.14": "误把非 R7 的 H2 源算进 R7（假设 ext8=0）"
+  },
+  "actual_H2_sources_bed0": {
+    "R2": 1.748,
+    "R7": 0.0,
+    "R8": "~0.012 (FD)",
+    "R10_tar_oxidation": "dominant remainder (~3.4); stoich has H2",
+    "vm_H2": 0.0
+  },
+  "r7_scale_0_full_solve": {
+    "o8_score": 0.532,
+    "o20_score": 0.359,
+    "o8_exit_CO_CO2": [
+      0.1152,
+      0.156
+    ],
+    "note": "关掉 R7 改变路径（限幅/分支），不是同状态减去 R7；o8 变差，o20 分数偶发更好但 bed0 rc 更大"
+  },
+  "caution": "勿把默认 r7_scale 改成 1.0（会掉进 T~911 冷支路）；默认是 2.5",
+  "ship": {
+    "production_change": false
+  },
+  "next_knife": {
+    "primary": "bed0_R10_tar_H2_CH4_budget",
+    "why": "H2 combined 债的源侧主剩 R10；CH4 债来自热解堆叠+弱交换，与 R7 无关",
+    "alt": [
+      "H4_FB_secondary_air_NR",
+      "bed0_H2_Nout_vs_R_NR_projection"
+    ]
+  },
+  "artifacts": [
+    "data/phase2_bed0_r7_ch4_h2_long_nr.json",
+    "data/phase2_bed0_r7_counterfactual_o8.json",
+    "data/phase2_bed0_r7_ch4_h2_verdict.json"
+  ]
+}

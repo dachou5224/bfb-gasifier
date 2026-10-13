@@ -1,0 +1,54 @@
+{
+  "stats": {
+    "F_calls": 392.0,
+    "J_calls": 4.0,
+    "inner_status": "least_squares",
+    "checkpoint": "least_squares_x",
+    "linear_zero_ids": []
+  },
+  "direction": [
+    {
+      "alpha": 0,
+      "frozen": 0.2487429739873638,
+      "composite": 0.2487429739873638
+    },
+    {
+      "alpha": 0.0001,
+      "frozen": 0.24873886109278878,
+      "composite": 0.2487382643132207
+    },
+    {
+      "alpha": 0.001,
+      "frozen": 0.24870186942623965,
+      "composite": 0.24869599625286845
+    },
+    {
+      "alpha": 0.01,
+      "frozen": 0.24833430602706205,
+      "composite": 0.2482810922807273
+    },
+    {
+      "alpha": 0.1,
+      "frozen": 0.24483712767545937,
+      "composite": 0.2449045177896768
+    },
+    {
+      "alpha": 0.25,
+      "frozen": 0.2392522134765805,
+      "composite": 0.24221279527828876
+    },
+    {
+      "alpha": 0.5,
+      "frozen": 0.22915531806194514,
+      "composite": 0.24582094902625723
+    },
+    {
+      "alpha": 1,
+      "frozen": 0.21438461654277963,
+      "composite": 0.2945739039517895
+    }
+  ],
+  "candidate_pyro_refresh_only_merit": 0.2854641076650445,
+  "both_undecided_same_time_accepted": null,
+  "note": "Same saved accepted point; single new corrector proposal, not the historical rejected proposal. Hybrid q is diagnostic, not a model endpoint."
+}

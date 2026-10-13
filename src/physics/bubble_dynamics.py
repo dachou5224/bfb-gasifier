@@ -1,13 +1,12 @@
-"""气泡动力学：气泡上升速度、气泡直径沿高度增长、慢泡/快泡判别。
+"""气泡动力学：Hamel 主链 + legacy 审计分支。
 
-提供两套气泡直径模型：
-  1) Darton (1977) / Mori-Wen (1975) 经验公式（默认，广泛验证）
-  2) Hilligardt (1986) ODE（需要参数 ``xi_b / lambda_b`` 标定）
+主链（Reactor/Cell 默认 via ``hilligardt_ode`` + Heinbockel 3.41/3.43）：
+  - Hilligardt ODE 积分 + Wein ψ_b / u_d 链
 
-Source of truth:
-- ``docs/hamel_submodels/03_hydrodynamics_core_chain.md``
-- Hamel (1999) Eq. 3.14, 3.15, 3.23, 3.41-3.44
-- Hilligardt (1986); Heinbockel (1995); Darton et al. (1977); Mori & Wen (1975)
+Legacy 审计分支（须显式 opt-in ``mori_wen``）：
+  - Darton (1977) / Mori-Wen (1975) 常压经验式
+
+Source: docs/hamel_submodels/03_hydrodynamics_core_chain.md
 """
 
 from __future__ import annotations
@@ -174,6 +173,7 @@ def bubble_rise_velocity(
     psi_b: float = 0.76,
     *,
     P: float | None = None,
+    v_b: float = 1.0,
     strategy: str = "hilligardt_eq313",
 ) -> float:
     """气泡上升速度 u_b [m/s]（Hilligardt 模型）。
@@ -197,29 +197,32 @@ def bubble_rise_velocity(
     d_b   : 气泡直径 [m]
     psi_b : 气泡相互作用因子 [-]，技术气体分布板默认 0.76；
             原文还给出 porous plate = 0.67、Wein(1992) 关联式
+    v_b   : 单泡速度权重 [-]，Hamel Eq. (3.43) 第二项系数；默认 1.0
 
     Source: Hamel (1999) Eq.3.13-3.15, p.28; Eq.3.43 p.31; Hilligardt (1986); Wein (1992); Heinbockel (1995)
     """
+    assert v_b >= 0.0, "v_b 必须非负 [-]"
     name = str(strategy).strip().lower()
     u_bs = single_bubble_velocity(d_b)
+    u_bl = v_b * u_bs
     excess = max(u0 - u_mf, 0.0)
     if name == "hilligardt_eq313":
-        return psi_b * excess + u_bs
+        return psi_b * excess + u_bl
     if name == "heinbockel_eq343":
         if P is None or P <= 0.0:
             raise ValueError("bubble_rise_velocity(strategy='heinbockel_eq343') requires positive P")
         pressure_term = (P / P0_HAMEL) ** 0.2 - 1.0
-        return psi_b * excess * pressure_term + u_bs
+        return psi_b * excess * pressure_term + u_bl
     if name == "heinbockel_eq343_legacy_plus":
         if P is None or P <= 0.0:
             raise ValueError("bubble_rise_velocity(strategy='heinbockel_eq343_legacy_plus') requires positive P")
-        return psi_b * excess * ((P / P0_HAMEL) ** 0.2 + 1.0) + u_bs
+        return psi_b * excess * ((P / P0_HAMEL) ** 0.2 + 1.0) + u_bl
     if name == "heinbockel_eq343_legacy_2p14_p07":
         if P is None or P <= 0.0:
             raise ValueError(
                 "bubble_rise_velocity(strategy='heinbockel_eq343_legacy_2p14_p07') requires positive P"
             )
-        return psi_b * (2.14 * (P / P0_HAMEL) ** 0.7 * excess + u_bs)
+        return psi_b * (2.14 * (P / P0_HAMEL) ** 0.7 * excess + u_bl)
     raise ValueError(
         f"Unsupported bubble velocity strategy={strategy!r}; "
         "expected 'hilligardt_eq313', 'heinbockel_eq343', "
@@ -302,6 +305,7 @@ def bubble_diameter_ode(
     xi_strategy: str = "hamel_regime",
     velocity_strategy: str = "hilligardt_eq313",
     ode_strategy: str = "hilligardt_eq333",
+    v_b: float = 1.0,
     d_b_max: float | None = None,
 ) -> np.ndarray:
     """气泡直径沿高度变化的微分方程 dd_b/dh。
@@ -334,7 +338,7 @@ def bubble_diameter_ode(
     """
     d_b = max(y[0], 1e-4)
 
-    u_b = bubble_rise_velocity(u0, u_mf, d_b, psi_b, P=P, strategy=velocity_strategy)
+    u_b = bubble_rise_velocity(u0, u_mf, d_b, psi_b, P=P, v_b=v_b, strategy=velocity_strategy)
     excess = max(u0 - u_mf, 1e-10)
     u_d_eff = float(max(u_d if u_d is not None else u_mf, 1e-12))
     eps_b = np.clip(excess / u_b, 1e-6, 0.95)
@@ -418,6 +422,7 @@ def integrate_bubble_diameter(
     velocity_strategy: str = "hilligardt_eq313",
     ode_strategy: str = "hilligardt_eq333",
     psi_b: float = 0.76,
+    v_b: float = 1.0,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """沿轴向计算气泡直径 d_b(h)。
 
@@ -478,6 +483,7 @@ def integrate_bubble_diameter(
                 xi_strategy=xi_strategy,
                 velocity_strategy=velocity_strategy,
                 ode_strategy=ode_strategy,
+                v_b=v_b,
                 d_b_max=d_b_max,
             ),
             t_span=(0, H_bed),

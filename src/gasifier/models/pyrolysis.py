@@ -1,3 +1,8 @@
+"""Phase0 热解/干燥薄封装（已弃用）。
+
+Canonical：``src.core.cell_pyrolysis.calc_drying_pyrolysis_sources`` / Vorabrechnung 链。
+"""
+
 from __future__ import annotations
 from src.gasifier.domain.state import GlobalState
 from src.gasifier.domain.config import PlantData, SolidProperties, OperatingCondition
@@ -5,7 +10,7 @@ from src.core.cell_pyrolysis import calc_drying_pyrolysis_sources, PyrolysisSour
 from src.core.cell import S_VM, S_MOISTURE, S_CHAR, N_SOLID_COMP
 
 class PyrolysisModel:
-    """热解与干燥模型：计算水分蒸发和挥发分析出源项。"""
+    """Phase0 演示：单 cell 热解源项计算。"""
     def __init__(self, plant: PlantData, solid: SolidProperties, op: OperatingCondition):
         self.plant = plant
         self.solid = solid

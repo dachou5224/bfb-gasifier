@@ -7,6 +7,16 @@ import pytest
 from src.core.cell_pyrolysis import allocate_pyrolysis_products_hamel
 from src.core.pyrolysis_carbon_split import resolve_pyrolysis_carbon_fractions
 from src.core.species import TAR_SURROGATE_FORMULA, get_tar_component_mapping
+from src.solvers.wirsum_1997_pyrolysis_ledger import (
+    CARBON_BASIS_FUEL_WAF,
+    CARBON_BASIS_VM_RELEASED,
+    CARBON_BASIS_VM_RESCALED,
+    example_lu_like_feed,
+    feedstock_carbon_split,
+    fractions_on_named_carbon_pool,
+    hegermann_fuel_waf_fractions,
+)
+from src.thermal.hegermann_yield import xc_koks_hegermann, xc_teer_hegermann
 
 
 def _gas_tar_atoms(prod: dict[str, float], fuel_type: str = "coal") -> tuple[float, float, float]:
@@ -72,6 +82,30 @@ def test_hegermann_split_makes_sanity_pool_feasible_without_overspend() -> None:
     assert n_h == pytest.approx(12.0, abs=1e-9)
     # Koks 碳留在固相，气相+焦油碳必须明显少于输入
     assert n_c < 10.0 * (1.0 - 0.5)
+
+
+def test_hegermann_resolve_is_fuel_waf_not_vm_pool() -> None:
+    P, T = 2.5e6, 1200.0
+    f_koks, f_tar = resolve_pyrolysis_carbon_fractions(
+        fuel_type="coal", yield_mode="hegermann", P_Pa=P, T_K=T
+    )
+    xk, xt = hegermann_fuel_waf_fractions(P, T)
+    assert f_koks == pytest.approx(xc_koks_hegermann(P, T))
+    assert f_tar == pytest.approx(xc_teer_hegermann(P, T))
+    assert f_koks == pytest.approx(xk)
+    assert f_tar == pytest.approx(xt)
+    raw_on_vm = fractions_on_named_carbon_pool(xk, xt, basis=CARBON_BASIS_VM_RELEASED)
+    rescaled = fractions_on_named_carbon_pool(xk, xt, basis=CARBON_BASIS_VM_RESCALED)
+    fuel = fractions_on_named_carbon_pool(xk, xt, basis=CARBON_BASIS_FUEL_WAF)
+    assert raw_on_vm[2] == "mismatch_fuel_frac_on_vm_pool"
+    assert rescaled[0] == pytest.approx(0.0)
+    assert rescaled[1] == pytest.approx(xt / (1.0 - xk))
+    assert fuel[0] == pytest.approx(xk)
+    feed = example_lu_like_feed()
+    split = feedstock_carbon_split(feed, P_Pa=P, T_K=T)
+    assert split["sum_targets"] == pytest.approx(feed.nC_fuel)
+    assert split["nC_fixed"] + split["nC_vm"] == pytest.approx(feed.nC_fuel)
+    assert split["gibbs_leftover_not_returned_to_koks"] is True
 
 
 def test_resolve_rejects_unknown_mode() -> None:

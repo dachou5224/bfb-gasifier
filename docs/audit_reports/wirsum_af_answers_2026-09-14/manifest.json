@@ -1,0 +1,28 @@
+{
+  "date": "2026-09-14",
+  "head": "098c8cf6766606a491e70ef176c2493b4cd676be",
+  "note": "Dirty worktree; hashes capture examined files, not a clean commit. No production source edited by this diagnostic.",
+  "sha256": {
+    "src/solvers/wirsum_1997_stiffness_full_gas.py": "0604bba74a2b14289a8b1b3b4cb694d4bc1b4ef98152b69271015e649f724659",
+    "src/solvers/wirsum_1997_strict.py": "a97e51ea9a2dc30880ee0b69c81286711d4b629c42bcc4338bcee8709553aedc",
+    "src/physics/wirsum_1997_freeboard.py": "2cb9f3c7337d15d3631045459c45acbc88f543e308560d52e5bec051a81d7ea1",
+    "src/core/species.py": "0a5cbb181d5cfe37d47afded79f1302f1fdc4ec33912d57b12c3277eb7430949",
+    "src/core/cell_balances.py": "1dd1e3edb8305b3d782a3a4a47f974627edec99865385a9d9cf0cf0e928fd286",
+    "src/core/pyrolysis_carbon_split.py": "3d04bbcd473de7a30d8e370b6ffe11d1e9196e096420149582c76aef38b52f56",
+    "src/core/cell_pyrolysis.py": "1d928be5019b7a1be924488251babecdbeaafc2f09647cb7805546a0881a8463",
+    "src/core/connectivity/solid_transport.py": "67ce2e1e482623c5b602e4c55c04a4d4b418ee19f9d491d00272248a99fe306e",
+    "docs/audit_reports/wirsum_af_open_questions_answers_2026-09-14.md": "c7624ee2fbd6d16607e83aab8d80120e04da82e16c8cd94507d146c2d69cf445",
+    "docs/audit_reports/wirsum_af_answers_2026-09-14/probe_energy_rank.py": "74b30c95dce0a6365f5487bcb7c87ff277d425e7157edd4b78d2bd7d8e6e74fb",
+    "docs/_2001_VDI-Dis._Mathematische Modellierung und experimentelle Untersuchung der Vergasung verschiedener fester Brennstoffe.pdf": "1e1a83a1e87c7de45f20811fe3322aa4d036c541d1c45a63cb845ddcb30990ef",
+    "docs/_1997_VDI-Dis._Wirsum_Klaerschlamm_blasenbildende_Wirbelschichtfeuerungen.pdf": "e57844f81f1b2cecce0be9a78edcfdcd8fb0337ffd91c7b1f85da15acf8b51c6"
+  },
+  "test_result": "35 passed in 1.06s",
+  "test_files": [
+    "test_hamel_r12_pdf_literal.py",
+    "test_thermochemistry_identities.py",
+    "test_wirsum_1997_cyclone_cells.py",
+    "test_wirsum_1997_freeboard.py",
+    "test_pyrolysis_carbon_split.py",
+    "test_wirsum_1997_strict.py"
+  ]
+}

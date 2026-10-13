@@ -28,6 +28,7 @@ from src.solvers.nr_indexing import (
     cell_offsets,
     gas_mode_for_nr,
     has_temperature_var,
+    unpack_reactor_strict_domain_no_projection,
     main_nr_gas_idx_for_cell,
     main_nr_gas_phase_split_positions_for_cell,
     n_gas_var,
@@ -321,17 +322,33 @@ def global_residual(
     x: np.ndarray,
     cells: List[Cell],
     apply_bc_fn: Callable[[], None],
+    *,
+    unpack_fn: Callable[[np.ndarray, List[Cell]], None] = unpack_reactor,
 ) -> np.ndarray:
     """F(x)：解包 → 边界条件（含循环）→ 各 cell 残差拼接。
 
-    Must be a pure evaluation of the packed state. Trace-O2 snap, fastox,
-    and other projections belong in pre-NR / accepted-step processing, not here.
+    默认 ``unpack_fn=unpack_reactor`` 仍是生产裁剪路径。
+    Q9 无投影入口见 ``global_residual_strict_domain_no_projection``。
 
     Source: Wirsum (1997) §2.3.3; Hamel (1999) §2.3 Eq. 2.9
     """
-    unpack_reactor(x, cells)
+    unpack_fn(x, cells)
     apply_bc_fn()
     return np.concatenate([_project_cell_residual_to_main_nr(c) for c in cells])
+
+
+def global_residual_strict_domain_no_projection(
+    x: np.ndarray,
+    cells: List[Cell],
+    apply_bc_fn: Callable[[], None],
+) -> np.ndarray:
+    """隔离的无投影残差：非法 x 抛 ``DomainViolation``，不改写 cell。"""
+    return global_residual(
+        x,
+        cells,
+        apply_bc_fn,
+        unpack_fn=unpack_reactor_strict_domain_no_projection,
+    )
 
 
 def _project_cell_residual_to_main_nr(cell: Cell) -> np.ndarray:

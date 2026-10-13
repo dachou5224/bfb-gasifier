@@ -31,6 +31,39 @@ def test_quadratic_ode_step_handles_positive_thesis_delta() -> None:
     assert np.isfinite(u1)
 
 
+def test_hamel_freeboard_initial_velocity_and_eq397() -> None:
+    from src.core.freeboard.trajectory_common import (
+        calc_critical_diameter_eq397,
+        hamel_delta_pos_height_from_velocity,
+        _wirsum_abc_exact_audit,
+    )
+    from src.physics.freeboard import calc_u_p0_demich_bohnet, calc_u_p0_martens, calc_u_p0_son
+
+    u_b = 0.8
+    d_b = 0.25
+    d_p = 1.0e-3
+    rho_g = 0.35
+    rho_p = 2600.0
+    u70 = calc_u_p0_demich_bohnet(u_b, d_b, d_p, rho_g, rho_p)
+    u71 = calc_u_p0_son(u_b, d_b)
+    u_m = calc_u_p0_martens(u_b)
+    assert u70 > 0.0 and u71 > 0.0 and u_m == 1.53 * u_b
+
+    d_star = calc_critical_diameter_eq397(mu_g=4e-5, rho_g=rho_g, rho_p=rho_p, c_w=0.44)
+    assert d_star is not None and d_star > 0.0
+
+    # Eq. (3.96)：使用 Δ>0 且 q,q0>0 的构造系数（与上方 u_p0 公式独立）
+    h = hamel_delta_pos_height_from_velocity(
+        u=2.0,
+        u0=1.0,
+        h0=0.0,
+        a=1.0,
+        b=0.0,
+        c=1.0,
+    )
+    assert h is not None and np.isfinite(h)
+
+
 def test_exact_hamel_coefficients_do_not_tie_solution_branch_to_velocity_branch() -> None:
     a, b, c, re_p, c_w, z_drag = _wirsum_abc_exact_audit(
         u_g=1.595,
@@ -80,8 +113,8 @@ def test_simulate_freeboard_reports_analytical_solver_metadata() -> None:
     )
 
     assert out["trajectory_model"] == "analytical_wirsum"
-    assert out["trajectory_solver"] == "wirsum_analytical"
-    assert out["trajectory_coeff_model"] == "stable_mixed_drag_split"
+    assert out["trajectory_solver"] == "wirsum_analytical_exact_hamel_coeffs"
+    assert out["trajectory_coeff_model"] == "exact_hamel"
     assert isinstance(out["trajectory_diag"], dict)
     assert {
         "delta_pos",

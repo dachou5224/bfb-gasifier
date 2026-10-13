@@ -1,0 +1,60 @@
+{
+  "max_global_iter": 6,
+  "note": "Phase2 LU short probe; baseline disables P0 flags; P1 adds T cap 1180K; P2 adds exact_hamel",
+  "results": [
+    {
+      "level": "baseline",
+      "rms_scaled_final": 0.02170949742279778,
+      "rms_scaled_gas_phase_split_final": 0.04887356246201826,
+      "max_abs_scaled_final": 0.13410316772463893,
+      "max_abs_scaled_gas_phase_split_final": 0.11946287771706769,
+      "init_rms_scaled": 0.022446917226532626,
+      "wall_time_s": 59.83
+    },
+    {
+      "level": "p0",
+      "rms_scaled_final": 0.0261513034198214,
+      "rms_scaled_gas_phase_split_final": 0.044596510955522126,
+      "max_abs_scaled_final": 0.2664291320677433,
+      "max_abs_scaled_gas_phase_split_final": 0.1190269710697567,
+      "init_rms_scaled": 0.03344925999047043,
+      "wall_time_s": 62.0,
+      "verdict": "regressed_vs_baseline"
+    },
+    {
+      "level": "p1",
+      "rms_scaled_final": 0.01453143249186372,
+      "rms_scaled_gas_phase_split_final": 0.039886397643896794,
+      "max_abs_scaled_final": 0.09290679819913426,
+      "max_abs_scaled_gas_phase_split_final": 0.13366868224637285,
+      "init_rms_scaled": 0.019493246349177186,
+      "bed0_T_K": 1030.0,
+      "wall_time_s": 120.09,
+      "verdict": "improved_vs_baseline"
+    },
+    {
+      "level": "p2",
+      "rms_scaled_final": 0.00991257658675608,
+      "rms_scaled_gas_phase_split_final": 0.016162176457911362,
+      "max_abs_scaled_final": 0.09786347947356436,
+      "max_abs_scaled_gas_phase_split_final": 0.07680478167410679,
+      "init_rms_scaled": 0.016530222380685935,
+      "bed0_T_K": 1030.0,
+      "wall_time_s": 130.0,
+      "verdict": "best_probe6"
+    }
+  ],
+  "long_run_max_global_iter_20": {
+    "baseline": {
+      "rms_scaled_final": 0.021950989328324934,
+      "rms_scaled_gas_phase_split_final": 0.04805586753496246
+    },
+    "p2": {
+      "rms_scaled_final": 0.007936901639596134,
+      "rms_scaled_gas_phase_split_final": 0.013540152249456129,
+      "max_abs_scaled_gas_phase_split_final": 0.07257819698026291,
+      "nr_outer_iters": 11,
+      "wall_time_s": 140.42
+    }
+  }
+}

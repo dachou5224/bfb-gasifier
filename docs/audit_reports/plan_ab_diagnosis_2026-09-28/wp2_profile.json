@@ -1,0 +1,7 @@
+{
+  "status": "timeout",
+  "elapsed_s": 10.004773795999998,
+  "F_calls": 4578,
+  "F_per_s": 457.5815598979686,
+  "note": "Same half-state frozen-q corrector as the 10 s diagnosis. Char balance is assembled once per F."
+}

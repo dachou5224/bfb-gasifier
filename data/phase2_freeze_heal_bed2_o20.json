@@ -1,0 +1,89 @@
+{
+  "arms": [
+    {
+      "label": "ps_o8",
+      "wall_s": 94.751894331,
+      "max_iter": 8,
+      "exit_CO": 0.15329987983075538,
+      "rms": 0.06093708765270558,
+      "split": 0.03932693104533581,
+      "energy": 0.06093708765270558,
+      "converged": false,
+      "n_outer": 10,
+      "first_freeze_outer": null,
+      "bed2": {
+        "T": 1150.577408971712,
+        "R_H2O": 65.5439810368261,
+        "R_H2": -64.44085740339625,
+        "R_O2": -34.399411424314096,
+        "R_CO": 2.9117770275628545
+      },
+      "overrides": {}
+    },
+    {
+      "label": "ps_o20",
+      "wall_s": 164.407564905,
+      "max_iter": 20,
+      "exit_CO": 0.1562275791104867,
+      "rms": 0.058723089139840194,
+      "split": 0.039190352399954026,
+      "energy": 0.05458312074155256,
+      "converged": false,
+      "n_outer": 20,
+      "first_freeze_outer": null,
+      "bed2": {
+        "T": 1150.577408971712,
+        "R_H2O": 65.62291987320103,
+        "R_H2": -64.5197962301523,
+        "R_O2": -34.399411424314096,
+        "R_CO": 2.840528257380714
+      },
+      "overrides": {}
+    },
+    {
+      "label": "freeze_y0.14_o20",
+      "wall_s": 133.654022579,
+      "max_iter": 20,
+      "exit_CO": 0.14052643227279812,
+      "rms": 0.058510180176683385,
+      "split": 0.03933225961311252,
+      "energy": 0.05206667308332705,
+      "converged": false,
+      "n_outer": 20,
+      "first_freeze_outer": 6,
+      "bed2": {
+        "T": 1150.577408971712,
+        "R_H2O": 65.53832429675066,
+        "R_H2": -64.43520066413092,
+        "R_O2": -34.399411424314096,
+        "R_CO": 2.9188178270303147
+      },
+      "overrides": {
+        "nr_outer_freeze_upper_co_bridge_after_y_co_thesis": true,
+        "nr_outer_freeze_upper_co_bridge_y_co_threshold_thesis": 0.14
+      }
+    },
+    {
+      "label": "freeze_local2_3_o20",
+      "wall_s": 147.957339881,
+      "max_iter": 20,
+      "exit_CO": 0.13005587159694568,
+      "rms": 0.058408383148780565,
+      "split": 0.039500692111419884,
+      "energy": 0.05094208884805348,
+      "converged": false,
+      "n_outer": 20,
+      "first_freeze_outer": 3,
+      "bed2": {
+        "T": 1150.577408971712,
+        "R_H2O": 65.47972188957807,
+        "R_H2": -64.37659826417632,
+        "R_O2": -34.399411424314096,
+        "R_CO": 2.972949137148588
+      },
+      "overrides": {
+        "nr_outer_freeze_upper_co_bridge_after_local2_accepts_thesis": 3
+      }
+    }
+  ]
+}

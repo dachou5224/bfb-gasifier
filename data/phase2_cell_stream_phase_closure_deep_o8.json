@@ -1,0 +1,143 @@
+{
+  "exit": {
+    "CO": 0.12509097284445553,
+    "CO2": 0.1513731487200997
+  },
+  "nr_keys_present": [
+    "converged",
+    "converged_outer",
+    "converged_inner_nr",
+    "converged_fully",
+    "rms_scaled_final",
+    "rms_scaled_gas_final",
+    "rms_scaled_solid_final",
+    "rms_scaled_energy_final",
+    "rms_scaled_gas_combined_final",
+    "rms_scaled_gas_phase_split_final",
+    "rms_scaled_component_max_final",
+    "max_abs_scaled_gas_final",
+    "max_abs_scaled_gas_combined_final",
+    "max_abs_scaled_gas_phase_split_final",
+    "nr_inner_tol_rms",
+    "bed_exit_gas",
+    "bed_exit_gas_dry",
+    "freeboard_secondary_observation_pre_mix_wet_gas",
+    "freeboard_secondary_observation_post_mix_pre_rxn_wet_gas",
+    "freeboard_secondary_observation_post_rxn_wet_gas",
+    "freeboard_bed_top_gasification_age_proxy",
+    "freeboard_gas_profiles_wet",
+    "exit_gas",
+    "exit_gas_dry"
+  ],
+  "nr_snippet": {
+    "converged": false,
+    "converged_outer": false,
+    "converged_inner_nr": true,
+    "converged_fully": false,
+    "rms_scaled_final": 0.028092213736688004,
+    "rms_scaled_gas_final": 0.006434356455315668,
+    "rms_scaled_solid_final": 0.0006101614461115745,
+    "rms_scaled_energy_final": 0.028092213736688004,
+    "rms_scaled_gas_combined_final": 0.00382566533972964,
+    "rms_scaled_gas_phase_split_final": 0.01712342405529317,
+    "rms_scaled_component_max_final": 0.028092213736688004,
+    "max_abs_scaled_gas_final": 0.05791979988462818,
+    "max_abs_scaled_solid_final": 0.005029465939503116,
+    "max_abs_scaled_energy_final": 0.09467191849032001,
+    "max_abs_scaled_gas_combined_final": 0.027514011677114904,
+    "max_abs_scaled_gas_phase_split_final": 0.10174746894790632,
+    "max_abs_scaled_final": 0.09467191849032001
+  },
+  "rows": [
+    {
+      "i": 0,
+      "type": "bed",
+      "dense_max": 4.609561485748124,
+      "bubble_max": 3.4880357965086635,
+      "combined_max": 2.1897093705068693,
+      "N_ex_L1": 38.60926016091612,
+      "split_over_combined": 2.105101959115749
+    },
+    {
+      "i": 1,
+      "type": "bed",
+      "dense_max": 1.6823008517975953,
+      "bubble_max": 0.23736323445270402,
+      "combined_max": 1.548987000952609,
+      "N_ex_L1": 10.28612036907252,
+      "split_over_combined": 1.086065183738146
+    },
+    {
+      "i": 2,
+      "type": "bed",
+      "dense_max": 0.2950678984904149,
+      "bubble_max": 0.5814648060693921,
+      "combined_max": 0.8541457478876149,
+      "N_ex_L1": 2.667412738812666,
+      "split_over_combined": 0.6807559570569904
+    },
+    {
+      "i": 3,
+      "type": "bed",
+      "dense_max": 0.17147579350486936,
+      "bubble_max": 0.19476900485726784,
+      "combined_max": 0.02329321135239848,
+      "N_ex_L1": 0.4325327158061355,
+      "split_over_combined": 8.36162098521519
+    },
+    {
+      "i": 4,
+      "type": "bed",
+      "dense_max": 0.1934901227600042,
+      "bubble_max": 0.20854776134284025,
+      "combined_max": 0.015057638582836042,
+      "N_ex_L1": 0.11976002946013703,
+      "split_over_combined": 13.84996460072833
+    },
+    {
+      "i": 5,
+      "type": "bed",
+      "dense_max": 0.2164073773373127,
+      "bubble_max": 0.22752954441812173,
+      "combined_max": 0.011141062800835932,
+      "N_ex_L1": 0.3395050167080207,
+      "split_over_combined": 20.42260675534921
+    },
+    {
+      "i": 6,
+      "type": "bed",
+      "dense_max": 0.24285235895367593,
+      "bubble_max": 0.25142527217859567,
+      "combined_max": 0.008588598290944383,
+      "N_ex_L1": 0.512919555712585,
+      "split_over_combined": 29.274308060686995
+    },
+    {
+      "i": 7,
+      "type": "bed",
+      "dense_max": 0.2766597579161245,
+      "bubble_max": 0.28342675289241503,
+      "combined_max": 0.006834706806170487,
+      "N_ex_L1": 0.665666871070158,
+      "split_over_combined": 41.46875073507654
+    },
+    {
+      "i": 8,
+      "type": "bed",
+      "dense_max": 0.3140225278616494,
+      "bubble_max": 0.31959054415976007,
+      "combined_max": 0.005657348776050952,
+      "N_ex_L1": 0.813339938968547,
+      "split_over_combined": 56.491221738470685
+    },
+    {
+      "i": 9,
+      "type": "bed",
+      "dense_max": 0.3479058017489506,
+      "bubble_max": 0.35303173701189816,
+      "combined_max": 0.005156114006992674,
+      "N_ex_L1": 0.9316435113039742,
+      "split_over_combined": 68.46856693492809
+    }
+  ]
+}

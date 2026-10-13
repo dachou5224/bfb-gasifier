@@ -1,0 +1,259 @@
+{
+  "title": "R1–R10 动力学公式/参数 vs Hamel vs 经典文献 + R10 原料焦油组成审计",
+  "date": "2026-07-27",
+  "prior_work": [
+    "docs/audit_reports/hamel_parity_audit_summary_2026-07-04.md §2.1（R5/R6/R10/R12 标一致）",
+    "scripts/audit_hamel_consistency.py（数值锚点）",
+    "scripts/audit_r10_tar_oxidation.py / verify_r10_correction.py（P^0.3 Pa）",
+    "data/phase2_bed0_r10_tar_h2_ch4_verdict.json",
+    "archive/reports/STATUS_REPORT_2026-04-13.md（H/C 超范围回退默认）"
+  ],
+  "numbering_map": {
+    "repo_R6": "thesis R7 CH4 氧化",
+    "repo_R12": "thesis R6 H2 氧化",
+    "note": "代码 docstring 已标明编号差"
+  },
+  "parity_table": [
+    {
+      "id": "R1",
+      "formula": "Field/Hobbs SPM + k_hobbs",
+      "params": "LigniteA k0=1.2, E/Rg=10300.0",
+      "classic": "Field; Hobbs",
+      "vs_hamel": "一致",
+      "flag": "biomass→alle Kohlen 回退（论文无生物质行）"
+    },
+    {
+      "id": "R2",
+      "formula": "k_hobbs·C_H2O",
+      "params": "k0=3.42, E/Rg=15600.0",
+      "classic": "Hobbs",
+      "vs_hamel": "一致",
+      "flag": null
+    },
+    {
+      "id": "R3",
+      "formula": "k_hobbs·C_H2",
+      "params": "k0=0.00342, E/Rg=15600.0",
+      "classic": "Hobbs",
+      "vs_hamel": "一致",
+      "flag": null
+    },
+    {
+      "id": "R4",
+      "formula": "Weeda L-H kf·P_CO2/(1+kb·P_CO2+kc·P_CO)",
+      "params": "char_reactions",
+      "classic": "Weeda",
+      "vs_hamel": "一致",
+      "flag": null
+    },
+    {
+      "id": "R5b",
+      "formula": "k·C_CO·C_O2^0.3·C_H2O^0.5",
+      "params": "k0=1910000.0, E/Rg=8056.0, β=0.3, γ=0.5",
+      "classic": "Hottel 1965",
+      "vs_hamel": "一致",
+      "flag": null
+    },
+    {
+      "id": "R5d",
+      "formula": "1.8·T^-0.5·p_CO·p_O2^0.5·p_H2O^0.5 (atm)",
+      "params": "prefactor=1.8",
+      "classic": "Hayhurst & Tucker 1990",
+      "vs_hamel": "一致",
+      "flag": null
+    },
+    {
+      "id": "R6",
+      "formula": "(A/T)exp(-E/Rg/T)·C_CH4·C_O2",
+      "params": "A=355200000000.0, E/Rg=15700.0",
+      "classic": "de Souza-Santos 1989",
+      "vs_hamel": "一致",
+      "flag": "仓库编号=thesis R7"
+    },
+    {
+      "id": "R7",
+      "formula": "k·p_CH4（单向）",
+      "params": "k0_Pa=6.113e-07, E=137327.0 J/mol",
+      "classic": "Chen et al. 1987",
+      "vs_hamel": "一致",
+      "flag": "C_H2O 接口保留但不进速率"
+    },
+    {
+      "id": "R8",
+      "formula": "Wen–Chaung + Keq; P→atm 内部",
+      "params": "gas_reactions",
+      "classic": "Wen & Chaung 1979",
+      "vs_hamel": "一致",
+      "flag": "Keq 用物理修正非 OCR 字面"
+    },
+    {
+      "id": "R10",
+      "formula": "k_hobbs·T·P^0.3·C_tar^0.5·C_O2",
+      "params": "arom 20700.0/9650.0; olef 59.8/12200.0",
+      "classic": "Siminski 1972 / Smoot & Smith 1985",
+      "vs_hamel": "一致",
+      "flag": "见 R10_fuel 小节"
+    },
+    {
+      "id": "R12",
+      "formula": "Jensen H2 氧化",
+      "params": "A=1631000000.0, E/Rg=3420.0",
+      "classic": "Jensen 1995",
+      "vs_hamel": "一致",
+      "flag": "仓库编号=thesis R6"
+    }
+  ],
+  "R10_fuel_tar_composition": {
+    "hamel_surrogates": [
+      "C6H6 Eq.5.52",
+      "C10H8 Eq.5.53",
+      "C16H34 Eq.5.54"
+    ],
+    "code_pairs": {
+      "coal": {
+        "pair": [
+          "C6H6",
+          "C10H8"
+        ],
+        "HC_range": [
+          0.8,
+          1.0
+        ],
+        "target_HC_default": 0.856,
+        "fractions": {
+          "C6H6": 0.27999999999999975,
+          "C10H8": 0.7200000000000002
+        },
+        "TAR_map": {
+          "TAR1": "C6H6",
+          "TAR2": "C10H8"
+        }
+      },
+      "biomass": {
+        "pair": [
+          "C10H8",
+          "C16H34"
+        ],
+        "HC_range": [
+          0.8,
+          2.125
+        ],
+        "target_HC_default": 1.364,
+        "fractions": {
+          "C10H8": 0.5743396226415094,
+          "C16H34": 0.4256603773584906
+        },
+        "TAR_map": {
+          "TAR1": "C10H8",
+          "TAR2": "C16H34"
+        }
+      }
+    },
+    "LU_phase2": {
+      "fuel_type": "coal",
+      "C_dry_wt_pct": 61.5,
+      "H_dry_wt_pct": 4.1,
+      "atomic_HC_ultimate": 0.7944255941160517,
+      "ultimate_in_coal_pair_range": false,
+      "pyrolysis": "try ultimate → ValueError → fallback default 0.856 → C6H6:C10H8≈0.28:0.72",
+      "R10_kinetics": "rate/stoich 用 fuel 默认 0.856（不传 ultimate）→ 与 pyrolysis 回退后一致",
+      "wrong_mapping": false,
+      "verdict": "LU 褐煤用 coal=(苯,萘)，未误用 biomass 烯烃对；无原料映射硬 bug"
+    },
+    "stoich_vs_hamel": {
+      "C6H6_R10": {
+        "O2": -3.0,
+        "CO": 6.0,
+        "H2": 3.0
+      },
+      "C10H8_R10": {
+        "O2": -5.0,
+        "CO": 10.0,
+        "H2": 4.0
+      },
+      "C16H34_R10": {
+        "O2": -8.0,
+        "CO": 16.0,
+        "H2": 17.0
+      },
+      "C6H6_R11": {
+        "H2O": -4.5,
+        "CO": 4.5,
+        "H2": 4.5,
+        "CH4": 1.5
+      },
+      "lumped_coal_R10": {
+        "TAR1": -0.27999999999999975,
+        "TAR2": -0.7200000000000002,
+        "O2": -4.44,
+        "CO": 8.88,
+        "H2": 3.7199999999999998
+      },
+      "verdict": "计量与 Eq.5.52–5.57 一致"
+    },
+    "potential_issues": [
+      {
+        "id": "HC_target_provenance",
+        "severity": "部分一致",
+        "detail": "TAR_TARGET_HC_RATIO coal=0.856 / biomass=1.364 代码注释为 Rheinische Braunkohle / wood；需 PDF 页锚确认是否 Hamel 给定。"
+      },
+      {
+        "id": "LU_ultimate_HC_outside_pair",
+        "severity": "有意偏离（工程回退）",
+        "detail": "LU 原子 H/C=0.7944<0.8，苯-萘对不可表示；pyrolysis 回退 0.856。非映射弄错。"
+      },
+      {
+        "id": "R10_rate_total_Ctar_weighted",
+        "severity": "部分一致（混合近似）",
+        "detail": "rate_R10 用 C_TAR1+C_TAR2 与默认 w 加权芳香/烯烃 k，非分物种浓度。格内 TAR1/TAR2 比漂移时速率与计量可轻微不一致。"
+      },
+      {
+        "id": "pair_choice_coal_vs_biomass",
+        "severity": "与 Hamel 意图一致（未见反证）",
+        "detail": "煤→芳香代理；生物质→萘+十六烷（烯烃动力学）。Eq.5.60/5.61 分 Olefine/Aromaten。LU 未误标 biomass。"
+      }
+    ]
+  },
+  "classic_literature_sanity": [
+    {
+      "rxn": "R10",
+      "source": "Siminski / Smoot & Smith",
+      "check": "芳香 k0=20700 ≫ 烯烃 59.8（~346×），与 Hamel 表一致，非笔误",
+      "unreasonable": false
+    },
+    {
+      "rxn": "R5",
+      "source": "Hottel; Hayhurst & Tucker",
+      "check": "气泡/悬浮分式含 H2O^0.5",
+      "unreasonable": false
+    },
+    {
+      "rxn": "R6_R12",
+      "source": "de Souza-Santos; Jensen",
+      "check": "audit 数值锚点",
+      "unreasonable": false
+    },
+    {
+      "rxn": "R1",
+      "source": "Field / Hobbs Table 5.2",
+      "check": "Lignite A → Rheinische Braunkohle",
+      "unreasonable": false
+    },
+    {
+      "rxn": "O2_limiter",
+      "source": "非 Hamel",
+      "check": "工程护栏，非动力学式",
+      "unreasonable": null
+    }
+  ],
+  "strict_conclusions": {
+    "kinetics_formulas_vs_hamel": "主干一致；无参数数量级写反类硬错误",
+    "R10_fuel_composition_wrong": false,
+    "R10_caveats": [
+      "目标 H/C 常数待 PDF 溯源",
+      "LU ultimate H/C 超范围回退",
+      "总浓度加权 vs 分物种速率的混合近似"
+    ],
+    "CO_CO2_root": "R10 公式/褐煤代理映射不是出口结构偏差的 Hamel 公式 bug；更相关的是 O2 extent 限幅等工程层"
+  }
+}

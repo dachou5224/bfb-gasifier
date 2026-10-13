@@ -1,0 +1,103 @@
+88
+5 Modellierung der chemischen Reaktionen
+5 Modellierung der chemischen Reaktionen
+89
+Der Einfluss der berechneten Partikeltemperatur aufgrund der Oberflächenreaktion mit Sauer-
+stoff kann innerhalb der hier betrachteten Vergaser als gering eingestuft werden. Simulations-
+ergebnisse deuten daraufhin, dass der Umsatz des Kokses im wesentlichen durch die Verga-
+sungsreaktionen R2 bis R4 bestimmt wird. Bei autothermer Betriebsweise des Vergasers wird
+üblicherweise Sauerstoff entsprechend eines stöchiometrischen Verhältnisses von etwa 0,2 <
+A02 
+0,45, meist zusätzlich in Abhängigkeit der Reaktorhöhe gestuft, zugegeben. Der in ge-
+ringen Mengen zugeführte Sauerstoff wird im wesentlichen durch Oxidation der gasförmigen
+Substanzen verzehrt. Die chemische Reaktionsgeschwindigkeitskonstante wird nach Hobbs et
+al. (1992) berechnet:
+kch.Ri = k n.R! ■ T ■ exp\ - 
+(5.23)
+k 
+K ’ 7
+Für die Kinetik der Verbrennungsreaktion RI gibt Hobbs et al. (1992) folgende Zusammen-
+stellung (Tabelle 5.2) für verschiedene Kohlen an. Im Falle der Rheinischen Braunkohle wer-
+den die kinetischen Parameter der Kohleart Lignite A verwendet. Eine Übersicht reaktionski-
+netischer Daten der Verbrennung für verschiedener Kohlen und Kohlekokse ist z.B. in Hannes
+(1996) zu finden.
+5.1.4 Boudouard-Reaktion
+Mit der Annahme, dass die Elementarreaktionen mit Hilfe eines Sauerstoff-Austauschmodells
+beschrieben werden können, ergibt sich für die Reaktionsgeschwindigkeit des Kohlenstoffs
+mit Kohlendioxid folgende Gleichung (Weeda 1995):
+kg ' P ?O2
+in 1/s
+(5.26)
+Rc 0 —1+ kb - PCO2 + kc • Pco
+Für die Frequenzfaktoren ka bis kc, deren Temperaturabhängigkeit jeweils nach Arrhenius
+beschrieben wird, sind nach den experimentellen Befunden, die mittels linearer Regression
+ermittelt wurden, folgende Werte von Weeda (1995) einzusetzen:
+ka.0 = 2,72 (Pa s)’1
+(5.27)
+kb.o = 8,31- IO’7 Pa'
+(5.28)
+kc.0 = 2,088- 10‘l4 Pa''
+(5-29)
+mit den zugehörigen Aktivierungsenergien
+Ea = 188.000 J/mol
+(5-30)
+Eb = -38.900 J/mol
+(5-31)
+Ec = -24.500 J/mol
+(5.32)
+Die von Weeda (1995) ermittelte Reaktionsgeschwindigkeit ist auf die Anfangsmasse der von
+ihm untersuchten Partikel bezogen. Der Einfluss der Partikelgröße wird vernachlässigt, so
+dass sich für die Reaktionsrate der im Simulationsmodell aktuell zu berechnenden Partikel-
+größenklasse k der Kokssorte j ergibt:
+* 
+m ik
+R C,0 - R C.O
+Mc
+in mol C/s
+(5.33)
+5.1.5 Hydrierende Vergasung
+Für die hydrierende Vergasung
+C + 2H 2
+CH4
+-74,9 kJ/mol C
+ist die Reaktionsgeschwindigkeitskonstante nach Hobbs et al. (1992)
+Ordnungen geringer als für die heterogene Wassergasreaktion.
+R C ~ A C 'k ch,R4 ' 
+H2
+um drei Größen-
+(5-34)
+Tabelle 5.2: Zusammenstellung reaktionskinetischer Parameter der Restkoksverbrennung
+für verschiedene Kohlen nach Hobbs et al. (1992)
+Kohle
+(ASTM-Klassifizierung)
+ko,Ri
+in m/(s K)
+E/Rg
+inK
+HVBA
+1,03
+9.010
+HVBC
+0,5
+6.310
+SUBC
+10,4
+11.200
+Lignite A
+1,22
+10.300
+alle Kohlen
+2,3
+11.100
+5.1.3 Heterogene Wassergasreaktion
+Die Reaktionsrate der heterogenen Wassergasreaktion
+C + H2O —>CO + H2
++131,4 kJ/mol C
+wird nach Hobbs et al. (1992) berechnet durch:
+R C = A C ' k ch,R2 ' C H2O 
+(5.24)
+mit
+k ch,R4= 3 >42 ' 10 ~3 -T‘exp(-1 5.600 /T)
+(535)
+k ch,R2 = 3 -42' T exp(- 15.600 / T) .
+(5.25)

@@ -1,0 +1,109 @@
+{
+  "verdict": "init energy floor is bed0 (cold Tin=293 vs seed T); seed900 is best Startwert without changing LU T_inlet",
+  "hypotheses": {
+    "H_init_E_bed0": "CONFIRMED \u2014 pre-O1 E_rms=0.248 dominated by bed0 E_W=+1.49e7 W",
+    "H_bed0_solid_Hout": "CONFIRMED \u2014 |Hs|>>|Hg|; residual = Hin-Hout-Q exactly",
+    "H_raise_Tin": "REJECTED \u2014 Tin400/500 destroys split (S\u21920.16\u20130.30); LU case keeps 293 K",
+    "H_seed900": "CONFIRMED useful \u2014 final E 0.155\u21920.093, maxE 1.06\u21920.64, S 0.044\u21920.047",
+    "H_seed950": "REJECTED \u2014 stalls (max|dT|=44), S worse"
+  },
+  "fix": {
+    "vorab_nr_temperature_seed_bottom_K_thesis": 900.0,
+    "file": "tests/validation/config_phase2_freeboard.py"
+  },
+  "ab": {
+    "baseline_s850": {
+      "init_E": 0.2476692980794338,
+      "final_S": 0.04394238677717179,
+      "final_E": 0.15525833643249767,
+      "max_E": 1.0588919944781985,
+      "max_dT": 350.00000039843746
+    },
+    "seed900": {
+      "init_E": 0.18383193106605517,
+      "final_S": 0.046579869772323854,
+      "final_E": 0.09281877176185674,
+      "max_E": 0.6426051318336979,
+      "max_dT": 350.00000050878907
+    },
+    "seed950": {
+      "init_E": 0.12102787732531933,
+      "final_S": 0.06065821786907314,
+      "final_E": 0.13162421528858795,
+      "max_E": 0.13235498883039187,
+      "max_dT": 43.75
+    },
+    "Tin400": {
+      "init_E": 0.17409164933837107,
+      "final_S": 0.2983394160761989,
+      "final_E": 0.16807932443038878,
+      "max_E": 0.7481915087852008,
+      "max_dT": 350.0
+    },
+    "Tin500": {
+      "init_E": 0.18101182191978546,
+      "final_S": 0.16038730275819543,
+      "final_E": 0.1715744706831643,
+      "max_E": 0.19110702692374731,
+      "max_dT": 10.937500000000114
+    },
+    "s900_Tin400": {
+      "init_E": 0.15787595787092185,
+      "final_S": 0.06547833670257883,
+      "final_E": 0.20260567854295963,
+      "max_E": 0.24288922071182362,
+      "max_dT": 350.0
+    }
+  },
+  "pre_O1_top": [
+    {
+      "i": 0,
+      "T": 850.0,
+      "E_W": 14898968.126,
+      "H_in": -10391830.316,
+      "H_out_gas": -3983749.718,
+      "H_out_solid": -21392454.242,
+      "H_out": -25376203.96,
+      "Q_loss": 85405.517,
+      "gap_H": 14898968.126,
+      "m_auf_in": 0.0,
+      "m_ab_in": 0.0,
+      "y_H2O": 0.084,
+      "T_in_gas": 293.0,
+      "T_solid_auf": 850.0
+    },
+    {
+      "i": 5,
+      "T": 1046.982,
+      "E_W": -10117637.212,
+      "H_in": -34277818.846,
+      "H_out_gas": -5044752.39,
+      "H_out_solid": -19200834.762,
+      "H_out": -24245587.152,
+      "Q_loss": 85405.517,
+      "gap_H": -10117637.212,
+      "m_auf_in": 1.92,
+      "m_ab_in": 0.641,
+      "y_H2O": 0.14,
+      "T_in_gas": 1032.473,
+      "T_solid_auf": 1032.473
+    },
+    {
+      "i": 3,
+      "T": 1016.748,
+      "E_W": -4141288.702,
+      "H_in": -35007601.769,
+      "H_out_gas": -4220240.502,
+      "H_out_solid": -26731478.082,
+      "H_out": -30951718.584,
+      "Q_loss": 85405.517,
+      "gap_H": -4141288.702,
+      "m_auf_in": 1.774,
+      "m_ab_in": 0.929,
+      "y_H2O": 0.146,
+      "T_in_gas": 999.328,
+      "T_solid_auf": 999.328
+    }
+  ],
+  "open": "final E~0.09 still above Check1; next may be bed mid/upper enthalpy after heating, not Tin"
+}

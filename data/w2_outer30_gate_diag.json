@@ -1,0 +1,38 @@
+{
+  "converged_fully": false,
+  "converged_outer": false,
+  "converged_inner_nr": false,
+  "rms_scaled_final": 0.021470853225987224,
+  "nr_outer_iters": 30,
+  "T_exit_K": 1129.349687243522,
+  "bed0_T_K": 904.214663488473,
+  "exit_gas_dry": {
+    "CO": 0.28659741916053977,
+    "CO2": 0.36196083530043427,
+    "H2": 0.3266647128005095,
+    "CH4": 0.012897281499977072,
+    "O2": 0.0,
+    "N2": 0.00364583979746477,
+    "H2S": 0.0,
+    "NH3": 0.00823391144107488
+  },
+  "last_outer": {
+    "outer_iter": null,
+    "inner_converged": null,
+    "inner_rms_scaled_final": null,
+    "outer_aligned": null,
+    "outer_aligned_raw": null,
+    "outer_dt_check_pass": null,
+    "outer_gas_check_pass": null,
+    "outer_bed0_primary_check_pass": null,
+    "dT_outer": null,
+    "outer_dT_tol_effective": null,
+    "gas_phase_split_rms": null,
+    "outer_gas_split_tol": null,
+    "bed0_primary_rel_drift": null,
+    "outer_bed0_primary_tol": null,
+    "preinner_global_gate_pass": null,
+    "check2_bridge_aligned_after": null
+  },
+  "outer_history_tail": []
+}

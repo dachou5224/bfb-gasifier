@@ -1,0 +1,217 @@
+{
+  "source": "Wirsum alignment stage A baseline contracts",
+  "solved": false,
+  "git_head": "098c8cf6766606a491e70ef176c2493b4cd676be",
+  "paths": {
+    "reduced_3cell_x0": {
+      "path": "reduced_3cell_x0",
+      "init_kind": "generate_initial_x0_only",
+      "not_a_correctness_claim": true,
+      "units": {
+        "gas_holdup": "mol/s",
+        "solid_holdup": "kg",
+        "temperature": "K",
+        "pressure": "Pa"
+      },
+      "knobs": {
+        "thesis_mode": false,
+        "thesis_vorab_sources_single_shot": true,
+        "nr_solver_mode": "engineering",
+        "holdup_k0_anchor": "engineering",
+        "nr_include_pyrolysis_gas_species_in_unknowns_thesis": false,
+        "bed_solid_state_model": "holdup_transport",
+        "energy_balance_heat_loss_mode": "hamel_eq27_explicit",
+        "solid_enthalpy_mode": "hamel_eq28_component",
+        "freeboard_trajectory_model": "analytical_wirsum",
+        "explicit_freeboard_solver_graph_enabled": true,
+        "n_cells": 3,
+        "n_freeboard_cells": 0
+      },
+      "n_bed_cells": 3,
+      "n_freeboard_cells": 0,
+      "n_unknowns": 105,
+      "gas_species": [
+        "CO",
+        "CO2",
+        "H2",
+        "H2O",
+        "CH4",
+        "O2",
+        "N2",
+        "H2S",
+        "NH3",
+        "TAR1",
+        "TAR2"
+      ],
+      "solid_components": [
+        "char",
+        "vm",
+        "moisture",
+        "ash"
+      ],
+      "solid_column_index": {
+        "char": 0,
+        "vm": 1,
+        "moisture": 2,
+        "ash": 3
+      },
+      "n_solid_comp": 4,
+      "nr_gas_major": [
+        "CO",
+        "CO2",
+        "H2",
+        "H2O",
+        "CH4",
+        "O2",
+        "N2"
+      ],
+      "nr_gas_pyrolysis": [
+        "NH3",
+        "TAR1",
+        "TAR2"
+      ],
+      "nr_gas_excluded": [
+        "H2S",
+        "NH3",
+        "TAR1",
+        "TAR2"
+      ],
+      "nr_solid_bed": [
+        [
+          "char",
+          "ash"
+        ],
+        [
+          "char",
+          "ash"
+        ],
+        [
+          "char",
+          "ash"
+        ]
+      ],
+      "nr_solid_freeboard": [],
+      "vm_cache_valid": [
+        false,
+        false,
+        false
+      ],
+      "drying_pyro_sources_frozen": [
+        false,
+        false,
+        false
+      ],
+      "thesis_vorab_sources_single_shot": false,
+      "outer_may_refresh_drying_pyro": true,
+      "vorab_refresh_policy": "outer_refresh_fixed_inner_sources",
+      "explicit_freeboard_solver_graph": false,
+      "freeboard_model_resolved": "engineering_freeboard",
+      "note": "reduced \u4e0e Phase2 \u751f\u4ea7 init \u4e0d\u662f\u540c\u4e00\u5bf9\u8c61\uff1bsingle-shot \u6e90\u9879\u51bb\u7ed3\u662f\u5de5\u7a0b\u7b56\u7565\uff0c\u4e0d\u662f\u5df2\u6838\u5bf9\u7684 Hamel \u5916\u5c42\u3002"
+    },
+    "phase2_3bed_2fb_init": {
+      "path": "phase2_3bed_2fb_init",
+      "init_kind": "run_init_and_precalc_for_global_nr",
+      "not_a_correctness_claim": true,
+      "units": {
+        "gas_holdup": "mol/s",
+        "solid_holdup": "kg",
+        "temperature": "K",
+        "pressure": "Pa"
+      },
+      "knobs": {
+        "thesis_mode": true,
+        "thesis_vorab_sources_single_shot": true,
+        "nr_solver_mode": "engineering",
+        "holdup_k0_anchor": "engineering",
+        "nr_include_pyrolysis_gas_species_in_unknowns_thesis": true,
+        "bed_solid_state_model": "holdup_transport",
+        "energy_balance_heat_loss_mode": "hamel_eq27_explicit",
+        "solid_enthalpy_mode": "hamel_eq28_component",
+        "freeboard_trajectory_model": "analytical_wirsum",
+        "explicit_freeboard_solver_graph_enabled": true,
+        "n_cells": 3,
+        "n_freeboard_cells": 2
+      },
+      "n_bed_cells": 3,
+      "n_freeboard_cells": 2,
+      "n_unknowns": 145,
+      "gas_species": [
+        "CO",
+        "CO2",
+        "H2",
+        "H2O",
+        "CH4",
+        "O2",
+        "N2",
+        "H2S",
+        "NH3",
+        "TAR1",
+        "TAR2"
+      ],
+      "solid_components": [
+        "char",
+        "vm",
+        "moisture",
+        "ash"
+      ],
+      "solid_column_index": {
+        "char": 0,
+        "vm": 1,
+        "moisture": 2,
+        "ash": 3
+      },
+      "n_solid_comp": 4,
+      "nr_gas_major": [
+        "CO",
+        "CO2",
+        "H2",
+        "H2O",
+        "CH4",
+        "O2",
+        "N2"
+      ],
+      "nr_gas_pyrolysis": [
+        "NH3",
+        "TAR1",
+        "TAR2"
+      ],
+      "nr_gas_excluded": [
+        "H2S"
+      ],
+      "nr_solid_bed": [
+        [
+          "char",
+          "ash"
+        ],
+        [
+          "char",
+          "ash"
+        ],
+        [
+          "char",
+          "ash"
+        ]
+      ],
+      "nr_solid_freeboard": [
+        [],
+        []
+      ],
+      "vm_cache_valid": [
+        true,
+        true,
+        true
+      ],
+      "drying_pyro_sources_frozen": [
+        true,
+        true,
+        true
+      ],
+      "thesis_vorab_sources_single_shot": true,
+      "outer_may_refresh_drying_pyro": false,
+      "vorab_refresh_policy": "single_shot_sources_outer_refresh_hydrodynamics_fixed_inner",
+      "explicit_freeboard_solver_graph": true,
+      "freeboard_model_resolved": "engineering_freeboard",
+      "note": "reduced \u4e0e Phase2 \u751f\u4ea7 init \u4e0d\u662f\u540c\u4e00\u5bf9\u8c61\uff1bsingle-shot \u6e90\u9879\u51bb\u7ed3\u662f\u5de5\u7a0b\u7b56\u7565\uff0c\u4e0d\u662f\u5df2\u6838\u5bf9\u7684 Hamel \u5916\u5c42\u3002"
+    }
+  }
+}

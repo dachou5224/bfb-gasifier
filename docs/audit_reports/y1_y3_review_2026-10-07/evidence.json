@@ -1,0 +1,127 @@
+{
+  "normalized_same_subproblem": {
+    "solver": {
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully",
+      "nit": 108
+    },
+    "predicted_energy": [
+      -1.0875928351224502,
+      -0.9999999999995453
+    ],
+    "linear_status": 1,
+    "max_state_change": 0.8005167431265363
+  },
+  "s": 0.4000000000000001,
+  "cert": {
+    "passed": true,
+    "finite": true,
+    "in_domain": true,
+    "transport_closed": true,
+    "temperature_domain": "temporary_solver_domain_250_2500_K",
+    "blocks": {
+      "passed": true,
+      "gas_l2": 3.655155655827639e-07,
+      "solid_l2": 9.285028991390789e-07,
+      "tar_l2": 1.699301826421169e-07,
+      "energy_W": -0.13619047042448074
+    },
+    "energy_rows_W": [
+      -0.06788930349284783,
+      -0.0683011669316329
+    ],
+    "gate_ratio": {
+      "gas": 0.36551556558276393,
+      "solid": 0.9285028991390789,
+      "tar": 0.1699301826421169,
+      "energy_rows": [
+        0.06788930349284783,
+        0.0683011669316329
+      ]
+    }
+  },
+  "cho": {
+    "C": 8.055230856696127e-05,
+    "H": 2.862642876522159e-06,
+    "O": -3.762799183348875e-07
+  },
+  "enthalpy_gap_W": -0.13619047042448074,
+  "zero_transform_ratio_rows": [
+    -5.519143366937082e-09,
+    -5.44765602246422e-09,
+    -5.54661596470149e-09
+  ],
+  "offset_bad_ratio_rows": [
+    -5.519143366937082e-09,
+    -5.44765602246422e-09,
+    -5.54661596470149e-09
+  ],
+  "offset_correct_ratio_rows": [
+    -1.0691743307757531e-12,
+    1.069192915975635e-12,
+    -4.45539330255762e-19
+  ],
+  "offset_transform_error_norm": 9.53429063553061e-09,
+  "scans": [
+    {
+      "ds": 0.02,
+      "linear_status": 2,
+      "max_state_change": 0.10008648338862258,
+      "predicted_energy": [
+        -30113.99723238979,
+        -1.6901763945483026
+      ],
+      "zero_step_energy": [
+        -34412.13726504083,
+        1.991748832340818
+      ],
+      "optimizer": {
+        "success": false,
+        "status": 4,
+        "message": "Inequality constraints incompatible",
+        "nit": 1,
+        "initial_cost": 76461815165.71378,
+        "final_cost": 76461815165.71378,
+        "constraint_values": [
+          64526.13449743062,
+          4298.140032651041,
+          3.681925226888552,
+          0.30157243779308374
+        ]
+      }
+    },
+    {
+      "ds": 0.002,
+      "linear_status": 2,
+      "max_state_change": 0.40030840385952615,
+      "predicted_energy": [
+        -1721.1809474120898,
+        -0.4836678419619602
+      ],
+      "zero_step_energy": [
+        -3441.2748268772266,
+        0.13770383299561217
+      ],
+      "optimizer": {
+        "success": false,
+        "status": 4,
+        "message": "Inequality constraints incompatible",
+        "nit": 1,
+        "initial_cost": 249671115.91391647,
+        "final_cost": 249671115.91391647,
+        "constraint_values": [
+          5162.455774289316,
+          1720.093879465137,
+          1.4836678419621876,
+          0.5163321580378124
+        ]
+      }
+    }
+  ],
+  "material_feasible_tolerance_example": {
+    "block_norm": 1e-05,
+    "constraint": -9.900000000000002e-11,
+    "accepted_by_internal_feasibility": true
+  }
+}

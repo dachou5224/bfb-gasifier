@@ -1,0 +1,114 @@
+5 Modellierung der chemischen Reaktionen
+94
+5 Modellierung der chemischen Reaktionen
+95
+Rpo = a R8 -2,77-108 -(yco
+p ' 
+-exj -8,91+ 5-55
+(5.45)
+mol
+s ’ 
+Asche
+D
+" 137.327
+RCH4 = -6,113-10 
+-exp 
+- 
+-
+l Rg' 1
+* ?CH4
+(5.51)
+Da die Methanreformierung nur durch die katalytische Wirksamkeit des Feststoffs nennens-
+werte Reaktionsgeschwindigkeiten erreicht, wird die Reaktion im Simulationsprogramm nur
+in der feststoffbeladenen Suspensionsphase berücksichtigt.
+Die Korrektur des Kohlenmonoxidanteils in Gleichung (5.45) berücksichtigt die Gleich-
+gewichtslage für diese Reaktion.
+yco 2 ‘ yu 2
+keq,R8 * yn 2O
+(5.46)
+y&q.co
+5.2.6 Umsetzung der Teere
+Unter der Umsetzung der Teere werden hier die Sekundärreaktionen verstanden, denen der
+Teer, der aus der Pyrolyse der Brennstoffpartikel freigesetzt wurde, im Reaktor unterliegt. Der
+Teer, im Modell durch ausgewählte höhere Kohlenwasserstoffe repräsentiert, kann weiterer
+thermischer Zersetzung und Pyrolyse unterliegen oder mit Sauerstoff, Wasserdampf oder
+Kohlendioxid umgesetzt werden. Im Simulationsprogramm werden die Teere, die tatsächlich
+ein Gemisch aus zahlreichen höheren Kohlenwasserstoffen darstellen, durch zwei Substanzen
+repräsentiert. Das Verhältnis der zwei Teerrepräsentanten wird so eingestellt, dass das H/C-
+Verhältnis des Gesamtteers nachgebildet wird. Für den Fall der Vergasung Rheinischer
+Braunkohle wurden die Substanzen Benzol und Naphtalin ausgewählt, da das molare H/C-
+Verhältnis des Teeres mit Hilfe dieser Modellsubstanzen abgebildet werden kann. Im Fall der
+Biomasse wurde neben Naphtalin als zweiter Modellteer anstatt Benzol Hexadekan C16H34
+verwendet. Dies ist notwendig, da beispielsweise beim in Kapitel 6 verwendeten Holz ein
+molares H/C-Verhältnis von etwa 1,364 vorliegt, was durch die Kombination von Naphtalin
+und Benzol nicht nachgebildet werden kann. Im Vergleich dazu hat die im Kapitel 6 beschrie-
+bene Braunkohle ein molares H/C-Verhältnis von 0,856.
+Die zugrundegelegten stöchiometrischen Gleichungen zur Oxidation der genannten Teerreprä-
+keq ,R8 =exp{- 36.893+ 4.019 /T g ) 
+(5.47)
+Als Faktor, der die katalytische Aktivität der Kohlenasche bzw. des Kokses beinhaltet, ver-
+wenden Wen und Chaung für die eigene Simulation eines Flugstrom-Kohlevergasers
+aR8 =0,02. 
+(5.48)
+Chen et al. (1987) untersuchten die katalytische Wirksamkeit von Kohleasche auf die homo-
+gene Wassergasreaktion und die Methanisierung in der Wirbelschicht. Die Reaktionsrate der
+homogenen Wassergasreaktion in einem Wirbelbett aus Asche der Kohle „Ohio Clarion 4A“
+ist etwa eine Größenordnung schneller als in vergleichbaren Experimenten mit einem Wirbel-
+bett aus Sand. Ein weiterer Vergleich seiner eigenen Befunde mit in der Literatur zugängli-
+chen Messungen zur Kinetik der homogenen Wassergasreaktion über einem kommerziellen
+Katalysator zeigen, dass die Reaktion über dem Katalysator um nahezu zwei Größenordnun-
+gen schneller als im Wirbelbett mit Kohleasche abläuft. Zur Korrelation seiner Ergebnisse in
+einem atmosphärischen Wirbelbett aus Kohlenasche schlagen Chen et al. (1987) folgenden
+reaktionskinetischen Ansatz vor. Umgerechnet auf SI-Einheiten ergibt sich:
+n 
+o on m-7 
+90.853 | 
+_ 
+„ 
+PH2 ' PCO2
+. 
+mol 
+...
+Rco -—8,82-10 
+-exp —— 
+‘ 
+CO' PH2O -----7— — 
+in — ------- (5.49)
+Rg'Tg 
+) 
+keq,R8 
+s ' kg Asche
+sentanten mit Sauerstoff (Reaktion RIO) lauten:
+C6H6 + 3O 2
+~ 6CO + 3H 2
+(5.52)
+Cl0H8 + 5 O2
+—>10CO + 4H 2
+(5.53)
+C /6H34 + 8 O2
+16 CO + 17 H2
+(5.54)
+und die zur Umsetzung in Gegenwart von Wasserdampf (Reformierung RI 1) lauten:
+C6H6 + 9/2 H2O 
+-> 9/2 CO + 9/2 H2 + 3/2 CH4
+(5.55)
+C /0H8 + 23/3 H2O 
+23/3 CO + 7 H2 + 7/3 CH4
+(5.56)
+Ci6H34 + 21/2 H2O -> 21/2 CO + 33/2 H2 + 11/2 CH4
+(5.57)
+5.2.5 Methan-Reformierung
+Aus Ergebnissen der kinetischen Untersuchungen zur Methan-Reformierung, Gleichung
+(5.50), in einem Wirbelbett aus Kohleasche (siehe auch Kapitel 5.2.4) stellen Chen et al.
+(1987) fest, dass die Reaktionsgeschwindigkeit der Methan-Reformierung in einem Wirbel-
+bett aus Kohlenasche etwa um zwei Größenordnungen langsamer ist, als über einem kommer-
+ziellen Katalysator, jedoch trotzdem noch etwa eine Größenordnung schneller als in einem
+leeren Reaktor abläuft.
+Zur Modellierung der Oxidation der Teere mit Sauerstoff (RIO) wird folgende globale Reakti-
+onsgleichung angewendet:
+CH4 + H2O 
+CO + 3 H2
++206,3 kJ/mol CH4
+(5.50)
+Chen et al. (1987) schlagen folgende Reaktionskinetik, die in einer atmosphärischen Wirbel-
+schicht in einem Temperaturbereich von 770 °C bis 920 °C, ermittelt wurde, vor:

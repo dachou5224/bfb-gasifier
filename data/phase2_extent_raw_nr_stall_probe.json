@@ -1,0 +1,66 @@
+{
+  "note": "After decoupling freeboard dt bounds from bed algebraic limiters",
+  "seed": 1250.0,
+  "init_rows": [
+    {
+      "label": "raw_bed+fb_dt_on",
+      "bed_limiters": false,
+      "fb_dt_bounds": true,
+      "rms": 76820047380.28935,
+      "groups": {
+        "gas_rms": 106682315895.22743,
+        "solid_rms": 0.010012214742833262,
+        "energy_rms": 0.056033105395898126,
+        "gas_max_abs": 425355730555.1242,
+        "solid_max_abs": 0.052387317013008174,
+        "energy_max_abs": 0.24006569316318385
+      },
+      "fb_T0": 1583.2414593054182,
+      "cell0_extent_flag": false
+    },
+    {
+      "label": "raw_bed+fb_dt_off",
+      "bed_limiters": false,
+      "fb_dt_bounds": false,
+      "rms": 76926015912.84193,
+      "groups": {
+        "gas_rms": 106790283427.5757,
+        "solid_rms": 0.009758831719423204,
+        "energy_rms": 10826683260.751213,
+        "gas_max_abs": 425355730466.7011,
+        "solid_max_abs": 0.05345089756565892,
+        "energy_max_abs": 48418399483.797585
+      },
+      "fb_T0": 2500.0,
+      "cell0_extent_flag": false
+    },
+    {
+      "label": "eng_both",
+      "bed_limiters": true,
+      "fb_dt_bounds": true,
+      "rms": 0.029188626168011364,
+      "groups": {
+        "gas_rms": 0.03650961898943933,
+        "solid_rms": 0.009011343348801576,
+        "energy_rms": 0.058030730002245304,
+        "gas_max_abs": 0.2881718850669372,
+        "solid_max_abs": 0.05429977598940827,
+        "energy_max_abs": 0.2502564696005543
+      },
+      "fb_T0": 1583.2186591647314,
+      "cell0_extent_flag": true
+    }
+  ],
+  "raw_o8_solve": {
+    "wall_s": 115.776942929,
+    "rms": 41882696945.74027,
+    "converged": false,
+    "exit_dry": {
+      "CO": 0.04446843375230664,
+      "CO2": 0.0199615763712732,
+      "H2": 5.333519830729999e-07,
+      "CH4": 3.4676065905382856e-11,
+      "O2": 0.0
+    }
+  }
+}

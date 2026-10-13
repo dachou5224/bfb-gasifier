@@ -13,9 +13,8 @@ Source: Hamel (1999) Eq.5.59, Table 5.4; Siminski (1972)
 """
 
 from __future__ import annotations
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path('.').resolve()))
+
+import _lu_harness  # noqa: F401
 
 import numpy as np
 from src.kinetics.tar_reactions import (
@@ -26,10 +25,8 @@ from src.kinetics.arrhenius import k_hobbs
 from src.core.constants import Rg
 from src.core.reactor import Reactor
 from src.core.species import GAS_SPECIES_INDEX as idx
-from tests.validation_case_utils import (
-    PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS,
-    build_phase1_htw_lu_global_nr_reactor_config,
-)
+from _lu_harness import phase1_global_nr_solve_kwargs
+from tests.validation_case_utils import build_phase1_htw_lu_global_nr_reactor_config
 from contextlib import contextmanager
 
 print("\n" + "="*70)
@@ -146,7 +143,7 @@ def _prepare_cell_minimal(scenario, i: int):
     cfg.r6_scale = float(scenario.r6s)
     cfg.r4_scale = float(scenario.r4s)
     reactor = Reactor(cfg)
-    solve_kwargs = dict(PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS)
+    solve_kwargs = phase1_global_nr_solve_kwargs()
     solve_kwargs["max_global_iter"] = 6
     solve_kwargs["tol_global"] = 1.0
     reactor.solve(**solve_kwargs)

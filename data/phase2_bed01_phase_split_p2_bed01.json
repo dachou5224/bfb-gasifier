@@ -1,0 +1,11 @@
+[
+  {
+    "label": "bed01_fixed",
+    "converged": true,
+    "outer": 16,
+    "final_rms": 0.012789506089373032,
+    "final_split": 0.0067133432568877325,
+    "final_solid": 0.017664075173262354,
+    "wall_s": 250.43502833099998
+  }
+]

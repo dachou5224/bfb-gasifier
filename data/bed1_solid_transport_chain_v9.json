@@ -1,0 +1,71 @@
+{
+  "stages": {
+    "init_end": {
+      "bed": 1.0,
+      "T_K": 800.691233065481,
+      "energy_residual_MW": 3.6478246610037144,
+      "char_ash_holdup_kg": 14.976056922674678,
+      "solid_auf_in_kg_s": 1.6324054331874467,
+      "solid_out_auf_kg_s": 0.45046847451536165,
+      "solid_out_total_kg_s": 1.6338821624918605,
+      "auf_in_over_out_auf": 3.6237950612274847,
+      "below_out_auf_kg_s": 1.6324054331874467,
+      "below_matches_auf_in": 1.0,
+      "flux_ratio_error": 0.7240462048476685
+    },
+    "outer1_post_refresh": {
+      "bed": 1.0,
+      "T_K": 800.691233065481,
+      "energy_residual_MW": 3.6478638841577453,
+      "char_ash_holdup_kg": 14.976056922674678,
+      "solid_auf_in_kg_s": 1.6324054331874467,
+      "solid_out_auf_kg_s": 0.45046847451536165,
+      "solid_out_total_kg_s": 1.6338796218649614,
+      "auf_in_over_out_auf": 3.6237950612274847,
+      "below_out_auf_kg_s": 1.6324054331874467,
+      "below_matches_auf_in": 1.0,
+      "flux_ratio_error": 0.7240462048476685
+    },
+    "outer1_post_preinner": {
+      "bed": 1.0,
+      "T_K": 800.691233065481,
+      "energy_residual_MW": 19.830911895407148,
+      "char_ash_holdup_kg": 14.976056922674678,
+      "solid_auf_in_kg_s": 4.673656542110268,
+      "solid_out_auf_kg_s": 0.45046847451536165,
+      "solid_out_total_kg_s": 3.311723631072719,
+      "auf_in_over_out_auf": 10.375102380113148,
+      "below_out_auf_kg_s": 4.673656542110268,
+      "below_matches_auf_in": 1.0,
+      "flux_ratio_error": 0.9036154089508759
+    }
+  },
+  "preinner_diag": {
+    "holdup_reconciled": false,
+    "holdup_flux_mismatch_before": 0.7240462048476685,
+    "split_rms_before": 0.22313359728813828,
+    "split_rms_after": 0.22313359728813828,
+    "merit_before": 0.22313359728813828,
+    "merit_after": 0.22313359728813828,
+    "tier_plan": {
+      "merit_driven": true,
+      "run_split_tier": true,
+      "run_solid_energy_tier": false,
+      "run_holdup_reconcile": false,
+      "run_bed0_resplit": false,
+      "split_rms": 0.22313359728813828,
+      "energy_rms": 0.10408018000096117,
+      "solid_rms": 0.0010743868970810478,
+      "merit_scaled": 0.22313359728813828,
+      "max_bed_energy_scaled": 0.1944143870014021,
+      "holdup_flux_mismatch": 0.7240462048476685,
+      "holdup_stream_imbalance": 0.07566003316738987,
+      "holdup_transport_mismatch": false,
+      "split_shock": true,
+      "split_dominates_merit": true,
+      "tau_split": 0.03,
+      "tau_energy": 0.05,
+      "tau_solid": 0.01
+    }
+  }
+}

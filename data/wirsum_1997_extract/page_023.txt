@@ -1,0 +1,68 @@
+4' ’
+10 2
+10
+E
+e
+10 ’5 IZ-
+0,1
+10 
+10 2
+10 3
+10 4
+-------------*- Re p
+(Ä) atmosphärische stationäre Wirbelschichtfeuerung
+nach Plass (1991)
+(B) atmosphärische zirkulierende Wirbelschichtfeuerung
+nach Plass (1991)
+© druckaufgeladene zirkulierende Wirbelschichtfeuerung
+(12-25 bar) nach Plass (1991)
+Gruppe D
+Gruppe B
+Gruppe A
+Gruppe C
+50 
+100 
+500 
+1000
+mittlere Korngröße <3 p in pm
+3
+Dichtedifferenz (p - p ) in kg/m
+g 
+O 
+9
+8
+2 
+s 
+S
+Bild 3.2. Klassifikation der Wirbelgüter nach Geldart.
+als Wirbelschichten mit Gruppe B Partikeln. Die Systeme neigen zur Bildung von Kanälen
+oder zur Bildung von Sprudelschichten, wenn die Gasverteilung ungleichmäßig ist. Typisch
+für die relativ grobkörnigen und schweren Materialien der Gruppen B und D sind geringe
+Aufstiegsgeschwindigkeiten der Blasen und hohe Gasgeschwindigkeiten in den Partikelzwi-
+schenräumen der Suspensionsphase. Man spricht von „langsamen Blasen“ mit einem hohen,
+konvektiv bedingten Stoffaustausch zwischen Blasenphase und blasenfreier Phase.
+3.2 Strömungsmechanik in der Wirbelschicht
+3.2.1 Strömungsbereiche
+Wird eine Feststoffschüttung mit einer auf den leeren Reaktorquerschnitt bezogenen Gasge-
+schwindigkeit, der sogenannten Leerrohrgeschwindigkeit, durchströmt, welche oberhalb der
+Leerrohrgeschwindigkeit bei minimaler Fluidisierung liegt, so bildet sich innerhalb der Wir-
+belschicht eine Zweiphasenströmung aus. Die wesentlichen Mechanismen des Gastransports
+durch die Wirbelschicht sind nach Clift und Grace [23]:
+1. der sichtbare Blasenvolumenstrom,
+2. die Durchströmung und Umströmung der Blasen,
+3. die Durchströmung der dichten Phase oder Suspensionsphase1
+4. die Rückvermischung des Gases in der Suspensionsphase durch Feststoffzirkulation.
+i Anstelle des Bergiffs „Suspensionsphase“ wird in der Literatur auch der Ausdruck „Emulsionsphase“
+verwendet. Beide Bezeichnungen sind equivalent.
+Bild 3.1. Zustandsdiagramm für Gas-/Feststoffsysteme nach Reh mit der Einordnung unterschiedlicher Wir-
+belschichtsysteme nach Plass.
+Beispiel für Gruppe A Partikel sind Katalysatoren für katalytische Wirbelschichtprozesse.
+Die in Feuerungsanlagen eingesetzten Wirbelgüter entsprechen meist der Gruppe B oder der
+Gruppe D nach der Klassifizierung von Geldart. Die Gruppe B repräsentiert sandartige Stoffe,
+die leicht zu fluidisieren sind. Die Bildung von Blasen setzt im Gegensatz zu Systemen mit
+Gruppe A Partikeln unmittelbar bei einer Erhöhung der Gasgeschwindigkeit über die Leerrohr-
+geschwindigkeit bei minimaler Fluidisierung hinaus ein. Die Blasen können bei entsprechend
+tiefen Wirbelschichten sehr große Durchmesser annehmen. Wirbelschichten mit Gruppe D Par-
+tikeln gehen erst bei deutlich höheren Gasgeschwindigkeiten in den fluidisierten Zustand über
+27
+26

@@ -1,0 +1,672 @@
+{
+  "note": "bed3 N2 res_sum budget + bidirectional sum closure; §5.25",
+  "arms": [
+    {
+      "label": "lsq_n2_base",
+      "wall_s": 333.740504661,
+      "metrics": {
+        "exit_CO": 0.1556728902840912,
+        "rms": 0.04015700148525038,
+        "groups": {
+          "gas_rms": 0.022937926524572782,
+          "solid_rms": 0.003437376791074115,
+          "energy_rms": 0.056807081355934645,
+          "gas_max_abs": 0.12572410937386289,
+          "solid_max_abs": 0.0192222636132022,
+          "energy_max_abs": 0.10713845829765688
+        },
+        "topk": [
+          {
+            "flat_k": 129,
+            "F_hat": -0.12572410937386289,
+            "abs": 0.12572410937386289,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "N2"
+          },
+          {
+            "flat_k": 163,
+            "F_hat": 0.10713845829765688,
+            "abs": 0.10713845829765688,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 327,
+            "F_hat": 0.09446321437572641,
+            "abs": 0.09446321437572641,
+            "cell": 7,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 40,
+            "F_hat": -0.08082640598473775,
+            "abs": 0.08082640598473775,
+            "cell": 0,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 136,
+            "F_hat": -0.06682835022422916,
+            "abs": 0.06682835022422916,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "bubble",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 205,
+            "F_hat": 0.06493514267279187,
+            "abs": 0.06493514267279187,
+            "cell": 5,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "CO"
+          }
+        ],
+        "bed2_RH2O": -2.997691616461461,
+        "Fhat_T_bed9": -0.017038990856278413,
+        "res_E_bed9": -234302.74785859138,
+        "dm_bed9": -0.008725307920207648,
+        "flux_mismatch": 0.46514920807694493,
+        "stream_imbalance": 0.04300264485760272,
+        "bed9": {
+          "bed": 9.0,
+          "m_char": 7.210141818133713,
+          "m_ash": 2.1838273942573823,
+          "support_char": 7.227290902916594,
+          "m_star_char": 7.1401451538198275,
+          "m_in_char": 4.018024141268531,
+          "m_out_char": 4.008490079670088,
+          "R_char": -0.0484488210566466,
+          "res_char": -0.038914759458203746,
+          "res_abs_max": 0.1397287637833453,
+          "over_support_char": -0.01714908478288027,
+          "over_mstar_char": 0.06999666431388582,
+          "K_sum_char_mean": 0.5559516276904042
+        }
+      },
+      "budget": {
+        "T": 1150.5668733823536,
+        "N_d": 34.35633926822444,
+        "N_b": 26.905311199948553,
+        "y_d": 0.6466277071869844,
+        "y_b": 0.6356363267906872,
+        "dy": 0.010991380396297212,
+        "N_ex": -3.795723862114821,
+        "R_d": 0.0,
+        "R_b": 0.0,
+        "in_d": 28.146279036572903,
+        "in_b": 18.165426111837004,
+        "res_d": -2.4143363695367146,
+        "res_b": -12.53560895022637,
+        "res_sum": -14.949945319763085,
+        "res_split": 10.121272580689656,
+        "split_rms_major": 3.5356178429541254,
+        "Fhat_T": 0.10713845829765688,
+        "N_tot": 61.26165046817299,
+        "N_hold": 61.26165046817299,
+        "N_in": 46.31170514840991,
+        "gap_hold_minus_in": 14.949945319763081,
+        "N_ex_abs": 3.795723862114821
+      },
+      "overrides": {
+        "nr_outer_preinner_bed_top_solid_holdup_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_after_y_co_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_y_co_threshold_thesis": 0.14,
+        "nr_outer_preinner_bed_top_solid_holdup_n_beds_thesis": 2
+      }
+    },
+    {
+      "label": "lsq_n2_n2sum_bed3",
+      "wall_s": 354.04095712500003,
+      "metrics": {
+        "exit_CO": 0.1556728902840912,
+        "rms": 0.040683987906779656,
+        "groups": {
+          "gas_rms": 0.023257910116298814,
+          "solid_rms": 0.003884405352626756,
+          "energy_rms": 0.05565737337607546,
+          "gas_max_abs": 0.16378328112445065,
+          "solid_max_abs": 0.026834898887136888,
+          "energy_max_abs": 0.11091259457750241
+        },
+        "topk": [
+          {
+            "flat_k": 170,
+            "F_hat": -0.16378328112445065,
+            "abs": 0.16378328112445065,
+            "cell": 4,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "N2"
+          },
+          {
+            "flat_k": 204,
+            "F_hat": 0.11091259457750241,
+            "abs": 0.11091259457750241,
+            "cell": 4,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 327,
+            "F_hat": 0.09446322224331596,
+            "abs": 0.09446322224331596,
+            "cell": 7,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 40,
+            "F_hat": -0.08082635138370377,
+            "abs": 0.08082635138370377,
+            "cell": 0,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 123,
+            "F_hat": 0.06555077271821538,
+            "abs": 0.06555077271821538,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "CO"
+          },
+          {
+            "flat_k": 205,
+            "F_hat": 0.06493514267279187,
+            "abs": 0.06493514267279187,
+            "cell": 5,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "CO"
+          }
+        ],
+        "bed2_RH2O": -2.997691616461461,
+        "Fhat_T_bed9": -0.01703886391099319,
+        "res_E_bed9": -234300.36594188958,
+        "dm_bed9": -0.008725307920207648,
+        "flux_mismatch": 0.4559790530541834,
+        "stream_imbalance": 0.10747956521540512,
+        "bed9": {
+          "bed": 9.0,
+          "m_char": 7.210141818133713,
+          "m_ash": 2.1838273942573823,
+          "support_char": 7.227290902916594,
+          "m_star_char": 7.1401451538198275,
+          "m_in_char": 4.018024141268531,
+          "m_out_char": 4.008490079670088,
+          "R_char": -0.0484488210566466,
+          "res_char": -0.038914759458203746,
+          "res_abs_max": 0.1397287637833453,
+          "over_support_char": -0.01714908478288027,
+          "over_mstar_char": 0.06999666431388582,
+          "K_sum_char_mean": 0.5559516276904042
+        }
+      },
+      "budget": {
+        "T": 1150.5668733823536,
+        "N_d": 25.972213317944558,
+        "N_b": 20.33949183046535,
+        "y_d": 0.5804179271734874,
+        "y_b": 0.5687406331350525,
+        "dy": 0.011677294038434871,
+        "N_ex": -3.596984480086106,
+        "R_d": 0.0,
+        "R_b": 0.0,
+        "in_d": 28.146279036572903,
+        "in_b": 18.165426111837004,
+        "res_d": 5.771050198714451,
+        "res_b": -5.771050198714451,
+        "res_sum": 0.0,
+        "res_split": 11.542100397428902,
+        "split_rms_major": 3.28275131651266,
+        "Fhat_T": -0.02005247484486885,
+        "N_tot": 46.31170514840991,
+        "N_hold": 46.31170514840991,
+        "N_in": 46.31170514840991,
+        "gap_hold_minus_in": 0.0,
+        "N_ex_abs": 3.596984480086106
+      },
+      "overrides": {
+        "nr_outer_preinner_bed_top_solid_holdup_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_after_y_co_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_y_co_threshold_thesis": 0.14,
+        "nr_outer_preinner_bed_top_solid_holdup_n_beds_thesis": 2,
+        "nr_outer_preinner_targeted_species_sum_beds_thesis": [
+          3
+        ],
+        "nr_outer_preinner_targeted_species_sum_species_thesis": [
+          "N2"
+        ],
+        "nr_outer_preinner_targeted_species_sum_fraction_thesis": 1.0,
+        "nr_outer_preinner_targeted_species_sum_mode_thesis": "phase_share",
+        "nr_outer_preinner_targeted_species_sum_bidirectional_thesis": true,
+        "nr_outer_preinner_targeted_species_sum_after_y_co_thesis": true,
+        "nr_outer_preinner_targeted_species_sum_y_co_threshold_thesis": 0.14
+      }
+    },
+    {
+      "label": "lsq_n2_n2sum_then_split",
+      "wall_s": 348.8384508129999,
+      "metrics": {
+        "exit_CO": 0.1556728902840912,
+        "rms": 0.0393566084227078,
+        "groups": {
+          "gas_rms": 0.022362161981489433,
+          "solid_rms": 0.0038850171606498885,
+          "energy_rms": 0.055675490197074816,
+          "gas_max_abs": 0.14071785888110075,
+          "solid_max_abs": 0.026846864405490223,
+          "energy_max_abs": 0.11098622850025593
+        },
+        "topk": [
+          {
+            "flat_k": 170,
+            "F_hat": -0.14071785888110075,
+            "abs": 0.14071785888110075,
+            "cell": 4,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "N2"
+          },
+          {
+            "flat_k": 204,
+            "F_hat": 0.11098622850025593,
+            "abs": 0.11098622850025593,
+            "cell": 4,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 327,
+            "F_hat": 0.09446321437572641,
+            "abs": 0.09446321437572641,
+            "cell": 7,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 40,
+            "F_hat": -0.08082640598473775,
+            "abs": 0.08082640598473775,
+            "cell": 0,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 164,
+            "F_hat": 0.06601407768881139,
+            "abs": 0.06601407768881139,
+            "cell": 4,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "CO"
+          },
+          {
+            "flat_k": 205,
+            "F_hat": 0.06493514267279187,
+            "abs": 0.06493514267279187,
+            "cell": 5,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "CO"
+          }
+        ],
+        "bed2_RH2O": -2.997691616461461,
+        "Fhat_T_bed9": -0.017038990856278413,
+        "res_E_bed9": -234302.74785859138,
+        "dm_bed9": -0.008725307920207648,
+        "flux_mismatch": 0.4559790530541834,
+        "stream_imbalance": 0.10765498827270482,
+        "bed9": {
+          "bed": 9.0,
+          "m_char": 7.210141818133713,
+          "m_ash": 2.1838273942573823,
+          "support_char": 7.227290902916594,
+          "m_star_char": 7.1401451538198275,
+          "m_in_char": 4.018024141268531,
+          "m_out_char": 4.008490079670088,
+          "R_char": -0.0484488210566466,
+          "res_char": -0.038914759458203746,
+          "res_abs_max": 0.1397287637833453,
+          "over_support_char": -0.01714908478288027,
+          "over_mstar_char": 0.06999666431388582,
+          "K_sum_char_mean": 0.5559516276904042
+        }
+      },
+      "budget": {
+        "T": 1150.5668733823536,
+        "N_d": 27.80788060680343,
+        "N_b": 18.503824541606477,
+        "y_d": 0.5749390172765367,
+        "y_b": 0.5756700756213884,
+        "dy": -0.0007310583448516539,
+        "N_ex": 0.22517468308441743,
+        "R_d": 0.0,
+        "R_b": 0.0,
+        "in_d": 28.146279036572903,
+        "in_b": 18.165426111837004,
+        "res_d": 0.11322374668505567,
+        "res_b": -0.11322374668505567,
+        "res_sum": 0.0,
+        "res_split": 0.22644749337011133,
+        "split_rms_major": 1.270631984816378,
+        "Fhat_T": -0.02017323265771467,
+        "N_tot": 46.31170514840991,
+        "N_hold": 46.31170514840991,
+        "N_in": 46.31170514840991,
+        "gap_hold_minus_in": 0.0,
+        "N_ex_abs": 0.22517468308441743
+      },
+      "overrides": {
+        "nr_outer_preinner_bed_top_solid_holdup_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_after_y_co_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_y_co_threshold_thesis": 0.14,
+        "nr_outer_preinner_bed_top_solid_holdup_n_beds_thesis": 2,
+        "nr_outer_preinner_targeted_species_sum_beds_thesis": [
+          3
+        ],
+        "nr_outer_preinner_targeted_species_sum_species_thesis": [
+          "N2"
+        ],
+        "nr_outer_preinner_targeted_species_sum_fraction_thesis": 1.0,
+        "nr_outer_preinner_targeted_species_sum_mode_thesis": "phase_share",
+        "nr_outer_preinner_targeted_species_sum_bidirectional_thesis": true,
+        "nr_outer_preinner_targeted_species_sum_after_y_co_thesis": true,
+        "nr_outer_preinner_targeted_species_sum_y_co_threshold_thesis": 0.14,
+        "nr_outer_preinner_targeted_phase_split_beds_thesis": [
+          3
+        ],
+        "nr_outer_preinner_targeted_phase_split_after_y_co_thesis": true
+      }
+    },
+    {
+      "label": "lsq_n2_n2sum_f0p5",
+      "wall_s": 316.207190887,
+      "metrics": {
+        "exit_CO": 0.1556728902840912,
+        "rms": 0.04068397262497349,
+        "groups": {
+          "gas_rms": 0.023257845561576576,
+          "solid_rms": 0.0038843982784405023,
+          "energy_rms": 0.05565730084895975,
+          "gas_max_abs": 0.16378167364546697,
+          "solid_max_abs": 0.026834790262817824,
+          "energy_max_abs": 0.11091232498234842
+        },
+        "topk": [
+          {
+            "flat_k": 170,
+            "F_hat": -0.16378167364546697,
+            "abs": 0.16378167364546697,
+            "cell": 4,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "N2"
+          },
+          {
+            "flat_k": 204,
+            "F_hat": 0.11091232498234842,
+            "abs": 0.11091232498234842,
+            "cell": 4,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 327,
+            "F_hat": 0.09446322198260626,
+            "abs": 0.09446322198260626,
+            "cell": 7,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 40,
+            "F_hat": -0.08082635319303011,
+            "abs": 0.08082635319303011,
+            "cell": 0,
+            "cell_type": "bed",
+            "kind": "solid_or_other",
+            "local": 40
+          },
+          {
+            "flat_k": 123,
+            "F_hat": 0.0655506572641046,
+            "abs": 0.0655506572641046,
+            "cell": 3,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "CO"
+          },
+          {
+            "flat_k": 205,
+            "F_hat": 0.06493514267279187,
+            "abs": 0.06493514267279187,
+            "cell": 5,
+            "cell_type": "bed",
+            "kind": "gas",
+            "phase": "dense",
+            "species": "CO"
+          }
+        ],
+        "bed2_RH2O": -2.997691616461461,
+        "Fhat_T_bed9": -0.017038868117606083,
+        "res_E_bed9": -234300.44487196952,
+        "dm_bed9": -0.008725307920207648,
+        "flux_mismatch": 0.4559790530541834,
+        "stream_imbalance": 0.10747775470587449,
+        "bed9": {
+          "bed": 9.0,
+          "m_char": 7.210141818133713,
+          "m_ash": 2.1838273942573823,
+          "support_char": 7.227290902916594,
+          "m_star_char": 7.1401451538198275,
+          "m_in_char": 4.018024141268531,
+          "m_out_char": 4.008490079670088,
+          "R_char": -0.0484488210566466,
+          "res_char": -0.038914759458203746,
+          "res_abs_max": 0.1397287637833453,
+          "over_support_char": -0.01714908478288027,
+          "over_mstar_char": 0.06999666431388582,
+          "K_sum_char_mean": 0.5559516276904042
+        }
+      },
+      "budget": {
+        "T": 1150.5668733823536,
+        "N_d": 25.972341249553907,
+        "N_b": 20.33959201691813,
+        "y_d": 0.5804191267429527,
+        "y_b": 0.56874184128401,
+        "dy": 0.011677285458942754,
+        "N_ex": -3.5969878381316343,
+        "R_d": 0.0,
+        "R_b": 0.0,
+        "in_d": 28.146279036572903,
+        "in_b": 18.165426111837004,
+        "res_d": 5.77092562515063,
+        "res_b": -5.771153743212759,
+        "res_sum": -0.000228118062128857,
+        "res_split": 11.542079368363389,
+        "split_rms_major": 3.282752746516326,
+        "Fhat_T": -0.020051722516441085,
+        "N_tot": 46.31193326647204,
+        "N_hold": 46.31193326647204,
+        "N_in": 46.31170514840991,
+        "gap_hold_minus_in": 0.0002281180621324097,
+        "N_ex_abs": 3.5969878381316343
+      },
+      "overrides": {
+        "nr_outer_preinner_bed_top_solid_holdup_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_after_y_co_thesis": true,
+        "nr_outer_preinner_bed_top_solid_holdup_y_co_threshold_thesis": 0.14,
+        "nr_outer_preinner_bed_top_solid_holdup_n_beds_thesis": 2,
+        "nr_outer_preinner_targeted_species_sum_beds_thesis": [
+          3
+        ],
+        "nr_outer_preinner_targeted_species_sum_species_thesis": [
+          "N2"
+        ],
+        "nr_outer_preinner_targeted_species_sum_fraction_thesis": 0.5,
+        "nr_outer_preinner_targeted_species_sum_mode_thesis": "phase_share",
+        "nr_outer_preinner_targeted_species_sum_bidirectional_thesis": true,
+        "nr_outer_preinner_targeted_species_sum_after_y_co_thesis": true,
+        "nr_outer_preinner_targeted_species_sum_y_co_threshold_thesis": 0.14
+      }
+    }
+  ],
+  "posthoc_on_lsq_n2": {
+    "before": {
+      "T": 1150.5668733823536,
+      "N_d": 34.35633926822444,
+      "N_b": 26.905311199948553,
+      "y_d": 0.6466277071869844,
+      "y_b": 0.6356363267906872,
+      "dy": 0.010991380396297212,
+      "N_ex": -3.795723862114821,
+      "R_d": 0.0,
+      "R_b": 0.0,
+      "in_d": 28.146279036572903,
+      "in_b": 18.165426111837004,
+      "res_d": -2.4143363695367146,
+      "res_b": -12.53560895022637,
+      "res_sum": -14.949945319763085,
+      "res_split": 10.121272580689656,
+      "split_rms_major": 3.5356178429541254,
+      "Fhat_T": 0.10713845829765688,
+      "N_tot": 61.26165046817299,
+      "N_hold": 61.26165046817299,
+      "N_in": 46.31170514840991,
+      "gap_hold_minus_in": 14.949945319763081,
+      "N_ex_abs": 3.795723862114821
+    },
+    "absorb_one_way": {
+      "T": 1150.5668733823536,
+      "N_d": 34.35633926822444,
+      "N_b": 26.905311199948553,
+      "y_d": 0.6466277071869844,
+      "y_b": 0.6356363267906872,
+      "dy": 0.010991380396297212,
+      "N_ex": -3.795723862114821,
+      "R_d": 0.0,
+      "R_b": 0.0,
+      "in_d": 28.146279036572903,
+      "in_b": 18.165426111837004,
+      "res_d": -2.4143363695367146,
+      "res_b": -12.53560895022637,
+      "res_sum": -14.949945319763085,
+      "res_split": 10.121272580689656,
+      "split_rms_major": 3.5356178429541254,
+      "Fhat_T": 0.10713845829765688,
+      "N_tot": 61.26165046817299,
+      "N_hold": 61.26165046817299,
+      "N_in": 46.31170514840991,
+      "gap_hold_minus_in": 14.949945319763081,
+      "N_ex_abs": 3.795723862114821,
+      "added_N2": 0.0
+    },
+    "bleed_bidirectional": {
+      "T": 1150.5668733823536,
+      "N_d": 25.972213317944558,
+      "N_b": 20.33949183046535,
+      "y_d": 0.5804179271734874,
+      "y_b": 0.5687406331350525,
+      "dy": 0.011677294038434871,
+      "N_ex": -3.596984480086106,
+      "R_d": 0.0,
+      "R_b": 0.0,
+      "in_d": 28.146279036572903,
+      "in_b": 18.165426111837004,
+      "res_d": 5.771050198714451,
+      "res_b": -5.771050198714451,
+      "res_sum": 0.0,
+      "res_split": 11.542100397428902,
+      "split_rms_major": 3.28275131651266,
+      "Fhat_T": -0.02005252988040576,
+      "N_tot": 46.31170514840991,
+      "N_hold": 46.31170514840991,
+      "N_in": 46.31170514840991,
+      "gap_hold_minus_in": 0.0,
+      "N_ex_abs": 3.596984480086106,
+      "added_N2": -14.949945319763085
+    },
+    "bleed_then_split": {
+      "T": 1150.5668733823536,
+      "N_d": 27.789072217154793,
+      "N_b": 18.522632931255114,
+      "y_d": 0.5757006418145396,
+      "y_b": 0.5745275647205618,
+      "dy": 0.0011730770939778479,
+      "N_ex": -0.36133152386148376,
+      "R_d": 0.0,
+      "R_b": 0.0,
+      "in_d": 28.146279036572903,
+      "in_b": 18.165426111837004,
+      "res_d": 0.7185383432795938,
+      "res_b": -0.7185383432795938,
+      "res_sum": 0.0,
+      "res_split": 1.4370766865591875,
+      "split_rms_major": 1.086799546493978,
+      "Fhat_T": -0.020122129280015867,
+      "N_tot": 46.31170514840991,
+      "N_hold": 46.31170514840991,
+      "N_in": 46.31170514840991,
+      "gap_hold_minus_in": 0.0,
+      "N_ex_abs": 0.36133152386148376,
+      "split_accepted": true
+    },
+    "T_energy_bed3": {
+      "T": 1150.5668733823536,
+      "N_d": 34.35633926822444,
+      "N_b": 26.905311199948553,
+      "y_d": 0.6466277071869844,
+      "y_b": 0.6356363267906872,
+      "dy": 0.010991380396297212,
+      "N_ex": -3.795723862114821,
+      "R_d": 0.0,
+      "R_b": 0.0,
+      "in_d": 28.146279036572903,
+      "in_b": 18.165426111837004,
+      "res_d": -2.4143363695367146,
+      "res_b": -12.53560895022637,
+      "res_sum": -14.949945319763085,
+      "res_split": 10.121272580689656,
+      "split_rms_major": 3.5356178429541254,
+      "Fhat_T": 0.10713845829765688,
+      "N_tot": 61.26165046817299,
+      "N_hold": 61.26165046817299,
+      "N_in": 46.31170514840991,
+      "gap_hold_minus_in": 14.949945319763081,
+      "N_ex_abs": 3.795723862114821,
+      "accepted": false
+    }
+  }
+}

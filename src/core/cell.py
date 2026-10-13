@@ -9,7 +9,13 @@ from typing import Dict
 import numpy as np
 import numpy.typing as npt
 from src.core.species import (
-    GAS_SPECIES_INDEX, MOLECULAR_WEIGHT, N_GAS, TarFuelType,
+    GAS_SPECIES,
+    GAS_SPECIES_INDEX,
+    MOLECULAR_WEIGHT,
+    N_GAS,
+    TarFuelType,
+    fuel_tar_target_hc_ratio,
+    gas_density_ideal,
     gas_diffusivity_correlation,
     gas_viscosity_power_law,
     formation_enthalpy_dry_fuel,
@@ -27,7 +33,14 @@ from src.core.cell_thermo_helpers import (
     gas_mole_fractions,
     solid_enthalpy_flow_for_fuel_props,
 )
+from src.core.hamel_parity_defaults import HAMEL_SIZE_MIGRATION_INVENTORY_MODE
 from src.core.cell_hydrodynamics import calc_cell_hydrodynamics, calc_phase_exchange
+from src.core.hydrodynamics_defaults import apply_hamel_hydrodynamics_to_cell
+from src.core.energy_balance_defaults import (
+    DEFAULT_ENERGY_BALANCE_HEAT_LOSS_MODE,
+    DEFAULT_SOLID_ENTHALPY_MODE,
+    apply_energy_balance_defaults_to_cell,
+)
 from src.core.cell_kinetics import build_reaction_sources
 from src.core.cell_minor_species import (
     calc_minor_species_gibbs as calc_minor_species_gibbs_impl,
@@ -35,7 +48,12 @@ from src.core.cell_minor_species import (
     get_element_release as get_element_release_impl,
     tracked_minor_element_moles_in_gas,
 )
-from src.core.cell_pyrolysis import allocate_pyrolysis_products_elemental, calc_drying_pyrolysis_sources
+from src.core.cell_pyrolysis import (
+    allocate_pyrolysis_products_elemental,
+    allocate_pyrolysis_products_hamel,
+    calc_drying_pyrolysis_sources,
+    incremental_pyrolysis_products_from_budgets,
+)
 from src.core.cell_residual_pipeline import execute_cell_residual_pipeline
 from src.core.cell_state_cache import (
     apply_frozen_vorabrechnung_hydrodynamics,
@@ -69,6 +87,8 @@ class SolidProps:
     sulfur_fraction: float = 0.0; sulfur_volatile_frac: float = 0.5; nitrogen_fraction: float = 0.0
     catalyst_solid_fraction: float = 1.0; moisture_wt: float = 16.9; ash_dry_wt: float = 11.41; VM_daf: float = 53.42
     C_dry: float = 61.5; H_dry: float = 4.1; O_dry: float = 21.8; HHV_dry_MJ_kg: float = 20.0
+    # hegermann：Eq.4.21–4.22 动态 f_tar（仅 coal）；fixed：用 pyrolysis_tar_carbon_frac
+    pyrolysis_tar_yield_mode: str = "hegermann"
     pyrolysis_tar_carbon_frac: float = 0.2; h_f_dry: float = field(init=False)
     def __post_init__(self) -> None:
         # S 干基质量分数 [%]：由 sulfur_fraction（kg S / kg 干燃料）换算
@@ -86,14 +106,10 @@ class Cell:
         self.cell_type = "bed"
         self.solid_state_model = "legacy_stream"
         self.holdup_k0_anchor = HOLDUP_K0_ANCHOR_ENGINEERING
+        self.size_migration_inventory_mode = HAMEL_SIZE_MIGRATION_INVENTORY_MODE
         self.use_gibbs_minor = True; self.u0_target = None; self.heat_loss_frac = 0.0
-        self.u_d_closure = "current"
-        self.bubble_diameter_model = "mori_wen"
-        self.psi_b_strategy = "wein_1992"
-        self.lambda_strategy = "hamel_280"
-        self.xi_strategy = "hamel_regime"
-        self.bubble_velocity_strategy = "hilligardt_eq313"
-        self.bubble_ode_strategy = "hilligardt_eq333"
+        apply_hamel_hydrodynamics_to_cell(self)
+        apply_energy_balance_defaults_to_cell(self)
         self.freeboard_u_bed_top = None
         self.freeboard_d_b_bed_top = None
         self.freeboard_height_from_bed = None
@@ -103,8 +119,15 @@ class Cell:
         self.dense_segment_eps_d_voidage = None
         self.T, self.P = 1200.0, 2_500_000.0
         self.enable_r12 = True
+        # Hamel 同构默认关；True 时启用燃料预封顶 + 比例 O₂/H₂O 限幅（工程路径）
+        self.extent_limiters_enabled = False
         self.r4_scale = 1.0
+        self.r2_scale = 1.0
         self.r5_scale = 1.0
+        self.r5_bubble_scale = 1.0  # [-] 仅缩放气泡相 R5（CO 均相氧化）
+        self.pyrolysis_ch4_to_h2_co_split_frac = 0.0  # [-] CH4→2H2+CO 热解后处理
+        self.pyrolysis_co_reduce_h2_inject_frac = 0.0  # [-] 削减 CO 并注入 H2（不增 CO）
+        self.r8_scale = 1.0
         self.r6_scale = 1.0
         self.r7_scale = 1.0
         self.nr_reaction_rate_multiplier = 1.0
@@ -130,6 +153,7 @@ class Cell:
         self._vm_cache_T = np.nan; self._vm_cache_tau = np.nan
         self._vm_cache_T_init = np.nan
         self._vm_cache_m_vm_in = np.nan; self._vm_cache_m_moist_in = np.nan
+        self._vm_release_fraction_cap: float | None = None
         self._hydro_cache_valid = False
         self._hydro_cache_T = np.nan
         self._hydro_cache_P = np.nan
@@ -164,6 +188,7 @@ class Cell:
             "n_rz": 0.0,
         }
         self._vorab_solid_transport_cache_valid = False
+        self._vorab_drying_pyro_sources_frozen = False
         self._vorab_K_solid_auf = np.zeros((nk, N_SOLID_COMP))
         self._vorab_K_solid_ab = np.zeros((nk, N_SOLID_COMP))
         self._minor_gibbs_warm_start: dict[str, dict[str, float | np.ndarray]] = {
@@ -241,6 +266,7 @@ class Cell:
             xi_strategy=self.xi_strategy,
             bubble_velocity_strategy=self.bubble_velocity_strategy,
             bubble_ode_strategy=self.bubble_ode_strategy,
+            hydrodynamics_v_b=float(self.hydrodynamics_v_b),
             cell_type=self.cell_type,
             freeboard_u_bed_top=self.freeboard_u_bed_top,
             freeboard_d_b_bed_top=self.freeboard_d_b_bed_top,
@@ -275,9 +301,31 @@ class Cell:
     def _catalyst_bulk_density(self) -> float:
         """催化剂质量密度 [kg/m³ 床层]，用于 R11 悬浮相 Corella 速率。
 
-        Source: specs/04_kinetics.md R11 悬浮相
+        Source: docs/hamel_submodels/06_kinetics_r1_r11_and_equilibrium_driving.md R11 悬浮相
         """
         return self.solid.rho_s * (1.0 - self.solid.eps_mf) * max(self.solid.catalyst_solid_fraction, 0.0)
+
+    def _ash_bulk_density(self) -> float:
+        """灰分质量密度 [kg/m³ 反应体积]，用于 R8 Hamel Eq. 5.45 per-kg_ash 换算。
+
+        有灰持量时 ``ρ_ash = m_ash / V_d``。自由板/旋风/返料腿在持量为 0 时返回
+        0（与解析自由板 ``rho_cat=0 ⇒ R8=0`` 同构）；禁止回退到密相堆积密度，
+        否则 NR 显式自由板上段会虚假放大 WGSR 并烧掉床顶 CO。
+
+        密相床无持量时仍回退到催化剂堆积密度 × 灰分质量分率（legacy 床层标定）。
+
+        Ref: Hamel (1999) Eq. 5.45; 对照 ``src/core/freeboard/segment.py`` rho_cat
+        """
+        V_d = max(float(self.V_d), 1e-12)
+        m_ash = float(np.sum(np.maximum(self.m_solid[:, S_ASH], 0.0)))
+        if m_ash > 1e-12:
+            return m_ash / V_d
+        segment = str(getattr(self, "cell_type", "bed")).strip().lower()
+        if segment in {"freeboard", "cyclone", "return_leg"}:
+            return 0.0
+        rho_bulk = self._catalyst_bulk_density()
+        w_ash = max(float(self.solid.ash_dry_wt), 0.0) / 100.0
+        return rho_bulk * w_ash / max(1.0 - w_ash, 0.05)
 
     def _element_moles_in_gas(self, element: str) -> float:
         """悬浮相气体中某元素的总摩尔流 [mol/s]（仅 GAS_SPECIES 状态向量）。"""
@@ -330,6 +378,8 @@ class Cell:
         k_relax: float | None = None,
     ) -> dict[str, float]:
         """Gibbs 微量组分松弛源项 [mol/s]，写入 R_gas_d。"""
+        if bool(getattr(self, "_nr_solves_nh3_transport", False)):
+            use_nitrogen = False
         k = _GIBBS_RELAX_K if k_relax is None else float(k_relax)
         return calc_minor_species_gibbs_impl(
             self,
@@ -360,24 +410,51 @@ class Cell:
         C_d = np.asarray(thermo["C_d"], dtype=np.float64)
         y_b = np.asarray(thermo["y_b"], dtype=np.float64)
         y_d = np.asarray(thermo["y_d"], dtype=np.float64)
+        # 微量 O₂ 速率门控：不动 holdup，仅速率评价走零分支（handoff §5.15）
+        if bool(getattr(self, "_nr_trace_o2_rate_gate", False)):
+            from src.solvers.global_nr_solver import gate_trace_o2_for_rate_eval
+
+            C_b, C_d, y_b, y_d = gate_trace_o2_for_rate_eval(self, C_b, C_d, y_b, y_d)
         D_g = float(thermo["D_g"])
 
         tau_val = self.geo.dh / max(self.u_mf, 1e-3)
         if self._vm_cache_valid:
             gas_src_vm = self._vm_gas_source_cache.copy()
             solid_sink_vm = self._vm_solid_sink_cache.copy()
+        elif bool(getattr(self, "_vorab_drying_pyro_sources_frozen", False)):
+            raise RuntimeError(
+                "thesis single-shot Vorab sources are frozen but drying/pyrolysis cache is invalid"
+            )
         else:
             gas_src_vm = self._calc_drying_pyrolysis_gas_source(tau_val)
             solid_sink_vm = self.R_solid.copy()
         areas = self._calc_char_surface_area_per_class()
         if self.cell_type == "freeboard" and not bool(getattr(self, "freeboard_explicit_char_hetero_enabled", True)):
             areas = np.zeros_like(areas)
-        gibbs_minor = self.calc_minor_species_gibbs() if self.use_gibbs_minor else None
+        gibbs_minor = None
+        if self.use_gibbs_minor:
+            use_nitrogen = not bool(getattr(self, "_nr_solves_nh3_transport", False))
+            gibbs_minor = self.calc_minor_species_gibbs(use_nitrogen=use_nitrogen)
 
+        target_tar_hc = None
+        if self.solid.C_dry > 1e-12 and self.solid.H_dry >= 0.0:
+            target_tar_hc = fuel_tar_target_hc_ratio(self.solid.C_dry, self.solid.H_dry)
+        # R1 Eq.5.17：乳化相气–固滑移用密相表观速度 / 空隙率作为间隙速度代理
+        y_d_sum = float(np.sum(y_d))
+        if y_d_sum > 1e-30:
+            y_map = {sp: float(y) for sp, y in zip(GAS_SPECIES, y_d / y_d_sum) if float(y) > 0.0}
+        else:
+            y_map = {sp: 1.0 / len(GAS_SPECIES) for sp in GAS_SPECIES}
+        rho_g = float(gas_density_ideal(P, T, y_map))
+        mu_g = float(gas_viscosity_power_law(T, 1.8e-5))
+        nu_g = mu_g / max(rho_g, 1e-12)
+        eps_void = float(self.eps_d_voidage) if float(self.eps_d_voidage) > 1e-6 else float(self.solid.eps_mf)
+        u_slip_r1 = float(max(self.u_d, self.u_mf, 0.0)) / max(eps_void, 1e-3)
         bundle = build_reaction_sources(
             T=T,
             P=P,
             fuel_type=self.fuel_type,
+            target_tar_hc_ratio=target_tar_hc,
             V_b=self.V_b,
             V_d=self.V_d,
             C_b=C_b,
@@ -389,16 +466,22 @@ class Cell:
             areas=areas,
             solid_d_p=self.solid.d_p,
             solid_d_p_classes=self.solid.d_p_classes,
+            m_char_classes=np.maximum(self.m_solid[:, S_CHAR], 0.0),
             D_g=D_g,
             char_conversion=self._compute_char_conversion(),
             rho_cat=self._catalyst_bulk_density(),
+            rho_ash_kg_m3=self._ash_bulk_density(),
             enable_r12=self.enable_r12,
             use_gibbs_minor=self.use_gibbs_minor,
             gibbs_minor_sources=gibbs_minor,
             r4_scale=self.r4_scale,
+            r2_scale=self.r2_scale,
             r5_scale=self.r5_scale,
+            r5_bubble_scale=self.r5_bubble_scale,
             r6_scale=self.r6_scale,
             r7_scale=self.r7_scale,
+            r8_scale=self.r8_scale,
+            extent_limiters_enabled=bool(self.extent_limiters_enabled),
             rate_multiplier=rate_multiplier,
             N_zu_d=self.N_zu_d,
             N_d_in=self.N_d_in,
@@ -409,6 +492,8 @@ class Cell:
             N_ex=self.N_ex,
             solid_shape=self.R_solid.shape,
             char_index=S_CHAR,
+            u_slip_r1=u_slip_r1,
+            nu_g_r1=nu_g,
         )
         self.R_gas_b[:] = bundle.R_gas_b
         self.R_gas_d[:] = bundle.R_gas_d
@@ -460,15 +545,60 @@ class Cell:
         """Current total outgoing solid transport rates [kg/s] under the active state model."""
         return self._solid_upflow_rates() + self._solid_downflow_rates()
 
+    def _solid_energy_outlet_rates(self) -> npt.NDArray[np.float64]:
+        """Solid mass rates used as Eq. (2.7) ``H_aus`` carrier [kg/s].
+
+        For ``freeboard_closure``, solids are not NR unknowns (trajectory/closure
+        owns holdup). Using ``K·m_solid`` as the energy outlet then leaves a
+        structural ``m_in ≠ m_out`` enthalpy hole that creates a false cold root
+        near 300 K (hot ``T_in``, cold cell ``T``). Pass the inlet solid streams
+        through at cell ``T`` so energy only sees sensible heating of that mass.
+
+        Source: docs/hamel_engineering_bridge_notes.md §3; Hamel (1999) Eq. 2.7
+        """
+        # freeboard_closure：固体非 NR unknown，用入口透传避免 m_in≠m_out 焓洞。
+        # bed-top passthrough（thesis）：床顶↔自由板耦合时同样可出现结构焓洞（handoff §5.19）。
+        if str(self.solid_state_model) == "freeboard_closure" or bool(
+            getattr(self, "_solid_energy_passthrough", False)
+        ):
+            return (
+                np.maximum(self.m_solid_in, 0.0)
+                + np.maximum(self.m_solid_auf_in, 0.0)
+                + np.maximum(self.m_solid_ab_in, 0.0)
+                + np.maximum(self.m_solid_zu, 0.0)
+                + np.maximum(self.m_solid_rez, 0.0)
+            )
+        return self._solid_outflow_rates()
+
     def _compute_char_conversion(self) -> float:
+        """局部炭转化率估计（供 SPM ``d_core``）。
+
+        ``legacy_stream``：``m_zu + m_in + m_rez`` vs 出流。
+        ``holdup_transport``：炭/灰轴向流走 ``m_solid_auf_in`` / ``m_solid_ab_in``
+        （``m_solid_in`` 仅保留 VM/水分），须计入这两个入口，否则上层床
+        ``m_in≈0``、``m_out>0`` ⇒ ``X`` 被错误 clip 为 0，SPM 核径永不收缩。
+
+        Ref: Hamel (1999) Eq. (2-6) 固相入口项；§5.1.1.3 SPM
+        """
         if str(self.solid_state_model) == "freeboard_closure":
             # Freeboard solids are supplied by the trajectory closure rather than
             # Eulerian inlet holdup balances, so there is no consistent local
             # feed/outlet budget for a per-cell SPM conversion estimate here.
             return 0.0
-        m_in = np.sum(np.maximum(self.m_solid_zu[:, S_CHAR] + self.m_solid_in[:, S_CHAR] + self.m_solid_rez[:, S_CHAR], 0.0))
+        m_in = (
+            np.maximum(self.m_solid_zu[:, S_CHAR], 0.0)
+            + np.maximum(self.m_solid_in[:, S_CHAR], 0.0)
+            + np.maximum(self.m_solid_rez[:, S_CHAR], 0.0)
+        )
+        if str(self.solid_state_model) == "holdup_transport":
+            m_in = (
+                m_in
+                + np.maximum(self.m_solid_auf_in[:, S_CHAR], 0.0)
+                + np.maximum(self.m_solid_ab_in[:, S_CHAR], 0.0)
+            )
+        m_in_sum = float(np.sum(m_in))
         m_char_out = float(np.sum(self._solid_outflow_rates()[:, S_CHAR]))
-        x_char = 1.0 - m_char_out / max(float(m_in), 1e-12)
+        x_char = 1.0 - m_char_out / max(m_in_sum, 1e-12)
         if x_char < 0.0:
             return 0.0
         if x_char > 1.0:
@@ -530,6 +660,7 @@ class Cell:
             V_d=self.V_d,
             V_cell=V_cell,
             char_index=S_CHAR,
+            inventory_mode=str(self.size_migration_inventory_mode),
         )
 
     def calc_energy_balance(self) -> float:
@@ -561,13 +692,17 @@ class Cell:
             T_zu_solid=self.T_zu_solid,
             N_b=self.N_b,
             N_d=self.N_d,
-            m_solid=self._solid_outflow_rates(),
+            m_solid=self._solid_energy_outlet_rates(),
             T=self.T,
             heat_loss_frac=self.heat_loss_frac,
             ash_dry_wt=self.solid.ash_dry_wt,
             VM_daf=self.solid.VM_daf,
             h_f_dry=self.solid.h_f_dry,
             h_cache=self._h_cache,
+            solid_enthalpy_mode=self.solid_enthalpy_mode,
+            heat_loss_mode=self.heat_loss_mode,
+            Q_wall_W=self.Q_wall_W,
+            Q_heat_exchanger_W=self.Q_heat_exchanger_W,
         )
 
     def _calc_gas_enthalpy_flow(self, N: npt.NDArray[np.float64], T: float) -> float:
@@ -580,6 +715,7 @@ class Cell:
             ash_dry_wt=self.solid.ash_dry_wt,
             VM_daf=self.solid.VM_daf,
             h_f_dry=self.solid.h_f_dry,
+            solid_enthalpy_mode=self.solid_enthalpy_mode,
         )
 
     def _calc_side_temperature_closure_residual(self) -> float:
@@ -590,38 +726,27 @@ class Cell:
         enforces pass-through thermal closure instead of a full cell energy
         balance with reaction/phase terms.
         """
-        if self.cell_type == "cyclone" and float(np.sum(np.maximum(self.N_b_in + self.N_d_in, 0.0))) > 1e-12:
-            T_ref = float(self.T_in_gas)
-        else:
-            solid_ab = float(np.sum(np.maximum(self.m_solid_ab_in, 0.0)))
-            solid_auf = float(np.sum(np.maximum(self.m_solid_auf_in, 0.0)))
-            if solid_ab > 1e-12:
-                T_ref = float(self.T_solid_ab_in)
-            elif solid_auf > 1e-12:
-                T_ref = float(self.T_solid_auf_in)
-            else:
-                T_ref = float(self.T_in_solid)
+        from src.solvers.jacobian_analytic import calc_side_temperature_closure_cp_dot, side_temperature_reference_K
 
-        gas_in = np.maximum(self.N_b_in + self.N_d_in, 0.0)
-        solid_in = np.maximum(self.m_solid_in + self.m_solid_auf_in + self.m_solid_ab_in, 0.0)
-        dT = 1.0
-        cp_dot = 0.0
-        if float(np.sum(gas_in)) > 1e-12:
-            cp_dot += abs(
-                self._calc_gas_enthalpy_flow(gas_in, T_ref + dT)
-                - self._calc_gas_enthalpy_flow(gas_in, T_ref)
-            ) / dT
-        if float(np.sum(solid_in)) > 1e-12:
-            cp_dot += abs(
-                self._calc_solid_enthalpy_flow(solid_in, T_ref + dT)
-                - self._calc_solid_enthalpy_flow(solid_in, T_ref)
-            ) / dT
-        cp_dot = max(float(cp_dot), 1.0e3)
+        T_ref = side_temperature_reference_K(self)
+        cp_dot = calc_side_temperature_closure_cp_dot(self)
         return cp_dot * (T_ref - float(self.T))
 
-    def residuals(self, rate_multiplier: float | None = None) -> npt.NDArray[np.float64]:
+    def residuals(
+        self,
+        rate_multiplier: float | None = None,
+        *,
+        groups: tuple[str, ...] | None = None,
+        copy: bool = True,
+    ) -> npt.NDArray[np.float64]:
         rm = self.nr_reaction_rate_multiplier if rate_multiplier is None else float(rate_multiplier)
-        return execute_cell_residual_pipeline(self, rate_multiplier=rm)
+        selected = frozenset(groups) if groups is not None else None
+        return execute_cell_residual_pipeline(
+            self,
+            rate_multiplier=rm,
+            groups=selected,
+            copy=copy,
+        )
 
     def _calc_drying_pyrolysis_gas_source(self, tau: float) -> npt.NDArray[np.float64]:
         bundle = calc_drying_pyrolysis_sources(
@@ -648,23 +773,52 @@ class Cell:
             char_index=S_CHAR,
             vm_index=S_VM,
             moisture_index=S_MOISTURE,
+            vm_release_fraction_cap=getattr(self, "_vm_release_fraction_cap", None),
+            pyrolysis_ch4_to_h2_co_split_frac=float(
+                getattr(self, "pyrolysis_ch4_to_h2_co_split_frac", 0.0)
+            ),
+            pyrolysis_co_reduce_h2_inject_frac=float(
+                getattr(self, "pyrolysis_co_reduce_h2_inject_frac", 0.0)
+            ),
+            pyrolysis_tar_yield_mode=str(
+                getattr(self.solid, "pyrolysis_tar_yield_mode", "hegermann")
+            ),
         )
         self.R_solid[:, :] = bundle.solid_sink
         return bundle.gas_source
 
     def _allocate_pyrolysis_products_elemental(self, nC, nH, nO, nN=0.0, nS=0.0) -> Dict[str, float]:
+        from src.core.pyrolysis_carbon_split import resolve_pyrolysis_carbon_fractions
+        from src.core.species import fuel_tar_target_hc_ratio
+
         target_tar_hc_ratio = None
         if self.solid.C_dry > 1e-12 and self.solid.H_dry >= 0.0:
-            target_tar_hc_ratio = float((self.solid.H_dry / 1.00794) / max(self.solid.C_dry / 12.011, 1e-12))
-        return allocate_pyrolysis_products_elemental(
+            target_tar_hc_ratio = fuel_tar_target_hc_ratio(self.solid.C_dry, self.solid.H_dry)
+        f_koks, f_tar = resolve_pyrolysis_carbon_fractions(
+            fuel_type=self.fuel_type,
+            yield_mode=str(getattr(self.solid, "pyrolysis_tar_yield_mode", "hegermann")),
+            P_Pa=float(self.P),
+            T_K=float(self.T),
+            pyrolysis_tar_carbon_frac=float(self.solid.pyrolysis_tar_carbon_frac),
+        )
+        return allocate_pyrolysis_products_hamel(
+            T_K=float(self.T),
+            P_Pa=float(self.P),
             nC=float(nC),
             nH=float(nH),
             nO=float(nO),
             nN=float(nN),
             nS=float(nS),
             fuel_type=self.fuel_type,
-            pyrolysis_tar_carbon_frac=self.solid.pyrolysis_tar_carbon_frac,
+            pyrolysis_tar_carbon_frac=f_tar,
+            pyrolysis_koks_carbon_frac=f_koks,
             target_tar_hc_ratio=target_tar_hc_ratio,
+            pyrolysis_ch4_to_h2_co_split_frac=float(
+                getattr(self, "pyrolysis_ch4_to_h2_co_split_frac", 0.0)
+            ),
+            pyrolysis_co_reduce_h2_inject_frac=float(
+                getattr(self, "pyrolysis_co_reduce_h2_inject_frac", 0.0)
+            ),
         )
 
     def compute_vorabrechnung(self, tau: float) -> None:

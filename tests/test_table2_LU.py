@@ -66,6 +66,8 @@ def test_lu_particle_size_classes_map_to_solid():
         assert c.solid.d_p_classes[-1] == pytest.approx(3.0e-3)
         assert c.solid.mass_fractions.shape == (10,)
         assert float(c.solid.mass_fractions.sum()) == pytest.approx(1.0)
+        assert float(c.solid.mass_fractions[-1]) == pytest.approx(1.0)
+        assert float(c.solid.mass_fractions[0]) == pytest.approx(0.0)
 
 
 def test_phase1_lu_config_uses_current_tuned_window():

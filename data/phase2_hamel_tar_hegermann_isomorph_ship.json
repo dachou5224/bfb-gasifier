@@ -1,0 +1,44 @@
+{
+  "title": "Hamel 同构：Hegermann 产率 + atom-H/C + 热解/R10 同源",
+  "date": "2026-07-27",
+  "pdf_evidence": {
+    "file": "docs/_2001_VDI-Dis._Mathematische Modellierung und experimentelle Untersuchung der Vergasung verschiedener fester Brennstoffe.pdf",
+    "pages": "PDF 41–42 (thesis pp.63–65)",
+    "eq_421": "x_C,Koks = ξ1·P^ξ2·ξ3^(1e-6·P)·T^ξ4",
+    "eq_422": "x_C,Teer = ξ1·P^ξ2·T^ξ3 + ξ4",
+    "table_43": {
+      "Koks": [
+        0.3027,
+        0.1047,
+        0.9356,
+        -0.08578
+      ],
+      "Teer": [
+        -0.2168,
+        0.04148,
+        0.1566,
+        1.333
+      ]
+    }
+  },
+  "code_changes": [
+    "src/thermal/hegermann_yield.py (new)",
+    "src/core/species.py atom-total H/C + fuel_tar_target_hc_ratio C=12/H=1",
+    "src/core/cell_pyrolysis.py hegermann f_tar default for coal",
+    "src/core/cell_kinetics.py R10 stoich/rate share target_hc",
+    "src/solvers/vorabrechnung/vorab_x0.py same"
+  ],
+  "lu_runtime": {
+    "pyrolysis_tar_yield_mode": "hegermann",
+    "fuel_HC_C12_H1": 0.7999999999999999,
+    "tar_frac": {
+      "C10H8": 1.0
+    },
+    "P_Pa": 2500000.0,
+    "T_K": 1200.0,
+    "Xc_Koks": 0.6523341361556557,
+    "Xc_Teer": 0.12060087975727929,
+    "f_tar_of_VM_C": 0.34688731997937616
+  },
+  "tests": "tests/test_hegermann_yield.py + TestTarSurrogateModel + test_cell_pyrolysis: 27 passed"
+}

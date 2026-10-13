@@ -1,0 +1,63 @@
+{
+  "probe": {
+    "n_cells": 3,
+    "n_freeboard_cells": 2,
+    "max_global_iter": 8,
+    "init_only": false,
+    "fast": true,
+    "calibration_mode": "abs_H_in_audit_bridge",
+    "calibrated_Q_wall_W_total": 1330540.7919051598,
+    "calibrated_Q_wall_W_total_signed": 1330540.7919051598,
+    "inlet_fraction_positive_total_W": 0.0,
+    "freeboard_Q_wall_W_from_bundle": 779972.1883581971
+  },
+  "inlet_fraction": {
+    "label": "inlet_fraction_baseline",
+    "heat_loss_mode": "inlet_fraction",
+    "heat_loss_frac": 0.1,
+    "Q_wall_W_total": 0.0,
+    "Q_heat_exchanger_W_total": 0.0,
+    "exit_T_K": 1161.2738178596828,
+    "bed_top_T_K": 1117.1391483026161,
+    "rms_scaled_final": 0.0,
+    "converged": false,
+    "global_iters": 0,
+    "wall_time_s": 45.931525144000005,
+    "implied_heat_loss_W": {
+      "bed_W": 849167.6551642313,
+      "freeboard_W": 481373.13674092846,
+      "total_W": 1330540.7919051598
+    },
+    "implied_heat_loss_positive_W": {
+      "bed_W": 0.0,
+      "freeboard_W": 0.0,
+      "total_W": 0.0
+    },
+    "calibration_mode": "abs_H_in_audit_bridge",
+    "mean_abs_energy_residual_W": 2589971.713370611,
+    "max_abs_energy_residual_W": 10016741.609005794
+  },
+  "explicit_calibrated": {
+    "label": "hamel_eq27_explicit_calibrated",
+    "heat_loss_mode": "hamel_eq27_explicit",
+    "heat_loss_frac": 0.0,
+    "Q_wall_W_total": 1330540.7919051598,
+    "Q_heat_exchanger_W_total": 0.0,
+    "exit_T_K": 899.3356669953755,
+    "bed_top_T_K": 1108.8290469977967,
+    "rms_scaled_final": 0.0,
+    "converged": false,
+    "global_iters": 0,
+    "wall_time_s": 37.53891064600003,
+    "implied_heat_loss_W": null,
+    "implied_heat_loss_positive_W": null,
+    "calibration_mode": "",
+    "mean_abs_energy_residual_W": 2440677.022340739,
+    "max_abs_energy_residual_W": 11145645.77970963
+  },
+  "delta": {
+    "exit_T_K": -261.9381508643073,
+    "bed_top_T_K": -8.310101304819455,
+    "rms_scaled_final": 0.0
+  }
+}

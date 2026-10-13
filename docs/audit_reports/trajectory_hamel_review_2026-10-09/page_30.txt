@@ -1,0 +1,111 @@
+3 Strömun smechanik
+3 Strömzingsmechanik
+42_
+43
+Hamdullahpur und MacKay (1986) und Sciazko et al. (1988) folgen dagegen dem „Ghost-
+bubble“-Ansatz von Pemberton und Davidson (1984) und gehen zur Beschreibung der Gas-
+strömung im Freiraum von einer Weiterexistenz der Blasen aus. Für die Vorstellung der Wei-
+terexistenz der Blasen oder der Ausbildung von Ringwirbeln sprechen die experimentellen
+Beobachtungen sowie die Möglichkeit, die gemessenen Geschwindigkeitsfluktuationen im
+Freiraum mit den Bewegungsgleichungen für Blasen oder Wirbel nachrechnen zu können
+(Bürkle 1991). Die Lösung der Bewegungsgleichung, die aus der Bilanzierung der auf die
+Blase wirkenden Kräfte hervorgeht, kann auf folgende Funktion reduziert werden (Sciazko et
+al. 1988, Fung und Hamdullahpur 1993a):
+Ugb( h ) = «o+(
+u gb.o -««)■ e~ P* h
+(3.74)
+Die Abklingkonstante ß K kann nach Hamdullahpur und MacKay (1986) und Sciazko et al.
+(1988) unter Berücksichtigung der Messungen in Abhängigkeit des Blasendurchmessers an
+der Wirbelschichtoberfläche ausgedrückt werden:
+Die Varianz wird mit er = 0,6 angenommen und die mittlere Partikelstartgeschwindigkeit wird
+in Anlehnung an Martens (1984) berechnet:
+(3.73)
+up.o 
+1,53 -ub
+— — 
+"Roof'-Mechanismus 1
+— ----- "Wake* -Mechanismus J
+Einzelblase 
+1
+/////// 
+Blasenkoaleszenz 
+J
+---------- Demnich u. Bohnet 1978
+---------- Son et al. 1989,1988
+Pemberton u.
+Davidson 1986
+Hatano u.
+Ishida 1981
+Blasendurch- Mittlere Partikel-
+messer 
+startgeschwindig-
+db,ws in m
+keit öP0 in m/s
+1,0T
+25
+’ws = 1073 K
+0,1 MPa
+1,0 mm
+2200 kg/m3
+20? dp
+- Pp
+0,8;-
+b,WS
+0,6;-
+15
+0,4;-
+10
+0,2;-
+5
+0,0-*-
+0+-r
+0,0
+2,5
+3,0
+3,5
+2,0
+0,5
+1,0
+1,5
+In Anlehnung an Hamdullahpur und MacKay (1986) und Sciazko et al. (1988) wird für die
+Startgeschwindigkeit der „Ghost-bubbles“ die Blasensteiggeschwindigkeit der durch die Wir-
+belschicht aufgestiegenen Blasen an der Wirbelschichtoberfläche angenommen:
+u gb,o = u b,ws 
+(3.76)
+3.2.4 
+Berechnung der Partikelbewegung im Freiraum
+Grundlage der Bestimmung der Feststoffbewegung und des Feststoffkonzentrationsprofiles im
+Freiraum ist die Berechnung der Flugbahnen der aus der Wirbelschicht geschleuderten Parti-
+kel. Die Partikel werden an der Wirbelschichtoberfläche durch Blaseneruption in den Frei-
+raum geschleudert. Die Bewegungsgleichung eines Einzelpartikels erhält man aus der Bilan-
+zierung der am Partikel angreifenden Kräfte. Interpartikuläre Kräfte werden dabei vernachläs-
+sigt. Die Kräftebilanz für das Einzelpartikel unter Berücksichtigung der Trägheits-, Auftriebs-,
+Gewichts- und Widerstandskraft lautet :
+Ty + FA + FG 4- Fw ~ 0 
+(3.77)
+Mit den einzelnen auf das Partikel wirkenden Kräften
+r, 
+TZ 
+UP
+FT =-PP- V P~ 
+(3.78)
+FA =P g -Vp-g 
+(3.79)
+Fa =-pp - Fp-g
+(3.80)
+Blasensteiggeschwindigkeit ubWS in m/s
+Partikelstartgeschwindigkeit in Abhängigkeit der Blasengeschwindigkeit an der
+Wirbelschichtoberfläche. Blasendurchmesser und -geschwindigkeit sind entspre-
+chend der in Kapitel 3.1 vorgestellten Gleichungen berechnet.
+Bild 3.7:
+3.2.3 
+Gasbewegung im Freiraum
+Nach den Blaseneruptionen an der Wirbelschichtoberfläche vermischen sich Suspensions- und
+Blasengas nicht sofort, sondern das aus der zerplatzenden Blase austretende Gas bewegt sich
+zunächst geschlossen weiter. Diese Gasbewegung im Freiraum ist bei zahlreichen Untersu-
+chungen in Versuchsanlagen beobachtet worden, eine Übersicht gibt z. B. Bürkle (1991).
+Zenz und Weil (1958) schlagen vor, die Bewegung des Blasengases im Freiraum in Analogie
+zur Dissipation von Freistrahlen zu beschreiben. George und Grace (1978) und Horio et al.
+(1980) folgen bei der Korrelation ihrer Versuchsergebnisse der Vorstellung von Zenz und
+Weil (1958). Nach Untersuchungen von George und Grace (1978) bilden sich aus zerplatzten
+Blasen unstetige Freistrahlen (jets) aus, die mit zunehmender Höhe dissipieren.

@@ -19,7 +19,10 @@ def initialize_explicit_side_block_states(reactor: "Reactor") -> None:
     """Initialize side-block cells from current top source chain."""
     if not reactor._use_explicit_side_block_cells():
         return
-    assert reactor.cyclone_cell is not None and reactor.return_leg_cell is not None
+    cyclone = reactor.cyclone_cell
+    return_leg = reactor.return_leg_cell
+    if cyclone is None or return_leg is None:
+        return
     source_cells = (
         reactor.freeboard_cells
         if reactor.freeboard_cells and any(float(np.sum(c.N_d + c.N_b)) > 0.0 for c in reactor.freeboard_cells)

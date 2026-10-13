@@ -1,0 +1,21 @@
+{
+  "name": "cold_start",
+  "reads_endpoint": false,
+  "status": "timeout",
+  "elapsed_s": 600.076975774,
+  "budget_s": 600.0,
+  "outer_refreshes": 3,
+  "blocks": {
+    "passed": false,
+    "gas_l2": 2.452218684522677,
+    "solid_l2": 0.0029687107674917085,
+    "tar_l2": 0.09420477223646485,
+    "energy_W": -364.5736086702236
+  },
+  "worst_row": {
+    "index": 49,
+    "value": -364.2635547601385
+  },
+  "T_bed": 980.3288219048803,
+  "T_fb": 219.77622987153146
+}

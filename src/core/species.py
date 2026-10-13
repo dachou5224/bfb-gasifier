@@ -11,7 +11,7 @@ NASA 多项式形式（Source: Gordon & McBride 1994, Eq.4.6-4.8）：
 
 焓值 H(T) 已包含标准生成焓 h_f(298.15K)。
 
-Source: docs/CLAUDE.md Phase 1.1; specs/01_conservation_equations.md §2.3
+Source: docs/README.md Phase 1.1; docs/hamel_submodels/02_cell_balances_and_exchange.md
 """
 
 from __future__ import annotations
@@ -27,6 +27,7 @@ from src.core.constants import P0_HAMEL, Rg, T_REF
 # 气体组分列表
 # ---------------------------------------------------------------------------
 GAS_SPECIES: List[str] = [
+    # 不含 C₂H₄：§4.3 仅作 z.B. 例举，Ch.5 无动力学承接；热解候选亦不纳入
     "CO", "CO2", "H2", "H2O", "CH4", "O2", "N2", "H2S", "NH3", "TAR1", "TAR2",
 ]
 
@@ -55,7 +56,8 @@ MOLECULAR_WEIGHT: Dict[str, float] = {
 # 组分原子数（Gibbs 最小化用）: (species, element) -> count
 _ATOM_COUNT: Dict[str, Dict[str, int]] = {
     "CO": {"C": 1, "O": 1}, "CO2": {"C": 1, "O": 2}, "H2": {"H": 2},
-    "H2O": {"H": 2, "O": 1}, "CH4": {"C": 1, "H": 4}, "O2": {"O": 2},
+    "H2O": {"H": 2, "O": 1}, "CH4": {"C": 1, "H": 4},
+    "O2": {"O": 2},
     "N2": {"N": 2}, "H2S": {"H": 2, "S": 1}, "NH3": {"N": 1, "H": 3},
     "SO2": {"S": 1, "O": 2}, "COS": {"C": 1, "O": 1, "S": 1},
     "HCN": {"H": 1, "C": 1, "N": 1}, "NO": {"N": 1, "O": 1},
@@ -174,7 +176,7 @@ _NASA_DATA: Dict[str, _NASACoeffs] = {
 # ---------------------------------------------------------------------------
 # Tar 代理组分定义（两组分模型，按 feedstock 选择）
 # ---------------------------------------------------------------------------
-# Source: specs/species.md §2
+# Source: docs/hamel_submodels/02_cell_balances_and_exchange.md
 TarFuelType = Literal["coal", "biomass"]
 TarSurrogate = Literal["C6H6", "C10H8", "C16H34"]
 TarComponent = Literal["TAR1", "TAR2"]
@@ -200,15 +202,38 @@ TAR_SURROGATE_HC_RATIO: Dict[TarSurrogate, float] = {
     s: h / c for s, (c, h) in TAR_SURROGATE_FORMULA.items()
 }
 
+# 目标 H/C = Kapitel 6 燃料的摩尔 H/C（近似等于焦油 H/C）。
+# Hamel §5.2.6：两代理比例使 Gesamtteer 的 H/C 复现；§4.2：Teer H/C ≈ 原煤 H/C
+# （Baumann/Möller, Khan, Tyler）。数值来自 Tabelle 6.1（waf），按 C=12、H=1：
+#   Rhein. Braunkohle C=66.85 / H=4.77 → H/C = (4.77/1)/(66.85/12) = 0.856
+#   Holz             C=52.25 / H=5.94 → H/C = (5.94/1)/(52.25/12) = 1.364
+# PDF：§5.2.6 见 thesis pp.95–96；Tabelle 6.1 见 thesis p.102 附近。
 TAR_TARGET_HC_RATIO: Dict[TarFuelType, float] = {
-    "coal": 0.856,     # Rhenish brown coal
-    "biomass": 1.364,  # wood/sawdust
+    "coal": 0.856,     # Tabelle 6.1 Rhein. Braunkohle (waf), Hamel §5.2.6
+    "biomass": 1.364,  # Tabelle 6.1 Holz (waf), Hamel §5.2.6
 }
 
+# Hamel 论文写 H/C 时用的整数原子量（与 Tabelle 6.1 → 0.856/1.364 闭合）
+HAMEL_ATOMIC_WEIGHT_C_TAR: float = 12.0  # [g/mol]
+HAMEL_ATOMIC_WEIGHT_H_TAR: float = 1.0   # [g/mol]
+
 TAR_SURROGATES_BY_FUEL: Dict[TarFuelType, Tuple[TarSurrogate, TarSurrogate]] = {
-    "coal": ("C6H6", "C10H8"),
-    "biomass": ("C10H8", "C16H34"),
+    "coal": ("C6H6", "C10H8"),       # §5.2.6：Benzol + Naphtalin
+    "biomass": ("C10H8", "C16H34"),  # §5.2.6：Naphtalin + Hexadekan（苯-萘对盖不住 1.364）
 }
+
+
+def fuel_tar_target_hc_ratio(C_dry_wt_pct: float, H_dry_wt_pct: float) -> float:
+    """燃料摩尔 H/C（Hamel §4.2 / §5.2.6 口径：C=12、H=1）。
+
+    Parameters
+    ----------
+    C_dry_wt_pct, H_dry_wt_pct : float
+        干基（或 waf）元素质量百分数。
+    """
+    return (float(H_dry_wt_pct) / HAMEL_ATOMIC_WEIGHT_H_TAR) / max(
+        float(C_dry_wt_pct) / HAMEL_ATOMIC_WEIGHT_C_TAR, 1e-12
+    )
 
 
 def _get_coeffs(species: str, T: float) -> Tuple[float, ...]:
@@ -329,20 +354,18 @@ def _calc_tar_surrogate_fraction_items(
     target_hc_ratio: float | None = None,
 ) -> Tuple[Tuple[TarSurrogate, float], ...]:
     surrogate_a, surrogate_b = TAR_SURROGATES_BY_FUEL[fuel_type]
-    r_a = TAR_SURROGATE_HC_RATIO[surrogate_a]
-    r_b = TAR_SURROGATE_HC_RATIO[surrogate_b]
-    r_target = TAR_TARGET_HC_RATIO[fuel_type] if target_hc_ratio is None else target_hc_ratio
+    c_a, h_a = TAR_SURROGATE_FORMULA[surrogate_a]
+    c_b, h_b = TAR_SURROGATE_FORMULA[surrogate_b]
+    r_target = TAR_TARGET_HC_RATIO[fuel_type] if target_hc_ratio is None else float(target_hc_ratio)
 
-    if abs(r_a - r_b) <= 1e-12 * max(abs(r_a), abs(r_b), 1.0):
-        raise ValueError("两组分 H/C 相同，无法用于配比求解")
+    # Gesamtteer 原子比： (x·H_a + (1-x)·H_b) / (x·C_a + (1-x)·C_b) = r_target
+    # ⇒ x = (r·C_b - H_b) / (H_a - H_b - r·C_a + r·C_b)
+    denom = float(h_a - h_b - r_target * c_a + r_target * c_b)
+    if abs(denom) <= 1e-12 * max(abs(h_a), abs(h_b), abs(r_target) * max(c_a, c_b), 1.0):
+        raise ValueError("两组分 H/C 配比分母为零，无法求解")
 
-    x_a = (r_target - r_b) / (r_a - r_b)
-    tol = 1e-12
-    if x_a < -tol or x_a > 1.0 + tol:
-        raise ValueError(
-            f"目标 H/C={r_target:.6f} 超出两组分可表示范围 "
-            f"[{min(r_a, r_b):.6f}, {max(r_a, r_b):.6f}]"
-        )
+    x_a = (r_target * float(c_b) - float(h_b)) / denom
+    # 超出代理对可表示范围时 clip 到纯组分（Hamel：用燃料 H/C，不回退 Ch.6 常数）
     if x_a < 0.0:
         x_a = 0.0
     elif x_a > 1.0:
@@ -364,13 +387,14 @@ def calc_tar_surrogate_fractions(
 ) -> Dict[TarSurrogate, float]:
     """按目标 H/C 比计算 tar 两组分代理的摩尔分数。
 
-    两组分线性配比：
-        r_target = x * r_A + (1 - x) * r_B
-        x = (r_target - r_B) / (r_A - r_B)
+    使混合物原子比 nH/nC = r_target（Gesamtteer，Hamel §5.2.6）：
+        (x·H_A + (1-x)·H_B) / (x·C_A + (1-x)·C_B) = r_target
+
+    超出代理对可表示范围时 clip 到端点纯组分。
 
     Source
     ------
-    specs/species.md §1
+    Hamel (1999) §5.2.6（代理对与目标 H/C）；§4.2（Teer H/C ≈ 燃料 H/C）
     """
     return dict(_calc_tar_surrogate_fraction_items(fuel_type, target_hc_ratio))
 
@@ -437,6 +461,17 @@ def configure_tar_components_by_fuel(fuel_type: TarFuelType) -> Dict[TarComponen
 # ---------------------------------------------------------------------------
 
 HHV_C_MJ_KG: float = 32.76  # 纯碳(石墨)高位热值 [MJ/kg]
+MW_C_KG_PER_MOL: float = 0.012011  # [kg/mol] 石墨碳
+HF_H2O_LIQUID_J_PER_MOL: float = -285.83e3  # [J/mol] HHV 液态水基准
+
+
+def liquid_water_formation_enthalpy_j_per_kg() -> float:
+    """液态水标准生成焓 [J/kg]。
+
+    Source: 与 ``formation_enthalpy_dry_fuel`` 同一 HHV 液态水基准。
+    """
+    mw_h2o_kg_mol = float(MOLECULAR_WEIGHT["H2O"]) * 1.0e-3  # [kg/mol]
+    return float(HF_H2O_LIQUID_J_PER_MOL / mw_h2o_kg_mol)
 
 
 def formation_enthalpy_dry_fuel(
@@ -462,11 +497,11 @@ def formation_enthalpy_dry_fuel(
 
     # 燃烧产物生成焓 [J/mol]
     hf_CO2 = formation_enthalpy_298("CO2")
-    hf_H2O_l = -285.83e3  # 液态水生成焓（HHV 基准） [J/mol]
+    hf_H2O_l = HF_H2O_LIQUID_J_PER_MOL
     hf_SO2 = formation_enthalpy_298("SO2")
 
     # 每 kg 燃料产生的产物摩尔量 [mol/kg_fuel]
-    n_CO2 = xC / 0.012011
+    n_CO2 = xC / MW_C_KG_PER_MOL
     n_H2O = xH / 0.002016  # H2 计
     n_SO2 = xS / 0.032065
 
@@ -566,26 +601,89 @@ def gas_diffusivity_correlation(
 # 固相组分热力学属性
 # ---------------------------------------------------------------------------
 
-def cp_char(T: float) -> float:
-    """炭 (char) 的比热容 [J/(kg·K)]。
+SOLID_H_MODE_INTEGRAL: str = "thermo_consistent_cp_integral"
+SOLID_H_MODE_ENDPOINT: str = "legacy_endpoint_cp"
 
-    Merrick (1983) 简化关联式。T 单位 [K]。
+
+def cp_char(T: float) -> float:
+    """炭瞬时比热 [J/(kg·K)]。系数溯源 unknown，不是 Hamel 已核验物性。
+
+    多项式 ``380 + 0.420 T + 0.000210 T²``。不得把本函数改名为平均比热。
     """
     T_c = T / 1000.0  # [kK]
     return 420.0 * T_c + 210.0 * T_c**2 + 380.0
 
 
 def cp_ash(T: float) -> float:
-    """灰分 (ash) 的比热容 [J/(kg·K)]。
+    """灰分瞬时比热 [J/(kg·K)]。系数溯源 unknown。
 
-    Kirov (1965) 近似。T 单位 [K]。
+    多项式 ``594 + 0.586 T``。
     """
     return 594.0 + 0.586 * T
 
 
 def cp_sand(T: float) -> float:
-    """惰性床料 SiO2 (sand) 的比热容 [J/(kg·K)]。
+    """惰性床料瞬时比热 [J/(kg·K)]。系数溯源 unknown。
 
-    经验关联。T 单位 [K]。
+    多项式 ``730 + 0.55 T``。
     """
     return 730.0 + 0.55 * T
+
+
+def delta_h_char_integral(T: float, T_r: float = T_REF) -> float:
+    """``∫_{T_r}^{T} c_{p,char} dθ`` [J/kg]。推导，不是原文编号公式。"""
+    return (
+        380.0 * (T - T_r)
+        + 0.210 * (T * T - T_r * T_r)
+        + 7.0e-5 * (T**3 - T_r**3)
+    )
+
+
+def delta_h_ash_integral(T: float, T_r: float = T_REF) -> float:
+    """``∫_{T_r}^{T} c_{p,ash} dθ`` [J/kg]。推导，不是原文编号公式。"""
+    return 594.0 * (T - T_r) + 0.293 * (T * T - T_r * T_r)
+
+
+def delta_h_sand_integral(T: float, T_r: float = T_REF) -> float:
+    """``∫_{T_r}^{T} c_{p,sand} dθ`` [J/kg]。推导，不是原文编号公式。"""
+    return 730.0 * (T - T_r) + 0.275 * (T * T - T_r * T_r)
+
+
+def mean_cp_solid(kind: str, T: float, T_r: float = T_REF) -> float:
+    """``Δh / (T − T_r)`` [J/(kg·K)]。``T→T_r`` 取 ``c_p(T_r)``。"""
+    name = str(kind).strip().lower()
+    fn = {"char": delta_h_char_integral, "ash": delta_h_ash_integral, "sand": delta_h_sand_integral}[name]
+    inst = {"char": cp_char, "ash": cp_ash, "sand": cp_sand}[name]
+    if abs(float(T) - float(T_r)) < 1.0e-12:
+        return float(inst(T_r))
+    return float(fn(T, T_r)) / (float(T) - float(T_r))
+
+
+def h_solid_mass(
+    kind: str,
+    T: float,
+    *,
+    h_f: float,
+    mode: str = SOLID_H_MODE_INTEGRAL,
+    T_r: float = T_REF,
+) -> float:
+    """固体质量焓 [J/kg]。积分模式 ``h = h_f + ∫ c_p dθ``；端点模式乘瞬时 cp。
+
+    禁止把本函数标成 ``hamel_exact_cp``。系数不是 Hamel 原文。
+    """
+    name = str(kind).strip().lower()
+    m = str(mode).strip().lower()
+    if m == SOLID_H_MODE_ENDPOINT:
+        inst = {"char": cp_char, "ash": cp_ash, "sand": cp_sand}[name]
+        return float(h_f) + float(inst(T)) * (float(T) - float(T_r))
+    if m != SOLID_H_MODE_INTEGRAL:
+        raise ValueError(
+            f"solid enthalpy mode must be {SOLID_H_MODE_INTEGRAL!r} or "
+            f"{SOLID_H_MODE_ENDPOINT!r}, got {mode!r}"
+        )
+    dh = {
+        "char": delta_h_char_integral,
+        "ash": delta_h_ash_integral,
+        "sand": delta_h_sand_integral,
+    }[name](T, T_r)
+    return float(h_f) + float(dh)

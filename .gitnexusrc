@@ -1,0 +1,7 @@
+{
+  "defaultBranch": "main",
+  "skipContextFiles": true,
+  "skipSkills": true,
+  "noStats": true,
+  "embeddings": false
+}

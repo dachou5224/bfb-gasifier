@@ -58,11 +58,13 @@ N_b,fb,in = 0
 - freeboard 对 bed 内 dense/bubble 的纯重分配不敏感，只对 total gas 变化敏感。
 - freeboard 第一格 energy inlet 使用 bed 顶层温度；gas composition 使用合并后的 total gas。
 - freeboard solid 不是 NR unknown；bed top entrainment 通过 trajectory/closure 转成 freeboard solid holdup/outflow coefficients。
+- **Eq. (2.7) 能量出口固体载体**（`Cell._solid_energy_outlet_rates`）：`freeboard_closure` 下用入口固体透传（`m_in(+auf/ab/zu/rez)` 在 cell `T` 下出流），**不要**用 `K·m_solid`。否则 `m_in≠m_out` 固体焓洞会把自由板 T 压到 ~300 K 假根，并经 `T_solid_ab_in` 冷却顶床。运输/返料质量仍用 `_solid_downflow_rates()`。
 
 已验证/观察：
 
 - 单相入口合并能减少退化段 split 残差，但不是单独的收敛突破。
 - 后续 residual hotspot 仍可能出现在 bed 内两相气体或 energy 方程；这时不应把 freeboard 恢复成两相来“凑方阵”。
+- 2026-07-16：固体能量透传修复后，Phase2 LU（8 outer）E 0.093→0.015、S 0.047→0.028、maxS 0.195→0.098；自由板不再卡 300 K。
 
 ## 4. Freeboard solid trajectory 与 age/size closure
 
@@ -180,3 +182,29 @@ max_abs_scaled_final ≈ 0.01383
 - 若新增 side topology，必须进入 connectivity graph 和 Jacobian side block，而不是只做 result summary。
 - 若要刷新 closure，必须明确是 solver-state mutation 还是 diagnostic-only。
 - 若与 Hamel 原文不完全相同，文档必须标注“论文证据”和“工程补缝”边界。
+
+## 11. Init Abgleich vs Outer Pre-Inner
+
+A 档 Vorab 一致性实现中，**Init Vorab–Cell Abgleich**（Node B、冻结预算）与 **Outer Pre-Inner Bridge**（refresh 后、NR 残差驱动）职责不同，不可混用。
+
+- 详细分工、时间线、配置表与反模式：**`docs/vorab_init_abgleich_vs_outer_preinner.md`**
+- Init Abgleich：`src/solvers/vorab_cell_abgleich.py`
+- Outer Pre-Inner：`src/core/connectivity.py::run_outer_preinner_start_value_bridge`
+- Outer Check2 窄域 bridge：同 `vorab_cell_abgleich.py`，仅在气相 Check2 失败时触发
+
+## 12. VTT 回路：B 档 Jacobian 验收 vs A 档 Check2
+
+2026-06 验收表明二者应分开报告：
+
+| 指标 | VTT 单回路（`vtt_minimal_loop.json`） |
+|------|--------------------------------------|
+| `unexpected_block_count` | 0 |
+| 内层 damped NR | 收敛（`rms_scaled_final≈2e-4`） |
+| `preinner_global_gate_pass` | True（pre-inner 非阻塞项） |
+| `outer_gas_check_pass` | False（`gas_phase_split_rms≈0.63`，阈值 0.05） |
+| `outer_dt_check_pass` | False（`dT_outer≈300 K`，阈值 0.5 K） |
+| `inner_converged`（outer 内，full） | True（`nr_inner_tol_rms_thesis=0.02`，stall recovery 后） |
+| `check2_bridge_enabled` | 视轮次而定 |
+| `converged_fully` | full outer（`VTT_MINIMAL_LOOP_SOLVE_KWARGS`）下 **True** |
+
+**工程含义**：侧块 Jacobian 已闭环；短探针 `max_global_iter≤4` 仅用于门控诊断，不代表 A 档不可收敛。详见 `docs/hamel_b_tier_thesis_extraction.md` §10。

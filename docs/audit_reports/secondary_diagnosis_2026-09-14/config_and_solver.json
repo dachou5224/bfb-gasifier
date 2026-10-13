@@ -1,0 +1,43 @@
+{
+  "energy_same_state_diagnostic_only": {
+    "before_W": [
+      -5157243.389376514,
+      -2452366.451298653,
+      -1070860.0176966432
+    ],
+    "char0_water_liquid_hf_W": [
+      -8439969.566577679,
+      717832.6366033049,
+      -1070860.0176966428
+    ],
+    "delta_W": [
+      -3282726.177201165,
+      3170199.0879019583,
+      4.656612873077393e-10
+    ]
+  },
+  "phase2_config": {
+    "thesis_mode": true,
+    "thesis_vorab_sources_single_shot": true,
+    "nr_solver_mode": "engineering",
+    "holdup_k0_anchor": "engineering",
+    "nr_refresh_hydrodynamics_on_accepted_step_thesis": false,
+    "outer_refresh_pyro_allowed": false,
+    "after_strict_outer_refresh_pyro_allowed": false
+  },
+  "strict_rank_diagonal": {
+    "failure": "singular_jacobian",
+    "rank": 1,
+    "true_det": 1.0000000000000034e+16
+  },
+  "strict_small_step": {
+    "converged": true,
+    "F": [
+      10000000.0
+    ],
+    "x": [
+      -1e-14
+    ],
+    "iters": 1
+  }
+}

@@ -394,6 +394,32 @@ Hamel 原文/本地证据没有给出“bed0 初始 pyrolysis 产物如何在 de
 - `tests/test_cell_kinetics.py::test_pyrolysis_gas_source_enters_dense_phase_not_bubble_phase`
   明确锁住 `gas_src_vm` 只进入 dense source、bubble source 为零。
 
+### 9.8 Hamel 对齐 x₀ transport + §4.3 热解 Gibbs（2026-06-04）
+
+根因（bed5 `N_CO≈0`）：legacy `major_gibbs_per_cell` 把 Anhang A1 用于每格**全进料**
+holdup Gibbs；在 `t_budget_K≈1088 K` 跨过 ~1105 K 分岔后 bed4+ 落到 CO₂ 支，
+CO holdup 近零，且不继承 upstream inflow。
+
+**第二根因（已修）**：Cell NR 曾用 legacy 启发式 `allocate_pyrolysis_products_elemental`
+（固定 O→CO→CH₄ 顺序，**无 H₂/CO₂**），与 Vorab §4.3 Gibbs 双路径；Vorab 单格 VM 增量
+Gibbs 曾塌缩为 ~100% CO。
+
+对齐方案（已落地）：
+
+| 层级 | 变更 |
+|------|------|
+| x₀ 模式 | 默认 `vorab_x0_holdup_mode_thesis=transport_from_vorab`：主气 inflow/进料，产物 inflow+热解增量 |
+| §4.3 Gibbs | `allocate_pyrolysis_products_hamel` / `solve_pyrolysis_gas_gibbs_composition`（Cell + Vorab 共用） |
+| A1 热解池 | NNLS 可行投影（`_hamel_project_pyrolysis_element_pool_for_a1`）+ `infer_lambda_from_mole_guess` λ₀；`tol=1e-10`、`max_iter=250`、`closure_rel_tol=1e-6` |
+| 元素守恒 | 原始池 cap 校验；不可行池在 NNLS 子预算上 Gibbs，未分配 C 留于 tar/固相路径 |
+| Vorab 增量 | `incremental_pyrolysis_products_from_budgets` 累积差分（非单步 ΔVM） |
+| 产物 seed | `vorab_a_tier_product_holdup_source_closure_bed_cells_thesis=0`（全 bed） |
+| legacy | `vorab_major_gibbs_x0=False`；固定比例对照仅 `_legacy_fixed_ratio_pyrolysis_increment_not_hamel`（测试用，生产禁用） |
+
+文档：`docs/vorab_init_abgleich_vs_outer_preinner.md` §12.3。
+
+单测：`tests/test_vorabrechnung_hamel_x0_transport.py`、`tests/test_cell_pyrolysis.py`（LU 有 H₂、元素不超限）。
+
 短 probe 注意：
 
 - 2026-06-01 尝试 `max_global_iter=2` 的 Phase2 全局求解，外层 `timeout=30s`
@@ -565,3 +591,52 @@ LU Phase2 当前效果：
 
 - `tests/test_global_nr_solver.py::test_unpack_reactor_respects_vorabrechnung_temperature_fence`
 - `tests/test_bottom_gas_inlet_split.py::test_bottom_joint_gas_temperature_preprojection_reduces_energy_and_total_gas_residual`
+
+### 9.11 R5 CO 氧化 Hamel Table 5.3 审计与 R5d T 指数修正（2026-06-04）
+
+对照 Hamel (1999) Table 5.3 / Eq. 5.37 与 `src/kinetics/gas_reactions.py`：
+
+| 项 | Hamel | 代码（修正后） | 状态 |
+|---|---|---|---|
+| 气泡 k₀ | 1.91×10⁶ | 一致 | ✅ |
+| 气泡 E/Rg | 8056 K | 一致 | ✅ |
+| 气泡速率 | **k·C_CO·C_O₂^0.3·C_H₂O^0.5** (Eq. 5.36) | 已对齐 | ✅（PDF 页 55 确认；2026-06-04 前误为 C_O₂^0.5 且无 H₂O 项） |
+| 悬浮前置因子 | **1.8·T^(−0.5)** | 已对齐 | ✅（2026-06-04 前误为 T^(+0.5)，@1030 K 约大 1000×） |
+| 气泡 β=0.3, γ=0.5 | Table 5.3 | 一致 | ✅ |
+
+参考实现与门禁：
+
+- `src/kinetics/hamel_r5_reference.py`
+- `tests/test_r5_hamel_table53.py`
+- `scripts/audit_hamel_consistency.py`（R5 气泡 + 悬浮 T 指数）
+
+**床底 CO₂ 机理**
+
+| 全床 integrated [mol/s] | R5d 修正前 | R5d 修正后 |
+|---|---:|---:|
+| R5b (CO₂ 源) | 11.73 | 15.04 |
+| R5d (CO₂ 源) | 1.36 | **0.013** |
+
+修正前：`data/phase2_co2_source_audit_hamel_transport.json`；修正后：`data/phase2_co2_source_audit_r5d_tfix.json`。
+
+- 热解 **不产 CO₂**；bed0 高 CO₂ 几乎全来自 **R5b**。
+- R5d 修正后全床贡献可忽略（≈0.01 mol/s）；上层 CO₂ 仍为 bed0–2 R5b 生成 + cell 间 N_in 对流。
+
+**Phase2 LU 25 outer 对照（wein 基准，`scripts/sensitivity_ud_closure_o2_co_co2.py`）**
+
+| 指标 | R5d 修正前（20 outer） | R5d 修正后（25 outer） | Δ |
+|---|---:|---:|---:|
+| 出口 y_CO | 7.64% | 8.06% | +0.4 pp |
+| 出口 y_CO₂ | 17.21% | 17.03% | −0.2 pp |
+| bed0 R5 净 CO₂ | 11.86 mol/s | 9.74 mol/s | −18% |
+| 收敛 | ✅ | ✅ (rms≈0.0044) | — |
+
+数据：`data/phase2_r5d_tfix_sensitivity_long25.json`；修正前见 `data/phase2_ud_closure_o2_co_co2_sensitivity.json`。
+
+**结论**
+
+- R5d T 指数符号错误已修；R5b 已按 PDF **Eq. 5.36** 对齐（C_O₂^0.3·C_H₂O^0.5）；Hamel 一致性审计全 PASS。
+- 出口 CO/CO₂ 对 R5d 修正 **不敏感**（<0.5 pp）；全床/床底 CO₂ 仍由 **R5b + 轴向携带** 主导。
+- R5b 公式修正后 bed0 低 O₂ 区速率相对 C_O₂^0.5 口径 **略升**（β 0.3 < 0.5）；需 Phase2 短 outer 对照量化出口与 bed0 CO₂ 预算。
+- 与文献 ref（CO 13%、CO₂ 11%）的 gap 主因不在 R5 悬浮相；后续优先 R5b 工程缩放（`r5_scale`）、O₂/CO 限制器、入口 split / u_d 闭包（见 `data/phase2_ud_closure_o2_co_co2_sensitivity.json`）。
+

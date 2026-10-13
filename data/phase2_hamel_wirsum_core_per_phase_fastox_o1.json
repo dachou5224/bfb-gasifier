@@ -1,0 +1,15 @@
+{
+  "note": "CORE + two-phase Startwert + LS per-phase fastox all beds",
+  "wall_s": 21.550049155999996,
+  "rms_scaled_final": 0.047560738463108314,
+  "rms_scaled_gas_phase_split_final": 0.17334455350471892,
+  "n_acc": 0,
+  "accepted_lambda_history": [
+    null
+  ],
+  "best_trial_rms_scaled": 6.738191702033831,
+  "best_trial_lambda": 0.00048828125,
+  "line_search_failed": true,
+  "fast_ox_projections": 12,
+  "y_co_top": 0.012019838590470941
+}

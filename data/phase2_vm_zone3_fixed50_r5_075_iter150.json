@@ -1,0 +1,56 @@
+{
+  "vm_zone_cells": 3,
+  "max_global_iter": 150,
+  "results": [
+    {
+      "label": "fixed50_r5_075",
+      "vm_zone_cells": 3,
+      "r5_scale_cfg": 0.75,
+      "bed_r5_multipliers": [],
+      "bed_r5_applied": [],
+      "fixed50": true,
+      "product_holdup_closure": true,
+      "init_abgleich_bridge": true,
+      "max_global_iter": 150,
+      "init_wall_s": 27.867312098,
+      "solve_wall_s": 1296.8478658459999,
+      "init_rms_scaled": 0.03405777356644779,
+      "init_abgleich_aligned": true,
+      "converged_fully": false,
+      "nr_outer_iters": 150,
+      "rms_scaled_final": 0.06518654193475429,
+      "bed_exit_gas_dry": {
+        "CO": 0.034177534029130506,
+        "CO2": 0.07882205478667358
+      },
+      "bed_exit_co_co2_l1_err": 1.0205317576593063,
+      "bottom_profile": [
+        {
+          "cell": 0,
+          "T_K": 1098.697279049077,
+          "r5_scale": 0.75,
+          "y_CO": 0.030480713067158462,
+          "y_CO2": 0.19618720189005945,
+          "y_O2": 0.02620914061001524
+        },
+        {
+          "cell": 1,
+          "T_K": 1044.7594477022762,
+          "r5_scale": 0.75,
+          "y_CO": 0.0026639906078863265,
+          "y_CO2": 0.1137874532351611,
+          "y_O2": 0.029872630990512936
+        },
+        {
+          "cell": 2,
+          "T_K": 1028.3873843970146,
+          "r5_scale": 0.75,
+          "y_CO": 0.004934612250303921,
+          "y_CO2": 0.11941373082125199,
+          "y_O2": 0.013853393404051029
+        }
+      ]
+    }
+  ],
+  "best_by_rms": "fixed50_r5_075"
+}

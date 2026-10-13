@@ -1,0 +1,12 @@
+{
+  "converged_fully": true,
+  "nr_outer_iters": 24,
+  "rms_scaled_final": 0.005673072227415169,
+  "wall_time_s": 309.161535224,
+  "bed0_T_K": 900.3083067182251,
+  "exit_gas_dry": {
+    "CO": 0.08942245866171375,
+    "CO2": 0.165040479589769
+  },
+  "score_co_co2": 0.81250292964206
+}

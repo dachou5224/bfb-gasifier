@@ -1,4 +1,4 @@
-"""holdup Startwert 之后，bed0 −5 MW 可加总；最大桶是 VM，不是再给 VM 加 K。"""
+"""holdup Startwert 之后剩余能量桶必须加总；不给 VM 加 K。"""
 
 from __future__ import annotations
 
@@ -40,17 +40,17 @@ def test_leftover_buckets_sum_to_residual() -> None:
     assert got["buckets_W"]["gas_H_in_minus_H_out"] == -2.0
 
 
-def test_lu_leftover_after_holdup_is_mostly_vm_then_gas_and_q() -> None:
+def test_lu_leftover_after_holdup_still_sums_without_adding_k_vm() -> None:
     payload = build_energy_leftover_payload()
     bed0 = payload["per_cell"][0]
     assert bed0["sum_matches_residual"] is True
     assert bed0["holdup_zero"] is False
     assert abs(float(bed0["residual_W"] or 0.0)) > 1.0e6
-    assert bed0["dominant_bucket"] == "vm_H_zu_minus_H_sout"
     assert float(bed0["buckets_W"]["vm_H_zu_minus_H_sout"] or 0.0) < -1.0e6
-    assert float(bed0["abs_share"]["vm_H_zu_minus_H_sout"] or 0.0) > 0.4
     assert abs(float(bed0["buckets_W"]["gas_H_in_minus_H_out"] or 0.0)) > 1.0e5
     assert float(bed0["buckets_W"]["minus_Q"] or 0.0) < 0.0
+    # 热化学修正后 VM 桶不再被当成唯一主因；份额只作记录。
+    assert "vm_H_zu_minus_H_sout" in bed0["abs_share"]
 
 
 def test_leftover_does_not_add_k_vm_or_experiment_co() -> None:

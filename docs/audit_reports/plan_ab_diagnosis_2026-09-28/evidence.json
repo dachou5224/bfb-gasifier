@@ -1,0 +1,47 @@
+{
+  "cold_zero_coordinates_after_seed": [
+    {
+      "index": 7,
+      "F": 933388.0752475134
+    },
+    {
+      "index": 8,
+      "F": 0.2810185626401008
+    },
+    {
+      "index": 9,
+      "F": 399490.7578008608
+    },
+    {
+      "index": 10,
+      "F": 1.3530832455291122
+    },
+    {
+      "index": 11,
+      "F": 0.17886120184915572
+    },
+    {
+      "index": 44,
+      "F": -0.002297636242422361
+    },
+    {
+      "index": 45,
+      "F": -0.0035444102025944954
+    }
+  ],
+  "half_state_frozen_q_profile": {
+    "F_calls": 3487,
+    "F_seconds": 9.74784135500004,
+    "best_merit": 22.13940436535914,
+    "best_evaluated_blocks": {
+      "passed": false,
+      "gas_l2": 0.21956936248408293,
+      "solid_l2": 0.0025834853170336957,
+      "tar_l2": 0.0022033624630354784,
+      "energy_W": 1.1315354293619748
+    },
+    "status": "timeout",
+    "elapsed_seconds": 10.005889861
+  },
+  "note": "Profiling overhead included. Best evaluated state can be a finite-difference probe, not accepted iterate. No P calls inside corrector."
+}

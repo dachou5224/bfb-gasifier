@@ -1,0 +1,539 @@
+{
+  "case_key": "CASE_HTW_WESSELING_1",
+  "basis_ref": "data/phase2_coco2_basis_ladder.json",
+  "bed_decomp_ref": "data/phase2_coco2_structural_bed_decomp.json",
+  "fb_link_ref": "data/phase2_coco2_structural_fb_link.json",
+  "model_exit_dry": {
+    "CO": 0.11642502613471852,
+    "CO2": 0.15161141175062368,
+    "H2": 0.13948249470972987,
+    "O2": 9.488944639756717e-17
+  },
+  "model_bed_exit_dry": {
+    "CO": 0.11661455521984385,
+    "CO2": 0.15145499559187098,
+    "H2": 0.13946491806207598,
+    "O2": 7.789293205509784e-08
+  },
+  "true_dry_target": {
+    "CO": 0.157,
+    "CO2": 0.133
+  },
+  "harness_REF": {
+    "CO": 0.13,
+    "CO2": 0.11
+  },
+  "verdict": {
+    "factors": [
+      {
+        "id": "H1_bed_overox",
+        "evidence": {
+          "claim": "床内过氧化：下部气泡相 R5 建立过高 CO₂ 库存，中上部落定后难回落",
+          "R5_CO_bed0_mol_s": -9.249955611493817,
+          "R5_CO_bed1_2_mol_s": -3.1254479821636805,
+          "R2_CO_bed1_2_mol_s": 5.823869616155124,
+          "R4_CO_bed1_2_mol_s": 0.0136968174823465,
+          "R5_CO_bed_integrated_mol_s": -12.560831706030712,
+          "R5_bed0_share_of_integrated": 0.7364126697958007,
+          "R5_over_gasif_ratio_bed1_2": 0.5354025547622195,
+          "y_CO_bed0_to_bed2": {
+            "bed0": 0.045735070466049375,
+            "bed2": 0.08062654941445806,
+            "delta": 0.03489147894840868
+          },
+          "y_CO2_bed0_to_bed2": {
+            "bed0": 0.0795493237819922,
+            "bed2": 0.12862126672600047,
+            "delta": 0.04907194294400827
+          },
+          "y_top_wet": {
+            "CO": 0.09886037011916306,
+            "CO2": 0.12839646725386383,
+            "H2": 0.11823183986135383,
+            "O2": 6.603398759371528e-08,
+            "H2O": 0.15224673341342576,
+            "N2": 0.5003757335557999,
+            "CH4": 0.0
+          },
+          "co2_near_top_from_cell": 1,
+          "supported": true,
+          "note": "本探针：R5 积分以 bed0 气泡相为主；bed1–2 的 R2 可部分回补 CO，但 CO₂ 湿基在 bed1 附近已抬升并沿床锁定。"
+        },
+        "fix_surface": "下部床气泡相 R5 / O₂–CO 相区分流（parity 先于全局 r5_scale）",
+        "status": "PRIMARY",
+        "differential_r5_bubble_bed0": {
+          "baseline_bed_CO2": 0.15145499559187098,
+          "r5b_bed0_0_bed_CO2": 0.12766518644759833,
+          "r5b_bed0_0.25_bed_CO2": 0.12650419951089625,
+          "r5b_bed0_0_lowers_bed_CO2": true,
+          "r5b_bed0_0_raises_CO": false,
+          "interpretation": "关掉 bed0 气泡 R5 额外倍率(scale=0)：Δbed_CO2=-0.0238, Δbed_CO=-0.0503。支持 H1：下部气泡 R5 推高床顶 CO₂。"
+        }
+      },
+      {
+        "id": "H2_phase_split",
+        "evidence": {
+          "supported_coupling": true,
+          "exchange_causal_variant": false,
+          "dense_frac_o8_note": "8-outer dense_frac 变体易病理，不作主证据"
+        },
+        "fix_surface": "K_bd / ε_b / 入口相分配（两相 O₂/CO）",
+        "status": "COUPLING"
+      },
+      {
+        "id": "H3_temperature",
+        "evidence": {
+          "claim": "传热/温度场：下部过热强化 R5，吸热气化窗口偏短",
+          "T_compare_lower_bed": [
+            {
+              "i": 0,
+              "xi_bed": 0.049999999999999996,
+              "xi_reactor_approx": 0.0225,
+              "T_model": 997.3823547363281,
+              "T_bild": 810.75,
+              "dT": 186.63235473632812
+            },
+            {
+              "i": 1,
+              "xi_bed": 0.15,
+              "xi_reactor_approx": 0.0675,
+              "T_model": 1355.265602932418,
+              "T_bild": 932.25,
+              "dT": 423.015602932418
+            },
+            {
+              "i": 2,
+              "xi_bed": 0.25,
+              "xi_reactor_approx": 0.1125,
+              "T_model": 1275.166941937553,
+              "T_bild": 1030.0,
+              "dT": 245.16694193755302
+            }
+          ],
+          "mean_dT_bed012": 284.93829986876636,
+          "supported": true
+        },
+        "fix_surface": "下部 T 场（禁止抬 Tin；先查围栏/seed/热损同构）",
+        "status": "COUPLING"
+      },
+      {
+        "id": "H4_freeboard",
+        "evidence": {
+          "claim": "自由板缺位：未再现二级风 dip+恢复；lumped 二次风未进 NR 图",
+          "lumped_excluded_from_nr_graph": true,
+          "graph_secondary_active": false,
+          "delta_fb_dry_CO2": 0.000156416158752698,
+          "nr_CO_has_dip_recover": false,
+          "nr_CO2_delta": 0.00014070889313791413,
+          "bed_exit_already_high_CO2": true,
+          "fb_alone_insufficient": true,
+          "supported": true,
+          "role": "结构债/文献同构缺口；因床顶 CO₂ 已高，FB 即使完美复现 Bild Δ≈−0.015 仍不够收到真干基 → 不能单独作为下一刀主路径",
+          "bild_compare_note": {
+            "bild_xi_0.6_wet": {
+              "CO": 0.11,
+              "CO2": 0.125,
+              "H2": 0.105,
+              "H2O": 0.165,
+              "T_K": 1240.0
+            },
+            "bild_xi_1.0_wet": {
+              "CO": 0.13,
+              "CO2": 0.11,
+              "H2": 0.12,
+              "H2O": 0.175,
+              "T_K": 1100.0
+            },
+            "nr_near_0.6": {
+              "xi": 0.5969827586206896,
+              "y": {
+                "CO": 0.09891031750481794,
+                "CO2": 0.12835591028891136,
+                "H2": 0.11823818419095952,
+                "O2": 3.944067115373109e-10,
+                "H2O": 0.15225446577977414,
+                "N2": 0.5003524200810987,
+                "CH4": 0.0
+              },
+              "T_K": 890.650164870676
+            },
+            "nr_near_1.0": {
+              "xi": 0.9633620689655172,
+              "y": {
+                "CO": 0.09870849428953532,
+                "CO2": 0.1285405266192342,
+                "H2": 0.11825728101288176,
+                "O2": 8.045000880681204e-17,
+                "H2O": 0.15217116485490773,
+                "N2": 0.5004335253120124,
+                "CH4": 0.0
+              },
+              "T_K": 689.200278982456
+            },
+            "ana_near_0.6": {
+              "xi": NaN,
+              "y": {
+                "CO": 0.09885237120540867,
+                "CO2": 0.1284044811742944,
+                "H2": 0.1182397210425896,
+                "O2": 1.6121580066941444e-35,
+                "H2O": 0.15223887009296994,
+                "N2": 0.5003757665976071,
+                "CH4": 0.0
+              },
+              "T_K": null
+            },
+            "ana_near_1.0": {
+              "xi": NaN,
+              "y": {
+                "CO": 0.09885237120540867,
+                "CO2": 0.1284044811742944,
+                "H2": 0.1182397210425896,
+                "O2": 1.6121580066941444e-35,
+                "H2O": 0.15223887009296994,
+                "N2": 0.5003757665976071,
+                "CH4": 0.0
+              },
+              "T_K": null
+            },
+            "expected_bild_signature": {
+              "CO_dip_at_0.6": true,
+              "CO2_spike_at_0.6": true,
+              "T_spike_at_0.6": 1240.0
+            },
+            "model_signature": {
+              "nr_flat_major_gas": true,
+              "nr_no_T_spike": true,
+              "ana_exit_near_bed_top_wet": true
+            },
+            "wiring": {
+              "secondary_injection_mode": "lumped",
+              "secondary_O2_mol_s": 0.07833645638142828,
+              "secondary_N2_mol_s": 0.29469428829203975,
+              "secondary_injection_xi": 0.6,
+              "graph_secondary_injection_active": false,
+              "lumped_excluded_from_nr_graph": true,
+              "n_freeboard_cells": 8,
+              "trajectory_model": "analytical_wirsum"
+            }
+          }
+        },
+        "fix_surface": "lumped→NR 二次风接线 / Bild 7.4 dip+recover 同构（并行结构债）",
+        "status": "PARALLEL_STRUCTURAL_GAP"
+      },
+      {
+        "id": "H5_basis",
+        "evidence": {
+          "harness_REF": {
+            "CO": 0.13,
+            "CO2": 0.11
+          },
+          "true_dry": {
+            "CO": 0.157,
+            "CO2": 0.133
+          },
+          "model_exit": {
+            "CO": 0.11642502613471852,
+            "CO2": 0.15161141175062368,
+            "H2": 0.13948249470972987,
+            "O2": 9.488944639756717e-17
+          }
+        },
+        "fix_surface": "验收口径改真干基 0.157/0.133；勿用 0.13/0.11 当干基",
+        "status": "METROLOGY_GATE"
+      }
+    ],
+    "variant_summary": [
+      {
+        "label": "baseline",
+        "wall_s": 113.961389274,
+        "converged": true,
+        "rms_E": 0.026286643298476846,
+        "bed_exit_dry": {
+          "CO": 0.11661455521984385,
+          "CO2": 0.15145499559187098,
+          "H2": 0.13946491806207598,
+          "O2": 7.789293205509784e-08
+        },
+        "exit_dry": {
+          "CO": 0.11642502613471852,
+          "CO2": 0.15161141175062368,
+          "H2": 0.13948249470972987,
+          "O2": 9.488944639756717e-17
+        },
+        "score_vs_harness": 0.4827084372560868,
+        "score_vs_true_dry": 0.39837475067910316,
+        "cfg": {}
+      },
+      {
+        "label": "diag_r5_scale_0.10",
+        "wall_s": 139.28951096200004,
+        "converged": false,
+        "rms_E": 0.40830908288851814,
+        "bed_exit_dry": {
+          "CO": 0.09266458180593987,
+          "CO2": 0.11592249337857305,
+          "H2": 0.07307982677213351,
+          "O2": 0.027897413605237814
+        },
+        "exit_dry": {
+          "CO": 0.08001644965700835,
+          "CO2": 0.11928645961478415,
+          "H2": 0.08069463395511184,
+          "O2": 0.0
+        },
+        "score_vs_harness": 0.4689112089266448,
+        "score_vs_true_dry": 0.5934504111918384,
+        "cfg": {
+          "r5_scale": 0.1
+        }
+      },
+      {
+        "label": "diag_r5_scale_0.50",
+        "wall_s": 116.74111826499995,
+        "converged": true,
+        "rms_E": 0.029113520233120783,
+        "bed_exit_dry": {
+          "CO": 0.12181711448190737,
+          "CO2": 0.15347483477000684,
+          "H2": 0.15233452679052248,
+          "O2": 4.800739880344461e-06
+        },
+        "exit_dry": {
+          "CO": 0.12181060985081936,
+          "CO2": 0.15348328340062328,
+          "H2": 0.15233712042415637,
+          "O2": 1.6734523422138015e-18
+        },
+        "score_vs_harness": 0.45829788520915365,
+        "score_vs_true_dry": 0.37814589261715814,
+        "cfg": {
+          "r5_scale": 0.5
+        }
+      },
+      {
+        "label": "diag_dense_frac_0.25",
+        "wall_s": 147.06154849299998,
+        "converged": false,
+        "rms_E": 0.052228337101633146,
+        "bed_exit_dry": {
+          "CO": 0.06498964645732254,
+          "CO2": 0.12247319169485459,
+          "H2": 0.008764117449958708,
+          "O2": 0.045595192700817425
+        },
+        "exit_dry": {
+          "CO": 0.009240116874517331,
+          "CO2": 0.09041756764548488,
+          "H2": 0.0008342243789536311,
+          "O2": 4.1067565079654496e-14
+        },
+        "score_vs_harness": 1.1069442902021023,
+        "score_vs_true_dry": 1.2613144167112718,
+        "cfg": {
+          "gas_inlet_dense_frac": 0.25
+        }
+      },
+      {
+        "label": "diag_dense_frac_0.75",
+        "wall_s": 108.92273988299996,
+        "converged": false,
+        "rms_E": 0.3021757532384097,
+        "bed_exit_dry": {
+          "CO": 0.06774141510136464,
+          "CO2": 0.1251258652833018,
+          "H2": 0.018972646960446114,
+          "O2": 0.04187999486525103
+        },
+        "exit_dry": {
+          "CO": 0.019483264872501592,
+          "CO2": 0.09553343504350863,
+          "H2": 0.012051321411281526,
+          "O2": 0.0
+        },
+        "score_vs_harness": 0.981642958627182,
+        "score_vs_true_dry": 1.1576062674261975,
+        "cfg": {
+          "gas_inlet_dense_frac": 0.75
+        }
+      },
+      {
+        "label": "diag_r5_bubble_bed0_0.00",
+        "wall_s": 209.50511528700002,
+        "converged": false,
+        "rms_E": 0.051554322382419304,
+        "bed_exit_dry": {
+          "CO": 0.06635247427515775,
+          "CO2": 0.12766518644759833,
+          "H2": 0.021368006623064175,
+          "O2": 0.04029525621978209
+        },
+        "exit_dry": {
+          "CO": 0.013546470320124305,
+          "CO2": 0.10059319812749977,
+          "H2": 0.014765975545333564,
+          "O2": 0.0
+        },
+        "score_vs_harness": 0.9813127628119829,
+        "score_vs_true_dry": 1.1573769140082375,
+        "cfg": {
+          "r5_bubble_scale_bed0": 0.0
+        }
+      },
+      {
+        "label": "diag_r5_bubble_bed0_0.25",
+        "wall_s": 173.827488028,
+        "converged": false,
+        "rms_E": 0.05116899193145697,
+        "bed_exit_dry": {
+          "CO": 0.06355759428235006,
+          "CO2": 0.12650419951089625,
+          "H2": 0.016642218485202403,
+          "O2": 0.04302018139234589
+        },
+        "exit_dry": {
+          "CO": 0.010656020745172854,
+          "CO2": 0.09818495684256341,
+          "H2": 0.009977747311142478,
+          "O2": 9.848553759380539e-12
+        },
+        "score_vs_harness": 1.02544009290194,
+        "score_vs_true_dry": 1.1938944981854105,
+        "cfg": {
+          "r5_bubble_scale_bed0": 0.25
+        }
+      }
+    ],
+    "r5_scale_moves_CO2": true,
+    "dense_frac_moves_CO2": false,
+    "next_knife": {
+      "path": "ex_bd_CO_partition_deeper",
+      "rationale": "G1（o2_transfer）与入口/staged/限幅捷径均已否证或恶化。当前可证链条是：密相产 CO + 气泡供应限幅 R5 + N_ex(CO) 大通量。下一刀应审交换/相区反应闭包是否让 R5 在代数限幅层过度兑现交换 CO，而不是再动 r5_scale / dense_frac。",
+      "do_not": [
+        "不要用全局 r5_scale 当验收解",
+        "不要抬 T_inlet",
+        "不要默认改 dense_frac / o2_dense_frac / r5_bubble_scale_bed0",
+        "不要假设接入 o2_transfer_potential 即可（当前态 xfer=0）"
+      ],
+      "falsifiers": [
+        "若交换闭包修正后床顶 CO₂ 不降 → 改 H3 下部 T 同构",
+        "若床顶已近真干基而出口仍偏 → 改 H4 FB 二次风"
+      ],
+      "prior_knife_falsified": "bed_inner_R5_O2_split / G1 o2_transfer"
+    },
+    "success_criteria": {
+      "where_formed": "下部床气泡相 R5（本探针 bed0 约占积分 70%+，bed1–2 续烧）建立过高 CO₂；中上床湿基 CO₂ 锁定；床顶≈出口",
+      "fb_inert_is": "文献冲突 + lumped 二次风未进 NR 连通图（解析路径可注入，但 NR 显式链近乎平坦、无 dip+recover）",
+      "unique_next_path": "bed_inner_R5_O2_split"
+    },
+    "bubble_bed0_differential": {
+      "baseline_bed_CO2": 0.15145499559187098,
+      "r5b_bed0_0_bed_CO2": 0.12766518644759833,
+      "r5b_bed0_0.25_bed_CO2": 0.12650419951089625,
+      "r5b_bed0_0_lowers_bed_CO2": true,
+      "r5b_bed0_0_raises_CO": false,
+      "interpretation": "关掉 bed0 气泡 R5：Δbed_CO2≈-0.024（支持 H1 对 CO₂ 库存的贡献）；同时 CO↓、O₂ 穿透——8-outer 病理/路径切换，禁止当作标定。",
+      "caveat_8outer": "scale=0 虽降床顶 CO₂，但床出口 O₂ 残留(~0.04)且 CO 塌缩；证实 R5b 对 CO₂ 库存敏感，不等于可直接关断作验收解。"
+    },
+    "bed_inner_followup": {
+      "knife": "bed_inner_R5_O2_split",
+      "date": "2026-07-17",
+      "baseline_p2_o8": {
+        "exit_dry_CO_CO2": [
+          0.1164,
+          0.1516
+        ],
+        "true_dry_target": [
+          0.157,
+          0.133
+        ]
+      },
+      "mechanism_confirmed": {
+        "bed0": {
+          "CO_src_dense_mol_s": 7.88,
+          "CO_src_bubble_mol_s": -9.25,
+          "CO2_src_bubble_mol_s": 9.25,
+          "O2_sink_bubble_mol_s": 4.62,
+          "O2_sink_dense_mol_s": 4.62,
+          "N_ex_CO": -9.3,
+          "N_ex_O2": 0.31,
+          "note": "密相产 CO → N_ex 进气泡 → R5 氧化为 CO₂；气泡 R5 为供应限幅（lim_co≈lim_o2≈0.013）"
+        },
+        "R1_extent_bed0": 0.00015,
+        "o2_transfer_potential_bd": 0.0,
+        "dense_o2_shortfall": 0.0,
+        "bubble_has_slack_after_R5": false
+      },
+      "candidates_tested": [
+        {
+          "id": "G1_apply_o2_transfer_potential",
+          "result": "FALSIFIED_for_current_state",
+          "evidence": "data/phase2_coco2_bed0_o2_sinks_o8.json: xfer=0, lim_d=1, shortfall_d=0",
+          "reason": "密相 O₂ 预算无缺口；跨相松弛项无法接入"
+        },
+        {
+          "id": "phase2_precalc_hydrodynamic_inlet",
+          "result": "WORSE_o8",
+          "evidence": "data/phase2_coco2_inlet_split_parity_o8.json",
+          "exit_dry_CO_CO2": [
+            0.0108,
+            0.0953
+          ],
+          "reason": "hydro dense_frac≈0.37 更偏气泡，R5b 更大；床顶 O₂ 残留"
+        },
+        {
+          "id": "disable_staged_primary",
+          "result": "WORSE_o8",
+          "evidence": "data/phase2_coco2_staged_primary_ab_o8.json",
+          "exit_dry_CO_CO2": [
+            0.0316,
+            0.1866
+          ]
+        },
+        {
+          "id": "exclude_N_ex_from_CO_limiter_alone",
+          "result": "NOT_IMPLEMENTED_predicted_pathology",
+          "reason": "bed0 本地 CO 入口≈0，去掉 N_ex 后 lim_co→0 ⇒ R5≈0 ⇒ 气泡 O₂ 穿透（与 r5_bubble_bed0=0 同类）"
+        },
+        {
+          "id": "R5_stoich_CO_half_O2",
+          "result": "NO_LEVERAGE_when_supply_limited",
+          "reason": "Hamel R5 写 CO+½O₂→CO₂；供应限幅下改计量不改变 CO 消耗量"
+        },
+        {
+          "id": "prior_falsified_knobs",
+          "result": "ALREADY_FALSIFIED",
+          "items": [
+            "gas_inlet_dense_frac",
+            "gas_inlet_o2_dense_frac",
+            "r5_bubble_scale_bed0",
+            "global r5_scale as acceptance"
+          ],
+          "ref": "docs/audit_reports/hamel_parity_uncertainty_2026-07-14.md"
+        }
+      ],
+      "revised_next_paths": [
+        {
+          "id": "H3_lower_bed_T_parity",
+          "why": "bed1 T≈1355 K vs Bild ~1000 K；虽 R5 已供应限幅，过热仍锁定氧化窗口并抑制气化优势",
+          "do_not": [
+            "抬 T_inlet",
+            "默认抬围栏"
+          ]
+        },
+        {
+          "id": "H4_fb_secondary_nr",
+          "why": "并行结构债；床顶 CO₂ 已高故不能单独背锅，但文献 dip+recover 仍缺失"
+        },
+        {
+          "id": "ex_bd_CO_partition_deeper",
+          "why": "N_ex_CO≈−9.3 与 dense/bubble 反应不对称是直接链条；需 PDF/Eq.2.4–2.5 级审查是否存在数值闭包过度氧化，而非再调 scale"
+        }
+      ],
+      "unique_next_recommendation": {
+        "path": "ex_bd_CO_partition_deeper",
+        "rationale": "G1（o2_transfer）与入口/staged/限幅捷径均已否证或恶化。当前可证链条是：密相产 CO + 气泡供应限幅 R5 + N_ex(CO) 大通量。下一刀应审交换/相区反应闭包是否让 R5 在代数限幅层过度兑现交换 CO，而不是再动 r5_scale / dense_frac。"
+      }
+    }
+  }
+}

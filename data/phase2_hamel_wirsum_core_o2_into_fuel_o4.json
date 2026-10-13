@@ -1,0 +1,53 @@
+{
+  "note": "CORE + allow O2 into fuel phase (per-phase fastox leftover lights R1)",
+  "wall_s": 25.603819823,
+  "rms_scaled_final": 0.047560738466632536,
+  "rms_scaled_gas_phase_split_final": 0.17334455350471892,
+  "n_acc": 0,
+  "accepted_lambda_history": [
+    null,
+    null,
+    null,
+    null
+  ],
+  "clip_best": [
+    {
+      "iter": 1,
+      "accepted_lambda": null,
+      "line_search_failed": true,
+      "best_trial_rms_scaled": 6.738191701986341,
+      "best_trial_lambda": 0.00048828125
+    },
+    {
+      "iter": 2,
+      "accepted_lambda": null,
+      "line_search_failed": true,
+      "best_trial_rms_scaled": 4.763550806374497,
+      "best_trial_lambda": 0.000244140625
+    },
+    {
+      "iter": 1,
+      "accepted_lambda": null,
+      "line_search_failed": true,
+      "best_trial_rms_scaled": 6.738191701986341,
+      "best_trial_lambda": 0.00048828125
+    },
+    {
+      "iter": 2,
+      "accepted_lambda": null,
+      "line_search_failed": true,
+      "best_trial_rms_scaled": 4.763550806374497,
+      "best_trial_lambda": 0.000244140625
+    }
+  ],
+  "fast_ox_projections": 26,
+  "same_phase_oxidizer_fuel_clip_components": 8,
+  "y_co_top": 0.012019838590470941,
+  "bed0_T": 1150.234280999747,
+  "bed0_N_d_O2": 0.0,
+  "bed0_N_b_O2": 8.043385969071775,
+  "bed0_N_d_H2": 2.48865978258464,
+  "bed0_N_d_CO": 2.217665264763833,
+  "bed0_Rd_O2": 0.0,
+  "bed0_Nex_O2": 47.47183697733152
+}

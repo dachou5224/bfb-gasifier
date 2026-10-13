@@ -1,0 +1,91 @@
+Inhalt 
+yji
+6.4 
+Untersuchung der Kinetik der Kohlendioxidvergasung in der Wirbelschicht .... 118
+7 
+Simulation verschiedener Wirbelschichtvergasungsreaktoren.............................. 124
+7.1 
+Vergleich von Messungen an ausgefuhrten Wirbelschichtvergasem mit Si-
+mulationsergebnissen 
+124
+7.1.1 Erläuterung der Ergebnisdarstellung.......................................................... 124
+7.1.2 Simulation der Hochtemperatur-Winkler-Vergasung................................ 125
+7.1.3 Simulation des Druckwirbelschichtvergasers des VTT Finnland.............. 132
+7.1.4 Simulation des atmosphärischen Wirbelschichtvergasers des VTT
+Finnland...................................................................................................... 138
+7.1.5 Simulation des Wirbelschichtvergasers WSV 400.................................... 142
+7.2 
+Parameterstudie zum Einfluss verschiedener Betriebsvariablen auf die Wir-
+belschichtvergasung 
+147
+8 
+Diskussion der Ergebnisse und Ausblick ................................................................. 154
+8.1 
+Beurteilung des Vergleichs zwischen Messung und Simulation......................... 154
+8.2 
+Weitere Modellentwicklung................................................................................ 160
+Anhang
+Al 
+Berechnung des chemischen Gleichgewichts in der Gasphase............................... 163
+A2 
+Zusammenstellung der Pyrolyse-, Verbrennungs- und Vergasungsversuche ..... 169
+A2.1 Zusammenstellung der zur Berechnung der globalen Verbrennungsraten he-
+rangezogenen Versuchsfälle................................................................................ 169
+A2.2 Zusammenstellung der zur Berechnung der Pyrolyseproduktausbeuten und
+der kinetischen Parameter der Restkoksverbrennung herangezogenen Ver-
+suchsfälle ............................................................................................................. 171
+A2.3 Zusammenstellung der zur Berechnung der kinetischen Parameter der Rest-
+koksvergasung mit CC>2 herangezogenen Versuchsfalle..................................... 173
+A2.4 Grafische Darstellung der Gaskonzentrationen und der Wirbelschichttempe-
+ratur ausgewählter Versuche ............................................................................... 175
+Literaturverzeichnis ............................................................................................................. 188
+Inhalt
+VI
+4.2.1.1 Zusammenstellung verschiedener Kohlen..................................... 60
+4.2.1.2 Rheinische Braunkohle ................................................................. 63
+4.2.1.3 Torf................................................................................................ 66
+4.2.2 Pyrolyseprodukte verschiedener Hölzer 
+67
+4.3 
+Berechnung der Zusammensetzung der gasförmigen Pyrolyseprodukte 
+69
+5 
+Modellierung der chemischen Reaktionen 
+71
+5.1 
+Berechnung des Koksumsatzes............................................................................. 72
+5.1.1 Theoretische Untersuchung zum Einfluss des Partikelalters ....................... 74
+5.1.1.1 Formulierung der Bilanzgleichungen mit Partikelaltersvertei-
+lung 
+76
+5.1.1.2 Beschreibung des reduzierten Simulationsmodells.......................... 78
+5.1.1.3 Ergebnisse zur Simulation der Partikelaltersverteilung ................... 80
+5.1.2 Koksverbrennung ........................................................................................ 86
+5.1.3 Heterogene Wassergasreaktion ................................................................... 88
+5.1.4 Boudouard-Reaktion ................................................................................... 89
+5.1.5 Hydrierende Vergasung............................................................................... 89
+5.2 
+Berechnung der homogenen Reaktionen in der Gasphase..................................... 90
+5.2.1 Kohlenmonoxid-Oxidation ........................................................................ 90
+5.2.2 Wasserstoff-Oxidation.................................................................................
+5.2.3 Methan-Oxidation........................................................................................ 91
+5.2.4 Homogene Wassergasreaktion ..................................................................... 91
+5.2.5 Methan-Reformierung.................................................................................. 94
+5.2.6 Umsetzung der Teere.................................................................................... 95
+6 
+Experimentelle Untersuchungen zur Pyrolyse, Verbrennung und Vergasung
+verschiedener Einsatzstoffe in der Wirbelschicht ..................................................... 98
+6.1 
+Beschreibung der Versuchsanlage........................................... *............................. 98
+6.1.1 Aufbau der Laborwirbelschicht und messtechnische Ausstattung............... 98
+6.1.2 Charakterisierung der eingesetzten Brennstoffe........................................... 99
+6.1.3 Messdatenaufbereitung............................................................................... 100
+6.1.4 Versuchsdurchfuhrung ............................................................................... 102
+6.2 
+Pyrolyseuntersuchungen in der Wirbelschicht..................................................... 105
+6.3 
+Untersuchungen der Verbrennung in der Wirbelschicht ..................................... 108
+6.3.1 Ermittlung globaler Verbrennungsraten in der Wirbelschicht ................... 108
+6.3.2 Untersuchung der Kinetik der Restkoksverbrennung in der Wirbel-
+schicht 
+111

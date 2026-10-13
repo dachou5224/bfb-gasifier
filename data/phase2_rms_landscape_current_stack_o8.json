@@ -1,0 +1,391 @@
+{
+  "note": "§5.35 residual landscape on gate+hot+LSQ2 stack",
+  "metrics": {
+    "exit_CO": 0.1593639985784646,
+    "rms": 0.04607473398390887,
+    "wall_s": 334.531788539,
+    "groups": {
+      "gas_rms": 0.02083823719380887,
+      "solid_rms": 0.0036980688429118073,
+      "energy_rms": 0.06515950633645155,
+      "gas_max_abs": 0.09849767562889655,
+      "solid_max_abs": 0.018189661892997852,
+      "energy_max_abs": 0.1334291473738196
+    }
+  },
+  "topk12": [
+    {
+      "flat_k": 40,
+      "F_hat": -0.1334291473738196,
+      "abs": 0.1334291473738196,
+      "cell": 0,
+      "cell_type": "bed",
+      "kind": "solid_or_other",
+      "local": 40
+    },
+    {
+      "flat_k": 163,
+      "F_hat": 0.13255391866041683,
+      "abs": 0.13255391866041683,
+      "cell": 3,
+      "cell_type": "bed",
+      "kind": "solid_or_other",
+      "local": 40
+    },
+    {
+      "flat_k": 126,
+      "F_hat": -0.09849767562889655,
+      "abs": 0.09849767562889655,
+      "cell": 3,
+      "cell_type": "bed",
+      "kind": "gas",
+      "phase": "dense",
+      "species": "H2O"
+    },
+    {
+      "flat_k": 371,
+      "F_hat": 0.08534692199765513,
+      "abs": 0.08534692199765513,
+      "cell": 9,
+      "cell_type": "bed",
+      "kind": "gas",
+      "phase": "dense",
+      "species": "H2"
+    },
+    {
+      "flat_k": 372,
+      "F_hat": -0.07374414606431956,
+      "abs": 0.07374414606431956,
+      "cell": 9,
+      "cell_type": "bed",
+      "kind": "gas",
+      "phase": "dense",
+      "species": "H2O"
+    },
+    {
+      "flat_k": 330,
+      "F_hat": 0.07060383288757952,
+      "abs": 0.07060383288757952,
+      "cell": 8,
+      "cell_type": "bed",
+      "kind": "gas",
+      "phase": "dense",
+      "species": "H2"
+    },
+    {
+      "flat_k": 331,
+      "F_hat": -0.06123962817260693,
+      "abs": 0.06123962817260693,
+      "cell": 8,
+      "cell_type": "bed",
+      "kind": "gas",
+      "phase": "dense",
+      "species": "H2O"
+    },
+    {
+      "flat_k": 289,
+      "F_hat": 0.061100863114445673,
+      "abs": 0.061100863114445673,
+      "cell": 7,
+      "cell_type": "bed",
+      "kind": "gas",
+      "phase": "dense",
+      "species": "H2"
+    },
+    {
+      "flat_k": 122,
+      "F_hat": -0.0598304213831855,
+      "abs": 0.0598304213831855,
+      "cell": 2,
+      "cell_type": "bed",
+      "kind": "solid_or_other",
+      "local": 40
+    },
+    {
+      "flat_k": 46,
+      "F_hat": 0.057486456216371315,
+      "abs": 0.057486456216371315,
+      "cell": 1,
+      "cell_type": "bed",
+      "kind": "gas",
+      "phase": "dense",
+      "species": "O2"
+    },
+    {
+      "flat_k": 248,
+      "F_hat": 0.05463519155689919,
+      "abs": 0.05463519155689919,
+      "cell": 6,
+      "cell_type": "bed",
+      "kind": "gas",
+      "phase": "dense",
+      "species": "H2"
+    },
+    {
+      "flat_k": 43,
+      "F_hat": 0.05366272823277578,
+      "abs": 0.05366272823277578,
+      "cell": 1,
+      "cell_type": "bed",
+      "kind": "gas",
+      "phase": "dense",
+      "species": "H2"
+    }
+  ],
+  "global": {
+    "gas_rms": 0.06189189145443986,
+    "solid_rms": 0.0033758595407830426,
+    "energy_rms": 0.04607473398390887,
+    "split": 0.03082093386074446,
+    "rms": 0.0454964896621753
+  },
+  "beds": [
+    {
+      "bed": 0,
+      "cell_type": "bed",
+      "T": 1149.114386472731,
+      "gas_rms": 0.05611008131177917,
+      "split_rss": 0.04359678944364933,
+      "energy_abs": 0.1334291473738196,
+      "solid_rms": 0.004083306427409966,
+      "sp_max": {
+        "abs": 0.03245681923013058,
+        "phase": "d",
+        "sp": "H2"
+      }
+    },
+    {
+      "bed": 1,
+      "cell_type": "bed",
+      "T": 1150.8504884227248,
+      "gas_rms": 0.09757090411076798,
+      "split_rss": 0.053904925803458126,
+      "energy_abs": 0.010695199494212729,
+      "solid_rms": 0.019871847714132192,
+      "sp_max": {
+        "abs": 0.057486456216371315,
+        "phase": "d",
+        "sp": "O2"
+      }
+    },
+    {
+      "bed": 2,
+      "cell_type": "bed",
+      "T": 1150.5756920867113,
+      "gas_rms": 0.06602741361190101,
+      "split_rss": 0.04629657005185566,
+      "energy_abs": 0.0598304213831855,
+      "solid_rms": 0.012302081473144065,
+      "sp_max": {
+        "abs": 0.04926660511551109,
+        "phase": "d",
+        "sp": "H2"
+      }
+    },
+    {
+      "bed": 3,
+      "cell_type": "bed",
+      "T": 1150.5014900990222,
+      "gas_rms": 0.13050763088507972,
+      "split_rss": 0.09148105799435441,
+      "energy_abs": 0.13255391866041683,
+      "solid_rms": 0.022005855479614166,
+      "sp_max": {
+        "abs": 0.09849767562889655,
+        "phase": "d",
+        "sp": "H2O"
+      }
+    },
+    {
+      "bed": 4,
+      "cell_type": "bed",
+      "T": 1150.5193855085474,
+      "gas_rms": 0.08444892752764373,
+      "split_rss": 0.08411105752055582,
+      "energy_abs": 0.004046873453761416,
+      "solid_rms": 0.019450696355404796,
+      "sp_max": {
+        "abs": 0.0499459877120269,
+        "phase": "d",
+        "sp": "CO"
+      }
+    },
+    {
+      "bed": 5,
+      "cell_type": "bed",
+      "T": 1150.5491269299052,
+      "gas_rms": 0.08827980888630407,
+      "split_rss": 0.08796647968932017,
+      "energy_abs": 0.037907170061277404,
+      "solid_rms": 0.016517878040986398,
+      "sp_max": {
+        "abs": 0.05219116561702041,
+        "phase": "d",
+        "sp": "CO"
+      }
+    },
+    {
+      "bed": 6,
+      "cell_type": "bed",
+      "T": 1150.573659971074,
+      "gas_rms": 0.07580660278067762,
+      "split_rss": 0.07429652704672518,
+      "energy_abs": 0.011909182052133307,
+      "solid_rms": 0.017676118566856327,
+      "sp_max": {
+        "abs": 0.05463519155689919,
+        "phase": "d",
+        "sp": "H2"
+      }
+    },
+    {
+      "bed": 7,
+      "cell_type": "bed",
+      "T": 1150.5945801935873,
+      "gas_rms": 0.08502351900409508,
+      "split_rss": 0.08332460370095335,
+      "energy_abs": 0.030333089985308617,
+      "solid_rms": 0.017372515251245446,
+      "sp_max": {
+        "abs": 0.061100863114445673,
+        "phase": "d",
+        "sp": "H2"
+      }
+    },
+    {
+      "bed": 8,
+      "cell_type": "bed",
+      "T": 1150.6197850681444,
+      "gas_rms": 0.09960158922605296,
+      "split_rss": 0.09755092156540053,
+      "energy_abs": 0.0006982180295653667,
+      "solid_rms": 0.014117901300643587,
+      "sp_max": {
+        "abs": 0.07060383288757952,
+        "phase": "d",
+        "sp": "H2"
+      }
+    },
+    {
+      "bed": 9,
+      "cell_type": "bed",
+      "T": 1150.6474463787813,
+      "gas_rms": 0.1223318431351925,
+      "split_rss": 0.11997462801311173,
+      "energy_abs": 0.029562207688591507,
+      "solid_rms": 0.014941403946804892,
+      "sp_max": {
+        "abs": 0.08534692199765513,
+        "phase": "d",
+        "sp": "H2"
+      }
+    },
+    {
+      "bed": 10,
+      "cell_type": "freeboard",
+      "T": 942.2062866697488,
+      "gas_rms": 0.29041615457764625,
+      "split_rss": 0.0,
+      "energy_abs": 9.759631402558335e-05,
+      "solid_rms": 0.0,
+      "sp_max": null
+    },
+    {
+      "bed": 11,
+      "cell_type": "freeboard",
+      "T": 889.2398780452077,
+      "gas_rms": 0.00013473852788331795,
+      "split_rss": 0.0,
+      "energy_abs": 2.9618989806488248e-06,
+      "solid_rms": 0.0,
+      "sp_max": null
+    },
+    {
+      "bed": 12,
+      "cell_type": "freeboard",
+      "T": 835.5491588875202,
+      "gas_rms": 4.1852565130871695e-06,
+      "split_rss": 0.0,
+      "energy_abs": 2.911324305161218e-06,
+      "solid_rms": 0.0,
+      "sp_max": null
+    },
+    {
+      "bed": 13,
+      "cell_type": "freeboard",
+      "T": 794.1078199192716,
+      "gas_rms": 0.9494112685758814,
+      "split_rss": 0.0,
+      "energy_abs": 3.3179449921711773e-07,
+      "solid_rms": 0.0,
+      "sp_max": null
+    },
+    {
+      "bed": 14,
+      "cell_type": "freeboard",
+      "T": 739.2566236540079,
+      "gas_rms": 2.2636412757090213e-06,
+      "split_rss": 0.0,
+      "energy_abs": 2.825791642257934e-06,
+      "solid_rms": 0.0,
+      "sp_max": null
+    },
+    {
+      "bed": 15,
+      "cell_type": "freeboard",
+      "T": 683.5931685225661,
+      "gas_rms": 1.058617327061939e-06,
+      "split_rss": 0.0,
+      "energy_abs": 2.824859107458369e-06,
+      "solid_rms": 0.0,
+      "sp_max": null
+    },
+    {
+      "bed": 16,
+      "cell_type": "freeboard",
+      "T": 627.1113721504943,
+      "gas_rms": 5.862810996104083e-07,
+      "split_rss": 0.0,
+      "energy_abs": 2.758912543121273e-06,
+      "solid_rms": 0.0,
+      "sp_max": null
+    },
+    {
+      "bed": 17,
+      "cell_type": "freeboard",
+      "T": 569.8210895396112,
+      "gas_rms": 3.015442962861955e-07,
+      "split_rss": 0.0,
+      "energy_abs": 2.771796002312482e-06,
+      "solid_rms": 0.0,
+      "sp_max": null
+    },
+    {
+      "bed": 18,
+      "cell_type": "cyclone",
+      "T": 569.8210895396112,
+      "gas_rms": 0.0,
+      "split_rss": 0.0,
+      "energy_abs": 0.0,
+      "solid_rms": 0.0,
+      "sp_max": null
+    },
+    {
+      "bed": 19,
+      "cell_type": "return_leg",
+      "T": 569.8210895396112,
+      "gas_rms": 0.0,
+      "split_rss": 0.0,
+      "energy_abs": 0.0,
+      "solid_rms": 0.0,
+      "sp_max": null
+    }
+  ],
+  "bed2_R": {
+    "H2O": -3.0570811303395784,
+    "H2": 4.15942772776628,
+    "O2": 0.0,
+    "CO": 3.878595635095341,
+    "CO2": 0.2195259027070015
+  }
+}

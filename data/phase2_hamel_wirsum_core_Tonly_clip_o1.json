@@ -1,0 +1,31 @@
+{
+  "note": "HAMEL_WIRSUM_CORE o1, clip=T-only (no holdup FTB)",
+  "wall_s": 40.948789039,
+  "exit_CO": 0.012019838590470941,
+  "exit_H2": 0.0,
+  "rms": 0.020409942473962654,
+  "split": 0.03934387267972454,
+  "energy": 0.06849139995924303,
+  "converged": false,
+  "n_acc": 0,
+  "lambda_hist": [
+    null
+  ],
+  "ls_trials_hist": [
+    12
+  ],
+  "clip0": {
+    "failed": true,
+    "lam": null,
+    "trials": 12,
+    "best_trial_rms": 172473.92657738848,
+    "best_trial_lam": 0.00048828125,
+    "linear_defect": 0.0006053088785028912,
+    "clip_defect": 0.0006053088785028912,
+    "clip_disp": 0.0,
+    "clipped_fraction": 0.0,
+    "clipped_components": 0,
+    "temp_clipped_cells": 0,
+    "max_abs_dT_step": 349.49467686942853
+  }
+}

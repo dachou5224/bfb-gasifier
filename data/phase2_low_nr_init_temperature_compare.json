@@ -1,0 +1,80 @@
+[
+  {
+    "label": "baseline_1180",
+    "seed_mode": "adiabatic_anchor",
+    "cap_K": 1180.0,
+    "floor_K": 1050.0,
+    "fence_lower_margin_K": 150.0,
+    "bed0_T_init_K": 1180.0,
+    "bed0_T_fence_min_K": 1030.0,
+    "bed0_T_fence_max_K": 1530.0,
+    "bed_T_init_K": [
+      1180.0,
+      1161.6444444444444,
+      1143.2888888888888
+    ],
+    "bed_T_solved_K": [
+      1030.0,
+      1111.898658296582,
+      1111.4402684745298
+    ],
+    "converged_fully": true,
+    "rms_scaled_final": 0.004373159090354389,
+    "co_exit": 0.08801750370788262,
+    "co2_exit": 0.16676151104189177,
+    "score_co_co2": 0.8389560159146043,
+    "wall_time_s": 77.510962752
+  },
+  {
+    "label": "adiabatic_cap900",
+    "seed_mode": "adiabatic_anchor",
+    "cap_K": 900.0,
+    "floor_K": 720.0,
+    "fence_lower_margin_K": 80.0,
+    "bed0_T_init_K": 900.0,
+    "bed0_T_fence_min_K": 820.0,
+    "bed0_T_fence_max_K": 1250.0,
+    "bed_T_init_K": [
+      900.0,
+      902.2222222222222,
+      904.4444444444445
+    ],
+    "bed_T_solved_K": [
+      879.9035222609683,
+      976.6875052179578,
+      1011.6088894931838
+    ],
+    "converged_fully": true,
+    "rms_scaled_final": 0.003584907913496916,
+    "co_exit": 0.053481249966498036,
+    "co2_exit": 0.1838652442422691,
+    "score_co_co2": 1.2601079898727412,
+    "wall_time_s": 100.794416784
+  },
+  {
+    "label": "seed850_progress",
+    "seed_mode": "budget_progress",
+    "cap_K": 1000.0,
+    "floor_K": 720.0,
+    "fence_lower_margin_K": 100.0,
+    "bed0_T_init_K": 903.3031730752801,
+    "bed0_T_fence_min_K": 803.3031730752801,
+    "bed0_T_fence_max_K": 1253.30317307528,
+    "bed_T_init_K": [
+      903.3031730752801,
+      921.1828813871393,
+      932.4173616012524
+    ],
+    "bed_T_solved_K": [
+      886.9203162336222,
+      1025.760217182145,
+      1074.086250628547
+    ],
+    "converged_fully": true,
+    "rms_scaled_final": 0.008205539095534424,
+    "co_exit": 0.07769912529780235,
+    "co2_exit": 0.17066951227316526,
+    "score_co_co2": 0.9538554414512745,
+    "wall_time_s": 276.663865189
+  }
+]

@@ -1009,12 +1009,13 @@ def build_vorabrechnung_cell_budgets(
 
 
 def vorabrechnung_tau_for_cell(cell: Cell) -> float:
-    """Vorabrechnung 使用的固相停留时间尺度 [s]。
+    """工程固相时间尺度 [s]：``H_bed / u_mf``（``engineering_H_over_umf``）。
 
-    使用全床高度除以 u_mf 作为固相停留时间估计，确保干燥和热解在
-    Vorabrechnung 预计算时接近完全（Hamel 单次预算语义）。
-    非均匀床层网格必须使用显式 ``_vorab_bed_height``；``n_cells * dh``
-    仅作为旧 uniform-mesh fallback。
+    不是 Hamel 颗粒轴向停留分布，也不是按粒径的释放映射。
+    公式保持 ``max(H_bed, dh) / max(u_mf, 1e-3)``，本阶段只具名。
+    非均匀床必须设 ``_vorab_bed_height``；``n_cells * dh`` 仅作旧网格回退。
+
+    Source: 工程 Vorabrechnung 实现；docs/audit_reports/secondary_diagnosis_2026-09-14.md §9 D
     """
     bed_height = getattr(cell, "_vorab_bed_height", None)
     if bed_height is None:

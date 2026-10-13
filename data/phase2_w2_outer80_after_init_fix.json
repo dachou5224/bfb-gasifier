@@ -1,0 +1,65 @@
+{
+  "matrix": "validation_cases_chemistry_map §7",
+  "cases_requested": [
+    "CASE_HTW_WESSELING_2"
+  ],
+  "ladder_level": "p2",
+  "max_global_iter": 80,
+  "unity_scales": false,
+  "cases": {
+    "CASE_HTW_WESSELING_2": {
+      "case_key": "CASE_HTW_WESSELING_2",
+      "slot": "htw_o2_steam",
+      "branch": "O2+Steam",
+      "focus": "绝对 CO/H₂ ~3× LU；CO/(CO+CO₂) 趋势不下降",
+      "primary_agent": "o2_steam",
+      "fuel_type": "coal",
+      "ER": 0.268,
+      "P_MPa": 2.5,
+      "unity_scales": false,
+      "ladder_level": "p2",
+      "wall_time_s": 1052.252252515,
+      "converged_fully": true,
+      "rms_scaled_final": 0.007056607398980266,
+      "nr_outer_iters": 74,
+      "bed0_T_K": 904.214663488473,
+      "reference": {
+        "CO": 0.404,
+        "CO2": 0.283,
+        "H2": 0.307,
+        "CH4": 0.058,
+        "T_exit_K": 1220.0,
+        "co_co2_ratio": 0.5880640465793304
+      },
+      "simulated": {
+        "CO": 0.2845685752251066,
+        "CO2": 0.360919189864998,
+        "H2": 0.32778477005158857,
+        "CH4": 0.014982854135086265,
+        "T_exit_K": 1111.3610769113,
+        "co_co2_ratio": 0.44085820152669086
+      },
+      "relative_error": {
+        "CO": 0.2956223385517164,
+        "CO2": 0.27533282637808487,
+        "H2": 0.06770283404426246,
+        "CH4": 0.7416749287054092,
+        "T_exit_K": 0.08904829761368856
+      },
+      "within_hamel_band": {
+        "CO": false,
+        "CO2": false,
+        "H2": true,
+        "CH4": false,
+        "T_exit_K": true
+      },
+      "cfg_scales": {
+        "r2_scale": 1.0,
+        "r4_scale": 0.5,
+        "r5_scale": 0.25,
+        "r8_scale": 1.0
+      }
+    }
+  },
+  "trends": {}
+}

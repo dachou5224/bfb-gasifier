@@ -1,3 +1,8 @@
+"""Phase0 反应动力学薄封装（已弃用）。
+
+Canonical：``src.core.cell_kinetics.build_reaction_sources``。
+"""
+
 from __future__ import annotations
 import numpy as np
 from src.gasifier.domain.config import SolidProperties, OperatingCondition, SimulationConfig
@@ -6,7 +11,7 @@ from src.core.cell_kinetics import build_reaction_sources, ReactionSourceBundle
 from src.core.cell import S_CHAR, N_SOLID_COMP
 
 class ReactionModel:
-    """动力学模型：计算所有单元的化学反应速率与源项。"""
+    """Phase0 演示：单 cell 反应源项（经 correlations 倍率）。"""
     def __init__(self, solid: SolidProperties, op: OperatingCondition, sim: SimulationConfig):
         self.solid = solid
         self.op = op
@@ -27,7 +32,8 @@ class ReactionModel:
         areas: np.ndarray, 
         D_g: float, 
         char_conversion: float, 
-        rho_cat: float, 
+        rho_cat: float,
+        rho_ash_kg_m3: float,
         gibbs_minor: dict | None, 
         rate_multiplier: float, 
         N_zu_d: np.ndarray, 
@@ -36,7 +42,8 @@ class ReactionModel:
         N_b_in: np.ndarray, 
         N_rez_d: np.ndarray, 
         N_rez_b: np.ndarray, 
-        N_ex: np.ndarray
+        N_ex: np.ndarray,
+        m_char_classes: np.ndarray | None = None,
     ) -> ReactionSourceBundle:
         """计算单个单元的反应源项。"""
         bounded_multiplier = effective_rate_multiplier(rate_multiplier)
@@ -54,16 +61,20 @@ class ReactionModel:
             solid_sink_vm=solid_sink_vm,
             areas=areas,
             solid_d_p=self.solid.d_p,
+            m_char_classes=m_char_classes,
             D_g=D_g,
             char_conversion=char_conversion,
             rho_cat=rho_cat,
+            rho_ash_kg_m3=rho_ash_kg_m3,
             enable_r12=self.sim.enable_r12,
             use_gibbs_minor=self.sim.use_gibbs_minor,
             gibbs_minor_sources=gibbs_minor,
             r4_scale=self.sim.r4_scale,
+            r2_scale=getattr(self.sim, "r2_scale", 1.0),
             r5_scale=self.sim.r5_scale,
             r6_scale=self.sim.r6_scale,
             r7_scale=self.sim.r7_scale,
+            r8_scale=getattr(self.sim, "r8_scale", 1.0),
             rate_multiplier=bounded_multiplier,
             N_zu_d=N_zu_d,
             N_d_in=N_d_in,

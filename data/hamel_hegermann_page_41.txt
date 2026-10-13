@@ -1,0 +1,95 @@
+62
+4 Trocknung und Pyrolyse des Brennsto ffs
+4 Trocknung und Pyrolyse des Brennsto ffs
+63
+Freigesetzte Teermenge gemessen
+in Gew.% bez. auf Brennstoff(waf)
+40
+A
+30
+&
+Oo
+o o
+o
+&
+20
+O
+| Berechnung der Teerfreisetzung der Pyrolyse
+' verschiedener Kohlen nach Ko et al. 1988
+o ausgewählte Literatur nach Ko et al.1988 *)
+■ Wirbelschichtpyrolyse (600°C) Tyler 1980
+x Wirbelschichtpyrolyse (540/600°C) Khan 1989
+A Pyrolyse (700°C) Güell und Kandiyoti 1993
+__________ _____________*) bezogen auf Kohle(wmf) ____________
+40
+10
+0 +
+0
+10 
+20 
+30
+Freigesetzte Teermenge berechnet
+in Gew.-% bez. auf Brennstoff(waf)
+Insbesondere bei Steinkohlen kann der Unterschied zwischen Mineral- und Aschegehalt be-
+trächtlich sein (Brandt 1981). Bei Kenntnis des Aschegehaltes und des Gesamtschwefelge-
+haltes aus der Elementaranalyse schlägt Ko et al. (1987,1988) vor, den Mineralgehalt nach der
+Gleichung von Parr (1932) zu berechnen:
+XMineral 
+1,08 ‘ X fache 
+0,55 * XSchwefel 
+(4,19)
+Der Schwefelgehalt der organischen Substanz XsOrg.wmf wird ebenfalls mit Gleichung (4.19)
+ermittelt. Die tatsächliche, vom Druck abhängige Teerausbeute wird in Abhängigkeit des
+kohlespezifischen Parameters x feer durch einen linearen Ansatz berechnet:
+XTeer,wmf 
+@(fp) ' X fache 
+(fp) ' x
+Teer 
+(4.20)
+mit den Koeffizienten
+für Kohlen mit x ’reer < 15
+a - 2 und b = 0
+für Kohlen mit 15 < x ’reer 
+31
+a = 1/(0,021533 + 0,02865 • L P ) - 36
+b = 0,50803 + 0,696487 • L P - 0,06959 ■ L P
+2
+für Kohlen mit x ’reer >31
+a = 11,24071 + 9,743707 • L P - 0,91326 ■ L P
+2
+b = 0
+mit LP = 1 - logi0(P- 10’6)
+P = P 
+für P < 2,5 • 106 Pa
+P = 2,5 -IO6 Pa für P > 2,5 • 106 Pa
+Das beschriebene Teermodell von Ko et al, (1988) liefert für die berechnete Teerfreisetzung
+eine gute Übereinstimmung im Vergleich mit den von Ko et al. (1988) zusammengestellten
+Messergebnissen (Bild 4.7). Die Korrelation wurde anhand von Pyrolyseversuchen mit Koh-
+len mit mittleren Partikeldurchmessem von 50 bis 100 jim abgeleitet. Daher ist eine Extrapo-
+lation der Ergebnisse auf in der Wirbelschicht üblicherweise eingesetzte Partikelgrößen als
+kritisch zu betrachten. Bild 4.7 zeigt einen Vergleich zwischen weiteren Literaturdaten zur
+Teerfreisetzung und Berechnungen des Modells. Die Anwendung des Modells auf andere
+Kohlen und Wirbelschichtbedingungen lässt im Vergleich zu den Daten aus Ko et al. bereits
+deutliche Abweichungen zwischen Messung und Berechnung erkennen. Das Teermodell nach
+Ko et al. (1988) wird in dieser Arbeit daher zur Abschätzung der zu erwartenden Teerausbeute
+für Kohlen herangezogen, für die keine ausreichenden Pyrolysedaten zur Verfügung stehen.
+Bild 4.7: Vergleich zwischen berechneten und gemessenen Teermengen aus der Pyrolyse
+verschiedener Kohlen. Die Berechnung erfolgte mit Hilfe des Modells von Ko et
+al. (1988). Neben den von Ko et al. (1988) verwendeten Daten ist die Anwendung
+des Modells auf weitere Literaturdaten zur Kohlenpyrolyse dargestellt.
+4.2.1.2 Rheinische Braunkohle
+Die Ausbeuten von Koks und Teer werden hier nach einer von Hegermann (1990) veröffent-
+lichten Elementarbilanz für die Pyrolyse Rheinischer Braunkohle unter Druckwirbelschicht-
+bedingungen berechnet. Die Ergebnisse von Hegermann (1990) basieren auf Pyrolyseunter-
+suchungen in der Wirbelschicht bei Drücken von 0,2 bis 2,5 MPa und Temperaturen von
+800 - 1.000 °C. Die angegebene Verteilung des Kohlenstoffs in Koks und Teer wird jeweils
+mit Hilfe empirisch bestimmter Zahlenwertgleichungen approximiert, wobei der Druck in
+Pascal und die Temperatur in Kelvin einzusetzen sind. Für die Berechnung des nach der Py-
+rolyse im Koks vorliegenden Kohlenstoffanteils gilt:
+p 
+2
+X C,Koks “9/ Grs 93 
+2 WS
+in ------ ksCjmKoh
+kg C im Brennstoff (waf)
+}

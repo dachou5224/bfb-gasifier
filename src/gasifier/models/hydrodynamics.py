@@ -1,10 +1,15 @@
+"""Phase0 GlobalState 流体力学薄封装（已弃用）。
+
+Canonical：``src.core.cell_hydrodynamics.calc_cell_hydrodynamics`` / ``Reactor`` 床层刷新。
+"""
+
 from __future__ import annotations
 from src.gasifier.domain.state import GlobalState
 from src.gasifier.domain.config import PlantData, SolidProperties, OperatingCondition, SimulationConfig
 from src.core.cell_hydrodynamics import calc_cell_hydrodynamics, HydrodynamicsBundle
 
 class HydrodynamicsModel:
-    """流体力学模型：计算所有单元的流动参数。"""
+    """Phase0 演示：在 GlobalState 上批量调用 ``calc_cell_hydrodynamics``。"""
     def __init__(self, plant: PlantData, solid: SolidProperties, op: OperatingCondition, sim: SimulationConfig):
         self.plant = plant
         self.solid = solid

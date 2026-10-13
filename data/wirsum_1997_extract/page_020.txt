@@ -1,0 +1,61 @@
+Blase
+Bild 2.3. Massenströme einer bilanzierten Partikelgrößenklasse l der Feststoffsorte j im Bilanzraum i des
+Zellenmodells.
+Bild 2.4. Energieströme am Bilanzraum i des Zellenmodells.
+Energiestrom aus der Zelle i in die Zelle i — 1
+Energiestrom aus der Zelle i in die Zelle i + 1
+H?u
+durch Gas- und Feststoffströme von außen in die Zelle i zugeführter
+Energiestrom
+Qi b
+durch Wärmeverluste abgeführter Energiestrom
+Bei der Formulierung der Energiebilanz werden kinetische und potentielle Energien vernach-
+lässigt. Die an Stoffströme gebundenen Energieströme werden wie folgt berechnet:
+Nphs 
+Gas 
+Npst Nd.p,j
+Hi = y~ y 
++ yy yy 
+(2-14)
+k=l j=l 
+j=l z=l
+Die durch Hi bezeichneten Energieströme beinhalten im Falle der aktiven Gase und Feststoffe
+auch die Standardbildungsenthalpie.
+2.3.3 Berechnungsverfahren zur Lösung der Zellbilanzgleichungen
+Die bei der Modellierung des Reaktors angewandte Methode der Bilanzierung von Stoff- und
+Energieströmen mittels einer integralen Betrachtungsweise führt für den stationären Behar-
+rungszustand zu einem nichtlinearen algebraischen Gleichungssystem. Das Verfahren zur
+Lösung des nichtlinearen Bilanzgleichungssystems basiert auf einem von Wozny [149] ver-
+wendeten Newton-Raphson-Algorithmus. Dieser Algorithmus ist speziell auf Systeme mit
+blocktridiagonalen Funktionalmatritzen angepaßt.
+Bezeichnet man mit
+X£ =f
+(Xi,X 2 , ...
+““,£+1 
+Stoffstrom der Partikelklasse l des Feststoffs j aus der unteren Zelle i 4- 1
+in die Zelle i
+Stoffstrom der Partikelklasse l des Feststoffs j aus der Zelle i nach oben
+Stoffstrom der Partikelklasse l des Feststoffs j aus der oberen Zelle i — 1
+in die Zelle i
+Stoffstrom der Partikelklasse l des Feststoffs j aus der Zelle i nach unten
+Stoffstrom in die Partikelklasse l des Feststoffs j aus der nächst größeren
+bzw. kleineren Partikelgrößenklasse durch Schrumpfung bzw. Wachstum
+mjj £
+Stoffstrom aus der Partikelklasse l des Feststoffs j in die nächst größere
+bzw. kleineren Partikelgrößenklasse durch Wachstum bzw. Schrumpfung
+2.3.2.3 
+Bilanzierung der Energieströme Die Energieströme werden unabhängig von
+der Anzahl der Phasen in einer Zelle für die gesamte Zelle bilanziert. Transportmechanismen
+für die Energie sind im Bilanzraum zu- und abgeführte Stoffströme, Wärmetönung durch
+chemische Reaktion sowie Wärmeleitung durch die Reaktorwand. In Bild 2.4 sind am Beispiel
+einer Zelle i die zu berücksichtigenden Energieströme dargestellt.
+Die Energiestrombilanz lautet somit:
+- Hf + Hf, - Hf' + Hf - Qf = o 
+(2.13)
+In Gleichung (2.13) bedeutet
+Energiestrom in die Zelle i, welcher an Gas- und Feststoffströme aus der
+Zelle i + 1 gebunden ist
+Energiestrom in die Zelle z, welcher an Gas- und Feststoffströme aus der
+Zelle i — 1 gebunden ist
+20
+21

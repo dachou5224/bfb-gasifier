@@ -1,3 +1,8 @@
+"""Phase0 GlobalState 残差组装薄封装（已弃用）。
+
+Canonical：``src.core.cell_balances`` / ``Cell.residuals``（NR 主路径）。
+"""
+
 from __future__ import annotations
 from dataclasses import dataclass
 import numpy as np
@@ -12,7 +17,7 @@ from src.gasifier.domain.state import GlobalState
 from src.gasifier.domain.config import SolidProperties
 
 class BalanceBuilder:
-    """平衡构建器：根据各物理模型的计算结果组装全局残差向量。"""
+    """Phase0 演示：在 GlobalState 上组装单 cell 残差向量。"""
     def __init__(self, solid_props: SolidProperties):
         self.solid_props = solid_props
 

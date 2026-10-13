@@ -5,12 +5,8 @@ from __future__ import annotations
 
 import argparse
 import math
-import sys
-from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+import _lu_harness  # noqa: F401
 
 from src.core.constants import P0, g
 from src.core.reactor import Reactor
@@ -22,11 +18,8 @@ from src.physics.bubble_dynamics import (
     integrate_bubble_diameter,
 )
 from src.workflow.steps.init_precalc_step import run_init_and_precalc_for_global_nr
-from tests.validation_case_utils import (
-    PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS,
-    build_phase1_htw_lu_global_nr_reactor_config,
-    load_case_LU,
-)
+from _lu_harness import load_case_lu, phase1_global_nr_solve_kwargs
+from tests.validation_case_utils import build_phase1_htw_lu_global_nr_reactor_config
 
 
 def _hamel_lambda_b(u_mf: float, P: float) -> float:
@@ -77,14 +70,15 @@ def main() -> int:
     ap.add_argument("--tol-global", type=float, default=None, help="override phase1 global NR tolerance")
     args = ap.parse_args()
 
-    case = load_case_LU()
+    case = load_case_lu()
     cfg = build_phase1_htw_lu_global_nr_reactor_config(case)
     reactor = Reactor(cfg)
+    p1_kw = phase1_global_nr_solve_kwargs()
 
     # 先看正式 INIT+PRECALC hydrodynamics，而不是 feed-free 裸 calc_hydrodynamics。
     precalc = run_init_and_precalc_for_global_nr(
         reactor,
-        init_strategy=PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS.get("nr_init_strategy"),
+        init_strategy=p1_kw.get("nr_init_strategy"),
         gs_warmup_steps=None,
     )
     init_rows = _collect_bed_hydro_rows(reactor)
@@ -113,7 +107,7 @@ def main() -> int:
         print(f"init_hydrodynamics_bounds={'PASS' if ok else 'FAIL'}")
         return 0 if ok else 1
 
-    solve_kwargs = dict(PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS)
+    solve_kwargs = phase1_global_nr_solve_kwargs()
     if args.max_global_iter is not None:
         solve_kwargs["max_global_iter"] = int(args.max_global_iter)
     if args.tol_global is not None:

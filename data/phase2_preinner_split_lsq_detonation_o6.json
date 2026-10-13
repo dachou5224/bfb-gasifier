@@ -1,0 +1,1131 @@
+{
+  "note": "preinner split LSQ detonation bed×species; local2x2 post-gate stack",
+  "max_global_iter": 6,
+  "wall_s": 118.577932136,
+  "exit_CO": 0.112725099413974,
+  "rms": 0.06276766930899909,
+  "split": 0.050504543916666304,
+  "n_events": 16,
+  "n_detonations": 8,
+  "detonation_by_bed": {
+    "0": 8
+  },
+  "detonation_argmax_species": {
+    "H2O": 8
+  },
+  "events": [
+    {
+      "bridge": 1,
+      "bed": 0,
+      "lsq_ok": false,
+      "detonated": false,
+      "before": {
+        "rms": 0.019708545259475404,
+        "max_abs": 0.22470871655494495,
+        "argmax": {
+          "cell": 3,
+          "phase": "bubble",
+          "species": "N2",
+          "kind": "gas",
+          "F_hat": -0.22470871655494495
+        }
+      },
+      "after": {
+        "rms": 0.019708545259475404,
+        "max_abs": 0.22470871655494495,
+        "argmax": {
+          "cell": 3,
+          "phase": "bubble",
+          "species": "N2",
+          "kind": "gas",
+          "F_hat": -0.22470871655494495
+        },
+        "top5": [
+          {
+            "flat_k": 139,
+            "F_hat": -0.22470871655494495,
+            "cell": 3,
+            "phase": "bubble",
+            "species": "N2"
+          },
+          {
+            "flat_k": 40,
+            "F_hat": -0.14518865701276198,
+            "cell": 0,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 81,
+            "F_hat": -0.13078800629708018,
+            "cell": 1,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 327,
+            "F_hat": -0.12478912675509587,
+            "cell": 7,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 163,
+            "F_hat": 0.08959420122505024,
+            "cell": 3,
+            "kind": "non_gas",
+            "local_idx": 40
+          }
+        ]
+      },
+      "d_rms": 0.0,
+      "d_max": 0.0
+    },
+    {
+      "bridge": 1,
+      "bed": 1,
+      "lsq_ok": true,
+      "detonated": false,
+      "before": {
+        "rms": 0.019708545259475404,
+        "max_abs": 0.22470871655494495,
+        "argmax": {
+          "cell": 3,
+          "phase": "bubble",
+          "species": "N2",
+          "kind": "gas",
+          "F_hat": -0.22470871655494495
+        }
+      },
+      "after": {
+        "rms": 0.01965542608055662,
+        "max_abs": 0.22470871655494495,
+        "argmax": {
+          "cell": 3,
+          "phase": "bubble",
+          "species": "N2",
+          "kind": "gas",
+          "F_hat": -0.22470871655494495
+        },
+        "top5": [
+          {
+            "flat_k": 139,
+            "F_hat": -0.22470871655494495,
+            "cell": 3,
+            "phase": "bubble",
+            "species": "N2"
+          },
+          {
+            "flat_k": 40,
+            "F_hat": -0.14518865701276198,
+            "cell": 0,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 81,
+            "F_hat": -0.13072064984960927,
+            "cell": 1,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 327,
+            "F_hat": -0.12478912675509587,
+            "cell": 7,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 163,
+            "F_hat": 0.08959420122505024,
+            "cell": 3,
+            "kind": "non_gas",
+            "local_idx": 40
+          }
+        ]
+      },
+      "d_rms": -5.3119178918783344e-05,
+      "d_max": 0.0
+    },
+    {
+      "bridge": 1,
+      "bed": 2,
+      "lsq_ok": true,
+      "detonated": false,
+      "before": {
+        "rms": 0.01965542608055662,
+        "max_abs": 0.22470871655494495,
+        "argmax": {
+          "cell": 3,
+          "phase": "bubble",
+          "species": "N2",
+          "kind": "gas",
+          "F_hat": -0.22470871655494495
+        }
+      },
+      "after": {
+        "rms": 0.019506360924890682,
+        "max_abs": 0.22132114722382829,
+        "argmax": {
+          "cell": 3,
+          "phase": "bubble",
+          "species": "N2",
+          "kind": "gas",
+          "F_hat": -0.22132114722382829
+        },
+        "top5": [
+          {
+            "flat_k": 139,
+            "F_hat": -0.22132114722382829,
+            "cell": 3,
+            "phase": "bubble",
+            "species": "N2"
+          },
+          {
+            "flat_k": 40,
+            "F_hat": -0.14518865701276198,
+            "cell": 0,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 81,
+            "F_hat": -0.13075642501243043,
+            "cell": 1,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 327,
+            "F_hat": -0.12478912675509587,
+            "cell": 7,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 163,
+            "F_hat": 0.08955115314801652,
+            "cell": 3,
+            "kind": "non_gas",
+            "local_idx": 40
+          }
+        ]
+      },
+      "d_rms": -0.00014906515566593878,
+      "d_max": -0.003387569331116669
+    },
+    {
+      "bridge": 2,
+      "bed": 0,
+      "lsq_ok": false,
+      "detonated": false,
+      "before": {
+        "rms": 0.0209271038282497,
+        "max_abs": 0.22130928632697777,
+        "argmax": {
+          "cell": 3,
+          "phase": "bubble",
+          "species": "N2",
+          "kind": "gas",
+          "F_hat": -0.22130928632697777
+        }
+      },
+      "after": {
+        "rms": 0.0209271038282497,
+        "max_abs": 0.22130928632697777,
+        "argmax": {
+          "cell": 3,
+          "phase": "bubble",
+          "species": "N2",
+          "kind": "gas",
+          "F_hat": -0.22130928632697777
+        },
+        "top5": [
+          {
+            "flat_k": 139,
+            "F_hat": -0.22130928632697777,
+            "cell": 3,
+            "phase": "bubble",
+            "species": "N2"
+          },
+          {
+            "flat_k": 409,
+            "F_hat": 0.15966299215983876,
+            "cell": 9,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 40,
+            "F_hat": -0.14524130799966364,
+            "cell": 0,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 327,
+            "F_hat": -0.1365414172419922,
+            "cell": 7,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 81,
+            "F_hat": -0.09816867797051715,
+            "cell": 1,
+            "kind": "non_gas",
+            "local_idx": 40
+          }
+        ]
+      },
+      "d_rms": 0.0,
+      "d_max": 0.0
+    },
+    {
+      "bridge": 2,
+      "bed": 1,
+      "lsq_ok": false,
+      "detonated": false,
+      "before": {
+        "rms": 0.0209271038282497,
+        "max_abs": 0.22130928632697777,
+        "argmax": {
+          "cell": 3,
+          "phase": "bubble",
+          "species": "N2",
+          "kind": "gas",
+          "F_hat": -0.22130928632697777
+        }
+      },
+      "after": {
+        "rms": 0.0209271038282497,
+        "max_abs": 0.22130928632697777,
+        "argmax": {
+          "cell": 3,
+          "phase": "bubble",
+          "species": "N2",
+          "kind": "gas",
+          "F_hat": -0.22130928632697777
+        },
+        "top5": [
+          {
+            "flat_k": 139,
+            "F_hat": -0.22130928632697777,
+            "cell": 3,
+            "phase": "bubble",
+            "species": "N2"
+          },
+          {
+            "flat_k": 409,
+            "F_hat": 0.15966299215983876,
+            "cell": 9,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 40,
+            "F_hat": -0.14524130799966364,
+            "cell": 0,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 327,
+            "F_hat": -0.1365414172419922,
+            "cell": 7,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 81,
+            "F_hat": -0.09816867797051715,
+            "cell": 1,
+            "kind": "non_gas",
+            "local_idx": 40
+          }
+        ]
+      },
+      "d_rms": 0.0,
+      "d_max": 0.0
+    },
+    {
+      "bridge": 2,
+      "bed": 2,
+      "lsq_ok": false,
+      "detonated": false,
+      "before": {
+        "rms": 0.0209271038282497,
+        "max_abs": 0.22130928632697777,
+        "argmax": {
+          "cell": 3,
+          "phase": "bubble",
+          "species": "N2",
+          "kind": "gas",
+          "F_hat": -0.22130928632697777
+        }
+      },
+      "after": {
+        "rms": 0.0209271038282497,
+        "max_abs": 0.22130928632697777,
+        "argmax": {
+          "cell": 3,
+          "phase": "bubble",
+          "species": "N2",
+          "kind": "gas",
+          "F_hat": -0.22130928632697777
+        },
+        "top5": [
+          {
+            "flat_k": 139,
+            "F_hat": -0.22130928632697777,
+            "cell": 3,
+            "phase": "bubble",
+            "species": "N2"
+          },
+          {
+            "flat_k": 409,
+            "F_hat": 0.15966299215983876,
+            "cell": 9,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 40,
+            "F_hat": -0.14524130799966364,
+            "cell": 0,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 327,
+            "F_hat": -0.1365414172419922,
+            "cell": 7,
+            "kind": "non_gas",
+            "local_idx": 40
+          },
+          {
+            "flat_k": 81,
+            "F_hat": -0.09816867797051715,
+            "cell": 1,
+            "kind": "non_gas",
+            "local_idx": 40
+          }
+        ]
+      },
+      "d_rms": 0.0,
+      "d_max": 0.0
+    },
+    {
+      "bridge": 3,
+      "bed": 0,
+      "lsq_ok": true,
+      "detonated": true,
+      "before": {
+        "rms": 0.06323696007306281,
+        "max_abs": 0.901670339856855,
+        "argmax": {
+          "cell": 13,
+          "kind": "solid_or_other",
+          "F_hat": 0.901670339856855
+        }
+      },
+      "after": {
+        "rms": 13.534564439922814,
+        "max_abs": 148.27113570045947,
+        "argmax": {
+          "cell": 0,
+          "phase": "bubble",
+          "species": "H2O",
+          "kind": "gas",
+          "F_hat": 148.27113570045947
+        },
+        "top5": [
+          {
+            "flat_k": 13,
+            "F_hat": 148.27113570045947,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 3,
+            "F_hat": 148.2711000297783,
+            "cell": 0,
+            "phase": "dense",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 12,
+            "F_hat": -148.24359856593946,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "H2"
+          },
+          {
+            "flat_k": 2,
+            "F_hat": -148.24353088600733,
+            "cell": 0,
+            "phase": "dense",
+            "species": "H2"
+          },
+          {
+            "flat_k": 15,
+            "F_hat": -74.15012455232831,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "O2"
+          }
+        ]
+      },
+      "d_rms": 13.471327479849752,
+      "d_max": 147.36946536060262
+    },
+    {
+      "bridge": 3,
+      "bed": 1,
+      "lsq_ok": true,
+      "detonated": false,
+      "before": {
+        "rms": 0.063230700762938,
+        "max_abs": 0.901670339856855,
+        "argmax": {
+          "cell": 13,
+          "kind": "solid_or_other",
+          "F_hat": 0.901670339856855
+        }
+      },
+      "after": {
+        "rms": 0.0631762024841364,
+        "max_abs": 0.901670339856855,
+        "argmax": {
+          "cell": 13,
+          "kind": "solid_or_other",
+          "F_hat": 0.901670339856855
+        },
+        "top5": [
+          {
+            "flat_k": 446,
+            "F_hat": 0.901670339856855,
+            "cell": 13,
+            "kind": "non_gas",
+            "local_idx": 3
+          },
+          {
+            "flat_k": 445,
+            "F_hat": -0.9016455013586518,
+            "cell": 13,
+            "kind": "non_gas",
+            "local_idx": 2
+          },
+          {
+            "flat_k": 448,
+            "F_hat": -0.4508409728004066,
+            "cell": 13,
+            "kind": "non_gas",
+            "local_idx": 5
+          },
+          {
+            "flat_k": 413,
+            "F_hat": 0.193861545960357,
+            "cell": 10,
+            "kind": "non_gas",
+            "local_idx": 3
+          },
+          {
+            "flat_k": 412,
+            "F_hat": -0.19375439365322178,
+            "cell": 10,
+            "kind": "non_gas",
+            "local_idx": 2
+          }
+        ]
+      },
+      "d_rms": -5.449827880160685e-05,
+      "d_max": 0.0
+    },
+    {
+      "bridge": 3,
+      "bed": 2,
+      "lsq_ok": true,
+      "detonated": false,
+      "before": {
+        "rms": 0.0631762024841364,
+        "max_abs": 0.901670339856855,
+        "argmax": {
+          "cell": 13,
+          "kind": "solid_or_other",
+          "F_hat": 0.901670339856855
+        }
+      },
+      "after": {
+        "rms": 0.06312467581536503,
+        "max_abs": 0.901670339856855,
+        "argmax": {
+          "cell": 13,
+          "kind": "solid_or_other",
+          "F_hat": 0.901670339856855
+        },
+        "top5": [
+          {
+            "flat_k": 446,
+            "F_hat": 0.901670339856855,
+            "cell": 13,
+            "kind": "non_gas",
+            "local_idx": 3
+          },
+          {
+            "flat_k": 445,
+            "F_hat": -0.9016455013586518,
+            "cell": 13,
+            "kind": "non_gas",
+            "local_idx": 2
+          },
+          {
+            "flat_k": 448,
+            "F_hat": -0.4508409728004066,
+            "cell": 13,
+            "kind": "non_gas",
+            "local_idx": 5
+          },
+          {
+            "flat_k": 413,
+            "F_hat": 0.193861545960357,
+            "cell": 10,
+            "kind": "non_gas",
+            "local_idx": 3
+          },
+          {
+            "flat_k": 412,
+            "F_hat": -0.19375439365322178,
+            "cell": 10,
+            "kind": "non_gas",
+            "local_idx": 2
+          }
+        ]
+      },
+      "d_rms": -5.15266687713678e-05,
+      "d_max": 0.0
+    },
+    {
+      "bridge": 4,
+      "bed": 0,
+      "lsq_ok": true,
+      "detonated": true,
+      "before": {
+        "rms": 0.06316733078811047,
+        "max_abs": 0.901670339856855,
+        "argmax": {
+          "cell": 13,
+          "kind": "solid_or_other",
+          "F_hat": 0.901670339856855
+        }
+      },
+      "after": {
+        "rms": 13.534564139663765,
+        "max_abs": 148.27113570045947,
+        "argmax": {
+          "cell": 0,
+          "phase": "bubble",
+          "species": "H2O",
+          "kind": "gas",
+          "F_hat": 148.27113570045947
+        },
+        "top5": [
+          {
+            "flat_k": 13,
+            "F_hat": 148.27113570045947,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 3,
+            "F_hat": 148.2711000297783,
+            "cell": 0,
+            "phase": "dense",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 12,
+            "F_hat": -148.24359856593946,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "H2"
+          },
+          {
+            "flat_k": 2,
+            "F_hat": -148.24353088600733,
+            "cell": 0,
+            "phase": "dense",
+            "species": "H2"
+          },
+          {
+            "flat_k": 15,
+            "F_hat": -74.15012455232831,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "O2"
+          }
+        ]
+      },
+      "d_rms": 13.471396808875655,
+      "d_max": 147.36946536060262
+    },
+    {
+      "bridge": 5,
+      "bed": 0,
+      "lsq_ok": true,
+      "detonated": true,
+      "before": {
+        "rms": 0.06316733078811047,
+        "max_abs": 0.901670339856855,
+        "argmax": {
+          "cell": 13,
+          "kind": "solid_or_other",
+          "F_hat": 0.901670339856855
+        }
+      },
+      "after": {
+        "rms": 13.534564139663765,
+        "max_abs": 148.27113570045947,
+        "argmax": {
+          "cell": 0,
+          "phase": "bubble",
+          "species": "H2O",
+          "kind": "gas",
+          "F_hat": 148.27113570045947
+        },
+        "top5": [
+          {
+            "flat_k": 13,
+            "F_hat": 148.27113570045947,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 3,
+            "F_hat": 148.2711000297783,
+            "cell": 0,
+            "phase": "dense",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 12,
+            "F_hat": -148.24359856593946,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "H2"
+          },
+          {
+            "flat_k": 2,
+            "F_hat": -148.24353088600733,
+            "cell": 0,
+            "phase": "dense",
+            "species": "H2"
+          },
+          {
+            "flat_k": 15,
+            "F_hat": -74.15012455232831,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "O2"
+          }
+        ]
+      },
+      "d_rms": 13.471396808875655,
+      "d_max": 147.36946536060262
+    },
+    {
+      "bridge": 6,
+      "bed": 0,
+      "lsq_ok": true,
+      "detonated": true,
+      "before": {
+        "rms": 0.06292461129193369,
+        "max_abs": 0.901670339856855,
+        "argmax": {
+          "cell": 13,
+          "kind": "solid_or_other",
+          "F_hat": 0.901670339856855
+        }
+      },
+      "after": {
+        "rms": 13.534563011499548,
+        "max_abs": 148.27113570045947,
+        "argmax": {
+          "cell": 0,
+          "phase": "bubble",
+          "species": "H2O",
+          "kind": "gas",
+          "F_hat": 148.27113570045947
+        },
+        "top5": [
+          {
+            "flat_k": 13,
+            "F_hat": 148.27113570045947,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 3,
+            "F_hat": 148.2711000297783,
+            "cell": 0,
+            "phase": "dense",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 12,
+            "F_hat": -148.24359856593946,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "H2"
+          },
+          {
+            "flat_k": 2,
+            "F_hat": -148.24353088600733,
+            "cell": 0,
+            "phase": "dense",
+            "species": "H2"
+          },
+          {
+            "flat_k": 15,
+            "F_hat": -74.15012455232831,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "O2"
+          }
+        ]
+      },
+      "d_rms": 13.471638400207615,
+      "d_max": 147.36946536060262
+    },
+    {
+      "bridge": 7,
+      "bed": 0,
+      "lsq_ok": true,
+      "detonated": true,
+      "before": {
+        "rms": 0.06292461129193369,
+        "max_abs": 0.901670339856855,
+        "argmax": {
+          "cell": 13,
+          "kind": "solid_or_other",
+          "F_hat": 0.901670339856855
+        }
+      },
+      "after": {
+        "rms": 13.534563011499548,
+        "max_abs": 148.27113570045947,
+        "argmax": {
+          "cell": 0,
+          "phase": "bubble",
+          "species": "H2O",
+          "kind": "gas",
+          "F_hat": 148.27113570045947
+        },
+        "top5": [
+          {
+            "flat_k": 13,
+            "F_hat": 148.27113570045947,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 3,
+            "F_hat": 148.2711000297783,
+            "cell": 0,
+            "phase": "dense",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 12,
+            "F_hat": -148.24359856593946,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "H2"
+          },
+          {
+            "flat_k": 2,
+            "F_hat": -148.24353088600733,
+            "cell": 0,
+            "phase": "dense",
+            "species": "H2"
+          },
+          {
+            "flat_k": 15,
+            "F_hat": -74.15012455232831,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "O2"
+          }
+        ]
+      },
+      "d_rms": 13.471638400207615,
+      "d_max": 147.36946536060262
+    },
+    {
+      "bridge": 8,
+      "bed": 0,
+      "lsq_ok": true,
+      "detonated": true,
+      "before": {
+        "rms": 0.06280493802320311,
+        "max_abs": 0.901670339856855,
+        "argmax": {
+          "cell": 13,
+          "kind": "solid_or_other",
+          "F_hat": 0.901670339856855
+        }
+      },
+      "after": {
+        "rms": 13.534562455921149,
+        "max_abs": 148.27113570045947,
+        "argmax": {
+          "cell": 0,
+          "phase": "bubble",
+          "species": "H2O",
+          "kind": "gas",
+          "F_hat": 148.27113570045947
+        },
+        "top5": [
+          {
+            "flat_k": 13,
+            "F_hat": 148.27113570045947,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 3,
+            "F_hat": 148.2711000297783,
+            "cell": 0,
+            "phase": "dense",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 12,
+            "F_hat": -148.24359856593946,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "H2"
+          },
+          {
+            "flat_k": 2,
+            "F_hat": -148.24353088600733,
+            "cell": 0,
+            "phase": "dense",
+            "species": "H2"
+          },
+          {
+            "flat_k": 15,
+            "F_hat": -74.15012455232831,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "O2"
+          }
+        ]
+      },
+      "d_rms": 13.471757517897945,
+      "d_max": 147.36946536060262
+    },
+    {
+      "bridge": 9,
+      "bed": 0,
+      "lsq_ok": true,
+      "detonated": true,
+      "before": {
+        "rms": 0.06280493802320311,
+        "max_abs": 0.901670339856855,
+        "argmax": {
+          "cell": 13,
+          "kind": "solid_or_other",
+          "F_hat": 0.901670339856855
+        }
+      },
+      "after": {
+        "rms": 13.534562455921149,
+        "max_abs": 148.27113570045947,
+        "argmax": {
+          "cell": 0,
+          "phase": "bubble",
+          "species": "H2O",
+          "kind": "gas",
+          "F_hat": 148.27113570045947
+        },
+        "top5": [
+          {
+            "flat_k": 13,
+            "F_hat": 148.27113570045947,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 3,
+            "F_hat": 148.2711000297783,
+            "cell": 0,
+            "phase": "dense",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 12,
+            "F_hat": -148.24359856593946,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "H2"
+          },
+          {
+            "flat_k": 2,
+            "F_hat": -148.24353088600733,
+            "cell": 0,
+            "phase": "dense",
+            "species": "H2"
+          },
+          {
+            "flat_k": 15,
+            "F_hat": -74.15012455232831,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "O2"
+          }
+        ]
+      },
+      "d_rms": 13.471757517897945,
+      "d_max": 147.36946536060262
+    },
+    {
+      "bridge": 10,
+      "bed": 0,
+      "lsq_ok": true,
+      "detonated": true,
+      "before": {
+        "rms": 0.06276766930899909,
+        "max_abs": 0.901670339856855,
+        "argmax": {
+          "cell": 13,
+          "kind": "solid_or_other",
+          "F_hat": 0.901670339856855
+        }
+      },
+      "after": {
+        "rms": 13.534562282956905,
+        "max_abs": 148.27113570045947,
+        "argmax": {
+          "cell": 0,
+          "phase": "bubble",
+          "species": "H2O",
+          "kind": "gas",
+          "F_hat": 148.27113570045947
+        },
+        "top5": [
+          {
+            "flat_k": 13,
+            "F_hat": 148.27113570045947,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 3,
+            "F_hat": 148.2711000297783,
+            "cell": 0,
+            "phase": "dense",
+            "species": "H2O"
+          },
+          {
+            "flat_k": 12,
+            "F_hat": -148.24359856593946,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "H2"
+          },
+          {
+            "flat_k": 2,
+            "F_hat": -148.24353088600733,
+            "cell": 0,
+            "phase": "dense",
+            "species": "H2"
+          },
+          {
+            "flat_k": 15,
+            "F_hat": -74.15012455232831,
+            "cell": 0,
+            "phase": "bubble",
+            "species": "O2"
+          }
+        ]
+      },
+      "d_rms": 13.471794613647907,
+      "d_max": 147.36946536060262
+    }
+  ],
+  "first_detonation": {
+    "bridge": 3,
+    "bed": 0,
+    "lsq_ok": true,
+    "detonated": true,
+    "before": {
+      "rms": 0.06323696007306281,
+      "max_abs": 0.901670339856855,
+      "argmax": {
+        "cell": 13,
+        "kind": "solid_or_other",
+        "F_hat": 0.901670339856855
+      }
+    },
+    "after": {
+      "rms": 13.534564439922814,
+      "max_abs": 148.27113570045947,
+      "argmax": {
+        "cell": 0,
+        "phase": "bubble",
+        "species": "H2O",
+        "kind": "gas",
+        "F_hat": 148.27113570045947
+      },
+      "top5": [
+        {
+          "flat_k": 13,
+          "F_hat": 148.27113570045947,
+          "cell": 0,
+          "phase": "bubble",
+          "species": "H2O"
+        },
+        {
+          "flat_k": 3,
+          "F_hat": 148.2711000297783,
+          "cell": 0,
+          "phase": "dense",
+          "species": "H2O"
+        },
+        {
+          "flat_k": 12,
+          "F_hat": -148.24359856593946,
+          "cell": 0,
+          "phase": "bubble",
+          "species": "H2"
+        },
+        {
+          "flat_k": 2,
+          "F_hat": -148.24353088600733,
+          "cell": 0,
+          "phase": "dense",
+          "species": "H2"
+        },
+        {
+          "flat_k": 15,
+          "F_hat": -74.15012455232831,
+          "cell": 0,
+          "phase": "bubble",
+          "species": "O2"
+        }
+      ]
+    },
+    "d_rms": 13.471327479849752,
+    "d_max": 147.36946536060262
+  }
+}

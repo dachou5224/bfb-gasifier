@@ -1,0 +1,28 @@
+         9777406 function calls (9749257 primitive calls) in 9.952 seconds
+
+   Ordered by: cumulative time
+   List reduced from 230 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000   10.006   10.006 /Users/liuzhen/AI-projects/bfb-gasifier/src/solvers/wirsum_1997_named_f_e8.py:552(_e8_log_scaled_correct)
+        1    0.000    0.000   10.003   10.003 /Users/liuzhen/AI-projects/bfb-gasifier/.venv/lib/python3.9/site-packages/scipy/optimize/_lsq/least_squares.py:241(least_squares)
+     3487    0.019    0.000    9.918    0.003 /Users/liuzhen/AI-projects/bfb-gasifier/src/solvers/wirsum_1997_named_f_e8.py:579(fun)
+     3487    0.046    0.000    9.879    0.003 /Users/liuzhen/AI-projects/bfb-gasifier/docs/audit_reports/plan_ab_diagnosis_2026-09-28/probe.py:18(counted)
+       36    0.023    0.001    9.804    0.272 /Users/liuzhen/AI-projects/bfb-gasifier/src/solvers/wirsum_1997_named_f_e8.py:584(jac)
+        1    0.000    0.000    9.730    9.730 /Users/liuzhen/AI-projects/bfb-gasifier/.venv/lib/python3.9/site-packages/scipy/optimize/_lsq/trf.py:112(trf)
+        1    0.003    0.003    9.730    9.730 /Users/liuzhen/AI-projects/bfb-gasifier/.venv/lib/python3.9/site-packages/scipy/optimize/_lsq/trf.py:205(trf_bounds)
+     3487    0.167    0.000    9.711    0.003 /Users/liuzhen/AI-projects/bfb-gasifier/src/solvers/wirsum_1997_named_f.py:976(coupled_residual_named)
+       35    0.000    0.000    9.535    0.272 /Users/liuzhen/AI-projects/bfb-gasifier/.venv/lib/python3.9/site-packages/scipy/optimize/_lsq/least_squares.py:874(jac_wrapped)
+     3487    0.250    0.000    5.341    0.002 /Users/liuzhen/AI-projects/bfb-gasifier/src/solvers/wirsum_1997_named_f.py:696(species_block_residual)
+    13948    0.334    0.000    2.818    0.000 /Users/liuzhen/AI-projects/bfb-gasifier/src/solvers/wirsum_1997_named_f.py:608(fb_char_balance)
+     3487    0.137    0.000    1.999    0.001 /Users/liuzhen/AI-projects/bfb-gasifier/src/solvers/wirsum_1997_named_f.py:894(energy_zones_named)
+     6974    0.088    0.000    1.968    0.000 /Users/liuzhen/AI-projects/bfb-gasifier/src/solvers/wirsum_1997_named_f.py:833(char_face_flows_kg_s)
+277506/249357    0.237    0.000    1.698    0.000 {built-in method numpy.core._multiarray_umath.implement_array_function}
+   219923    0.148    0.000    1.651    0.000 <__array_function__ internals>:177(sum)
+   219923    0.244    0.000    1.338    0.000 /Users/liuzhen/AI-projects/bfb-gasifier/.venv/lib/python3.9/site-packages/numpy/core/fromnumeric.py:2162(sum)
+    34870    0.313    0.000    1.138    0.000 /Users/liuzhen/AI-projects/bfb-gasifier/src/solvers/wirsum_1997_stiffness_full_gas.py:367(_char_gas_source)
+     3487    0.035    0.000    1.129    0.000 /Users/liuzhen/AI-projects/bfb-gasifier/src/solvers/wirsum_1997_named_f.py:865(char_face_enthalpy_w)
+    27896    0.065    0.000    1.073    0.000 /Users/liuzhen/AI-projects/bfb-gasifier/src/solvers/wirsum_1997_coupled_f_energy.py:93(q_at_T)
+   220144    0.301    0.000    1.054    0.000 /Users/liuzhen/AI-projects/bfb-gasifier/.venv/lib/python3.9/site-packages/numpy/core/fromnumeric.py:69(_wrapreduction)
+
+

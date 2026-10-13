@@ -9,7 +9,7 @@ description: BFB 数值稳定性监控。针对 fsolve（cell_solver）与 globa
 
 - 修改 **`src/solvers/cell_solver.py`**（逐格 `fsolve`）、**`src/solvers/global_nr_solver.py`**（全局阻尼 NR）、或 **`Cell.residuals`** / 边界条件闭包。
 - 调整 **残差缩放**、**未知量打包顺序**、**收敛判据** 后。
-- 出现 **Newton–Raphson 不收敛**、**残差范数爆炸**、或 `sanity_checks` 通过但端到端异常时（可与 `gstack-investigate` 配合）。
+- 出现 **Newton–Raphson 不收敛**、**残差范数爆炸**、或 `sanity_checks` 通过但端到端异常时（先走 **`bfb-diagnosing-bugs`** 建反馈环，本技能作求解器专项清单）。
 
 ## 1. 残差缩放（Scaling）
 
@@ -54,6 +54,7 @@ pytest tests/test_lu_gs_vs_global_nr.py -q
 
 ## 相关文件
 
+- `.cursor/skills/bfb-diagnosing-bugs/SKILL.md` — 调试循环与症状→脚本映射
 - `src/solvers/cell_solver.py`
 - `src/solvers/global_nr_solver.py`
 - `src/core/reactor.py`（`_solve_global_nr`、`_solve_gauss_seidel`）

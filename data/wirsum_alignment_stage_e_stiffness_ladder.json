@@ -1,0 +1,782 @@
+{
+  "source": "Wirsum alignment stage E stiffness ladder",
+  "solved": false,
+  "not_a_furnace_convergence_claim": true,
+  "implemented_rungs": [
+    "isothermal_solid_transport",
+    "isothermal_two_phase_exchange",
+    "isothermal_r12_exchange",
+    "full_gas",
+    "char",
+    "energy"
+  ],
+  "not_implemented_rungs": [],
+  "units": {
+    "gas": "mol/s",
+    "solid": "kg",
+    "T": "K",
+    "P": "Pa",
+    "volume": "m3"
+  },
+  "geometry": {
+    "T_K": 1100.0,
+    "P_Pa": 2500000.0,
+    "K_bd_1_per_s": 6.57,
+    "V_b_m3": 0.1,
+    "V_d_m3": 0.32
+  },
+  "transport": {
+    "converged_newton": true,
+    "failure_reason": "newton_merit",
+    "model_is_full_rate": true,
+    "physical_convergence": true,
+    "iterations": 1,
+    "residual_l2": 1.1102230246251565e-16,
+    "accepted_alphas": [
+      1.0
+    ],
+    "merit_kind": "raw_l2",
+    "rung": "isothermal_solid_transport",
+    "units": {
+      "state": "kg",
+      "residual": "kg/s"
+    },
+    "backward_error_at_root": 1.9989062318863107e-17,
+    "newton_step_backward_error_at_x0": 4.1219585166363944e-17,
+    "jacobian_rank": 3
+  },
+  "exchange": {
+    "rung": "isothermal_two_phase_exchange",
+    "units": {
+      "state": "mol/s",
+      "residual": "mol/s"
+    },
+    "exact_N_mol_s": [
+      0.5135429062560901,
+      0.4864570937439102
+    ],
+    "raw_l2": {
+      "converged_newton": true,
+      "failure_reason": "newton_merit",
+      "model_is_full_rate": true,
+      "physical_convergence": true,
+      "iterations": 1,
+      "residual_l2": 4.577566798522237e-16,
+      "accepted_alphas": [
+        1.0
+      ],
+      "merit_kind": "raw_l2"
+    },
+    "scaled_rms": {
+      "converged_newton": true,
+      "failure_reason": "newton_merit",
+      "model_is_full_rate": true,
+      "physical_convergence": true,
+      "iterations": 1,
+      "residual_l2": 4.577566798522237e-16,
+      "accepted_alphas": [
+        1.0
+      ],
+      "merit_kind": "scaled_rms"
+    },
+    "max_abs_raw_vs_exact": 0.0,
+    "F_xx_max_abs": 0.0,
+    "dir_deriv_eps": {
+      "1e-3": 4.489707019458994e-14,
+      "1e-5": 6.674694814622291e-12,
+      "1e-7": 6.012048665966247e-10
+    }
+  },
+  "r12": {
+    "rung": "isothermal_r12_exchange",
+    "rate": "production rate_R12 Hamel 5.38",
+    "not": [
+      "fastox",
+      "extent_limiter",
+      "physical_convergence_on_continuation"
+    ],
+    "inlet_dense_mol_s": [
+      0.5,
+      0.0,
+      0.0,
+      10.0
+    ],
+    "inlet_bubble_mol_s": [
+      0.0,
+      0.3,
+      0.0,
+      10.0
+    ],
+    "continuation": {
+      "scale_0": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 1,
+        "residual_l2": 4.1465181136877624e-14,
+        "accepted_alphas": [
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 0.0
+      },
+      "scale_1e-12": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 8,
+        "residual_l2": 5.41615704813505e-14,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 1e-12
+      },
+      "scale_1e-08": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 12,
+        "residual_l2": 2.4304543927286986e-14,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 1e-08
+      },
+      "scale_1e-04": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 12,
+        "residual_l2": 7.946161807252526e-12,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 0.0001
+      },
+      "scale_1e+00": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": true,
+        "physical_convergence": true,
+        "iterations": 9,
+        "residual_l2": 1.6565048352297624e-08,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 1.0
+      }
+    },
+    "uniqueness_at_scale_1e-8": {
+      "separated_inlet": {
+        "converged_newton": false,
+        "failure_reason": "line_search",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 1,
+        "residual_l2": 14.935630705997601,
+        "accepted_alphas": [],
+        "merit_kind": "raw_l2",
+        "rate_scale": 1e-08
+      },
+      "mixed_overlap": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 16,
+        "residual_l2": 2.108855867635424e-14,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 1e-08
+      },
+      "stoich_converted": {
+        "converged_newton": false,
+        "failure_reason": "line_search",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 8,
+        "residual_l2": 0.9381486902808026,
+        "accepted_alphas": [
+          1.0,
+          0.0625,
+          0.03125,
+          0.015625,
+          0.001953125,
+          0.0009765625,
+          0.000244140625
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 1e-08
+      },
+      "max_abs_x_spread": null
+    },
+    "uniqueness_at_full_rate": {
+      "from_continuation": {
+        "converged_newton": true,
+        "physical_convergence": true,
+        "failure_reason": "newton_merit",
+        "residual_l2": 1.6565048352297624e-08
+      },
+      "from_perturbation": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": true,
+        "physical_convergence": true,
+        "iterations": 12,
+        "residual_l2": 1.1342518798746009e-07,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2"
+      },
+      "max_abs_x_vs_continuation": 9.414691248821327e-14,
+      "direct_separated_at_full_rate": {
+        "converged_newton": false,
+        "failure_reason": "line_search",
+        "model_is_full_rate": true,
+        "physical_convergence": false,
+        "iterations": 1,
+        "residual_l2": 14.935630705997601,
+        "accepted_alphas": [],
+        "merit_kind": "raw_l2"
+      }
+    },
+    "dir_deriv_at_overlap": {
+      "1e-3": 0.0018147203368476738,
+      "1e-5": 1.8145732983773927e-05,
+      "1e-7": 1.814686023305859e-07
+    }
+  },
+  "note": "rate_scale<1 是延拓，不是 Hamel 模型。能量不含固体瞬时 cp 积分。",
+  "full_gas": {
+    "rung": "full_gas",
+    "reactions": [
+      "R5",
+      "R6",
+      "R7",
+      "R8",
+      "R12"
+    ],
+    "not": [
+      "R9",
+      "R10",
+      "R11",
+      "fastox"
+    ],
+    "units": {
+      "state": "mol/s"
+    },
+    "species": [
+      "CO",
+      "CO2",
+      "H2",
+      "H2O",
+      "CH4",
+      "O2",
+      "N2"
+    ],
+    "continuation": {
+      "scale_0": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 3,
+        "residual_l2": 9.070274373579701e-15,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 0.0
+      },
+      "scale_1e-12": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 8,
+        "residual_l2": 3.68194655192998e-11,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 1e-12
+      },
+      "scale_1e-08": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 13,
+        "residual_l2": 8.259667380255872e-12,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 1e-08
+      },
+      "scale_1e-04": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 35,
+        "residual_l2": 1.962990788090963e-07,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 0.0001
+      },
+      "scale_1e+00": {
+        "converged_newton": true,
+        "failure_reason": "small_step",
+        "model_is_full_rate": true,
+        "physical_convergence": false,
+        "iterations": 27,
+        "residual_l2": 0.015696421785645776,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 1.0
+      }
+    },
+    "element_gap_mol_s": {
+      "C": 0.0,
+      "H": 2.220446049250313e-16,
+      "O": 4.440892098500626e-16
+    },
+    "element_in_mol_s": {
+      "C": 0.6,
+      "H": 1.4,
+      "O": 2.4000000000000004
+    },
+    "element_out_mol_s": {
+      "C": 0.6,
+      "H": 1.4000000000000001,
+      "O": 2.4
+    }
+  },
+  "char": {
+    "rung": "char",
+    "reactions": [
+      "R1",
+      "R2",
+      "R3",
+      "R4"
+    ],
+    "units": {
+      "gas": "mol/s",
+      "holdup": "kg",
+      "K": "1/s"
+    },
+    "m_char_in_kg_s": 0.01,
+    "K_char_1_per_s": 0.08,
+    "continuation": {
+      "scale_0": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 3,
+        "residual_l2": 2.2165144145565546e-13,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 0.0
+      },
+      "scale_1e-12": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 8,
+        "residual_l2": 3.6838750921048624e-11,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 1e-12
+      },
+      "scale_1e-08": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 13,
+        "residual_l2": 8.261267957722288e-12,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 1e-08
+      },
+      "scale_1e-04": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 35,
+        "residual_l2": 1.9628231600492763e-07,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 0.0001
+      },
+      "scale_1e+00": {
+        "converged_newton": true,
+        "failure_reason": "small_step",
+        "model_is_full_rate": true,
+        "physical_convergence": false,
+        "iterations": 26,
+        "residual_l2": 0.011034176055850824,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 1.0
+      }
+    },
+    "M_char_kg": 0.11551923819720428
+  },
+  "energy": {
+    "rung": "energy",
+    "units": {
+      "energy": "W",
+      "T": "K"
+    },
+    "T_in_K": 1100.0,
+    "solid_sensible": "omitted_named_not_hamel_cp_integral",
+    "char_hf": 0.0,
+    "continuation": {
+      "scale_0": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 3,
+        "residual_l2": 2.182808229548501e-11,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 0.0
+      },
+      "scale_1e-12": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 8,
+        "residual_l2": 3.638097437509552e-11,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 1e-12
+      },
+      "scale_1e-08": {
+        "converged_newton": true,
+        "failure_reason": "newton_merit",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 13,
+        "residual_l2": 6.335548332729094e-11,
+        "accepted_alphas": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 1e-08
+      },
+      "scale_1e-04": {
+        "converged_newton": false,
+        "failure_reason": "line_search",
+        "model_is_full_rate": false,
+        "physical_convergence": false,
+        "iterations": 8,
+        "residual_l2": 1618.1206602515842,
+        "accepted_alphas": [
+          0.5,
+          1.0,
+          0.03125,
+          0.0078125,
+          0.00390625,
+          0.00048828125,
+          0.000244140625
+        ],
+        "merit_kind": "raw_l2",
+        "rate_scale": 0.0001
+      },
+      "scale_1e+00": {
+        "converged_newton": false,
+        "failure_reason": "singular_jacobian",
+        "model_is_full_rate": true,
+        "physical_convergence": false,
+        "iterations": 1,
+        "residual_l2": 45003276.58379599,
+        "accepted_alphas": [],
+        "merit_kind": "raw_l2",
+        "rate_scale": 1.0
+      }
+    },
+    "T_K": null
+  }
+}

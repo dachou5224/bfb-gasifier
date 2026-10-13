@@ -1,0 +1,16 @@
+{
+  "smoke": "p2_local_fastox_outer_fixed_phase2_o4",
+  "wall_s": 23.038198503,
+  "total_s": 30.839976999,
+  "refresh_on_accept_cfg": false,
+  "converged": false,
+  "rms_scaled_final": 0.05505718144739773,
+  "rms_scaled_gas_phase_split_final": 0.05505718144739773,
+  "rms_scaled_energy_final": 0.04369283984009399,
+  "counts_selected": {
+    "hydrodynamics_refresh_on_accept": 0,
+    "line_search_fast_ox_projections": 38,
+    "line_search_failures": 3,
+    "global_residual_calls": 44
+  }
+}

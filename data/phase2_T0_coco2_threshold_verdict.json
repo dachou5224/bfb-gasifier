@@ -1,0 +1,29 @@
+{
+  "knife": "T0_vs_CO_over_CO2_quantitative",
+  "date": "2026-07-27",
+  "protocol": "p2 / o8 / r6_first 诊断；bed0 ±20K fence；非生产默认",
+  "question": "T0 到多少时 CO/CO2 无法再 >1？",
+  "answers": {
+    "A_hegermann_default": {
+      "result": "900–1250K 全程 CO/CO2≤1",
+      "max_ratio": 0.749,
+      "at_T0_K": 1030.0,
+      "critical_T0": "不存在「超过某值才翻不过去」——当前 Hegermann 下夹持 bed0 无法进入 >1"
+    },
+    "B_fixed_f_tar_control": {
+      "result": "仅窄窗可达 >1",
+      "window_interp_K": [
+        1006.8,
+        1022.3
+      ],
+      "only_gt1_grid_point": "T0_target=1000 → T0≈1020, ratio≈1.23, CO/CO2=0.154/0.125",
+      "cannot_gt1_when": "T0 ≳ 1022 K（本扫上穿点）",
+      "caveat": "非单调：更冷的 900–970 也 ≤1；free 吸引子在冷端 ratio≈0.5"
+    }
+  },
+  "bottom_line": "若问「热到什么程度就保不住 CO/CO2>1」：在仍能出现 >1 的 fixed+r6_first 控制下，上界约 T0≈1022 K；Hegermann 默认下该问题前置失效——扫不到 >1。",
+  "artifacts": [
+    "data/phase2_T0_sweep_coco2_threshold_o8.json",
+    "data/phase2_T0_sweep_coco2_threshold_fixed_tar_o8.json"
+  ]
+}

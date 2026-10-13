@@ -1,0 +1,1779 @@
+{
+  "run_id": "replay-0.410-scale-1",
+  "mode": "replay",
+  "counts_as_coupled_solve": true,
+  "parent": "/Users/liuzhen/AI-projects/bfb-gasifier/docs/audit_reports/aa1_aa3_review_2026-10-08/predict_evidence.json",
+  "s": 0.41,
+  "budget_s": 60.0,
+  "temperature_radius_scale": 1.0,
+  "reason": "constraint_stall",
+  "elapsed_s": 20.027861054000002,
+  "calls": {
+    "F": 2755.0,
+    "J": 26.0,
+    "P": 52.0
+  },
+  "joint_pass": false,
+  "gate_ratio": {
+    "gas": 0.23795195911519432,
+    "solid": 3.116520411378168,
+    "tar": 0.4286325079441128,
+    "energy_rows": [
+      0.22140410216525197,
+      0.00144679140066728
+    ]
+  },
+  "energy_rows_W": [
+    -0.22140410216525197,
+    -0.00144679140066728
+  ],
+  "cho_gap_mol_s": {
+    "C": 0.0002574409272222411,
+    "H": 5.981888186123996e-06,
+    "O": -6.230738422985382e-07
+  },
+  "history": [
+    {
+      "log_span": 0.5,
+      "ratio_span": 1.0,
+      "phi": 363.1989464278171,
+      "predicted_phi": 39.955648751286745,
+      "actual_phi": 82.56564134076044,
+      "rho": 0.8681798110099919,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        72.29385785500145,
+        39.40939022639111,
+        5.454530743645212
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 0.0004939717643259173,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        2.0462058676910586,
+        39.43376190802218,
+        5.423311069382136
+      ],
+      "energy_rows_W": [
+        -2.790161663899198,
+        0.2151759556727484
+      ]
+    },
+    {
+      "log_span": 1.0,
+      "ratio_span": 1.0,
+      "phi": 82.56564134076044,
+      "predicted_phi": 6.300546527679327e-06,
+      "actual_phi": 168.25767108219486,
+      "rho": -1.0378655684014033,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        168.25597590501144,
+        0.22799955909758324,
+        0.08663922969482782
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 3.6926418779387937,
+      "active_bound_count": 1,
+      "temperature_bound_active": false,
+      "predicted_material_ratios": [
+        6.300546068918419e-06,
+        2.3571969755110594e-09,
+        3.719586635826692e-10
+      ],
+      "energy_rows_W": [
+        0.714162809366826,
+        0.030521843465976417
+      ]
+    },
+    {
+      "log_span": 0.5,
+      "ratio_span": 0.5,
+      "phi": 82.56564134076044,
+      "predicted_phi": 12.953135529416913,
+      "actual_phi": 95.2996647541446,
+      "rho": -0.18292723792898036,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        94.41931211425769,
+        12.785541043920832,
+        1.7907550704744064
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 2.2584309600987407,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.6637103269768748,
+        12.783909806578471,
+        1.758070667576342
+      ],
+      "energy_rows_W": [
+        -0.5853235635440797,
+        0.0116163888014853
+      ]
+    },
+    {
+      "log_span": 0.25,
+      "ratio_span": 0.25,
+      "phi": 82.56564134076044,
+      "predicted_phi": 26.440475835243074,
+      "actual_phi": 46.71329443714807,
+      "rho": 0.6387927159001058,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        38.53722492052094,
+        26.094568753741626,
+        3.5967031542532295
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 7.043285880484253e-05,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        1.3547929622529764,
+        26.095045292373843,
+        3.588646540331189
+      ],
+      "energy_rows_W": [
+        -1.775205598329194,
+        -0.0050652705249376595
+      ]
+    },
+    {
+      "log_span": 0.25,
+      "ratio_span": 0.25,
+      "phi": 46.71329443714807,
+      "predicted_phi": 13.330719116524866,
+      "actual_phi": 47.529702063377066,
+      "rho": -0.024456100776761545,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        45.627537312210464,
+        13.159125854981946,
+        1.817580354478002
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 0.9360401641113424,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.6832284924218767,
+        13.156530526055183,
+        1.8093687074311278
+      ],
+      "energy_rows_W": [
+        -0.8568589537171647,
+        -0.004263499518856406
+      ]
+    },
+    {
+      "log_span": 0.125,
+      "ratio_span": 0.125,
+      "phi": 46.71329443714807,
+      "predicted_phi": 19.972670679920327,
+      "actual_phi": 29.356488312628233,
+      "rho": 0.6490800768934365,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        21.53836365795867,
+        19.713810808447548,
+        2.7129262880358445
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 3.729171470582674e-05,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        1.0236430284107816,
+        19.711693659585006,
+        2.710875911210494
+      ],
+      "energy_rows_W": [
+        -1.3812724379822612,
+        -0.008820628921967
+      ]
+    },
+    {
+      "log_span": 0.125,
+      "ratio_span": 0.125,
+      "phi": 29.356488312628233,
+      "predicted_phi": 13.300092277692189,
+      "actual_phi": 35.232788497423016,
+      "rho": -0.3659787770561297,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        32.633500305013925,
+        13.126532567708049,
+        1.8072837986240515
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 4.8262089482123845e-05,
+      "active_bound_count": 3,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.6817444930413687,
+        13.126287669776685,
+        1.8052460972167896
+      ],
+      "energy_rows_W": [
+        -0.9120735504548065,
+        -0.005745040602050722
+      ]
+    },
+    {
+      "log_span": 0.0625,
+      "ratio_span": 0.0625,
+      "phi": 29.356488312628233,
+      "predicted_phi": 16.62960946562612,
+      "actual_phi": 23.462084474126833,
+      "rho": 0.4631460634898603,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        16.57281400927839,
+        16.412401273393368,
+        2.257675290804741
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 9.24898577852907e-06,
+      "active_bound_count": 3,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.8524109786214611,
+        16.412294976929914,
+        2.257167616529786
+      ],
+      "energy_rows_W": [
+        -1.1606774145038798,
+        -0.007638507406227291
+      ]
+    },
+    {
+      "log_span": 0.0625,
+      "ratio_span": 0.0625,
+      "phi": 23.462084474126833,
+      "predicted_phi": 13.311581975839651,
+      "actual_phi": 14.254255564071686,
+      "rho": 0.9071303525720915,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        5.143508831555351,
+        13.137735195231851,
+        1.8073305350120799
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 8.002556608901347e-06,
+      "active_bound_count": 4,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.6823752971633987,
+        13.137619566807714,
+        1.8068206494330692
+      ],
+      "energy_rows_W": [
+        -0.9281981774838641,
+        -0.0060832619201391935
+      ]
+    },
+    {
+      "log_span": 0.125,
+      "ratio_span": 0.125,
+      "phi": 14.254255564071686,
+      "predicted_phi": 6.659919431520247,
+      "actual_phi": 20.829754959578924,
+      "rho": -0.865842554337675,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        19.739605496844128,
+        6.573144877872506,
+        0.9060172503190956
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.8213808753547683e-05,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.3414202027096909,
+        6.572880434864495,
+        0.9039783085306877
+      ],
+      "energy_rows_W": [
+        -0.44671975035453215,
+        -0.002669518638867885
+      ]
+    },
+    {
+      "log_span": 0.0625,
+      "ratio_span": 0.0625,
+      "phi": 14.254255564071686,
+      "predicted_phi": 9.980596132416359,
+      "actual_phi": 14.149409421324904,
+      "rho": 0.024533106679062493,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        10.042845423763104,
+        9.850271825999213,
+        1.355216200612014
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 4.8351942974125904e-06,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.5116544109642637,
+        9.850158957871072,
+        1.354707440936217
+      ],
+      "energy_rows_W": [
+        -0.6946627568686381,
+        -0.004519338777754456
+      ]
+    },
+    {
+      "log_span": 0.03125,
+      "ratio_span": 0.03125,
+      "phi": 14.254255564071686,
+      "predicted_phi": 11.640934482865019,
+      "actual_phi": 12.692944759805817,
+      "rho": 0.5974431597762009,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        5.094714252645492,
+        11.488850228152248,
+        1.5801988864764576
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.524085269285772e-06,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.5967715151029263,
+        11.488798219374372,
+        1.580072007138974
+      ],
+      "energy_rows_W": [
+        -0.8148597848485224,
+        -0.005366998608224094
+      ]
+    },
+    {
+      "log_span": 0.03125,
+      "ratio_span": 0.03125,
+      "phi": 12.692944759805817,
+      "predicted_phi": 9.974682316971599,
+      "actual_phi": 11.637256709523934,
+      "rho": 0.38836869966873466,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        6.016090456658853,
+        9.844372260085544,
+        1.354037568790024
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.0206039676777857e-06,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.5113668886551406,
+        9.844319559546722,
+        1.353910433362496
+      ],
+      "energy_rows_W": [
+        -0.6980654458748177,
+        -0.004587057570461184
+      ]
+    },
+    {
+      "log_span": 0.03125,
+      "ratio_span": 0.03125,
+      "phi": 11.637256709523934,
+      "predicted_phi": 8.309396035773306,
+      "actual_phi": 8.341529247505227,
+      "rho": 0.9903441835815484,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.8466728578288506,
+        8.200847837178607,
+        1.1280051392488242
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.0975704804756432e-06,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.4260065482648708,
+        8.200795118507756,
+        1.1278780753521422
+      ],
+      "energy_rows_W": [
+        -0.5813259780406952,
+        -0.0038109483430162072
+      ]
+    },
+    {
+      "log_span": 0.0625,
+      "ratio_span": 0.0625,
+      "phi": 8.341529247505227,
+      "predicted_phi": 4.999886649287573,
+      "actual_phi": 8.689746107524392,
+      "rho": -0.10420529718076252,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        7.111972330841858,
+        4.934656888243653,
+        0.6791733182899852
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.0121194083047217e-05,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.2563422863611363,
+        4.934538429752343,
+        0.6786638070291721
+      ],
+      "energy_rows_W": [
+        -0.3455678374157287,
+        -0.002201670140493661
+      ]
+    },
+    {
+      "log_span": 0.03125,
+      "ratio_span": 0.03125,
+      "phi": 8.341529247505227,
+      "predicted_phi": 6.653681557515183,
+      "actual_phi": 7.537621778169576,
+      "rho": 0.4762914770706551,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        3.5582107089746793,
+        6.566772161808883,
+        0.9032703246060961
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 3.6812899623428785e-06,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.3411317220152444,
+        6.566718337425304,
+        0.9031430456989618
+      ],
+      "energy_rows_W": [
+        -0.4652692497475073,
+        -0.0030400808318518102
+      ]
+    },
+    {
+      "log_span": 0.015625,
+      "ratio_span": 0.015625,
+      "phi": 8.341529247505227,
+      "predicted_phi": 7.480579011629458,
+      "actual_phi": 7.711860683672927,
+      "rho": 0.7313646452420023,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        1.9132985865633902,
+        7.38283390021767,
+        1.0154144527572453
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 7.126345689561824e-07,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.3835264398515391,
+        7.382808291261789,
+        1.0153826650338547
+      ],
+      "energy_rows_W": [
+        -0.5241841070819646,
+        -0.0034403264289721847
+      ]
+    },
+    {
+      "log_span": 0.0078125,
+      "ratio_span": 0.0078125,
+      "phi": 8.341529247505227,
+      "predicted_phi": 7.89402773868667,
+      "actual_phi": 7.941436097863948,
+      "rho": 0.8940598897589411,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.9562480122411217,
+        7.790865760123118,
+        1.071510407214345
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.0851264287202064e-07,
+      "active_bound_count": 3,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.4047237987708294,
+        7.790853268180038,
+        1.0715024747013675
+      ],
+      "energy_rows_W": [
+        -0.5534076005569659,
+        -0.0036356787313707173
+      ]
+    },
+    {
+      "log_span": 0.015625,
+      "ratio_span": 0.015625,
+      "phi": 7.941436097863948,
+      "predicted_phi": 7.057208331963141,
+      "actual_phi": 11.263697727068699,
+      "rho": -3.757246444099382,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        8.786211825384662,
+        6.964995764808154,
+        0.9579488176304048
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 4.582630527661501e-07,
+      "active_bound_count": 4,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.36182315235202467,
+        6.964970533843162,
+        0.9579170961047919
+      ],
+      "energy_rows_W": [
+        -0.4944954830571078,
+        -0.003243837913032621
+      ]
+    },
+    {
+      "log_span": 0.0078125,
+      "ratio_span": 0.0078125,
+      "phi": 7.941436097863948,
+      "predicted_phi": 7.474307674755935,
+      "actual_phi": 8.677448137367477,
+      "rho": -1.575609624878986,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        4.4248802114110575,
+        7.3766307846846,
+        1.0145404060892023
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 7.426804099679071e-08,
+      "active_bound_count": 5,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.3832078404373543,
+        7.376618383189735,
+        1.0145324845759656
+      ],
+      "energy_rows_W": [
+        -0.5239804226439446,
+        -0.0034407712519168854
+      ]
+    },
+    {
+      "log_span": 0.00390625,
+      "ratio_span": 0.00390625,
+      "phi": 7.941436097863948,
+      "predicted_phi": 7.682857346152424,
+      "actual_phi": 7.9930112422347195,
+      "rho": -0.19945623539984197,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        2.239869130834629,
+        7.582448462003425,
+        1.0428421549975226
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.9802507405550985e-08,
+      "active_bound_count": 5,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.3939001844805375,
+        7.582442307863083,
+        1.0428401788115687
+      ],
+      "energy_rows_W": [
+        -0.5386631957371719,
+        -0.0035380227491259575
+      ]
+    },
+    {
+      "log_span": 0.001953125,
+      "ratio_span": 0.001953125,
+      "phi": 7.941436097863948,
+      "predicted_phi": 7.787132181850671,
+      "actual_phi": 7.869458299188248,
+      "rho": 0.4664677380547281,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        1.203453972925506,
+        7.68535734221424,
+        1.0569945179890963
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 8.254364240800592e-09,
+      "active_bound_count": 5,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.3992463565021601,
+        7.685354270199757,
+        1.0569940259293713
+      ],
+      "energy_rows_W": [
+        -0.5459896585671231,
+        -0.003586344246286899
+      ]
+    },
+    {
+      "log_span": 0.0009765625,
+      "ratio_span": 0.0009765625,
+      "phi": 7.941436097863948,
+      "predicted_phi": 7.839269599699795,
+      "actual_phi": 7.857234275438233,
+      "rho": 0.8241627533364848,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.6659574054256,
+        7.736811792622302,
+        1.0640710715740584
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.2058569992069758e-09,
+      "active_bound_count": 5,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.4019194425129938,
+        7.736810251368094,
+        1.0640709494882725
+      ],
+      "energy_rows_W": [
+        -0.549649159249384,
+        -0.0036104288301430643
+      ]
+    },
+    {
+      "log_span": 0.001953125,
+      "ratio_span": 0.001953125,
+      "phi": 7.857234275438233,
+      "predicted_phi": 7.735077261548441,
+      "actual_phi": 7.740313419234895,
+      "rho": 0.9571358408353194,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.48812190490441626,
+        7.63398271520401,
+        1.0499289345642222
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 5.348884384040974e-09,
+      "active_bound_count": 4,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.3965778773112862,
+        7.633979639180287,
+        1.0499284382298786
+      ],
+      "energy_rows_W": [
+        -0.5423405584297143,
+        -0.003562155761756003
+      ]
+    },
+    {
+      "log_span": 0.00390625,
+      "ratio_span": 0.00390625,
+      "phi": 7.740313419234895,
+      "predicted_phi": 7.526749852505348,
+      "actual_phi": 7.728208629943087,
+      "rho": 0.05668002963790665,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        1.7950173708719055,
+        7.428381118619576,
+        1.0216531652852816
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 2.3520715666554407e-08,
+      "active_bound_count": 4,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.38589765546720506,
+        7.428374938347948,
+        1.021651179372984
+      ],
+      "energy_rows_W": [
+        -0.5277196441893466,
+        -0.0034655057825148106
+      ]
+    },
+    {
+      "log_span": 0.001953125,
+      "ratio_span": 0.001953125,
+      "phi": 7.740313419234895,
+      "predicted_phi": 7.631055026306184,
+      "actual_phi": 7.6832913650375065,
+      "rho": 0.5219009054489231,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.9762152838317503,
+        7.531319915241744,
+        1.035809647003064
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 3.943052613421101e-09,
+      "active_bound_count": 4,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.39124539822236537,
+        7.531316839458919,
+        1.0358091500664117
+      ],
+      "energy_rows_W": [
+        -0.5350479250191711,
+        -0.0035138389794155955
+      ]
+    },
+    {
+      "log_span": 0.001953125,
+      "ratio_span": 0.001953125,
+      "phi": 7.6832913650375065,
+      "predicted_phi": 7.527359680081907,
+      "actual_phi": 7.543515646631223,
+      "rho": 0.8963907396119217,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.626406208660136,
+        7.4289797361383405,
+        1.0217347216553971
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 9.959639714135382e-09,
+      "active_bound_count": 4,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.38592965873199564,
+        7.428976660020055,
+        1.0217342248470553
+      ],
+      "energy_rows_W": [
+        -0.5277781732729636,
+        -0.0034657103824429214
+      ]
+    },
+    {
+      "log_span": 0.00390625,
+      "ratio_span": 0.00390625,
+      "phi": 7.543515646631223,
+      "predicted_phi": 7.319394316389973,
+      "actual_phi": 7.369622377695717,
+      "rho": 0.7758889738353896,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.9373120607666949,
+        7.223735465556551,
+        0.9935080724072545
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.3942829274776464e-08,
+      "active_bound_count": 4,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.37526793817254744,
+        7.223729283809157,
+        0.9935060858373965
+      ],
+      "energy_rows_W": [
+        -0.5131825916469097,
+        -0.003369262150954455
+      ]
+    },
+    {
+      "log_span": 0.0078125,
+      "ratio_span": 0.0078125,
+      "phi": 7.369622377695717,
+      "predicted_phi": 6.903319847875954,
+      "actual_phi": 6.9507128262479,
+      "rho": 0.8983643121338757,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.8841645919342545,
+        6.813105172321176,
+        0.93703819433697
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 4.140550171066763e-08,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.3539370050702209,
+        6.8130926913551315,
+        0.9370302529678536
+      ],
+      "energy_rows_W": [
+        -0.48395145894028246,
+        -0.0031758417026139796
+      ]
+    },
+    {
+      "log_span": 0.015625,
+      "ratio_span": 0.015625,
+      "phi": 6.9507128262479,
+      "predicted_phi": 6.070400998426064,
+      "actual_phi": 6.071846860191062,
+      "rho": 0.9983575572662975,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.33813778495331953,
+        5.991085139135699,
+        0.824005649877651
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 5.436868510544523e-07,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.31123517518686883,
+        5.991059746845942,
+        0.8239739030513848
+      ],
+      "energy_rows_W": [
+        -0.42531507270177826,
+        -0.0027866698219440877
+      ]
+    },
+    {
+      "log_span": 0.03125,
+      "ratio_span": 0.03125,
+      "phi": 6.071846860191062,
+      "predicted_phi": 4.405878944383027,
+      "actual_phi": 4.423157489414477,
+      "rho": 0.9896285247347822,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.4513906412474834,
+        4.348345467678742,
+        0.5981660657404051
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.9069214026682764e-06,
+      "active_bound_count": 3,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.2258970125688464,
+        4.348292666556307,
+        0.5980390671473874
+      ],
+      "energy_rows_W": [
+        -0.307658436417114,
+        -0.0020007931743748486
+      ]
+    },
+    {
+      "log_span": 0.0625,
+      "ratio_span": 0.0625,
+      "phi": 4.423157489414477,
+      "predicted_phi": 1.0732346421040229,
+      "actual_phi": 10.37372890563084,
+      "rho": -1.7763308850512443,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        10.318226511335565,
+        1.0593205632614768,
+        0.14618569443077292
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 0.0769559953936043,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.05502827297365598,
+        1.0592068057064201,
+        0.14567784721521315
+      ],
+      "energy_rows_W": [
+        -0.07016121584456414,
+        -0.0003988472162745893
+      ]
+    },
+    {
+      "log_span": 0.03125,
+      "ratio_span": 0.03125,
+      "phi": 4.423157489414477,
+      "predicted_phi": 2.7396345267206295,
+      "actual_phi": 5.836821084043462,
+      "rho": -0.839705561465551,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        5.155843700508516,
+        2.703878293465916,
+        0.3719970886928593
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 8.364065742594505e-07,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.14047007736238837,
+        2.7038258197498086,
+        0.3718702736677336
+      ],
+      "energy_rows_W": [
+        -0.1908269424457103,
+        -0.0012333797640167177
+      ]
+    },
+    {
+      "log_span": 0.015625,
+      "ratio_span": 0.015625,
+      "phi": 4.423157489414477,
+      "predicted_phi": 3.5728344690401572,
+      "actual_phi": 4.402410140116752,
+      "rho": 0.024399373885693316,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        2.578677584235083,
+        3.5261606141573734,
+        0.4849981701946401
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.728150867816235e-07,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.18319097996246794,
+        3.5261353267714233,
+        0.4849664868860758
+      ],
+      "energy_rows_W": [
+        -0.2502046938170679,
+        -0.0016332885134033859
+      ]
+    },
+    {
+      "log_span": 0.0078125,
+      "ratio_span": 0.0078125,
+      "phi": 4.423157489414477,
+      "predicted_phi": 3.989434440200672,
+      "actual_phi": 4.184082730539318,
+      "rho": 0.5512152497049018,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        1.2777873652768457,
+        3.937302497487247,
+        0.5415225061739043
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 5.2384005069814685e-08,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.20455143127710576,
+        3.9372900802822315,
+        0.5415145934952442
+      ],
+      "energy_rows_W": [
+        -0.27965482108993456,
+        -0.001828869921155274
+      ]
+    },
+    {
+      "log_span": 0.00390625,
+      "ratio_span": 0.00390625,
+      "phi": 4.423157489414477,
+      "predicted_phi": 4.197734425781055,
+      "actual_phi": 4.250625982071602,
+      "rho": 0.7653675917715412,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.7022321620181339,
+        4.142873614944984,
+        0.5697906210861031
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.5711478026039925e-08,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.2152316569368728,
+        4.142867457037635,
+        0.5697886467998274
+      ],
+      "energy_rows_W": [
+        -0.29432020150125027,
+        -0.0019255629740655422
+      ]
+    },
+    {
+      "log_span": 0.0078125,
+      "ratio_span": 0.0078125,
+      "phi": 4.250625982071602,
+      "predicted_phi": 3.7861160259531443,
+      "actual_phi": 4.1930756600737356,
+      "rho": 0.12389470072669506,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        1.8124109533949502,
+        3.7366415696876287,
+        0.513924955379016
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 6.15373175593754e-08,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.19412736820316834,
+        3.7366290268554274,
+        0.5139169936467135
+      ],
+      "energy_rows_W": [
+        -0.26540146250044927,
+        -0.0017351485439576209
+      ]
+    },
+    {
+      "log_span": 0.00390625,
+      "ratio_span": 0.00390625,
+      "phi": 4.250625982071602,
+      "predicted_phi": 3.9920508648310165,
+      "actual_phi": 4.104486788375094,
+      "rho": 0.5651711396519887,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.9758064142300182,
+        3.939878340659594,
+        0.5418720144699102
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 2.3248145257939033e-08,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.20468636531391468,
+        3.9398721634425877,
+        0.541870023231261
+      ],
+      "energy_rows_W": [
+        -0.2798993871547282,
+        -0.001830764696933329
+      ]
+    },
+    {
+      "log_span": 0.00390625,
+      "ratio_span": 0.00390625,
+      "phi": 4.104486788375094,
+      "predicted_phi": 3.7817174501322466,
+      "actual_phi": 3.799816194868038,
+      "rho": 0.9439266913198112,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.4180638965829429,
+        3.7322939422101054,
+        0.5133221905370867
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.5046248720546325e-08,
+      "active_bound_count": 3,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.19390257857508084,
+        3.7322878072335524,
+        0.5133202139130365
+      ],
+      "energy_rows_W": [
+        -0.26515079545788467,
+        -0.00173391675343737
+      ]
+    },
+    {
+      "log_span": 0.0078125,
+      "ratio_span": 0.0078125,
+      "phi": 3.799816194868038,
+      "predicted_phi": 3.3657963224196634,
+      "actual_phi": 3.522619593665727,
+      "rho": 0.6386726018755806,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        1.0535627427750887,
+        3.3218153672694894,
+        0.45687236658876806
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.0433289762604447e-07,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.17257742886909452,
+        3.321802933207938,
+        0.45686443428802326
+      ],
+      "energy_rows_W": [
+        -0.23592854471644387,
+        -0.0015417268732562661
+      ]
+    },
+    {
+      "log_span": 0.00390625,
+      "ratio_span": 0.00390625,
+      "phi": 3.799816194868038,
+      "predicted_phi": 3.57380754347492,
+      "actual_phi": 3.617524867103947,
+      "rho": 0.806567919592666,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.5898545459562348,
+        3.527101451656444,
+        0.48510131965296804
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.3521614896733576e-08,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.18324297073125398,
+        3.5270952973493768,
+        0.4850993361449295
+      ],
+      "energy_rows_W": [
+        -0.2505736507009715,
+        -0.0016381997847929597
+      ]
+    },
+    {
+      "log_span": 0.0078125,
+      "ratio_span": 0.0078125,
+      "phi": 3.617524867103947,
+      "predicted_phi": 3.159422005643378,
+      "actual_phi": 5.179824983546775,
+      "rho": -3.4103696961458567,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        4.1078987865272145,
+        3.118138437945704,
+        0.42885989429969784
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.9069563749614622e-07,
+      "active_bound_count": 3,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.16199643555117368,
+        3.1181259642475263,
+        0.42885194826272255
+      ],
+      "energy_rows_W": [
+        -0.22145925130462274,
+        -0.0014466174179688096
+      ]
+    },
+    {
+      "log_span": 0.00390625,
+      "ratio_span": 0.00390625,
+      "phi": 3.617524867103947,
+      "predicted_phi": 3.3665740652628706,
+      "actual_phi": 3.972957522193172,
+      "rho": -1.4163439705377623,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        2.1166799505520038,
+        3.322576548861683,
+        0.45697223135325793
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 2.4928071422097928e-08,
+      "active_bound_count": 4,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.1726179654001069,
+        3.322570389367083,
+        0.4569702446463095
+      ],
+      "energy_rows_W": [
+        -0.23604350577807054,
+        -0.0015427860780619085
+      ]
+    },
+    {
+      "log_span": 0.001953125,
+      "ratio_span": 0.001953125,
+      "phi": 3.617524867103947,
+      "predicted_phi": 3.470150095072703,
+      "actual_phi": 3.6110919046857135,
+      "rho": 0.043650363828006564,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        1.0147327976728906,
+        3.4247956626125076,
+        0.4710298896481788
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 3.3312312067431204e-09,
+      "active_bound_count": 4,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.17792873032545398,
+        3.4247926019269035,
+        0.4710293928380926
+      ],
+      "energy_rows_W": [
+        -0.24332093191333115,
+        -0.001590570667758584
+      ]
+    },
+    {
+      "log_span": 0.0009765625,
+      "ratio_span": 0.0009765625,
+      "phi": 3.617524867103947,
+      "predicted_phi": 3.521938109977629,
+      "actual_phi": 3.5635068058678474,
+      "rho": 0.5651207642154287,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.571955599873235,
+        3.47590523392752,
+        0.4780590911999415
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.2776599141953994e-09,
+      "active_bound_count": 6,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.18058411278832098,
+        3.475903708206819,
+        0.47805896693396244
+      ],
+      "energy_rows_W": [
+        -0.24695596989477053,
+        -0.0016143883694894612
+      ]
+    },
+    {
+      "log_span": 0.0009765625,
+      "ratio_span": 0.0009765625,
+      "phi": 3.5635068058678474,
+      "predicted_phi": 3.469567722284572,
+      "actual_phi": 3.473270955355017,
+      "rho": 0.960578356428588,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.23947663108302186,
+        3.4242193371982537,
+        0.4709505288745864
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.994835918977705e-09,
+      "active_bound_count": 5,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.17789903947492602,
+        3.424217810025662,
+        0.47095040505866625
+      ],
+      "energy_rows_W": [
+        -0.24328393605537713,
+        -0.0015902973245829344
+      ]
+    },
+    {
+      "log_span": 0.001953125,
+      "ratio_span": 0.001953125,
+      "phi": 3.473270955355017,
+      "predicted_phi": 3.3656084928840992,
+      "actual_phi": 3.3923946315403524,
+      "rho": 0.7512026193578039,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.4591103896379946,
+        3.3216204375741247,
+        0.4568397971264144
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 5.266242726919113e-09,
+      "active_bound_count": 4,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.17256878575423387,
+        3.321617377277704,
+        0.4568393009693538
+      ],
+      "energy_rows_W": [
+        -0.23599083756562322,
+        -0.0015424871817231178
+      ]
+    },
+    {
+      "log_span": 0.00390625,
+      "ratio_span": 0.00390625,
+      "phi": 3.3923946315403524,
+      "predicted_phi": 3.1577890707541845,
+      "actual_phi": 3.162604671139111,
+      "rho": 0.9794736306812623,
+      "accepted": true,
+      "passed": false,
+      "material_ratios": [
+        0.23795195911519432,
+        3.116520411378168,
+        0.4286325079441128
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 2.3026940942887076e-08,
+      "active_bound_count": 2,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.1619133260828062,
+        3.116514259549876,
+        0.42863052438555915
+      ],
+      "energy_rows_W": [
+        -0.22140410216525197,
+        -0.00144679140066728
+      ]
+    },
+    {
+      "log_span": 0.0078125,
+      "ratio_span": 0.0078125,
+      "phi": 3.162604671139111,
+      "predicted_phi": 2.7403063849482625,
+      "actual_phi": 4.863734460265144,
+      "rho": -4.028265907660456,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        4.0207380093066,
+        2.7045006892427326,
+        0.3719705656723747
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 9.109355844062267e-08,
+      "active_bound_count": 4,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.14050774274851574,
+        2.7044883055064344,
+        0.3719626478218479
+      ],
+      "energy_rows_W": [
+        -0.19207058008760214,
+        -0.0012541577452793717
+      ]
+    },
+    {
+      "log_span": 0.00390625,
+      "ratio_span": 0.00390625,
+      "phi": 3.162604671139111,
+      "predicted_phi": 2.9489298959751764,
+      "actual_phi": 3.5665424917629274,
+      "rho": -1.890432880127798,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        2.0116837902884774,
+        2.9103910742267884,
+        0.4002826844786276
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 1.6844836795634843e-08,
+      "active_bound_count": 4,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.1512048015228967,
+        2.9103849340488357,
+        0.40028070524302223
+      ],
+      "energy_rows_W": [
+        -0.20675931993173435,
+        -0.0013507886906154454
+      ]
+    },
+    {
+      "log_span": 0.001953125,
+      "ratio_span": 0.001953125,
+      "phi": 3.162604671139111,
+      "predicted_phi": 3.0532416514887104,
+      "actual_phi": 3.2164500931746094,
+      "rho": -0.4923549313801457,
+      "accepted": false,
+      "passed": false,
+      "material_ratios": [
+        1.0236009368284096,
+        3.013336306241413,
+        0.4144402286801484
+      ],
+      "linear_status": 1,
+      "subproblem_solved": true,
+      "solver_status": 0,
+      "max_nd_violation": 0.0,
+      "projected_gradient_norm": 8.183069422990044e-09,
+      "active_bound_count": 4,
+      "temperature_bound_active": true,
+      "predicted_material_ratios": [
+        0.15655333091153645,
+        3.013333248320038,
+        0.4144397339536068
+      ],
+      "energy_rows_W": [
+        -0.21408869558945298,
+        -0.0013988447608426213
+      ]
+    }
+  ],
+  "trial_unavailable": false,
+  "python": "3.9.6",
+  "numpy": "1.23.5",
+  "scipy": "1.10.1",
+  "source_sha256": "ef45194c5e94dcc2876cf53cfb01d617016887f913baa94fe198ef9d9b4a57a0",
+  "x0": [
+    0.7833678911194196,
+    0.41263361922841557,
+    0.31684953392653137,
+    0.4698901766381625,
+    0.02358469848539403,
+    3.1823077937593304e-30,
+    3.001453671111048,
+    0.09140737146717874,
+    1.107645402612774,
+    0.09472029608515432,
+    0.6665256234980353,
+    0.03481074455973332,
+    4.3614552619724455e-15,
+    4.707658365077762,
+    3.574151373231155e-22,
+    0.017414285323561946,
+    0.9218184785955564,
+    1.5197854188557416,
+    0.45502051874476884,
+    1.0903379303998542,
+    0.07142751376229492,
+    5.495311107503834e-57,
+    7.709082532653305,
+    0.9218185752556137,
+    1.5197858769313037,
+    0.4550204625094734,
+    1.0903381962030256,
+    0.07142749294553402,
+    0.0,
+    7.709082475608931,
+    0.9218186720348872,
+    1.5197863349351701,
+    0.4550204062832215,
+    1.0903384620108154,
+    0.0714274722926292,
+    0.0,
+    7.7090824185227005,
+    2.212958718808294e-25,
+    1.8972697140407895e-27,
+    2.6639941675220076,
+    0.002489728411434864,
+    0.0038408919274467864,
+    7.59124894579628e-05,
+    0.00011651407145631987,
+    8.662335061072631e-06,
+    1.4205746806161755e-05,
+    7.426422618516849e-16,
+    5.6661546010839466e-05,
+    1605.1809877499218,
+    1596.806643348619
+  ],
+  "trial_x": [
+    0.7869894738780686,
+    0.4122052410612235,
+    0.3188034616161627,
+    0.46823622404227283,
+    0.02360887618975336,
+    2.7034283245451302e-30,
+    3.0032909817118214,
+    0.09354289100503789,
+    1.107668683290096,
+    0.0977149220211441,
+    0.6631905594915529,
+    0.03481988852262294,
+    4.1484010396017135e-15,
+    4.705989368364345,
+    3.4005020495393645e-22,
+    0.017763947306463218,
+    0.9269676740393242,
+    1.5194554434106344,
+    0.4594807144280963,
+    1.0858284374446996,
+    0.07148465870616948,
+    1.8071297212695571e-56,
+    7.709280350001162,
+    0.9269676741382014,
+    1.5194554438827228,
+    0.4594807143711066,
+    1.0858284377182983,
+    0.07148465868571824,
+    0.0,
+    7.709280349942287,
+    0.9269676742370785,
+    1.5194554443548112,
+    0.45948071431411697,
+    1.0858284379918972,
+    0.071484658665267,
+    0.0,
+    7.7092803498834135,
+    2.2129587188083182e-25,
+    1.89912342147917e-27,
+    2.6651466724263604,
+    0.0024923866798097992,
+    0.0038454300902464192,
+    7.632579859052028e-05,
+    0.00011780443021569765,
+    9.046941563761311e-06,
+    1.4036872241656095e-05,
+    7.390249175265774e-16,
+    4.961239631242252e-05,
+    1603.2712695664304,
+    1595.073494473157
+  ],
+  "F": [
+    4.522705811596528e-08,
+    -1.4755390354004305e-07,
+    -1.0650864488287448e-07,
+    4.766737713920999e-08,
+    1.7511950609234994e-08,
+    -4.060036550147877e-16,
+    7.932222212403417e-09,
+    -1.803651095144687e-08,
+    -7.176194927183133e-08,
+    9.133504841329909e-09,
+    -4.273135956189833e-08,
+    3.2513879644202603e-09,
+    -1.0637484176183533e-07,
+    1.0272315220660744e-08,
+    -1.095847023501532e-15,
+    3.009444159832392e-06,
+    -2.7962477819332143e-10,
+    4.813314153175909e-10,
+    -5.2445816092761e-10,
+    4.817579772609104e-10,
+    -2.6782895222511954e-11,
+    1.0458536452162839e-11,
+    -7.500400300841648e-11,
+    -9.887712870693122e-11,
+    -4.720883683972943e-10,
+    5.698969074430238e-11,
+    -2.7359869925192015e-10,
+    2.0451237925378507e-11,
+    1.8071297212695571e-56,
+    5.88746829066622e-11,
+    -9.887712870693122e-11,
+    -4.720883683972943e-10,
+    5.698963523315115e-11,
+    -2.735989212965251e-10,
+    2.0451237925378507e-11,
+    0.0,
+    5.88737947282425e-11,
+    -2.1987152931472246e-25,
+    5.342484454872879e-26,
+    1.0148973497280805e-07,
+    -1.7237306761987148e-07,
+    -2.321631026140636e-07,
+    -1.9182261327445327e-07,
+    -2.5161358913929066e-07,
+    -1.8374812643662253e-09,
+    -2.2263580111425707e-09,
+    -2.072869496208169e-15,
+    -8.035204770773431e-07,
+    -0.22140410216525197,
+    -0.00144679140066728
+  ]
+}

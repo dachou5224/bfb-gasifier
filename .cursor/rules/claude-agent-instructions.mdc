@@ -40,6 +40,6 @@ n_b = 2.7       # Hilligardt 气体交换因子
 每个函数 docstring 必须注明方程编号，例如：
 ```python
 """
-Source: specs/02_hydrodynamics.md §2.1, Hamel (1999) Eq.4.4
+Source: docs/hamel_submodels/03_hydrodynamics_core_chain.md §3.41 链, Hamel (1999) Eq.4.4
 """
 ```

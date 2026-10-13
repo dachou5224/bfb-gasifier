@@ -1,0 +1,89 @@
+{
+  "knife": "char_inventory_K_m_residence",
+  "date": "2026-07-25",
+  "constraint": "不抬 Tin；不用 r*_scale 掩盖；不默认砍面积；单路径 reactor.solve()",
+  "baseline_o8_after_X_fix": {
+    "exit_dry": {
+      "CO": 0.12509097284445553,
+      "CO2": 0.1513731487200997
+    },
+    "score_abs_true": 0.05028217587564415,
+    "score_rel_harness_REF": 0.41388128116943024,
+    "m_char_sum_kg": 22.21,
+    "M_geo_sum_kg": 441.25,
+    "char_frac_of_geo": 0.05,
+    "tau_char_vs_feed_s": 69.05,
+    "tau_fuel_vs_feed_s": 32.48,
+    "per_cell_tau_K_s": "1.0–3.3 (wake turnover; 正常量级)",
+    "artifacts": [
+      "data/phase2_char_inventory_residence_o8.json",
+      "data/phase2_char_inventory_flux_mismatch_o8.json"
+    ]
+  },
+  "mechanism": {
+    "K_auf": "f_w*eps_b*u_b/((1-eps_b)*dh); f_w=0.25; top*=zeta_w=0.40",
+    "K_ab": "top-down continuity: m_auf=K_auf*M_res; K_ab=m_ab/M_res",
+    "actual_flux": "m_out = K * m_solid_char (fuel-only state)",
+    "inconsistency": "cell_resident_holdup: bed0 用 fuel(~1.7kg) 若 <0.15*geo；bed1+ 强制 M_geo(~40kg)。闭合假定 m_auf≈24 kg/s，实际 K*m_char≈1.2 kg/s，ratio≈19。bed0→bed1: up_in(fuel)≪m_auf(geo) ⇒ bed1 K_ab 被钳到 0。",
+    "vorab_comment": "vorab_x0: seed active fuel only; keep geo holdup for hydro/transport — 但 transport 系数又乘在 fuel m_solid 上，口径不自洽。"
+  },
+  "candidates_tested": [
+    {
+      "id": "fuel_all_beds_resident_holdup",
+      "result": "FIXES_Kab_zero_but_WORSE_exit",
+      "exit_CO_CO2": [
+        0.0775,
+        0.1823
+      ],
+      "score_abs_true": 0.12879999999999997,
+      "m_char_sum_kg": 13.08,
+      "tau_char_feed_s": 40.7,
+      "note": "同构上更一致（闭合质量=被 K 作用的质量）；库存↓→面积↓→CO 崩、CO2↑"
+    },
+    {
+      "id": "geo_all_beds_resident_holdup",
+      "result": "WORSE",
+      "exit_CO_CO2": [
+        0.0171,
+        0.1392
+      ],
+      "score_abs_true": 0.14609999999999998,
+      "m_char_sum_kg": 47.24,
+      "tau_char_feed_s": 146.8,
+      "note": "去掉 bed0 fuel 特例；库存膨胀、CO 崩塌"
+    },
+    {
+      "id": "inventory_too_high_is_primary_COCO2_lever_via_K_basis",
+      "result": "FALSIFIED_as_direct_ship_lever",
+      "evidence": "改闭合口径可动 τ 与 m_char，但两极都恶化出口 CO/CO₂；不可直接验收"
+    }
+  ],
+  "parity": {
+    "formula_K_auf": "thesis-aligned wake formula present; f_w/zeta_w constants need Hamel SoT confirmation",
+    "holdup_basis_for_K_ab": "OPEN: Hamel Eq.2.6 用总床固相；本码 m_solid 无惰性床料态。混合口径(bed0 fuel / upper geo)是实现折中，已证明破坏轴向连续（Kab=0）。",
+    "not_a_unit_bug": "A=6m/(ρd) 与 X 修复已另刀闭合；本刀是 transport 闭合质量口径"
+  },
+  "ship": {
+    "production_change": false,
+    "reason": "已确认混合 holdup 口径导致 bed1 K_ab=0 与 ~19× 虚构/实际上流量比；但 fuel_all / geo_all 均恶化真干基 CO/CO₂，缺惰性床料态或 Hamel SoT 前不改生产码。"
+  },
+  "falsification": {
+    "switching_to_fuel_all_fixes_COCO2": "FALSIFIED",
+    "switching_to_geo_all_fixes_COCO2": "FALSIFIED",
+    "mixed_holdup_is_self_consistent": "FALSIFIED"
+  },
+  "next_knife": {
+    "primary": "H4_FB_secondary_air_NR_or_inert_bed_inventory_state",
+    "why": "库存/K 口径是真实结构债但非当前出口 CO/CO₂ 可验收杠杆；area×0.5 诊断仍暗示表面积偏高，可能需惰性稀释态或 PSD/进料，而非再拧 K 分母。",
+    "alt": [
+      "inert_bed_material_in_m_solid（完整 Hamel 双库存）",
+      "f_w/zeta_w Hamel SoT 核对",
+      "bed0_CH4_source_partition（C_d_CH4 异常）"
+    ]
+  },
+  "artifacts": [
+    "data/phase2_char_inventory_residence_o8.json",
+    "data/phase2_char_inventory_residence_ab.json",
+    "data/phase2_char_inventory_flux_mismatch_o8.json"
+  ]
+}

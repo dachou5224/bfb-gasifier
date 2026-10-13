@@ -1,0 +1,202 @@
+[
+  {
+    "label": "default_product_seed",
+    "x0_bed0": {
+      "y_CO": 0.038980931086825744,
+      "y_CO2": 0.10661149977340949,
+      "y_O2": 0.13828592387101432,
+      "N_CO2": 8.659499785073388
+    },
+    "product_seed_diag": {
+      "cells_seeded": 10.0,
+      "closure_passes": 3.0,
+      "closure_total_mol_s": 95.36982354846751,
+      "bed_cells_targeted": 10.0
+    },
+    "abgleich_diag": {
+      "aligned": false,
+      "bridge_passes": 2.0,
+      "history": [
+        {
+          "aligned": false,
+          "bed0_primary_holdup_rel_max": 0.0,
+          "temperature_max_delta_K": 19.155341590935677,
+          "product_source_holdup_rel_max": 15.794347222232396,
+          "o2_budget_profile_rel_max": 0.5190145821735374,
+          "solid_reactive_budget_rel_max": 0.4587337008695248,
+          "tol_primary_rel": 0.05,
+          "tol_temperature_K": 30.0,
+          "tol_product_rel": 0.4,
+          "tol_o2_profile_rel": 0.85,
+          "tol_solid_reactive_rel": 0.25
+        },
+        {
+          "aligned": false,
+          "bed0_primary_holdup_rel_max": 0.0,
+          "temperature_max_delta_K": 14.366506193201758,
+          "product_source_holdup_rel_max": 0.8242772857765186,
+          "o2_budget_profile_rel_max": 0.5190145821735374,
+          "solid_reactive_budget_rel_max": 0.6806755935125328,
+          "tol_primary_rel": 0.05,
+          "tol_temperature_K": 30.0,
+          "tol_product_rel": 0.4,
+          "tol_o2_profile_rel": 0.85,
+          "tol_solid_reactive_rel": 0.25
+        },
+        {
+          "aligned": false,
+          "bed0_primary_holdup_rel_max": 0.0,
+          "temperature_max_delta_K": 10.774879644901375,
+          "product_source_holdup_rel_max": 1.1051205636767658,
+          "o2_budget_profile_rel_max": 0.5190145821735374,
+          "solid_reactive_budget_rel_max": 0.00031177833680587195,
+          "tol_primary_rel": 0.05,
+          "tol_temperature_K": 30.0,
+          "tol_product_rel": 0.4,
+          "tol_o2_profile_rel": 0.85,
+          "tol_solid_reactive_rel": 0.25
+        }
+      ],
+      "final": {
+        "aligned": false,
+        "bed0_primary_holdup_rel_max": 0.0,
+        "temperature_max_delta_K": 10.774879644901375,
+        "product_source_holdup_rel_max": 1.1051205636767658,
+        "o2_budget_profile_rel_max": 0.5190145821735374,
+        "solid_reactive_budget_rel_max": 0.00031177833680587195,
+        "tol_primary_rel": 0.05,
+        "tol_temperature_K": 30.0,
+        "tol_product_rel": 0.4,
+        "tol_o2_profile_rel": 0.85,
+        "tol_solid_reactive_rel": 0.25
+      }
+    },
+    "converged": true,
+    "rms": 0.005495079191141447,
+    "bed_exit_dry": {
+      "CO": 0.0930524404045374,
+      "CO2": 0.1617837018357396,
+      "H2": 0.11997698095299293
+    },
+    "exit_dry": {
+      "CO": 0.09087826083128345,
+      "CO2": 0.16363470616122539,
+      "H2": 0.12259768875335633
+    },
+    "solved_bed0_wet": {
+      "y_CO": 0.040863566030775574,
+      "y_CO2": 0.1377819373165312
+    }
+  },
+  {
+    "label": "no_product_seed",
+    "x0_bed0": {
+      "y_CO": 0.23529483853558852,
+      "y_CO2": 0.045389060849309944,
+      "y_O2": 0.10427915825607258,
+      "N_CO2": 4.291862179710343
+    },
+    "product_seed_diag": null,
+    "abgleich_diag": null,
+    "converged": true,
+    "rms": 0.009436091475834772,
+    "bed_exit_dry": {
+      "CO": 0.09358728608968411,
+      "CO2": 0.161145118531351,
+      "H2": 0.1178794151893809
+    },
+    "exit_dry": {
+      "CO": 0.08999385860636663,
+      "CO2": 0.16411895626365725,
+      "H2": 0.12180149220139529
+    },
+    "solved_bed0_wet": {
+      "y_CO": 0.02891407254126874,
+      "y_CO2": 0.12440407411782017
+    }
+  },
+  {
+    "label": "no_product_seed_abgleich_on",
+    "x0_bed0": {
+      "y_CO": 0.09466023502980896,
+      "y_CO2": 0.09446975123343905,
+      "y_O2": 0.12033132592177438,
+      "N_CO2": 8.818217327501216
+    },
+    "product_seed_diag": null,
+    "abgleich_diag": {
+      "aligned": false,
+      "bridge_passes": 2.0,
+      "history": [
+        {
+          "aligned": false,
+          "bed0_primary_holdup_rel_max": 0.14673624991696865,
+          "temperature_max_delta_K": 126.12304157985841,
+          "product_source_holdup_rel_max": 3.586333770873303,
+          "o2_budget_profile_rel_max": 0.4233386900146724,
+          "solid_reactive_budget_rel_max": 1.1134019317606767,
+          "tol_primary_rel": 0.05,
+          "tol_temperature_K": 30.0,
+          "tol_product_rel": 0.4,
+          "tol_o2_profile_rel": 0.85,
+          "tol_solid_reactive_rel": 0.25
+        },
+        {
+          "aligned": false,
+          "bed0_primary_holdup_rel_max": 0.0,
+          "temperature_max_delta_K": 94.59228118489386,
+          "product_source_holdup_rel_max": 2.1376664813396187,
+          "o2_budget_profile_rel_max": 0.5190145821735374,
+          "solid_reactive_budget_rel_max": 1.396792638792141,
+          "tol_primary_rel": 0.05,
+          "tol_temperature_K": 30.0,
+          "tol_product_rel": 0.4,
+          "tol_o2_profile_rel": 0.85,
+          "tol_solid_reactive_rel": 0.25
+        },
+        {
+          "aligned": false,
+          "bed0_primary_holdup_rel_max": 0.0,
+          "temperature_max_delta_K": 70.94421088867034,
+          "product_source_holdup_rel_max": 2.9295105948980957,
+          "o2_budget_profile_rel_max": 0.5190145821735374,
+          "solid_reactive_budget_rel_max": 8.15770171739527e-05,
+          "tol_primary_rel": 0.05,
+          "tol_temperature_K": 30.0,
+          "tol_product_rel": 0.4,
+          "tol_o2_profile_rel": 0.85,
+          "tol_solid_reactive_rel": 0.25
+        }
+      ],
+      "final": {
+        "aligned": false,
+        "bed0_primary_holdup_rel_max": 0.0,
+        "temperature_max_delta_K": 70.94421088867034,
+        "product_source_holdup_rel_max": 2.9295105948980957,
+        "o2_budget_profile_rel_max": 0.5190145821735374,
+        "solid_reactive_budget_rel_max": 8.15770171739527e-05,
+        "tol_primary_rel": 0.05,
+        "tol_temperature_K": 30.0,
+        "tol_product_rel": 0.4,
+        "tol_o2_profile_rel": 0.85,
+        "tol_solid_reactive_rel": 0.25
+      }
+    },
+    "converged": true,
+    "rms": 0.005479795016299852,
+    "bed_exit_dry": {
+      "CO": 0.07955858267945591,
+      "CO2": 0.1707868570785195,
+      "H2": 0.11438962409099429
+    },
+    "exit_dry": {
+      "CO": 0.08096214069898461,
+      "CO2": 0.16990964498138278,
+      "H2": 0.1141993176529051
+    },
+    "solved_bed0_wet": {
+      "y_CO": 0.03243192188373275,
+      "y_CO2": 0.12087353977027188
+    }
+  }
+]

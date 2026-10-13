@@ -1,0 +1,1866 @@
+
+
+===== PDF page 1 =====
+FORTSCHRITT-  W 
+BB 
+B
+BERICHTE W|l|
+Dipl.-Ing. Manfred Wirsum, Netphen
+Theoretische Beschreibung
+und experimentelle
+Untersuchung
+der Verbrennung
+von Klärschlamm in
+blasenbildenden
+Wirbelschichtfeuerungen
+LUB Dresden
+!P
+7(36
+383
+ihe 6: Energietechnik 
+Nr. 383
+
+
+===== PDF page 2 =====
+FORTSCHRITT- W
+BERICHTE Wy MjM
+Dipl.-Ing. Manfred Wirsum, Netphen
+Theoretische Beschreibung
+und experimentelle
+Untersuchung
+der Verbrennung
+von Klärschlamm in
+blasenbildenden
+Wirbelschichtfeuerungen
+Reihe 6: Energieerzeugung
+Nr. 383
+
+
+===== PDF page 3 =====
+Vorwort
+Wirsum, Manfred 
+0 Sfö > urw 
+ß
+.. . .»
+Theoretische Beschreibung und experimentelle Untersuchung
+der Verbrennung von Klärschlamm in blasenbildenden Wirbelschicht-
+feuerungen
+Fortschr.-Ber. VDI Reihe 6 tilr. 383. Düsseldorf: VDI Verlag 1948.
+226 Seiten, 115 Bilder, 34 Tabellen.
+Für die Dokumentation: KlärschrammverbrennüT ' -* 2VWb 
+chtcht 
+Modellbildung -
+Simulation - Pyrolyse - Verbrennungskinetik - Segregation - Schadstoffbildung
+In der vorliegenden Arbeit werden die wesentlichen wirksamen Mechanismen bei der Ver-
+brennung von mechanisch entwässertem Klärschlamm in blasenbildenden Wirbelschicht-
+feuerungen erklärt sowie mathematische Modellansätze zur geschlossenen Beschreibung
+solcher Anlagen vorgestellt. Bei der Darstellung der klärschlammspezifischen Vorgänge wird
+insbesondere auf die Trocknungs-, Entgasungs- und Verbrennungsabläufe der Schlammpartikel,
+auf die vertikale Verteilung des Klärschlamms innerhalb der Feuerung, auf thermische Wechsel-
+wirkungen zwischen Wirbelbett und Freiraum sowie auf Gasphasenreaktionen und damit auf
+Schadstoffbildungsmechanismen eingegangen. Die vorgestellten theoretischen Modellansätze
+sowie das gesamte Berechnungsverfahren sind durch experimentelle Untersuchungen und
+durch Vergleich von Simulationsergebnissen mit Meßwerten aus einer industriellen Schlamm-
+verbrennungsanlage überprüft und abgesichert.
+Die vorliegende Arbeit entstand während meiner Tätigkeit als wissenschaftlicher Mitarbeiter
+am Institut für Energietechnik der Universität-GH Siegen.
+Mein herzlicher Dank gilt an erster Stelle Herrn Prof. Dr.-Ing. Franz Fett für die Bereitstellung
+des Themas sowie für die fachliche Betreuung während der vergangenen fünf Jahre.
+Herrn Prof. Dr.-Ing. Joachim Werther danke ich für die sorgfältige Durchsicht der Arbeit
+und für die Übernahme des Korreferats. Ebenfalls danken möchte ich Herrn Prof. Dr.-Ing.
+Wolfgang Krumm und Herrn Prof. Dr.-Ing. Dieter Geropp für die Teilnahme als Prüfer im
+Prüfungsausschuß und für die kritische Durchsicht der Arbeit.
+Die Forschungsarbeit wurde von der Fa. Krupp Uhde GmbH gefördert und wissenschaftlich
+begleitet. Für diese Unterstützung gilt den Herren Dr.-Ing. Ludwig Mühlhaus, Dr.-Ing. Klaus
+Gerhart, Dipl.-Ing. Jürgen Bäßler, Dr.-Ing. Christoph Lütge und insbesondere Herrn Dipl.-Ing.
+Thomas Bausch mein besonderer Dank.
+Auch die durchgeführten experimentellen Untersuchungen gelangen in dieser Form nur durch
+die wertvolle und geschätzte Zusammenarbeit mit Herrn Prof. Dr. rer. nat. Bernd Wenclawiak,
+Leiter des Bereichs Analytische Chemie, und mit Herrn Prof. Dr.-Ing. Dietmar Ehrhardt vom
+Institut für Hochfrequenztechnik der Universität-GH Siegen.
+Allen Mitarbeitern des Instituts für Energietechnik sowie den Studenten, die mich bei der
+Durchführung dieser Arbeit auf vielfältige Weise unterstützt haben, danke ich für die gute
+und erfolgreiche Zusammenarbeit.
+Das Forschungsvorhaben wurde u.a. vom Ministerium für Wissenschaft und Forschung des
+Landes Nordrheinwestfalen gefördert.
+Die Reihen der FORTSCHRITT-BERICHTE VDI:
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+Konstruktionstechnik/Maschinenelemente
+Fertigungstechnik
+Verfahrenstechnik
+Bauingenieurwesen
+Grund- und Werkstoffe
+Energieerzeugung
+Strömungstechnik
+Meß-, Steuerungs- und Regelungstechnik
+Elektronik
+Informatik /Kommunikationstechnik
+Verkehrstechnik /Fahrzeugtechnik
+Fördertechnik /Logistik
+Landtechnik /Lebensmitteltechnik
+Umwelttechnik
+Technik und Wirtschaft
+Biotechnik /Medizintechnik
+Mechanik /Bruchmechanik
+Wärmetechnik /Kältetechnik
+Rechnerunterstützte Verfahren
+(CAD, CAM, CAE, CAP, CAQ, CIM, . . .)
+Elektrotechnik
+12
+13
+14
+15
+16
+17
+18
+19
+20
+Manfred Wirsum
+Siegen, Dezember 1997
+21
+Staats- und Universitätsbibliothek Dresden
+ZB MW TB Energieumw. /Verfahrens!.
+3#3
+Stan 
+rt 
+0
+• Düsseldorf 19 8
+_ Alle 
+mich rln<; 
+m ic-ziincxAz ; 
+NIjt_|
+>n
+Als Manuskript gedruckt. Printed in Germany
+ISSN 0178-9414
+ISBN 3-18-338306-3
+III
+
+
+===== PDF page 4 =====
+Inhaltsverzeichnis
+Formelzeichen 
+X
+Kurzfassung 
+XVI
+1 Einleitung 
+1
+1.1 Zur Situation von Abwasserbehandlung, Klärschlammanfall und Klärschlamm-
+entsorgung in Deutschland 
+1
+1.2 Chemische Charakterisierung von Klärschlamm ................................................ 
+5
+1.3 Aufbereitung von Klärschlamm und thermische Verwertung in Wirbelschicht-
+feuerungen 
+7
+2 Modellbeschreibung 
+11
+2.1 Modellelemente ...................................................................................................... 
+11
+2.2 Struktur des Modells .............................................................................................. 
+12
+2.3 Bilanzierung am Zellenmodell ............................................................................... 
+15
+2.3.1 
+Wahl der bilanzierten Variablen ............................................................... 
+15
+2.3.2 
+Formulierung der Bilanzgleichungen ......................................................... 
+17
+2.3.2.1 
+Bilanzierung gasförmiger Stoffströme ....................................... 
+18
+2.3.2.2 
+Bilanzierung fester Stoffströme ................................................ 
+19
+2.3.2.3 
+Bilanzierung der Energieströme ................................................ 
+20
+2.3.3 
+Berechnungsverfahren zur Lösung der Zellbilanzgleichungen ................... 
+21
+3 Strömung in blasenbildenden Wirbelschichtfeuerungen 
+24
+3.1 Strömungsmechanische Einordnung von blasenbildenden Wirbelschichten ... 
+24
+3.2 Strömungsmechanik in der Wirbelschicht ............................................................. 
+27
+3.2.1 
+Strömungsbereiche ..................................................................................... 
+27
+3.2.2 
+Berechnung der strömungsmechanischen Kenngrößen einer blasenbilden-
+den Wirbelschicht 
+29
+3.3 Strömungsmechanik im Freiraum einer blasenbildenden Wirbelschicht ............. 
+33
+3.3.1 
+Feststoffbewegung und Feststoffkonzentration im Freiraum 
+33
+3.3.1.1 
+Modellgleichungen......................................................................... 
+33
+3.3.1.2 
+Lösung der Partikelbewegungsgleichungen ............................... 
+36
+V
+
+
+===== PDF page 5 =====
+5.6 Mathematische Modellierung der Segregation von Klärschlamm in blasenbil-
+denden Wirbelschichten ....................................................................................... 
+77
+5.6.1 
+Das GR-Modell als Grundlage eines Segregationsmodells für
+Klärschlamm ............................................................................................. 
+77
+5.6.2 
+Anpassung des GR-Modells ..................................................................... 
+80
+5.6.2.1 
+Aufspaltung der Feststoff-Zirkulationsströme ............................ 
+81
+5.6.2.2 
+Berücksichtigung des overlaying-effect .................................... 
+81
+5.6.2.3 
+Einführung eines Koeffizienten für axiale Dispersion ................ 
+82
+5.6.3 
+Modellgleichungen des Segregationsmodells für Klärschlamm ................ 
+82
+5.6.4 
+Bestimmung der Segregationskoeffizienten ............................................. 
+85
+6 Trocknungs- und Reaktionsabläufe bei der Verbrennung von Klärschlamm
+in blasenbildenden Wirbelschichtfeuerungen 
+91
+6.1 Bewertung der Prozesse bei der Entgasung und Verbrennung von Klärschlamm 
+91
+6.2 Trocknung und Pyrolyse von Klärschlamm in blasenbildenden Wirbelschicht-
+feuerungen 
+93
+6.2.1 
+Wärmeübergang zwischen einem Schlammklumpen und der
+Wirbelschicht ............................................................................................. 
+93
+6.2.2 
+Modellierung der Entgasung von Klärschlamm ....................................... 
+97
+6.2.3 
+Produkte der Pyrolyse von Klärschlamm ................................................ 100
+6.2.3.1 
+Chemische Prozesse bei der Pyrolyse von Klärschlamm .... 
+100
+6.2.3.2 
+Berechnung der Zusammensetzung der Pyrolyseprodukte im
+Modell ........................................................................................... 105
+6.3 Verbrennung der flüchtigen Bestandteile des Klärschlamms ............................... 106
+6.3.1 
+Bewertung der Verteilungs- und Verbrennungsvorgänge der flüchtigen
+Bestandteile ................................................................................................. 106
+6.3.2 
+Lokale Freisetzung und Dispersion der flüchtigen Bestandteile aus
+Klärschlamm .............................................................................................. 107
+6.3.3 
+Verbrennung der Entgasungsprodukte in der Wirbelschicht ................... 110
+6.3.4 
+Modellierung der chemisch- und mischungskontrollierten Verbrennungs-
+reaktionen der Entgasungsprodukte 
+113
+6.3.4.1 
+Reaktionskinetische Ansätze ...................................................... 113
+6.3.4.2 
+Berücksichtigung einer nichtidealen Vermischung der Reaktan-
+den im Simulationsmodell ......................................................... 114
+3.4 Austrag von Feststoff in den Freiraum 
+39
+3.4.1 Berechnung der Austragsrate aus dem Wirbelbett ................................. 
+39
+3.4.2 
+Berechnung der Startgeschwindigkeit der Partikel an der Wirbelschicht-
+oberfläche 
+40
+4 Wärmeübergang zwischen Freiraum und Wirbelschicht 
+42
+4.1 Wärmeübertragung durch „Partikelkonvektion“ ................................................. 
+42
+4.1.1 
+Berechnung der instationären Partikelaufheizung durch analytischen
+Lösungsansatz ............................................................................................... 
+43
+4.1.2 
+Berechnung der instationären Partikelaufheizung durch numerischen
+Lösungsansatz ............................................................................................... 
+45
+4.1.3 Wärmeübergangskoeffizient zwischen Freiraumgas und Partikel ............ 
+47
+4.1.4 
+Modellrechnungen ......................................................................................... 
+49
+4.2 Wärmeübergang durch Strahlung .......................................................................... 
+32
+5 Verteilung des Brennstoffs in der Wirbelschicht 
+58
+5.1 Allgemeines ............................................................................................................... 
+58
+5.1.1 Horizontale Dispersion ............................................................................... 
+58
+5.1.2 
+Vertikale Dispersion und Segregation ....................................................... 
+59
+5.2 Wechselwirkung von Verbrennung und Vermischung ........................................... 
+60
+5.3 Mechanismen der Vermischung und der Segregation ........................................... 
+60
+5.4 Typische Segregationsmuster ................................................................................... 
+61
+5.4.1 Flotsam-reiche Systeme ................................................................................ 
+62
+5.4.2 
+Jetsam-reiche Systeme ................................................................................ 
+62
+5.5 Experimentelle Untersuchungen zur Segregation in blasenbildenden Wirbel-
+schichten 
+63
+5.5.1 
+Ergebnisse aus der Literatur ....................................................................... 
+64
+5.5.2 
+Aufbau der Versuchsanlage .......................................................................... 
+65
+5.5.3 Das Ortungssystem ...................................................................................... 
+68
+5.5.4 
+Versuchsreihen ............................................ 
+. . 
+68
+5.5.5 Versuchsdurchführung und Auswertung der Meßdaten ............................ 
+70
+5.5.6 
+Ergebnisse ...................................... 
+71
+VII
+VI
+
+
+===== PDF page 6 =====
+8.2.2 
+Pyrolyse von Klärschlamm in einer Laborwirbelschicht 
+168
+8.2.2.1 
+Versuchsanlage mit Wirbelschicht ............................................. 168
+8.2.2.2 
+Charakterisierung der eingesetzten Klärschlämme .................. 169
+8.2.2.3 
+Versuchsdurchführung und Probenahme ................................. 170
+8.2.2.4 
+Auswertung der Versuche ......................................................... 171
+8.2.2.5 
+Ergebnisse .................................................................................... 173
+9 Zusammenfassung 
+178
+A Zusammenstellung der Ergebnisse aus Pyrolyse- und
+Verbrennungsversuchen 
+180
+Literatur 
+200
+6.4 Verbrennung des Restkokses aus Klärschlamm ..................................................... 116
+6.4.1 Vorgänge bei der Entstehung von Restkoks ............................................... 116
+6.4.2 
+Modellierung der Restkoksverbrennung ..................................................... 117
+6.4.3 Bestimmung der Temperatur der brennenden Kokspartikel ................... 120
+6.5 Bildung und Abbau von Stickoxid bei der Verbrennung von Klärschlamm in
+einer blasenbildenden Wirbelschicht ....................................................................... 121
+6.5.1 Freisetzung des Stickstoffs aus dem Klärschlamm .................................. 121
+6.5.2 
+Reaktionen des Stickstoffs .......................................................................... 123
+7 Berechnung unterschiedlicher stationärer Betriebszustände einer
+Klärschlammverbrennungsanlage mit blasenbildender Wirbelschicht 
+127
+7.1 Beschreibung der Anlage ......................................................................................... 127
+7.2 Zusammenstellung der berechneten Betriebsfälle .................................................. 129
+7.3 Vergleich der Simulationsergebnisse mit gemessenen Betriebszuständen .... 
+132
+7.4 Berechnung des Betriebsverhalten bei Verwendung von Steinkohle als Stütz-
+brennstoff 
+151
+8 Experimentelle Untersuchungen zur Pyrolyse und Verbrennung von
+Klärschlamm in Wirbelschichtfeuerungen 
+155
+8.1 Untersuchungen zur Kinetik der Restkoksverbrennung von Klärschlamm .... 
+155
+8.1.1 Experimenteller Teil ................................................................................... 155
+8.1.1.1 
+Aufbau der Versuchsanlage ........................................................ 155
+8.1.1.2 
+Meßtechnische Einrichtung ........................................................ 155
+8.1.2 
+Charakterisierung der eingesetzten Brennstoffe ........................................ 157
+8.1.3 Versuchsdurchführung und Auswertung ..................................................... 157
+8.1.3.1 
+Experimentelle Vorgehensweise ................................................. 157
+8.1.3.2 
+Bestimmung kinetischer Parameter der Restkoksverbrennung . 158
+8.1.4 
+Ergebnisse für Braunkohle und Klärschlamm ........................................... 162
+8.2 
+Untersuchungen zur Entgasung von kommunalem Klärschlamm ...................... 166
+8.2.1 
+Pyrolyse von Klärschlamm im Gasstrom .................................................. 166
+8.2.1.1 
+Aufbau der Versuchseinrichtung und Versuchsdurchführung . 166
+8.2.1.2 
+Charakterisierung der eingesetzten Klärschlämme ................... 166
+8.2.1.3 
+Ergebnisse ............................... 
+7
+VIII
+IX
+
+
+===== PDF page 7 =====
+Formelzeichen
+3- 3 
+oS 3' 3 
+f 
+Q
+*
+" 
+? 
+<s •• ■>
+Aktivierungsenergie 
+kJ /mol
+durch eine Blaseneruption aufgeworfene Feststoffmasse 
+kg
+flächenbezogener Roof-Austragsmassenstrom 
+kg/(m 2s)
+flächenbezogener Wake-Austragsmassenstrom 
+kg/(m 2s)
+Verhältnis von wake-Volumen zum Volumen von wake 
+1
+Verhältnis von wake-Volumen zum Volumen der leeren Blase 
+1
+und Blase zusammen
+1
+m2
+m2
+m2
+m2
+m2
+m2
+m2/(K 1,75s)
+1
+1
+1
+1
+1
+1
+1
+1
+J/(kgK)
+J/(kgK)
+J/(kgK)
+m
+m
+m
+m
+m
+m
+m
+m
+m
+m
+m
+m2/s
+m2/s
+m2/s
+m2/s
+m2/s
+m2/s
+m
+Reaktionsordnung
+Querschnittsfläche
+Bezugsquerschnittsfläche
+mittlere logarithmische Oberfläche einer Ascheschicht
+Oberfläche des Kohlenstoffkerns
+äußere Oberfläche eines Kokspartikels
+Querschnittsfläche der Wirbelschicht
+Faktor der molekularen Diffusion
+höhenabhängige Konzentration der flotsam-Partikel
+Volumenanteil der flotsam-Komponente im bulk
+Volumenanteil der flotsam-Komponente im wake
+mittlerer Volumenanteil der flotsam-Komponente
+Volumenanteil der jetsam-Komponente im bulk
+Volumenanteil der jetsam-Komponente im wake
+mittlerer Volumenanteil der jetsam-Komponente im bulk
+mittlerer Volumenanteil der jetsam-Komponente
+spezifische Wärmekapazität
+spezifische Wärmekapazität von Schlamm
+spezifische Wärmekapazität des Wassers
+Widerstandsbeiwert eines Partikels
+Widerstandsbeiwert des Partikels bei erhöhter Feststoffkonz.
+Durchmesser eines „aktiven“ Partikels
+Blasendurchmesser
+Anfangsdurchmesser einer Blase über dem Gasverteiler
+Minimaldurchmesser einer Blase
+Durchmesser eines Brennstoffpartikels
+Anfangsdurchmesser eines Brennstoffpartikels
+Durchmesser eines flotsam-Partikels
+Durchmesser eines jetsam-Partikels
+Partikeldurchmesser
+Partikelgrenzdurchmesser
+mittlerer Partikeldurchmesser
+axialer Dispersionskoeffizient (Segregation)
+Diffusivität
+Koeffizient der „meanderförmigen“ Bewegung
+molarer Diffusionskoeffizient
+Feststoffdispersionskoeffizient
+turbulenter Diffusionskoeffizient
+Gesamtdurchmesser des Wirbelschichtreaktors
+temperaturabhängiger Faktor
+1
+Auftriebskraft
+N
+Gewichtskraft
+N
+Trägheitskraft
+N
+Widerstandskraft
+N
+Schrumpfungsfaktor aus Abrieb
+1
+Schrumpfungsfaktor aus Trocknung
+1
+Erdbeschleunigung
+m/s 2
+Höhe
+m
+Anfangshöhe der Blasen über Düsenboden
+m
+Austrittshöhe der Wirbelluft über Düsenboden
+m
+Aufenthaltshöhe eines Partikel im Freiraum
+m
+Ausgangshöhe eines Partikel im Freiraum
+m
+spezifische Enthalpie
+J/kg; J/mol
+spezifische Enthalpie der Wirbelasche
+J/kg
+spezifische Verdampfungsenthalpie des Wassers
+J/kg
+Wärmetönung der Kohlenstoffumsatzreaktion
+J /kmol
+Energiestrom
+W
+Reaktionswärmestrom
+W
+Gesamthöhe
+m
+Gesamthöhe der expandierten Wirbelschicht
+m
+Reaktionsgeschwindigkeitskonstante
+(kmol/(m2s)) • (m3/kmol)a
+chemische Reaktionsrate
+(kmol/(m2s)) • (m3/kmol)a
+Diffusionsgeschwindigkeit durch Aschehülle
+m/s
+Diffusionsgeschwindigkeit durch Gasgrenzschicht
+m/s
+mischungskontrollierte Reaktionsrate
+(kmol/(m2s)) • (m3/kmol)°
+Segregationsparameter
+m3/s
+Lebensdauer einer Blase
+s
+Masse
+kg
+Massenstrom
+kg/s
+Masse Kohlenstoff
+kg
+Masse des Feststoffinventars
+kg
+Massenstrom des zugeführten Klärschlamms
+kg/s
+XI
+
+
+===== PDF page 8 =====
+Umf
+minimale Fluidisierungsgeschwindigkeit
+m/s
+minimale Fluidisierungsgeschwindigkeit bei
+m/s
+Umgebungsbedingungen
+up
+Partikelgeschwindigkeit
+m/s
+U P,0
+Ausgangsgeschwindigkeit einer Partikels im Freiraum
+m/s
+üpß
+mittlere Partikelstartgeschwindigkeit an
+m/s
+der Wirbelschichtoberfläche
+m/s
+«r
+Relativgeschwindigkeit Partikel/ Gas
+m/s
+u s
+Sinkgeschwindigkeit des Einzelpartikels
+m/s
+U
+elektrische Spannung
+V
+Ü
+elektrische Spannung, vektoriell
+V
+Ucal
+elektrische Spannung, vektoriell, Kalibrierwerte
+V
+Ük„r
+korrigierte elektrische Spannung, vektoriell
+V
+Uoffset
+Spannungsänderung während eines Versuchs
+V
+V
+Volumen
+m3
+V
+Molvolumen im Normzustand
+m3 /kmol
+V
+Volumenstrom
+m3/s
+Vo
+Wirbelluftvolumenstrom durch eine Düsenbodenöffnung
+m3/s
+Vb
+Volumen der leeren Blase
+m3
+Vc
+Volumen des Kokspartikels
+m3
+Vf
+Volumen der flotsam-Komponente
+m3
+v9
+Volumen des Gases
+m3
+Vf
+Volumen der jetsam-Komponente
+m3
+Vk
+Volumen der Kugelschale eines Partikels
+m3
+Volumenstrom bezogen auf Normzustand
+m3/s
+Vp
+Partikelvolumen
+m3
+V.
+wake-Volumen
+m3
+Vxr,n
+Volumenstrom von Argon bezogen auf Normzustand
+m’/s
+Vi,n
+Volumenstrom von Luft bezogen auf Normzustand
+m’/s
+w
+Feststoffvolumenzirkulationsrate
+m3/s
+«O,tr
+Anfangswassermasse auf die Masse
+1
+des trockenen Partikels bezogen
+w„
+volumetrischer Anfangswassergehalt
+1
+Feststoffvolumenstrom von jetsam im wake
+m3/s
+W2
+Feststoffvolumenstrom von flotsam
+m3/s
+X
+Masseanteil
+1
+X
+Eindringtiefe eines „aktiven“ Partikels
+m
+z
+dimensionslose Höhe
+1
+z
+konstanter Anteil des Widerstandsbeiwerts
+-
+Molmasse von Kohlenstoff 
+kg/kmol
+relativer Gasgeschwindigkeitsfaktor
+Stoffstrom 
+mol / S
+Anzahl der gleichzeitig entgasenden Schlammpartikel
+Anzahl der Düsenbodenöffnungen
+Richardson-Zaki-Geschwindigkeitsfaktor 
+1
+Aufenthaltswahrscheinlichkeiten 
+1
+Phasenaustauschparameter 
+ra / s
+spezifischer Wärmestrom 
+J/(kg s)
+Wärmemenge
+x 
+W kW
+Warmestrom 
+vv » n
+strahlungsbedingter Wärmestrom 
+W, kW
+Radius 
+m
+Radius der Verdampfungsfront innerhalb eines Schlammklumpens 
+m
+Radius der flüchtigenreichen Zone 
+m
+allgemeine Gaskonstante 
+kJ/ (mol K)
+Außenradius 
+m
+Partikelaußenradius am Anfang 
+m
+Kohlenstoffverbrennungsrate 
+kmol/s
+Außenradius eines Schlammklumpens 
+m
+Zeit 
+s
+Zeitpunkten Beginn eines Prozesses 
+s
+Entgasungszeit 
+s
+Temperatur 
+K
+Anfangstemperatur 
+K
+Temperatur eines brennenden Kokspartikels 
+K
+Verdampfungstemperatur von Wasser 
+K
+Grenztemperatur 
+K
+Oberflächentemperatur 
+K
+Temperatur im Freiraum 
+K
+Temperatur in der Wirbelschicht 
+K
+Leerrohrgasgeschwindigkeit 
+m/s
+Überschussgasgeschwindigkeit 
+m/s
+mittlere Abwärtsgeschwindigkeit eines „aktiven“ Partikels 
+m/s
+mittlere Aufwärtsgeschwindigkeit eines flotsam-Partikels 
+m/s
+Blasensteiggeschwindigkeit 
+m/s
+Steiggeschwindigkeit einer Einzelblase 
+m/s
+relative Gasgeschwindigkeit in der Blase zur Blase selbst 
+m/s
+Leerrohrgeschwindigkeit innerhalb der Emulsion 
+m/s
+Gasgeschwindigkeit im Freiraum 
+™
+XIII
+XII
+
+
+===== PDF page 9 =====
+Griechische Formelzeichen
+mittlere Dichte der Wirbelschicht
+Parameter der axialen Dispersion
+Standardabweichung
+Zeitraum
+Zeitpunkte
+dimensionlose Zeit
+Mechanismusfaktor bei der Koksverbrennung
+Sphärizität der flotsam-Partikel
+dimensionsloser Radius der kugeligen Trocknungsfront
+Sphärizität eines Partikels
+bezogener Außenradius des Schlammpartikels
+Maßstabsfaktor der Fläche
+Maßstabsfaktor der Höhe
+dimensionsloser Segregatonsparameter
+Molanteil
+gemittelter Molanteil
+Blasengasstromfaktor
+Gaskonzentration
+flächenbezogene Blasenfrequenz
+Segregationsparameter
+kg/m 3
+m4/s
+1
+s
+s
+1
+1
+1
+1
+1
+1
+1
+mol/mol
+mol/mol
+1
+kmol/m3
+l/(m 2s)
+(cm/s)1/2
+a
+Wärmeübergangskoeffizient
+W/(m 2K)
+ä
+mittlerer Wärmeübergangskoeffizient
+W/(m 2K)
+Ol’max
+maximaler Wärmeübergangskoeffizient
+W/(m 2K)
+a b
+Blasenkennzahl
+1
+OigC
+gaskonvektiver Wärmeübergangskoeff. d. Emulsionphase
+W/(m 2K)
+Olpe
+partikelkonvektiver Wärmeübergangskoeff. d. Emulsionsphase
+W/(m 2K)
+OlB
+gaskonvektiver Wärmeübergangskoeff. in der Blasenphase
+W/(m 2K)
+ß
+dimensionsloser Segregationsparameter
+1
+ß
+stöchiometrischer Koeffizient
+-
+7
+dimensionloser Segregationsparameter
+1
+<5<
+Schichtdicke des Blasendachs
+m
+e
+Lückenvolumenanteil
+1
+e»
+Volumenanteil der Blasenphase
+1
+Cbw
+Volumenanteil von Blase und wake in der Wirbelschicht
+1
+Cd
+Lückenvolumenanteil in der Emulsionsphase
+1
+Cmf
+Lückenvolumenanteil bei minimaler Fluidisierung
+1
+e
+Emissionskoeffizient
+-
+bezogene Temperatur
+K
+*oo
+Umgebungstemperatur des Systems
+K
+e
+normierte Temperatur
+1
+K
+Segregationsparameter
+m3/s
+X
+Wärmeleitfähigkeit
+W/(mK)
+Xe
+scheinbare Wärmeleitfähigkeit der Emulsionsphase
+W/(mK)
+A.
+Wärmeleitfähigkeit des Gases
+W/(mK)
+As
+Wärmeleitfähigkeit des Feststoffs
+W/(mK)
+dynamische Viskosität der Gasphase
+kg/ (ms)
+»b
+Blasenschwarmfaktor
+1
+»9
+kinematische Viskosität der Gasphase
+m2/s
+e
+normierter Abstand zum Symmetriezentrum
+1
+e
+dimensionsloser Schrumpfungsfaktor
+1
+&
+Blasenwachstumsfaktor
+1
+W
+Temperaturleitfähigkeit
+m2/s
+P
+Dichte
+kg/m 3
+Pe
+scheinbare Dichte der Emulsionsphase
+kg/m 3
+Pf
+Dichte der Feststoffphase
+kg/m 3
+Pf
+Dichte des flotsam-Partikels
+Vpr / rri3
+pg
+Dichte der Gasphase
+Kg/ ui
+L-rr /'m 3
+Pi
+Dichte des jetsam-Partikels
+Kg/m
+Vcr/m3
+Pp
+Partikeldichte
+kg/m
+kg/m 3
+Kennzahlen
+1
+1
+1
+1
+1
+1
+1
+1
+Archimedes-Zahl
+Beranek-Zahl
+Biot-Zahl
+Partikel-Froudezahl
+Prandtl-Zahl
+Reynolds-Zahl
+Schmidt-Zahl
+Sherwood-Zahl
+XIV
+
+
+===== PDF page 10 =====
+1 
+Einleitung
+1.1 Zur Situation von Abwasserbehandlung, Klärschlammanfall und
+Klärschlammentsorgung in Deutschland
+Die von Menschen verursachten Abwässer können, sofern sie nicht einer Behandlung unter-
+zogen werden, die Umwelt in erheblichem Maße belasten. War es zu Zeiten einer gerin-
+gen Bevölkerungsdichte und vergleichsweise geringen spezifischen Abwassermengen der Natur
+möglich, die Abwasserinhaltsstoffe über Selbstreinigungsmechanismen rasch zu verarbeiten, so
+führte die Bildung von größeren menschlichen Ansiedlungen und insbesondere die Einführung
+einer Frischwasserversorgung über Leitungssysteme zu einem starken Anwachsen der Abwas-
+sermenge. Darüber hinaus ergab sich durch Anschluß von Kleingewerbe und Industrie an
+das Kanalnetz eine zusätzliche Belastung des Abwasserstroms mit Metallen sowie zahlrei-
+chen organischen Verbindungen. Eine über längere Zeiträume praktizierte Abgabe der nicht
+behandelten Abwässer in die Umwelt führte zu empfindlichen lokalen Störungen des biologi-
+schen Gleichgewichts. Erst durch die flächendeckende Anwendung einer Abwasserbehandlung
+durch mechanische, chemische und biologische Verfahren in entsprechenden Kläranlagen und
+damit durch die Reduzierung der ausgebrachten Schadstoffmenge konnte eine Erholung der
+natürlichen Gewässer erreicht werden.
+Wasser wird außer für private Haushalte und für kleingewerbliche Betriebe in erheblichen Men-
+gen für industrielle Prozesse benötigt, wobei die Bedarfsdeckung für Haushalte überwiegend
+aus Grundwasser und für industrielle Prozesse hauptsächlich aus Oberflächenwasser erfolgt.
+Etwa 80 % dieses Brauchwassers wird nach der Nutzung wieder dem natürlichen Oberflächen-
+wasser zugeführt (in Deutschland fast ausschließlich nach vorangegangener Abwasserreini-
+gung), der Rest geht während der Nutzung in die Gasphase über. Zusätzlich werden große
+Mengen an Oberflächenwasser als Kühlwasser für Kraftwerksprozesse benutzt. Dieses ist in
+der Regel nach der Nutzung sowohl biologisch als auch chemisch unbelastet und kann ohne
+Reinigungsmaßnahmen wieder dem Wasserkreislauf zugeführt werden. Der gesamte Wasser-
+verbrauch wird üblicherweise in drei Verbrauchssektoren eingeteilt, wobei für Deutschland
+etwa folgende Verteilung gilt (Bank [7]):
+• Kühlwasser für Kraftwerke: 60 %
+• industrielles Brauchwasser: 30 %
+• Haushalte, Kleingewerbe und Landwirtschaft: 10 %
+Ein vereinfachtes Schema des natürlichen Wasserkreislaufs mit direkten anthropogenen Ein-
+griffen ist in Bild 1.1 dargestellt.
+Bei der Behandlung und Aufbereitung der Abwässer fällt Klärschlamm an. Nach DIN 4045
+ist Klärschlamm definiert als „aus dem Abwasser abtrennbare, wasserhaltige Stoffe, ausge-
+nommen Rechengut, Siebgut und Sandfang“ [123]. Die Abfall- und Klärschlammverordnung
+Kurzfassung
+Ziel der vorliegenden Arbeit war es, die wesentlichen wirksamen Mechanismen bei der Verbren-
+nung von mechanisch entwässertem Klärschlamm in blasenbildenden Wirbelschichtfeuerungen
+zu erklären und in Form einer geschlossenen mathematischen Beschreibung als Simulations-
+modell zu formulieren.
+Grundlage der mathematischen Beschreibung der Wirbelschichtfeuerung ist ein Zellenmodell,
+wobei die zu untersuchende Anlage in einzelne benachbarte und in Hauptströmungsrichtung
+von Rauchgas und Feststoff angeordnete Bilanzräume eingeteilt wird. Für diese Bilanzräume
+werden Stoff-, Massen- und Energiestrombilanzen formuliert und durch ein geeignetes nume-
+risches Verfahren simultan für die gesamte Anlage gelöst.
+Zur Formulierung der Zellbilanzgleichungen werden die wesentlichen physikalischen und chemi-
+schen Prozesse in der Wirbelschichtfeuerung mathematisch beschrieben. Bei der Darstellung
+der klärschlammspezifischen Vorgänge im Reaktor wird insbesondere auf die Trocknungs-,
+Entgasungs- und Verbrennungsabläufe der Schlammpartikel, auf die vertikale Verteilung des
+Klärschlamms innerhalb der Feuerung, auf thermische Wechselwirkungen zwischen Wirbelbett
+und Freiraum sowie auf Gasphasenreaktionen und damit auf die Beschreibung des Schadstoff-
+ausstoßes eingegangen. Die theoretischen Beschreibungen konnten durch eigene experimentelle
+Untersuchungen, insbesondere zum Abbrandverhalten von Klärschlamm und zur Segregation,
+abgesichert und erweitert werden.
+Eine Überprüfung des Berechungsverfahrens wurde durch Vergleich von Simulationsergebnis-
+sen mit Meßwerten aus einer industriellen Klärschlammverbrennungsanlage vorgenommen.
+XVI
+1
+
+
+===== PDF page 11 =====
+1. Stufe: mechanische Aufbereitung
+'Verdunstung von der 'N
+Tandoberfläche: 443 nw
+Rechen 
+Sandfang 
+Vorklärbecken
+Primärschlamm
+grobstückiger
+Abfall 
+,
+Meer
+Verdunstung vom
+/ 
+______360 mm
+mittlerer Niederschlag
+803 mm pro Jahr
+115
+Gewässer-
+verdunstung:
+10 mm
+318 mm
+279 mm
+93
+311 mm
+hw
+zum Meer: 189 Oberflächen-
+360 mm 
+wasser
+90 Grundwasser-|
+anreicherung
+Grundwasser
+Pflanzenverdunstung
+185
+Boden- und Oberflächenverdunstung
+Vasseraufj
+bereitung
+33
+Kühlwasser für
+die öffentliche
+Elektrizitäts-
+versorgung
+16
+94
+□□
+EL
+5
+Haushalt und
+IKleingewerbe
+24
+24
+70
+Industrie einschließlich
+Bundesbahn und
+Landwirtschaft
+kommunales
+Abwasser
+2.Stufe:
+biologische Aufbereitung
+3.Stufe:
+chemische
+Aufbereitung
+möglich
+Sekundärschlamm
+Verteiler
+7
+Verbrauch (Verdunstung)
+gereinigtes
+Abwasser
+zum Fluß
+Anfall von
+Tertiärschlamm
+Schlamm zur
+Verwertung
+t=>
+oder zur
+Schlamm-
+trocknung 
+Deponie
+Bild 1.1. Vereinfachtes Schema des natürlichen Wasserkreislaufs mit direkten anthropogenen Eingriffen gültig
+für Deutschland inkl. neue Länder (aus Bank [7]).
+bezeichnet Klärschlamm als den „bei der Behandlung von Abwasser in Abwasserbehandlungs-
+anlagen einschließlich zugehöriger Anlagen zur weitergehenden Abwasserreinigung anfallenden
+Schlamm, auch entwässert oder getrocknet oder in sonstiger Form behandelt“.
+Klärschlamm entsteht durch Abtrennen der im Abwasser suspendierten Stoffe nach mecha-
+nischer, biologischer und chemischer Behandlung. Je nach Behandlungsstufe im Abwas-
+serbehandlungswerk, in der der Schlamm anfallt, kann man analog eine Einteilung in Pri-
+märschlamm, Sekundärschlamm und Tertiärschlamm vornehmen. Primärschlamm wird aus-
+schließlich aus dem der Kläranlage zufließenden Abwasser durch mechanisch-physikalische
+Verfahren (Sedimentation ungelöster organischer Stoffe) im Vorklärbecken abgetrennt. Der
+während biologischer Reinigungsverfahren und hauptsächlich durch Zuwachs von Bakterien-
+masse gebildete Sekundärschlamm wird im Nachklärbecken abgeschieden. Tertiärschlamm
+entsteht in Nachbehandlungsstufen, sofern diese Bestandteil einer Abwasserbehandlungsanlage
+sind, durch Fällung gelöster Stoffe. Diese Schlämme werden gemeinsam als „Rohschlamm“ be-
+zeichnet. Wird Rohschlamm einer anaeroben Stabilisierung (Faulung) unterzogen, die gleich-
+Gasbehälter
+Faulturm
+Bild 1.2. Schematische Darstellung des Verfahrensablaufs einer kommunalen Kläranlage (aus Beier [10]).
+zeitig einen teilweisen Abbau der festen organischer Substanz zur Folge hat, so erhält man
+den Faulschlamm. Eine schematische Darstellung des Verfahrensablaufs in einer kommunalen
+Kläranlage zeigt Bild 1.2.
+Auf dem Gebiet der Abwassererfassung und -behandlung ist es in den alten und den neuen
+Bundesländern zu unterschiedlichen Entwicklungen gekommen. Im Bereich der alten Bun-
+desländer liegt der Anschlußgrad der Haushalte an das Kanalnetz mit 92,5 % im Jahre 1992
+recht hoch [133]. Der Zuwachs ist in den letzten Jahren nur noch gering ausgefallen, so daß
+auch langfristig nicht mit einem Anschlußgrad von über 95 % zu rechnen ist [66]. In der
+Mehrzahl der nicht angeschlossenen Haushalte wird das Abwasser in einer Grube gesammelt.
+2
+3
+
+
+===== PDF page 12 =====
+In den neuen Bundesländern zeigt sich ein deutlich abweichendes Bild. Der Anschlußgrad
+an das öffentliche Kanalnetz betrug dort nur 72,7 % im Jahre 1992 [133]. Die Abwässer der
+nicht an das Kanalnetz angeschlossesen Haushalte werden in Auffangeinrichtungen gesam-
+melt, die anfallenden Fäkalienschlämme regelmäßig durch öffentliche oder private Betriebe
+über Kläranlagen entsorgt. Auch im Bereich der Abwasserbehandlung besteht noch ein deut-
+licher Unterschied zwischen den neuen und den alten Bundesländern. Während in den alten
+Ländern nahezu die gesamte durch das Kanalnetz erfaßte Abwassermenge auch Kläranlagen
+zugeführt wird, waren im Jahre 1992 in den neuen Ländern nur rund 58 % der Haushalte an
+eine Kläranlage angeschlossen [133]. Insgesamt sind in Deutschland über 9900 Kläranlagen
+in Betrieb, von denen rund 8800 in den alten Ländern stehen [133]. In den neuen Ländern
+zeichnet sich ein rascher Anstieg sowohl bei der Anzahl der an das Kanalnetz angeschlossenen
+Haushalte als auch bei der Anzahl der Abwasserbehandlungsanlagen ab.
+Beim Behandlungsprozess fällt neben dem gereinigten Abwasser eine erhebliche Menge Klär-
+schlamm an. Im Bereich der alten Länder sind dies etwa 50 Millionen Kubikmeter pro Jahr
+als Rohschlamm mit einem Trockensubstanzgehalt (TS) von 5 Gew.%, was einem spezifi-
+schen Klärschlammanfall von 0,91 Kubikmeter pro angeschlossenem Einwohner und Jahr ent-
+spricht. Im Bereich der neuen Länder fallen etwa 0,52 Kubikmeter Klärschlamm pro Einwoh-
+ner und Jahr an, wobei sich dieser Wert wiederum nur auf die tatsächlich an eine Abwas-
+serbehandlungsanlage angeschlossenen Haushalte bezieht. Bei der jährlich anfallenden Menge
+an Klärschlamm ist eine steigende Tendenz zu beobachten. Hierfür ist eine in verstärktem
+Maße durchgeführte Erfassung von Oberflächenwasser, eine Verringerung von Verlusten im
+Abwassersystem sowie eine Erhöhung des Anschlußgrads verantwortlich [11]. Einen wesentli-
+chen Einfluß auf die Schlammenge hat zusätzlich die Reinigungsleistung der Abwasserbehand-
+lungsanlagen. Im Jahr 2000 ist bei einer Fortschreibung der gegenwärtigen Entwicklung für
+Deutschland mit einer Klärschlammenge von 90 Mio. t/a (entsprechend 4,5 Mio. t/a TS) zu
+rechnen [131].
+Die Entsorgung der bei der Abwasserbehandlung kontinuierlich anfallenden Klärschlämme er-
+folgte bis in die 80er Jahre überwiegend durch Ausbringung auf landwirtschaftliche Nutzflächen.
+Als Folge einer anhaltenden Diskussion über mögliche Langzeitfolgen dieser Entsorgungspra-
+xis gingen die in der Landwirtschaft genutzten Klärschlammengen drastisch zurück und liegen
+heute im Bereich der alten Bundesländer bei nur noch etwa 20 % des gesamten Klärschlamm-
+aufkommens [133]. Im Bereich der neuen Bundesländer lag im Jahre 1992 nach einer Statistik
+des Umweltbundesamtes [133] der über die Landwirtschaft entsorgte Klärschlammanteil bei
+71 %, wobei dieser hohe Anteil als Folge der staatlich verordneten Klärschlammnutzung zu
+sehen ist. Auch hier wird sich der landwirtschaftlich genutzte Anteil des Klärschlammaufkom-
+mens auf niedrigem Niveau einstellen. Die rückläufige Verwendung von Klärschlamm durch
+die Landwirtschaft wurde zunächst über die Deponierung aufgefangen. Derzeit werden etwa
+55 % des Klärschlamms innerhalb der alten Bundesländer auf Hausmülldeponien abgelagert.
+Für die neuen Bundesländer liegt dieser Wert bei etwa 30 % [117]. Da Deponieraum knapp ist,
+stellt diese Form der Klärschlammentsorgung keine dauerhafte Lösung dar. Darüber hinaus
+wird die direkte Ablagerung von Klärschlamm durch die Bestimmungen der TA-Siedlungsabfall
+nur noch bis zum Jahr 2005 möglich sein.
+Als weitere Alternative zur Entsorgung von Klärschlamm, welche in nennenswertem Umfang
+genutzt wird, stellt sich die Verbrennung oder eine anderweitige thermische Nutzung in indu-
+striellen Prozessen dar. Die thermische Entsorgung von Klärschlamm ist zur Zeit fast aus-
+schließlich auf das Gebiet der alten Bundesländer begrenzt, da nur dort entsprechende Anlagen
+in Betrieb sind. Der über thermische Nutzung entsorgte Anteil am Klärschlammaufkommen
+liegt nach Schenkel [117] bei etwa 15 % (im Jahre 1994).
+1.2 Chemische Charakterisierung von Klärschlamm
+Klärschlamm besteht zu 95 % aus Wasser, die restlichen 5 % bilden den Trockenrückstand oder
+die Trockensubstanz (TS). Die Trockensubstanz enthält organische Bestandteile sowie inerte
+Mineralien oder Asche. Der Anteil der organischen Substanz im Klärschlamm ist deutlich von
+der Herkunft und Zusammensetzung des Abwassers abhängig. Bei Abwässern aus überwiegend
+häuslichem Einzugsbereich liegt der organische Anteil an der Trockensubstanz zwischen 60 %
+und 70 %. Dieser Wert kann bei Klärschlamm aus Industrieabwässern bis auf 90 % ansteigen
+[11]-
+Die chemischen Elemente der festen Inhaltsstoffe von Klärschlamm können nach einem Schema
+von Brunner [16] im Hinblick auf ihr mengenmäßiges Vorkommen in zwei Gruppen eingeteilt
+werden. Der einen Gruppe gehören solche Bestandteile an, die im Prozentbereich in der
+Trockensubstanz des Schlamms enthalten sind. Sie werden nach Brunner auch als Matrixele-
+mente bezeichnet. Die restlichen festen Inhaltsstoffe werden der zweiten Gruppe zugeordnet.
+Bei den Matrixelementen handelt es sich um eine sehr begrenzte Anzahl von Stoffen, deren
+Anteile analytisch ohne weiteres ermittelt werden können [16]. Sie bestimmen das physikalisch-
+chemische Verhalten des Klärschlamms [11]. Die mengenmäßig bedeutendsten Matrixelemente
+sind Kohlenstoff, Sauerstoff, Wasserstoff sowie die Metalle Silizium, Kalzium und Eisen. Da-
+neben sind die Elemente Stickstoff, Phosphor, Aluminium, Schwefel u.a. in Mengen über 1 %
+bezogen auf TS im Klärschlamm enthalten. Zu den Nicht-Matrixelementen zählen einige der
+als anorganische Schadstoffe bekannten Metalle wie Kobalt, Nickel, Kupfer, Blei, Cadmium,
+Quecksilber, Chrom, Titan, Zinn, Barium, Silber und Cäsium [11].
+In Klärschlämmen treten etwa 300 organische Verbindungen auf, von denen prinzipiell eine
+Schadwirkung ausgehen kann [31]. Etwa 40 dieser Substanzen können sogar regelmäßig in den
+Schlämmen nachgewiesen werden [31]. Unter den organischen Verbindungen sind hinsichtlich
+ihres ökologischen Gefahrenpotentials besonders Chlorkohlenwasserstoffe (CKW), polychlo-
+rierte Biphenyle (PCB), Pestizide, Tenside und deren Metaboliten, Phenole, Benzole, poly-
+chlorierte Dibenzodioxine und -furane (PCDD, PCDF), Phtalate, Organozinn-Verbindungen
+und Mineralöle zu nennen [31]. Die große Zahl der organischen Verbindungen im Klärschlamm
+läßt eine detaillierte Darstellung hinsichtlich der Belastung an dieser Stelle nicht zu. Es wer-
+den daher nur einige der oben genannten Stoffgruppen quantifiziert. Bei den polychlorierten
+4
+5
+
+
+===== PDF page 13 =====
+120
+ng TE/kg TS
+0) 
+00
+-<--PCB-28
+—B— PCB-52
+- 
+•-PCB-101
+—M— PCB-138
+--+--PCB-153
+—*--PCB-180
+mg/kg TS
+0
+1989 
+1990 
+1991
+1992 
+1993 
+1994 
+1995
+Jahr
+Bild 1.3. 
+Entwicklung der PCB- Belastung im Klärschlamm der Abwasserbehandlungsanlage Bremen-
+Seehausen (anonym, 1995).
+Bild 1.4. Entwicklung der Dioxin- und Furanbelastung im Klärschlamm der Abwasserbehandlungsanlage
+Bremen-Seehausen (Höper [57]).
+Auf Basis der Ergebnisse von 300 Proben in den alten Bundesländern geben Butzkamm und
+Erker [20] eine durchschnittliche Belastung des Klärschlamms von 20 bis 50 ng TE/kg TS
+an. Bild 1.4 zeigt exemplarisch die Entwicklung der Dioxin- und Furanbelastung auf der
+Grundlage von Daten der Abwasserbehandlungsanlage Bremen-Seehausen. Seit 1986 ist ein
+deutlicher Rückgang der Belastung zu beobachten. Die Werte von 1991 lagen im Bereich des
+bundesweiten Durchschnitts.
+Aus verbrennungstechnischer Sicht und im Hinblick auf einen Beitrag zur Energiebereitstellung
+sind vor allem die Gehalte an den Elementen Kohlenstoff, Wasserstoff, Sauerstoff, Stickstoff
+und Schwefel in der organischen Substanz des Klärschlamms von Bedeutung (siehe Bild 1.5).
+Klärschlamm zeigt bei C, H und O grundsätzlich Ähnlichkeit mit konventionellen Brennstoffen
+wie Braunkohle oder Holz. Auffallend ist neben einem relativ hohen Gehalt an Schwefel,
+der hauptsächlich auf die in bakterieller Form vorliegenden Proteine zurückzuführen ist, ein
+deutlich höherer Stickstoffgehalt im Vergleich zu anderen Brennstoffen. Untersuchungen von
+Ogada [91] zeigen, daß feuchter Klärschlamm zusätzlich einen signifikanten Anteil Stickstoff
+in Form von NH enthält.
+1.3 Aufbereitung von Klärschlamm und thermische Verwertung in Wirbelschicht-
+feuerungen
+Der in Kläranlagen anfallende Schlamm besteht zu etwa 95 Gew.% aus Wasser. Klärschlamm
+wird vor einer weitergehenden Verwertung oder auch vor der Deponierung einer Vorbehand-
+lung unterzogen, wobei das wesentliche Ziel die Verringerung des Wassergehalts ist. Neben der
+Biphenylen sind die Einzelkongenere K28, K52, K101, K138, K153 und K180 von umwelt-
+relevanter Bedeutung. Untersuchungen des Umweltbundesamtes ergaben nach Leschber [74]
+im bundesweiten Mittel einen Gehalt von 0,1 mg/kg TS dieser Substanzen. Der gesamte
+durchschnittliche PCB-Gehalt liegt mit 1 bis 2 mg/kg TS wesentlich höher [118]. In Bild 1.3
+ist exemplarisch die Entwicklung der PCB-Belastung im Schlamm der Kläranlage Bremen-
+Seehausen dargestellt. Es ist zu erkennen, daß trotz eines Verbots der umweltoffenen Anwen-
+dung von PCB seit 1989 kein Rückgang der Belastung eingetreten ist. Dies dürfte auf die
+Langlebigkeit der polychlorierten Biphenyle zurückzuführen sein. Längerfristige Betrachtun-
+gen an einem Klärschlamm über einen Zeitraum von 2 Dekaden zeigten einen Rückgang der
+gesamten PCB-Belastung von 4 mg/kg TS auf einen Wert von 1 mg/kg TS [74]. Der Gehalt an
+allen polycyclischen aromatischen Kohlenwasserstoffen im Klärschlamm wird von Witte [148]
+auf der Grundlage von 57 analysierten Schlämmen mit 1,5 bis 16,5 mg/kg TS angegeben. Für
+die Gehalte an Pestiziden konnten Werte um 0,1 mg/kg TS ermittelt werden [65]. Bei den
+Tensiden wird zwischen aromatischen anionischen und aromatischen ionischen Gruppen un-
+terschieden. Untersuchungen an Faulschlämmen ergaben nach Laschka [73] einen Mittelwert
+von 6 g/kg TS bei den anionischen Tensiden und von 2 g/kg TS bei den ionischen Tensiden.
+Phtalate haben ihren Ursprung als Weichmacher von Kunststoffen [11] und finden sich auch
+im Klärschlamm wieder. Dabei ergeben sich Werte bis zu 8 mg/kg TS, mit Ausnahme des
+am häufigsten verwendeten Bi-diethylhexyl-phtalates, welches in Konzentrationen zwischen
+100 und 500 mg/kg TS auftritt [74]. Dioxine und Furane (PCDD, PCDF) gelangen entweder
+auf direktem Wege durch Einleitung belasteter Abwässer aus Haushalten und der Industrie
+oder aber durch atmosphärische Deposition und Oberflächenwasser in den Klärschlamm [11].
+7
+6
+
+
+===== PDF page 14 =====
+0,18
+Klärschlamm
+0,12
+0,06
+Braunkohle/ Lignit
+0,03
+0 * 
+i 
+|
+0 
+0,15 
+0,3 
+0,45 
+0,6 
+0,75
+O/C
+Klärschlamm
+1.5
+Braunkohle/ Lignit
+! 
+V 
+J—
+V 
+i Holz
+Torf :
+0,5
+Steinkohle
+0,15 
+0,3 
+0,45 
+0,6 
+0,75
+O/C
+Speisewasser
+Misch
+Rauchgas-
+Reinigung
+Ul
+Econo- I
+miser 
+Reingas
+schlämm
+Frischdampf
+Über -
+hitzer
+Zentrifuge
+entwässerter
+Schlamm _
+Zentrifugat
+Schlamm
+Vorlage
+LUVO
+schicht-
+reaktor
+Öllanzen
+Schlamm-
+lanzen
+Vorbrenn-
+kammer u
+Öl
+0,018
+i 
+Klärschlamm
+Braunkohle/ Lignit
+0,0031
+Holz
+0 
+—
+0 
+0,15 
+0,3 
+0,45 
+0,6 
+0,75
+O/C
+0,015
+0,012
+0.009
+0,006
+Bild 1.6. Anlagenschema einer blasenbildenden Wirbelschichtfeuerung zur Verbrennung von Klärschlamm
+mit Abhitzekessel und Rauchgasreinigung.
+Zur Verbrennung inhomogener, wasserhaltiger und heizwertarmer Brennstoffe, für die auf-
+grund ihrer physikalischen Beschaffenheit eine Aufbereitung nicht praktikabel ist oder wegen
+ihres geringen energetischen Potentials nicht lohnt, sind vom Verfahrensprinzip her Feuerungs-
+anlagen mit Wirbelschicht geeignet. Eine große „thermische Masse“ des Wirbelmaterials er-
+laubt einen stabilen Betrieb der Anlage auch bei schwankender Brennstoffzusammensetzung
+und -qualität. Der hohe Wärmeübergang zwischen Wirbelschicht und Brennstoff bewirkt
+eine rasche Aufheizung und Verbrennung auch größerer Brennstoffpartikel bei relativ niedri-
+gen Verbrennungstemperaturen. Durch die gute Durchmischung des Wirbelschichtinventars
+kann auch bei Brennstoffen mit einem hohen Wassergehalt eine sehr gleichmäßige Tempe-
+raturverteilung im Bereich der Wirbelschicht gewährleistet werden. Das Verfahrensfließbild
+einer Schlammverbrennungsanlage mit blasenbildender Wirbelschicht, nachgeschaltetem Ab-
+hitzekessel und Rauchgasreinigung ist schematisch in Bild 1.6 dargestellt. Der mechanisch
+entwässerte Schlamm wird über Dickstoffpumpen oder über Schneckenförderer oberhalb der
+WirbelschichtOberfläche in den Reaktor gegeben. Der Heizwert des Rohschlamms liegt meist
+unter 5 MJ /kg, so daß zur Aufrechterhaltung der Verbrennungsprozesse zusätzlich ein Stütz-
+brennstoff mitverbrannt werden muß. Heizöl oder Erdgas werden bevorzugt eingesetzt, da
+diese eine rasche Regelung bei Schwankungen in der Klärschlammzusammensetzung erlauben.
+Der Stützbrennstoff wird über Lanzen ebenfalls direkt in die Wirbelschicht eingedüst oder
+innerhalb einer Vorbrennkammer zur Aufheizung der Wirbelluft verbrannt. Bei normalem Be-
+Bild 1.5. Elementarzusammensetzung der organischen Substanz von Klärschlamm im Vergleich zu konven-
+tionellen festen Brennstoffen (Daten aus unterschiedlichen Quellen).
+damit verbundenen Volumenreduzierung ist auch die Verringerung der Geruchsemissionen und
+die verbesserte Lagerfähigkeit des entwässerten Schlamms von Interesse. Die Art und der Um-
+fang der Vorbehandlung muß jeweils an das gewählte Entsorgungskonzept angepaßt werden.
+Eine für alle Entsorgungswege optimale Vorbehandlung gibt es unter dem Gesichtspunkt der
+Wirtschaftlichkeit nicht. Wird der Klärschlamm in Wirbelschichtfeuerungen verbrannt, so ist
+als Vorbehandlungsschritt die mechanische Entwässerung durch Zentrifugen oder Filterpressen
+ausreichend. Hierbei werden unter Einsatz konventioneller Technik Trockensubstanzgehalte
+von 30 bis 45 Gew.% erreicht (Ruggenthaler [111]), verbesserte Verfahren wie Hi-Compact-
+Pressen und der zusätzliche Einsatz von Konditionierungsstoffen erlauben Endtrockensub-
+stanzgehalte von bis zu 60 Gew.% (Bever [11]). Zu berücksichtigen ist hierbei allerdings, daß
+durch die Zugabe von Konditionierungsstoffen zum Klärschlamm die zu entsorgende Trocken-
+substanzmenge erhöht wird. Muß der Klärschlamm vor einer thermischen Nutzung - dies
+ist zum Beispiel bei der (Mit-)Verbrennung in Staubfeuerungen gegeben - gemahlen werden,
+so darf der Restwassergehalt nicht über 10 Gew.% liegen (Schingnitz [119]). Derart geringe
+Wassergehalte sind nur durch thermische Trocknungsverfahren zu erreichen.
+8
+9
+
+
+===== PDF page 15 =====
+2 
+Modellbeschreibung
+2.1 
+Modellelemente
+Bei der mathematischen Modellierung von Feuerungsanlagen mit blasenbildender Wirbel-
+schicht sind eine Vielzahl gekoppelter physikalischer und chemischer Vorgänge zu berücksich-
+tigen. Diese sind zum Teil anlagen- oder prozeßspezifisch wie die Gas- und Feststoffbewegung
+in Wirbelbett und Freiraum und zum Teil brennstoffspezifisch wie die Trocknung, Entgasung
+und Verbrennung oder die Verteilung des Brennstoffs. Die Modellierung blasenbildender Wir-
+belschichten zur Verbrenung von Kohlen ist in sehr detaillierter Form von Bürkle [19] beschrie-
+ben worden. Viele der dort verwendeten Modellansätze, insbesondere die zur Beschreibung
+der Strömungsmechanik, behalten auch für die Klärschlammverbrennung in blasenbildenden
+Wirbelschichten ihre Gültigkeit und bilden eine wesentliche Grundlage der hier angewandten
+Berechnungen.
+Die Verbrennung von wasserhaltigen schlammförmigen Reststoffen führt zu einigen Besonder-
+heiten im Betriebsverhalten, welche im Modell zusätzlich berücksichtigt werden müssen. Bei
+den brennstoffspezifischen Vorgängen sind dies die Entgasung und die gleichzeitige Formände-
+rung der Klärschlammpartikel sowie die Verbrennung der Entgasungsprodukte. Hier ist ins-
+besondere die Umsetzung der flüchtigen Bestandteile wichtig, da Klärschlämme bis zu 90 %
+Flüchtige, bezogen auf den brennbaren Anteil, enthalten können. Zu berücksichtigende pro-
+zeßspezifische Phänomene umfassen die quasi-stationäre vertikale Verteilung der Klärschlamm-
+partikel sowie Wärmeübertragungsmechanismen zwischen Freiraum und Wirbelschicht. Da
+allgemein eine direkte Abhängigkeit von der Feststoffbewegung und der Strömungsstruktur
+im Reaktor vorliegt, ist die Beschreibung der Strömungsmechanik ein wesentlicher Bestand-
+teil des Gesamtmodells.
+Die theoretische Grundlage der verschiedenen Teilmodelle bilden die Erhaltungsgleichungen
+sowie empirische Modellansätze. Letztere sind im Falle der Segregation und des Abbrandver-
+haltens der Klärschlammpartikel anhand eigener experimenteller Untersuchungen entwickelt
+oder verifiziert worden. Um das Gesamtmodell auf verschiedene Anlagengeometrien und Be-
+triebsarten anwenden zu können, werden bei der Modellierung anlagenspezifische Korrelati-
+onsgleichungen vermieden.
+Bei der Modellformulierung wird prinzipiell zwischen unabhängigen Modellvariablen und ab-
+hängigen Modellvariablen unterschieden, wobei sich die Einordnung solcher am realen Prozeß
+orientiert. Die unabhängigen Modellvariablen stellen die Eingabegrößen für die Modellrech-
+nungen dar, während die Werte der abhängigen Modellvariablen den ausgehend von den Einga-
+begrößen berechneten Betriebszustand der modellierten Anlage wiedergeben. Eine weitere Un-
+tmeüung der unabhängigen Modellvariablen unterscheidet zwischen Anlageparametern und
+Betriebsparametern. Anlageparameter sind solche, die die Abmessungen des Reaktors, die
+Lage der Luft- und Brennstoffzufuhrstellen und andere konstruktive Merkmale definieren.
+Betriebsparameter bestimmen u.a. den Zustand, die Zusammensetzung sowie die Mengen der
+11
+■ Zentrifugal
+■ Reingas
+□ Klärschlamm
+■ 
+Asche
+100
+80
+(%)
+60
+40
+20
+0
+Pb 
+Cd 
+Cr 
+Cu 
+Ni 
+Hg 
+Zn
+Schwermetalle
+Bild 1.7. Verteilung der im Klärschlamm enthaltenen Schwermetalle auf die bei der Verbrennung anfallen-
+den Reststoffe (aus Stäubli [124]). Als Zentrifugat wird das bei der mechanischen Entwässerung anfallende
+Abwasser bezeichnet (siehe auch Darstellung in Bild 1.6).
+trieb der Anlage werden Temperaturen innerhalb der Wirbelschicht von 700 bis 750 °C erreicht.
+Oberhalb der Wirbelschichtoberfläche findet der chemische Umsatz von aus der Wirbelschicht
+ausgetragenen Brennstoffbestandteilen statt, wodurch sich im Freiraum eine deutlich höhere
+Temperatur einstellt. Die Rauchgastemperaturen am Ofenkopf betragen in der Regel 850 °C.
+Die Asche des Klärschlamms wird nahezu vollständig mit dem Rauchgasstrom aus dem Reak-
+tor ausgetragen und in der nachgeschalteten Rauchgasreinigung (Elektrofilter) abgeschieden.
+Die heißen Rauchgase werden im Abhitzekessel zur Bereitstellung von Prozeßdampf und zur
+Vorwärmung der Wirbelluft verwendet.
+Die aus dem Wirbelschichtreaktor abgeführten Prozeßprodukte sind Staub und ein mit Schad-
+stoffen beladenes Rauchgas. Die Asche weist in der Regel sehr niedrige Glühverluste von
+weniger als 1 Gew.% auf (Stäubli [124]). Die im Klärschlamm enthaltenen Schwermetalle
+werden mit Ausnahme des leichtflüchtigen Quecksilbers fast vollständig in die Flugasche ein-
+gebunden (siehe Darstellung in Bild 1.7). Da die Verbrennung des Klärschlamms jedoch
+bei relativ niedriger Temperatur abläuft und die Asche nicht aufgeschmolzen wird, ist die
+in der Rauchgasreinigung anfallende Klärschlammasche nicht laugungsresistent (Marb [80]).
+Chlorierte Kohlenwasserstoffverbindungen im Klärschlamm werden innerhalb der Feuerung
+weitgehend zerstört. Für Dioxine und Furane konnten an der Verbrennungsanlage Berlin-
+Ruhleben (Lungwitz [78]) nur sehr niedrige Konzentrationswerte im Rauchgas von etwa 0,005
+ng/m 
+tr nachgewiesen werden.
+10
+
+
+===== PDF page 16 =====
+zugeführten Luft- und Brennstoffströme oder die Menge, Eigenschaften und Korngrößenvertei-
+lung des Wirbelschichtinventars. Eine Zusammenstellung der unabhängigen Modellvariablen
+enthält Tabelle 2.1.
+Tabelle 2.2. Zusammenstellung der im Simulationsmodell berücksichtigten Phänomene mit Angabe bere-
+chenbarer Prozeßgrößen
+Teilmodelle für:
+| abhängige, berechenbare Prozeßgrößen
+Strömungsmechanik im
+Bereich der Wirbelschicht
+• minimale Fluidisierungsgeschwindigkeit, Gasgeschwindigkeit,
+Porosität und Druckverlust
+• Blasengröße, Blasenwachstum und Blasenvolumenanteil, Gas-
+austausch zwischen Blase und Emulsion
+• Feststoffbewegung, Feststoffholdup und Feststoffausstoß in
+den Freiraum (Inertmaterial und aktive Feststoffe)
+Strömungsmechanik im
+Bereich des Freiraums
+• Gasgeschwindigkeit, Gasvermischungsvorgänge
+• Feststoffbewegung (Trajektorie einzelner Partikel),
+Feststoffholdup
+quasi-stationäre vertikale
+Verteilung der
+Klärschlammpartikel
+(Segregation)
+• axiales Konzentrationsprofil der Brennstoffpartikel in
+Abhängigkeit von Durchmesser, Dichte und Gesamtmasse
+innerhalb der Wirbelschicht
+Trocknungs-, Entgasungs-
+und SehrumpfungsVorgänge
+am Klärschlammpartikel
+• Freisetzungsrate von Wasser und Pyrolyseprodukten
+• Zusammensetzung der Pyrolyseprodukte
+• Partikelgrößenverteilung und Holdup jeder Partikelgrößen-
+klasse (Brennstoffe)
+physikalische und chemische
+Vorgänge an „aktiven“
+Gasen und Feststoffen
+• Umsatzraten der Gase (alle relevanten Reaktionsgleichungen)
+• Umsatz aller Feststoffsorten und aller Partikelgrößenklassen
+(alle relevanten Reaktionsgleichungen)
+• Feststoffumsatz durch Fragmentierung und Abrieb
+• Massenströme, Holdup und Verteilung aller bilanzierter Parti-
+kelgrößenklassen
+• Freisetzung von Wärme durch chemische Reaktion
+Wärmeübergang zwischen
+Freiraum und Wirbelschicht
+• Wärmestrom durch Partikelkonvektion
+• instationäre Aufheizung von Feststoffpartikeln im FYeiraum
+(nur Inertmaterial)
+• Wärmeaufnahme von Feststoffpartikeln, mittlere Temperatur
+der Feststoffpartikel
+• Wärmestrom durch Gasstrahlung
+integrale Größen
+• Leistung, Ausbrand, Feststoffaustrag, Emissionen
+• Gesamtenergiebilanz für Wirbelschicht und Freiraum
+Tabelle 2.1. Zusammenstellung unabhängiger Modellparameter für Simulationsrechnüngen. Einteilung in
+Anlageparameter und Betriebsparameter.
+Anlageparameter
+Betriebsparameter
+• Anlagekonfiguration und geometrische
+Abmessungen
+• Lage der Zufuhrstellen für Klärschlamm
+und Stützbrennstoffe
+• Lage der Luftzufuhrstellen
+• Lage von Rauchgasrückführungen
+• Massenströme von Klärschlamm und
+Stützbrennstoffen
+• Immediat- und
+Elementarzusammensetzung und
+Heizwert aller Brennstoffe
+• Anfangspartikeldurchmesser von
+Klärschlamm
+• Partikelgrößenverteilung von Kohle (wenn
+Stützbrennstoff)
+• Volumenströme von Wirbelluft und
+Sekundärluft
+• Zusammensetzung aller eintretenden
+Luft(Gas)ströme
+• Temperatur aller eintretender Brennstoff-
+und Luft(Gas)ströme
+• Zusammensetzung, Gesamtmasse und
+Partikelgrößenverteilung des
+_______Feststoffinventars_____
+Abhängige Modellvariablen ergeben sich prinzipiell für alle im Gesamtmodell beschriebenen
+Prozesse. Der Umfang der zugänglichen Information bei der Berechnung steht somit in direk-
+tem Zusammenhang zur Detailtiefe der Modellbildung. Zusätzlich lassen sich aus berechneten
+abhängigen Modellvariablen integrale Größen wie Leistung, Wirkungsgrad, Ausbrand oder
+Emissionen ableiten. Eine Zusammenstellung der wesentlichen durch Teilmodelle beschriebe-
+nene Phänomene und Prozesse sowie der berechenbaren abhängigen Modellvariablen enthält
+Tabelle 2.2.
+2.2 
+Struktur des Modells
+Verfahrenstechnik und speziell zur Lösung der dabei entstehenden Gleichungssysteme ent-
+wickelt. Hartleben [47] wandte erstmals das von Wozny entwickelte Lösungsverfahren auf das
+Zellenmodell von Rajan und Wen an. Diese Methode der Modellierung wurde nachfolgend
+von anderen Autoren (Bürkle [19], Schöler [120], Edelmann [34], Dersch [29] und Heinbockel
+Z 
+d » V? 
+1
+"nd w“ |W31’ 
+i“) 
+«»j n«i
+g 
+n komplexen Anlagen der thermischen
+13
+12
+
+
+===== PDF page 20 =====
+Blase
+Bild 2.3. Massenströme einer bilanzierten Partikelgrößenklasse l der Feststoffsorte j im Bilanzraum i des
+Zellenmodells.
+Bild 2.4. Energieströme am Bilanzraum i des Zellenmodells.
+Energiestrom aus der Zelle i in die Zelle i — 1
+Energiestrom aus der Zelle i in die Zelle i + 1
+H?u
+durch Gas- und Feststoffströme von außen in die Zelle i zugeführter
+Energiestrom
+Qi b
+durch Wärmeverluste abgeführter Energiestrom
+Bei der Formulierung der Energiebilanz werden kinetische und potentielle Energien vernach-
+lässigt. Die an Stoffströme gebundenen Energieströme werden wie folgt berechnet:
+Nphs 
+Gas 
+Npst Nd.p,j
+Hi = y~ y 
++ yy yy 
+(2-14)
+k=l j=l 
+j=l z=l
+Die durch Hi bezeichneten Energieströme beinhalten im Falle der aktiven Gase und Feststoffe
+auch die Standardbildungsenthalpie.
+2.3.3 Berechnungsverfahren zur Lösung der Zellbilanzgleichungen
+Die bei der Modellierung des Reaktors angewandte Methode der Bilanzierung von Stoff- und
+Energieströmen mittels einer integralen Betrachtungsweise führt für den stationären Behar-
+rungszustand zu einem nichtlinearen algebraischen Gleichungssystem. Das Verfahren zur
+Lösung des nichtlinearen Bilanzgleichungssystems basiert auf einem von Wozny [149] ver-
+wendeten Newton-Raphson-Algorithmus. Dieser Algorithmus ist speziell auf Systeme mit
+blocktridiagonalen Funktionalmatritzen angepaßt.
+Bezeichnet man mit
+X£ =f
+(Xi,X 2 , ...
+““,£+1 
+Stoffstrom der Partikelklasse l des Feststoffs j aus der unteren Zelle i 4- 1
+in die Zelle i
+Stoffstrom der Partikelklasse l des Feststoffs j aus der Zelle i nach oben
+Stoffstrom der Partikelklasse l des Feststoffs j aus der oberen Zelle i — 1
+in die Zelle i
+Stoffstrom der Partikelklasse l des Feststoffs j aus der Zelle i nach unten
+Stoffstrom in die Partikelklasse l des Feststoffs j aus der nächst größeren
+bzw. kleineren Partikelgrößenklasse durch Schrumpfung bzw. Wachstum
+mjj £
+Stoffstrom aus der Partikelklasse l des Feststoffs j in die nächst größere
+bzw. kleineren Partikelgrößenklasse durch Wachstum bzw. Schrumpfung
+2.3.2.3 
+Bilanzierung der Energieströme Die Energieströme werden unabhängig von
+der Anzahl der Phasen in einer Zelle für die gesamte Zelle bilanziert. Transportmechanismen
+für die Energie sind im Bilanzraum zu- und abgeführte Stoffströme, Wärmetönung durch
+chemische Reaktion sowie Wärmeleitung durch die Reaktorwand. In Bild 2.4 sind am Beispiel
+einer Zelle i die zu berücksichtigenden Energieströme dargestellt.
+Die Energiestrombilanz lautet somit:
+- Hf + Hf, - Hf' + Hf - Qf = o 
+(2.13)
+In Gleichung (2.13) bedeutet
+Energiestrom in die Zelle i, welcher an Gas- und Feststoffströme aus der
+Zelle i + 1 gebunden ist
+Energiestrom in die Zelle z, welcher an Gas- und Feststoffströme aus der
+Zelle i — 1 gebunden ist
+20
+21
+
+
+===== PDF page 21 =====
+den Vektor aller Nßu Bilanzvariablen einer Zelle z, mit
+X =f (xi,x 2, ... ,x Nz )
+den Vektor aller Bilanzvariablen in allen Zellen und mit
+Fi = ( .F,, ...
+den Vektor aller Bilanzgleichungen einer Zelle i, so hat das zu lösende nichtlineare Gleichungs-
+system die Form
+Das Newton-Verfahren konvergiert schnell für den Fall, daß die Startwerte x0 nahe genug
+an der Lösung x* liegen. Bei weit von der Lösung entfernten Startwerten ist hingegen oft
+Divergenz zu beobachten.
+Zur Lösung des Gleichungssystems wird daher die „gedämpfte“ Variante des Newton-Ver-
+fahrens angewandt. Eine Newton-Iterierte x(p+ D wird erst dann akzeptiert, wenn für die
+Euklidische Norm des Funktionsvektors gilt:
+||F 
+||2 < ||FW||2
+(2.23)
+Das Verfahrenschema zur Berechnung der Bilanzvariablen x* für den stationären Beharrungs-
+zustand erhält damit folgenden Ablauf:
+1. Auswählen von Startwerten für alle Bilanzvariablen x0 und initialisieren des
+Iterationszählers v = 0.
+2. Aufstellen des Funktionsvektors F(x (i/)) und der Funktionalmatrix F'(x 0).
+3. Berechnung von Ax 
++1 ) durch Lösen des linearen Gleichungssystems (2.21)
+4. Berechnen einer Zahl j so, daß gilt
+j = min {i | i > 0, ||F (x ("> + £Ax<"+1) ) ||2 < ||F (xM) ||2}
+5. Berechnung einer neuen Approximation für den Bilanzgleichungsvektor
+x (p+1 ) == 
+4-
+6. Wiederholen der Berechnungen ab Punkt 2.
+In Simulationsmodell wird die Lösungsbedingung F(x (p) ) = 0 durch Abbruchbedingungen für
+den Iterationsprozeß ersetzt. Mögliche Abbruchbedingungen sind:
+E » > 
+max
+2. ||x +1 ) — X (I/)|| < ö 
+, 
+<5>0
+3. ||F(x("+1 ))|| <e 
+, 
+6>0
+Das Zellenmodell zur Berechnung von durchströmten Reaktoren weist in der Struktur seiner
+Bilanzgleichungen eine besondere Form auf. Die Bilanzgleichungen einer Zelle F, sind in der
+Regel nur von den Bilanzvariablen derselben Zelle und von Bilanzvariablen der benachbarten
+Zellen abhängig. Ausnahmen bilden nur solche Zellen, in die Stoffströme oder Energieströme
+aus nicht benachbarten Zellen gelangen. Derartige Bilanzgleichungsstrukturen treten z.B. bei
+der Modellierung von zirkulierenden Wirbelschichtfeuerungen oder bei der Berechnung von
+partikelkonvektiven Wärmeströmen zwischen nicht benachbarten Zellen auf.
+Fi(x)
+F2(x)
+F(x) =
+(2-15)
+F wz (x)
+Eine geschätzte Ausgangslösung x0 erfüllt das Gleichungssystem in der Regel nicht. Vielmehr
+gilt
+F(xo) / 0 . 
+(2.16)
+Es soll nun em Ax so bestimmt werden, daß die Gleichung
+F(x 0 + Ax) = 0
+(2-17)
+erfüllt werden kann. Hierzu wird der Funktionsvektor bis einschließlich des linearen Glieds in
+eine Taylorreihe entwickelt:
+F(x 0 + Ax) = F(xo) + 
+Ax + . . . = Ö . 
+(2.18)
+Durch Umstellen der obigen Gleichung erhält man die Vorschrift zur Berechnung von Ax
+ax
+■'[(£)..] 
+F<x,)
+' 
+l219)
+Die Matrix, in der die partiellen Ableitungen des Funktionsvektors F zusammengefaßt sind,
+bezeichnet man als Funktional- oder Jacobi-Matrix.
+Zur praktischen Berechnung der Newton-Korrektur Ax wird Gleichung (2.19) in ein lineares
+Gleichungssystem überführt
+F'(x 0)Ax = -F(x 0) . 
+(2.21)
+Für Ax erhält man nach einer Auswertung von Gleichung (2.21) in der Regel keine exakte
+Lösung, da die Taylorentwicklung nur das lineare Glied berücksichtigt. Die exakte Lösung des
+Systems muß iterativ bestimmt werden, wobei folgende Vorschrift verwendet wird:
+X (v+1) =x
+M + 
+5x M
+22
+23
+
+
+===== PDF page 115 =====
+[142] WERTHER, J.: 
+Strömungsmechanische Grundlagen der Wirbelschichttechnik. In:
+Chem.-Ing.-Tech. 49 (1977), Nr. 3, S. 193-202
+[143] WERTHER, J.: Fundamentals of fluidized bed technology. In: Ger. Chem. Eng. (1983),
+Nr. 6, S. 228-235
+[144] WERTHER, J. ; HEMBACH, F.: Messungen von Gaskonzentrations- und Temperaturpro-
+filen. Hamburg-Harburg, TU, Versuchsbericht, 1988
+[145] WERTHER, J. ; OGADA, T. ; PHILIPPEN, Ch.: Sewage sludge combustion in the flui-
+dized bed -comparison of stationary and circulating fluidized bed techniques. In: Int.
+Conference on Fluidized Bed Combustion, 1995, S. 951-962
+[146] WlNTRUFF, I.: Theoretische Untersuchung und Modellierung des Bewegungs- und Ver-
+mischungsverhaltens von Klärschlamm in einer blasenbildenden Wirbelschicht. Siegen,
+Universität, Institut für Energietechnik, Studienarbeit, 1995
+[147] WlNTRUFF, L: Experimentelle Untersuchung des Bewegungs- und Vermischungsverhal-
+tens großer Brennstoffpartikel in einer blasenbildenden Wirbelschicht. Siegen, Univer-
+sität, Institut für Energietechnik, Diplomarbeit, 1996
+[148] WITTE, H.: Untersuchungen zum Eintrag von organischen Schadstoffen in Boden und
+Pflanze durch die landwirtschaftliche Klärschlammverwertung. In: ATV Dokumentation
+und Schriftenreihe aus Wissenschaft und Praxis. 1989 (Band 22)
+[149] WOZNY, G.: Phasengleichgewichte starker Elektrolyte aus Dampfdruckmessungen und
+deren Anwendung zur Auslegung von Trennkolonnen bei thermochemischen Wasserzer-
+setzungsprozessen. Aachen, RWTH, Dissertation, 1979
+[150] YOSHIDA, K. , KAEYAMA, H. ; SHIMIZU, F.: Mechanism of particle mixingand Segrega-
+tion in gas fluidized beds. In: GRACE, J.R. (Hrsg.) ; MATSEN, J.R. (Hrsg.): Fluidization.
+1980, S. 389-396
+[151] ZELKOWSKI, J.: Kohleverbrennung. Essen : VGB-Kraftwerkstechnik GmbH, 1986
+FORTSCHRITT-BERICHTE VDI
+Bereits veröffentlicht wurden in der Reihe 6
+„Energietechnik" u.a.
+DM
+Nr. 378 K. PONWEISER: Numerische Simulation von dynamischen Strömungsvorgängen
+in netzwerkartigen Rohrkonstruktionen. 1997. ISBN 3-1 8-337806-X
+Nr. 377 H.-Chr. MAGEL: Simulation chemischer Reaktionskinetik in turbulenten Flammen
+mit detaillierten und globalen Mechanismen. 1997. ISBN 3-18-337706-3
+Nr. 376 R. PÖTTER: Untersuchung netzunabhängiger Photovoltaikanlagen mit Speicher-
+systemen. 1997. ISBN 3-18-337606-7
+Nr. 375 M. SKIBA: Ein Verfahren zur Standortevaluation energetischer Nutzungsmöglich-
+keiten der solaren Einstrahlung. 1997. ISBN 3-18-337506-0
+Nr. 374 R. FAATZ: Modellierung und Berechnung von Kombikraftwerken mit Druckwirbel-
+schicht und vor- sowie nachgeschalteten Gasturbinen bei Voll- und Teillast.
+1997. ISBN 3-18-337406-4
+59,00
+85,00
+84,00
+114,00
+103,00
+80,00
+85,00
+110,00
+68,00
+73,00
+120,00
+93,00
+54,00
+90,00
+109,00
+92,00
+C. RIEGLER: Modulares Leistungsberechnungsverfahren für Turboflugtriebwerke
+mit Kennfelddarstellung für Wärmeübertragungsvorgänge. 1 997
+ISBN 3-18-337306-8
+W. HIRTZ: Zur Methodik der Bewertung von Technikanlagen am Beispiel der
+Emissionen, Ressourcen und des Flächenbedarfs von Photovoltaik. 1997.
+ISBN 3-18-337206-1
+H. VOGELSANG: Energie-Management-System zur optimalen Auslegung von
+Blockheizkraftwerken. 1997. ISBN 3-1 8-337106-5
+C. AUDY: Das instationäre Betriebsverhalten von solardynamischen Energie-
+versorgungsanlagen mit Stirlingmotor für Raumstationen. 1997.
+ISBN 3-18-337006-9
+A. RÖTHIG: Optimaler Primärenergie- und Kraftwerkseinsatz in elektrischen
+Energieversorgungssystemen - Strukturelle Analyse und mathematisches Verfahren.
+1997. ISBN 3-18-336906-0
+D. BOEDDICKER: Thermodynamische und energiewirtschaftliche Bewertung
+eines Kombi-Kraftwerks mit integrierter Kohlevergasung und CO 2-Rezyklierung.
+1997. ISBN 3-18-336806-4
+D. WERNICKE: Methoden und Strategien zur Beurteilung von Abnahmeversuchen
+an Naßkühltürmen. 1997. ISBN 3-1 8-336706-8
+H.-J. WAGNER: Emissionen von Luftschadstoffen und CO 2 bei Herstellung und
+Betrieb von ausgewählten thermischen Solaranlagen. 1997. ISBN 3-18-336606-1
+H. DOSDALL: Simulation und Untersuchung des stationären und instationären
+Betriebsverhaltens der Heißgasschraubenmaschine. 1997. ISBN 3-1 8-336506-5
+J. HERMANN: Anregungsmechanismen und aktive Dämpfung (AIC) selbsterregter
+Verbrennungsschwingungen in Flüssigkraftstoffsystemen. 1997.
+ISBN 3-18-336406-9
+U. JOHÄNNTGEN: Wirkungsgraderhöhung von Dampfkraftwerken durch
+kühlwasserseitige Bypaßschaltung zur Optimierung des Kalten Endes. 1 997.
+ISBN 3-18-336306-2
+Nr. 373
+Nr. 372
+Nr. 371
+Nr. 370
+Nr. 369
+Nr. 368
+Nr. 367
+Nr. 366
+Nr. 365
+Nr. 364
+Nr. 363
+VDI VERLAG 
+40001 Düsseldorf
+210

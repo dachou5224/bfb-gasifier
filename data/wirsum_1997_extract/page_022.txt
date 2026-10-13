@@ -1,0 +1,90 @@
+terisiert und gegeneinander abgegrenzt. Die in diesem Zusammenhang von Reh eingeführten
+Kennzahlen und deren mathematische Definitionen sind in Tabelle 3.1 zusammengestellt.
+3 
+Strömung in blasenbildenden Wirbelschichtfeuerungen
+In blasenbildenden Wirbelschichtfeuerungen besteht eine deutliche funktionelle Abgrenzung
+zwischen dem Bereich der Wirbelschicht und dem Bereich des Freiraums. Die Trennung zwi-
+schen Wirbelschicht und Freiraum ist aufgrund der um Größenordnungen unterschiedlichen
+Feststoffkonzentration sehr ausgeprägt. Dementsprechend werden auch bei der mathemati-
+schen Beschreibung der Strömungsmechanik zwei getrennte Modelle formuliert, die allerdings
+über den Stoff- und Energietransport an der Phasengrenzfläche verknüpft sind. Bei der Ver-
+brennung von Klärschlamm sind die Unterschiede zwischen Wirbelschicht und Freiraum noch
+deutlicher ausgeprägt als bei der Verbrennung von trockenen Substanzen, so daß die präzise
+Modellierung der Kopplung beider Teilmodelle besonderer Sorgfalt bedarf.
+Im Bereich der Wirbelschicht durchströmt ein Teil des Gases die dichte Phase, während der
+andere Teil in Form von nahezu feststofffreien Blasen nach oben steigt. Größe und Geschwin-
+digkeit der Blasen nehmen innerhalb der Wirbelschicht von unten nach oben zu. Die Bewe-
+gung der Feststoffpartikel ist unstetig und folgt einem durch aufsteigende Blasen induzierten,
+hauptsächlich vertikal ausgerichteten Strömungsprofil. Die Vermischung der Feststoffpartikel
+innerhalb der Wirbelschicht ist sehr intensiv, wobei die vertikale Durchmischung die Durch-
+mischung in horizontaler Richtung um etwa eine Größenordnung überwiegt.
+Durch Blaseneruption an der Wirbelschichtoberfläche entsteht ein Austausch von Feststoff
+über die Phasengrenzfläche. Die Trajektorien der einzelnen ausgeworfenen Partikel bestimmen
+das vertikale Feststoffkonzentrationsprofil im Freiraum. Der an den Partikelstrom gekoppelte
+Energietransport beeinflußt entscheidend den Temperaturausgleich zwischen heißerem Frei-
+raum und kälterer Wirbelschicht, insbesondere bei Anlagen zur Verbrennung hochflüchtiger
+und wasserhaltiger Brennstoffe.
+Im Unterschied zur Wirbelschicht sind im Freiraum keine unterschiedlichen Süömungsphasen
+zu erkennen. Das Strömungsbild im Freiraum ist durch turbulente Strukturen charakterisiert,
+welche durch Blaseneruptionen an der Wirbelschichtoberfläche hervorgerufen werden.
+3.1 
+Strömungsmechanische Einordnung von blasenbildenden Wirbelschichten
+Die bis heute bekannten Modelle zur Beschreibung des Strömungszustands in fluidisierten Gas-
+wirbelschichten sind hinsichtlich ihres Gültigkeitsbereichs eingeschränkt. Die strömungsme-
+chanischen Eigenschaften einer Gaswirbelschicht werden zum einen durch partikelspezifische
+Eigenschaften wie mittlerer Partikeldurchmesser und Dichte des Wirbelguts und zum ande-
+ren durch Betriebsparameter wie Strömungsgeschwindigkeit, Viskosität und Dichte des Gases
+bestimmt.
+Von Reh [104] wurden die verschiedenen möglichen Strömungszustände einer Wirbelschicht
+vom Festbett über die blasenbildende und die zirkulierende Wirbelschicht bis zum pneumati-
+schen Transport von Feststoffpartikeln durch einen Satz dimensionsloser Kenngrößen charak-
+Tabelle 3.1. Definitionen für die Kennzahlen des Zustandsdiagramms für Gaswirbelschichten nach Reh.
+Kennzahl 
+--------------ff-
+Partikel-Froudezahl
+FY = 
+-
+dPg
+(3.1)
+Partikel-Reynoldszahl
+UQPgdp
+Re —
+Ms
+(3.2)
+Beranekzahl
+M —vg9 Pp ~~ Pe
+(3.3)
+Archimedeszahl
+. 
+9&p pp - Pg
+Ar — ,
+Pa
+(3-4)
+Lückengrad
+—
+Vg + Vp
+(3.5)
+Im Zustandsdiagramm nach Reh (Bild 3.1) ist auf der Ordinate die mit der Leerrohrgeschwin-
+digkeit gebildete Partikel-Froudezahl, die zusätzlich mit dem Quotienten aus Gasdichte und
+Dichtedifferenz zwischen Gas und Feststoff multipliziert wird, aufgetragen. Diese modifizierte
+Froudezahl entspricht dem Widerstandsbeiwert der Einzelkornströmung. Die Abszisse des
+Reh-Diagramms stellt die mit dem mittleren Partikeldurchmesser gebildete Reynoldszahl dar.
+Darüber hinaus enthält das Reh-Diagramm Linien konstanter Archimedeszahl, Linien konstan-
+ter Beranekzahl (Geschwindigkeitskennzahl) und Linien konstanten Lückengrads. Von diesen
+zusätzlichen Kennzahlen enthält die Archimedeszahl den Partikeldurchmesser des Wirbelguts
+und Stoffdaten von Gas und Feststoff und charakterisiert somit das Gas/Feststoffsystem. Die
+Beranekzahl wird nur mit der Leerrohrgeschwindigkeit und den Stoffdaten von Gas und Fest-
+stoff gebildet. Die durchgezogene Linie 6 = 0,4 kennzeichnet den Übergang vom durchströmten
+Festbett zur Wirbelschicht. Die typischen Arbeitsbereiche unterschiedlicher Wirbelschichtsy-
+steme (nach Plass [98]) sind als schraffierte Flächen in Bild 3.1 eingetragen.
+Zur Charakterisierung unterschiedlicher Wirbelgüter hinsichtlich ihres Wirbelverhaltens wird
+ein von Geldart [41] entwickeltes Schema herangezogen. Nach Geldart werden die Wirbelgüter
+in Abhängigkeit vom mittleren Partikeldurchmesser und vom Dichteunterschied zwischen Wir-
+belgut und strömendem Fluid in vier Gruppen unterteilt (siehe Darstellung in Bild 3.2).
+Der Gruppe C nach Geldart gehören sehr feine, kohäsive Pulver an. Eine Fluidisierung dieser
+Materialien ist aufgrund von interpartikulären Anziehungskräften extrem schwierig. Partikel
+der Gruppe A sind leichter zu fluidisieren, wobei eine homogene Expansion der Wirbelschicht
+bei Gasgeschwindigkeiten wenig oberhalb der Minimalfluidisierungsgeschwindigkeit stattfin-
+det. Auch bei höheren Gasgeschwindigkeiten sind nur kleine Blasen zu beobachten. Ein
+25
+24

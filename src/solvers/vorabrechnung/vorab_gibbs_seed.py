@@ -5,6 +5,7 @@ from dataclasses import dataclass, replace
 from typing import Any, Dict, List
 
 import numpy as np
+import numpy.typing as npt
 
 from src.core.cell import Cell, S_CHAR, S_VM, S_MOISTURE, S_ASH
 from src.core.connectivity import cell_total_solid_holdup
@@ -282,8 +283,16 @@ def _major_gibbs_diag_allows_warmstart(diag: dict[str, Any]) -> bool:
 # 不含 C₂H₄：§4.3 例举物种，但 Ch.5 无动力学；微量且无可承接路径，不纳入模型
 _PYROLYSIS_GIBBS_CANDIDATES: list[str] = ["CO2", "CO", "CH4", "H2", "H2O"]
 _PYROLYSIS_GIBBS_ELEM_NAMES: list[str] = ["C", "H", "O"]
-_PYROLYSIS_GIBBS_TOL: float = 1e-10
+_PYROLYSIS_GIBBS_TOL: float = 1e-14
 _PYROLYSIS_GIBBS_MAX_ITER: int = 250
+_PYROLYSIS_ELEMENT_ATOL: float = 1.0e-12  # [mol/s] A n = b
+_PYROLYSIS_STATIONARITY_ATOL: float = 1.0e-12  # [-] Z^T μ/(R T)
+pyrolysis_gibbs_account: dict[str, int] = {
+    "calls": 0,
+    "slsqp_nit": 0,
+    "newton_iter": 0,
+    "seed_restarts": 0,
+}
 # 兼容旧 re-export；Hamel §4.3 路径不再用工程 closure 覆盖
 _PYROLYSIS_GIBBS_CLOSURE_REL_TOL: float = 1e-4
 _PYROLYSIS_GIBBS_RESIDUAL_REL_TOL: float = 1e-8
@@ -460,6 +469,83 @@ def _pyrolysis_guess_respects_element_pool(
     return total > 1.0e-20
 
 
+def _project_element_closure(
+    n: npt.NDArray[np.float64],
+    atom_matrix: npt.NDArray[np.float64],
+    budget: npt.NDArray[np.float64],
+) -> tuple[npt.NDArray[np.float64], bool]:
+    """把组成拉回 ``A n = b``。负分量不裁成平衡解。"""
+    residual = atom_matrix @ n - budget
+    gram = atom_matrix @ atom_matrix.T
+    step = atom_matrix.T @ np.linalg.solve(gram, residual)
+    closed = n - step
+    if float(np.min(closed)) < -1.0e-14:
+        return closed, False
+    closed = np.maximum(closed, 0.0)
+    gap = float(np.max(np.abs(atom_matrix @ closed - budget)))
+    return closed, gap <= _PYROLYSIS_ELEMENT_ATOL
+
+
+def _nullspace_equilibrium(
+    n: npt.NDArray[np.float64],
+    atom_matrix: npt.NDArray[np.float64],
+    mu_coef: npt.NDArray[np.float64],
+) -> tuple[npt.NDArray[np.float64], float, int]:
+    """在 ``A`` 的零空间里把化学势投影残差收到驻点。不改元素账。
+
+    五种组分都为正时只有两个自由度。这不是附录 A1 的逐步复刻，
+    物理目标仍是式 (4.28)–(4.31) 的约束极小。
+
+    Source: Hamel (1999) §4.3 Eq.(4.28)–(4.31)
+    """
+    from scipy.linalg import null_space
+
+    active = np.flatnonzero(n > 1.0e-18)
+    if int(active.size) < 2:
+        return n, float("inf"), 0
+    basis = null_space(atom_matrix[:, active])
+    if basis.size == 0 or basis.shape[1] == 0:
+        return n, float("inf"), 0
+    work = n.copy()
+
+    def reduced_gradient(amounts: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+        total = float(np.sum(amounts))
+        chemical = mu_coef[active] + np.log(amounts / total)
+        return basis.T @ chemical
+
+    moves = work[active]
+    gradient = reduced_gradient(moves)
+    iterations = 0
+    for _ in range(20):
+        iterations += 1
+        if float(np.max(np.abs(gradient))) <= _PYROLYSIS_STATIONARITY_ATOL:
+            break
+        metric = np.diag(1.0 / moves) - np.ones((moves.size, moves.size)) / float(np.sum(moves))
+        hessian = basis.T @ metric @ basis
+        try:
+            direction = basis @ np.linalg.solve(hessian, -gradient)
+        except np.linalg.LinAlgError:
+            break
+        alpha = 1.0
+        downhill = direction < 0.0
+        if np.any(downhill):
+            alpha = min(alpha, float(np.min(-0.9 * moves[downhill] / direction[downhill])))
+        while alpha > 1.0e-8:
+            trial = moves + alpha * direction
+            if float(np.min(trial)) <= 0.0:
+                alpha *= 0.5
+                continue
+            if float(np.linalg.norm(reduced_gradient(trial))) <= float(np.linalg.norm(gradient)):
+                break
+            alpha *= 0.5
+        if alpha <= 1.0e-8:
+            break
+        moves = moves + alpha * direction
+        gradient = reduced_gradient(moves)
+    work[active] = moves
+    return work, float(np.max(np.abs(gradient))), iterations
+
+
 def _solve_pyrolysis_gibbs_an_eq_b(
     *,
     T_K: float,
@@ -469,9 +555,9 @@ def _solve_pyrolysis_gibbs_an_eq_b(
 ) -> tuple[dict[str, float], dict[str, Any]]:
     """§4.3 封闭热解气：``min G`` s.t. ``A n = b``, ``n ≥ 0``。
 
-    Hamel §4.3 / Anhang A1 的物理目标是元素守恒下的 Gibbs 平衡。
-    现有 lambda-only 降维 Newton 偶发伪收敛且 ``A n ≠ b``；
-    此处用约束优化直接强制 ``A n = b``（与论文 (4.30) 一致）。
+    先用无量纲目标、解析梯度和元素矩阵做 SLSQP，再把可行解收到化学势驻点。
+    只满足元素守恒的 seed 只能作为下一次初值，不能当作平衡解。
+    这里没有逐步复刻附录 A1 的算法，物理目标仍是式 (4.28)–(4.31)。
 
     Source: Hamel (1999) §4.3 Eq.(4.26)–(4.31); Anhang A1 物理目标
     """
@@ -488,26 +574,22 @@ def _solve_pyrolysis_gibbs_an_eq_b(
         z = {sp: 0.0 for sp in species}
         return z, {
             "converged": True,
+            "converged_by": "zero_element_pool",
             "solver_mode": "an_eq_b_min_G",
+            "opt_success": False,
+            "used_seed_restart": False,
+            "element_feasible": True,
             "max_abs_element_closure": 0.0,
+            "stationarity_abs": 0.0,
             "pyrolysis_gibbs_elements": {e: 0.0 for e in elem_names},
         }
 
-    mu0 = np.array(
-        [float(reduced.species_db.get_mu0(sp, float(T_K))) for sp in species],
-        dtype=np.float64,
-    )
     log_p = float(np.log(float(P_Pa) / P0))
     rt = float(Rg * float(T_K))
-
-    def _gibbs(n_vec: np.ndarray) -> float:
-        n_pos = np.maximum(n_vec, 0.0)
-        n_tot = float(np.sum(n_pos))
-        if n_tot <= 1.0e-30:
-            return 0.0
-        y = n_pos / n_tot
-        return float(n_pos @ (mu0 + rt * (np.log(np.maximum(y, 1.0e-300)) + log_p)))
-
+    mu_coef = np.array(
+        [float(reduced.species_db.get_mu0(sp, float(T_K))) / rt for sp in species],
+        dtype=np.float64,
+    ) + log_p
     if mole_seed is None:
         x0 = np.full(len(species), 1.0e-12, dtype=np.float64)
     else:
@@ -518,69 +600,104 @@ def _solve_pyrolysis_gibbs_an_eq_b(
         if float(np.sum(x0)) <= 1.0e-20:
             x0 = np.full(len(species), 1.0e-12, dtype=np.float64)
     x0 = np.maximum(x0, 1.0e-14)
+    pyrolysis_gibbs_account["calls"] += 1
+
+    def _gibbs(n_vec: np.ndarray) -> float:
+        amounts = np.maximum(n_vec, 0.0)
+        total = float(np.sum(amounts))
+        if total <= 1.0e-30:
+            return 0.0
+        chemical = mu_coef + np.log(np.maximum(amounts / total, 1.0e-300))
+        return float(amounts @ chemical)
+
+    def _gradient(n_vec: np.ndarray) -> np.ndarray:
+        amounts = np.maximum(n_vec, 1.0e-30)
+        total = float(np.sum(amounts))
+        return mu_coef + np.log(amounts / total)
 
     cons = [
         {
             "type": "eq",
-            "fun": lambda n, i=i: float(a[i] @ np.maximum(n, 0.0) - b[i]),
+            "fun": lambda n, i=i: float(a[i] @ n - b[i]),
+            "jac": lambda n, i=i: a[i],
         }
         for i in range(len(elem_names))
     ]
-    opt = minimize(
-        _gibbs,
-        x0,
-        method="SLSQP",
-        bounds=[(0.0, None)] * len(species),
-        constraints=cons,
-        options={"ftol": float(_PYROLYSIS_GIBBS_TOL), "maxiter": int(_PYROLYSIS_GIBBS_MAX_ITER), "disp": False},
-    )
-    n_sol = np.maximum(np.asarray(opt.x, dtype=np.float64), 0.0)
-    closure = a @ n_sol - b
-    max_abs = float(np.max(np.abs(closure), initial=0.0))
+    options = {
+        "ftol": float(_PYROLYSIS_GIBBS_TOL),
+        "maxiter": int(_PYROLYSIS_GIBBS_MAX_ITER),
+        "disp": False,
+    }
 
-    # SLSQP 偶发 success=False 但解已满足 An=b；回退到可行 mole_seed
-    if max_abs > 1.0e-6:
-        n_seed = np.maximum(x0.copy(), 0.0)
-        clos_seed = a @ n_seed - b
-        if float(np.max(np.abs(clos_seed), initial=0.0)) <= 1.0e-8:
-            n_sol = n_seed
-            closure = clos_seed
-            max_abs = float(np.max(np.abs(closure), initial=0.0))
-        else:
-            # 再试：均匀扰动初值
-            for scale in (0.5, 2.0, 0.1):
-                x_try = np.maximum(x0 * scale, 1.0e-14)
-                opt2 = minimize(
-                    _gibbs,
-                    x_try,
-                    method="SLSQP",
-                    bounds=[(0.0, None)] * len(species),
-                    constraints=cons,
-                    options={
-                        "ftol": float(_PYROLYSIS_GIBBS_TOL),
-                        "maxiter": int(_PYROLYSIS_GIBBS_MAX_ITER),
-                        "disp": False,
-                    },
-                )
-                n2 = np.maximum(np.asarray(opt2.x, dtype=np.float64), 0.0)
-                c2 = a @ n2 - b
-                m2 = float(np.max(np.abs(c2), initial=0.0))
-                if m2 < max_abs:
-                    n_sol, closure, max_abs, opt = n2, c2, m2, opt2
-                if max_abs <= 1.0e-6:
-                    break
+    def _slsqp(start: np.ndarray):
+        found = minimize(
+            _gibbs,
+            start,
+            method="SLSQP",
+            jac=_gradient,
+            bounds=[(0.0, None)] * len(species),
+            constraints=cons,
+            options=options,
+        )
+        pyrolysis_gibbs_account["slsqp_nit"] += int(getattr(found, "nit", 0))
+        amounts = np.maximum(np.asarray(found.x, dtype=np.float64), 0.0)
+        return found, amounts
 
-    out = {species[j]: float(n_sol[j]) for j in range(len(species))}
+    starts = [x0]
+    if mole_seed is not None:
+        seeded = np.array(
+            [float(max(mole_seed.get(sp, 0.0), 0.0)) for sp in species],
+            dtype=np.float64,
+        )
+        if float(np.sum(seeded)) > 1.0e-20 and not np.allclose(seeded, x0):
+            starts.append(np.maximum(seeded, 1.0e-14))
+    for scale in (0.5, 2.0, 0.1):
+        starts.append(np.maximum(x0 * scale, 1.0e-14))
+
+    best_amounts = np.maximum(x0.copy(), 0.0)
+    best_gap = float("inf")
+    best_station = float("inf")
+    best_opt = None
+    newton_iter = 0
+    used_seed_restart = False
+    for attempt, start in enumerate(starts):
+        if attempt:
+            used_seed_restart = True
+            pyrolysis_gibbs_account["seed_restarts"] += 1
+        found, amounts = _slsqp(start)
+        closed, element_ok = _project_element_closure(amounts, a, b)
+        if not element_ok:
+            gap = float(np.max(np.abs(a @ amounts - b)))
+            if gap < best_gap:
+                best_amounts, best_gap, best_opt = amounts, gap, found
+            continue
+        polished, station, n_newton = _nullspace_equilibrium(closed, a, mu_coef)
+        newton_iter += n_newton
+        gap = float(np.max(np.abs(a @ polished - b)))
+        if gap <= _PYROLYSIS_ELEMENT_ATOL and station <= _PYROLYSIS_STATIONARITY_ATOL:
+            best_amounts, best_gap, best_station, best_opt = polished, gap, station, found
+            break
+        if gap < best_gap:
+            best_amounts, best_gap, best_station, best_opt = polished, gap, station, found
+    pyrolysis_gibbs_account["newton_iter"] += newton_iter
+    closure = a @ best_amounts - b
+    element_ok = best_gap <= _PYROLYSIS_ELEMENT_ATOL
+    stationary = best_station <= _PYROLYSIS_STATIONARITY_ATOL
+    out = {species[j]: float(best_amounts[j]) for j in range(len(species))}
     diag: dict[str, Any] = {
-        "converged": max_abs <= 1.0e-6,
-        "converged_by": "an_eq_b_min_G",
+        "converged": bool(element_ok and stationary),
+        "converged_by": "an_eq_b_min_G" if element_ok and stationary else "not_equilibrium",
         "solver_mode": "an_eq_b_min_G",
-        "message": str(getattr(opt, "message", "")),
-        "opt_success": bool(getattr(opt, "success", False)),
-        "max_abs_element_closure": max_abs,
+        "message": str(getattr(best_opt, "message", "")),
+        "opt_success": bool(getattr(best_opt, "success", False)),
+        "used_seed_restart": bool(used_seed_restart),
+        "element_feasible": bool(element_ok),
+        "max_abs_element_closure": float(best_gap),
+        "stationarity_abs": float(best_station),
+        "newton_iter": int(newton_iter),
         "element_closure": {elem_names[i]: float(closure[i]) for i in range(len(elem_names))},
         "pyrolysis_gibbs_elements": {elem_names[i]: float(b[i]) for i in range(len(elem_names))},
-        "G": float(_gibbs(n_sol)),
+        "G_over_RT": float(_gibbs(best_amounts)),
     }
     return out, diag
 
@@ -661,7 +778,7 @@ def solve_pyrolysis_gas_gibbs_composition(
     for el in ("C", "H", "O"):
         budget = float(elems_gas.get(el, 0.0))
         got = float(used.get(el, 0.0))
-        if abs(got - budget) > max(1.0e-6, 1.0e-6 * max(budget, 1.0)):
+        if abs(got - budget) > max(1.0e-10, 1.0e-9 * max(budget, 1.0)):
             raise RuntimeError(
                 f"Hamel §4.3 pyrolysis Gibbs did not consume all {el}: "
                 f"used={got:.6g} budget={budget:.6g}"

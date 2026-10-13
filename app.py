@@ -744,7 +744,7 @@ flowchart LR
 ```
         """)
         st.markdown("---")
-        st.caption("完整架构可视化见 [docs/BFB_ModelArchitecture.html](docs/BFB_ModelArchitecture.html)")
+        st.caption("流程图见 [docs/gasifier_model_flowchart_trilingual.mmd](docs/gasifier_model_flowchart_trilingual.mmd)；文档索引见 [docs/README.md](docs/README.md)")
 
 
 # ═══════════════════════════════════════════════════════════════

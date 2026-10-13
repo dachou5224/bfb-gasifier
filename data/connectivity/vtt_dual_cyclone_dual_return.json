@@ -1,0 +1,294 @@
+{
+  "mode": "vtt_dual_return",
+  "blocks": [
+    {
+      "block_id": "primary_gas_feed",
+      "kind": "side_feed",
+      "axial_index": null,
+      "xi_reactor": null,
+      "solver_coupling": "boundary_condition",
+      "solver_cell_index": null
+    },
+    {
+      "block_id": "fuel_feed",
+      "kind": "side_feed",
+      "axial_index": null,
+      "xi_reactor": null,
+      "solver_coupling": "boundary_condition",
+      "solver_cell_index": null
+    },
+    {
+      "block_id": "bed_cell_0",
+      "kind": "bed_cell",
+      "axial_index": 0,
+      "xi_reactor": 0.05747126436781609,
+      "solver_coupling": "explicit_state",
+      "solver_cell_index": 0
+    },
+    {
+      "block_id": "bed_cell_1",
+      "kind": "bed_cell",
+      "axial_index": 1,
+      "xi_reactor": 0.1724137931034483,
+      "solver_coupling": "explicit_state",
+      "solver_cell_index": 1
+    },
+    {
+      "block_id": "bed_cell_2",
+      "kind": "bed_cell",
+      "axial_index": 2,
+      "xi_reactor": 0.2873563218390805,
+      "solver_coupling": "explicit_state",
+      "solver_cell_index": 2
+    },
+    {
+      "block_id": "bed_freeboard_interface",
+      "kind": "interface_block",
+      "axial_index": 3,
+      "xi_reactor": 0.3448275862068966,
+      "solver_coupling": "explicit_handoff",
+      "solver_cell_index": null
+    },
+    {
+      "block_id": "freeboard_cell_0",
+      "kind": "freeboard_cell",
+      "axial_index": 0,
+      "xi_reactor": 0.6724137931034483,
+      "solver_coupling": "explicit_state",
+      "solver_cell_index": 3
+    },
+    {
+      "block_id": "system_exit",
+      "kind": "system_exit",
+      "axial_index": null,
+      "xi_reactor": null,
+      "solver_coupling": "postprocess",
+      "solver_cell_index": null
+    },
+    {
+      "block_id": "cyclone_block_0",
+      "kind": "cyclone",
+      "axial_index": 0,
+      "xi_reactor": null,
+      "solver_coupling": "explicit_state",
+      "solver_cell_index": 4
+    },
+    {
+      "block_id": "cyclone_block_1",
+      "kind": "cyclone",
+      "axial_index": 1,
+      "xi_reactor": null,
+      "solver_coupling": "explicit_state",
+      "solver_cell_index": 5
+    },
+    {
+      "block_id": "return_leg_block_0",
+      "kind": "return_leg",
+      "axial_index": 0,
+      "xi_reactor": null,
+      "solver_coupling": "explicit_state",
+      "solver_cell_index": 6
+    },
+    {
+      "block_id": "return_leg_block_1",
+      "kind": "return_leg",
+      "axial_index": 1,
+      "xi_reactor": null,
+      "solver_coupling": "explicit_state",
+      "solver_cell_index": 7
+    }
+  ],
+  "edges": [
+    {
+      "from_block": "primary_gas_feed",
+      "to_block": "bed_cell_0",
+      "kind": "side_feed",
+      "direction": "into_reactor",
+      "solver_coupling": "boundary_condition",
+      "phase_scope": null,
+      "mechanism": null,
+      "stream_class": "zu"
+    },
+    {
+      "from_block": "fuel_feed",
+      "to_block": "bed_cell_0",
+      "kind": "side_feed",
+      "direction": "into_reactor",
+      "solver_coupling": "boundary_condition",
+      "phase_scope": null,
+      "mechanism": null,
+      "stream_class": "zu"
+    },
+    {
+      "from_block": "bed_cell_0",
+      "to_block": "bed_cell_1",
+      "kind": "axial_upflow",
+      "direction": "upward",
+      "solver_coupling": "explicit_state",
+      "phase_scope": null,
+      "mechanism": null,
+      "stream_class": "auf"
+    },
+    {
+      "from_block": "bed_cell_0",
+      "to_block": "bed_cell_1",
+      "kind": "wake_solid_upflow",
+      "direction": "upward",
+      "solver_coupling": "explicit_state",
+      "phase_scope": "suspension_phase_only",
+      "mechanism": "bubble_wake_carrying",
+      "stream_class": "auf"
+    },
+    {
+      "from_block": "bed_cell_1",
+      "to_block": "bed_cell_0",
+      "kind": "internal_zirkulation",
+      "direction": "downward",
+      "solver_coupling": "explicit_state",
+      "phase_scope": "suspension_phase_only",
+      "mechanism": "mass_continuity_backmixing",
+      "stream_class": "ab"
+    },
+    {
+      "from_block": "bed_cell_1",
+      "to_block": "bed_cell_2",
+      "kind": "axial_upflow",
+      "direction": "upward",
+      "solver_coupling": "explicit_state",
+      "phase_scope": null,
+      "mechanism": null,
+      "stream_class": "auf"
+    },
+    {
+      "from_block": "bed_cell_1",
+      "to_block": "bed_cell_2",
+      "kind": "wake_solid_upflow",
+      "direction": "upward",
+      "solver_coupling": "explicit_state",
+      "phase_scope": "suspension_phase_only",
+      "mechanism": "bubble_wake_carrying",
+      "stream_class": "auf"
+    },
+    {
+      "from_block": "bed_cell_2",
+      "to_block": "bed_cell_1",
+      "kind": "internal_zirkulation",
+      "direction": "downward",
+      "solver_coupling": "explicit_state",
+      "phase_scope": "suspension_phase_only",
+      "mechanism": "mass_continuity_backmixing",
+      "stream_class": "ab"
+    },
+    {
+      "from_block": "bed_cell_2",
+      "to_block": "bed_freeboard_interface",
+      "kind": "bubble_rupture_handoff",
+      "direction": "upward",
+      "solver_coupling": "explicit_handoff",
+      "phase_scope": null,
+      "mechanism": null,
+      "stream_class": "auf"
+    },
+    {
+      "from_block": "bed_freeboard_interface",
+      "to_block": "freeboard_cell_0",
+      "kind": "freeboard_entry",
+      "direction": "upward",
+      "solver_coupling": "explicit_state",
+      "phase_scope": null,
+      "mechanism": null,
+      "stream_class": "auf"
+    },
+    {
+      "from_block": "freeboard_cell_0",
+      "to_block": "cyclone_block_0",
+      "kind": "cyclone_inlet",
+      "direction": "upward",
+      "solver_coupling": "explicit_state",
+      "phase_scope": null,
+      "mechanism": null,
+      "stream_class": "auf"
+    },
+    {
+      "from_block": "cyclone_block_0",
+      "to_block": "cyclone_block_1",
+      "kind": "cyclone_stage",
+      "direction": "downward",
+      "solver_coupling": "explicit_state",
+      "phase_scope": null,
+      "mechanism": null,
+      "stream_class": "auf"
+    },
+    {
+      "from_block": "cyclone_block_1",
+      "to_block": "system_exit",
+      "kind": "gas_exit",
+      "direction": "out_of_system",
+      "solver_coupling": "postprocess",
+      "phase_scope": null,
+      "mechanism": null,
+      "stream_class": "postprocess"
+    },
+    {
+      "from_block": "cyclone_block_1",
+      "to_block": "return_leg_block_0",
+      "kind": "solid_separation",
+      "direction": "downward",
+      "solver_coupling": "explicit_state",
+      "phase_scope": null,
+      "mechanism": null,
+      "stream_class": "rez"
+    },
+    {
+      "from_block": "cyclone_block_1",
+      "to_block": "return_leg_block_1",
+      "kind": "solid_separation",
+      "direction": "downward",
+      "solver_coupling": "explicit_state",
+      "phase_scope": null,
+      "mechanism": null,
+      "stream_class": "rez"
+    },
+    {
+      "from_block": "return_leg_block_0",
+      "to_block": "bed_cell_0",
+      "kind": "external_zirkulation",
+      "direction": "downward_to_bottom",
+      "solver_coupling": "explicit_state",
+      "phase_scope": null,
+      "mechanism": null,
+      "stream_class": "rez"
+    },
+    {
+      "from_block": "return_leg_block_1",
+      "to_block": "bed_cell_2",
+      "kind": "external_zirkulation",
+      "direction": "downward_to_bottom",
+      "solver_coupling": "explicit_state",
+      "phase_scope": null,
+      "mechanism": null,
+      "stream_class": "rez"
+    }
+  ],
+  "counts": {
+    "n_blocks": 12,
+    "n_edges": 17,
+    "n_bed_blocks": 3,
+    "n_freeboard_blocks": 1,
+    "n_cross_links": 4
+  },
+  "freeboard_active": true,
+  "recycle_active": true,
+  "secondary_injection_active": false,
+  "metadata": {
+    "preset": "vtt_dual_return",
+    "explicit_side_blocks": true,
+    "n_cyclone_stages": 2,
+    "n_return_legs": 2,
+    "return_leg_bed_targets": [
+      0,
+      2
+    ]
+  },
+  "description": "2-stage cyclone + dual return"
+}

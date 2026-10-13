@@ -1,0 +1,48 @@
+{
+  "summary": "bed0/bed1 init 能量残差来自 (1) T 初值被 abgleich 拉向 t_budget_K；(2) bed1 固相 auf_in 通量与 K×holdup 出流/H_out 不匹配",
+  "t_init_chain_before_fix": {
+    "stage_T_bed0_K": {
+      "resolve_adiabatic_anchor": 1180.0,
+      "after_budget_progress_seed": 1050.3,
+      "after_init_abgleich_blend_25pct_to_t_budget_1180": 1107.0,
+      "t_budget_K_bed0": 1180.0,
+      "note": "vorab_a_tier_cell_mapping_thesis 默认 False，故未直接写 t_budget 到 cell.T"
+    },
+    "abgleich_trigger": "init abgleich max_passes>0（phase-split init 开启）+ temperature_blend=0.25 把 T 从 1050 混向 1180",
+    "user_expectation_air_combustion": "bed0 ~700K，沿床向上跃升至 1000K+（反应在底部尚未完全展开）"
+  },
+  "energy_residual_before_fix_init": {
+    "bed0_MW": 26.65,
+    "bed1_MW": -32.02,
+    "init_energy_rms": 0.504,
+    "bed0_mechanism": "H_out(高温固相输运+气持量) >> H_in(293K zu 进料)；T=1107K 放大 H_out",
+    "bed1_mechanism": "solid_auf_in 自 bed0 携带 ~35MW；H_out 仅 ~5.7MW（solid outflow 0.35 kg/s vs auf_in 3.36 kg/s）"
+  },
+  "solid_transport_before_fix": {
+    "bed1_solid_auf_in_kg_s": 3.36,
+    "bed1_solid_outflow_kg_s": 0.35,
+    "bed1_holdup_kg_s": 4.03,
+    "holdup_over_outflow": 11.52,
+    "eq27_semantics": "H_out 固相项用 K_auf/K_ab×m_holdup 出流，非全库存；auf_in 通量>本格出流时 Eq.2.7 稳态不满足"
+  },
+  "fixes_applied": {
+    "T_seed": [
+      "vorab_nr_temperature_seed_bottom_K=700, top=1120",
+      "vorab_nr_temperature_seed_bed0_cold_anchor_thesis: bed0=T_bottom, j>=1 沿床序号幂律跃升",
+      "vorab_a_tier_init_abgleich_temperature_blend_thesis=0（禁止 init 混向 t_budget_K）"
+    ],
+    "solid": [
+      "init abgleich bridge 末段补 reseed_holdup_chain（BC 刷新后再走 transport 链）"
+    ]
+  },
+  "after_fix_init_probe": "data/phase2_bed01_T_solid_audit_after_fix.json",
+  "after_fix_highlights": {
+    "T_bed0_K": 700.0,
+    "T_bed1_K": 800.7,
+    "T_bed5_K": 986.6,
+    "energy_rms": 0.127,
+    "bed0_energy_MW": 2.73,
+    "bed1_energy_MW": -6.52,
+    "remaining_bed1_issue": "holdup/outflow 仍 ~9；需后续 solid-energy 预投影或 K_auf/holdup 链进一步对齐"
+  }
+}

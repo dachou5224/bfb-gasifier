@@ -1,0 +1,133 @@
+4 Trocknung und Pyrolyse des Brennstoffs
+66
+4 Trocknung und Pyrolyse des Brennstoffs
+67
+xCTeer in 
+___k9 CimTeer
+___
+’ 
+kg C im Brennstoff (waf)
+0,6 1--------------- --------------- --------------
+x c,Teer berechnet
+o.6 rr
+- ’—
+0,5
+0,5
+"8
+0,4
+0,4
+0,3
+0,3
+0,2
+0,2
+0,1
+0,1
+Torf - Teer
+Torf- Teer
+600 
+800 
+1.000 
+1.200
+0 
+0,1 0,2 
+0,3 
+0,4 0,5 0,6
+4.2.1.3Torf
+Die Verteilung des Kohlenstoffs auf Koks und Teer bei der Wirbelschichtpyrolyse von Torf
+wird anhand der experimentellen Ergebnisse von Arpiainen und Lappi (1989) ebenfalls mit
+den Gleichungen (4.21) und (4.22) approximiert. Tabelle 4.4 enthält die ermittelten Parame-
+ter. Da die veröffentlichten Pyrolyseuntersuchungen von Arpiainen und Lappi lediglich bei
+atmosphärischem Betrieb durchgeführt wurden, entfallen hier die druckabhängigen Terme.
+Der Vergleich zwischen berechneten und gemessenen Werten ist in Bild 4.10 und 4.11 darge-
+stellt.
+Tabelle 4.4: Die zur Berechnung der Kohlenstoffmenge im Koks und im Teer nach der
+Pyrolyse von Torf benötigten empirischen Parameter nach Gleichung (4.21)
+und (4.22). Die Ermittlung der Parameter erfolgte auf der Basis der
+experimentellen Ergebnisse von Arpiainen und Lappi (1989). _____________
+Temperatur in K
+Parameter
+C-Anteil im Koks
+Gleichung (4.21)
+(Torf - Finnland)
+C-Anteil im Teer
+Gleichung (4.22)
+(Torf - Finnland)
+&
+5.499
+-6,331 10’5
+&
+0
+0
+ä
+1
+1,373
+&
+-1,43
+1,068
+Gültigkeitsbereich
+773 K < Tws < 973 K
+Pws ~ 0,1 MPa
+x c,Teer gemessen
+Bild 4.11: In Abhängigkeit der Wirbelschichttemperatur nach Gleichung (4.21) berechneter
+Kohlenstoffanteil im Teer aus der Pyrolyse von Torf in der Wirbelschicht (Teil-
+bild A).VergIeich zwischen Messung und Berechnung des C-Anteils im Koks
+(Teilbild B). Die experimentellen Ergebnisse sind aus Arpiainen und Lappi (1989)
+entnommen.
+4.2.2 Pyrolyseprodukte verschiedener Hölzer
+Um ferner verschiedene Biomassen in der Simulation berücksichtigen zu können, wird die
+Flüchtigenausbeute aus der Wirbelschichtpyrolyse anhand von Literaturergebnissen und eige-
+nen Messungen als empirische Korrelation in Abhängigkeit der Wirbelschichttemperatur for-
+muliert. Bild 4.12 zeigt die relative Flüchtigenausbeute von verschiedenen Biomassen bei der
+Pyrolyse in der Wirbelschicht. Als Flüchtige sind hier die Permanentgase zu verstehen, die bei
+Umgebungsbedingungen gasförmig vorliegen, deshalb wurden aus den Angaben der Autoren,
+die aus ihren Experimenten in Gas-, Koks- und Teerausbeute unterschieden haben, zur Kor-
+relation hier lediglich die Gase verwendet. Die freigesetzte Teermenge kann aus dieser Kor-
+relation und der Kenntnis der entstandenen Koksmenge bestimmt werden. Mit der Annahme,
+dass Koks nur aus C und der Teer aus H und C mit einem H/C-Verhältnis entsprechend der
+organischen Substanz des Brennstoffs besteht, kann eine entsprechende Verteilung der Ele-
+mente abgeschätzt werden, wodurch wiederum die in Kapitel 4.3 vorgeschlagene Berechnung
+der Zusammensetzung der gasförmigen Produkte Anwendung findet.
+Die in Bild 4.12 dargestellten Messwerte lassen sich durch folgende empirische Gleichung
+approximieren:
+(4 25)
+, 
+jn
+kg C im Koks
+C.Koks 
+kg Q jm ßrennsto ff
+0,6
+0,5
+.o
+0,4
+.0..
+0,3
+0,2
+0,1 ......
+0 
+_
+600
+Torf - Koks
+800 
+1.000 
+1.200
+x c,Koks berechnet
+0,6
+0,5
+0,4
+0,3
+8
+0,2
+0,1
+0
+Torf- Koks
+i 
+i
+0 
+0,1 
+0,2 0,3 0,4 0,5 0,6
+xC,Koks gemessen
+Temperatur in K
+Bild 4.10: In Abhängigkeit der Wirbelschichttemperatur nach Gleichung (4.21) berechneter
+Kohlenstoffanteil im Koks aus der Pyrolyse von Torf (Teilbild A).Vergleich zwi-
+schen Messung und Berechnung des C-Anteils im Koks (Teilbild B). Die experi-
+mentellen Ergebnisse sind aus Arpiainen und Lappi (1989) entnommen.

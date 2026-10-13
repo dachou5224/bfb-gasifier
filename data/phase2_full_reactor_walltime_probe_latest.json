@@ -1,0 +1,29 @@
+{
+  "init_wall_s": 16.5,
+  "nr_benchmark_p2_20iter": {
+    "init_rms_scaled": 0.0503,
+    "init_max_abs_scaled": 0.2988,
+    "rms_scaled_final": 0.0455,
+    "rms_scaled_gas_phase_split_final": 0.0263,
+    "nr_outer_iters": 20,
+    "n_iter": 54,
+    "wall_time_s": 196.6,
+    "line_search_failures": 0,
+    "converged": false
+  },
+  "baseline_p2_20iter_ref": {
+    "init_rms_scaled": 0.0165,
+    "rms_scaled_final": 0.0079,
+    "wall_time_s": 140.4,
+    "note": "data/phase2_ladder_p2_20.json (pre coarse-PSD + full init LSQ era)"
+  },
+  "flags": {
+    "nr_init_solid": false,
+    "nr_init_primary": false,
+    "nr_init_major": false,
+    "nr_init_phase_split": false,
+    "nr_init_joint": false,
+    "feed_mode": "coarsest_class"
+  },
+  "note": "Init ~16s Hamel mapping; NR init RMS fixed via per-DOF solid scale floor (global_nr_solver)"
+}

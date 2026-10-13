@@ -1,0 +1,3 @@
+Wrote /Users/liuzhen/AI-projects/bfb-gasifier/data/phase2_fixed50_r5_composition_grid.json
+label                  conv     rms     CO    CO2   bedT  T_rmse  score
+fixed50_r5_025            Y  0.0090  0.090  0.165   1037    87.4  0.979

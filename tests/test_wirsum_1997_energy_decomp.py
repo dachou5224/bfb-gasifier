@@ -1,4 +1,4 @@
-"""Eq. 2.7：bed0 −10 MW 来自 H_zu 进、H_sout=0（holdup 为零）。"""
+"""Eq. 2.7：holdup 为零时 H_sout=0；炭列不再携带液态水生成焓。"""
 
 from __future__ import annotations
 
@@ -21,17 +21,17 @@ def test_eq27_decomp_matches_live_residual() -> None:
     assert row["H_in_parts_match_api"] is True
 
 
-def test_bed0_minus_10mw_is_feed_enthalpy_with_zero_holdup() -> None:
+def test_bed0_zero_holdup_has_no_solid_outlet_and_char_is_not_liquid_water() -> None:
     payload = build_eq27_energy_decomp_payload()
     before = payload["before"]["per_cell"][0]
     after = payload["after"]["per_cell"][0]
-    assert before["dominant_H_in_term"] == "H_solid_zu"
     assert before["holdup_zero"] is True
     assert before["H_solid_out_zero"] is True
     assert before["vm_in_not_in_energy_out"] is True
     assert abs(float(before["residual_W"] or 0.0)) > 1.0e6
     assert float(before["H_zu_by_comp_W"]["vm"] or 0.0) < -1.0e6
-    assert float(before["H_zu_by_comp_W"]["char"] or 0.0) < -1.0e6
+    # 纯碳 char 只有显热，不再是 −15.866 MJ/kg 液态水焓。
+    assert abs(float(before["H_zu_by_comp_W"]["char"] or 0.0)) < 1.0e5
     assert after["holdup_zero"] is True
     assert after["H_solid_out_zero"] is True
     assert abs(float(after["residual_W"] or 0.0)) > 1.0e6

@@ -1,0 +1,68 @@
+{
+  "bed_profile": [
+    {
+      "bed": 0,
+      "T_K": 700.0,
+      "energy_MW": 2.7282596447950023,
+      "solid_holdup_kg_s": 12.062232719679969,
+      "solid_out_kg_s": 1.6324054331874467,
+      "solid_auf_in_kg_s": 0.0,
+      "holdup_over_outflow": 7.389238282628823
+    },
+    {
+      "bed": 1,
+      "T_K": 800.691233065481,
+      "energy_MW": -6.5244911093282605,
+      "solid_holdup_kg_s": 12.691105466033225,
+      "solid_out_kg_s": 1.3845944710254756,
+      "solid_auf_in_kg_s": 1.6324054331874467,
+      "holdup_over_outflow": 9.165936836822539
+    },
+    {
+      "bed": 2,
+      "T_K": 858.0014805215837,
+      "energy_MW": 0.6856790312608582,
+      "solid_holdup_kg_s": 8.00154238594371,
+      "solid_out_kg_s": 0.381883336140309,
+      "solid_auf_in_kg_s": 0.381738715598853,
+      "holdup_over_outflow": 20.952845093517872
+    },
+    {
+      "bed": 3,
+      "T_K": 905.6460986440103,
+      "energy_MW": 0.9815178193000349,
+      "solid_holdup_kg_s": 3.1425604162745655,
+      "solid_out_kg_s": 0.6724358758499477,
+      "solid_auf_in_kg_s": 0.381883336140309,
+      "holdup_over_outflow": 4.673397909209442
+    },
+    {
+      "bed": 4,
+      "T_K": 947.9308981227557,
+      "energy_MW": 0.1431149397186748,
+      "solid_holdup_kg_s": 2.955322223358199,
+      "solid_out_kg_s": 1.027174299487066,
+      "solid_auf_in_kg_s": 0.6724358758499477,
+      "holdup_over_outflow": 2.8771380133186555
+    },
+    {
+      "bed": 5,
+      "T_K": 986.6303421415876,
+      "energy_MW": 0.02494353602896437,
+      "solid_holdup_kg_s": 2.805032256252091,
+      "solid_out_kg_s": 1.176699184225507,
+      "solid_auf_in_kg_s": 0.7504571720248829,
+      "holdup_over_outflow": 2.3838142269966287
+    }
+  ],
+  "init_metrics": {
+    "rms_scaled": 0.03502819398306474,
+    "max_abs_scaled": 0.4170546655249152,
+    "max_bed_energy_abs_W": 6524491.109328261,
+    "gas_phase_split_rms": 0.044109920518306686,
+    "gas_phase_split_max_abs": 0.19183549219910967,
+    "solid_rms": 0.0011389190125871264,
+    "energy_rms": 0.12654693189734567,
+    "merit_scaled": 0.12654693189734567
+  }
+}

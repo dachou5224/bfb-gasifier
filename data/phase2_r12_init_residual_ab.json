@@ -1,0 +1,120 @@
+{
+  "rows": [
+    {
+      "enable_r12": false,
+      "init_rms": 0.01828599732970863,
+      "init_energy_rms": 0.045596608415883914,
+      "init_gas_rms": NaN,
+      "init_split": 0.021464685579615193,
+      "metrics_keys": [
+        "energy_rms",
+        "gas_phase_split_max_abs",
+        "gas_phase_split_rms",
+        "max_abs_scaled",
+        "max_bed_energy_abs_W",
+        "max_bed_energy_scaled",
+        "merit_scaled",
+        "rms_scaled",
+        "solid_rms"
+      ],
+      "T_bed0": 900.0,
+      "T_profile": [
+        900.0,
+        997.4140193608798,
+        1021.6748544330519,
+        1035.8725043679356,
+        1048.697752191163
+      ],
+      "topE": [
+        {
+          "cell": 0,
+          "ctype": "bed",
+          "T": 900.0,
+          "Ehat": 0.19398940503746107
+        },
+        {
+          "cell": 1,
+          "ctype": "bed",
+          "T": 997.4140193608798,
+          "Ehat": 0.0508354782144206
+        },
+        {
+          "cell": 3,
+          "ctype": "bed",
+          "T": 1035.8725043679356,
+          "Ehat": 0.02677909048677842
+        },
+        {
+          "cell": 8,
+          "ctype": "bed",
+          "T": 1092.2631903411268,
+          "Ehat": 0.019463342771716127
+        },
+        {
+          "cell": 6,
+          "ctype": "bed",
+          "T": 1071.6749217307176,
+          "Ehat": 0.016128826637425556
+        }
+      ]
+    },
+    {
+      "enable_r12": true,
+      "init_rms": 0.017989340465139062,
+      "init_energy_rms": 0.03670648887136714,
+      "init_gas_rms": NaN,
+      "init_split": 0.02138533969044155,
+      "metrics_keys": [
+        "energy_rms",
+        "gas_phase_split_max_abs",
+        "gas_phase_split_rms",
+        "max_abs_scaled",
+        "max_bed_energy_abs_W",
+        "max_bed_energy_scaled",
+        "merit_scaled",
+        "rms_scaled",
+        "solid_rms"
+      ],
+      "T_bed0": 900.0,
+      "T_profile": [
+        900.0,
+        997.4140193608798,
+        1021.6748544330519,
+        1035.8725043679356,
+        1048.697752191163
+      ],
+      "topE": [
+        {
+          "cell": 0,
+          "ctype": "bed",
+          "T": 900.0,
+          "Ehat": 0.1395256794344169
+        },
+        {
+          "cell": 1,
+          "ctype": "bed",
+          "T": 997.4140193608798,
+          "Ehat": 0.07986136293613606
+        },
+        {
+          "cell": 8,
+          "ctype": "bed",
+          "T": 1092.2631903411268,
+          "Ehat": 0.019375840349290747
+        },
+        {
+          "cell": 6,
+          "ctype": "bed",
+          "T": 1071.6749217307176,
+          "Ehat": 0.01603996629559207
+        },
+        {
+          "cell": 4,
+          "ctype": "bed",
+          "T": 1048.697752191163,
+          "Ehat": 0.013435996773743268
+        }
+      ]
+    }
+  ]
+}

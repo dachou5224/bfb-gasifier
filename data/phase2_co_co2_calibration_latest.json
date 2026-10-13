@@ -1,0 +1,27 @@
+{
+  "note": "Phase2 P2 ladder + budget seed defaults; all sweeps @ max_global_iter=150",
+  "ref": {"CO": 0.13, "CO2": 0.11},
+  "pipeline": [
+    {"step": "r8_sweep", "file": "phase2_co_co2_sweep_r8_iter150.json", "best": {"r8_scale": 0.2, "score": 0.751, "CO": 0.093, "CO2": 0.161}},
+    {"step": "r2_sweep", "file": "phase2_co_co2_sweep_r2_iter150.json", "best": {"r2_scale": 8.0, "score": 0.508, "CO": 0.118, "CO2": 0.156}},
+    {"step": "r4_sweep", "file": "phase2_co_co2_sweep_r4_iter150.json", "best": {"r4_scale": 0.5, "score": 0.521, "CO": 0.117, "CO2": 0.156}},
+    {"step": "grid_r2_r5", "file": "phase2_co_co2_grid_r2_r5_iter150.json", "best_converged": {"r2_scale": 8.0, "r5_scale": 0.25, "score": 0.416, "CO": 0.180, "CO2": 0.113}}
+  ],
+  "recommended_scales": {
+    "r2_scale": 8.0,
+    "r4_scale": 0.5,
+    "r5_scale": 0.25,
+    "r8_scale": 0.2,
+    "comment": "score-optimal converged grid point; CO may land in alternate basin — verify before locking defaults"
+  },
+  "balanced_alternative": {
+    "r2_scale": 6.0,
+    "r4_scale": 0.5,
+    "r5_scale": 0.25,
+    "r8_scale": 0.2,
+    "CO": 0.112,
+    "CO2": 0.158,
+    "score": 0.576,
+    "comment": "from grid; CO closer to ref without overshoot"
+  }
+}

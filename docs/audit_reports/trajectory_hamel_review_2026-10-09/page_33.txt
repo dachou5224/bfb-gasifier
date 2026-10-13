@@ -1,0 +1,96 @@
+3 Strömungsmechanik
+3 Strömungsmechanik
+48_
+49
++ (2-A- u P0 4- B)
+*j~A 
+A —(2’ A'Up 0 + B)
+mit
+(3.99)
+2 
+2Au p Q + B
+CD = -7-— arctan ------—-----
+4Ä 
+i 
+_
+(3-94)
+gegeben. Für die Höhe des Partikels über der Wirbelbettoberfläche als Funktion der Zeit gilt:
+Mit Hilfe der Transformation uP dt = dh liefert die weitere Integration von Gleichung (3.93)
+die Höhe des Partikels über der Wirbelschichtoberfläche als Funktion der Zeit. Es gilt:
+hP(t) = hPfl - 
+ln\y + l\ i ------------ ----------- '(7 (f /«))-$■ 
+(3.100)
+A 
+A
+mit
+Y = exp]p4 Ä-(t-t n yr Ä\ 
+(3.101)
+und
+? = 
+ln\exp[p-4~A+i\ 
+\ 
+(3.102)
+A 
+A
+CD4Ä-~{t-t0 )4A
+— CO A |
+2 
+)
+hp(t)-h  P0 — —In cosl
+A 
+'
++ 
+ros!
+2A V
+A 
+I
+(3.95)
+Der Zusammenhang zwischen Höhe des Partikels und seiner Geschwindigkeit lautet:
+Aup 4- Bup +C
+B
+2Au P 4- B
+Au po + Bupo 4-C
+------=- arctan
+Ay/A
+42
+hp(up) -hp 0
+Die Gleichung der Partikelhöhe über der Wirbelschichtoberfläche in Abhängigkeit der Ge-
+schwindigkeit lautet:
+(3-96)
+2Au P,0
+4Ä
+B
++ — 7= arctan
+AJÄ
+hp(up) = hpo +-l-ln
+2A
+mit
+(3.103)
+(3.104)
+(3.105)
+Um die Bedingung A > 0 zu erfüllen, muss die Geschwindigkeit des Partikels größer sein als
+die Gasgeschwindigkeit und der Partikeldurchmesser muss größer sein als der Partikelgrenz-
+durchmesser. Für den Partikelgrenzdurchmesser gilt:
+108
+Y ~2-A-Up  0 +B
+(3.97)
+0 = 2- A-Up + B
+Innerhalb des Zellenmodells ist es zweckmäßig zunächst die Geschwindigkeit des Partikels an
+den Grenzen des betrachteten Bilanzraumes zu bestimmen, da über die Partikelgeschwindig-
+keit entschieden wird, ob die Lösung der Differentialgleichung für Fall 1 mit A > 0 oder für
+Fall 2 mit A < 0 angewendet werden muss.
+Bewegt sich ein Partikel langsamer als das ihn umgebende Gas, fällt ein Partikel zurück oder
+ist der Partikeldurchmesser kleiner als der Partikelgrenzdurchmesser, nimmt der Faktor A ei-
+nen Wert kleiner Null an. Damit tritt
+Fall 2:A<0
+Die Verwendung des hier vorgestellten, von Wirsum (1998) vorgeschlagenen, analytischen
+Berechnungsverfahrens für die Lösung der Partikelbewegungsgleichung erlaubt eine um den
+Faktor 50 schnellere Berechnung der Partikelflugbahnen als die Lösung durch numerische
+Integration mit Hilfe eines Runge-Kutta-Verfahrens. Durch die dadurch ermöglichte feinere
+Diskretisierung der Partikelgrößen-, Partikelstartgeschwindigkeits- und der Partikelsphärizi-
+tätsklassen lässt sich mit den Modellrechnungen eine bessere Approximation an reale Fest-
+stoffkonzentrationsprofile erreichen.
+ein. Die Geschwindigkeit des Partikels als Funktion der Zeit ist durch
+(3.98)
+2A
+mit

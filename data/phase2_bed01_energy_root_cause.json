@@ -1,0 +1,95 @@
+{
+  "heat_loss_mode": "hamel_eq27_explicit",
+  "init": {
+    "bed0": {
+      "T_K": 1107.0484225290015,
+      "residual_W": 26648218.982551567,
+      "H_in_W": -10391830.315960938,
+      "H_out_gas_W": -2204685.7226926736,
+      "H_out_solid_W": -34920769.09306121,
+      "Q_wall_W": 85405.51724137932,
+      "residual_decomp": {
+        "from_gas_out_W": 2204685.7226926736,
+        "from_solid_out_W": 34920769.09306121,
+        "from_in_total_W": -10391830.315960938,
+        "from_Q_W": -85405.51724137932
+      },
+      "solid_auf_in_kg_s": 0.0,
+      "solid_auf_T_K": 1107.0484225290015,
+      "solid_outflow_kg_s": 3.3599461170666807,
+      "solid_holdup_kg_s": 3.0329729013270463,
+      "holdup_over_outflow": 0.9026849823338565,
+      "gas_holdup_mol_s": 164.05347414393046,
+      "char_holdup_kg_s": 2.1591235336229264,
+      "char_outflow_kg_s": 2.396705638202456
+    },
+    "bed1": {
+      "T_K": 1103.5010450442571,
+      "residual_W": -32022610.954231396,
+      "H_in_W": -37660571.02066838,
+      "H_out_gas_W": -2075984.531001216,
+      "H_out_solid_W": -3647381.052677148,
+      "Q_wall_W": 85405.51724137932,
+      "residual_decomp": {
+        "from_gas_out_W": 2075984.531001216,
+        "from_solid_out_W": 3647381.052677148,
+        "from_in_total_W": -37660571.02066838,
+        "from_Q_W": -85405.51724137932
+      },
+      "solid_auf_in_kg_s": 3.3599461170666807,
+      "solid_auf_T_K": 1107.0484225290015,
+      "solid_outflow_kg_s": 0.3500116167673717,
+      "solid_holdup_kg_s": 4.032408757471641,
+      "holdup_over_outflow": 11.520785494818883,
+      "gas_holdup_mol_s": 61.73065094041864,
+      "char_holdup_kg_s": 2.8817193254949585,
+      "char_outflow_kg_s": 0.2501324925147231
+    }
+  },
+  "after_20_outer": {
+    "bed0": {
+      "T_K": 1107.0484225290015,
+      "residual_W": 26648218.982551567,
+      "H_in_W": -10391830.315960938,
+      "H_out_gas_W": -2204685.7226926736,
+      "H_out_solid_W": -34920769.09306121,
+      "Q_wall_W": 85405.51724137932,
+      "residual_decomp": {
+        "from_gas_out_W": 2204685.7226926736,
+        "from_solid_out_W": 34920769.09306121,
+        "from_in_total_W": -10391830.315960938,
+        "from_Q_W": -85405.51724137932
+      },
+      "solid_auf_in_kg_s": 0.0,
+      "solid_auf_T_K": 1107.0484225290015,
+      "solid_outflow_kg_s": 3.3599461170666807,
+      "solid_holdup_kg_s": 3.0329729013270463,
+      "holdup_over_outflow": 0.9026849823338565,
+      "gas_holdup_mol_s": 164.05347414393046,
+      "char_holdup_kg_s": 2.1591235336229264,
+      "char_outflow_kg_s": 2.396705638202456
+    },
+    "bed1": {
+      "T_K": 1103.5010450442571,
+      "residual_W": -32022610.954231396,
+      "H_in_W": -37660571.02066838,
+      "H_out_gas_W": -2075984.531001216,
+      "H_out_solid_W": -3647381.052677148,
+      "Q_wall_W": 85405.51724137932,
+      "residual_decomp": {
+        "from_gas_out_W": 2075984.531001216,
+        "from_solid_out_W": 3647381.052677148,
+        "from_in_total_W": -37660571.02066838,
+        "from_Q_W": -85405.51724137932
+      },
+      "solid_auf_in_kg_s": 3.3599461170666807,
+      "solid_auf_T_K": 1107.0484225290015,
+      "solid_outflow_kg_s": 0.3500116167673717,
+      "solid_holdup_kg_s": 4.032408757471641,
+      "holdup_over_outflow": 11.520785494818883,
+      "gas_holdup_mol_s": 61.73065094041864,
+      "char_holdup_kg_s": 2.8817193254949585,
+      "char_outflow_kg_s": 0.2501324925147231
+    }
+  }
+}

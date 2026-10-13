@@ -2,23 +2,27 @@
 
 Source of truth:
 - ``docs/hamel_submodels/03_hydrodynamics_core_chain.md``
-- Hamel (1999) Eq. 3.44, 3.50
+- Hamel (1999) Eq. 3.44, 3.46–3.50
 
 Note
 ----
-``03_hydrodynamics_core_chain.md`` 对 `(3.50)` 首项的 OCR 转录保留了量纲警告。
-当前实现采用项目已锁定的一致性口径：
+Hamel PDF page 27 (``data/hamel_pages_png/page_27.png``) 给出 Eq. (3.50) 的等价形式：
 
-    K_bd = 3*u_br/(2*d_b) + sqrt(144*D_g*eps_mf*u_b/(pi*d_b^3))
+    K_bd = V̇_{b,r}/V_b + sqrt(144 D_g ε_mf u_b / (π d_b³))
+         = (3/2) u_{b,r}/d_b + sqrt(...)
 
-其中 ``u_br`` 严格按 Eq. 3.44 含压力修正计算。
+其中 ``V_b = π d_b³/6``，故 ``V̇_{b,r}/V_b = (3/2) u_{b,r}/d_b``（量纲 [1/s]）。
+分册旧转录中的 ``u_{b,r}/V_b`` 为 OCR 误识，**不得**用于实现。
 """
 
 from __future__ import annotations
 
 import math
+from typing import Literal
 
-from src.core.constants import P0_HAMEL, n_b
+from src.core.constants import P0_HAMEL, g, n_b
+
+KbdModel = Literal["hamel_350", "kunii_levenspiel", "sit_grace_348", "preto_349"]
 
 
 def calc_u_br(u_d: float, P: float, n_b_factor: float = n_b, p_ref: float = P0_HAMEL) -> float:
@@ -34,19 +38,75 @@ def calc_u_br(u_d: float, P: float, n_b_factor: float = n_b, p_ref: float = P0_H
     return n_b_factor * u_d * ((P / p_ref) ** -0.15)
 
 
+def _kbd_diffusion_term(D_g: float, eps_mf: float, u_b: float, d_b: float) -> float:
+    """Eq. (3.48)/(3.50) 第二项：Sit & Grace 扩散分量 [1/s]。"""
+    return math.sqrt((144.0 * D_g * eps_mf * u_b) / (math.pi * (d_b**3)))
+
+
+def calc_kbd_kunii_levenspiel(
+    u_mf: float,
+    d_b: float,
+    D_g: float,
+    u_b: float,
+    eps_mf: float,
+) -> float:
+    """Kunii & Levenspiel (1977) 串联阻力模型 Eq. (3.46)–(3.47) [1/s]。
+
+    Source: ``docs/hamel_submodels/03_hydrodynamics_core_chain.md``; Hamel Eq. 3.46–3.47
+    """
+    assert u_mf >= 0.0 and u_b >= 0.0 and d_b > 0.0 and D_g > 0.0
+    assert 0.0 < eps_mf < 1.0
+    k_bc = 4.5 * u_mf / d_b + 5.85 * (D_g**0.5) * (g**0.25) / (d_b**1.25)
+    k_cd = 6.78 * math.sqrt(D_g * u_b * eps_mf / (d_b**3))
+    return 1.0 / (1.0 / max(k_bc, 1e-30) + 1.0 / max(k_cd, 1e-30))
+
+
+def calc_kbd_sit_grace_348(
+    u_mf: float,
+    d_b: float,
+    D_g: float,
+    eps_mf: float,
+    u_b: float,
+) -> float:
+    """Sit & Grace (1981) 合并气泡模型 Eq. (3.48) [1/s]。
+
+    Source: ``docs/hamel_submodels/03_hydrodynamics_core_chain.md``; Hamel Eq. 3.48
+    """
+    assert u_mf >= 0.0 and u_b >= 0.0 and d_b > 0.0 and D_g > 0.0
+    assert 0.0 < eps_mf < 1.0
+    return 2.0 * u_mf / d_b + _kbd_diffusion_term(D_g, eps_mf, u_b, d_b)
+
+
+def calc_kbd_preto_349(u_mf: float, d_b: float, chi: float = 1.0) -> float:
+    """Preto (1986) 对流主导模型 Eq. (3.49) [1/s]。
+
+    χ=1 为慢速穿透气泡；快速气泡 χ→0.1（下限）。
+
+    Source: ``docs/hamel_submodels/03_hydrodynamics_core_chain.md``; Hamel Eq. 3.49
+    """
+    assert u_mf >= 0.0 and d_b > 0.0
+    chi_eff = float(max(min(chi, 1.0), 0.1))
+    return 4.5 * chi_eff * u_mf / d_b
+
+
 def calc_kbd(
     u_br: float,
     d_b: float,
     D_g: float,
     eps_mf: float,
     u_b: float,
+    *,
+    model: KbdModel = "hamel_350",
+    u_mf: float | None = None,
+    chi: float = 1.0,
 ) -> float:
-    """计算气泡–悬浮相总传质系数 K_bd [1/s]（Hamel Gl. 3.50, p. 35）。
+    """计算气泡–悬浮相总传质系数 K_bd [1/s]。
 
-    K_bd = 3*u_{b,r}/(2*d_b) + sqrt(144*D_g*eps_mf*u_b/(pi*d_b^3))
+    默认 ``model='hamel_350'`` 实现 Hamel 主链 Eq. (3.50)：
 
-    对流项：穿流（u_br 即论文符号 u_{b,r}，由 Gl. 3.44 含压力修正）。
-    扩散项：Sit & Grace (1981) 渗透理论形式。
+        K_bd = (3/2) u_{b,r}/d_b + sqrt(144 D_g ε_mf u_b / (π d_b³))
+
+    可选 ``kunii_levenspiel`` / ``sit_grace_348`` / ``preto_349`` 对照文献模型 (3.46)–(3.49)。
 
     Source: ``docs/hamel_submodels/03_hydrodynamics_core_chain.md``; Hamel Eq. 3.50
     """
@@ -56,6 +116,16 @@ def calc_kbd(
     assert 0.0 < eps_mf < 1.0, "eps_mf 必须在 (0,1)"
     assert u_b >= 0.0, "u_b 必须非负 [m/s]"
 
-    conv = 3.0 * u_br / (2.0 * d_b)
-    diff = math.sqrt((144.0 * D_g * eps_mf * u_b) / (math.pi * (d_b**3)))
-    return conv + diff
+    if model == "hamel_350":
+        conv = 1.5 * u_br / d_b
+        return conv + _kbd_diffusion_term(D_g, eps_mf, u_b, d_b)
+    if model == "kunii_levenspiel":
+        u_mf_eff = 0.5 * u_br if u_mf is None else u_mf
+        return calc_kbd_kunii_levenspiel(u_mf_eff, d_b, D_g, u_b, eps_mf)
+    if model == "sit_grace_348":
+        u_mf_eff = 0.5 * u_br if u_mf is None else u_mf
+        return calc_kbd_sit_grace_348(u_mf_eff, d_b, D_g, eps_mf, u_b)
+    if model == "preto_349":
+        u_mf_eff = 0.5 * u_br if u_mf is None else u_mf
+        return calc_kbd_preto_349(u_mf_eff, d_b, chi=chi)
+    raise ValueError(f"Unknown K_bd model: {model}")

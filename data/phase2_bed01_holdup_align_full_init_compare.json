@@ -1,0 +1,32 @@
+{
+  "legacy": {
+    "ok": true,
+    "bed1": {
+      "bed": 1,
+      "T_K": 800.691233065481,
+      "energy_MW": 6.5244911093282605,
+      "solid_holdup_kg_s": 12.691105466033225,
+      "solid_out_kg_s": 1.3845944710254756,
+      "solid_auf_in_kg_s": 1.6324054331874467,
+      "auf_in_over_outflow": 1.178977287103013,
+      "holdup_over_outflow": 9.165936836822539
+    },
+    "energy_rms": 0.12099319286981042,
+    "merit": 0.12099319286981042
+  },
+  "holdup_align": {
+    "ok": true,
+    "bed1": {
+      "bed": 1,
+      "T_K": 800.691233065481,
+      "energy_MW": 3.6478246610037144,
+      "solid_holdup_kg_s": 14.976061772737523,
+      "solid_out_kg_s": 1.6338821624918605,
+      "solid_auf_in_kg_s": 1.6324054331874467,
+      "auf_in_over_outflow": 0.9990961837161123,
+      "holdup_over_outflow": 9.165937493250606
+    },
+    "energy_rms": 0.06371020511502713,
+    "merit": 0.06371020511502713
+  }
+}

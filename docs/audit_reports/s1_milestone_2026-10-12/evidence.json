@@ -1,0 +1,278 @@
+{
+  "source_sha256": "68e75c16cd01789f6db2ae0365d2264f7008fac10aa006b1eb62ac9059f3b4eb",
+  "s": 1.0000000000000002,
+  "incremental_homotopy_step": {
+    "elapsed_s": 4.18912283100002,
+    "calls": {
+      "F": 209.0,
+      "J": 2.0,
+      "P": 95.0
+    },
+    "pyrolysis_gibbs": {
+      "calls": 184,
+      "slsqp_nit": 2931,
+      "newton_iter": 368,
+      "seed_restarts": 0
+    },
+    "gate_ratio": {
+      "gas": 0.6398980214528772,
+      "solid": 1.6374891828212932e-05,
+      "tar": 0.0114064872796612,
+      "energy_rows": [
+        0.0005060257390141487,
+        0.0005096923559904099
+      ]
+    },
+    "parent_s": 0.9980000000000003
+  },
+  "repeats": [
+    {
+      "tag": "certified_cold",
+      "elapsed_s": 0.01620996099999994,
+      "passed": true,
+      "reason": null,
+      "outers": null,
+      "rejects": null,
+      "oxygen_restart": null,
+      "F": null,
+      "J": null,
+      "P": null,
+      "gate_ratio": {
+        "gas": 0.6398980214528772,
+        "solid": 1.6374891828212932e-05,
+        "tar": 0.0114064872796612,
+        "energy_rows": [
+          0.0005060257390141487,
+          0.0005096923559904099
+        ]
+      },
+      "energy_rows_W": [
+        -0.0005060257390141487,
+        0.0005096923559904099
+      ],
+      "cho_gap_mol_s": {
+        "C": -7.545253311036504e-11,
+        "H": -2.6719249035522807e-10,
+        "O": -1.1041834113711957e-11
+      },
+      "enthalpy_gap_W": 3.666616976261139e-06,
+      "transport": {
+        "w_undecided": [
+          0.0,
+          0.0
+        ],
+        "w_return": [
+          0.0,
+          0.0
+        ],
+        "w_leave": [
+          0.9999999999999999,
+          0.9999999999999999
+        ],
+        "tau_s": [
+          9.354912325366403,
+          11.856019121181383
+        ],
+        "closed": true
+      },
+      "bypass_mol_s": {
+        "NH3": 0.37129203552424456,
+        "H2S": 0.12164141947553647
+      },
+      "T_bed_K": 1053.697291091387,
+      "T_fb_K": 1062.3919341059534
+    },
+    {
+      "tag": "restart_from_root",
+      "elapsed_s": 0.016027889999999934,
+      "passed": true,
+      "reason": "block_gates",
+      "outers": 0.0,
+      "rejects": 0.0,
+      "oxygen_restart": null,
+      "F": 1.0,
+      "J": 0.0,
+      "P": 1.0,
+      "gate_ratio": {
+        "gas": 0.6398980214528772,
+        "solid": 1.6374891828212932e-05,
+        "tar": 0.0114064872796612,
+        "energy_rows": [
+          0.0005060257390141487,
+          0.0005096923559904099
+        ]
+      },
+      "energy_rows_W": [
+        -0.0005060257390141487,
+        0.0005096923559904099
+      ],
+      "cho_gap_mol_s": {
+        "C": -7.545253311036504e-11,
+        "H": -2.6719249035522807e-10,
+        "O": -1.1041834113711957e-11
+      },
+      "enthalpy_gap_W": 3.666616976261139e-06,
+      "transport": {
+        "w_undecided": [
+          0.0,
+          0.0
+        ],
+        "w_return": [
+          0.0,
+          0.0
+        ],
+        "w_leave": [
+          0.9999999999999999,
+          0.9999999999999999
+        ],
+        "tau_s": [
+          9.354912325366403,
+          11.856019121181383
+        ],
+        "closed": true
+      },
+      "bypass_mol_s": {
+        "NH3": 0.37129203552424456,
+        "H2S": 0.12164141947553647
+      },
+      "T_bed_K": 1053.697291091387,
+      "T_fb_K": 1062.3919341059534
+    },
+    {
+      "tag": "default_x0",
+      "elapsed_s": 60.028826347,
+      "passed": false,
+      "reason": "deadline",
+      "outers": 55.0,
+      "rejects": 0.0,
+      "oxygen_restart": null,
+      "F": 5608.0,
+      "J": 55.0,
+      "P": 2472.0,
+      "gate_ratio": {
+        "gas": 19477709.89732477,
+        "solid": 326305.1359857512,
+        "tar": 611894.8389441493,
+        "energy_rows": [
+          1815566.7779911105,
+          61.9660564372316
+        ]
+      },
+      "energy_rows_W": [
+        1815566.7779911105,
+        61.9660564372316
+      ],
+      "cho_gap_mol_s": {
+        "C": 31.81788644555294,
+        "H": -2.658674588774602,
+        "O": 7.016603192359632
+      },
+      "enthalpy_gap_W": 1815628.7440475477,
+      "transport": {
+        "w_undecided": [
+          0.0,
+          0.0
+        ],
+        "w_return": [
+          0.0,
+          0.0
+        ],
+        "w_leave": [
+          1.0,
+          1.0
+        ],
+        "tau_s": [
+          20.222161508785028,
+          37.88070642045692
+        ],
+        "closed": true
+      },
+      "bypass_mol_s": {
+        "NH3": 0.3754097163756544,
+        "H2S": 0.12299043991171553
+      },
+      "T_bed_K": 1149.1839917929212,
+      "T_fb_K": 1082.1721298982213
+    }
+  ],
+  "inputs_still_open": {
+    "steam": {
+      "measured": null,
+      "assumption_is_a_measurement": false
+    },
+    "heating_value_and_formation_enthalpy": {
+      "measured": null,
+      "assumption_is_a_measurement": false
+    },
+    "feed_size": {
+      "measured": null,
+      "assumption_is_a_measurement": false
+    },
+    "staged_injection": {
+      "measured": null,
+      "assumption_is_a_measurement": false
+    },
+    "heat_loss": {
+      "measured": null,
+      "assumption_is_a_measurement": false
+    }
+  },
+  "experimental_comparison_done": false,
+  "full_furnace_discretization": false,
+  "two_zone_ledgers_on_certified_root": {
+    "tag": "certified_cold",
+    "elapsed_s": 0.01620996099999994,
+    "passed": true,
+    "reason": null,
+    "outers": null,
+    "rejects": null,
+    "oxygen_restart": null,
+    "F": null,
+    "J": null,
+    "P": null,
+    "gate_ratio": {
+      "gas": 0.6398980214528772,
+      "solid": 1.6374891828212932e-05,
+      "tar": 0.0114064872796612,
+      "energy_rows": [
+        0.0005060257390141487,
+        0.0005096923559904099
+      ]
+    },
+    "energy_rows_W": [
+      -0.0005060257390141487,
+      0.0005096923559904099
+    ],
+    "cho_gap_mol_s": {
+      "C": -7.545253311036504e-11,
+      "H": -2.6719249035522807e-10,
+      "O": -1.1041834113711957e-11
+    },
+    "enthalpy_gap_W": 3.666616976261139e-06,
+    "transport": {
+      "w_undecided": [
+        0.0,
+        0.0
+      ],
+      "w_return": [
+        0.0,
+        0.0
+      ],
+      "w_leave": [
+        0.9999999999999999,
+        0.9999999999999999
+      ],
+      "tau_s": [
+        9.354912325366403,
+        11.856019121181383
+      ],
+      "closed": true
+    },
+    "bypass_mol_s": {
+      "NH3": 0.37129203552424456,
+      "H2S": 0.12164141947553647
+    },
+    "T_bed_K": 1053.697291091387,
+    "T_fb_K": 1062.3919341059534
+  }
+}

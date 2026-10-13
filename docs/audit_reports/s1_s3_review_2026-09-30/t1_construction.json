@@ -1,0 +1,184 @@
+{
+  "historical_s_0_22": "numerical root before feed water entered n_moist; not a physical certification frontier",
+  "intermediate_identity": "artificial homotopy",
+  "rows": [
+    {
+      "s": 0.0,
+      "feed_water_mol_s": 0.11101687012358397,
+      "equation_water_mol_s": 0.11101687012358397,
+      "water_gap_mol_s": 0.0,
+      "fuel_C_mol_s": 0.3574796668246607,
+      "fuel_H_mol_s": 0.42897560018959285,
+      "fuel_O_mol_s": 0.14299186672986428,
+      "ash_feed_kg_s": 0.0009033459952802011,
+      "fuel_enthalpy_W": -31351.88555047849,
+      "n_py_d": [
+        0.03417135230132304,
+        0.022473548816219886,
+        0.09582462027520873,
+        0.06387341679610146,
+        0.016913606742920584,
+        0.0,
+        0.0
+      ],
+      "nC_unreleased": 0.0,
+      "nH_unreleased": 0.0,
+      "nO_unreleased": 0.0,
+      "N_in_d": [
+        0.05,
+        0.02,
+        0.04,
+        0.03,
+        0.01,
+        0.0,
+        2.0
+      ],
+      "trajectory_continue_s": 0.0
+    },
+    {
+      "s": 0.02,
+      "feed_water_mol_s": 0.12116347299609621,
+      "equation_water_mol_s": 0.12116347299609621,
+      "water_gap_mol_s": 0.0,
+      "fuel_C_mol_s": 0.39283471264052133,
+      "fuel_H_mol_s": 0.46752898722438996,
+      "fuel_O_mol_s": 0.15585832430386848,
+      "ash_feed_kg_s": 0.0010134543805832158,
+      "fuel_enthalpy_W": -35173.35098255509,
+      "n_py_d": [
+        0.03804795836136777,
+        0.025764971421961845,
+        0.09657246935669954,
+        0.06628042309857703,
+        0.017020577627887723,
+        0.0,
+        0.0
+      ],
+      "nC_unreleased": 0.0,
+      "nH_unreleased": 0.0,
+      "nO_unreleased": 0.0,
+      "N_in_d": [
+        0.049,
+        0.0196,
+        0.0392,
+        0.0294,
+        0.0098,
+        0.0,
+        1.96
+      ],
+      "trajectory_continue_s": 0.3
+    },
+    {
+      "s": 0.22,
+      "feed_water_mol_s": 0.29053539909450316,
+      "equation_water_mol_s": 0.29053539909450316,
+      "water_gap_mol_s": 0.0,
+      "fuel_C_mol_s": 1.0087765597916116,
+      "fuel_H_mol_s": 1.1055237176039607,
+      "fuel_O_mol_s": 0.3689068087990019,
+      "ash_feed_kg_s": 0.00272710370930558,
+      "fuel_enthalpy_W": -94647.94644040399,
+      "n_py_d": [
+        0.10301895574752945,
+        0.07394441601266537,
+        0.16220214742189437,
+        0.11799902102614167,
+        0.03061234621561609,
+        0.0,
+        0.0
+      ],
+      "nC_unreleased": 0.0,
+      "nH_unreleased": 0.0,
+      "nO_unreleased": 0.0,
+      "N_in_d": [
+        0.03900000000000001,
+        0.015600000000000001,
+        0.031200000000000002,
+        0.0234,
+        0.0078000000000000005,
+        0.0,
+        1.56
+      ],
+      "trajectory_continue_s": 3.3
+    },
+    {
+      "s": 0.999999,
+      "feed_water_mol_s": 8.800833144995465,
+      "equation_water_mol_s": 8.800833144995465,
+      "water_gap_mol_s": 0.0,
+      "fuel_C_mol_s": 39.918565196994955,
+      "fuel_H_mol_s": 31.71234295287422,
+      "fuel_O_mol_s": 10.622892982828322,
+      "ash_feed_kg_s": 0.08895383824372532,
+      "fuel_enthalpy_W": -3087267.304514919,
+      "n_py_d": [
+        4.16811018804062,
+        1.8885201342112776,
+        5.831070258658676,
+        2.6777425263651478,
+        2.1574035496712907,
+        0.0,
+        0.0
+      ],
+      "nC_unreleased": 0.0,
+      "nH_unreleased": 0.0,
+      "nO_unreleased": 0.0,
+      "N_in_d": [
+        5.000000000143778e-08,
+        2.0000000000575113e-08,
+        4.0000000001150225e-08,
+        3.000000000086267e-08,
+        1.0000000000287556e-08,
+        0.0,
+        2.0000000000575113e-06
+      ],
+      "trajectory_continue_s": 14.999984999999999
+    },
+    {
+      "s": 1.0,
+      "feed_water_mol_s": 8.800871630452962,
+      "equation_water_mol_s": 8.800871630452962,
+      "water_gap_mol_s": 0.0,
+      "fuel_C_mol_s": 39.91875343435184,
+      "fuel_H_mol_s": 31.712479413457146,
+      "fuel_O_mol_s": 10.622938746171636,
+      "ash_feed_kg_s": 0.08895424265,
+      "fuel_enthalpy_W": -3087281.34,
+      "n_py_d": [
+        4.168137344337125,
+        1.8885291489528149,
+        5.831121056406127,
+        2.6777431039288815,
+        2.1574061121903734,
+        0.0,
+        0.0
+      ],
+      "nC_unreleased": 0.0,
+      "nH_unreleased": 0.0,
+      "nO_unreleased": 0.0,
+      "N_in_d": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trajectory_continue_s": 15.0
+    }
+  ],
+  "s1_matches_target_n_py": true,
+  "s1_matches_target_unreleased_C": true,
+  "s1_volume_identity_m3": {
+    "V_bed_m3": 1.6964600329384885,
+    "V_b_m3": 0.2205398042820035,
+    "V_emulsion_m3": 1.475920228656485,
+    "V_d_m3": 0.6641641028954183,
+    "V_solids_m3": 0.8117561257610668
+  },
+  "uncertainties": {
+    "fuel_heating_value": null,
+    "fuel_size_applied_to_bins": false
+  }
+}

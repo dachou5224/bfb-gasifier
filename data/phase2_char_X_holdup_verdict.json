@@ -1,0 +1,45 @@
+{
+  "knife": "holdup_char_conversion_X_for_SPM",
+  "date": "2026-07-25",
+  "root_cause": {
+    "bug": "_compute_char_conversion ignored m_solid_auf_in/ab_in under holdup_transport",
+    "evidence": "data/phase2_char_X_inflow_gap_o8.json",
+    "bed1_pre": {
+      "m_in_old": 0.0,
+      "auf_ab": 0.779,
+      "out": 0.738,
+      "X_old": 0.0,
+      "X_fixed_formula": 0.053
+    }
+  },
+  "fix": {
+    "file": "src/core/cell.py",
+    "change": "holdup_transport: m_in += auf_in + ab_in (align Eq.2-6)",
+    "tests": "tests/test_char_conversion_holdup.py (3 passed)"
+  },
+  "o8_result": {
+    "artifact": "data/phase2_char_X_holdup_fix_o8.json",
+    "pre": {
+      "CO": 0.1164,
+      "CO2": 0.1516,
+      "score_true": 0.398
+    },
+    "post": {
+      "CO": 0.1251,
+      "CO2": 0.1514,
+      "score_true": 0.341,
+      "rms_E": 0.0281
+    },
+    "delta": "CO↑ toward true dry; CO2 flat; score improves; E slightly up",
+    "X_profile": "bed1–6/8 now X>0 (was ≡0); SPM d_core mildly shrinks"
+  },
+  "ship": {
+    "production_change": true,
+    "scope": "minimal isomorphic fix to X estimator only"
+  },
+  "next_knife": {
+    "primary": "char_inventory_K_m_residence",
+    "alt": "H4_fb_secondary_nr",
+    "note": "X 同构已修；出口仍偏真干基，下一刀看库存/停留或二次风"
+  }
+}

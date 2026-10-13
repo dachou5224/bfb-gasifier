@@ -1,3 +1,8 @@
+"""轴向离散全局状态（Phase0 演示，已弃用）。
+
+Canonical 状态容器：``src.core.reactor.Reactor`` + ``src.core.cell.Cell``。
+"""
+
 from __future__ import annotations
 import dataclasses
 from dataclasses import dataclass, field
@@ -8,7 +13,7 @@ from src.core.cell import N_SOLID_COMP
 
 @dataclass
 class GlobalState:
-    """集中管理所有单元的物理状态。"""
+    """Phase0 演示用集中状态；NR 主路径使用 ``Reactor`` / ``Cell``。"""
     T: npt.NDArray[np.float64]        # (n_cells,) [K]
     P: npt.NDArray[np.float64]        # (n_cells,) [Pa]
     N_b: npt.NDArray[np.float64]      # (n_cells, N_GAS) [mol/s]

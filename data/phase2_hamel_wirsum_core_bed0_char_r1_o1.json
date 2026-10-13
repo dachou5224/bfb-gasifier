@@ -1,0 +1,13 @@
+{
+  "note": "CORE o1 after fastox+R1 char-O2 x0; local bed0 solve off",
+  "wall_s": 17.512286028,
+  "n_acc": 1,
+  "lambda_hist": [
+    null
+  ],
+  "rms_scaled_final": 0.022441103133455435,
+  "converged": false,
+  "y_CO_exit": 0.012019838590470941,
+  "energy_rms": null,
+  "max_abs_scaled_final": 0.2742363421648024
+}

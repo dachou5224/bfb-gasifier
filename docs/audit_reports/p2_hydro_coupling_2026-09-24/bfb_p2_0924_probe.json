@@ -1,0 +1,29 @@
+{
+  "baseline": {
+    "passed": false,
+    "gas_l2": 2.2743062865062798e-05,
+    "solid_l2": 7.195309396090472e-07,
+    "tar_l2": 1.88426052146291e-05,
+    "energy_W": 2.153683453798294e-09
+  },
+  "fb_o2": 4.536784118262658e-30,
+  "column_norm": 0.003591590584828076,
+  "omitted_gradient": 7.628591110994324e-06,
+  "joint": {
+    "passed": true,
+    "gas_l2": 1.662724945636999e-15,
+    "solid_l2": 2.441625465031141e-16,
+    "tar_l2": 6.631731266832107e-15,
+    "energy_W": 0.0
+  },
+  "composite": {
+    "passed": false,
+    "gas_l2": 9.857630981920356e-06,
+    "solid_l2": 2.441625465031141e-16,
+    "tar_l2": 5.3090056820366086e-08,
+    "energy_W": 0.004802859068149701
+  },
+  "nfev": 100,
+  "message": "`xtol` termination condition is satisfied.",
+  "optimality": 1.5543368383563177e-09
+}

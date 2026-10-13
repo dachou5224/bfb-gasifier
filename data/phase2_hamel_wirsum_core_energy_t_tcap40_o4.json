@@ -1,0 +1,30 @@
+{
+  "stack": "HAMEL_WIRSUM_CORE + nr_inner_t_step_default_cap_K_thesis=40",
+  "ladder_level": "p2",
+  "max_global_iter": 4,
+  "pythonhashseed": 0,
+  "init": {
+    "rms": 0.031423376824642926,
+    "gas": 0.03400855022852743,
+    "ene": 0.10147854218937578,
+    "T0": 1150.234280999747,
+    "T1": 1150.411506236259,
+    "E0_MW": 1.463734758739803,
+    "Nd_O2": 1.8397992565091303,
+    "Tmin0": 1000.2342809997469
+  },
+  "o4": {
+    "rms": 0.01794674952409773,
+    "gas": 0.01969163569201412,
+    "ene": 0.05635487402975852,
+    "T0": 1070.22349668745,
+    "T1": 1185.8756088563887,
+    "E0_MW": 0.1915683715070355,
+    "Nd_O2": 3.1413562350161524,
+    "Tmin0": 1000.2342809997469,
+    "n_acc": 4,
+    "lams": [1.0, 1.0, 1.0, 1.0],
+    "dt_s": 38.784228514
+  },
+  "note": "handoff §5.53. Cap 40 K keeps bed0 off the 1000 K fence at o4. Heating Startwert and LSQ T projection were rejected."
+}

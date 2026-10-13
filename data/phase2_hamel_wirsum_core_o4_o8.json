@@ -1,0 +1,54 @@
+{
+  "note": "Phase2 p2 + HAMEL_WIRSUM_CORE: Hamel extent-off + Vorab fastox x0 + Wirsum RMS; no LS fastox/syngas/PS/GATE/HOT/LSQ",
+  "exploded_o4": false,
+  "compare_wirsum_on_platform_o8": {
+    "exit_CO": 0.116,
+    "rms": 0.02,
+    "converged": false
+  },
+  "compare_legacy_platform_o8": {
+    "exit_CO": 0.159,
+    "rms": 0.046,
+    "converged": false
+  },
+  "arms": [
+    {
+      "label": "hamel_wirsum_core_o4",
+      "wall_s": 37.356114899,
+      "exit_CO": 0.012019838590470941,
+      "exit_H2": 0.0,
+      "exit_CH4": 0.0,
+      "exit_CO2": 0.04643853062877498,
+      "rms": 0.020409942473962654,
+      "split": 0.03934387267972454,
+      "energy": 0.06849139995924303,
+      "converged": false,
+      "n_acc": 0,
+      "fastox_ls": false,
+      "syngas_guard": false,
+      "split_merit": false,
+      "local2": false,
+      "hot": false,
+      "lsq_holdup": false
+    },
+    {
+      "label": "hamel_wirsum_core_o8",
+      "wall_s": 163.758804032,
+      "exit_CO": 0.012019838590470941,
+      "exit_H2": 0.0,
+      "exit_CH4": 0.0,
+      "exit_CO2": 0.04643853062877498,
+      "rms": 0.020409942473962654,
+      "split": 0.03934387267972454,
+      "energy": 0.06849139995924303,
+      "converged": false,
+      "n_acc": 0,
+      "fastox_ls": false,
+      "syngas_guard": false,
+      "split_merit": false,
+      "local2": false,
+      "hot": false,
+      "lsq_holdup": false
+    }
+  ]
+}

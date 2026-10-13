@@ -1,0 +1,52 @@
+[
+  {
+    "initial_u_h": [
+      0.29151687577134805,
+      1.4689587352741864
+    ],
+    "cell_height": 4.25,
+    "extra_s": 15.0,
+    "results": [
+      {
+        "dt": 0.002,
+        "fate": "reaches_next_cell",
+        "elapsed": 9.539999999999855,
+        "height": 4.2500297301327326,
+        "velocity": 0.29151687577134805
+      },
+      {
+        "dt": 0.001,
+        "fate": "reaches_next_cell",
+        "elapsed": 9.540000000000152,
+        "height": 4.2500297301327326,
+        "velocity": 0.291516875771348
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "initial_u_h": [
+      0.291516875771348,
+      1.5922949055957811
+    ],
+    "cell_height": 4.25,
+    "extra_s": 5.459999999999848,
+    "results": [
+      {
+        "dt": 0.002,
+        "fate": "undecided",
+        "elapsed": 5.459999999999848,
+        "height": 3.1845600810588186,
+        "velocity": 0.291516875771348
+      },
+      {
+        "dt": 0.001,
+        "fate": "undecided",
+        "elapsed": 5.459999999999848,
+        "height": 3.183977047307276,
+        "velocity": 0.291516875771348
+      }
+    ],
+    "accepted": false
+  }
+]

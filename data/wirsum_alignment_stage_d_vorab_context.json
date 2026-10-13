@@ -1,0 +1,19 @@
+{
+  "source": "Wirsum alignment stage D vorab frozen context",
+  "solved": false,
+  "path": "reduced_3cell_x0_plus_km_holdup_axial_sweep",
+  "not_a_convergence_claim": true,
+  "units": {
+    "residual": "mixed SI packed F",
+    "holdup": "kg"
+  },
+  "n_unknowns": 105,
+  "source_policy": "hamel_outer_refresh",
+  "tau_model": "engineering_H_over_umf",
+  "freeboard_trajectory_owner": "init_precalc",
+  "outer_updates_freeboard_trajectory": false,
+  "unfrozen_max_abs_F_xx": 361.3672391816508,
+  "frozen_max_abs_F_xx": 0.0,
+  "frozen_max_abs_F_xyx": 0.0,
+  "note": "未冻结路径：apply_bc 用上一评留下的 R_solid/水力重算 K。冻结后内层只读 q。默认生产外层仍是 engineering_single_shot。"
+}

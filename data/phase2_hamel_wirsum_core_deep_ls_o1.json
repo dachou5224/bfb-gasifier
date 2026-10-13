@@ -1,0 +1,26 @@
+{
+  "note": "CORE o1 T-only clip + 24 halvings λmin=1e-8",
+  "wall_s": 31.054756073,
+  "exit_CO": 0.012019838590470941,
+  "exit_H2": 0.0,
+  "rms": 0.020409943114638028,
+  "split": 0.03934387267972454,
+  "energy": 0.06849140511399202,
+  "n_acc": 0,
+  "lambda_hist": [
+    null
+  ],
+  "ls_trials_hist": [
+    24
+  ],
+  "clip0": {
+    "failed": true,
+    "lam": null,
+    "trials": 24,
+    "best_trial_rms": 0.655838550022521,
+    "best_trial_lam": 1.1920928955078125e-07,
+    "linear_defect": 0.0006053088785028912,
+    "clip_defect": 0.0006053088785028912,
+    "max_abs_dT_step": 349.49467686942853
+  }
+}

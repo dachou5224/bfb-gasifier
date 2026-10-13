@@ -10,18 +10,12 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT))
+import _lu_harness  # noqa: F401
 
-from tests.validation_case_utils import (
-    PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS,
-    build_phase1_htw_lu_global_nr_reactor_config,
-)
+from _lu_harness import phase1_global_nr_solve_kwargs
+from tests.validation_case_utils import build_phase1_htw_lu_global_nr_reactor_config
 from src.core.reactor import Reactor
 from src.core.cell import S_CHAR, S_VM, S_MOISTURE
 from src.core.species import GAS_SPECIES_INDEX as idx
@@ -32,7 +26,7 @@ def main() -> int:
     cfg = build_phase1_htw_lu_global_nr_reactor_config()
     r = Reactor(cfg)
     # 与 LU global-NR 主验证保持同口径。
-    res = r.solve(**PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS)
+    res = r.solve(**phase1_global_nr_solve_kwargs())
 
     bot = r.cells[0]
     top = r.cells[-1]

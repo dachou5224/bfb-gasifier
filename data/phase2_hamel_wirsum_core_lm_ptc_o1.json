@@ -1,0 +1,67 @@
+{
+  "note": "CORE + LM/PTC; no L4. Goal: n_acc>0 on Wirsum RMS merit.",
+  "arms": [
+    {
+      "label": "core_lm_o1",
+      "wall_s": 21.228855848,
+      "exit_CO": 0.012019838590470941,
+      "exit_H2": 0.0,
+      "rms": 0.02040994144646318,
+      "split": 0.03934387267972454,
+      "energy": 0.06849139169218235,
+      "converged": false,
+      "n_acc": 0,
+      "lambda_hist": [
+        null
+      ],
+      "ls_trials_hist": [
+        12
+      ],
+      "clip0": {
+        "failed": true,
+        "lam": null,
+        "trials": 12,
+        "best_trial_rms": 536.3037159928247,
+        "best_trial_lam": 0.00048828125,
+        "linear_defect": 0.28760524479737437,
+        "clip_defect": 935.4043068000807,
+        "max_abs_dT": 0.26091335800342
+      },
+      "overrides": {
+        "nr_step_model_thesis": "lm"
+      },
+      "max_iter": 1
+    },
+    {
+      "label": "core_ptc_o1",
+      "wall_s": 16.513384279999997,
+      "exit_CO": 0.012019838590470941,
+      "exit_H2": 0.0,
+      "rms": 0.020409944682173716,
+      "split": 0.03934387267972454,
+      "energy": 0.06849141772607724,
+      "converged": false,
+      "n_acc": 0,
+      "lambda_hist": [
+        null
+      ],
+      "ls_trials_hist": [
+        12
+      ],
+      "clip0": {
+        "failed": true,
+        "lam": null,
+        "trials": 12,
+        "best_trial_rms": 0.04447320279052717,
+        "best_trial_lam": 0.00048828125,
+        "linear_defect": 1.1813605838896146,
+        "clip_defect": 1.1371822879588855,
+        "max_abs_dT": 0.1538893994804922
+      },
+      "overrides": {
+        "nr_step_model_thesis": "ptc"
+      },
+      "max_iter": 1
+    }
+  ]
+}

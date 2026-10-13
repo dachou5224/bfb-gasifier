@@ -1,0 +1,88 @@
+6 Experimentelle Untersuchungen in der Wirbelschicht
+6 Experimentelle Untersuchungen in der Wirbelschicht
+98
+99
+kontinuierliche Messwertaufnahme und gleichzeitige grafische Darstellung auf einem PC er-
+möglichen es, den zeitlichen Verlauf der Vorgänge im Reaktor anhand der Gaskonzentratio-
+nen zu verfolgen.
+6 
+Experimentelle Untersuchungen zur Pyrolyse, Verbrennung und Verga-
+sung verschiedener Einsatzstoffe in der Wirbelschicht
+6.1 
+Beschreibung der Versuchsanlage
+In einer Laborwirbelschichtanlage wurden, begleitend zu den theoretischen Arbeiten am Si-
+mulationsprogramm, Pyrolyse-, Verbrennungs- und Vergasungsuntersuchungen verschiedener
+Brennstoffe durchgefuhrt. Ziel der Untersuchungen war es, jeweils Informationen zum Pyro-
+lyseverhalten und zur Pyrolyseproduktausbeute sowie zur Reaktivität zu erhalten. Diese In-
+formationen dienen zur Ergänzung und Verbesserung eines vorliegenden Modells für Wirbel-
+schichtvergaser und erlauben es, verschiedene Anlagen mit den unterschiedlichsten Brenn-
+stoffen ohne Modellanpassungen mathematisch abzubilden.
+6.1.1 Aufbau der Laborwirbelschicht und messtechnische Ausstattung
+Bei der verwendeten Laborwirbelschichtanlage handelt es sich um eine niedrig expandierte,
+atmosphärische, stationäre Wirbelschicht, die mit Wirbelschichttemperaturen bis 950 °C und
+Leerrohrgeschwindigkeiten bis 1,5 m/s betrieben werden kann. Zum Betrieb der in Bild 6.1
+schematisch dargestellten Laborwirbelschichtanlage wird über eine Gasmischvorrichtung
+Luft, Stickstoff oder Kohlendioxid bzw. eine Mischung aus den genannten Gasen in den Re-
+aktor geleitet. Das Fluidisierungsgas wird dazu zunächst durch ein Rohrheizelement geführt,
+in dem es auf die gewünschte Temperatur vorgeheizt wird. Der erste Schenkel des Rohrheiz-
+elementes ist mit einem Keramikrohr mit Heizdrahtwicklung versehen, der zweite Schenkel
+ist ebenso wie die Wirbelschicht mit Strahlungsheizelementen umgeben. Das durch den Dü-
+senboden strömende Gas fluidisiert die Wirbelschicht (Innendurchmesser 54 mm), deren Hö-
+he im expandierten Zustand etwa 80 mm beträgt. Während der größte Teil des Rauchgases
+den Reaktor über einen Abzug verlässt, wird der restliche Teil über ein Gasentnahmesystem
+den Gasanalysatoren zugefuhrt. Das entnommene Gas wird in einem elektrisch beheizten
+Zyklon weitestgehend von im Rauchgas mitgefuhrten Staubpartikeln befreit. In einem nachge-
+schalteten, ebenfalls elektrisch beheizten Filter wird im Gas verbliebener Feinstaub abge-
+schieden. Vom beheizten Filter wird ein Teil des Rauchgases über eine beheizte Gasleitung in
+den FID (Flammen-Ionisations-Detektor) zur Messung von organischen Kohlenwasserstoff-
+verbindungen geleitet. Um die Rauchgaswege aller anderen Gasanalysatoren vor Verschmut-
+zung durch Kondensation höherer Kohlenwasserstoffe zu schützen, werden diese in einem
+weiteren Filter gereinigt. Die von den Gasanalysatoren ermittelten Konzentrationen der Mess-
+gaskomponenten COi, O2, CO, SO2, Corg, NOX /NO , CH4, H2 und C2H4 werden mit einer
+Taktrate von 1 Hz schließlich auf einem PC gespeichert. Die Laborwirbelschicht wird im
+Batch-Modus betrieben, das heißt es wird eine genau eingewogene Masse Brennstoff über den
+Brennstoffeinwurf im Freiraum der Wirbelschicht zugefuhrt und es werden die gemessenen
+Gaskonzentrationen bis zur vollständigen Umsetzung des Brennstoffs aufgezeichnet. Die
+6.1.2 Charakterisierung der eingesetzten Brennstoffe
+Bei den untersuchten Stoffen handelt es sich im einzelnen um Rheinische Trockenbraunkohle
+mit Komdurchmessem bis 6 mm, Restkunststoff aus der DSD-Sammlung, der bereits zerklei-
+Gasanalyse
+Gasanalyse
+CO, CO 2, O 2
+SO 2,CH 4, H2,
+NO X,C 2H4
+beheizter
+Filter
+Filter
+beheizter
+Zyklon
+Freiraum
+0 120 mm
+Gasmisch-
+vorrichtung
+Reaktor mit
+Sichtfenster
+0 54 mm
+h 
+= 80 mm
+VolumenStrom-
+messung□
+Düsenboden
+Keramikrohr mit
+Heizdrahtwicklung
+SMMSSMÄSSSW8Ö3
+Luftzufuhr
+r
+Volumenstrom-
+U messung
+Brennstoff-
+einwurf
+CO 2
+Schüttung
+feuerfestes
+Material
+Dampf-
+erzeuger
+Strahlungs-
+heizelement
+Bild 6.1: Schematische Darstellung der Laborwirbelschichtanlage.

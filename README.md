@@ -232,7 +232,7 @@ graph LR
 2. **相间交换（Bild 2.3，Eq. 3.50）**：$K_{bd}$ 驱动的气泡–悬浮传质在守恒方程中为一相源、另一相等价汇 → 见 **`physics/mass_transfer.py`** 与 **`cell.py`** 中 $\dot{N}_{ex,bd}$ 项。
 3. **Newton–Raphson**：论文强调块三对角 / 全局联立；本仓库采用 **NR-only**（`solver="global_nr"`，`global_nr_solver.py`，全域残差 + Jacobian）。
 
-更细的 Fortran/Python 对照见 [`docs/hamel_dissertation_vs_python_architecture.md`](docs/hamel_dissertation_vs_python_architecture.md)。
+更细的 Fortran/Python 对照见 [`docs/hamel_dissertation_vs_python_architecture.svg`](docs/hamel_dissertation_vs_python_architecture.svg)；算法文档索引见 [`docs/README.md`](docs/README.md)。
 
 ---
 
@@ -290,17 +290,17 @@ bfb-gasifier/
 │   └── solvers/        # 求解器（单 cell fsolve；多 cell 扫描见 core/reactor.py）
 │       └── cell_solver.py
 ├── docs/
-│   ├── BFB_ModelArchitecture.html  # 模型架构可视化
-│   ├── BFB_TechSpec_v11.md         # 技术说明书
-│   └── gibbs_kinetics_coupling.md  # Gibbs–动力学耦合说明
+│   ├── README.md                   # Hamel 算法文档索引
+│   ├── gasifier_model_flowchart_trilingual.mmd
+│   └── hamel_submodels/            # 方程转录 00–07（本地-only）
 ├── data/
-│   ├── validation_cases.json       # 验证工况主数据（Table 2 LU ↔ CASE_HTW_WESSELING_1）
-│   └── test_cases.json             # 兼容：扁平 CASE_LU，与上键等价；**改工况以 validation_cases.json 为准**
+│   ├── validation_cases.json       # 验证工况主数据
+│   └── test_cases.json             # 兼容扁平 CASE_LU
 ├── tests/
 │   ├── sanity_checks.py            # 17 项 sanity 检查
-│   └── test_thermodynamics.py      # 热力学单元测试
+│   └── test_thermodynamics.py
 ├── app.py              # Streamlit 可视化界面
-└── specs/              # 规格文档
+└── specs/              # hamel_checked_algorithm_spec 摘要（本地-only）
 ```
 
 ---
@@ -396,16 +396,20 @@ python3 scripts/run_test_sequence.py
 
 ## 文档
 
+算法与模型规格见 [`docs/README.md`](docs/README.md)。
+
 | 文档 | 说明 |
 |------|------|
-| [BFB_TechSpec_v11.md](docs/BFB_TechSpec_v11.md) | 完整技术说明书 |
-| [BFB_ModelArchitecture.html](docs/BFB_ModelArchitecture.html) | 模型架构可视化（求解器层级、两相 Cell、流程、模块图、Gibbs A1） |
-| [gibbs_kinetics_coupling.md](docs/gibbs_kinetics_coupling.md) | Gibbs–动力学耦合与 Hamel 硫元素两步守恒 |
-| [missing_parameters_summary.md](docs/missing_parameters_summary.md) | 缺失参数汇总 |
-| [source_units_audit.md](docs/source_units_audit.md) | `src/` 单位/量纲约定与自检记录 |
-| [validation_gap_analysis.md](docs/validation_gap_analysis.md) | 与验证 JSON 偏差过大的原因分析（几何、u0、能量、收敛等） |
-| [hamel_dissertation_vs_python_architecture.md](docs/hamel_dissertation_vs_python_architecture.md) | Hamel 论文模块与代码对照；含 Bild 2.2/2.3 Mermaid 图 |
-| [specs/](specs/) | 守恒方程、动力学、物种等规格 |
+| [docs/README.md](docs/README.md) | Hamel 算法文档索引（分层 SoT） |
+| [hamel_submodels/](docs/hamel_submodels/) | 方程转录分册 00–07（本地-only） |
+| [specs/](specs/) | 已核验摘要 `hamel_checked_algorithm_spec.md` |
+| [gasifier_model_flowchart_trilingual.mmd](docs/gasifier_model_flowchart_trilingual.mmd) | Bild 2.2 三语流程图 |
+| [hamel_b_tier_thesis_extraction.md](docs/hamel_b_tier_thesis_extraction.md) | B 档：Verbindungsmatrix / NR 结构 |
+| [vorab_init_abgleich_vs_outer_preinner.md](docs/vorab_init_abgleich_vs_outer_preinner.md) | Init / Outer / Check1–2 求解语义 |
+| [hamel_engineering_bridge_notes.md](docs/hamel_engineering_bridge_notes.md) | 工程桥接（论文未给细节） |
+| [docs/CLAUDE.md](docs/CLAUDE.md) | Agent 开发约定与 Phase 顺序 |
+| [module_dependency_overview.md](docs/module_dependency_overview.md) | 代码模块依赖 |
+| [hamel_dissertation_vs_python_architecture.svg](docs/hamel_dissertation_vs_python_architecture.svg) | 论文模块 ↔ Python 架构图 |
 
 ---
 

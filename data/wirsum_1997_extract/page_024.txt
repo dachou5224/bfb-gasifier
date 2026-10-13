@@ -1,0 +1,71 @@
+'dichte Phase
+Blasenwolke
+schnelle Blase ab > 1
+Die Rückvermischung des Gases innerhalb der Emulsionphase ist gegenüber den anderen ge-
+nannten Transportmechanismen meist zu vernachlässigen [23].
+In Wirbelschichten mit feinen Partikeln (Geldart Gruppen A und C) und einer entsprechend
+niedrigen minimalen Fluidisierungsgeschwindigkeit steigt eine Blase schneller auf als das Gas
+in der Emulsionsphase, welche die Blase umgibt. Umgekehrt ist in Grobkornwirbelschichten
+(Geldart Gruppen B und D), welche hohe Gasgeschwindigkeiten innerhalb der Emulsions-
+phase zulassen, die Aufwärtsgeschwindigkeit einer Blase geringer als die Gasgeschwindigkeit
+innerhalb der Emulsionphase.
+Davidson und Harrison [24] postulierten ausgehend von dieser Tatsache zwei grundsätzlich
+verschiedene Strömungsformen im Bereich einer Blase, wobei als Unterscheidungsmerkmal die
+Blasenkennzahl ab verwendet wird. Die Blasenkennzahl ist definiert als das Verhältnis der
+Blasenaufstiegsgeschwindigkeit Ub zur tatsächlichen Geschwindigkeit des Gases innerhalb der
+Emulsionphase
+a b = 
+. 
+(3.6)
+ud/ed
+Blasen mit ab < 1 werden als „langsame Blasen“, solche mit 
+> 1 als „schnelle Blasen“,
+relativ zur Gasgeschwindigkeit in der Emulsionsphase, bezeichnet. Im Fall von ab = 0 würde
+eine in der Wirbelschicht befindliche Blase als widerstandsfreier Hohlraum vom Wirbelgas
+durchströmt. Mit zunehmender Blasenkennzahl ab bilden sich an den Rändern der Blase
+Rückströmungen aus, welche die Blase als sogenannte Blasenwolke umgeben. Mit weiter wach-
+sender Blasenkennzahl verlagert sich die Rezirkulationszone mehr ins Blaseninnere, wodurch
+auch die Schichtdicke der Blasenwolke abnimmt. Für sehr große Blasenkennzahlen durch-
+queren die Blasen das Wirbelbett im Bypass. Liegen sehr kleine Blasenkennzahlen vor, so
+durchströmt das Wirbelgas die Blasen im „Kurzschluß“. Die Strömungsverhältnisse im Be-
+reich einer Blase sind in Bild 3.3 dargestellt.
+dichte Phase
+langsame Blase 07, < 1
+3.2.2 
+Berechnung der strömungsmechanischen Kenngrößen einer blasenbilden-
+den Wirbelschicht
+Eine sehr umfassende experimentelle und theoretische Arbeit über strömungsmechanische
+Vorgänge in Wirbelschichten wurde von Hilligardt [54] vorgestellt. Die Modellansätze von
+Hilligardt haben einen breiten Anwendungsbereich und gelten für unterschiedliche Wirbel-
+schichtgüter und Anlagengeometrien. Die Modellansätze von Hilligardt wurden bereits von
+Bürkle [19] mit Erfolg zur Berechnung des Wirbelschichtzustandes einer Kohlefeuerung ver-
+wendet und werden ebenfalls als Grundlage für diese Arbeit herangezogen.
+Unter Vernachlässigung der RückVermischung des Gases in der Emulsionsphase und unter An-
+nahme einer inkompressiblen Gasströmung ergibt sich folgende Bilanzgleichung für die gesamte
+Gasströmung an einem Querschnitt der Wirbelschicht
+uoA = (1 — tb)u dA 4- CbUbA 4- €bu b,r A . 
+(3.7)
+Für die auf den leeren Querschnitt bezogene Gasgeschwindigkeit in der Emulsionsphase fand
+Hilligardt [54] ausgehend von Messungen an einer Anlage mit technischem Gasverteiler die
+Gleichung
+Ud = u mf d" ~(uo 
+Um f) . 
+(3.8)
+ö
+Eine Änderung der Gasgeschwindigkeit ud in der Emulsionsphase mit der Höhe innerhalb der
+Wirbelschicht wurde nicht beobachtet. In Bild 3.4 ist schematisch die Durchströmung eines
+axialen Segments einer blasenbildenden Wirbelschicht dargestellt.
+Die Steiggeschwindigkeit einer isolierten Einzelblase kann für den Bereich der von Geldart [41]
+klassifizierten Partikelgrößen mit guter Genauigkeit als eine Funktion des Blasendurchmessers
+Auf dem Weg vom Düsenboden zur Wirbelschichtoberfläche vergrößern die Blasen ihr Volumen
+und werden schneller. Das Wachstum der Blasen ist im wesentlichen durch Blasenkoaleszenz
+bestimmt. Aufgrund der zunehmenden Blasengeschwindigkeit ist die Blasenkennzahl ab u.a.
+eine Funktion der Höhe über dem Düsenboden. In den für technische Verbrennungssysteme
+üblichen Grobkornwirbelschichten (Geldart Gruppen B und D) liegen meist die Bedingungen
+für die Existenz von langsamen Blasen vor. Verweyen [135] zeigt jedoch, daß im Einsatzbereich
+von stationären Wirbelschichten mit mittleren Sandpartikeldurchmessern von 0,5 - 1,0 mm
+und Leerrohrgeschwindigkeiten von 1,0 - 2,0 m/s ein Übergang vom „slow-bubble regime“
+zum „fast-bubble regime“ erfolgen kann, sofern der maximale Blasendurchmesser nicht durch
+Einbauten begrenzt ist.
+29
+28

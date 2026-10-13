@@ -4,28 +4,20 @@
 from __future__ import annotations
 
 import argparse
-import copy
 import json
-from pathlib import Path
 from time import perf_counter
 from typing import Any
-import sys
 
-_ROOT = Path(__file__).resolve().parent.parent
-if str(_ROOT) not in sys.path:
-    sys.path.insert(0, str(_ROOT))
+import _lu_harness  # noqa: F401
 
 from src.core.reactor import Reactor
 from _nr_monitor import solve_with_nr_monitor
-from tests.validation_case_utils import (
-    PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS,
-    build_phase1_htw_lu_global_nr_reactor_config,
-    load_case_LU,
-)
+from _lu_harness import load_case_lu, phase1_global_nr_solve_kwargs
+from tests.validation_case_utils import build_phase1_htw_lu_global_nr_reactor_config
 
 
 def _run_once(*, solve_kwargs: dict[str, Any]) -> dict[str, Any]:
-    case = load_case_LU()
+    case = load_case_lu()
     cfg = build_phase1_htw_lu_global_nr_reactor_config(case)
     reactor = Reactor(cfg)
     kwargs = dict(solve_kwargs)
@@ -50,9 +42,10 @@ def main() -> int:
     parser.add_argument("--output-json", type=Path, default=None)
     args = parser.parse_args()
 
-    solve_kwargs = copy.deepcopy(PHASE1_HTW_LU_GLOBAL_NR_SOLVE_KWARGS)
-    solve_kwargs["max_global_iter"] = int(max(args.max_global_iter, 1))
-    solve_kwargs["tol_global"] = float(args.tol_global)
+    solve_kwargs = phase1_global_nr_solve_kwargs(
+        max_global_iter=int(max(args.max_global_iter, 1)),
+        tol_global=float(args.tol_global),
+    )
 
     rows = [_run_once(solve_kwargs=solve_kwargs) for _ in range(int(max(args.repeat, 1)))]
     print(json.dumps({"runs": rows, "solve_kwargs": solve_kwargs}, ensure_ascii=False, indent=2))

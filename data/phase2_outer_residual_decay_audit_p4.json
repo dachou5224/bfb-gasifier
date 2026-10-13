@@ -1,0 +1,334 @@
+{
+  "max_global_iter": 4,
+  "ladder_level": "p2",
+  "record_inner_group_history": true,
+  "init_metrics": {
+    "rms_scaled": 0.03217194444520968,
+    "max_abs_scaled": 0.4196140098423557,
+    "max_bed_energy_abs_W": 3647824.6610037144,
+    "gas_phase_split_rms": 0.044113358297373347,
+    "gas_phase_split_max_abs": 0.19183774751718088,
+    "solid_rms": 0.0010743919060644913,
+    "energy_rms": 0.10407996159995284,
+    "merit_scaled": 0.10407996159995284
+  },
+  "solve_summary": {
+    "converged": false,
+    "nr_outer_iters": 2,
+    "rms_scaled_final": 1.2268412888651088,
+    "rms_scaled_energy_final": 1.216177959150578,
+    "rms_scaled_gas_phase_split_final": 1.2268412888651088
+  },
+  "outer_decay": {
+    "enabled": true,
+    "n_outer": 2,
+    "inner_rms_first": 1.1584427424192798,
+    "inner_rms_last": 1.2268412888651088,
+    "inner_rms_decay_ratio": 1.0590435279545938,
+    "split_rms_max": 1.2268412888651088,
+    "preinner_merit_delta_mean": 0.0,
+    "preinner_skipped_outer_count": 0,
+    "preinner_holdup_reconcile_count": 0,
+    "diagnosis": [
+      "outer_inner_rms_plateau: inner NR 末态 RMS 下降不足，可能为结构型 BC/merit 冲突",
+      "split_elevated: phase-split 持续高于 0.05，优先 T2 split 而非 solid LSQ",
+      "preinner_low_impact: pre-inner merit 增量均值接近 0，考虑 merit-driven 跳过或换 tier"
+    ],
+    "outer_rows": [
+      {
+        "outer_iter": 1,
+        "vorabrechnung_signature_before_refresh": "vorab:v1:n=200;vm=10;sum=2.58494992e+04;sumsq=3.53836910e+07",
+        "vorabrechnung_signature": "vorab:v1:n=200;vm=10;sum=2.58495009e+04;sumsq=3.53836910e+07",
+        "refresh_skipped_for_check1_gate": false,
+        "dT_refresh": 0.0,
+        "signature_changed_by_refresh": true,
+        "refresh_seed_reset_threshold": 18.089089006435643,
+        "lambda_seed_reset_by_refresh": false,
+        "lambda_seed_used": 0.5,
+        "inner_iter_cap": 2,
+        "inner_budget_remaining_after": 2,
+        "dT_outer": 600.0,
+        "inner_n_iter": 2,
+        "inner_n_newton_iters_attempted": 2,
+        "inner_rms_scaled_final": 1.1584427424192798,
+        "inner_converged": false,
+        "preinner_phase_split_enabled": true,
+        "preinner_split_rms_before": 0.2214298565475333,
+        "preinner_split_rms_after": 0.2214298565475333,
+        "preinner_merit_before": 0.2214298565475333,
+        "preinner_merit_after": 0.2214298565475333,
+        "preinner_bed0_accepted": true,
+        "preinner_bed1_accepted": false,
+        "preinner_global_gate_pass": false,
+        "preinner_solid_rms_before": 0.005100810607344012,
+        "preinner_solid_rms_after": 0.005100810607344012,
+        "preinner_energy_rms_before": 0.1144990586201029,
+        "preinner_energy_rms_after": 0.1144990586201029,
+        "preinner_merit_driven": true,
+        "preinner_skipped_all_tiers": false,
+        "preinner_holdup_reconciled": false,
+        "preinner_bed1_energy_t_accepted": false,
+        "inner_group_history": [
+          {
+            "iter": 0,
+            "merit": 1.3419399646457095,
+            "rms_scaled": 0.26582398425608134,
+            "gas_rms": 0.0852924945098228,
+            "solid_rms": 0.0208852878177189,
+            "energy_rms": 1.3419399646457095,
+            "split_rms": 0.22138943263136807,
+            "converged_check": false
+          },
+          {
+            "iter": 1,
+            "merit": 0.9771988296030116,
+            "rms_scaled": 0.297021548110837,
+            "gas_rms": 0.3510429753551812,
+            "solid_rms": 0.02654781201536842,
+            "energy_rms": 0.8051675463017469,
+            "split_rms": 0.9771988296030116,
+            "converged_check": false
+          }
+        ],
+        "outer_aligned": false,
+        "outer_aligned_raw": false,
+        "outer_dT_tol_effective": 1.0,
+        "gas_phase_split_rms": 1.1584427424192798,
+        "gas_phase_split_max_abs": 4.023470369149516,
+        "bed0_primary_rel_drift": 1.0768715045016781,
+        "outer_gas_split_gate_enabled": true,
+        "outer_gas_split_tol": 0.05,
+        "outer_bed0_primary_gate_enabled": false,
+        "outer_bed0_primary_tol": 0.1,
+        "check2_bridge_enabled": false,
+        "check2_bridge_passes": 0.0,
+        "check2_bridge_aligned_after": false,
+        "outer_dt_check_pass": false,
+        "outer_gas_check_pass": false,
+        "outer_bed0_primary_check_pass": true,
+        "reaction_continuation_stage": 1,
+        "reaction_rate_multiplier": 1.0
+      },
+      {
+        "outer_iter": 2,
+        "vorabrechnung_signature_before_refresh": "vorab:v1:n=200;vm=10;sum=2.19635513e+04;sumsq=2.43238889e+07",
+        "vorabrechnung_signature": "vorab:v1:n=200;vm=10;sum=2.19635513e+04;sumsq=2.43238889e+07",
+        "refresh_skipped_for_check1_gate": true,
+        "dT_refresh": 0.0,
+        "signature_changed_by_refresh": false,
+        "refresh_seed_reset_threshold": 13.726933175811942,
+        "lambda_seed_reset_by_refresh": false,
+        "lambda_seed_used": 1.0,
+        "inner_iter_cap": 2,
+        "inner_budget_remaining_after": 0,
+        "dT_outer": 450.0,
+        "inner_n_iter": 3,
+        "inner_n_newton_iters_attempted": 2,
+        "inner_rms_scaled_final": 1.2268412888651088,
+        "inner_converged": false,
+        "preinner_phase_split_enabled": true,
+        "preinner_split_rms_before": 1.1584427424192798,
+        "preinner_split_rms_after": 1.1584427424192798,
+        "preinner_merit_before": 1.1584427424192798,
+        "preinner_merit_after": 1.1584427424192798,
+        "preinner_bed0_accepted": true,
+        "preinner_bed1_accepted": false,
+        "preinner_global_gate_pass": false,
+        "preinner_solid_rms_before": 0.02520279337647884,
+        "preinner_solid_rms_after": 0.02520279337647884,
+        "preinner_energy_rms_before": 1.1575357445748786,
+        "preinner_energy_rms_after": 1.1575357445748786,
+        "preinner_merit_driven": true,
+        "preinner_skipped_all_tiers": false,
+        "preinner_holdup_reconciled": false,
+        "preinner_bed1_energy_t_accepted": false,
+        "inner_group_history": [
+          {
+            "iter": 0,
+            "merit": 1.5851372887789603,
+            "rms_scaled": 0.4278824816716411,
+            "gas_rms": 0.4164306378860541,
+            "solid_rms": 0.01524630725756664,
+            "energy_rms": 1.5851372887789603,
+            "split_rms": 1.161540050912499,
+            "converged_check": false
+          },
+          {
+            "iter": 1,
+            "merit": 1.2836590782013877,
+            "rms_scaled": 0.37487500523870554,
+            "gas_rms": 0.4585031768107492,
+            "solid_rms": 0.010907786808594729,
+            "energy_rms": 0.9218265759507025,
+            "split_rms": 1.2836590782013877,
+            "converged_check": false
+          }
+        ],
+        "outer_aligned": false,
+        "outer_aligned_raw": false,
+        "outer_dT_tol_effective": 1.0,
+        "gas_phase_split_rms": 1.2268412888651088,
+        "gas_phase_split_max_abs": 5.528188662823165,
+        "bed0_primary_rel_drift": 1.0163222887769716,
+        "outer_gas_split_gate_enabled": true,
+        "outer_gas_split_tol": 0.05,
+        "outer_bed0_primary_gate_enabled": false,
+        "outer_bed0_primary_tol": 0.1,
+        "check2_bridge_enabled": false,
+        "check2_bridge_passes": 0.0,
+        "check2_bridge_aligned_after": false,
+        "outer_dt_check_pass": false,
+        "outer_gas_check_pass": false,
+        "outer_bed0_primary_check_pass": true,
+        "reaction_continuation_stage": 1,
+        "reaction_rate_multiplier": 1.0
+      }
+    ]
+  },
+  "last_outer_inner_decay": {
+    "enabled": true,
+    "n_iter": 2,
+    "series": {
+      "merit": [
+        1.5851372887789603,
+        1.2836590782013877
+      ],
+      "rms_scaled": [
+        0.4278824816716411,
+        0.37487500523870554
+      ],
+      "gas_rms": [
+        0.4164306378860541,
+        0.4585031768107492
+      ],
+      "solid_rms": [
+        0.01524630725756664,
+        0.010907786808594729
+      ],
+      "energy_rms": [
+        1.5851372887789603,
+        0.9218265759507025
+      ],
+      "split_rms": [
+        1.161540050912499,
+        1.2836590782013877
+      ]
+    },
+    "merit_first": 1.5851372887789603,
+    "merit_last": 1.2836590782013877,
+    "merit_decay_ratio": 0.8098094009195866,
+    "merit_tail_slope": null,
+    "rms_scaled_first": 0.4278824816716411,
+    "rms_scaled_last": 0.37487500523870554,
+    "rms_scaled_decay_ratio": 0.8761167406857902,
+    "rms_scaled_tail_slope": null,
+    "gas_rms_first": 0.4164306378860541,
+    "gas_rms_last": 0.4585031768107492,
+    "gas_rms_decay_ratio": 1.1010313245400718,
+    "gas_rms_tail_slope": null,
+    "solid_rms_first": 0.01524630725756664,
+    "solid_rms_last": 0.010907786808594729,
+    "solid_rms_decay_ratio": 0.7154379499456347,
+    "solid_rms_tail_slope": null,
+    "energy_rms_first": 1.5851372887789603,
+    "energy_rms_last": 0.9218265759507025,
+    "energy_rms_decay_ratio": 0.5815436823524545,
+    "energy_rms_tail_slope": null,
+    "split_rms_first": 1.161540050912499,
+    "split_rms_last": 1.2836590782013877,
+    "split_rms_decay_ratio": 1.1051354425471192,
+    "split_rms_tail_slope": null
+  },
+  "bed_energy_hotspots_final": [
+    {
+      "bed": 9,
+      "T_K": 970.0,
+      "energy_residual_MW": 48.55588433321991,
+      "solid_holdup_kg": 35.894264226921955,
+      "solid_out_kg_s": 15.896970894605367,
+      "solid_auf_in_kg_s": 8.925978455781369,
+      "auf_in_over_outflow": 0.5614892620084243
+    },
+    {
+      "bed": 2,
+      "T_K": 758.0014805215837,
+      "energy_residual_MW": 42.81708707415012,
+      "solid_holdup_kg": 10.285134967609048,
+      "solid_out_kg_s": 3.9430209803913465,
+      "solid_auf_in_kg_s": 7.225642762736182,
+      "auf_in_over_outflow": 1.8325144092991954
+    },
+    {
+      "bed": 1,
+      "T_K": 1150.691233065481,
+      "energy_residual_MW": 42.07593366137101,
+      "solid_holdup_kg": 14.42779745766707,
+      "solid_out_kg_s": 7.225642762736182,
+      "solid_auf_in_kg_s": 1.3240041991798916,
+      "auf_in_over_outflow": 0.18323687492661514
+    },
+    {
+      "bed": 4,
+      "T_K": 1297.9308981227557,
+      "energy_residual_MW": 18.777498329972467,
+      "solid_holdup_kg": 8.369151122463311,
+      "solid_out_kg_s": 12.827342374796359,
+      "solid_auf_in_kg_s": 4.769228636666906,
+      "auf_in_over_outflow": 0.37180177290953614
+    },
+    {
+      "bed": 7,
+      "T_K": 958.5356990510518,
+      "energy_residual_MW": 16.70987095593021,
+      "solid_holdup_kg": 13.58818948467999,
+      "solid_out_kg_s": 12.700096722132548,
+      "solid_auf_in_kg_s": 10.623356487394366,
+      "auf_in_over_outflow": 0.8364783922378298
+    },
+    {
+      "bed": 0,
+      "T_K": 900.0,
+      "energy_residual_MW": 15.517024594323312,
+      "solid_holdup_kg": 5.853139369645204,
+      "solid_out_kg_s": 1.3240041991798916,
+      "solid_auf_in_kg_s": 0.0,
+      "auf_in_over_outflow": 0.0
+    },
+    {
+      "bed": 3,
+      "T_K": 1255.6460986440102,
+      "energy_residual_MW": 15.045359321778474,
+      "solid_holdup_kg": 6.802272592102946,
+      "solid_out_kg_s": 5.214947826855927,
+      "solid_auf_in_kg_s": 1.7238408586255822,
+      "auf_in_over_outflow": 0.33055764235035107
+    },
+    {
+      "bed": 6,
+      "T_K": 1372.6933175811942,
+      "energy_residual_MW": 10.7162160737635,
+      "solid_holdup_kg": 10.257137845603353,
+      "solid_out_kg_s": 18.178241108883363,
+      "solid_auf_in_kg_s": 8.055042962211315,
+      "auf_in_over_outflow": 0.4431145408383305
+    },
+    {
+      "bed": 5,
+      "T_K": 1336.6303421415876,
+      "energy_residual_MW": 9.593806863569146,
+      "solid_holdup_kg": 8.05098173370504,
+      "solid_out_kg_s": 13.63503155166453,
+      "solid_auf_in_kg_s": 8.040043362985646,
+      "auf_in_over_outflow": 0.5896607816799762
+    },
+    {
+      "bed": 8,
+      "T_K": 939.045280088747,
+      "energy_residual_MW": 3.0095085175428187,
+      "solid_holdup_kg": 24.066403889746542,
+      "solid_out_kg_s": 14.273437810542756,
+      "solid_auf_in_kg_s": 5.486878501486555,
+      "auf_in_over_outflow": 0.3844118406732956
+    }
+  ]
+}

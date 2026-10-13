@@ -1,0 +1,89 @@
+{
+  "knife": "dense_R5d_vs_R1_O2_fate",
+  "date": "2026-07-24",
+  "constraint": "不抬 Tin；不用 r*_scale 作验收；不默认改围栏",
+  "mechanism_revised": {
+    "bed0": {
+      "r5d_raw_mol_s": 0.0002,
+      "r5b_raw_mol_s": 367.0,
+      "r5d_if_Cd_had_Cb_O2": 0.001,
+      "C_d_O2": 0.015,
+      "p_O2_dense_atm": 0.0012,
+      "C_d_CH4": 25.3,
+      "dense_O2_demand_frac": {
+        "R6": 0.606,
+        "R10": 0.394,
+        "R5d": 0.0,
+        "R1": 0.0
+      },
+      "note": "原假说「R1 独占密相 O2 导致 R5d 饿死」被否证：R1≈0。密相 O2 需求主由 R6(CH4≈61%) + R10(焦油≈39%) 构成；且即便把 C_d_O2 提到气泡水平，R5d 仍仅 ~1e-3 mol/s（Hamel 悬浮相 R5 本就远弱于气泡 Hottel 式）。"
+    },
+    "artifacts": [
+      "data/phase2_dense_r5d_r1_fate_decomp_o8.json",
+      "data/phase2_dense_o2_demand_parts_o8.json"
+    ]
+  },
+  "parity": {
+    "R5_suspension_Table53": "与 tests/test_r5_hamel_table53 一致；非公式 bug",
+    "R5d_weak_vs_R5b": "Hamel 设计（Hayhurst p 基准 vs Hottel C 基准），不是实现缺陷"
+  },
+  "candidates_tested": [
+    {
+      "id": "R1_monopolizes_dense_O2",
+      "result": "FALSIFIED",
+      "evidence": "extent_r1≈1.5e-4；O2 demand 中 R1 份额≈0"
+    },
+    {
+      "id": "boost_R5d_by_restoring_dense_O2_only",
+      "result": "NO_LEVERAGE",
+      "evidence": "r5d_if_CbO2≈0.001 << r5b_raw；悬浮相动力学本身不够"
+    },
+    {
+      "id": "r6_scale_0",
+      "result": "WORSE",
+      "exit_CO_CO2": [
+        0.058,
+        0.208
+      ],
+      "score_true": 1.196,
+      "note": "关掉 R6 去掉 CO 源且释放的 O2 可能强化其他氧化；非修复",
+      "artifact": "data/phase2_dense_r6_leverage_ab_o8.json"
+    },
+    {
+      "id": "char_area_x0.5",
+      "result": "IMPROVES_but_multi_effect",
+      "exit_CO_CO2": [
+        0.14,
+        0.137
+      ],
+      "score_true": 0.139,
+      "note": "面积同时缩放 R1/R2/R3/R4；CdO2 升至~15；诊断有信号但非可直接验收的同构修复",
+      "artifact": "data/phase2_dense_r5d_r1_fate_ab_o8.json"
+    },
+    {
+      "id": "char_area_x0.25",
+      "result": "WORSE",
+      "score_true": 1.115
+    }
+  ],
+  "ship": {
+    "production_change": false
+  },
+  "falsification": {
+    "fix_R5d_or_R1_partition_to_raise_exit_CO": "FALSIFIED_as_primary_lever",
+    "dense_R5d_is_broken_vs_Hamel": "FALSIFIED"
+  },
+  "next_knife": {
+    "primary": "char_holdup_area_gasification_parity",
+    "why": "area×0.5 使出口 CO/CO₂ 接近真干基(0.140/0.137)，说明固体表面积/持液与气化源项 是高杠杆；须按 Hamel holdup/SPM 面积同构审计，而非继续拧 R5d。",
+    "alt": [
+      "bed0_CH4_source_partition（C_d_CH4≈25 异常高 → R6 O2 竞争）",
+      "H4_fb_secondary_nr"
+    ],
+    "do_not": [
+      "用 r6_scale/r5_scale 作验收",
+      "假设加强 R5d 即可",
+      "无 holdup 证据就默认砍面积"
+    ]
+  }
+}

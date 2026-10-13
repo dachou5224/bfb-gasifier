@@ -1,0 +1,47 @@
+{
+  "f_name": "F_E0",
+  "n_unknowns": 40,
+  "Q_W": 0.0,
+  "Q_W_meaning": "omitted_named",
+  "X_vm": [
+    0.0,
+    1.0
+  ],
+  "outer_P_updates_X_vm": false,
+  "not_a_furnace_convergence_claim": true,
+  "T_K": [
+    500.0,
+    600.0,
+    1100.0,
+    1500.0
+  ],
+  "energy_W": [
+    8559.19564245164,
+    -3702.6958907108346,
+    -96129.70660371365,
+    -162130.24277934458
+  ],
+  "sign_change": true,
+  "rows": [
+    {
+      "T_K": 500.0,
+      "energy_W": 8559.19564245164,
+      "species_physical": true
+    },
+    {
+      "T_K": 600.0,
+      "energy_W": -3702.6958907108346,
+      "species_physical": true
+    },
+    {
+      "T_K": 1100.0,
+      "energy_W": -96129.70660371365,
+      "species_physical": true
+    },
+    {
+      "T_K": 1500.0,
+      "energy_W": -162130.24277934458,
+      "species_physical": true
+    }
+  ]
+}

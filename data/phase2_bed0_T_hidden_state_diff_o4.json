@@ -1,0 +1,134 @@
+{
+  "F_base": -0.1332546395445075,
+  "F_hot": -0.19720595489132053,
+  "F_rest_pack": 0.11144192293397859,
+  "F_deep_variants": {
+    "after_apply": -0.1332546395445075,
+    "no_bc": -0.1332546395445075,
+    "apply_res": -0.1332546395445075
+  },
+  "cells_changed_after_pack_restore": [
+    {
+      "kind": "bed",
+      "idx": 0,
+      "n_diff": 2,
+      "top": [
+        [
+          "_work_res",
+          4591323.167304661
+        ],
+        [
+          "K_solid_auf",
+          0.11263684988787415
+        ]
+      ]
+    },
+    {
+      "kind": "bed",
+      "idx": 1,
+      "n_diff": 2,
+      "top": [
+        [
+          "_work_res",
+          4591321.933416039
+        ],
+        [
+          "m_solid_auf_in",
+          0.31438155069750406
+        ]
+      ]
+    },
+    {
+      "kind": "fb",
+      "idx": 0,
+      "n_diff": 2,
+      "top": [
+        [
+          "_hydro_cache_valid",
+          1.0
+        ],
+        [
+          "_thermo_cache_valid",
+          1.0
+        ]
+      ]
+    },
+    {
+      "kind": "fb",
+      "idx": 1,
+      "n_diff": 1,
+      "top": [
+        [
+          "_hydro_cache_valid",
+          1.0
+        ]
+      ]
+    },
+    {
+      "kind": "fb",
+      "idx": 2,
+      "n_diff": 1,
+      "top": [
+        [
+          "_hydro_cache_valid",
+          1.0
+        ]
+      ]
+    },
+    {
+      "kind": "fb",
+      "idx": 3,
+      "n_diff": 1,
+      "top": [
+        [
+          "_hydro_cache_valid",
+          1.0
+        ]
+      ]
+    },
+    {
+      "kind": "fb",
+      "idx": 4,
+      "n_diff": 1,
+      "top": [
+        [
+          "_hydro_cache_valid",
+          1.0
+        ]
+      ]
+    },
+    {
+      "kind": "fb",
+      "idx": 5,
+      "n_diff": 1,
+      "top": [
+        [
+          "_hydro_cache_valid",
+          1.0
+        ]
+      ]
+    },
+    {
+      "kind": "fb",
+      "idx": 6,
+      "n_diff": 1,
+      "top": [
+        [
+          "_hydro_cache_valid",
+          1.0
+        ]
+      ]
+    },
+    {
+      "kind": "fb",
+      "idx": 7,
+      "n_diff": 1,
+      "top": [
+        [
+          "_hydro_cache_valid",
+          1.0
+        ]
+      ]
+    }
+  ]
+}

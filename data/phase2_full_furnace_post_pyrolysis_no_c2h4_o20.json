@@ -1,0 +1,120 @@
+{
+  "knife": "full_furnace_after_pyrolysis_no_C2H4",
+  "protocol": {
+    "ladder": "p2",
+    "max_global_iter": 20,
+    "N_GAS": 11,
+    "pyrolysis": "Hegermann Koks/Teer + strict An=b min-G, no C2H4"
+  },
+  "wall_s": 185.121468955,
+  "convergence": {
+    "converged": false,
+    "converged_outer": false,
+    "converged_inner_nr": false,
+    "converged_fully": false,
+    "nr_outer_iters": 20,
+    "n_iter": 22,
+    "rms_scaled_final": 0.03354961696810485,
+    "rms_scaled_solid_final": 0.0011564283311933298,
+    "rms_scaled_energy_final": 0.03354961696810485,
+    "rms_scaled_gas_phase_split_final": 0.030201825045847768,
+    "max_abs_scaled_final": 0.21685017543864535
+  },
+  "temperature": {
+    "T0_K": 904.1015625,
+    "T_bed1_K": 1010.5390404324181,
+    "T_bed_max_K": 1103.5323393349981,
+    "T_bed_top_K": 1103.5323393349981,
+    "T_exit_K": 792.6804999999995,
+    "T_axial_bed": [
+      904.1015625,
+      1010.5390404324181,
+      1026.948291933052,
+      1041.142213669507,
+      1053.9549198059387,
+      1065.7775182739217,
+      1076.2165960169516,
+      1085.6567153407998,
+      1094.7930730670985,
+      1103.5323393349981
+    ],
+    "T_axial_freeboard": [],
+    "dT_01": 106.43747793241812
+  },
+  "exit_gas_dry": {
+    "CO": 0.0005141321727172961,
+    "CO2": 0.06731800520125251,
+    "H2": 0.007823104982573175,
+    "CH4": 2.0237178138133325e-09,
+    "H2O": 0.0,
+    "O2": 0.012748175438152458,
+    "N2": 0.9114971335514072,
+    "TAR1": 0.0,
+    "TAR2": 0.0
+  },
+  "CO_over_CO2": 0.007637364939443129,
+  "CO_gt_CO2": false,
+  "score_vs_REF_table2ish": 1.384063271667012,
+  "score_abs_vs_true157_133": 0.22216786262603022,
+  "REF": {
+    "CO": 0.13,
+    "CO2": 0.11
+  },
+  "TRUE_DRY_session": {
+    "CO": 0.157,
+    "CO2": 0.133,
+    "H2": 0.28,
+    "CH4": 0.045
+  },
+  "carbon_conv": 1.0,
+  "bed0_dry_y": {
+    "CO": 0.030608727641744007,
+    "CO2": 0.030440677436767174,
+    "H2": 0.008689447177490149,
+    "CH4": 0.02339267163223779,
+    "H2O": 0.0,
+    "O2": 0.18622504556930908,
+    "N2": 0.7206434305424518
+  },
+  "bed1_dry_y": {
+    "CO": 0.012888003323636033,
+    "CO2": 0.052254664023319866,
+    "H2": 0.017428907173439187,
+    "CH4": 0.007434711083127876,
+    "H2O": 0.0,
+    "O2": 0.061671195972825,
+    "N2": 0.848322518423652
+  },
+  "bed0_pyro_gas_source_mol_s": {
+    "CO": 1.5130366833804725,
+    "CO2": 1.2441604275585494,
+    "H2": 2.369733708139284,
+    "CH4": 1.4500387085300535,
+    "H2O": 10.405335173904271,
+    "TAR1": 0.0,
+    "TAR2": 0.29840201899466096
+  },
+  "result_keys_sample": [
+    "T_profile",
+    "bed_exit_gas",
+    "bed_exit_gas_dry",
+    "carbon_conv",
+    "converged",
+    "converged_fully",
+    "converged_inner_nr",
+    "converged_outer",
+    "exit_gas",
+    "exit_gas_dry",
+    "freeboard_entrained_exit_ash_kg_s",
+    "freeboard_entrained_exit_char_kg_s",
+    "nr_inner_tol_rms",
+    "reactor_exit_T",
+    "rms_scaled_component_max_final",
+    "rms_scaled_energy_final",
+    "rms_scaled_final",
+    "rms_scaled_gas_combined_final",
+    "rms_scaled_gas_final",
+    "rms_scaled_gas_phase_split_final",
+    "rms_scaled_solid_final"
+  ]
+}

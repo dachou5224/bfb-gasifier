@@ -1,0 +1,54 @@
+{
+  "init": [
+    {
+      "label": "off",
+      "on": false,
+      "max_bed_index": 0,
+      "accepted": 0.0,
+      "cells": 0.0,
+      "init_rms": 0.021827571179619542,
+      "init_solid": 0.009278792598825813,
+      "init_split": 0.029433131466034556
+    },
+    {
+      "label": "bed0_only",
+      "on": true,
+      "max_bed_index": 0,
+      "accepted": 1.0,
+      "cells": 1.0,
+      "init_rms": 0.025942089700062013,
+      "init_solid": 0.0200159849214552,
+      "init_split": 0.03329681756805822
+    },
+    {
+      "label": "bed01",
+      "on": true,
+      "max_bed_index": 1,
+      "accepted": 2.0,
+      "cells": 2.0,
+      "init_rms": 0.022814010996952766,
+      "init_solid": 0.011262350918678003,
+      "init_split": 0.02110664828750497
+    }
+  ],
+  "p2": [
+    {
+      "label": "off",
+      "converged": false,
+      "outer": 20,
+      "final_rms": 0.007295404519809082,
+      "final_split": 0.00643827174759486,
+      "final_solid": 0.008526384656081387,
+      "wall_s": 338.298063564
+    },
+    {
+      "label": "bed0_only",
+      "converged": false,
+      "outer": 20,
+      "final_rms": 0.03669125945768015,
+      "final_split": 0.03669125945768015,
+      "final_solid": 0.00598645021019657,
+      "wall_s": 201.92343586800007
+    }
+  ]
+}

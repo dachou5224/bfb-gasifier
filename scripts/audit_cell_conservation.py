@@ -23,18 +23,14 @@
   能量守恒 = 反应热 + 焓差。
   
 - Case C (full)：标准运行；
-  期望：与 specs/01_conservation_equations.md 一致。
+  期望：与 docs/hamel_submodels/02_cell_balances_and_exchange.md 一致。
 """
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT))
+import _lu_harness  # noqa: F401
 
 from src.core.cell import Cell, CellGeometry, SolidProps, N_SOLID_COMP, S_CHAR, S_VM, S_MOISTURE, S_ASH
 from src.core.species import GAS_SPECIES, GAS_SPECIES_INDEX, N_GAS, configure_tar_components_by_fuel, get_atom_count

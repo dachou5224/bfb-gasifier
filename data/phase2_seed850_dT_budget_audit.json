@@ -1,0 +1,35 @@
+{
+  "verdict": "seed850 + abs_dT_budget 350 lowers split floor under controlled outer dT",
+  "defaults": {
+    "seed_bottom_K": 850.0,
+    "abs_dT_budget_K": 350.0
+  },
+  "grid": {
+    "hybrid700_nobudget": {
+      "S": 0.086,
+      "dT": 29
+    },
+    "s850_nobudget": {
+      "S": 0.039,
+      "dT": 579
+    },
+    "s850_b200": {
+      "S": 0.095,
+      "dT": 179
+    },
+    "s850_b250": {
+      "S": 0.254,
+      "dT": 192
+    },
+    "s850_b350": {
+      "S": 0.056,
+      "dT": 307
+    },
+    "s700_b200": {
+      "S": 0.085,
+      "dT": 10
+    }
+  },
+  "hamel_boundary": "abs dT budget is Eq.2.9 trust-region engineering; seed_bottom 850 is Startwert calibration for phase2 LU staged bed0",
+  "open": "live energy still high (~0.32) after unfreeze; split 0.056 not yet Check1-converged"
+}

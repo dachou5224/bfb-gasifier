@@ -22,7 +22,8 @@ class TestEquilibrium:
     def test_get_K_eq_r5_positive(self):
         from src.thermodynamics.equilibrium import get_K_eq
         K = get_K_eq("R5", 1200.0)
-        assert K > 1e10, "CO 氧化在 1200K 应强烈正向"
+        # CO + 1/2 O2 口径的 K 约为旧 2CO+O2 口径的平方根，仍应 ≫1
+        assert K > 1e6, "CO 氧化在 1200K 应强烈正向"
 
     def test_get_K_eq_r8_positive(self):
         from src.thermodynamics.equilibrium import get_K_eq
@@ -97,19 +98,19 @@ class TestGasReactionsDrivingForce:
 
     def test_rate_r5_bubble_stays_forward_without_gibbs_shell(self):
         from src.kinetics.gas_reactions import rate_R5_bubble
-        from src.core.species import GAS_SPECIES_INDEX
-        y = np.zeros(11)
+        from src.core.species import GAS_SPECIES_INDEX, N_GAS
+        y = np.zeros(N_GAS)
         y[GAS_SPECIES_INDEX["CO"]] = 0.1
         y[GAS_SPECIES_INDEX["O2"]] = 0.05
         y[GAS_SPECIES_INDEX["CO2"]] = 0.1
-        r = rate_R5_bubble(1200.0, 1.0, 0.5, 2.5e6, y, GAS_SPECIES_INDEX)
+        r = rate_R5_bubble(1200.0, 1.0, 0.5, 0.2, 2.5e6, y, GAS_SPECIES_INDEX)
         assert np.isfinite(r) and r >= 0
 
     def test_rate_r5_suspension_vanishes_without_steam(self):
         from src.kinetics.gas_reactions import rate_R5_suspension
-        from src.core.species import GAS_SPECIES_INDEX
+        from src.core.species import GAS_SPECIES_INDEX, N_GAS
 
-        y = np.zeros(11)
+        y = np.zeros(N_GAS)
         r = rate_R5_suspension(1200.0, 1.0, 0.5, 0.0, 2.5e6, y, GAS_SPECIES_INDEX)
 
         assert r == pytest.approx(0.0)
@@ -117,10 +118,12 @@ class TestGasReactionsDrivingForce:
     def test_rate_r7_is_forward_only_under_product_rich_state(self):
         from src.kinetics.gas_reactions import rate_R7
 
-        r = rate_R7(1200.0, 0.05, 0.20, 8.0, 12.0)
+        r = rate_R7(1200.0, 0.05, 0.20, 8.0, 12.0, rho_ash_kg_m3=75.0)
 
         assert np.isfinite(r)
         assert r > 0.0
+        assert rate_R7(1200.0, 0.05, 0.20, 8.0, 12.0, rho_ash_kg_m3=0.0) == 0.0
+        assert rate_R7(1200.0, 0.05, 0.20, 8.0, 12.0) == 0.0
 
     def test_rate_r8_zero_when_y_co_matches_hamel_equilibrium(self):
         from src.kinetics.gas_reactions import rate_R8, wgsr_equilibrium_constant, wgsr_equilibrium_y_co
@@ -141,6 +144,19 @@ class TestGasReactionsDrivingForce:
         r = rate_R8(1200.0, 2.5e6, 0.01, 0.01, 0.3, 0.3)
         assert np.isfinite(r)
 
+    def test_rate_r8_si_zero_at_equilibrium_pressures(self):
+        from src.kinetics.gas_reactions import rate_R8_si, wgsr_equilibrium_constant
+
+        T = 1100.0
+        P = 2.0e6
+        keq = wgsr_equilibrium_constant(T)
+        p_h2o = 0.15 * P
+        p_co2 = 0.10 * P
+        p_h2 = 0.12 * P
+        p_co = p_co2 * p_h2 / (keq * p_h2o)
+        r = rate_R8_si(T, P, p_co, p_h2o, p_co2, p_h2)
+        assert abs(r) < 1e-9
+
 
 class TestCharReactionsHamel51:
     """Hamel 5.1 异相炭反应的速率常数口径。"""
@@ -157,6 +173,49 @@ class TestCharReactionsHamel51:
         assert k0_fallback == pytest.approx(2.3)
         assert e_fallback == pytest.approx(11_100.0 * Rg)
 
+    def test_r1_n1_series_matches_hamel_eq_512_514(self):
+        """§5.1.2：n=1，r = C / (1/k_ch + 1/(φ k_dg))，SPM 无灰层。"""
+        from src.kinetics.arrhenius import k_hobbs
+        from src.kinetics.char_reactions import (
+            _k_diff_sphere,
+            phi_c,
+            r1_hamel_kinetic_constants,
+            rate_R1,
+            sherwood_number_eq517,
+        )
+
+        T = 1050.0
+        C_O2 = 28.0  # [mol/m³]
+        d_p = 3.0e-3  # [m]
+        D_g = 6.8e-6  # [m²/s]
+        u_slip = 1.0  # [m/s]
+        nu_g = 1.5e-4  # [m²/s]
+        Sh = sherwood_number_eq517(d_p, D_g, u_slip=u_slip, nu_g=nu_g)
+        assert Sh == pytest.approx(2.0 + 0.6 * (u_slip * d_p / nu_g) ** 0.5 * (nu_g / D_g) ** (1.0 / 3.0))
+        k0, e = r1_hamel_kinetic_constants("coal")
+        k_ch = k_hobbs(k0, e, T)
+        phi = phi_c(d_p, T)
+        k_dg = _k_diff_sphere(D_g, d_p, Sh=Sh)
+        expected = C_O2 / (1.0 / k_ch + 1.0 / (phi * k_dg))
+        r, alpha = rate_R1(T, C_O2, d_p, D_g, None, "coal", u_slip=u_slip, nu_g=nu_g)
+        assert alpha == pytest.approx(1.0 / phi)
+        assert r == pytest.approx(expected, rel=1e-12)
+        # 缺滑移 → Sh=2（Eq.5.17 Re→0 极限）
+        r0, _ = rate_R1(T, C_O2, d_p, D_g, None, "coal")
+        k_dg0 = _k_diff_sphere(D_g, d_p, Sh=2.0)
+        assert r0 == pytest.approx(C_O2 / (1.0 / k_ch + 1.0 / (phi * k_dg0)), rel=1e-12)
+
+    def test_r1_spm_ignores_d_core_ash_shrink(self):
+        """主链 SPM 不因 X→d_core 引入灰层阻力。"""
+        from src.kinetics.char_reactions import rate_R1
+
+        T, C, d_p, D_g = 1100.0, 20.0, 2.5e-3, 1.0e-5
+        r_spm, _ = rate_R1(T, C, d_p, D_g, d_p * 0.5, "coal", geometry="spm")
+        r_none, _ = rate_R1(T, C, d_p, D_g, None, "coal", geometry="spm")
+        assert r_spm == pytest.approx(r_none)
+        r_ash, _ = rate_R1(T, C, d_p, D_g, d_p * 0.5, "coal", geometry="scm_ash")
+        assert r_ash < r_spm
+
     def test_r4_boudouard_constants_follow_weeda_1995(self):
         from src.kinetics.char_reactions import rate_R4
         from src.kinetics.arrhenius import k_standard
@@ -170,6 +229,55 @@ class TestCharReactionsHamel51:
         )
 
         assert rate_R4(T, p_co2, p_co) == pytest.approx(expected)
+
+    def test_r2_surface_rate_follows_hamel_eq_524_525(self):
+        import math
+
+        from src.core.constants import Rg
+        from src.kinetics.arrhenius import k_hobbs
+        from src.kinetics.char_reactions import R2_E_Rg, R2_k0, rate_R2
+
+        T = 1100.0
+        C_H2O = 62.87  # [mol/m³]
+        k_ch = k_hobbs(R2_k0, R2_E_Rg * Rg, T)
+        expected = k_ch * C_H2O
+        assert rate_R2(T, C_H2O, 2.25e-3, 1.0e-5, 1.5e-3) == pytest.approx(expected)
+        assert k_ch == pytest.approx(3.42 * T * math.exp(-15_600.0 / T))
+
+    def test_r3_surface_rate_follows_hamel_eq_534_535(self):
+        import math
+
+        from src.core.constants import Rg
+        from src.kinetics.arrhenius import k_hobbs
+        from src.kinetics.char_reactions import R3_E_Rg, R3_k0, rate_R3
+
+        T = 1100.0
+        C_H2 = 12.0  # [mol/m³]
+        k_ch = k_hobbs(R3_k0, R3_E_Rg * Rg, T)
+        expected = k_ch * C_H2
+        assert rate_R3(T, C_H2, 2.25e-3, 1.0e-5, 1.5e-3) == pytest.approx(expected)
+        assert k_ch == pytest.approx(3.42e-3 * T * math.exp(-15_600.0 / T))
+
+    def test_r4_effective_matches_hamel_eq_533_kinetic_rate(self):
+        from src.kinetics.char_reactions import rate_R4, rate_R4_effective
+
+        T = 1100.0
+        p_co2 = 3.5e4
+        p_co = 8.0e3
+        assert rate_R4_effective(T, p_co2, p_co, 2.25e-3, 1.0e-5, 1.5e-3) == pytest.approx(
+            rate_R4(T, p_co2, p_co)
+        )
+
+    def test_r4_extent_follows_hamel_eq_533_mass_basis(self):
+        """Eq.5.33：R [mol C/s] = R* [1/s] · m / M_C，不得乘外表面积。"""
+        from src.kinetics.char_reactions import R4_M_C, extent_R4, rate_R4
+
+        T = 1100.0
+        p_co2 = 3.5e4  # [Pa]
+        p_co = 8.0e3  # [Pa]
+        m_char = 2.5  # [kg]
+        r_star = rate_R4(T, p_co2, p_co)
+        assert extent_R4(T, p_co2, p_co, m_char) == pytest.approx(r_star * m_char / R4_M_C)
 
 
 # ===== Cell 集成 =====

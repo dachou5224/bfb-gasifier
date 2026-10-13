@@ -1,0 +1,107 @@
+5 Modellierung der chemischen Reaktionen
+90
+5 Modellierung der chemischen Reaktionen
+91
+5.2 
+Berechnung der homogenen Reaktionen in der Gasphase
+Während die heterogenen Umsatzreaktionen des Kokses per Definition nur in der Suspensi-
+onsphase berücksichtigt werden, können die Gasphasenreaktionen sowohl im Gasraum der
+Suspensionsphase als auch in der Blase auftreten. Untersuchungen zur Verbrennung gasför-
+miger Stoffe in der Wirbelschicht zeigen, dass die Reaktionsraten innerhalb der Suspensions-
+phase stark reduziert werden. Dies wird auf die Adsorption von für den Reaktionsfortschritt
+notwendigen Brennstoffradikalen an der Oberfläche des Wirbelbettmaterials (z.B. Dennis et
+al. 1982) bei gleichzeitig sehr guter Wärmeabfuhr innerhalb der Suspensionsphase zurückge-
+fuhrt (van der Vaart 1988). Im Gegensatz dazu katalysiert der Feststoff die homogene Was-
+sergasreaktion und die Methanreformierung innerhalb der Wirbelschicht, deren rein homoge-
+ne Reaktionsraten dagegen gering sind.
+Tabelle 5.3: Zusammenstellung der im Simulationsmodell verwendeten reaktionskine-
+tischen Parameter der Kohlenmonoxodoxidation
+in |
+ko,R5
+) 
+s
+E/Rg
+inK
+a
+(-)
+ß
+(-)
+Y
+(-)
+Quelle
+Blase
+1,91- 106
+8.056
+1
+0,3
+0,5
+Hottel et al. 1965
+Suspension
+1,8 -T0'5
+-
+1
+0,5
+-
+Hayhurst und Tucker 1990
+5.2.2 Wasserstoff-Oxidation
+Die Oxidation des Wasserstoffs
+H2+I/2O2 -> H2O 
+- 241,9 kJ/mol H2
+wird in Anlehnung an Jensen et al. (1995) folgendermaßen berechnet:
+tZC/y 
+3/
+-~ 
+= kchM -C H\-C O2
+(5.38)
+mit 
+kchM = 1,631 ■ 109 -T 3/2
+-exp{-~ 
+\ 
+(5.39)
+5.2.1 Kohlenmonoxid-Oxidation
+Zur Oxidation des Kohlenmonoxids
+-283 kJ/mol CO
+CO+1/2O2
+-> CO2
+sind zahlreiche kinetische Ansätze bekannt, die zum Teil aus Experimenten in Flammen ge-
+wonnen wurden, in denen sehr viel höhere Temperaturen als in der Wirbelschicht herrschen,
+und daher nicht ohne weiteres auf niedrige Temperaturen übertragen werden dürfen. Weiter-
+hin sind zahlreiche Kinetiken, die durch Anpassungen an Messungen in Wirbelschichtfeue-
+rungsanlagen bestimmt wurden, bekannt, deren Übertragbarkeit ebenfalls im Einzelfall ge-
+prüft werden muss. Hannes (1996) gibt eine Übersicht der in der Modellierung von Wirbel-
+schichtfeuerungsanlagen verwendeten kinetischen Ansätze. In dieser Arbeit findet der Ansatz
+von Hayhurst und Tucker (1990) für die Oxidation innerhalb der Suspensionsphase und der
+Ansatz von Hottei et al. (1965) für die Reaktion in der feststoffreien Blasenphase Verwen-
+dung. Die kinetischen Parameter sind in Tabelle 5.3 aufgeführt. Die Reaktionsrate ist definiert
+durch:
+= 
+(5.36)
+5.2.3 Methan-Oxidation
+Nach dem von de Souza-Santos (1989) verwendeten Ansatz wird die Verbrennung des Me-
+thans
+CH4 + 3/2 O2
+CO + 2 H2O 
+-519,4 kJ/mol CH4
+berechnet:
+dC u
+- 
+= kch.R7 -CCHj -CO2
+(5.40)
+at
+, 
+3.552-1011
+( 15.700} 
+.....
+mit 
+*Cft.R7= ------ -------«Pl -----yr-l 
+(5.41)
+, 
+, 
+E
+*ch.R5 = k 0.R5 ' ex P\ — -
+(5-37)
+mit
+5.2.4 Homogene Wassergasreaktion
+In der Literatur sind für die homogene Wassergasreaktion, Gl. (5.42), widersprüchliche An-
+nahmen über die Vollständigkeit der Gleichgewichtseinstellung in technischen Vergasungsre-
+aktoren zu finden.

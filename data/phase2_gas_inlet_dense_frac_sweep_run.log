@@ -1,0 +1,26 @@
+Phase2 LU gas inlet dense/bubble sweep | kinetics=phase2 r4/r5/r7 per config unless baseline
+ref CO=0.13 CO2=0.11 | 5 scenarios
+========================================================================================================================
+[precalc_baseline] strat=precalc_hydrodynamic_flux cfg_dense=0.20 resolved=0.309 staged=0.70 | conv=OK rms=0.0060 | zu_O2 d/b=0.24/0.54 | CO=0.0734 CO2=0.1720 bedCO=0.0746 bedCO2=0.1710 | score=0.999 (110s)
+    cell0 xi=0.05 T=1030K yCO=0.048 yCO2=0.109 yO2=0.0116 R5b=-10.80 R5d=-0.000 co_net=1.48
+    cell1 xi=0.15 T=1071K yCO=0.026 yCO2=0.125 yO2=0.0006 R5b=-3.03 R5d=-0.002 co_net=-1.76
+    cell2 xi=0.25 T=1089K yCO=0.018 yCO2=0.139 yO2=0.0015 R5b=-1.91 R5d=-0.002 co_net=-0.57
+[fixed_0.35] strat=fixed cfg_dense=0.35 resolved=0.350 staged=0.35 | conv=FAIL rms=0.0060 | zu_O2 d/b=0.27/0.51 | CO=0.0895 CO2=0.1642 bedCO=0.0875 bedCO2=0.1655 | score=0.804 (326s)
+    cell0 xi=0.05 T=1030K yCO=0.038 yCO2=0.133 yO2=0.0029 R5b=-9.37 R5d=-0.002 co_net=-2.69
+    cell1 xi=0.15 T=1084K yCO=0.017 yCO2=0.140 yO2=0.0002 R5b=-3.72 R5d=-0.001 co_net=-2.37
+    cell2 xi=0.25 T=1116K yCO=0.027 yCO2=0.141 yO2=0.0001 R5b=-0.75 R5d=-0.001 co_net=0.91
+[fixed_0.50] strat=fixed cfg_dense=0.50 resolved=0.500 staged=0.50 | conv=OK rms=0.0062 | zu_O2 d/b=0.39/0.39 | CO=0.0852 CO2=0.1671 bedCO=0.0808 bedCO2=0.1703 | score=0.864 (194s)
+    cell0 xi=0.05 T=1030K yCO=0.042 yCO2=0.113 yO2=0.0009 R5b=-7.34 R5d=-0.002 co_net=-4.23
+    cell1 xi=0.15 T=1103K yCO=0.018 yCO2=0.140 yO2=0.0008 R5b=-3.14 R5d=-0.000 co_net=1.12
+    cell2 xi=0.25 T=1107K yCO=0.022 yCO2=0.144 yO2=0.0005 R5b=-0.98 R5d=-0.001 co_net=1.19
+[fixed_0.65] strat=fixed cfg_dense=0.65 resolved=0.650 staged=0.65 | conv=FAIL rms=0.0609 | zu_O2 d/b=0.51/0.27 | CO=0.0284 CO2=0.0946 bedCO=0.0727 bedCO2=0.1366 | score=0.922 (268s)
+    cell0 xi=0.05 T=1118K yCO=0.219 yCO2=0.042 yO2=0.0531 R5b=-2.71 R5d=-0.001 co_net=20.18
+    cell1 xi=0.15 T=1057K yCO=0.145 yCO2=0.113 yO2=0.0356 R5b=-9.82 R5d=-0.040 co_net=4.22
+    cell2 xi=0.25 T=1118K yCO=0.139 yCO2=0.124 yO2=0.0233 R5b=-3.14 R5d=-0.035 co_net=-0.83
+[fixed_0.80] strat=fixed cfg_dense=0.80 resolved=0.800 staged=0.80 | conv=FAIL rms=0.1272 | zu_O2 d/b=0.63/0.16 | CO=0.0260 CO2=0.0929 bedCO=0.0734 bedCO2=0.1343 | score=0.956 (243s)
+    cell0 xi=0.05 T=1148K yCO=0.230 yCO2=0.134 yO2=0.0651 R5b=-1.50 R5d=-0.001 co_net=29.16
+    cell1 xi=0.15 T=1015K yCO=0.127 yCO2=0.041 yO2=0.0175 R5b=-7.94 R5d=-0.005 co_net=10.00
+    cell2 xi=0.25 T=1127K yCO=0.123 yCO2=0.056 yO2=0.0163 R5b=-4.39 R5d=-0.012 co_net=-3.61
+========================================================================================================================
+Wrote /Users/liuzhen/AI-projects/bfb-gasifier/data/phase2_gas_inlet_dense_frac_sweep_latest.json
+Best converged: fixed_0.50 score=0.864 CO=0.0852 CO2=0.1671

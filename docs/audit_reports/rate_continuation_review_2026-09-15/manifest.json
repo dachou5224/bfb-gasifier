@@ -1,0 +1,24 @@
+{
+  "date": "2026-09-15",
+  "head": "098c8cf6766606a491e70ef176c2493b4cd676be",
+  "scope": "Dirty worktree read-only model review; standalone probes only; no production source changes by this audit.",
+  "sha256": {
+    "docs/wirsum_1997_named_f_rate_continuation.md": "977a982a74a97913253c6023a660c62d9ac13567ecc103090fd3ddefd812d1d1",
+    "docs/audit_reports/rate_continuation_review_2026-09-15.md": "12c97e44192658563e20ef872c5abacfa4148ca2aa1675ff3106a14e5b13d48d",
+    "docs/audit_reports/rate_continuation_review_2026-09-15/probe_continuation.py": "9ac5c0b423eecd27870936b3f5f975ade01a31698c253cd466c44624acb99e2e",
+    "docs/audit_reports/rate_continuation_review_2026-09-15/probe_r12_boundary.py": "e382e753da533458a81afd4a2d876f33c53205041b4f63c615c35a93a4f48fd0",
+    "docs/audit_reports/rate_continuation_review_2026-09-15/r12_boundary.json": "520530016137866f95f0d3bd40a34d90e618412d4de932754bebbd00b5c3a482",
+    "docs/audit_reports/rate_continuation_review_2026-09-15/probe_result.json": "ef69ded033a86b527dcb68b7e8e3837f2aa1524edfcf31cb3578b4e83012aa50",
+    "src/solvers/wirsum_1997_named_f_r10.py": "536d6f7111c8bba141fb8e584bc1c0c498d919aa94e6a281cfdc25410708041d",
+    "src/solvers/wirsum_1997_named_f_r12.py": "23cec5ed8d06935c386411028ece8c28dc2ea839e48002c64bdb513771fa0fb9",
+    "src/solvers/wirsum_1997_named_f_r12_r5.py": "cf59b471d279c5f2e0e934bd28c0f0fd434d1931c69009fb2c14324f752de634",
+    "src/solvers/wirsum_1997_named_f_r12_r5_r8_r6.py": "69a7f9982d6857a69cdbc70f9458dbfd6830636d6a0d91aa394be41013d23eb7",
+    "src/solvers/wirsum_1997_named_f_e4.py": "92595f74d3a73f7cde6b3d68f292c14a47c0df7c0073c1bdffe5b6c0be8b2c4c",
+    "src/solvers/wirsum_1997_named_f_e6.py": "25a06a9f1b16d0bb13f7d89f69dcc8242d1dd45dc6810655e674ef5c79791763",
+    "src/solvers/wirsum_1997_named_f.py": "b43d499530032049adde6b5b371e051413f314748d43cb0779d7640a243b6be7",
+    "src/solvers/wirsum_1997_strict.py": "cbf4dd4d2c31f59809de432c893819cfa84cfdd2392dbfff19bd6f921cc0b647",
+    "src/solvers/wirsum_1997_stiffness_ladder.py": "8a0d89b5616de84be945aa2024566b0e963174fcdaf7c4c6eecb8c8b52757633",
+    "docs/_2001_VDI-Dis._Mathematische Modellierung und experimentelle Untersuchung der Vergasung verschiedener fester Brennstoffe.pdf": "1e1a83a1e87c7de45f20811fe3322aa4d036c541d1c45a63cb845ddcb30990ef",
+    "docs/_1997_VDI-Dis._Wirsum_Klaerschlamm_blasenbildende_Wirbelschichtfeuerungen.pdf": "e57844f81f1b2cecce0be9a78edcfdcd8fb0337ffd91c7b1f85da15acf8b51c6"
+  }
+}

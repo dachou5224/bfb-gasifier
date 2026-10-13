@@ -7,19 +7,17 @@ import argparse
 import importlib.util
 import json
 import sys
-from pathlib import Path
 from time import perf_counter
 from typing import Any
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+import _lu_harness  # noqa: F401
 
+from _lu_harness import repo_root
 from tests.validation_case_utils import validation_numeric_tolerances
 
 
 def _load_phase1_run_audit():
-    mod_path = REPO_ROOT / "scripts" / "audit_phase1_htw_lu.py"
+    mod_path = repo_root() / "scripts" / "audit_phase1_htw_lu.py"
     spec = importlib.util.spec_from_file_location("audit_phase1_htw_lu", mod_path)
     if spec is None or spec.loader is None:
         raise RuntimeError(f"Failed to load module spec: {mod_path}")
@@ -93,7 +91,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Generate validation performance report")
     parser.add_argument(
         "--output",
-        default=str(REPO_ROOT / "data" / "validation_performance_latest.json"),
+        default=str(repo_root() / "data" / "validation_performance_latest.json"),
         help="Output JSON path (default: data/validation_performance_latest.json)",
     )
     parser.add_argument("--strict", action="store_true", help="Fail when validation does not pass or solver not converged")

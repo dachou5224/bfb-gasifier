@@ -1,0 +1,17 @@
+{
+  "note": "HAMEL_WIRSUM_CORE + LS fastox only",
+  "arms": [
+    {
+      "label": "core_plus_ls_fastox_o4",
+      "wall_s": 52.71221009799999,
+      "exit_CO": 0.012019838590470941,
+      "exit_H2": 0.0,
+      "exit_CH4": 0.0,
+      "rms": 0.020409942473962654,
+      "split": 0.03934387267972454,
+      "energy": 0.06849139995924303,
+      "converged": false,
+      "n_acc": 0
+    }
+  ]
+}

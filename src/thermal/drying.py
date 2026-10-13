@@ -27,6 +27,20 @@ T_EVAP: float = 373.15     # [K]       常压蒸发温度
 C_WATER: float = 4_180.0   # [J/(kg·K)] 液态水比热
 
 
+def wet_basis_fraction_to_dry_basis(w_wet_frac: float) -> float:
+    """湿基质量含水率 → 干基 ``w_{0,tr}``（Hamel Eq. 4.3–4.4，page 36）。
+
+    ``w_wet = m_water / m_total``；``w_dry = m_water / m_dry = w_wet / (1 - w_wet)``。
+    """
+    w = float(np.clip(w_wet_frac, 0.0, 0.999999))
+    return w / max(1.0 - w, 1e-12)
+
+
+def initial_moisture_dry_basis_from_wt_percent(moisture_wt: float) -> float:
+    """将 proximate ``moisture_wt`` [wt% 湿基] 转为 Hamel ``w_{0,tr}`` [kg/kg 干基]。"""
+    return wet_basis_fraction_to_dry_basis(float(moisture_wt) / 100.0)
+
+
 def saturation_temperature_water(pressure_pa: float) -> float:
     """水饱和温度 [K]（由压力决定）。
 
@@ -66,6 +80,22 @@ def corrected_evaporation_enthalpy(
     """
     w_eff = max(w0_tr, 1e-9)
     return h_v + (c_w + c_s / w_eff) * (T_e - T0)
+
+
+def biot_number(alpha: float, R0: float, lambda_s: float = LAMBDA_W) -> float:
+    """Biot 数 Bi = α R_0 / λ_s（Hamel Eq. 4.8）。
+
+    Source: ``docs/hamel_submodels/05_drying_and_daem_pyrolysis.md``; Hamel Eq. 4.8
+    """
+    return float(alpha) * float(R0) / max(float(lambda_s), 1e-30)
+
+
+def dimensionless_drying_front(r_e: float, r_0: float) -> float:
+    """无量纲蒸发前沿位置 Φ_ms = r_e / r_0（Hamel Eq. 4.7）。
+
+    Source: ``docs/hamel_submodels/05_drying_and_daem_pyrolysis.md``; Hamel Eq. 4.7
+    """
+    return float(r_e) / max(float(r_0), 1e-30)
 
 
 def nusselt_particle(Re: float, Pr: float) -> float:
@@ -121,7 +151,7 @@ def solve_drying_CN(
         * 外侧 Robin BC：λ dT/dr|_{R} = α(T_a - T_s)（Eq. 4.2）；
         * Stefan 条件驱动前沿推进（Eq. 4.3）：
               q_front = λ_s · dT/dr|_{r_e+}
-              dr_e/dt = q_front / (ρ_s · w · h_v')
+              dr_e/dt = q_front / (ρ_s · w_{0,tr} · h_v')
               dm/dt   = q_front · 4π r_e² / h_v'
 
     Parameters
@@ -176,7 +206,7 @@ def solve_drying_CN(
     Bi_surf = h_conv * dr / LAMBDA_W  # 表面数值 Biot（Robin BC 系数）
 
     moisture_mass = moisture_wt / 100.0
-    w0_tr = moisture_mass / max(1.0 - moisture_mass, 1e-12)
+    w0_tr = initial_moisture_dry_basis_from_wt_percent(moisture_wt)
     t_evap_val = saturation_temperature_water(pressure_pa)
     h_evap_corr = corrected_evaporation_enthalpy(
         h_v=H_EVAP,
@@ -292,8 +322,8 @@ def solve_drying_CN(
                 dm = min(dm, total_water - evaporated)
                 evaporated += max(dm, 0.0)
 
-                # 前沿向内推进（Eq. 4.3 变形：dr_e/dt = q / (ρ_s w h_v')）
-                denom = RHO_W * moisture_mass * max(h_evap_corr, 1e-12)
+                # 前沿向内推进（Eq. 4.3：dr_e/dt = q / (ρ_s w_{0,tr} h_v')）
+                denom = RHO_W * w0_tr * max(h_evap_corr, 1e-12)
                 r_front = max(r_front - q_front * dt / denom, 0.0)
 
             # 蒸发完成时强制将前沿归零（物理上颗粒全干，无湿核）

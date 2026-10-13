@@ -12,6 +12,16 @@ import numpy as np
 import numpy.typing as npt
 
 from src.core.constants import Rg
+from src.core.hydrodynamics_defaults import (
+    HAMEL_HYDRO_BUBBLE_DIAMETER_MODEL,
+    HAMEL_HYDRO_BUBBLE_ODE_STRATEGY,
+    HAMEL_HYDRO_BUBBLE_VELOCITY_STRATEGY,
+    HAMEL_HYDRO_LAMBDA_STRATEGY,
+    HAMEL_HYDRO_PSI_B_STRATEGY,
+    HAMEL_HYDRO_U_D_CLOSURE,
+    HAMEL_HYDRO_V_B,
+    HAMEL_HYDRO_XI_STRATEGY,
+)
 from src.core.species import GAS_SPECIES, N_GAS, gas_density_ideal, gas_diffusivity_correlation, gas_viscosity_power_law
 from src.physics.freeboard import calc_beta_a, calc_u_gb
 from src.physics.bubble_dynamics import (
@@ -58,13 +68,14 @@ def calc_cell_hydrodynamics(
     eps_mf: float,
     phi_s: float,
     u0_target: float | None = None,
-    u_d_closure: str = "current",
-    bubble_diameter_model: str = "mori_wen",
-    psi_b_strategy: str = "wein_1992",
-    lambda_strategy: str = "hamel_280",
-    xi_strategy: str = "hamel_regime",
-    bubble_velocity_strategy: str = "hilligardt_eq313",
-    bubble_ode_strategy: str = "hilligardt_eq333",
+    u_d_closure: str = HAMEL_HYDRO_U_D_CLOSURE,
+    bubble_diameter_model: str = HAMEL_HYDRO_BUBBLE_DIAMETER_MODEL,
+    psi_b_strategy: str = HAMEL_HYDRO_PSI_B_STRATEGY,
+    lambda_strategy: str = HAMEL_HYDRO_LAMBDA_STRATEGY,
+    xi_strategy: str = HAMEL_HYDRO_XI_STRATEGY,
+    bubble_velocity_strategy: str = HAMEL_HYDRO_BUBBLE_VELOCITY_STRATEGY,
+    bubble_ode_strategy: str = HAMEL_HYDRO_BUBBLE_ODE_STRATEGY,
+    hydrodynamics_v_b: float = HAMEL_HYDRO_V_B,
     cell_type: str = "bed",
     freeboard_u_bed_top: float | None = None,
     freeboard_d_b_bed_top: float | None = None,
@@ -182,6 +193,7 @@ def calc_cell_hydrodynamics(
         xi_strategy=xi_strategy,
         bubble_velocity_strategy=bubble_velocity_strategy,
         bubble_ode_strategy=bubble_ode_strategy,
+        hydrodynamics_v_b=float(hydrodynamics_v_b),
     )
     re_s = max(rho_g * max(u_mf, 1e-9) * max(d_p, 1e-9) / max(mu_g, 1e-12), 0.0)
     n_rz = calc_n_rz(re_s)
@@ -230,21 +242,22 @@ def _resolve_bubble_chain(
     xi_strategy: str,
     bubble_velocity_strategy: str,
     bubble_ode_strategy: str,
+    hydrodynamics_v_b: float = 1.0,
 ) -> tuple[float, float, float]:
     """Resolve local ``d_b / u_b / u_d`` with either legacy MW or audit ODE path.
 
     Notes
     -----
-    ``hilligardt_ode`` is exposed as an audit branch. It uses a short fixed-point
-    iteration because ``u_d`` depends on ``u_b`` while the ODE itself also uses
-    ``u_d`` through ``alpha_b = u_b / u_d``. Default main-path behavior remains
-    ``mori_wen``.
+    ``hilligardt_ode`` is the Hamel thesis default. ``mori_wen`` remains an explicit
+    legacy/audit branch for Mori-Wen (1975) diameter closure.
     """
     name = str(strategy).strip().lower()
 
     if name == "mori_wen":
         d_b = mori_wen_bubble_diameter(h_center, u0, u_mf, D_bed, A_bed=A_bed, N_or=N_or)
-        u_b = bubble_rise_velocity(u0, u_mf, d_b, psi_b, P=P, strategy=bubble_velocity_strategy)
+        u_b = bubble_rise_velocity(
+            u0, u_mf, d_b, psi_b, P=P, v_b=hydrodynamics_v_b, strategy=bubble_velocity_strategy
+        )
         u_d = _resolve_u_d_closure(
             strategy=u_d_closure,
             u0=u0,
@@ -256,7 +269,9 @@ def _resolve_bubble_chain(
 
     if name == "hilligardt_ode":
         d_b = mori_wen_bubble_diameter(h_center, u0, u_mf, D_bed, A_bed=A_bed, N_or=N_or)
-        u_b = bubble_rise_velocity(u0, u_mf, d_b, psi_b, P=P, strategy=bubble_velocity_strategy)
+        u_b = bubble_rise_velocity(
+            u0, u_mf, d_b, psi_b, P=P, v_b=hydrodynamics_v_b, strategy=bubble_velocity_strategy
+        )
         h_span = max(float(h_center) + 0.5 * float(dh), float(dh))
         n_points = max(8, int(np.ceil(h_span / max(float(dh), 1e-9))) + 4)
 
@@ -282,10 +297,19 @@ def _resolve_bubble_chain(
                 velocity_strategy=bubble_velocity_strategy,
                 ode_strategy=bubble_ode_strategy,
                 psi_b=psi_b,
+                v_b=hydrodynamics_v_b,
             )
             d_new = float(np.interp(float(h_center), h_arr, d_arr))
             u_b_new = float(
-                bubble_rise_velocity(u0, u_mf, d_new, psi_b, P=P, strategy=bubble_velocity_strategy)
+                bubble_rise_velocity(
+                    u0,
+                    u_mf,
+                    d_new,
+                    psi_b,
+                    P=P,
+                    v_b=hydrodynamics_v_b,
+                    strategy=bubble_velocity_strategy,
+                )
             )
             if abs(d_new - d_b) <= max(1e-6, 1e-3 * max(d_b, 1e-6)):
                 d_b = d_new

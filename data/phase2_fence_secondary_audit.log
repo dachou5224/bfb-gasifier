@@ -1,0 +1,15 @@
+=== LU oxidant budget ===
+secondary air: 30.1 Nm3/h @ xi=0.6
+total air:     5536.9 Nm3/h
+secondary O2:  0.0783 mol/s
+
+label                  conv  bed0 f_min f_ref  T@.6   Tpk     CO    CO2
+===============================================================================================
+rel_fence_default         Y  1005   900  1050  1025  1113  0.088  0.166
+abs_fence_700             N  1016   700  1050  1029  1123  0.091  0.165
+rel_margin_480            N   779   570  1050  1028  1116  0.091  0.165
+no_secondary              Y   900   900  1050  1032  1129  0.091  0.165
+secondary_refine4         Y   963   900  1050  1026  1115  0.091  0.165
+abs700_no_secondary       N   931   700  1050  1031  1130  0.092  0.164
+===============================================================================================
+Wrote /Users/liuzhen/AI-projects/bfb-gasifier/data/phase2_fence_secondary_audit.json

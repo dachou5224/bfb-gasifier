@@ -1,0 +1,65 @@
+{
+  "matrix": "validation_cases_chemistry_map §7",
+  "cases_requested": [
+    "CASE_VTT_PRESSURIZED_PEAT_6"
+  ],
+  "ladder_level": "p2",
+  "max_global_iter": 150,
+  "unity_scales": false,
+  "cases": {
+    "CASE_VTT_PRESSURIZED_PEAT_6": {
+      "case_key": "CASE_VTT_PRESSURIZED_PEAT_6",
+      "slot": "vtt_peat_high_moisture",
+      "branch": "Air+Steam",
+      "focus": "低床温、高 CO₂",
+      "primary_agent": "air_steam",
+      "fuel_type": "biomass",
+      "ER": 0.29,
+      "P_MPa": 0.5,
+      "unity_scales": false,
+      "ladder_level": "p2",
+      "wall_time_s": 1628.0821361750002,
+      "converged_fully": false,
+      "rms_scaled_final": 0.01273232142233388,
+      "nr_outer_iters": 150,
+      "bed0_T_K": 888.5291053039539,
+      "reference": {
+        "CO": 0.135,
+        "CO2": 0.172,
+        "H2": 0.11,
+        "CH4": 0.043,
+        "T_exit_K": 1050.0,
+        "co_co2_ratio": 0.4397394136807818
+      },
+      "simulated": {
+        "CO": 0.24562747896485512,
+        "CO2": 0.10671851536576686,
+        "H2": 0.06234206080238643,
+        "CH4": 0.1012916326906065,
+        "T_exit_K": 1054.0299533316124,
+        "co_co2_ratio": 0.6971201118136507
+      },
+      "relative_error": {
+        "CO": 0.8194628071470749,
+        "CO2": 0.3795435153153089,
+        "H2": 0.4332539927055779,
+        "CH4": 1.3556193648978256,
+        "T_exit_K": 0.0038380507920118406
+      },
+      "within_hamel_band": {
+        "CO": false,
+        "CO2": false,
+        "H2": false,
+        "CH4": false,
+        "T_exit_K": true
+      },
+      "cfg_scales": {
+        "r2_scale": 1.0,
+        "r4_scale": 0.5,
+        "r5_scale": 0.25,
+        "r8_scale": 1.0
+      }
+    }
+  },
+  "trends": {}
+}

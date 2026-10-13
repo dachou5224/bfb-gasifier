@@ -1,0 +1,35 @@
+{
+  "max_global_iter": 20,
+  "results": [
+    {
+      "level": "baseline",
+      "max_global_iter": 20,
+      "wall_time_s": 101.13183132900001,
+      "init_rms_scaled": 0.022501599006916773,
+      "init_max_abs_scaled": 0.12332488689382833,
+      "init_split_rms": 0.05094947442587858,
+      "init_split_max": 0.11946733036132645,
+      "joint_accepted": false,
+      "joint_global_gate_pass": false,
+      "bed0_T_K": 1175.0,
+      "converged": false,
+      "nr_outer_iters": 6,
+      "nr_outer_max": 20,
+      "n_iter": 17,
+      "rms_scaled_final": 0.021950989328324934,
+      "rms_scaled_gas_phase_split_final": 0.04805586753496246,
+      "max_abs_scaled_final": 0.14510908763792424,
+      "max_abs_scaled_gas_phase_split_final": 0.11879079660986673,
+      "line_search_failures": 0,
+      "hydro_refresh_on_accept": 0,
+      "overrides": {
+        "nr_line_search_gas_phase_split_merit_thesis": false,
+        "nr_refresh_hydrodynamics_on_accepted_step_thesis": false,
+        "nr_bottom_bc_aware_bed0_bed1_joint_x0_thesis": false,
+        "nr_enforce_gas_phase_split_convergence_thesis": false,
+        "vorab_bottom_temperature_cap_K_thesis": 1325.0,
+        "freeboard_trajectory_coeff_model": "stable_mixed_drag_split"
+      }
+    }
+  ]
+}

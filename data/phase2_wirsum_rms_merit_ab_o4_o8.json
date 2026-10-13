@@ -1,0 +1,65 @@
+{
+  "note": "Wirsum Eq.2.23 default: close split/energy max-merit; platform stack PS+GATE+HOT+LSQ_n2",
+  "stack": "ISOMORPH+PS+GATE_AFTER+HOT+LSQ_n2 H2O_off",
+  "prior_platform_o8": {
+    "exit_CO": 0.159,
+    "rms": 0.046,
+    "exit_H2": 8.5e-06
+  },
+  "arms": [
+    {
+      "label": "wirsum_rms_o4",
+      "wall_s": 33.782887461,
+      "exit_CO": 0.11586626264804989,
+      "exit_H2": 4.014693715284765e-06,
+      "exit_CH4": 3.5820734069533894e-07,
+      "exit_CO2": 0.04156612708373091,
+      "rms": 0.025047327451580868,
+      "split": 0.032777590553730494,
+      "energy": 0.10582986475334252,
+      "converged": false,
+      "n_acc": 1,
+      "cfg_flags": {
+        "split_merit": false,
+        "energy_merit": false,
+        "max_global_iter": 4
+      }
+    },
+    {
+      "label": "legacy_maxmerit_o4",
+      "wall_s": 109.837418646,
+      "exit_CO": 0.16127129267463453,
+      "exit_H2": 7.511239451814871e-06,
+      "exit_CH4": 0.000620933620353022,
+      "exit_CO2": 0.04025837067538083,
+      "rms": 0.06511641467351713,
+      "split": 0.03079661200638401,
+      "energy": 0.06511641467351713,
+      "converged": false,
+      "n_acc": 3,
+      "cfg_flags": {
+        "split_merit": true,
+        "energy_merit": true,
+        "max_global_iter": 4
+      }
+    },
+    {
+      "label": "wirsum_rms_o8",
+      "wall_s": 106.53120116500003,
+      "exit_CO": 0.1158661921175227,
+      "exit_H2": 4.01469347086135e-06,
+      "exit_CH4": 3.650756846735268e-07,
+      "exit_CO2": 0.04156619578401842,
+      "rms": 0.019727499780695983,
+      "split": 0.02933290043321661,
+      "energy": 0.07581498124230361,
+      "converged": false,
+      "n_acc": 2,
+      "cfg_flags": {
+        "split_merit": false,
+        "energy_merit": false,
+        "max_global_iter": 8
+      }
+    }
+  ]
+}

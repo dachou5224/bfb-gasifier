@@ -239,6 +239,9 @@ class ReactorConfig:
     bed_solid_state_model: str = HAMEL_BED_SOLID_STATE_MODEL
     # K=0 holdup 残差：engineering 用 source−M 锚；none 保持 [kg/s] 物理残差。
     holdup_k0_anchor: str = "engineering"
+    # 输运闭合库存：engineering_bottom_threshold 为生产默认；species_own_inventory 无 15% 跳变。
+    solid_transport_inventory_mode: str = "engineering_bottom_threshold"
+    solid_transport_bottom_no_penetration: bool = False
     feed_solid_size_distribution_mode: str = HAMEL_FEED_SOLID_SIZE_DISTRIBUTION_MODE
     nr_init_bottom_zone_solid_energy_preprojection_thesis: bool = False
     nr_init_bottom_primary_exchange_preprojection_thesis: bool = False
@@ -572,8 +575,10 @@ class ReactorConfig:
     vorab_pyrolysis_gibbs_solver_mode_thesis: str = "hamel_reduced"
     # Major-gibbs init solver mode: augmented | hamel_reduced | shadow_compare
     major_gibbs_solver_mode: str = "augmented"
-    # Hamel strict Vorabrechnung: drying/DAEM sources are budgeted once and fixed.
+    # 工程 single-shot：init 预算一次干燥/热解。不是 Hamel Bild 2.2 外层完整重算。
     thesis_vorab_sources_single_shot: bool = True
+    # auto | engineering_single_shot | hamel_outer_refresh。auto 沿用上一开关。
+    vorab_outer_source_policy: str = "auto"
     # A-tier Startwertwahl: unified Vorabrechnung cell budgets (tau_bed, cumulative O2/VM/dry).
     vorab_a_tier_startwert_budget_thesis: bool = True
     # Init 阶段 3–5：bed 格 ``u0_target`` 取自 Vorab 气量（主气 + 累积热解），再刷新 K/BC。
@@ -678,8 +683,17 @@ class ReactorConfig:
             resolve_nr_solver_mode,
         )
 
+        from src.core.connectivity.solid_transport import resolve_solid_transport_inventory_mode
+        from src.solvers.vorabrechnung.vorab_policy import resolve_vorab_outer_source_policy_name
+
         self.nr_solver_mode = resolve_nr_solver_mode(self.nr_solver_mode)
         self.holdup_k0_anchor = resolve_holdup_k0_anchor(self.holdup_k0_anchor)
+        self.solid_transport_inventory_mode = resolve_solid_transport_inventory_mode(
+            self.solid_transport_inventory_mode
+        )
+        self.vorab_outer_source_policy = resolve_vorab_outer_source_policy_name(
+            self.vorab_outer_source_policy
+        )
         if self.nr_solver_mode == NR_SOLVER_MODE_WIRSUM_1997_STRICT:
             apply_wirsum_1997_strict_config(self)
         if bool(self.thesis_mode):
@@ -1213,9 +1227,8 @@ class Reactor:
             vorab_outer_may_refresh_drying_pyro_sources,
         )
 
-        # Explicit freeboard cells are part of the NR unknown vector in thesis mode.
-        # Re-syncing them from closure during outer refresh overwrites NR-updated states
-        # and can trigger large residual jumps between outer iterations.
+        # 显式自由板气/T 是 NR 未知量：外层禁止整段 closure 覆盖。
+        # 非显式图调用 refresh 后因不是显式图立即返回。两条路径目前都不更新轨迹。
         if not self._use_explicit_freeboard_solver_graph():
             self._refresh_explicit_freeboard_transport_from_closure()
         # Side-block states are seeded once during init/precalc.
@@ -1270,7 +1283,7 @@ class Reactor:
         self._nr_outer_refresh_skipped = bool(refresh_skipped)
 
     def _initialize_thesis_single_shot_vorab_sources(self) -> None:
-        """Initialize fixed drying/DAEM source caches once using bed-mean temperature."""
+        """工程 single-shot：用床层均温写一次干燥/热解缓存。不是 Hamel 外层。"""
         if not (bool(self.config.thesis_mode) and bool(self.config.thesis_vorab_sources_single_shot)):
             return
         if self._thesis_fixed_vorab_sources_ready:

@@ -1,0 +1,131 @@
+{
+  "cases": [
+    {
+      "name": "T_plus_50K",
+      "passed": false,
+      "reason": "merit_reject",
+      "elapsed_s": 26.106260726,
+      "merit": 0.15276594203081997,
+      "stats": {
+        "F_calls": 13009.0,
+        "J_calls": 132.0,
+        "P_calls": 36.0,
+        "outers": 35.0,
+        "rejects": 2.0,
+        "inner_status": "least_squares",
+        "log_span": 0.5
+      },
+      "blocks": {
+        "passed": false,
+        "gas_l2": 0.001348756979883167,
+        "solid_l2": 4.105962018308258e-05,
+        "tar_l2": 0.0005876085065320219,
+        "energy_W": 0.0015491631929762661
+      },
+      "gate_ratio": {
+        "gas": 1348.756979883167,
+        "solid": 41.05962018308258,
+        "tar": 587.6085065320219,
+        "energy_rows": [
+          0.0009645567479310557,
+          0.002513719940907322
+        ]
+      },
+      "transport_closed": true,
+      "opened_zeros": [],
+      "bubble_h2": 4.1093937161186645e-11,
+      "bubble_ch4": 2.897934821905046e-07,
+      "T_bed": 1370.283689454402,
+      "T_fb": 1397.8286878416795,
+      "worst_index": 49,
+      "worst_value": 0.002513719940907322
+    },
+    {
+      "name": "positive_half",
+      "passed": false,
+      "reason": "merit_reject",
+      "elapsed_s": 90.686525351,
+      "merit": 0.20958830672862339,
+      "stats": {
+        "F_calls": 43323.0,
+        "J_calls": 440.0,
+        "P_calls": 112.0,
+        "outers": 111.0,
+        "rejects": 2.0,
+        "inner_status": "deadline",
+        "log_span": 0.5
+      },
+      "blocks": {
+        "passed": false,
+        "gas_l2": 0.0012785477829671283,
+        "solid_l2": 9.90805714312938e-05,
+        "tar_l2": 0.001303239776695844,
+        "energy_W": -0.026890496374107897
+      },
+      "gate_ratio": {
+        "gas": 1278.5477829671283,
+        "solid": 99.0805714312938,
+        "tar": 1303.239776695844,
+        "energy_rows": [
+          0.0010040735214715824,
+          0.02789456989557948
+        ]
+      },
+      "transport_closed": true,
+      "opened_zeros": [],
+      "bubble_h2": 2.4687397678543043e-11,
+      "bubble_ch4": 1.8600150910983761e-07,
+      "T_bed": 1350.884946852402,
+      "T_fb": 1389.3513408429887,
+      "worst_index": 49,
+      "worst_value": -0.02789456989557948
+    },
+    {
+      "name": "cold_start",
+      "passed": false,
+      "reason": "merit_reject",
+      "elapsed_s": 41.66596293799999,
+      "merit": 542.2826659659419,
+      "stats": {
+        "F_calls": 14628.0,
+        "J_calls": 144.0,
+        "P_calls": 39.0,
+        "outers": 36.0,
+        "rejects": 2.0,
+        "inner_status": "deadline",
+        "log_span": 0.5
+      },
+      "blocks": {
+        "passed": false,
+        "gas_l2": 4.693653600420137,
+        "solid_l2": 0.0058495964016008935,
+        "tar_l2": 2.2186782077842744,
+        "energy_W": -169.69835934604635
+      },
+      "gate_ratio": {
+        "gas": 4693653.600420137,
+        "solid": 5849.596401600894,
+        "tar": 2218678.2077842746,
+        "energy_rows": [
+          13.756513587271911,
+          155.94184575877443
+        ]
+      },
+      "transport_closed": true,
+      "opened_zeros": [
+        44,
+        45,
+        7,
+        8,
+        10,
+        11
+      ],
+      "bubble_h2": 0.0,
+      "bubble_ch4": 9.404505788158764e-10,
+      "T_bed": 772.7447344103986,
+      "T_fb": 449.31620030096826,
+      "worst_index": 49,
+      "worst_value": -155.94184575877443
+    }
+  ]
+}

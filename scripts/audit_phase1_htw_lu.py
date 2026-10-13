@@ -22,22 +22,19 @@ import importlib.util
 import json
 import os
 import sys
-from pathlib import Path
 from typing import Any
 
-_REPO = Path(__file__).resolve().parent.parent
-if str(_REPO) not in sys.path:
-    sys.path.insert(0, str(_REPO))
+import _lu_harness  # noqa: F401
 
 from src.core.reactor import Reactor
 
+from _lu_harness import load_case_lu, repo_root
 from tests.validation_case_utils import (
     CASE_LU_VALIDATION_KEY,
     PHASE1_HTW_LU_SOLVE_KWARGS,
     build_phase1_htw_lu_global_nr_reactor_config,
     estimate_gas_feeds,
     json_numeric_or_none,
-    load_case_LU,
     load_validation_case_node,
     strict_validation_gate,
     validation_numeric_tolerances,
@@ -45,7 +42,7 @@ from tests.validation_case_utils import (
 
 
 def _load_char_ledger_summary_fn():
-    mod_path = _REPO / "scripts" / "audit_char_mass_conservation_lu.py"
+    mod_path = repo_root() / "scripts" / "audit_char_mass_conservation_lu.py"
     spec = importlib.util.spec_from_file_location("audit_char_mass_conservation_lu", mod_path)
     assert spec is not None and spec.loader is not None
     mod = importlib.util.module_from_spec(spec)
@@ -110,7 +107,7 @@ def run_audit(
 ) -> tuple[dict[str, Any], bool, list[str]]:
     """返回 (结果字典, 是否通过 validation 容差, 警告列表)。"""
     warnings: list[str] = []
-    case = load_case_LU()
+    case = load_case_lu()
     feeds = estimate_gas_feeds(case)
     cfg = build_phase1_htw_lu_global_nr_reactor_config(case)
 

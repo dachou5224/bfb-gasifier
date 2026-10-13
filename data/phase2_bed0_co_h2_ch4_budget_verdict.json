@@ -1,0 +1,114 @@
+{
+  "knife": "bed0_CO_H2_CH4_phase_split_budget",
+  "date": "2026-07-25",
+  "constraint": "不抬 Tin；不用 r*_scale；不改 CO 供应限幅（已否证）",
+  "baseline_o8": {
+    "exit_CO_CO2_H2": [
+      0.1251,
+      0.1514,
+      0.1512
+    ],
+    "bed0_T_K": 1250.0,
+    "K_bd": 13.47,
+    "V_b": 0.0768
+  },
+  "ledger_mol_s": {
+    "CO": {
+      "R_d": 16.52,
+      "R_b": -11.04,
+      "N_d": 5.73,
+      "N_b": 0.88,
+      "N_ex": -15.4,
+      "res_d": -4.61,
+      "res_b": 3.49,
+      "res_c": -1.12
+    },
+    "H2": {
+      "R_d": 5.17,
+      "R_b": 0.002,
+      "N_d": 5.31,
+      "N_b": 2.06,
+      "N_ex": -2.28,
+      "res_d": -2.41,
+      "res_b": 0.22,
+      "res_c": -2.19
+    },
+    "CH4": {
+      "R_d": 2.12,
+      "R_b": -0.033,
+      "N_d": 0.55,
+      "N_b": 0.21,
+      "N_ex": -0.23,
+      "res_d": 1.34,
+      "res_b": -0.01,
+      "res_c": 1.33
+    }
+  },
+  "mechanism": {
+    "CO": {
+      "type": "phase_split_dominant_plus_small_total_debt",
+      "N_ex_100pct_of_bubble_CO_supply": true,
+      "lim_o2_b": 0.00408,
+      "lim_co_b": 0.00565,
+      "binding": "O2_slightly_tighter_than_CO",
+      "r5b_realized": 5.54,
+      "C_d_vs_C_b": [
+        23.12,
+        8.22
+      ],
+      "diag_nex_midpoint": "|rd|+|rb| 8.10→1.12 (rc unchanged -1.12)",
+      "note": "N_ex 由 C_d≫C_b 驱动超额抽密相 CO；气泡 O2 限幅烧不完；与前刀 ex_bd_CO 一致"
+    },
+    "H2": {
+      "type": "total_mole_debt_dominant",
+      "vm_H2": 0.0,
+      "sources": "R2≈1.75 + R7(ext7≈1.14→+3.4 H2)；气泡几乎无汇",
+      "Nout_vs_R": [
+        7.36,
+        5.17
+      ],
+      "diag_nex_midpoint": "几乎无改善 (2.63→2.19)",
+      "diag_nout_scale": "需 ×0.70 才能 rc→0",
+      "note": "不是分相问题，是出口 N_d+N_b 高于源项（o8 未收敛）"
+    },
+    "CH4": {
+      "type": "total_mole_debt_dominant_opposite",
+      "vm_CH4": 3.15,
+      "net_R": 2.09,
+      "Nout": 0.76,
+      "ΔC_small": true,
+      "diag_nout_scale": "需 ×2.75 才能 rc→0",
+      "note": "热解 CH4 堆在密相，交换弱；与 H2 过量出口呈 R7 耦合迹象"
+    },
+    "R7_coupling": "ext7_est≈1.14：CH4+H2O→CO+3H2；可同时加剧 CH4 欠出口与 H2 过出口"
+  },
+  "diagnostics_not_shipped": [
+    "N_ex midpoint（仅诊断）：CO 分相残差大降，H2/CH4 几乎不动",
+    "Nout scale-to-R（仅诊断）：消 rc，分相残差仍在"
+  ],
+  "falsification_refresh": {
+    "bed0_issue_is_only_phase_split": "FALSIFIED — H2/CH4 主债是 combined（R vs Nout）",
+    "CO_is_only_total_debt": "FALSIFIED — CO 主债是 N_ex 分相超额"
+  },
+  "ship": {
+    "production_change": false
+  },
+  "next_knife": {
+    "primary": "bed0_R7_CH4_H2_coupling_or_longer_NR_combined_close",
+    "why": "H2/CH4 对向 combined 残差 + R7 同源；先分清未收敛 vs R7/热解源同构",
+    "alt": [
+      "H4_FB_secondary_air_NR",
+      "bed0_CO_N_ex_vs_O2_limited_R5_algebra（已多轮否证限幅/K_bd，慎动）"
+    ],
+    "do_not": [
+      "关 CO 供应限幅",
+      "sit_grace 验收",
+      "r5_scale 掩盖"
+    ]
+  },
+  "artifacts": [
+    "data/phase2_bed0_co_h2_ch4_budget_o8.json",
+    "data/phase2_bed0_co_h2_ch4_source_decomp_o8.json",
+    "data/phase2_bed0_co_h2_ch4_budget_verdict.json"
+  ]
+}

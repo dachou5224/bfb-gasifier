@@ -1,0 +1,78 @@
+{
+  "case": "current worktree reduced3; no Newton",
+  "config": {
+    "thesis_mode": false,
+    "thesis_vorab_sources_single_shot": true,
+    "nr_solver_mode": "engineering",
+    "holdup_k0_anchor": "engineering"
+  },
+  "outer_may_refresh_sources": true,
+  "R12": {
+    "T": 1325.0,
+    "CH2": 3.890713377968589,
+    "CO2_oxygen": 18.54460093596481,
+    "current_rate": 99757221715221.4,
+    "pdf_literal_rate": 847359515034885.4,
+    "literal_over_current": 8.494217265330992,
+    "Vd": 0.3219981295351194,
+    "O2_concentration_for_1mol_s_current": 1.7973063289257725e-26,
+    "O2_concentration_for_1mol_s_pdf_literal": 6.796673890859903e-14
+  },
+  "thermochemistry": {
+    "char_hf_kJ_mol": -190.566526,
+    "C_to_CO2_current_kJ_mol": -202.9193368463413,
+    "C_plus_H2O_to_CO_H2_current_kJ_mol": 321.85447258517036,
+    "C_plus_CO2_to_2CO_current_kJ_mol": 363.0059490514722,
+    "water_vapor_hf_kJ_mol": -241.81116646115262,
+    "liquid_water_hf_J_kg": -15865975.993712002,
+    "char_1kg_hf_J": -15866000.0,
+    "liquid_water_1mol_hf_J": 0.0,
+    "dryfuel_hf_from_HHV_J_kg": -3960692.674454242,
+    "dryfuel_components_hf_J_kg": -10507832.796974242,
+    "dryfuel_mismatch_J_kg": -6547140.12252,
+    "char_fraction_dry": 0.41265222
+  },
+  "seeded_repeat": {
+    "F_linf_deltas": [
+      1018151.1321549034,
+      0.0
+    ],
+    "K_linf_deltas": [
+      0.017192565236811286,
+      0.0
+    ],
+    "F_x_y_x_linf_delta": 32744.317351509817
+  },
+  "inventories": [
+    {
+      "M_geo": 187.95792135494355,
+      "M_active": 5.2042057055499775,
+      "closure_M": 5.2042057055499775
+    },
+    {
+      "M_geo": 191.2614044918326,
+      "M_active": 6.113496073070188,
+      "closure_M": 191.2614044918326
+    },
+    {
+      "M_geo": 184.8722957374574,
+      "M_active": 5.909274048328342,
+      "closure_M": 184.8722957374574
+    }
+  ],
+  "frozen_F_x_y_x_linf_delta": 0.0,
+  "bottom_inventory_branch": [
+    {
+      "fraction": 0.149999,
+      "closure_mass": 28.193500245320177
+    },
+    {
+      "fraction": 0.15,
+      "closure_mass": 187.95792135494355
+    },
+    {
+      "fraction": 0.150001,
+      "closure_mass": 187.95792135494355
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "verdict": "freeze_exit energy gap was stale K_solid in hydro-only refresh_on_accept; batch refresh closes gap",
+  "hypotheses": {
+    "H_freeze_vs_live_formula": "REJECTED \u2014 after consistent K snap, freeze_E==live_E",
+    "H_stale_K_on_hydro_refresh": "CONFIRMED \u2014 calc_hydrodynamics does not touch K_solid; freeze apply_bc restores snapshot K",
+    "H_resnap_hydro_closes_gap": "PARTIAL \u2014 hydro-only resnap left stale K; K+hydro resnap closes gap"
+  },
+  "fix": {
+    "refresh_cells_hydrodynamics_for_frozen_inner": "src/solvers/vorabrechnung/vorab_refresh.py",
+    "wired": [
+      "global_nr_iteration accept-step",
+      "refresh_vorabrechnung_for_cells",
+      "reactor._initialize_nr_hydrodynamics_freeze_cache"
+    ]
+  },
+  "probe_o1": {
+    "nr_E": 0.37322724160302356,
+    "freeze_E": 0.37322724160302356,
+    "live_E": 0.37322730700988155,
+    "gap": 6.5406857985284e-08,
+    "n_refresh_on_accept": 1,
+    "split_nr": 0.09279493590369203,
+    "k_fr": [
+      [
+        0,
+        4.7477,
+        0.0
+      ],
+      [
+        1,
+        2.3833,
+        0.0
+      ],
+      [
+        2,
+        2.8787,
+        0.3667
+      ],
+      [
+        3,
+        7.5588,
+        1.0171
+      ]
+    ],
+    "k_lv": [
+      [
+        0,
+        4.7477,
+        0.0
+      ],
+      [
+        1,
+        2.3833,
+        0.0
+      ],
+      [
+        2,
+        2.8787,
+        0.3667
+      ],
+      [
+        3,
+        7.5588,
+        1.0171
+      ]
+    ],
+    "max_dT": NaN
+  },
+  "ladder10": {
+    "final_split": 0.036204443051724954,
+    "final_energy": 0.11255241869036892,
+    "max_dT": 350.00000039843746,
+    "vs_prior_s850_b350": {
+      "S": 0.056,
+      "live_E_open": 0.32,
+      "dT": 307
+    }
+  },
+  "open": "Check1 not fully converged; continue N2/split or energy floor under honest freeze metrics"
+}

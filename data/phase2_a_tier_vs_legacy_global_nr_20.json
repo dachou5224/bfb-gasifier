@@ -1,0 +1,133 @@
+{
+  "max_global_iter": 20,
+  "level": "p2",
+  "results": [
+    {
+      "label": "legacy",
+      "vorab_a_tier": false,
+      "init_wall_s": 14.699384103,
+      "solve_wall_s": 177.640109934,
+      "total_wall_s": 192.339494037,
+      "init_rms_scaled": 0.01990135070458769,
+      "init_max_abs_scaled": 0.24160389365255078,
+      "init_solid_rms": 0.007651285980292886,
+      "init_energy_rms": 0.06887208600330823,
+      "converged": false,
+      "nr_outer_iters": 20,
+      "nr_outer_max": 20,
+      "n_iter": 42,
+      "rms_scaled_final": 0.01661067064635378,
+      "rms_scaled_solid_final": 0.021813196898161198,
+      "rms_scaled_energy_final": 0.028309629450520665,
+      "rms_scaled_gas_phase_split_final": 0.014943926122507105,
+      "max_abs_scaled_final": 0.08967592002455715,
+      "max_abs_scaled_gas_phase_split_final": 0.04116486888587731,
+      "line_search_failures": 0,
+      "bed0_T_K": 1030.0,
+      "nr_timing": {
+        "initial_residual_s": 0.4482549030000271,
+        "jacobian_build_s": 89.33362782300003,
+        "linear_solve_s": 0.6779070619999494,
+        "band_lu_s": 0.13687392499993223,
+        "side_update_s": 0.3554177950000863,
+        "line_search_residual_s": 10.929199225000122,
+        "final_residual_s": 0.49014462099992784,
+        "total_s": 104.739527794
+      }
+    },
+    {
+      "label": "a_tier",
+      "vorab_a_tier": true,
+      "init_wall_s": 14.055371914999995,
+      "solve_wall_s": 173.832358579,
+      "total_wall_s": 187.88773049399998,
+      "init_rms_scaled": 0.04480535530398194,
+      "init_max_abs_scaled": 0.5820907245433086,
+      "init_solid_rms": 0.004209344719046282,
+      "init_energy_rms": 0.06727655416190172,
+      "converged": false,
+      "nr_outer_iters": 15,
+      "nr_outer_max": 20,
+      "n_iter": 87,
+      "rms_scaled_final": 0.0068327104323087084,
+      "rms_scaled_solid_final": 0.008965350316135597,
+      "rms_scaled_energy_final": 0.0136451541344009,
+      "rms_scaled_gas_phase_split_final": 0.005053412564507024,
+      "max_abs_scaled_final": 0.04265676847392381,
+      "max_abs_scaled_gas_phase_split_final": 0.024518459996977642,
+      "line_search_failures": 0,
+      "bed0_T_K": 1066.2662954661237,
+      "nr_timing": {
+        "initial_residual_s": 0.2514935840000021,
+        "jacobian_build_s": 90.4875426230002,
+        "linear_solve_s": 0.6369599209999706,
+        "band_lu_s": 0.2040760880000505,
+        "side_update_s": 0.2266316870000935,
+        "line_search_residual_s": 15.027399944000166,
+        "final_residual_s": 0.25342030100000557,
+        "total_s": 110.82930721599999
+      }
+    }
+  ],
+  "delta_a_tier_minus_legacy": {
+    "init_rms_scaled": {
+      "delta": 0.024904004599394253,
+      "pct": 125.13725811411054,
+      "a_tier_better": false
+    },
+    "init_solid_rms": {
+      "delta": -0.003441941261246604,
+      "pct": -44.98513413446936,
+      "a_tier_better": true
+    },
+    "init_energy_rms": {
+      "delta": -0.0015955318414065112,
+      "pct": -2.316659671568349,
+      "a_tier_better": true
+    },
+    "rms_scaled_final": {
+      "delta": -0.009777960214045072,
+      "pct": -58.86553542732147,
+      "a_tier_better": true
+    },
+    "rms_scaled_solid_final": {
+      "delta": -0.012847846582025601,
+      "pct": -58.89942057557205,
+      "a_tier_better": true
+    },
+    "rms_scaled_energy_final": {
+      "delta": -0.014664475316119766,
+      "pct": -51.80030823699128,
+      "a_tier_better": true
+    },
+    "rms_scaled_gas_phase_split_final": {
+      "delta": -0.00989051355800008,
+      "pct": -66.18417059158195,
+      "a_tier_better": true
+    },
+    "max_abs_scaled_final": {
+      "delta": -0.04701915155063335,
+      "pct": -52.432304611714564,
+      "a_tier_better": true
+    },
+    "total_wall_s": {
+      "delta": -4.451763543000027,
+      "pct": -2.3145342901565757,
+      "a_tier_better": true
+    },
+    "nr_outer_iters": {
+      "delta": -5,
+      "pct": -25.0,
+      "a_tier_better": true
+    },
+    "n_iter": {
+      "delta": 45,
+      "pct": 107.14285714285714,
+      "a_tier_better": false
+    }
+  },
+  "converged_changed": {
+    "legacy": false,
+    "a_tier": false
+  }
+}

@@ -1,0 +1,330 @@
+{
+  "note": "decay default vs 50/30/20 × cold budget march; dual-track NR seed when march on",
+  "ref_co": 0.13,
+  "ref_co2": 0.11,
+  "max_global_iter": 25,
+  "best_by_score": "weights_50_30_20",
+  "best_converged_by_score": "baseline_decay",
+  "rows": [
+    {
+      "label": "baseline_decay",
+      "layer_weights": null,
+      "vorab_bed_temperature_march": false,
+      "bed0_T_init_K": 1180.0,
+      "bed0_T_marched_budget_K": NaN,
+      "bed0_T_solved_K": 1030.0,
+      "bed1_T_solved_K": 1092.6702937088432,
+      "bed2_T_solved_K": 1116.1789688556714,
+      "converged_fully": true,
+      "rms_scaled_final": 0.007618973801459264,
+      "co_exit": 0.08861502945684445,
+      "co2_exit": 0.16687273893818155,
+      "score_co_co2": 0.8353708266930568,
+      "bed_rows": [
+        {
+          "bed_i": 0,
+          "xi": 0.049999999999999996,
+          "T_K": 1030.0,
+          "O2_zu_pct": 78.55970345892759,
+          "y_dry_CO": 0.05841887324133461,
+          "y_dry_CO2": 0.17221054007063427,
+          "CO_share_pct": 25.330192017751134,
+          "staged_injection": true
+        },
+        {
+          "bed_i": 1,
+          "xi": 0.15,
+          "T_K": 1092.6702937088432,
+          "O2_zu_pct": 17.529039214003667,
+          "y_dry_CO": 0.011919117887573737,
+          "y_dry_CO2": 0.1987803424060414,
+          "CO_share_pct": 5.656928532690182,
+          "staged_injection": true
+        },
+        {
+          "bed_i": 2,
+          "xi": 0.25,
+          "T_K": 1116.1789688556714,
+          "O2_zu_pct": 3.9112573270687454,
+          "y_dry_CO": 0.024691459925209647,
+          "y_dry_CO2": 0.1952663892847159,
+          "CO_share_pct": 11.225541627134373,
+          "staged_injection": true
+        },
+        {
+          "bed_i": 3,
+          "xi": 0.3499999999999999,
+          "T_K": 1089.5325327340474,
+          "O2_zu_pct": 0.0,
+          "y_dry_CO": 0.0395248643409047,
+          "y_dry_CO2": 0.1892085396786064,
+          "CO_share_pct": 17.279882888261135,
+          "staged_injection": false
+        },
+        {
+          "bed_i": 4,
+          "xi": 0.44999999999999996,
+          "T_K": 1069.9018387054007,
+          "O2_zu_pct": 0.0,
+          "y_dry_CO": 0.050157453992353405,
+          "y_dry_CO2": 0.1848156960746606,
+          "CO_share_pct": 21.346036335661573,
+          "staged_injection": false
+        },
+        {
+          "bed_i": 5,
+          "xi": 0.5499999999999999,
+          "T_K": 1054.585947991611,
+          "O2_zu_pct": 0.0,
+          "y_dry_CO": 0.058389362144111445,
+          "y_dry_CO2": 0.1814245925088804,
+          "CO_share_pct": 24.347775019431296,
+          "staged_injection": false
+        }
+      ],
+      "wall_time_s": 123.95883902
+    },
+    {
+      "label": "weights_50_30_20",
+      "layer_weights": [
+        0.5,
+        0.3,
+        0.2
+      ],
+      "vorab_bed_temperature_march": false,
+      "bed0_T_init_K": 1180.0,
+      "bed0_T_marched_budget_K": NaN,
+      "bed0_T_solved_K": 1030.0,
+      "bed1_T_solved_K": 1033.7452395745465,
+      "bed2_T_solved_K": 1151.8344430738848,
+      "converged_fully": false,
+      "rms_scaled_final": 0.01016221633586124,
+      "co_exit": 0.09095109071716391,
+      "co2_exit": 0.1651069889471375,
+      "score_co_co2": 0.8013488520447444,
+      "bed_rows": [
+        {
+          "bed_i": 0,
+          "xi": 0.049999999999999996,
+          "T_K": 1030.0,
+          "O2_zu_pct": 50.0,
+          "y_dry_CO": 0.06703533320182753,
+          "y_dry_CO2": 0.2660717603062346,
+          "CO_share_pct": 20.12425868685534,
+          "staged_injection": true
+        },
+        {
+          "bed_i": 1,
+          "xi": 0.15,
+          "T_K": 1033.7452395745465,
+          "O2_zu_pct": 30.0,
+          "y_dry_CO": 0.03968016580475209,
+          "y_dry_CO2": 0.17376336713052637,
+          "CO_share_pct": 18.59047461362258,
+          "staged_injection": true
+        },
+        {
+          "bed_i": 2,
+          "xi": 0.25,
+          "T_K": 1151.8344430738848,
+          "O2_zu_pct": 19.999999999999996,
+          "y_dry_CO": 0.011539552823112833,
+          "y_dry_CO2": 0.1961776844080918,
+          "CO_share_pct": 5.555414166359462,
+          "staged_injection": true
+        },
+        {
+          "bed_i": 3,
+          "xi": 0.3499999999999999,
+          "T_K": 1120.4029086528133,
+          "O2_zu_pct": 0.0,
+          "y_dry_CO": 0.03270980852564624,
+          "y_dry_CO2": 0.19032170882873437,
+          "CO_share_pct": 14.66600277559551,
+          "staged_injection": false
+        },
+        {
+          "bed_i": 4,
+          "xi": 0.44999999999999996,
+          "T_K": 1091.493364563117,
+          "O2_zu_pct": 0.0,
+          "y_dry_CO": 0.048024225243901215,
+          "y_dry_CO2": 0.18406781888684295,
+          "CO_share_pct": 20.69188774814176,
+          "staged_injection": false
+        },
+        {
+          "bed_i": 5,
+          "xi": 0.5499999999999999,
+          "T_K": 1070.434513314949,
+          "O2_zu_pct": 0.0,
+          "y_dry_CO": 0.05879627885687168,
+          "y_dry_CO2": 0.17967739473612124,
+          "CO_share_pct": 24.65524934933501,
+          "staged_injection": false
+        }
+      ],
+      "wall_time_s": 289.841533423
+    },
+    {
+      "label": "march_decay",
+      "layer_weights": null,
+      "vorab_bed_temperature_march": true,
+      "bed0_T_init_K": 1180.0,
+      "bed0_T_marched_budget_K": 300.0,
+      "bed0_T_solved_K": 1113.9446301619096,
+      "bed1_T_solved_K": 1087.854594042931,
+      "bed2_T_solved_K": 1074.9789992491876,
+      "converged_fully": false,
+      "rms_scaled_final": 0.38141236571489795,
+      "co_exit": 1.0973269572697254e-05,
+      "co2_exit": 0.028985050637876805,
+      "score_co_co2": 1.7364151298897217,
+      "bed_rows": [
+        {
+          "bed_i": 0,
+          "xi": 0.049999999999999996,
+          "T_K": 1113.9446301619096,
+          "O2_zu_pct": 78.55970345892759,
+          "y_dry_CO": 0.24283645430066594,
+          "y_dry_CO2": 0.006978357555452272,
+          "CO_share_pct": 97.20658775050077,
+          "staged_injection": true
+        },
+        {
+          "bed_i": 1,
+          "xi": 0.15,
+          "T_K": 1087.854594042931,
+          "O2_zu_pct": 17.529039214003667,
+          "y_dry_CO": 0.343403734392657,
+          "y_dry_CO2": 0.10766023737662943,
+          "CO_share_pct": 76.13193601911165,
+          "staged_injection": true
+        },
+        {
+          "bed_i": 2,
+          "xi": 0.25,
+          "T_K": 1074.9789992491876,
+          "O2_zu_pct": 3.9112573270687454,
+          "y_dry_CO": 0.009011424055620552,
+          "y_dry_CO2": 0.05962694829277591,
+          "CO_share_pct": 13.128842872147564,
+          "staged_injection": true
+        },
+        {
+          "bed_i": 3,
+          "xi": 0.3499999999999999,
+          "T_K": 1055.8254813369012,
+          "O2_zu_pct": 0.0,
+          "y_dry_CO": 0.02571860211171828,
+          "y_dry_CO2": 0.0547543683718542,
+          "CO_share_pct": 31.959305040154323,
+          "staged_injection": false
+        },
+        {
+          "bed_i": 4,
+          "xi": 0.44999999999999996,
+          "T_K": 1037.0290045897718,
+          "O2_zu_pct": 0.0,
+          "y_dry_CO": 0.016992201901960984,
+          "y_dry_CO2": 0.024207309970218825,
+          "CO_share_pct": 41.2436971454389,
+          "staged_injection": false
+        },
+        {
+          "bed_i": 5,
+          "xi": 0.5499999999999999,
+          "T_K": 1018.6036081410921,
+          "O2_zu_pct": 0.0,
+          "y_dry_CO": 0.010973458395204555,
+          "y_dry_CO2": 0.0243369257598194,
+          "CO_share_pct": 31.0771424831504,
+          "staged_injection": false
+        }
+      ],
+      "wall_time_s": 335.39244614399996
+    },
+    {
+      "label": "march_50_30_20",
+      "layer_weights": [
+        0.5,
+        0.3,
+        0.2
+      ],
+      "vorab_bed_temperature_march": true,
+      "bed0_T_init_K": 1180.0,
+      "bed0_T_marched_budget_K": 300.0,
+      "bed0_T_solved_K": 1156.970028097212,
+      "bed1_T_solved_K": 1137.49984745479,
+      "bed2_T_solved_K": 1170.6320310262204,
+      "converged_fully": false,
+      "rms_scaled_final": 0.38795384375096087,
+      "co_exit": 0.012278718170400816,
+      "co2_exit": 0.012699236855068522,
+      "score_co_co2": 1.7901007139927976,
+      "bed_rows": [
+        {
+          "bed_i": 0,
+          "xi": 0.049999999999999996,
+          "T_K": 1156.970028097212,
+          "O2_zu_pct": 50.0,
+          "y_dry_CO": 0.2639807007789596,
+          "y_dry_CO2": 0.22663031443863005,
+          "CO_share_pct": 53.80651730004109,
+          "staged_injection": true
+        },
+        {
+          "bed_i": 1,
+          "xi": 0.15,
+          "T_K": 1137.49984745479,
+          "O2_zu_pct": 30.0,
+          "y_dry_CO": 0.45901405272731993,
+          "y_dry_CO2": 0.1285394909486625,
+          "CO_share_pct": 78.12293154689097,
+          "staged_injection": true
+        },
+        {
+          "bed_i": 2,
+          "xi": 0.25,
+          "T_K": 1170.6320310262204,
+          "O2_zu_pct": 19.999999999999996,
+          "y_dry_CO": 0.05517405618993194,
+          "y_dry_CO2": 0.16313782745492983,
+          "CO_share_pct": 25.273042982711,
+          "staged_injection": true
+        },
+        {
+          "bed_i": 3,
+          "xi": 0.3499999999999999,
+          "T_K": 1044.9333333333334,
+          "O2_zu_pct": 0.0,
+          "y_dry_CO": 0.0,
+          "y_dry_CO2": 0.12948966355816174,
+          "CO_share_pct": 0.0,
+          "staged_injection": false
+        },
+        {
+          "bed_i": 4,
+          "xi": 0.44999999999999996,
+          "T_K": 1026.5777777777778,
+          "O2_zu_pct": 0.0,
+          "y_dry_CO": 0.0,
+          "y_dry_CO2": 0.13989416133817598,
+          "CO_share_pct": 0.0,
+          "staged_injection": false
+        },
+        {
+          "bed_i": 5,
+          "xi": 0.5499999999999999,
+          "T_K": 1008.2222222222222,
+          "O2_zu_pct": 0.0,
+          "y_dry_CO": 0.0,
+          "y_dry_CO2": 0.1152917374364163,
+          "CO_share_pct": 0.0,
+          "staged_injection": false
+        }
+      ],
+      "wall_time_s": 380.106696338
+    }
+  ]
+}

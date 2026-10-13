@@ -180,17 +180,22 @@ def _bed_reaction_bundle_for_entrained_size_proxy(cell):
         solid_sink_vm=cell._vm_solid_sink_cache,
         areas=areas,
         solid_d_p=cell.solid.d_p,
+        m_char_classes=np.maximum(cell.m_solid[:, S_CHAR], 0.0),
         D_g=float(thermo["D_g"]),
         char_conversion=cell._compute_char_conversion(),
         rho_cat=cell._catalyst_bulk_density(),
+        rho_ash_kg_m3=cell._ash_bulk_density(),
         enable_r12=cell.enable_r12,
         use_gibbs_minor=cell.use_gibbs_minor,
         gibbs_minor_sources=None,
         r4_scale=cell.r4_scale,
+        r2_scale=cell.r2_scale,
         r5_scale=cell.r5_scale,
         r6_scale=cell.r6_scale,
         r7_scale=cell.r7_scale,
+        r8_scale=cell.r8_scale,
         rate_multiplier=1.0,
+        extent_limiters_enabled=bool(getattr(cell, "extent_limiters_enabled", False)),
         N_zu_d=cell.N_zu_d,
         N_d_in=cell.N_d_in,
         N_zu_b=cell.N_zu_b,
@@ -453,10 +458,11 @@ def refresh_explicit_freeboard_transport_from_closure(
     if not reactor._use_explicit_freeboard_solver_graph():
         return None
     # 延迟导入，避免与 reactor 模块循环依赖
-    from src.core.reactor import _resolve_axial_heat_loss_distribution
+    from src.core.reactor import resolve_freeboard_heat_loss_bundle
 
     cfg = reactor.config
     top = reactor.cells[-1]
+    heat_loss = resolve_freeboard_heat_loss_bundle(cfg)
     bed_top_proxy = bed_top_entrained_size_proxy(reactor)
     top_up_char = np.maximum(top._solid_upflow_rates()[:, S_CHAR], 0.0)
     top_up_ash = np.maximum(top._solid_upflow_rates()[:, S_ASH], 0.0)
@@ -473,7 +479,6 @@ def refresh_explicit_freeboard_transport_from_closure(
     enabled_reactions = tuple(cfg.freeboard_enabled_reactions)
     if not bool(getattr(cfg, "freeboard_closure_enable_char_hetero", True)):
         enabled_reactions = tuple(name for name in enabled_reactions if name not in {"R1", "R2", "R3", "R4"})
-    _, freeboard_loss = _resolve_axial_heat_loss_distribution(cfg)
     total_height = float(cfg.H_bed + max(cfg.H_freeboard, 0.0))
     fb = simulate_freeboard(
         N_in=np.maximum(top.N_d + top.N_b, 0.0),
@@ -488,13 +493,16 @@ def refresh_explicit_freeboard_transport_from_closure(
         eps_d_void_bed_top=float(top.eps_d_voidage),
         rho_solid_bed_top=float(top.solid.rho_s),
         d_p_classes_bed_top=np.array(d_p_launch, dtype=np.float64, copy=True),
-        m_char_classes_bed_top=np.array(m_char_launch, dtype=np.float64, copy=True),
-        m_ash_classes_bed_top=np.array(m_ash_launch, dtype=np.float64, copy=True),
+        m_char_classes_bed_top=np.array(m_char_launch, dtype=np.float64, copy=True),  # [kg/s]
+        m_ash_classes_bed_top=np.array(m_ash_launch, dtype=np.float64, copy=True),  # [kg/s]
         char_conversion_bed_top=float(bed_top_proxy["bed_total_char_conversion_proxy"]),
         class_aggregate_indices_bed_top=np.array(class_aggregate_idx, dtype=np.int64, copy=True),
         n_output_size_classes=int(top.solid.n_size_classes),
         fuel_type=cfg.fuel_type,
-        heat_loss_frac=float(freeboard_loss),
+        heat_loss_frac=float(heat_loss.heat_loss_frac),
+        heat_loss_mode=str(heat_loss.heat_loss_mode),
+        Q_wall_W=float(heat_loss.Q_wall_W),
+        Q_heat_exchanger_W=float(heat_loss.Q_heat_exchanger_W),
         trajectory_model=str(cfg.freeboard_trajectory_model),
         trajectory_coeff_model=str(cfg.freeboard_trajectory_coeff_model),
         u_gb_scale=float(max(cfg.freeboard_u_gb_scale, 1e-6)),
@@ -513,6 +521,10 @@ def refresh_explicit_freeboard_transport_from_closure(
         secondary_injection_mode=str(cfg.freeboard_secondary_injection_mode),
         enabled_reactions=enabled_reactions,
         inventory_char_sink_enabled=bool(getattr(cfg, "freeboard_explicit_enable_char_hetero", True)),
+        # 轨迹 dt–库存界：默认跟 freeboard_extent_dt_bounds_thesis（与床层代数同构开关解耦）
+        extent_limiters_enabled=bool(
+            getattr(cfg, "freeboard_extent_dt_bounds_thesis", True)
+        ),
     )
     fb["bed_top_d_p_input_m"] = np.array(bed_top_proxy["d_p_input"], dtype=np.float64, copy=True)
     fb["bed_top_d_p_eff_m"] = np.array(bed_top_proxy["d_p_eff"], dtype=np.float64, copy=True)
@@ -530,3 +542,147 @@ def refresh_explicit_freeboard_transport_from_closure(
     sync_freeboard_cells_from_closure(reactor, fb, preserve_gas_state=preserve_gas_state)
     reactor._last_explicit_freeboard_closure = fb
     return fb
+
+
+def _bisect_cell_temperature_to_energy_zero(
+    cell: Any,
+    *,
+    t_lo: float = 300.0,
+    t_hi: float = 2500.0,
+    abs_tol_W: float = 1.0,
+) -> float | None:
+    """Find ``T`` that zeros Eq. (2.7) energy residual for a fixed composition."""
+    t0 = float(cell.T)
+
+    def _residual(temperature_K: float) -> float:
+        cell.T = float(temperature_K)
+        cell._thermo_cache_valid = False
+        return float(cell.calc_energy_balance())
+
+    t_in = float(getattr(cell, "T_in_gas", t0))
+    a = float(max(t_lo, min(t_in, t0) - 400.0))
+    b = float(min(t_hi, max(t_in, t0) + 200.0))
+    a = max(a, t_lo)
+    b = max(b, a + 1.0)
+    fa = _residual(a)
+    fb = _residual(b)
+    if fa * fb > 0.0:
+        a, b = float(t_lo), float(t_hi)
+        fa, fb = _residual(a), _residual(b)
+        if fa * fb > 0.0:
+            cell.T = t0
+            cell._thermo_cache_valid = False
+            return None
+    for _ in range(50):
+        mid = 0.5 * (a + b)
+        fm = _residual(mid)
+        if abs(fm) <= abs_tol_W:
+            cell.T = float(mid)
+            cell._thermo_cache_valid = False
+            return float(mid)
+        if fa * fm <= 0.0:
+            b, fb = mid, fm
+        else:
+            a, fa = mid, fm
+    cell.T = float(0.5 * (a + b))
+    cell._thermo_cache_valid = False
+    return float(cell.T)
+
+
+def project_explicit_freeboard_temperatures_to_energy_closure(
+    reactor: "Reactor",
+    *,
+    energy_abs_trigger_W: float = 1.0e4,
+) -> dict[str, Any]:
+    """轴向投影显式自由板 ``T`` 到 Eq. (2.7) 能量根（与解析自由板焓步进同构）。
+
+    NR 自由板格在气相已近守恒时仍可能留下能量鬼峰（如 fb6 T≫T_in、E≈−1 MW），
+    因为温度围栏未安装且能量行在全局 merit 中被床层主导。按床顶→出口顺序
+    对每格求 ``E(T)=0``，并刷新下游 ``T_in_gas``，消除污染链。
+
+    Ref: Hamel (1999) Eq. 2.7; ``simulate_freeboard`` ``_solve_T_from_enthalpy``
+    """
+    fb_cells = list(getattr(reactor, "freeboard_cells", []) or [])
+    if not fb_cells:
+        return {"enabled": False, "n_projected": 0, "profile": []}
+
+    from src.core.connectivity.solid_transport import (
+        _set_explicit_freeboard_inlet_from_prev,
+        propagate_explicit_freeboard_chain,
+    )
+
+    bed_cells = list(getattr(reactor, "cells", []) or [])
+    graph = getattr(reactor, "connectivity_graph", None)
+    registry = None
+    if hasattr(reactor, "_solver_cell_registry"):
+        registry = reactor._solver_cell_registry()
+    if bed_cells:
+        propagate_explicit_freeboard_chain(
+            bed_cells,
+            fb_cells,
+            connectivity_graph=graph,
+            cell_registry=registry,
+        )
+
+    trigger = float(max(energy_abs_trigger_W, 0.0))
+    n_projected = 0
+    profile: list[dict[str, float | bool]] = []
+    for i, cell in enumerate(fb_cells):
+        if str(getattr(cell, "cell_type", "")) != "freeboard":
+            continue
+        e_before = abs(float(cell.calc_energy_balance()))
+        t_before = float(cell.T)
+        if e_before < trigger:
+            profile.append(
+                {
+                    "i": float(i),
+                    "T_before": t_before,
+                    "T_after": t_before,
+                    "E_before_W": e_before,
+                    "E_after_W": e_before,
+                    "projected": False,
+                }
+            )
+            if i + 1 < len(fb_cells):
+                _set_explicit_freeboard_inlet_from_prev(cell, fb_cells[i + 1])
+            continue
+
+        t_star = _bisect_cell_temperature_to_energy_zero(cell)
+        if t_star is None:
+            cell.T = t_before
+            cell._thermo_cache_valid = False
+            profile.append(
+                {
+                    "i": float(i),
+                    "T_before": t_before,
+                    "T_after": t_before,
+                    "E_before_W": e_before,
+                    "E_after_W": e_before,
+                    "projected": False,
+                }
+            )
+            if i + 1 < len(fb_cells):
+                _set_explicit_freeboard_inlet_from_prev(cell, fb_cells[i + 1])
+            continue
+
+        e_after = abs(float(cell.calc_energy_balance()))
+        n_projected += 1
+        profile.append(
+            {
+                "i": float(i),
+                "T_before": t_before,
+                "T_after": float(t_star),
+                "E_before_W": e_before,
+                "E_after_W": e_after,
+                "projected": True,
+            }
+        )
+        if i + 1 < len(fb_cells):
+            _set_explicit_freeboard_inlet_from_prev(cell, fb_cells[i + 1])
+
+    return {
+        "enabled": True,
+        "n_projected": int(n_projected),
+        "energy_abs_trigger_W": trigger,
+        "profile": profile,
+    }

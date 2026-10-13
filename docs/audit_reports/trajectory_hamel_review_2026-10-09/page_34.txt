@@ -1,0 +1,86 @@
+4 Trocknung und Pyrolyse des Brennstoffs
+50
+4 Trocknung und Pyrolyse des Brennstoffs
+51
+bedingungen wie Aufheizrate, Temperatur und Druck abhängig. Die Vielzahl der bei der Py-
+rolyse entstehenden Substanzen wird bei der Modellierung auf eine Anzahl repräsentativer
+Spezies reduziert, wobei gewährleistet sein muss, dass alle im Brennstoff enthaltenen Ele-
+mente mindestens in einer der Modellsubstanzen enthalten sind. Als Berechnungsgrundlagen
+für die Ausbeuten einzelner Substanzen werden sowohl die Elementarbilanz des Brennstoffs
+und seiner Pyrolyseprodukte, als auch experimentelle Ergebnisse und halbempirische Modelle
+zu Ausbeuten bestimmter Produkte herangezogen.
+4.1 
+Modellierung der Trocknung und Pyrolyse
+Um den teilweise zeitgleichen Ablauf von Trocknung und Pyrolyse, des in die Wirbelschicht
+eingebrachten Brennstoffs zu beschreiben, wird das von Agarwal et al. (1986) vorgeschlagene
+Modell verwendet, das auf folgenden Annahmen beruht:
+• 
+Die Partikel sind kugelförmig und behalten ihre Form und Abmessungen während des
+Trocknungs- und Pyrolysevorgangs bei. Schrumpfung, Abrieb oder Fragmentierung
+des Brennstoffpartikels während der Trocknung und Pyrolyse werden nicht berück-
+sichtigt.
+• 
+Feuchtigkeit und flüchtige Bestandteile sind innerhalb des Partikels homogen verteilt.
+• 
+Die Wärmeübertragung an das Partikel und die Wärmeleitung im Innern des Partikels
+sind die geschwindigkeitsbestimmenden Schritte für die Trocknung und die Entga-
+sung. Der Stofftransport läuft schnell ab im Vergleich zur Wärmeübertragung.
+• 
+Die Entgasung wird als thermisch neutral betrachtet.
+• 
+Sekundärreaktionen innerhalb des Partikels zwischen den Pyrolyseprodukten und der
+Feuchtigkeit und den Pyrolyseprodukten werden nicht berücksichtigt.
+• 
+Die Brennstoffpartikel trocknen entlang einer kugelförmigen Trocknungsfront von der
+Partikeloberfläche zur Mitte des Partikels.
+• 
+Der feuchte Partikelkem hat Verdampfungstemperatur.
+• 
+Die Pyrolyse kann durch einen Ansatz nach Anthony und Howard (1976) mit normal-
+verteilten Aktivierungsenergien beschrieben werden.
+Die Berechnung des Trocknungs- und Pyrolysevorgangs erfolgt in zwei Teilschritten. Zu-
+nächst können Trocknung und Pyrolyse gleichzeitig ablaufen, wobei der Durchmesser des
+feuchten Partikelkems mit fortschreitender Trocknung kleiner wird. Die Pyrolyse findet nur in
+der bereits getrockneten äußeren Schale des Partikels statt. Ist die Trocknung des Partikels
+abgeschlossen, findet die weitere Aufheizung und Pyrolyse statt. Bild 4.1 zeigt schematisch
+den Temperaturverlauf eines teilweise getrockneten Brennstoffpartikels.
+4 
+Trocknung und Pyrolyse des Brennstoffs
+Nach dem Eintrag des Brennstoffs in den Reaktor durchläuft dieser vor oder während der
+Verbrennung bzw. Vergasung eine Reihe von Teilprozessen. Diese sind die Trocknung mit
+oder ohne Schrumpfung der Partikel, die Pyrolyse und die Verbrennung bzw. Vergasung der
+flüchtigen und verbleibenden festen Pyrolyseprodukte. Diese Vorgänge laufen im allgemeinen
+in der genannten Reihenfolge ab, wobei allerdings in Abhängigkeit der Betriebsbedingungen
+und der Brennstoffparameter auch eine zeitliche Überlagerung der Teilprozesse stattfinden
+kann, das heißt, dass der nachfolgende Prozess bereits beginnt, obwohl der vorhergehende
+noch nicht abgeschlossen ist. Zur Berechnung der Aufheizung, Trocknung und der Pyrolyse
+des feuchten Brennstoffs wird auf das von Agarwal et al. (1986) vorgeschlagene Modell zu-
+rückgegriffen. Agarwal berechnet den alleinigen Verlauf der Trocknung mit einem “quasista-
+tionären” Modell. Die Berechnung der simultanen Trocknung und Entgasung erfolgt mit ei-
+nem “instationären” Modell. Mit Hilfe des instationären Modells wird innerhalb des bereits
+getrockneten Partikels das Temperaturprofil berechnet, mit welchem wiederum die Freiset-
+zungsrate von Pyrolyseprodukten ermittelt werden kann. Dieses Modell wurde von Fett et al.
+(1994) und Dersch (1994) erfolgreich zur Berechnung der Trocknung und Entgasung von
+feuchten Braunkohlen in zirkulierenden Wirbelschichten eingesetzt. Basierend auf dem insta-
+tionären Trocknungsmodell konnte Wirsum (1998) den Trocknungsverlauf von Klär-
+schlammklumpen in der Wirbelschicht modellieren.
+Der Berechnung der Kinetik der Flüchtigenfreisetzung liegt in dieser Arbeit, analog zu Dersch
+(1994), die Annahme zugrunde, dass die Pyrolyse durch eine große Anzahl von unabhängigen
+parallelen Einzelreaktionen erster Ordnung beschrieben werden kann (Hanbaba et al. 1968,
+Anthony und Howard 1976). Jede Entgasungsreaktion kann durch eine eigene Flüchtigenaus-
+beute und durch eigene reaktionskinetische Parameter, Frequenzfaktor und Aktivierungsener-
+gie charakterisiert werden. Zur mathematischen Beschreibung wird ferner angenommen, dass
+die Zahl der Reaktionen hinreichend groß ist, so dass die Aktivierungsenergie und der Fre-
+quenzfaktor durch eine kontinuierliche Verteilungsfunktion beschrieben werden können. Ver-
+einfachend wird nach Anthony und Howard (1976) fiir alle Reaktionen derselbe Frequenz-
+faktor angenommen, während für die Aktivierungsenergie eine Gaußsche Normalverteilung
+zugrundegelegt wird.
+Neben dem zeitlichen Verlauf der Massenabnahme des Brennstoffpartikels durch die Pyrolyse
+ist für die Modellierung die Zusammensetzung der flüchtigen Bestandteile von großer Be-
+deutung. Durch die während der Pyrolyse ablaufenden Reaktionen und Prozesse werden kom-
+plexe Moleküle in kleinere Moleküle und wasserstoffarme Pyrolyserückstände umgewandelt.
+Eine Übersicht zu experimentellen Daten, kinetischen Parametern und Mechanismen gibt
+z. B. Solomon et al. (1992). Die entstehenden Produktgruppen sind Permanentgase, darunter
+sind Substanzen, die bei Umgebungsbedingungen im gasförmigen Zustand vorliegen, zu ver-
+stehen, Öle und Teere sowie Restkoks. Die relative Ausbeute dieser Produktgruppen und de-
+ren Zusammensetzung ist von der Brennstoffzusammensetzung selbst und von den Pyrolyse-

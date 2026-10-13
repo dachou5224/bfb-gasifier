@@ -3,6 +3,18 @@
 This module keeps the solver-graph view and the structured linear algebra
 separate from ``global_nr_solver.py`` so we can evolve the implementation
 without disturbing the Newton control flow.
+
+Hamel (1999) §2.3 / B-tier P0-2 layout (Ref: ``docs/hamel_b_tier_thesis_extraction.md`` §4):
+
+- **Band blocks** ``band_block_pairs``: main-chain axial neighbors (|i−j| ≤ 1).
+- **Side blocks** ``side_block_pairs``: Nebenelemente from ``connectivity_graph``
+  via ``jacobian_side_block_pairs_from_connectivity_graph`` (nonlocal rez/zu/return).
+- **Assembly**: ``assemble_jacobian_fd_structured`` fills declared blocks by FD;
+  entries outside band∪side → ``unexpected_blocks`` (B-tier gate).
+- **Linear solve**: ``solve_structured_linear_step`` = band LU + Woodbury side correction.
+
+NR neighborhood for FD columns: ``Reactor._affected_nr_residual_cells`` →
+``connectivity_graph.affected_nr_residual_cells`` (must cover side-block row indices).
 """
 
 from __future__ import annotations
@@ -17,6 +29,17 @@ from scipy.sparse.linalg import splu
 
 from src.core.cell import Cell
 from src.solvers.nr_indexing import build_var_index_to_cell_map, cell_offsets, unpack_reactor
+
+try:
+    from src.core.connectivity_graph import (
+        ConnectivityGraph,
+        jacobian_side_block_pairs_from_connectivity_graph,
+        solver_topology_from_graph,
+    )
+except ImportError:  # pragma: no cover
+    ConnectivityGraph = None  # type: ignore[misc, assignment]
+    jacobian_side_block_pairs_from_connectivity_graph = None  # type: ignore[assignment]
+    solver_topology_from_graph = None  # type: ignore[assignment]
 
 _BLOCK_NNZ_TOL = 1e-14
 
@@ -144,7 +167,11 @@ def build_solver_graph(cells: list[Cell]) -> SolverGraph:
     )
 
 
-def build_jacobian_structure(graph: SolverGraph, cells: list[Cell]) -> JacobianStructure:
+def build_jacobian_structure(
+    graph: SolverGraph,
+    cells: list[Cell],
+    connectivity_graph: ConnectivityGraph | None = None,
+) -> JacobianStructure:
     """Build the block sparsity pattern from the inferred solver graph."""
     offsets = tuple(cell_offsets(cells))
     n_blocks = len(graph.blocks)
@@ -158,7 +185,22 @@ def build_jacobian_structure(graph: SolverGraph, cells: list[Cell]) -> JacobianS
     side_pairs: set[tuple[int, int]] = set()
     side_tail_blocks: tuple[int, ...] = tuple()
     side_head_blocks: tuple[int, ...] = tuple()
-    if graph.n_freeboard == 0 and graph.n_bed > 1:
+
+    if connectivity_graph is not None and jacobian_side_block_pairs_from_connectivity_graph is not None:
+        topo = solver_topology_from_graph(connectivity_graph)
+        side_pairs = set(jacobian_side_block_pairs_from_connectivity_graph(connectivity_graph))
+        if topo.has_side_blocks:
+            side_head_blocks = (
+                tuple(range(topo.n_bed))
+                if topo.explicit_freeboard_graph
+                else ((0,) if topo.n_bed > 0 else tuple())
+            )
+            tail_candidates = [topo.source_tail_idx, topo.cyclone_idx, topo.return_leg_idx]
+            side_tail_blocks = tuple(dict.fromkeys(int(v) for v in tail_candidates if v is not None))
+        elif topo.n_bed > 1:
+            side_head_blocks = (0,)
+            side_tail_blocks = (topo.top_bed_idx,)
+    elif graph.n_freeboard == 0 and graph.n_bed > 1:
         # Bed-only thesis/validation cases can still have a top-cell -> bottom-cell
         # recycle boundary, and bottom-cell transport can enter upstream energy
         # rows through axial solid enthalpy.  Keep those nonlocal closures as
@@ -172,7 +214,7 @@ def build_jacobian_structure(graph: SolverGraph, cells: list[Cell]) -> JacobianS
                     side_pairs.add((row_idx, 0))
             side_head_blocks = (0,)
             side_tail_blocks = (top_bed_idx,)
-    if graph.tail_start is not None and graph.head_stop is not None:
+    if not side_pairs and graph.tail_start is not None and graph.head_stop is not None:
         source_tail_idx = graph.n_bed + graph.n_freeboard - 1 if graph.n_freeboard > 0 else graph.n_bed - 1
         cyclone_idx = next((b.cell_index for b in graph.blocks if b.kind == "cyclone"), None)
         return_leg_idx = next((b.cell_index for b in graph.blocks if b.kind == "return_leg"), None)
@@ -304,10 +346,16 @@ def assemble_jacobian_fd_structured(
     structure: JacobianStructure,
     apply_local_bc_fn: Callable[[int], None] | None = None,
     affected_residual_cells_fn: Callable[[int], tuple[int, ...]] | None = None,
+    analytic_overlay: bool = False,
     verbose: bool = False,
 ) -> StructuredJacobian:
     """Assemble a structured FD Jacobian directly on the declared block graph."""
     from src.solvers.global_nr_solver import _project_cell_residual_to_main_nr
+    from src.solvers.jacobian_analytic import (
+        apply_analytic_overlay_to_band_column,
+        apply_analytic_overlay_to_column,
+        project_stencil_balance_residual,
+    )
 
     n_total = len(x)
     offsets = structure.offsets
@@ -343,64 +391,106 @@ def assemble_jacobian_fd_structured(
     apply_bc_fn()
     F0 = np.concatenate([_project_cell_residual_to_main_nr(c) for c in cells])
     F0s = F0 / eq_scale
+    F_stencil_0s: np.ndarray | None = None
+    if analytic_overlay:
+        F_stencil_0 = np.concatenate([project_stencil_balance_residual(c) for c in cells])
+        F_stencil_0s = F_stencil_0 / eq_scale
     if verbose and len(x) > 100:
         print(f"DEBUG: Building structured Jacobian for {n_total} variables...")
 
-    x_p = x.copy()
-    for j in range(n_total):
-        if verbose and j > 0 and j % 100 == 0:
-            print(f"DEBUG:   Structured Jacobian progress: {j}/{n_total}")
+    from src.solvers.jacobian_transport_freeze import (
+        enter_jacobian_transport_k_freeze,
+        exit_jacobian_transport_k_freeze,
+    )
 
-        col_block = int(var_to_cell[j])
-        xj = float(x[j])
-        h = max(1e-6 * max(abs(xj), 1.0), 1e-8)
-        x_p[j] = xj
-        x_p[j] += h
+    enter_jacobian_transport_k_freeze(cells)
+    try:
+        x_p = x.copy()
+        for j in range(n_total):
+            if verbose and j > 0 and j % 100 == 0:
+                print(f"DEBUG:   Structured Jacobian progress: {j}/{n_total}")
 
-        unpack_reactor(x_p, cells)
-        if apply_local_bc_fn is not None:
-            apply_local_bc_fn(col_block)
-        else:
+            # Packed NR state does not include frozen transport coefficients (K_solid, …).
+            # Re-sync from the base iterate before each column perturbation so prior FD
+            # columns cannot drift cached BC / transport data used by later columns.
+            unpack_reactor(x, cells)
             apply_bc_fn()
-        affected_row_blocks = affected_row_blocks_by_col[col_block]
-        if len(affected_row_blocks) == n_blocks:
-            F_p_all = np.concatenate([_project_cell_residual_to_main_nr(c) for c in cells])
-            residual_cell_calls += len(cells)
-        else:
-            F_p_all = None
 
-        for row_block in affected_row_blocks:
-            cell = cells[row_block]
-            row_start = offsets[row_block]
-            row_end = offsets[row_block + 1]
-            if F_p_all is None:
-                F_local = _project_cell_residual_to_main_nr(cell)
-                residual_cell_calls += 1
+            col_block = int(var_to_cell[j])
+            xj = float(x[j])
+            h = max(1e-6 * max(abs(xj), 1.0), 1e-8)
+            x_p[:] = x
+            x_p[j] = xj + h
+
+            unpack_reactor(x_p, cells)
+            if apply_local_bc_fn is not None:
+                apply_local_bc_fn(col_block)
             else:
-                F_local = F_p_all[row_start:row_end]
-            dF_local = (F_local / eq_scale[row_start:row_end] - F0s[row_start:row_end]) / h
-            nz = np.flatnonzero(np.abs(dF_local) > _BLOCK_NNZ_TOL)
-            if nz.size == 0:
-                continue
-            rows_all.extend((row_start + nz).tolist())
-            cols_all.extend([j] * int(nz.size))
-            vals_all.extend(dF_local[nz].astype(float).tolist())
-            if (row_block, col_block) in structure.band_block_pairs:
-                band_rows.extend((row_start + nz).tolist())
-                band_cols.extend([j] * int(nz.size))
-                band_vals.extend(dF_local[nz].astype(float).tolist())
-                continue
-            if (row_block, col_block) in structure.side_block_pairs:
-                block_key = (row_block, col_block)
-                block_arr = side_block_arrays.get(block_key)
-                if block_arr is None:
-                    block_arr = np.zeros((row_end - row_start, offsets[col_block + 1] - offsets[col_block]), dtype=np.float64)
-                    side_block_arrays[block_key] = block_arr
-                block_arr[nz, j - offsets[col_block]] = dF_local[nz]
-                continue
-            unexpected_blocks.add((row_block, col_block))
+                apply_bc_fn()
+            affected_row_blocks = affected_row_blocks_by_col[col_block]
+            if len(affected_row_blocks) == n_blocks:
+                F_p_all = np.concatenate([_project_cell_residual_to_main_nr(c) for c in cells])
+                residual_cell_calls += len(cells)
+            else:
+                F_p_all = None
 
-        x_p[j] = xj
+            for row_block in affected_row_blocks:
+                cell = cells[row_block]
+                row_start = offsets[row_block]
+                row_end = offsets[row_block + 1]
+                if F_p_all is None:
+                    F_local = _project_cell_residual_to_main_nr(cell)
+                    residual_cell_calls += 1
+                else:
+                    F_local = F_p_all[row_start:row_end]
+                dF_local = (F_local / eq_scale[row_start:row_end] - F0s[row_start:row_end]) / h
+                if analytic_overlay:
+                    col_local = j - offsets[col_block]
+                    if row_block == col_block:
+                        F_stencil_p = project_stencil_balance_residual(cell)
+                        dF_stencil = (F_stencil_p / eq_scale[row_start:row_end] - F_stencil_0s[row_start:row_end]) / h
+                        dF_local = apply_analytic_overlay_to_column(
+                            dF_local,
+                            cell,
+                            col_local=col_local,
+                            eq_scale_local=eq_scale[row_start:row_end],
+                            dF_stencil_local=dF_stencil,
+                        )
+                    elif (row_block, col_block) in structure.band_block_pairs:
+                        F_stencil_p = project_stencil_balance_residual(cell)
+                        dF_stencil = (F_stencil_p / eq_scale[row_start:row_end] - F_stencil_0s[row_start:row_end]) / h
+                        dF_local = apply_analytic_overlay_to_band_column(
+                            dF_local,
+                            cell,
+                            cells[col_block],
+                            col_local=col_local,
+                            eq_scale_local=eq_scale[row_start:row_end],
+                            dF_stencil_local=dF_stencil,
+                            row_block=row_block,
+                            col_block=col_block,
+                        )
+                nz = np.flatnonzero(np.abs(dF_local) > _BLOCK_NNZ_TOL)
+                if nz.size == 0:
+                    continue
+                rows_all.extend((row_start + nz).tolist())
+                cols_all.extend([j] * int(nz.size))
+                vals_all.extend(dF_local[nz].astype(float).tolist())
+                if (row_block, col_block) in structure.band_block_pairs:
+                    band_rows.extend((row_start + nz).tolist())
+                    band_cols.extend([j] * int(nz.size))
+                    band_vals.extend(dF_local[nz].astype(float).tolist())
+                    continue
+                if (row_block, col_block) in structure.side_block_pairs:
+                    block_key = (row_block, col_block)
+                    block_arr = side_block_arrays.get(block_key)
+                    if block_arr is None:
+                        block_arr = np.zeros((row_end - row_start, offsets[col_block + 1] - offsets[col_block]), dtype=np.float64)
+                        side_block_arrays[block_key] = block_arr
+                    block_arr[nz, j - offsets[col_block]] = dF_local[nz]
+                    continue
+                unexpected_blocks.add((row_block, col_block))
+    finally:
+        exit_jacobian_transport_k_freeze(cells)
 
     unpack_reactor(x, cells)
     apply_bc_fn()
@@ -428,27 +518,119 @@ def assemble_jacobian_fd_structured(
     )
 
 
+def assemble_jacobian_hybrid_structured(
+    x: np.ndarray,
+    F0: np.ndarray,
+    cells: list[Cell],
+    apply_bc_fn: Callable[[], None],
+    eq_scale: np.ndarray,
+    *,
+    structure: JacobianStructure,
+    apply_local_bc_fn: Callable[[int], None] | None = None,
+    affected_residual_cells_fn: Callable[[int], tuple[int, ...]] | None = None,
+    verbose: bool = False,
+) -> StructuredJacobian:
+    """Structured Jacobian: FD on declared graph + Hamel analytic overlays (side-block T, …)."""
+    return assemble_jacobian_fd_structured(
+        x=x,
+        F0=F0,
+        cells=cells,
+        apply_bc_fn=apply_bc_fn,
+        eq_scale=eq_scale,
+        structure=structure,
+        apply_local_bc_fn=apply_local_bc_fn,
+        affected_residual_cells_fn=affected_residual_cells_fn,
+        analytic_overlay=True,
+        verbose=verbose,
+    )
+
+
+def _null_exact_zero_jacobian_columns(
+    dx: np.ndarray,
+    J: sp.spmatrix,
+) -> tuple[np.ndarray, int]:
+    """Set dx[j]=0 for structurally empty Jacobian columns (dead NR DOFs).
+
+    Top freeboard / cyclone / return-leg temperature columns can be exact zeros;
+    the structured Schur solve then invents |ΔT|~1e5–1e6 K in that null space.
+    Keeping the rest of the Newton direction (defect ~1e-2) is far better than
+    replacing the whole step with a min-norm lstsq that ruins descent.
+    """
+    out = np.asarray(dx, dtype=np.float64).copy()
+    Jcsc = J.tocsc()
+    indptr = Jcsc.indptr
+    n_nulled = 0
+    for j in range(int(Jcsc.shape[1])):
+        if indptr[j + 1] == indptr[j] and out[j] != 0.0:
+            out[j] = 0.0
+            n_nulled += 1
+    return out, int(n_nulled)
+
+
+def _rescale_temperature_dofs(
+    dx: np.ndarray,
+    t_dof_indices: np.ndarray,
+    t_max_step_K: float,
+) -> tuple[np.ndarray, float]:
+    """Uniformly shrink T DOFs so max|ΔT| ≤ t_max_step_K; leave gas/solid untouched.
+
+    Prefer this over replacing the whole Newton step with sparse lstsq: the Schur
+    gas/solid direction usually has small linear defect (~1e-2), while a full
+    fallback + global α clip can explode clip-defect and collapse syngas.
+    """
+    out = np.asarray(dx, dtype=np.float64).copy()
+    idx = np.asarray(t_dof_indices, dtype=np.intp)
+    if idx.size == 0:
+        return out, 1.0
+    max_dT = float(np.max(np.abs(out[idx])))
+    t_max = float(t_max_step_K)
+    if max_dT <= t_max or max_dT <= 0.0:
+        return out, 1.0
+    scale = t_max / max_dT
+    out[idx] *= scale
+    return out, float(scale)
+
+
 def solve_structured_linear_step(
     structured: StructuredJacobian,
     rhs: np.ndarray,
     *,
     regularize: bool = False,
+    t_dof_indices: np.ndarray | None = None,
+    t_max_step_K: float = 600.0,
+    large_step_threshold: float = 5000.0,
 ) -> tuple[np.ndarray, str, bool, dict[str, float | int | bool]]:
-    """Solve ``(J_band + side) dx = rhs`` using Woodbury-style side correction."""
+    """Solve ``(J_band + side) dx = rhs`` using Woodbury-style side correction.
+
+    After the Schur solve:
+    1. null exact-zero Jacobian columns (dead freeboard/side T DOFs);
+    2. if max|ΔT| still exceeds ``t_max_step_K``, rescale **T DOFs only**.
+
+    Full sparse lstsq fallback is reserved for invalid structure / band LU failure.
+    """
     timing = {
         "band_lu_s": 0.0,
         "side_update_s": 0.0,
         "schur_size": 0,
         "fallback_used": False,
+        "zero_column_dx_nulls": 0,
+        "t_dof_rescale": 1.0,
     }
-    if not structured.structure_validation_ok:
-        dx, method, regularized = solve_sparse_direct_linear_step(
+
+    def _sparse_fallback(*, force_regularize: bool) -> tuple[np.ndarray, str, bool, dict[str, float | int | bool]]:
+        dx_fb, method_fb, regularized_fb = solve_sparse_direct_linear_step(
             structured.matrix,
             rhs,
-            regularize=regularize,
+            regularize=bool(force_regularize or regularize),
+            t_dof_indices=t_dof_indices,
+            t_max_step_K=float(t_max_step_K),
+            large_step_threshold=float(large_step_threshold),
         )
         timing["fallback_used"] = True
-        return dx, "sparse_direct_fallback", regularized, timing
+        return dx_fb, "sparse_direct_fallback", regularized_fb, timing
+
+    if not structured.structure_validation_ok:
+        return _sparse_fallback(force_regularize=False)
 
     t0 = perf_counter()
     A = structured.band_matrix
@@ -457,30 +639,34 @@ def solve_structured_linear_step(
     try:
         lu = splu(A.tocsc())
     except Exception:
-        dx, method, regularized = solve_sparse_direct_linear_step(
-            structured.matrix,
-            rhs,
-            regularize=True,
-        )
-        timing["fallback_used"] = True
-        return dx, "sparse_direct_fallback", True or regularized, timing
+        return _sparse_fallback(force_regularize=True)
     timing["band_lu_s"] = perf_counter() - t0
 
     U, V = structured.to_uv()
     if U.shape[1] == 0:
-        return lu.solve(rhs), "structured_direct", regularize, timing
+        dx = lu.solve(rhs)
+    else:
+        t1 = perf_counter()
+        y = lu.solve(rhs)
+        Y = lu.solve(U)
+        schur = np.eye(U.shape[1], dtype=np.float64) + V.T @ Y
+        timing["schur_size"] = int(schur.shape[0])
+        try:
+            z = np.linalg.solve(schur, V.T @ y)
+        except Exception:
+            z, _, _, _ = np.linalg.lstsq(schur, V.T @ y, rcond=None)
+        timing["side_update_s"] = perf_counter() - t1
+        dx = y - Y @ z
 
-    t1 = perf_counter()
-    y = lu.solve(rhs)
-    Y = lu.solve(U)
-    schur = np.eye(U.shape[1], dtype=np.float64) + V.T @ Y
-    timing["schur_size"] = int(schur.shape[0])
-    try:
-        z = np.linalg.solve(schur, V.T @ y)
-    except Exception:
-        z, _, _, _ = np.linalg.lstsq(schur, V.T @ y, rcond=None)
-    timing["side_update_s"] = perf_counter() - t1
-    return y - Y @ z, "structured_direct", regularize, timing
+    dx, n_nulled = _null_exact_zero_jacobian_columns(dx, structured.matrix)
+    timing["zero_column_dx_nulls"] = int(n_nulled)
+
+    if t_dof_indices is not None and len(t_dof_indices) > 0:
+        dx, t_scale = _rescale_temperature_dofs(
+            dx, np.asarray(t_dof_indices, dtype=np.intp), float(t_max_step_K)
+        )
+        timing["t_dof_rescale"] = float(t_scale)
+    return dx, "structured_direct", regularize, timing
 
 
 def _tikhonov_svd_damped(

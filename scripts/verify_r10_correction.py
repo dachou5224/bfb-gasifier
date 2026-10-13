@@ -9,10 +9,8 @@ Eq.5.59 with P in Pa and Eq.5.60/5.61 k10 values unchanged.
 from __future__ import annotations
 
 import math
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(".").resolve()))
+import _lu_harness  # noqa: F401
 
 from src.core.constants import Rg
 from src.kinetics.arrhenius import k_hobbs

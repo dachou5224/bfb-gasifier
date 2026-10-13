@@ -1,0 +1,107 @@
+{
+  "case": "CASE_HTW_WESSELING_2",
+  "check1_tol": 0.03,
+  "rows": [
+    {
+      "variant": "baseline",
+      "overrides": {},
+      "wall_s": 667.7,
+      "converged_fully": true,
+      "outer_iters": 52,
+      "rms": 0.022693973544089658,
+      "inner_s": 381.5,
+      "preinner_s": 218.0,
+      "refresh_s": 0.1,
+      "T_exit": 1121.6752265359382,
+      "CO": 0.2816318450587939,
+      "CO2": 0.36721737689398254,
+      "H2": 0.3261971544516632
+    },
+    {
+      "variant": "jac_lag_8",
+      "overrides": {
+        "nr_jacobian_lag_steps": 8
+      },
+      "wall_s": 717.0,
+      "converged_fully": false,
+      "outer_iters": 80,
+      "rms": 0.5485167835731157,
+      "inner_s": 338.8,
+      "preinner_s": 329.2,
+      "refresh_s": 0.3,
+      "T_exit": 2022.1258750681845,
+      "CO": 0.20600828151142242,
+      "CO2": 0.5024941177100617,
+      "H2": 0.18767114903373874
+    },
+    {
+      "variant": "preinner_no_cont",
+      "overrides": {
+        "nr_outer_preinner_on_check1_continuation_thesis": false
+      },
+      "wall_s": 625.8,
+      "converged_fully": false,
+      "outer_iters": 74,
+      "rms": 0.03476128760250261,
+      "inner_s": 469.5,
+      "preinner_s": 115.8,
+      "refresh_s": 0.1,
+      "T_exit": 1095.7571387930443,
+      "CO": 0.2639296825103369,
+      "CO2": 0.37538810202346445,
+      "H2": 0.33095182009977925
+    },
+    {
+      "variant": "solid_energy_off",
+      "overrides": {
+        "nr_outer_preinner_solid_energy_preprojection_thesis": false
+      },
+      "wall_s": 507.4,
+      "converged_fully": true,
+      "outer_iters": 61,
+      "rms": 0.02743552457266309,
+      "inner_s": 402.2,
+      "preinner_s": 68.3,
+      "refresh_s": 0.1,
+      "T_exit": 1095.2006393468462,
+      "CO": 0.2595405074293049,
+      "CO2": 0.39034850314324143,
+      "H2": 0.31568944856508385
+    },
+    {
+      "variant": "jac8_no_cont",
+      "overrides": {
+        "nr_jacobian_lag_steps": 8,
+        "nr_outer_preinner_on_check1_continuation_thesis": false
+      },
+      "wall_s": 437.2,
+      "converged_fully": true,
+      "outer_iters": 73,
+      "rms": 0.029964760673493324,
+      "inner_s": 307.2,
+      "preinner_s": 91.6,
+      "refresh_s": 0.1,
+      "T_exit": 1073.7985255558053,
+      "CO": 0.25538241616703905,
+      "CO2": 0.3891383187512357,
+      "H2": 0.32541634295054744
+    },
+    {
+      "variant": "phase_split_off",
+      "overrides": {
+        "nr_outer_preinner_phase_split_preprojection_thesis": false
+      },
+      "wall_s": 301.5,
+      "converged_fully": false,
+      "outer_iters": 80,
+      "rms": 0.7474546278280473,
+      "inner_s": 250.0,
+      "preinner_s": 13.0,
+      "refresh_s": 0.2,
+      "T_exit": 2199.6649375681845,
+      "CO": 0.23740447179145724,
+      "CO2": 0.4578979068325496,
+      "H2": 0.10768098180529327
+    }
+  ]
+}

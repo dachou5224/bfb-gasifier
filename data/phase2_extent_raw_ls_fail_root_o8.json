@@ -1,0 +1,1155 @@
+{
+  "final": {
+    "rms": 0.03701723582182412,
+    "split": 0.03701723582182412,
+    "energy": 0.013306440097176431,
+    "gas": 0.019689759751221784,
+    "merit_proxy": 0.03701723582182412
+  },
+  "outer_compact": [
+    {
+      "i": 0,
+      "outer_iter": 1,
+      "vorabrechnung_signature_before_refresh": "vorab:v1:n=200;vm=10;sum=2.29194909e+04;sumsq=2.60821069e+07",
+      "refresh_skipped_for_check1_gate": false,
+      "dT_refresh": 0.0,
+      "signature_changed_by_refresh": true,
+      "refresh_seed_reset_threshold": 12.50917771362183,
+      "lambda_seed_reset_by_refresh": false,
+      "lambda_seed_used": 0.5,
+      "inner_iter_cap": 22,
+      "inner_n_iter": 3,
+      "inner_n_newton_iters_attempted": 4,
+      "inner_rms_scaled_final": 0.06910448874114683,
+      "outer_energy_rms_final": 0.06910448874114683,
+      "outer_merit_composite": 0.06910448874114683,
+      "outer_merit_best_so_far": 0.06910448874114683,
+      "preinner_phase_split_enabled": true,
+      "preinner_split_rms_before": 0.058346426501291855,
+      "preinner_split_rms_after": 0.058346426501291855,
+      "preinner_merit_before": 0.07924784497648205,
+      "preinner_merit_after": 0.07960202470872565,
+      "preinner_bed0_accepted": false,
+      "preinner_bed1_accepted": false,
+      "preinner_bed2_accepted": false,
+      "preinner_global_gate_pass": false,
+      "preinner_split_only_fallback": false,
+      "preinner_solid_rms_before": 0.008497079796111327,
+      "preinner_solid_rms_after": 0.00857149891125619,
+      "preinner_energy_rms_before": 0.07924784497648205,
+      "preinner_energy_rms_after": 0.07960202470872565,
+      "preinner_merit_driven": true,
+      "preinner_skipped_all_tiers": false,
+      "preinner_holdup_reconciled": false,
+      "preinner_holdup_flux_mismatch_before": 0.5898764238846763,
+      "preinner_holdup_skipped_check1_continuation": false,
+      "preinner_run_holdup_reconcile": true,
+      "preinner_split_shock": false,
+      "preinner_bed1_energy_t_accepted": false,
+      "outer_dT_tol_effective": 1.0,
+      "gas_phase_split_rms": 0.050293274143647405,
+      "gas_phase_split_max_abs": 0.11199159265269967,
+      "outer_gas_split_gate_enabled": true,
+      "outer_gas_split_tol": 0.05,
+      "outer_bed0_primary_gate_enabled": false,
+      "outer_bed0_primary_tol": 0.1,
+      "outer_gas_check_pass": false
+    },
+    {
+      "i": 1,
+      "outer_iter": 2,
+      "vorabrechnung_signature_before_refresh": "vorab:v1:n=200;vm=10;sum=2.20167089e+04;sumsq=2.41692348e+07",
+      "refresh_skipped_for_check1_gate": true,
+      "dT_refresh": 0.0,
+      "signature_changed_by_refresh": false,
+      "refresh_seed_reset_threshold": 13.170546115829186,
+      "lambda_seed_reset_by_refresh": false,
+      "lambda_seed_used": 0.25,
+      "inner_iter_cap": 36,
+      "inner_n_iter": 7,
+      "inner_n_newton_iters_attempted": 8,
+      "inner_rms_scaled_final": 0.0424821185400862,
+      "outer_energy_rms_final": 0.0424821185400862,
+      "outer_merit_composite": 0.0424821185400862,
+      "outer_merit_best_so_far": 0.0424821185400862,
+      "preinner_phase_split_enabled": true,
+      "preinner_split_rms_before": 0.050293274143647405,
+      "preinner_split_rms_after": 0.050293274143647405,
+      "preinner_merit_before": 0.06910448874114683,
+      "preinner_merit_after": 0.06912365284233929,
+      "preinner_bed0_accepted": false,
+      "preinner_bed1_accepted": false,
+      "preinner_bed2_accepted": false,
+      "preinner_global_gate_pass": false,
+      "preinner_split_only_fallback": false,
+      "preinner_solid_rms_before": 0.005432330687146569,
+      "preinner_solid_rms_after": 0.005432328416197049,
+      "preinner_energy_rms_before": 0.06910448874114683,
+      "preinner_energy_rms_after": 0.06912365284233929,
+      "preinner_merit_driven": true,
+      "preinner_skipped_all_tiers": false,
+      "preinner_holdup_reconciled": false,
+      "preinner_holdup_flux_mismatch_before": 0.4667343978805307,
+      "preinner_holdup_skipped_check1_continuation": true,
+      "preinner_run_holdup_reconcile": false,
+      "preinner_split_shock": false,
+      "preinner_bed1_energy_t_accepted": false,
+      "outer_dT_tol_effective": 1.0,
+      "gas_phase_split_rms": 0.041534946792365066,
+      "gas_phase_split_max_abs": 0.1309738306473336,
+      "outer_gas_split_gate_enabled": true,
+      "outer_gas_split_tol": 0.05,
+      "outer_bed0_primary_gate_enabled": false,
+      "outer_bed0_primary_tol": 0.1,
+      "outer_gas_check_pass": true
+    },
+    {
+      "i": 2,
+      "outer_iter": 3,
+      "vorabrechnung_signature_before_refresh": "vorab:v1:n=200;vm=10;sum=2.02705346e+04;sumsq=2.06074874e+07",
+      "refresh_skipped_for_check1_gate": true,
+      "dT_refresh": 0.0,
+      "signature_changed_by_refresh": false,
+      "refresh_seed_reset_threshold": 13.815330256300951,
+      "lambda_seed_reset_by_refresh": false,
+      "lambda_seed_used": 0.5,
+      "inner_iter_cap": 28,
+      "inner_n_iter": 1,
+      "inner_n_newton_iters_attempted": 2,
+      "inner_rms_scaled_final": 0.0424821185400862,
+      "outer_energy_rms_final": 0.0424821185400862,
+      "outer_merit_composite": 0.0424821185400862,
+      "outer_merit_best_so_far": 0.0424821185400862,
+      "preinner_phase_split_enabled": true,
+      "preinner_split_rms_before": 0.041534946792365066,
+      "preinner_split_rms_after": 0.039890031772654315,
+      "preinner_merit_before": 0.0424821185400862,
+      "preinner_merit_after": 0.042279798521933344,
+      "preinner_bed0_accepted": false,
+      "preinner_bed1_accepted": true,
+      "preinner_bed2_accepted": false,
+      "preinner_global_gate_pass": true,
+      "preinner_split_only_fallback": false,
+      "preinner_solid_rms_before": 0.003564465807712796,
+      "preinner_solid_rms_after": 0.00356293162100653,
+      "preinner_energy_rms_before": 0.0424821185400862,
+      "preinner_energy_rms_after": 0.042279798521933344,
+      "preinner_merit_driven": true,
+      "preinner_skipped_all_tiers": false,
+      "preinner_holdup_reconciled": false,
+      "preinner_holdup_flux_mismatch_before": 0.6550335176870867,
+      "preinner_holdup_skipped_check1_continuation": true,
+      "preinner_run_holdup_reconcile": false,
+      "preinner_split_shock": false,
+      "preinner_bed1_energy_t_accepted": false,
+      "outer_dT_tol_effective": 1.0,
+      "gas_phase_split_rms": 0.039890031772654315,
+      "gas_phase_split_max_abs": 0.12312342685218461,
+      "outer_gas_split_gate_enabled": true,
+      "outer_gas_split_tol": 0.05,
+      "outer_bed0_primary_gate_enabled": false,
+      "outer_bed0_primary_tol": 0.1,
+      "outer_gas_check_pass": true
+    },
+    {
+      "i": 3,
+      "outer_iter": 4,
+      "vorabrechnung_signature_before_refresh": "vorab:v1:n=200;vm=10;sum=2.02705175e+04;sumsq=2.06074870e+07",
+      "refresh_skipped_for_check1_gate": false,
+      "dT_refresh": 0.0,
+      "signature_changed_by_refresh": true,
+      "refresh_seed_reset_threshold": 13.815330256300951,
+      "lambda_seed_reset_by_refresh": false,
+      "lambda_seed_used": 0.5,
+      "inner_iter_cap": 14,
+      "inner_n_iter": 2,
+      "inner_n_newton_iters_attempted": 3,
+      "inner_rms_scaled_final": 0.06580686397576659,
+      "outer_energy_rms_final": 0.06580686397576659,
+      "outer_merit_composite": 0.06580686397576659,
+      "outer_merit_best_so_far": 0.0424821185400862,
+      "preinner_phase_split_enabled": true,
+      "preinner_split_rms_before": 0.039890031772654315,
+      "preinner_split_rms_after": 0.039890031772654315,
+      "preinner_merit_before": 0.042279798521933344,
+      "preinner_merit_after": 0.042279798521933344,
+      "preinner_bed0_accepted": false,
+      "preinner_bed1_accepted": false,
+      "preinner_bed2_accepted": false,
+      "preinner_global_gate_pass": true,
+      "preinner_split_only_fallback": true,
+      "preinner_solid_rms_before": 0.00356293162100653,
+      "preinner_solid_rms_after": 0.00356293162100653,
+      "preinner_energy_rms_before": 0.042279798521933344,
+      "preinner_energy_rms_after": 0.042279798521933344,
+      "preinner_merit_driven": true,
+      "preinner_skipped_all_tiers": false,
+      "preinner_holdup_reconciled": false,
+      "preinner_holdup_flux_mismatch_before": 0.6559034056297375,
+      "preinner_holdup_skipped_check1_continuation": false,
+      "preinner_run_holdup_reconcile": true,
+      "preinner_split_shock": false,
+      "preinner_bed1_energy_t_accepted": false,
+      "outer_dT_tol_effective": 1.0,
+      "gas_phase_split_rms": 0.04012727677051591,
+      "gas_phase_split_max_abs": 0.2150106733528748,
+      "outer_gas_split_gate_enabled": true,
+      "outer_gas_split_tol": 0.05,
+      "outer_bed0_primary_gate_enabled": false,
+      "outer_bed0_primary_tol": 0.1,
+      "outer_gas_check_pass": true
+    },
+    {
+      "i": 4,
+      "outer_iter": 5,
+      "vorabrechnung_signature_before_refresh": "vorab:v1:n=200;vm=10;sum=1.93398956e+04;sumsq=1.91668317e+07",
+      "refresh_skipped_for_check1_gate": true,
+      "dT_refresh": 0.0,
+      "signature_changed_by_refresh": false,
+      "refresh_seed_reset_threshold": 13.791229944305384,
+      "lambda_seed_reset_by_refresh": false,
+      "lambda_seed_used": 1.0,
+      "inner_iter_cap": 23,
+      "inner_n_iter": 4,
+      "inner_n_newton_iters_attempted": 5,
+      "inner_rms_scaled_final": 0.03861343599549256,
+      "outer_energy_rms_final": 0.013357813073653326,
+      "outer_merit_composite": 0.03861343599549256,
+      "outer_merit_best_so_far": 0.03861343599549256,
+      "preinner_phase_split_enabled": true,
+      "preinner_split_rms_before": 0.04012727677051591,
+      "preinner_split_rms_after": 0.039698427279612106,
+      "preinner_merit_before": 0.06580686397576659,
+      "preinner_merit_after": 0.0657917772348675,
+      "preinner_bed0_accepted": false,
+      "preinner_bed1_accepted": true,
+      "preinner_bed2_accepted": false,
+      "preinner_global_gate_pass": true,
+      "preinner_split_only_fallback": false,
+      "preinner_solid_rms_before": 0.0023209583698253593,
+      "preinner_solid_rms_after": 0.002322433552849708,
+      "preinner_energy_rms_before": 0.06580686397576659,
+      "preinner_energy_rms_after": 0.0657917772348675,
+      "preinner_merit_driven": true,
+      "preinner_skipped_all_tiers": false,
+      "preinner_holdup_reconciled": false,
+      "preinner_holdup_flux_mismatch_before": 0.6773950671149342,
+      "preinner_holdup_skipped_check1_continuation": true,
+      "preinner_run_holdup_reconcile": false,
+      "preinner_split_shock": false,
+      "preinner_bed1_energy_t_accepted": false,
+      "outer_dT_tol_effective": 1.0,
+      "gas_phase_split_rms": 0.03861343599549256,
+      "gas_phase_split_max_abs": 0.13712243074523883,
+      "outer_gas_split_gate_enabled": true,
+      "outer_gas_split_tol": 0.05,
+      "outer_bed0_primary_gate_enabled": false,
+      "outer_bed0_primary_tol": 0.1,
+      "outer_gas_check_pass": true
+    },
+    {
+      "i": 5,
+      "outer_iter": 6,
+      "vorabrechnung_signature_before_refresh": "vorab:v1:n=200;vm=10;sum=1.91642628e+04;sumsq=1.89927261e+07",
+      "refresh_skipped_for_check1_gate": true,
+      "dT_refresh": 0.0,
+      "signature_changed_by_refresh": false,
+      "refresh_seed_reset_threshold": 14.113419928354798,
+      "lambda_seed_reset_by_refresh": false,
+      "lambda_seed_used": 0.5,
+      "inner_iter_cap": 18,
+      "inner_n_iter": 1,
+      "inner_n_newton_iters_attempted": 2,
+      "inner_rms_scaled_final": 0.03701745727248967,
+      "outer_energy_rms_final": 0.013357813073653326,
+      "outer_merit_composite": 0.03701745727248967,
+      "outer_merit_best_so_far": 0.03701745727248967,
+      "preinner_phase_split_enabled": true,
+      "preinner_split_rms_before": 0.03861343599549256,
+      "preinner_split_rms_after": 0.03701723582182412,
+      "preinner_merit_before": 0.03861343599549256,
+      "preinner_merit_after": 0.03701723582182412,
+      "preinner_bed0_accepted": false,
+      "preinner_bed1_accepted": true,
+      "preinner_bed2_accepted": false,
+      "preinner_global_gate_pass": true,
+      "preinner_split_only_fallback": false,
+      "preinner_solid_rms_before": 0.0013080187908266663,
+      "preinner_solid_rms_after": 0.0013085709250856533,
+      "preinner_energy_rms_before": 0.013357813073653326,
+      "preinner_energy_rms_after": 0.013306440097176431,
+      "preinner_merit_driven": true,
+      "preinner_skipped_all_tiers": false,
+      "preinner_holdup_reconciled": false,
+      "preinner_holdup_flux_mismatch_before": 0.7048488383288338,
+      "preinner_holdup_skipped_check1_continuation": false,
+      "preinner_run_holdup_reconcile": false,
+      "preinner_split_shock": false,
+      "preinner_bed1_energy_t_accepted": false,
+      "outer_dT_tol_effective": 1.0,
+      "gas_phase_split_rms": 0.03701723582182412,
+      "gas_phase_split_max_abs": 0.13212667759255337,
+      "outer_gas_split_gate_enabled": true,
+      "outer_gas_split_tol": 0.05,
+      "outer_bed0_primary_gate_enabled": false,
+      "outer_bed0_primary_tol": 0.1,
+      "outer_gas_check_pass": true
+    },
+    {
+      "i": 6,
+      "outer_iter": 7,
+      "vorabrechnung_signature_before_refresh": "vorab:v1:n=200;vm=10;sum=1.91642446e+04;sumsq=1.89927256e+07",
+      "refresh_skipped_for_check1_gate": true,
+      "dT_refresh": 0.0,
+      "signature_changed_by_refresh": false,
+      "refresh_seed_reset_threshold": 14.113419928354798,
+      "lambda_seed_reset_by_refresh": false,
+      "lambda_seed_used": 0.5,
+      "inner_iter_cap": 16,
+      "inner_n_iter": 1,
+      "inner_n_newton_iters_attempted": 2,
+      "inner_rms_scaled_final": 0.03701745727248967,
+      "outer_energy_rms_final": 0.013357813073653326,
+      "outer_merit_composite": 0.03701745727248967,
+      "outer_merit_best_so_far": 0.03701745727248967,
+      "preinner_phase_split_enabled": true,
+      "preinner_split_rms_before": 0.03701723582182412,
+      "preinner_split_rms_after": 0.03701723582182412,
+      "preinner_merit_before": 0.03701723582182412,
+      "preinner_merit_after": 0.03701723582182412,
+      "preinner_bed0_accepted": false,
+      "preinner_bed1_accepted": false,
+      "preinner_bed2_accepted": false,
+      "preinner_global_gate_pass": true,
+      "preinner_split_only_fallback": false,
+      "preinner_solid_rms_before": 0.0013085709250856533,
+      "preinner_solid_rms_after": 0.0013085709250856533,
+      "preinner_energy_rms_before": 0.013306440097176431,
+      "preinner_energy_rms_after": 0.013306440097176431,
+      "preinner_merit_driven": true,
+      "preinner_skipped_all_tiers": false,
+      "preinner_holdup_reconciled": false,
+      "preinner_holdup_flux_mismatch_before": 0.7056740630881027,
+      "preinner_holdup_skipped_check1_continuation": false,
+      "preinner_run_holdup_reconcile": false,
+      "preinner_split_shock": false,
+      "preinner_bed1_energy_t_accepted": false,
+      "outer_dT_tol_effective": 1.0,
+      "gas_phase_split_rms": 0.03701723582182412,
+      "gas_phase_split_max_abs": 0.13212667759255337,
+      "outer_gas_split_gate_enabled": true,
+      "outer_gas_split_tol": 0.05,
+      "outer_bed0_primary_gate_enabled": false,
+      "outer_bed0_primary_tol": 0.1,
+      "outer_gas_check_pass": true
+    },
+    {
+      "i": 7,
+      "outer_iter": 8,
+      "vorabrechnung_signature_before_refresh": "vorab:v1:n=200;vm=10;sum=1.91642446e+04;sumsq=1.89927256e+07",
+      "refresh_skipped_for_check1_gate": false,
+      "dT_refresh": 0.0,
+      "signature_changed_by_refresh": true,
+      "refresh_seed_reset_threshold": 14.113419928354798,
+      "lambda_seed_reset_by_refresh": false,
+      "lambda_seed_used": 0.5,
+      "inner_iter_cap": 10,
+      "inner_n_iter": 1,
+      "inner_n_newton_iters_attempted": 2,
+      "inner_rms_scaled_final": 0.04033651472350076,
+      "outer_energy_rms_final": 0.04033651472350076,
+      "outer_merit_composite": 0.04033651472350076,
+      "outer_merit_best_so_far": 0.03701745727248967,
+      "preinner_phase_split_enabled": true,
+      "preinner_split_rms_before": 0.03701723582182412,
+      "preinner_split_rms_after": 0.03701723582182412,
+      "preinner_merit_before": 0.03701723582182412,
+      "preinner_merit_after": 0.03701723582182412,
+      "preinner_bed0_accepted": false,
+      "preinner_bed1_accepted": false,
+      "preinner_bed2_accepted": false,
+      "preinner_global_gate_pass": true,
+      "preinner_split_only_fallback": false,
+      "preinner_solid_rms_before": 0.0013085709250856533,
+      "preinner_solid_rms_after": 0.0013085709250856533,
+      "preinner_energy_rms_before": 0.013306440097176431,
+      "preinner_energy_rms_after": 0.013306440097176431,
+      "preinner_merit_driven": true,
+      "preinner_skipped_all_tiers": false,
+      "preinner_holdup_reconciled": false,
+      "preinner_holdup_flux_mismatch_before": 0.7056740630881027,
+      "preinner_holdup_skipped_check1_continuation": false,
+      "preinner_run_holdup_reconcile": false,
+      "preinner_split_shock": false,
+      "preinner_bed1_energy_t_accepted": false,
+      "outer_dT_tol_effective": 1.0,
+      "gas_phase_split_rms": 0.03701723582182412,
+      "gas_phase_split_max_abs": 0.13212667759255337,
+      "outer_gas_split_gate_enabled": true,
+      "outer_gas_split_tol": 0.05,
+      "outer_bed0_primary_gate_enabled": false,
+      "outer_bed0_primary_tol": 0.1,
+      "outer_gas_check_pass": true
+    },
+    {
+      "i": 8,
+      "outer_iter": 9,
+      "vorabrechnung_signature_before_refresh": "vorab:v1:n=200;vm=10;sum=1.91642429e+04;sumsq=1.89927256e+07",
+      "refresh_skipped_for_check1_gate": true,
+      "dT_refresh": 0.0,
+      "signature_changed_by_refresh": false,
+      "refresh_seed_reset_threshold": 14.113419928354798,
+      "lambda_seed_reset_by_refresh": false,
+      "lambda_seed_used": 0.5,
+      "inner_iter_cap": 12,
+      "inner_n_iter": 1,
+      "inner_n_newton_iters_attempted": 2,
+      "inner_rms_scaled_final": 0.04033651472350076,
+      "outer_energy_rms_final": 0.04033651472350076,
+      "outer_merit_composite": 0.04033651472350076,
+      "outer_merit_best_so_far": 0.03701745727248967,
+      "preinner_phase_split_enabled": true,
+      "preinner_split_rms_before": 0.03701723582182412,
+      "preinner_split_rms_after": 0.03701723582182412,
+      "preinner_merit_before": 0.03701723582182412,
+      "preinner_merit_after": 0.03701723582182412,
+      "preinner_bed0_accepted": false,
+      "preinner_bed1_accepted": false,
+      "preinner_bed2_accepted": false,
+      "preinner_global_gate_pass": true,
+      "preinner_split_only_fallback": false,
+      "preinner_solid_rms_before": 0.0013085709250856533,
+      "preinner_solid_rms_after": 0.0013085709250856533,
+      "preinner_energy_rms_before": 0.013306440097176431,
+      "preinner_energy_rms_after": 0.013306440097176431,
+      "preinner_merit_driven": true,
+      "preinner_skipped_all_tiers": false,
+      "preinner_holdup_reconciled": false,
+      "preinner_holdup_flux_mismatch_before": 0.7056740630881027,
+      "preinner_holdup_skipped_check1_continuation": false,
+      "preinner_run_holdup_reconcile": false,
+      "preinner_split_shock": false,
+      "preinner_bed1_energy_t_accepted": false,
+      "outer_dT_tol_effective": 1.0,
+      "gas_phase_split_rms": 0.03701723582182412,
+      "gas_phase_split_max_abs": 0.13212667759255337,
+      "outer_gas_split_gate_enabled": true,
+      "outer_gas_split_tol": 0.05,
+      "outer_bed0_primary_gate_enabled": false,
+      "outer_bed0_primary_tol": 0.1,
+      "outer_gas_check_pass": true
+    },
+    {
+      "i": 9,
+      "outer_iter": 10,
+      "vorabrechnung_signature_before_refresh": "vorab:v1:n=200;vm=10;sum=1.91642429e+04;sumsq=1.89927256e+07",
+      "refresh_skipped_for_check1_gate": false,
+      "dT_refresh": 0.0,
+      "signature_changed_by_refresh": false,
+      "refresh_seed_reset_threshold": 14.113419928354798,
+      "lambda_seed_reset_by_refresh": false,
+      "lambda_seed_used": 0.5,
+      "inner_iter_cap": 10,
+      "inner_n_iter": 1,
+      "inner_n_newton_iters_attempted": 2,
+      "inner_rms_scaled_final": 0.04033651472350076,
+      "outer_energy_rms_final": 0.04033651472350076,
+      "outer_merit_composite": 0.04033651472350076,
+      "outer_merit_best_so_far": 0.03701745727248967,
+      "preinner_phase_split_enabled": true,
+      "preinner_split_rms_before": 0.03701723582182412,
+      "preinner_split_rms_after": 0.03701723582182412,
+      "preinner_merit_before": 0.03701723582182412,
+      "preinner_merit_after": 0.03701723582182412,
+      "preinner_bed0_accepted": false,
+      "preinner_bed1_accepted": false,
+      "preinner_bed2_accepted": false,
+      "preinner_global_gate_pass": true,
+      "preinner_split_only_fallback": false,
+      "preinner_solid_rms_before": 0.0013085709250856533,
+      "preinner_solid_rms_after": 0.0013085709250856533,
+      "preinner_energy_rms_before": 0.013306440097176431,
+      "preinner_energy_rms_after": 0.013306440097176431,
+      "preinner_merit_driven": true,
+      "preinner_skipped_all_tiers": false,
+      "preinner_holdup_reconciled": false,
+      "preinner_holdup_flux_mismatch_before": 0.7056740630881027,
+      "preinner_holdup_skipped_check1_continuation": false,
+      "preinner_run_holdup_reconcile": false,
+      "preinner_split_shock": false,
+      "preinner_bed1_energy_t_accepted": false,
+      "outer_dT_tol_effective": 1.0,
+      "gas_phase_split_rms": 0.03701723582182412,
+      "gas_phase_split_max_abs": 0.13212667759255337,
+      "outer_gas_split_gate_enabled": true,
+      "outer_gas_split_tol": 0.05,
+      "outer_bed0_primary_gate_enabled": false,
+      "outer_bed0_primary_tol": 0.1,
+      "outer_gas_check_pass": true
+    }
+  ],
+  "cycles": [
+    {
+      "i": 0,
+      "lams": [
+        0.125,
+        0.25,
+        null,
+        null
+      ],
+      "failed": [
+        false,
+        false,
+        true,
+        true
+      ],
+      "best_merit": [
+        0.08749804883020151,
+        0.05963133943905096,
+        0.05931349011161948,
+        3.1848932825002896
+      ],
+      "best_rms": [
+        0.05516777165239381,
+        0.04170105586794294,
+        0.022171380698343172,
+        3.1848932825002896
+      ],
+      "best_lam": [
+        0.125,
+        0.25,
+        0.25,
+        0.000244140625
+      ],
+      "trials": [
+        4,
+        3,
+        12,
+        10
+      ]
+    },
+    {
+      "i": 1,
+      "lams": [
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.5,
+        null,
+        null
+      ],
+      "failed": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "best_merit": [
+        0.0591183800659102,
+        0.05810954980018741,
+        0.056742058782373914,
+        0.05159994084472052,
+        0.045903038425239906,
+        0.041557721461353725,
+        0.042760180822377675,
+        0.04989715305022488
+      ],
+      "best_rms": [
+        0.021832624164039676,
+        0.020868196051146277,
+        0.020445348654717675,
+        0.019127969162770767,
+        0.017748311478053544,
+        0.015848820256592146,
+        0.016421344423118465,
+        0.01719061681194489
+      ],
+      "best_lam": [
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.5,
+        1.0,
+        0.5
+      ],
+      "trials": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        2,
+        12,
+        12
+      ]
+    },
+    {
+      "i": 2,
+      "lams": [
+        null,
+        null
+      ],
+      "failed": [
+        true,
+        true
+      ],
+      "best_merit": [
+        0.04108828946749932,
+        0.04936296932952453
+      ],
+      "best_rms": [
+        0.015638558018166507,
+        0.016609844728270505
+      ],
+      "best_lam": [
+        1.0,
+        0.5
+      ],
+      "trials": [
+        12,
+        12
+      ]
+    },
+    {
+      "i": 3,
+      "lams": [
+        1.0,
+        null,
+        null
+      ],
+      "failed": [
+        false,
+        true,
+        true
+      ],
+      "best_merit": [
+        0.04019755109257662,
+        0.06510373126807331,
+        0.06542084028782896
+      ],
+      "best_rms": [
+        0.01534325310448946,
+        0.020276850176480014,
+        0.019807803708462173
+      ],
+      "best_lam": [
+        1.0,
+        0.25,
+        0.125
+      ],
+      "trials": [
+        1,
+        12,
+        10
+      ]
+    },
+    {
+      "i": 4,
+      "lams": [
+        0.25,
+        0.5,
+        0.5,
+        null,
+        null
+      ],
+      "failed": [
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "best_merit": [
+        0.05050274946970234,
+        0.04328232077311163,
+        0.03862884053498505,
+        0.04974077645478538,
+        0.05116967715526226
+      ],
+      "best_rms": [
+        0.01848400565636051,
+        0.016175744969699576,
+        0.014855472814470628,
+        0.017947228799362114,
+        0.016894629587406815
+      ],
+      "best_lam": [
+        0.25,
+        0.5,
+        0.5,
+        1.0,
+        0.5
+      ],
+      "trials": [
+        3,
+        2,
+        2,
+        12,
+        12
+      ]
+    },
+    {
+      "i": 5,
+      "lams": [
+        null,
+        null
+      ],
+      "failed": [
+        true,
+        true
+      ],
+      "best_merit": [
+        0.04500886644801043,
+        0.050274135221034445
+      ],
+      "best_rms": [
+        0.016906545608736046,
+        0.016642462383915955
+      ],
+      "best_lam": [
+        1.0,
+        0.5
+      ],
+      "trials": [
+        12,
+        12
+      ]
+    },
+    {
+      "i": 6,
+      "lams": [
+        null,
+        null
+      ],
+      "failed": [
+        true,
+        true
+      ],
+      "best_merit": [
+        0.04500886644801043,
+        0.050274135221034445
+      ],
+      "best_rms": [
+        0.016906545608736046,
+        0.016642462383915955
+      ],
+      "best_lam": [
+        1.0,
+        0.5
+      ],
+      "trials": [
+        12,
+        12
+      ]
+    },
+    {
+      "i": 7,
+      "lams": [
+        null,
+        null
+      ],
+      "failed": [
+        true,
+        true
+      ],
+      "best_merit": [
+        0.04456145681944812,
+        0.05003489096179189
+      ],
+      "best_rms": [
+        0.016730826309353426,
+        0.017007871481078823
+      ],
+      "best_lam": [
+        1.0,
+        0.5
+      ],
+      "trials": [
+        12,
+        12
+      ]
+    },
+    {
+      "i": 8,
+      "lams": [
+        null,
+        null
+      ],
+      "failed": [
+        true,
+        true
+      ],
+      "best_merit": [
+        0.04456145681944812,
+        0.05003489096179189
+      ],
+      "best_rms": [
+        0.016730826309353426,
+        0.017007871481078823
+      ],
+      "best_lam": [
+        1.0,
+        0.5
+      ],
+      "trials": [
+        12,
+        12
+      ]
+    },
+    {
+      "i": 9,
+      "lams": [
+        null,
+        null
+      ],
+      "failed": [
+        true,
+        true
+      ],
+      "best_merit": [
+        0.04456145681944812,
+        0.05003489096179189
+      ],
+      "best_rms": [
+        0.016730826309353426,
+        0.017007871481078823
+      ],
+      "best_lam": [
+        1.0,
+        0.5
+      ],
+      "trials": [
+        12,
+        12
+      ]
+    }
+  ],
+  "probe_summary": [
+    {
+      "name": "baseline_lsq_on",
+      "final": {
+        "rms": 0.03701723582182412,
+        "split": 0.03701723582182412,
+        "energy": 0.013306440097176431,
+        "gas": 0.019689759751221784,
+        "conv": false,
+        "n_iter": 22,
+        "n_outer": 10
+      },
+      "lambda_summary": {
+        "n": 32,
+        "failures": 20,
+        "full_step": 1,
+        "mid": 11,
+        "small_lt_0.1": 0,
+        "tiny_lt_1e3": 0,
+        "mean_accepted": 0.3645833333333333,
+        "median_accepted": 0.25,
+        "min_accepted": 0.125,
+        "max_accepted": 1.0
+      },
+      "clip_last": [
+        {
+          "iter": 1,
+          "lam": null,
+          "trials": 12,
+          "failed": true,
+          "nm": null,
+          "best_merit": 0.04500886644801043,
+          "best_lam": 1.0,
+          "best_rms": 0.016906545608736046
+        },
+        {
+          "iter": 2,
+          "lam": null,
+          "trials": 12,
+          "failed": true,
+          "nm": null,
+          "best_merit": 0.050274135221034445,
+          "best_lam": 0.5,
+          "best_rms": 0.016642462383915955
+        },
+        {
+          "iter": 1,
+          "lam": null,
+          "trials": 12,
+          "failed": true,
+          "nm": null,
+          "best_merit": 0.04456145681944812,
+          "best_lam": 1.0,
+          "best_rms": 0.016730826309353426
+        },
+        {
+          "iter": 2,
+          "lam": null,
+          "trials": 12,
+          "failed": true,
+          "nm": null,
+          "best_merit": 0.05003489096179189,
+          "best_lam": 0.5,
+          "best_rms": 0.017007871481078823
+        },
+        {
+          "iter": 1,
+          "lam": null,
+          "trials": 12,
+          "failed": true,
+          "nm": null,
+          "best_merit": 0.04456145681944812,
+          "best_lam": 1.0,
+          "best_rms": 0.016730826309353426
+        },
+        {
+          "iter": 2,
+          "lam": null,
+          "trials": 12,
+          "failed": true,
+          "nm": null,
+          "best_merit": 0.05003489096179189,
+          "best_lam": 0.5,
+          "best_rms": 0.017007871481078823
+        },
+        {
+          "iter": 1,
+          "lam": null,
+          "trials": 12,
+          "failed": true,
+          "nm": null,
+          "best_merit": 0.04456145681944812,
+          "best_lam": 1.0,
+          "best_rms": 0.016730826309353426
+        },
+        {
+          "iter": 2,
+          "lam": null,
+          "trials": 12,
+          "failed": true,
+          "nm": null,
+          "best_merit": 0.05003489096179189,
+          "best_lam": 0.5,
+          "best_rms": 0.017007871481078823
+        }
+      ]
+    },
+    {
+      "name": "lsq_off",
+      "final": {
+        "rms": 0.06960328162157035,
+        "split": 0.037609029039922755,
+        "energy": 0.06960328162157035,
+        "gas": 0.022734866995516308,
+        "conv": false,
+        "n_iter": 10,
+        "n_outer": 10
+      },
+      "lambda_summary": {
+        "n": 20,
+        "failures": 20,
+        "full_step": 0,
+        "mid": 0,
+        "small_lt_0.1": 0,
+        "tiny_lt_1e3": 0,
+        "mean_accepted": null,
+        "median_accepted": null,
+        "min_accepted": null,
+        "max_accepted": null
+      },
+      "clip_last": [
+        {
+          "iter": 1,
+          "lam": null,
+          "trials": 12,
+          "failed": true,
+          "nm": null,
+          "best_merit": 1.525883346895299,
+          "best_lam": 0.00048828125,
+          "best_rms": 1.525883346895299
+        },
+        {
+          "iter": 2,
+          "lam": null,
+          "trials": 1,
+          "failed": true,
+          "nm": null,
+          "best_merit": 1.0782853850438683,
+          "best_lam": 0.000244140625,
+          "best_rms": 1.0782853850438683
+        },
+        {
+          "iter": 1,
+          "lam": null,
+          "trials": 12,
+          "failed": true,
+          "nm": null,
+          "best_merit": 1.525883346895299,
+          "best_lam": 0.00048828125,
+          "best_rms": 1.525883346895299
+        },
+        {
+          "iter": 2,
+          "lam": null,
+          "trials": 1,
+          "failed": true,
+          "nm": null,
+          "best_merit": 1.0782853850438683,
+          "best_lam": 0.000244140625,
+          "best_rms": 1.0782853850438683
+        },
+        {
+          "iter": 1,
+          "lam": null,
+          "trials": 12,
+          "failed": true,
+          "nm": null,
+          "best_merit": 1.525883346895299,
+          "best_lam": 0.00048828125,
+          "best_rms": 1.525883346895299
+        },
+        {
+          "iter": 2,
+          "lam": null,
+          "trials": 1,
+          "failed": true,
+          "nm": null,
+          "best_merit": 1.0782853850438683,
+          "best_lam": 0.000244140625,
+          "best_rms": 1.0782853850438683
+        },
+        {
+          "iter": 1,
+          "lam": null,
+          "trials": 12,
+          "failed": true,
+          "nm": null,
+          "best_merit": 1.525883346895299,
+          "best_lam": 0.00048828125,
+          "best_rms": 1.525883346895299
+        },
+        {
+          "iter": 2,
+          "lam": null,
+          "trials": 1,
+          "failed": true,
+          "nm": null,
+          "best_merit": 1.0782853850438683,
+          "best_lam": 0.000244140625,
+          "best_rms": 1.0782853850438683
+        }
+      ]
+    },
+    {
+      "name": "lsq_on_damped",
+      "final": {
+        "rms": 0.03555209970071963,
+        "split": 0.03555209970071963,
+        "energy": 0.027859346312267746,
+        "gas": 0.01843469926405757,
+        "conv": false,
+        "n_iter": 22,
+        "n_outer": 10
+      },
+      "lambda_summary": {
+        "n": 32,
+        "failures": 20,
+        "full_step": 0,
+        "mid": 12,
+        "small_lt_0.1": 0,
+        "tiny_lt_1e3": 0,
+        "mean_accepted": 0.23958333333333334,
+        "median_accepted": 0.25,
+        "min_accepted": 0.125,
+        "max_accepted": 0.25
+      },
+      "clip_last": [
+        {
+          "iter": 1,
+          "lam": null,
+          "trials": 11,
+          "failed": true,
+          "nm": null,
+          "best_merit": 0.04574501236310739,
+          "best_lam": 0.25,
+          "best_rms": 0.021150468547749
+        },
+        {
+          "iter": 2,
+          "lam": null,
+          "trials": 10,
+          "failed": true,
+          "nm": null,
+          "best_merit": 5.591512981567727,
+          "best_lam": 0.000244140625,
+          "best_rms": 5.591512981567727
+        },
+        {
+          "iter": 1,
+          "lam": null,
+          "trials": 11,
+          "failed": true,
+          "nm": null,
+          "best_merit": 0.04574501236310739,
+          "best_lam": 0.25,
+          "best_rms": 0.021150468547749
+        },
+        {
+          "iter": 2,
+          "lam": null,
+          "trials": 10,
+          "failed": true,
+          "nm": null,
+          "best_merit": 5.591512981567727,
+          "best_lam": 0.000244140625,
+          "best_rms": 5.591512981567727
+        },
+        {
+          "iter": 1,
+          "lam": null,
+          "trials": 11,
+          "failed": true,
+          "nm": null,
+          "best_merit": 0.04574501236310739,
+          "best_lam": 0.25,
+          "best_rms": 0.021150468547749
+        },
+        {
+          "iter": 2,
+          "lam": null,
+          "trials": 10,
+          "failed": true,
+          "nm": null,
+          "best_merit": 5.591512981567727,
+          "best_lam": 0.000244140625,
+          "best_rms": 5.591512981567727
+        },
+        {
+          "iter": 1,
+          "lam": null,
+          "trials": 11,
+          "failed": true,
+          "nm": null,
+          "best_merit": 0.04574501236310739,
+          "best_lam": 0.25,
+          "best_rms": 0.021150468547749
+        },
+        {
+          "iter": 2,
+          "lam": null,
+          "trials": 10,
+          "failed": true,
+          "nm": null,
+          "best_merit": 5.591512981567727,
+          "best_lam": 0.000244140625,
+          "best_rms": 5.591512981567727
+        }
+      ]
+    }
+  ]
+}

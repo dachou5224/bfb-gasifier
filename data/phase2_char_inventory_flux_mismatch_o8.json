@@ -1,0 +1,109 @@
+{
+  "exit_approx": {
+    "CO": 0.1251,
+    "CO2": 0.1514
+  },
+  "rows": [
+    {
+      "i": 0,
+      "M_res": 1.67,
+      "m_char": 1.335,
+      "m_auf_closure": 0.507,
+      "m_auf_actual": 0.405,
+      "ratio": 1.25,
+      "K_ab": 0.0,
+      "m_ab_actual": 0.0
+    },
+    {
+      "i": 1,
+      "M_res": 39.9,
+      "m_char": 2.081,
+      "m_auf_closure": 23.881,
+      "m_auf_actual": 1.245,
+      "ratio": 19.18,
+      "K_ab": 0.0,
+      "m_ab_actual": 0.0
+    },
+    {
+      "i": 2,
+      "M_res": 39.95,
+      "m_char": 2.012,
+      "m_auf_closure": 23.109,
+      "m_auf_actual": 1.164,
+      "ratio": 19.85,
+      "K_ab": 0.444,
+      "m_ab_actual": 0.894
+    },
+    {
+      "i": 3,
+      "M_res": 41.61,
+      "m_char": 2.087,
+      "m_auf_closure": 21.439,
+      "m_auf_actual": 1.075,
+      "ratio": 19.94,
+      "K_ab": 0.408,
+      "m_ab_actual": 0.852
+    },
+    {
+      "i": 4,
+      "M_res": 42.73,
+      "m_char": 2.149,
+      "m_auf_closure": 20.127,
+      "m_auf_actual": 1.012,
+      "ratio": 19.88,
+      "K_ab": 0.359,
+      "m_ab_actual": 0.771
+    },
+    {
+      "i": 5,
+      "M_res": 43.55,
+      "m_char": 2.218,
+      "m_auf_closure": 19.016,
+      "m_auf_actual": 0.969,
+      "ratio": 19.63,
+      "K_ab": 0.322,
+      "m_ab_actual": 0.714
+    },
+    {
+      "i": 6,
+      "M_res": 44.19,
+      "m_char": 2.308,
+      "m_auf_closure": 18.021,
+      "m_auf_actual": 0.941,
+      "ratio": 19.15,
+      "K_ab": 0.292,
+      "m_ab_actual": 0.674
+    },
+    {
+      "i": 7,
+      "M_res": 44.72,
+      "m_char": 2.444,
+      "m_auf_closure": 17.087,
+      "m_auf_actual": 0.934,
+      "ratio": 18.3,
+      "K_ab": 0.266,
+      "m_ab_actual": 0.651
+    },
+    {
+      "i": 8,
+      "M_res": 45.11,
+      "m_char": 2.633,
+      "m_auf_closure": 16.238,
+      "m_auf_actual": 0.948,
+      "ratio": 17.14,
+      "K_ab": 0.243,
+      "m_ab_actual": 0.641
+    },
+    {
+      "i": 9,
+      "M_res": 45.3,
+      "m_char": 2.948,
+      "m_auf_closure": 6.201,
+      "m_auf_actual": 0.404,
+      "ratio": 15.37,
+      "K_ab": 0.224,
+      "m_ab_actual": 0.66
+    }
+  ],
+  "finding": "bed1+ closure m_auf / actual char auf ≈ 15–20; bed0/1 K_ab=0"
+}

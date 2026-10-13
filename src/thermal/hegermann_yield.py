@@ -33,6 +33,29 @@ def _clip_ws_state(P_Pa: float, T_K: float) -> tuple[float, float]:
     return P, T
 
 
+def hegermann_applicability(P_Pa: float, T_K: float) -> dict[str, float | bool | str]:
+    """Tabelle 4.3 适用范围。仅 Rheinische Braunkohle（``fuel_type="coal"``）。
+
+    Source: Hamel (1999) §4.2.1.2, Tabelle 4.3
+    """
+    P_used, T_used = _clip_ws_state(P_Pa, T_K)
+    return {
+        "fuel": "Rheinische Braunkohle",
+        "fuel_type": "coal",
+        "source": "Hamel (1999) Tabelle 4.3 / Hegermann (1990)",
+        "T_ws_min_K": float(T_WS_MIN_K),
+        "T_ws_max_K": float(T_WS_MAX_K),
+        "P_ws_min_Pa": float(P_WS_MIN_PA),
+        "P_ws_max_Pa": float(P_WS_MAX_PA),
+        "T_K": float(T_K),
+        "P_Pa": float(P_Pa),
+        "T_used_K": float(T_used),
+        "P_used_Pa": float(P_used),
+        "T_clipped": abs(float(T_K) - float(T_used)) > 1.0e-12,
+        "P_clipped": abs(float(P_Pa) - float(P_used)) > 1.0e-9,
+    }
+
+
 def xc_koks_hegermann(P_Pa: float, T_K: float) -> float:
     """焦炭碳份额 x_C,Koks [kg C in Koks / kg C in Brennstoff waf]。
 

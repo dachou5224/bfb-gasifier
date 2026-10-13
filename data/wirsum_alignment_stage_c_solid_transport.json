@@ -1,0 +1,29 @@
+{
+  "source": "Wirsum alignment stage C solid transport",
+  "solved": false,
+  "engineering_15pct_jump": {
+    "M_geo_kg": 187.958,
+    "closure_below_threshold_kg": 28.193512042,
+    "closure_at_threshold_kg": 187.958,
+    "jump_kg": 159.764487958,
+    "jump_ratio": 6.66671111140741
+  },
+  "species_own": {
+    "max_abs_residual_upper_kg_s": 2.7755575615628914e-17,
+    "max_abs_residual_bottom_kg_s": 0.17384000000000005,
+    "km_vs_down_gap_kg_s": 0.0,
+    "bottom_down_kg_s": 0.0,
+    "max_k_down_bottom": 0.0,
+    "max_up_edge_gap_kg_s": 0.0,
+    "max_down_edge_gap_kg_s": 0.0,
+    "internal_stream_sum_kg_s": 0.0,
+    "leaving_top_up_kg_s": 0.18911999999999998,
+    "leaving_bottom_down_kg_s": 0.0
+  },
+  "engineering_mixed_denominator": {
+    "max_abs_gap_kg_s": 9.130060389242287,
+    "max_abs_reconstructed_kg_s": 9.193715000000001,
+    "max_abs_applied_kg_s": 0.2302506623501666
+  },
+  "note": "\u9ed8\u8ba4\u751f\u4ea7\u8def\u5f84\u4ecd\u662f engineering_bottom_threshold\uff1bspecies_own \u4e3a opt-in / strict\u3002"
+}

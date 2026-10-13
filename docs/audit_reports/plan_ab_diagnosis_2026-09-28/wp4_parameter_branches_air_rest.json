@@ -1,0 +1,51 @@
+{
+  "parameter_branch": [
+    {
+      "name": "air_minus_5pct",
+      "class": "parameter_branch",
+      "target_factor": 0.95,
+      "certified_factor": 0.975,
+      "reached_target": false,
+      "path": [
+        {
+          "factor": 0.975,
+          "passed": true,
+          "reason": "block_gates",
+          "elapsed_s": 123.939085911,
+          "merit": 0.00011324847223175744,
+          "gate_ratio": {
+            "gas": 0.08884005049180516,
+            "solid": 7.08005936155998e-05,
+            "tar": 0.0005275737298004172,
+            "energy_sum_W": 0.00010878569446504116
+          },
+          "T_bed": 1354.4338210931635,
+          "T_fb": 1360.627537588629,
+          "gas_l2": 8.884005049180515e-08,
+          "worst_index": 49,
+          "worst_value": 0.00011282708146609366
+        },
+        {
+          "factor": 0.95,
+          "passed": false,
+          "reason": "deadline",
+          "elapsed_s": 160.00612454999998,
+          "merit": 4.679273911348588,
+          "gate_ratio": {
+            "gas": 38810.40995119682,
+            "solid": 7.08005936155998e-05,
+            "tar": 0.0005275737298004172,
+            "energy_sum_W": -2.613911870372249
+          },
+          "T_bed": 1354.4338210931635,
+          "T_fb": 1360.627537588629,
+          "gas_l2": 0.03881040995119682,
+          "worst_index": 48,
+          "worst_value": -2.614024697453715
+        }
+      ],
+      "T_bed": 1354.4338210931635,
+      "T_fb": 1360.627537588629
+    }
+  ]
+}
