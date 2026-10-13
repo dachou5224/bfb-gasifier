@@ -1,0 +1,37 @@
+{
+  "figure": "7.16",
+  "pdf_page": 82,
+  "printed_page": "145",
+  "side": "right",
+  "caption_de": "Bild 7.16: Berechnete Gaskonzentrationen und Temperaturen in Abhängigkeit der Reaktorhöhe und gemessene Gaskonzentrationen am Reaktoraustritt für den Luft-Vergasungsfall Nr. A gemäß Tabelle 7.4 für die Wirbelschichtvergasungsanlage WSV 400 der Universität Magdeburg.",
+  "case_label_in_figure": "Sim.-Nr. A",
+  "case_id": "CASE_WSV400_A",
+  "read_date": "2026-10-13",
+  "tool": "目标所有者人工读数，用专用数字化工具（工具名称与版本待补）",
+  "est_error": "待补",
+  "scope": "T3 例外读数：只读出口端（ξ = 1），轴向剖面暂缓（CHARTER §2.2 补充核对用）",
+  "series": [
+    {
+      "kind": "sim",
+      "variable": "T",
+      "quantity_definition": "出口端局部温度，ξ = 1",
+      "unit": "K",
+      "x_axis": {
+        "name": "xi",
+        "definition": "归一化高度（normierte Höhe）",
+        "unit": "-"
+      },
+      "points": [
+        [
+          1.0,
+          990
+        ]
+      ],
+      "note": "实线（模拟值）"
+    }
+  ],
+  "not_read": [
+    "出口端温度实测点（空心圆）",
+    "出口端 CO 等组分"
+  ]
+}
