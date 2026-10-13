@@ -1,0 +1,145 @@
+{
+  "figure": "7.17",
+  "pdf_page": 83,
+  "printed_page": "146",
+  "side": "left",
+  "caption_de": "Bild 7.17: Vergleich Messungen mit den Simulationsergebnissen für die mittlere Freiraumtemperatur und die wichtigsten Gaskomponenten des Wirbelschichtvergasers WSV400 der Universität Magdeburg.",
+  "case_label_in_figure": "A",
+  "case_id": "CASE_WSV400_A",
+  "read_date": "2026-10-13",
+  "tool": "目标所有者人工读数，用专用数字化工具（工具名称与版本待补）",
+  "est_error": "待补",
+  "series": [
+    {
+      "kind": "parity",
+      "variable": "T_FRB",
+      "quantity_definition": "平均自由空间温度（mittlere Freiraumtemperatur）",
+      "unit": "K",
+      "basis": null,
+      "note": "实验值（横轴）未读",
+      "x_axis": {
+        "name": "Messung",
+        "definition": "实验值",
+        "unit": "K"
+      },
+      "y_axis": {
+        "name": "Sim.",
+        "definition": "Hamel 模拟值",
+        "unit": "K"
+      },
+      "points": [
+        [
+          null,
+          1060
+        ]
+      ]
+    },
+    {
+      "kind": "parity",
+      "variable": "CO",
+      "quantity_definition": "出口",
+      "unit": "mol/mol",
+      "basis": "dry",
+      "note": "实验值与模拟值读作同值",
+      "x_axis": {
+        "name": "Messung",
+        "definition": "实验值",
+        "unit": "mol/mol"
+      },
+      "y_axis": {
+        "name": "Sim.",
+        "definition": "Hamel 模拟值",
+        "unit": "mol/mol"
+      },
+      "points": [
+        [
+          0.165,
+          0.165
+        ]
+      ]
+    },
+    {
+      "kind": "parity",
+      "variable": "CO2",
+      "quantity_definition": "出口",
+      "unit": "mol/mol",
+      "basis": "dry",
+      "x_axis": {
+        "name": "Messung",
+        "definition": "实验值",
+        "unit": "mol/mol"
+      },
+      "y_axis": {
+        "name": "Sim.",
+        "definition": "Hamel 模拟值",
+        "unit": "mol/mol"
+      },
+      "points": [
+        [
+          0.14,
+          0.12
+        ]
+      ]
+    },
+    {
+      "kind": "parity",
+      "variable": "H2",
+      "quantity_definition": "出口",
+      "unit": "mol/mol",
+      "basis": "dry",
+      "note": "两者接近，读作同值",
+      "x_axis": {
+        "name": "Messung",
+        "definition": "实验值",
+        "unit": "mol/mol"
+      },
+      "y_axis": {
+        "name": "Sim.",
+        "definition": "Hamel 模拟值",
+        "unit": "mol/mol"
+      },
+      "points": [
+        [
+          0.085,
+          0.085
+        ]
+      ]
+    },
+    {
+      "kind": "parity",
+      "variable": "CH4",
+      "quantity_definition": "出口",
+      "unit": "mol/mol",
+      "basis": "dry",
+      "note": "本图偏差最大的指标；模拟值低于实验值约 47%",
+      "x_axis": {
+        "name": "Messung",
+        "definition": "实验值",
+        "unit": "mol/mol"
+      },
+      "y_axis": {
+        "name": "Sim.",
+        "definition": "Hamel 模拟值",
+        "unit": "mol/mol"
+      },
+      "points": [
+        [
+          0.045,
+          0.024
+        ]
+      ]
+    }
+  ],
+  "not_in_source": [
+    "H2O",
+    "X_C"
+  ],
+  "pending": [
+    "B",
+    "C",
+    "D",
+    "E",
+    "F"
+  ],
+  "points_format": "[实验值（x，Messung）, 模拟值（y，Sim.）]；null 表示未读"
+}
