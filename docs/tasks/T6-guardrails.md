@@ -30,7 +30,7 @@
 3. **偏离检查脚本** `tools/drift_check.py`（cursor），输出章程 §9 的各项信号：
    - 工作树是否干净；
    - 本卡相对共同祖先（`git merge-base <基准> HEAD`）的 `hamel/` 净增行数，以及 `hamel/` 总行数是否超过上限；新文件名与新增配置字段同样以共同祖先为比较基点；
-   - 配置字段数量的变化，以及新增字段是否有对应 ADR（按字段名在 `docs/adr/` 中检索）；
+   - 配置字段数量的变化，以及新增字段是否有出处：求解器字段须在正式 ADR（`docs/adr/NNNN-*.md`）中按完整标识符出现；物理字段在正式 ADR 中出现，**或者**是 `data/cases/*.json` 中某个字段的键名，且该字段 `status` 为 `source` 或 `derived`、`source` 非空（CHARTER v0.6 §9 例外）。`status` 为 `missing` 或缺少 `source` 的同名字段不算出处；
    - 新文件名是否匹配阶段后缀模式（`_v\d+`、`_r\d+_r\d+`、`_stage\d+` 等）；
    - `docs/STATUS.md` 中工况指标表最近一次变化的日期；
    - skill 副本一致性（2026-10-14 增补）：`.claude/skills/<名称>/SKILL.md` 与 `.cursor/skills/<名称>/SKILL.md` 内容不一致时触发；只存在于其中一边时也触发；两边都没有则不检查。

@@ -25,6 +25,7 @@
 4. **输出** `data/cases/wsv400.json`：
    - 公共参数和各工况（A–F）参数分开存放；
    - 每个字段包含 `value`、`unit`（SI）、`source`（表号、图号或页码）、`status`（`source` 原文给出 / `derived` 由原文数据按明确公式换算，须写明公式 / `missing` 原文没有）；
+   - 字段键名用英文 snake_case，并尽量采用 `GLOSSARY.md` 中的代码名。T9 的物理参数会直接沿用这些键名，并据此适用 CHARTER v0.6 §9 的 ADR 例外，所以键名定下后不要随意改动；
    - 单位换算（Nm³/h → mol/s 等）写明公式和所用的标准状态。
 5. **缺口清单**：`status=missing` 的项单独列在 `data/cases/wsv400_gaps.md` 中，每项写明模型哪里会用到、可能的处理方式，交总司令裁定（CHARTER §4.5）。
 6. **与旧数据对照**：将结果与 `data/validation_cases.json` 中的 WSV400 输入逐项比较，差异写进缺口清单，但不修改旧文件。
