@@ -127,22 +127,6 @@
       "unit": "m",
       "source": "Bild 7.14, S. 142；各 cell 高度待读取",
       "status": "missing"
-    },
-    "fuel_size_class_edges": {
-      "value": [
-        "bis 2",
-        "2-5",
-        "5-8",
-        "8-11",
-        "11-14",
-        "14-17",
-        "17-20",
-        "20-23",
-        "23-26"
-      ],
-      "unit": "mm",
-      "source": "Bild 7.15, S. 144；印刷横坐标，当量球直径",
-      "status": "source"
     }
   },
   "fuels": {
@@ -233,11 +217,11 @@
         "formula": "w = 6.15 / 100；原文单位 Gew.-%，基准 wf"
       },
       "oxygen_mass_fraction_wf": {
-        "value": 0.0416,
+        "value": 0.416,
         "unit": "kg/kg",
-        "source": "表 7.4, S. 143；数值落在 F 列",
+        "source": "表 7.4, S. 143；解释性选择：ADR 0003",
         "status": "derived",
-        "formula": "w = 4.16 / 100；原文单位 Gew.-%，基准 wf"
+        "formula": "印刷值 4,16 视为小数点错位，取 41,6；校验：灰 + C + H + O + N + S = 99,98 Gew.-%（ADR 0003）；w = 41.6 / 100"
       },
       "nitrogen_mass_fraction_wf": {
         "value": 0.0014,
@@ -298,10 +282,11 @@
         "status": "source"
       },
       "primary_air_amount_flow": {
-        "value": null,
+        "value": 0.6196523997898139,
         "unit": "mol/s",
-        "source": "表 7.4, S. 143 给出 50 m3(VN)/h；S. 142–146 未给出 VN 的温度和压力",
-        "status": "missing"
+        "source": "表 7.4, S. 143；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 50 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
       },
       "secondary_air_volume_flow": {
         "value": 0,
@@ -325,7 +310,7 @@
       "inlet_temperature": {
         "value": null,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出",
+        "source": "表 2.2, S. 13 要求进入气体温度；§7.1.5, S. 142 写明空气经 zwei elektrisch vorheizbare Stränge 送入，可能经过预热；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出温度数值",
         "status": "missing"
       },
       "pressure": {
@@ -346,6 +331,24 @@
         "unit": "kg/kg",
         "source": "Bild 7.15, S. 144 只注明 Holzhackschnitzelprobe zum Versuch A；柱高待目标所有者读取",
         "status": "missing"
+      },
+      "fuel_size_class_edges": {
+        "value": [
+          0.0,
+          0.002,
+          0.005,
+          0.008,
+          0.011,
+          0.014,
+          0.017,
+          0.02,
+          0.023,
+          0.026
+        ],
+        "unit": "m",
+        "source": "Bild 7.15, S. 144；印刷横坐标 bis 2、2–5、5–8、8–11、11–14、14–17、17–20、20–23、23–26 mm",
+        "status": "derived",
+        "formula": "Bild 7.15 横坐标，单位 mm÷1000；首档 'bis 2' 的下界取 0"
       }
     },
     "B": {
@@ -384,10 +387,11 @@
         "status": "source"
       },
       "primary_air_amount_flow": {
-        "value": null,
+        "value": 0.6196523997898139,
         "unit": "mol/s",
-        "source": "表 7.4, S. 143 给出 50 m3(VN)/h；S. 142–146 未给出 VN 的温度和压力",
-        "status": "missing"
+        "source": "表 7.4, S. 143；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 50 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
       },
       "secondary_air_volume_flow": {
         "value": 0,
@@ -411,7 +415,7 @@
       "inlet_temperature": {
         "value": null,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出",
+        "source": "表 2.2, S. 13 要求进入气体温度；§7.1.5, S. 142 写明空气经 zwei elektrisch vorheizbare Stränge 送入，可能经过预热；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出温度数值",
         "status": "missing"
       },
       "pressure": {
@@ -431,6 +435,12 @@
         "value": null,
         "unit": "kg/kg",
         "source": "Bild 7.15, S. 144 的样品注明为 Versuch A，B–F 的粒径分布原文未给出",
+        "status": "missing"
+      },
+      "fuel_size_class_edges": {
+        "value": null,
+        "unit": "m",
+        "source": "Bild 7.15, S. 144 的样品注明为 Versuch A，B–F 的粒径分级原文未给出",
         "status": "missing"
       }
     },
@@ -470,10 +480,11 @@
         "status": "source"
       },
       "primary_air_amount_flow": {
-        "value": null,
+        "value": 0.6196523997898139,
         "unit": "mol/s",
-        "source": "表 7.4, S. 143 给出 50 m3(VN)/h；S. 142–146 未给出 VN 的温度和压力",
-        "status": "missing"
+        "source": "表 7.4, S. 143；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 50 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
       },
       "secondary_air_volume_flow": {
         "value": 0,
@@ -497,7 +508,7 @@
       "inlet_temperature": {
         "value": null,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出",
+        "source": "表 2.2, S. 13 要求进入气体温度；§7.1.5, S. 142 写明空气经 zwei elektrisch vorheizbare Stränge 送入，可能经过预热；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出温度数值",
         "status": "missing"
       },
       "pressure": {
@@ -517,6 +528,12 @@
         "value": null,
         "unit": "kg/kg",
         "source": "Bild 7.15, S. 144 的样品注明为 Versuch A，B–F 的粒径分布原文未给出",
+        "status": "missing"
+      },
+      "fuel_size_class_edges": {
+        "value": null,
+        "unit": "m",
+        "source": "Bild 7.15, S. 144 的样品注明为 Versuch A，B–F 的粒径分级原文未给出",
         "status": "missing"
       }
     },
@@ -556,10 +573,11 @@
         "status": "source"
       },
       "primary_air_amount_flow": {
-        "value": null,
+        "value": 0.6196523997898139,
         "unit": "mol/s",
-        "source": "表 7.4, S. 143 给出 50 m3(VN)/h；S. 142–146 未给出 VN 的温度和压力",
-        "status": "missing"
+        "source": "表 7.4, S. 143；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 50 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
       },
       "secondary_air_volume_flow": {
         "value": 0,
@@ -583,7 +601,7 @@
       "inlet_temperature": {
         "value": null,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出",
+        "source": "表 2.2, S. 13 要求进入气体温度；§7.1.5, S. 142 写明空气经 zwei elektrisch vorheizbare Stränge 送入，可能经过预热；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出温度数值",
         "status": "missing"
       },
       "pressure": {
@@ -603,6 +621,12 @@
         "value": null,
         "unit": "kg/kg",
         "source": "Bild 7.15, S. 144 的样品注明为 Versuch A，B–F 的粒径分布原文未给出",
+        "status": "missing"
+      },
+      "fuel_size_class_edges": {
+        "value": null,
+        "unit": "m",
+        "source": "Bild 7.15, S. 144 的样品注明为 Versuch A，B–F 的粒径分级原文未给出",
         "status": "missing"
       }
     },
@@ -642,10 +666,11 @@
         "status": "source"
       },
       "primary_air_amount_flow": {
-        "value": null,
+        "value": 0.6196523997898139,
         "unit": "mol/s",
-        "source": "表 7.4, S. 143 给出 50 m3(VN)/h；S. 142–146 未给出 VN 的温度和压力",
-        "status": "missing"
+        "source": "表 7.4, S. 143；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 50 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
       },
       "secondary_air_volume_flow": {
         "value": 0,
@@ -669,7 +694,7 @@
       "inlet_temperature": {
         "value": null,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出",
+        "source": "表 2.2, S. 13 要求进入气体温度；§7.1.5, S. 142 写明空气经 zwei elektrisch vorheizbare Stränge 送入，可能经过预热；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出温度数值",
         "status": "missing"
       },
       "pressure": {
@@ -689,6 +714,12 @@
         "value": null,
         "unit": "kg/kg",
         "source": "Bild 7.15, S. 144 的样品注明为 Versuch A，B–F 的粒径分布原文未给出",
+        "status": "missing"
+      },
+      "fuel_size_class_edges": {
+        "value": null,
+        "unit": "m",
+        "source": "Bild 7.15, S. 144 的样品注明为 Versuch A，B–F 的粒径分级原文未给出",
         "status": "missing"
       }
     },
@@ -728,10 +759,11 @@
         "status": "source"
       },
       "primary_air_amount_flow": {
-        "value": null,
+        "value": 0.6196523997898139,
         "unit": "mol/s",
-        "source": "表 7.4, S. 143 给出 50 m3(VN)/h；S. 142–146 未给出 VN 的温度和压力",
-        "status": "missing"
+        "source": "表 7.4, S. 143；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 50 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
       },
       "secondary_air_volume_flow": {
         "value": 0,
@@ -755,7 +787,7 @@
       "inlet_temperature": {
         "value": null,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出",
+        "source": "表 2.2, S. 13 要求进入气体温度；§7.1.5, S. 142 写明空气经 zwei elektrisch vorheizbare Stränge 送入，可能经过预热；表 7.4, S. 143 与 §7.1.5, S. 142–146 未给出温度数值",
         "status": "missing"
       },
       "pressure": {
@@ -775,6 +807,12 @@
         "value": null,
         "unit": "kg/kg",
         "source": "Bild 7.15, S. 144 的样品注明为 Versuch A，B–F 的粒径分布原文未给出",
+        "status": "missing"
+      },
+      "fuel_size_class_edges": {
+        "value": null,
+        "unit": "m",
+        "source": "Bild 7.15, S. 144 的样品注明为 Versuch A，B–F 的粒径分级原文未给出",
         "status": "missing"
       }
     }
