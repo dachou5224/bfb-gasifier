@@ -1,6 +1,6 @@
 # VTT 加压输入缺口与编号核对
 
-对照范围：表 2.1、表 2.2（S. 13）的每一项都在 `vtt_pressurized.json` 里有字段。数值取自表 7.2（PDF 76 右 / S. 133，以及 PDF 77 左 / S. 134 的续表）和 §7.1.3（S. 132–137）。Bild 7.7（PDF 76 左 / S. 132）上没有尺寸线的量见读数清单。旧文件没有改。本阶段没有打开 Kurkela & Ståhlberg（1992）和 Kurkela et al.（1993）。
+对照范围：表 2.1、表 2.2（S. 13）的每一项都在 `vtt_pressurized.json` 里有字段。Hamel 给出的数取自表 7.2（PDF 76 右 / S. 133，以及 PDF 77 左 / S. 134 的续表）和 §7.1.3（S. 132–137）。文献补上的数 `status` 为 `cited`，`source` 写 Hamel 在 S. 133 引用 Kurkela & Ståhlberg（1992）的位置。旧文件没有改。这些 `cited` 字段要等总司令成组登记 ADR 之后，T9 才能装配使用。
 
 ## 表 7.2 的范围
 
@@ -27,6 +27,57 @@ S. 133 是工况 1–8：1–4 为莱茵褐煤，5–8 为芬兰泥炭。S. 134 
 
 第一阶段不能判断 Kurkela 原文的试验编号是否与这列号相同。那是第二阶段、拿到文献之后的事。
 
+## 第二阶段补上的数
+
+Hamel 在 S. 133 写模拟所用的数据取自 Kurkela & Ståhlberg（1992）。这篇就是 *Fuel Processing Technology* 31 (1992) 1–21。表 4、表 5 的压力、燃料量、水分、一次风、二次风、蒸汽、ER 和循环，与表 7.2 的工况 1–15 逐列相同。表 7.2 已有的数没有改。
+
+§7.1.3（S. 134）的三句位置说明现在是 `shared` 里的字段，`status: source`：
+
+| 字段 | 值 |
+|---|---|
+| `steam_feed_location` | 所有工况的蒸汽都和一次风一起从布风板送入 |
+| `secondary_air_location` | 二次风喷入床层上方的自由空间 |
+| `fuel_feed_location` | 燃料在紧贴布风板上方加入 |
+
+文献给出的高度和装置尺寸如下。对得上表 7.2 的才写入。
+
+| 字段 | 值 | 文献 |
+|---|---|---|
+| `fuel_feed_height` | 0,12 m | p. 5–6，分配器以上的进料口。两台螺旋进这一个口 |
+| `bed_zone_height` | 1,2 m | 表 3，床区筒体高度。不是操作床高 |
+| `freeboard_height` | 2,3 m | 表 3 |
+| `distributor_to_outlet_height` | 3,7 m | p. 4，分配器到气体出口管 |
+| `pressure_vessel_height` | 5,6 m | p. 4，压力容器外壳 |
+| `pressure_vessel_inside_diameter` | 0,6 m | p. 4 |
+| `thermal_design_power` | 400 kW | 表 3，用泥炭时的最大热输入 |
+| `ash_sample_pipe_diameter` | 35 mm | p. 6，底部床料取样管 |
+| 泥炭 `particle_size_range` | 0–4 mm | p. 3 |
+| 褐煤 `particle_size_max` | 4 mm | p. 3，只给上限 |
+| 三种燃料的固定碳（干基） | 27,4 / 16,8 / 42,7 Gew.-% | 表 1 平均值 |
+
+空气和蒸汽温度、收到基低位热值只在表 6 的六个代表点里。其中五列对得上表 7.2，温度都是 185 °C（458,15 K）：
+
+| 工况 | 对上的条件 | 热值（收到基） | 表 6 的 ER |
+|---|---|---|---|
+| 1 | 褐煤，不循环，蒸汽/无灰干基 0,17，燃料 46,9 kg/h | 21,0 MJ/kg | 0,32；表 5 和表 7.2 是 0,33，λ 不改 |
+| 3 | 褐煤，循环，ER 0,44，蒸汽比 0,20，燃料 41,4 kg/h | 20,9 MJ/kg | 0,44 |
+| 7 | 泥炭，不循环，ER 0,32，蒸汽比 0,11，燃料 61,6 kg/h | 17,3 MJ/kg | 0,32 |
+| 11 | 泥炭，循环，ER 0,40，蒸汽比 0,18，燃料 45,0 kg/h | 17,3 MJ/kg | 0,40 |
+| 14 | 锯末，不循环，蒸汽比 0,08，燃料 42,8 kg/h | 16,8 MJ/kg | 0,27；表 5 和表 7.2 是 0,28，λ 不改 |
+
+表 6 还有一列锯末：ER 0,38，蒸汽比 0,38，热值 17,6 MJ/kg。表 7.2 的工况 15 是 ER 0,39、蒸汽比 0,34，对不上，没有采用。其余工况的进气温度和热值仍是 `missing`。
+
+文献与表 7.2 不一致、因而没有改表 7.2 的地方：
+
+- 泥炭氧（差减）表 1 是 33,55 wt%，表 7.2 是 33,6。按 33,55 与 C、H、N、S、灰分相加为 100,00；按 33,6 为 100,05。元素仍用 33,6。
+- 标准立方米在表 3、表 4 的注里定义为 273,15 K、101,3 kPa。摩尔流量仍按 ADR 0004 的 101 325 Pa，不改。
+- 表 4、表 5 另有石灰石进料和氮气进料，表 7.2 没有这两路。氮气在泥炭九列是 8,8、3,6、3,7、2,3、4,2、3,9、3,2、2,7、2,4 Nm³/h；石灰石是 1,8、0、0、1,1、0、0、0、0、0,3 kg/h。褐煤和锯末的石灰石都是 0，氮气是 6,2、3,2、3,5、2,5、2,0、3,5 Nm³/h。没有写入 json。
+- 床层温度、自由空间温度、床层压降和热损失是试验结果，不是进料。表 6 的热损失是差额，没有换成传热系数。
+- 文献写两台旋风。Hamel 在 S. 133 按一个旋风假设两个 cell，`cyclone_cell_count` 仍是 2。旋风尺寸两边都没有。
+- 床料成分没有给出。p. 16 的石英砂是建议另做的试验，不是这批试验的床料。
+
+`bed_height` 仍空着。表 3 的 1,2 m 是床区筒体。各列床层压降从 0 到 4,3 kPa，不是同一个操作床高。
+
 ## 清单对应
 
 | 表 2.1 / 2.2 的项 | 字段 |
@@ -36,17 +87,17 @@ S. 133 是工况 1–8：1–4 为莱茵褐煤，5–8 为芬兰泥炭。S. 134 
 | 反应器高度 | `reactor_height` 为 missing；正文的 3,5 m 是 Gesamtanlagenhöhe，记在 `plant_height` |
 | 连接管、返料管尺寸 | `connecting_line_geometry`、`return_line_geometry` |
 | 旋风尺寸 | `cyclone_geometry` 为 missing；两格假设记在 `cyclone_cell_count` = 2 |
-| 燃料进口个数与高度 | `fuel_feed_count` = 1；`fuel_feed_height` 为 missing |
+| 燃料进口个数与高度 | `fuel_feed_count` = 1；`fuel_feed_location` 为紧贴布风板上方；`fuel_feed_height` = 0,12 m（cited） |
 | 气化剂进口个数与高度 | `agent_feed_count` = 2；`agent_feed_height` 为 missing |
 | 排灰口 | `ash_withdrawal_count` |
 | 返料位置 | `return_location`；各工况开关是 `recirculation` |
 | 壁面传热系数 | `wall_heat_transfer_coefficient` |
 | 燃料量 | `fuel_mass_flow` |
-| 工业分析、元素分析、热值 | `fuels` 与各工况 `moisture_mass_fraction`；`heating_value` 为 missing |
+| 工业分析、元素分析、热值 | `fuels` 与各工况水分；固定碳为 cited。热值只在工况 1、3、7、11、14 |
 | 燃料粒径分布 | `fuel_size_class_mass_fractions` |
 | 各进气口体积流量 | `primary_air_volume_flow`、`secondary_air_volume_flow`，摩尔流量按 ADR 0004 |
 | 进入气体组成 | `inlet_gas_mole_fractions` |
-| 进入气体温度与压力 | `inlet_temperature` 为 missing；`pressure` 取表 7.2 的 Druck |
+| 进入气体温度与压力 | 工况 1、3、7、11、14 的 `inlet_temperature` 为 185 °C；其余仍 missing。`pressure` 取表 7.2 的 Druck |
 | 床料组成与粒径 | `bed_inventory_composition`、`bed_inventory_diameter` |
 | 床高 | `bed_height` |
 | 蒸汽 | `steam_mass_flow`（表 7.2 的 Dampf；与一次风一起从 Düsenboden 进入） |
@@ -57,17 +108,17 @@ S. 133 是工况 1–8：1–4 为莱茵褐煤，5–8 为芬兰泥炭。S. 134 
 
 | 字段 | 模型里用在哪里 | 原文查过的位置 | 可能的处理 |
 |---|---|---|---|
-| `heating_value` | 能量衡算、进料焓 | 表 2.2；表 7.2；§7.1.3，S. 132–137 | 正文的 20–150 MW_el 是电站规模，不是本装置燃料热值。不能用旧文件里的数。第二阶段再查 Hamel 引用的 Kurkela 文献 |
-| `inlet_gas_mole_fractions` | 进气组成 | 表 2.2；表 7.2 只写 Luft/Dampf | 空气的 y_i 原文未给。下面相容性检查里的 0,21 只用于核算，不是进气组成 |
-| `inlet_temperature` | 进气焓 | 表 2.2；§7.1.3，S. 132–137 | 原文未给温度。旧文件的 293 K 没有出处，没有采用 |
+| `heating_value` | 能量衡算、进料焓 | 表 6 只覆盖工况 1、3、7、11、14 | 其余工况对不上代表点，不外推。不能用旧文件里的数 |
+| `inlet_gas_mole_fractions` | 进气组成 | 表 2.2；表 7.2 只写 Luft/Dampf；1992 年文献也没有空气的 y_i | 相容性检查里的 0,21 不是进气组成。氮气吹扫是另一路，没有并进空气 |
+| `inlet_temperature` | 进气焓 | 表 6 的 185 °C 只用于对上的五列 | 其余工况不外推。旧文件的 293 K 没有采用 |
 | `bed_inventory_composition`、`bed_inventory_diameter` | 床料衡算与流动 | 表 2.2；§7.1.3 | 原文未给。不能用旧文件的 1–4 mm |
-| `bed_height` | 表 2.2 的床高 | §7.1.3 无数值；Bild 7.7 有床层线但无尺寸 | 见读数清单。旧文件的 1,2 m 写明来自表 7.5，表 7.5 不在本阶段来源里，没有采用 |
-| `cell_count`、`cell_heights`、`fuel_feed_height`、`agent_feed_height` | cell 划分与进料位置 | Bild 7.7；S. 134 只有区域描述 | 见读数清单。旧文件二次风口「分配器以上 800 mm」没有写在 §7.1.3 里，没有采用 |
+| `bed_height` | 表 2.2 的操作床高 | 表 3 的 1,2 m 是床区筒体，已记入 `bed_zone_height` | 见读数清单。不把 1,2 m 当作 Wirbelbetthöhe |
+| `cell_count`、`cell_heights`、`agent_feed_height` | cell 划分与二次风高度 | Bild 7.7；文献只说二次风在床层上方 | 见读数清单。燃料口高度已由文献记为 0,12 m。旧文件的 800 mm 没有采用 |
 | `reactor_height` | 反应器本体高度 | S. 133 的词是 Gesamtanlagenhöhe 3,5 m | 3,5 m 已按原词记入 `plant_height`。是否等于反应器高度，待总司令裁定，没有直接并入 `reactor_height` |
 | `wall_heat_transfer_coefficient` | 壁面散热 | 表 2.1；§7.1.3 | 原文未给系数 |
 | `connecting_line_geometry`、`cyclone_geometry`、`return_line_geometry` | 表 2.1 的下游设备 | S. 133 写明旋风实际尺寸没有给出；图上无尺寸线 | 旋风按原文假设为两个 cell，已记入 `cyclone_cell_count`。尺寸仍缺。第二阶段若文献里其实有尺寸，与 S. 133 这句话不一致，把差异写在这里，由总司令裁定 |
 | `ash_withdrawal_count` | 排灰位置 | §7.1.3 未写；Bild 7.7 待看 | 见读数清单 |
-| `fuel_size_class_mass_fractions` | 燃料粒径分级 | 表 7.2 与 §7.1.3 都没有分布图 | 原文未给。旧文件的粒径范围没有采用 |
+| `fuel_size_class_mass_fractions` | 燃料粒径分级 | KURKELA_1992, Fig. 1 是累积曲线，没有质量分数表 | 筛分上限已记入燃料字段。曲线不目测 |
 
 一次风和二次风的摩尔流已按 ADR 0004 换算，V_M = 0,022414 m³/mol。它们不再列入上表。
 
@@ -103,6 +154,12 @@ S. 135–137 查过，没有另外的输入数。S. 135 起是 Bild 7.8，S. 136
 
 图框里的直径 0,15 m / 0,25 m、气化剂 Luft/Dampf，与 S. 132 正文一致。
 
+## `docs/VTTPubl.249_Part2.pdf` 没有用来填数
+
+这份文件是 VTT Publications 249（Espoo 1995）：*Pressurised fluidised-bed gasification experiments with wood, peat and coal at VTT in 1991–1994. Part 2.* ISBN 951-38-4787-X。Hamel 引用的是 Part 1（1993，VTT Publication 161，ISBN 951-38-4399-8），书目键名 `KURKELA_1991`。Part 2 的前言写明试验装置的详细描述在 Part 1。它自己的数据是 28 个 setpoint，包括硬煤和热气体过滤，不是表 7.2 那一组。对不上的列没有采用。
+
+p. 12 把莱茵褐煤写成筛到 4 mm 以下、泥炭筛到 0–4 mm，与 1992 年论文 p. 3 相同。采用的出处仍是 1992 年论文。
+
 ## 与 `validation_cases.json` 的输入差异
 
 旧文件的出口值不在这次对照里。工况 1、6、13、14 的燃料量、一次风、二次风、蒸汽、压力、λ、循环，以及 13、14 的元素分析，与表 7.2 相应列一致。下面是没有采用的差异。
@@ -112,7 +169,7 @@ S. 135–137 查过，没有另外的输入数。S. 135 起是 Bild 7.8，S. 136
 | 13、14 的页码 | 续表 S. 134 | 写成 Table 7.2 (p.133) |
 | 工况 13 的水分 | 16,1 Gew.-% | proximate 里写成 16,0。16,0 是工况 12 那一列 |
 | 工况 6、13 的水分区间 | 不设区间，各列单独记 | 11,3–18,5，把锯末和其他泥炭列混进一条 |
-| 进气温度 | 原文无 | 293 K |
+| 进气温度 | 对上表 6 的五列为 185 °C；其余仍无 | 293 K |
 | 床高 | 待读 | 1,2 m，注明来自表 7.5 |
 | 二次风高度 | 待读 | 分配器以上 800 mm |
 | 粒径 | 原文无 | 1–4 mm，或锯末 0,1–1 mm |
