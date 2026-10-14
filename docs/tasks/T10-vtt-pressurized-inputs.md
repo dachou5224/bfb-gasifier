@@ -4,7 +4,7 @@
 |---|---|
 | 执行者 | cursor；图上读数由目标所有者人工完成 |
 | 审查方 | 总司令（数据录入类，CHARTER §8） |
-| 前置任务 | T2（原文索引）；第二阶段需要目标所有者提供原始文献 |
+| 前置任务 | T2（原文索引）；#21 合并（沿用 `data/cases/wsv400.json` 已审定的格式与键名）；ADR 0004 已批准（标准状态换算）；第二阶段需要目标所有者提供原始文献，并在使用前由总司令登记成组 ADR |
 | 分支 | `task/T10-vtt-pressurized-inputs` |
 | 时间上限 | 第一阶段 2 个工作日；第二阶段视文献到位情况另计 |
 | 状态 | 待开始 |
@@ -26,7 +26,7 @@
 4. **格式**：与 T7 完全相同，输出 `data/cases/vtt_pressurized.json`。
    - 每个字段包含 `value`、`unit`（SI）、`source`、`status`；`source` 写成“表号或图号 + `S. <数字>`”（Hamel 印刷页码），`derived` 字段写 `formula`；
    - 键名沿用 `data/cases/wsv400.json` 中已有的同义键名（例如 `fuel_mass_flow`、`primary_air_volume_flow`），不要另起名字；
-   - 以 m³(V_N) 给出的流量先只录入体积流量；换算为摩尔流量须等 ADR 0004 获目标所有者批准后再做。
+   - 以 m³(V_N) 给出的流量按 ADR 0004（已批准）换算为摩尔流量：Ṅ = V̇_N / V_M，V_M = 0,022414 m³/mol（DIN 1343，273,15 K，101 325 Pa），`status: derived`，`formula` 引用 ADR 0004。
 5. **工况标签核对**：`data/validation_cases.json` 收录的 VTT 加压工况编号为 1、6、13、14，而表 7.2 的模拟编号只有 1–8。查明 13、14 的来历（是否来自原始文献的试验编号，或其它表格），写进缺口清单，不修改旧文件。
 6. **缺口清单** `data/cases/vtt_pressurized_gaps.md`：格式同 T7，列出 `missing` 字段、模型中的用途、原文查找过的位置、可能的处理；另列与 `validation_cases.json` 的差异。
 7. **图上读数清单**：Bild 7.7 中需要读取的几何量与 cell 高度，交目标所有者用工具读取，不得目测估读。
@@ -35,10 +35,14 @@
 
 8. 目标所有者如能取得以下文献（`refs/hamel/index.json` 的 `cited_references` 键名），文献 PDF 只放在本地，不入库（CHARTER §11）：
    - `KURKELA_1992`：Kurkela & Ståhlberg, *Air Gasification of Peat, Wood and Brown Coal in a Pressurized Fluidized-Bed Reactor. 1. Carbon Conversion, Gas Yields and Tar Formation*（Hamel 表 7.2 的数据来源）；
-   - `KURKELA_1991`：Kurkela, Ståhlberg, Laatikainen, *Pressurized Fluid-bed Gasification Experiments with Wood, Peat and Coal at VTT in 1991–1992. Part 1. Test Facilities …*（正文 S. 133 引作 Kurkela et al. (1993)，年份写法与书目不同，以书目条目为准核对）。
+   - `KURKELA_1991`：Kurkela, Ståhlberg, Laatikainen, *Pressurized Fluid-bed Gasification Experiments with Wood, Peat and Coal at VTT in 1991–1992. Part 1. Test Facilities …*。注意：键名中的 1991 取自标题里的试验年份（1991–1992），书目所载出版年为 1993，与正文 S. 133 的引法 Kurkela et al. (1993) 一致。
 9. 按 CHARTER §4.2，这两篇文献是 Hamel 明确作为 VTT 装置数据来源引用的，可用于补齐**装置与运行数据**（如热值、进气温度、床料、粒径分布、几何尺寸、散热）。不得从中引入 Hamel 没有采用的模型或关联式。
-10. 用文献补齐的字段：`status` 为 `source`；`source` 同时写明 Hamel 的引用位置和文献的页码与表号，例如 `Hamel S. 133 引用；Kurkela & Ståhlberg 1992, Table 2, p. 25`。`S. <数字>` 必须是 Hamel 的印刷页码，因为偏离检查以它判定出处。
-11. 文献与 Hamel 表 7.2 不一致时，以 Hamel 为准，把差异写进缺口清单，由总司令裁定。
+10. **用文献补齐的字段不是“原文给出”**，不得标为 `source`，也不得借用 Hamel 的引用页码满足出处规则。记法：
+    - `status: cited`（由 Hamel 引用的文献给出）；
+    - `source` 写 Hamel 引用该文献的位置（如 `S. 133 引用 KURKELA_1992`），`cited_source` 写文献的真实页码与表号（如 `KURKELA_1992, Table 2, p. 25`）；
+    - 逐字段核对：文献中的值是否对应与表 7.2 **同一试验条件**（同一试验编号、燃料批次、工况），对应关系写进 `note`；对应不上的不得采用。
+11. **`cited` 字段须经批准才能使用**：总司令把同一装置的 `cited` 字段汇总，成组登记一条 ADR（列出全部字段名、文献出处、同一试验条件的核对结论），批准后才能被 T9 装配使用。`cited` 字段不适用 CHARTER v0.6 §9 的物理参数例外；偏离检查对它要求正式 ADR，成组 ADR 中列出字段名即满足。
+12. 文献与 Hamel 表 7.2 不一致时，以 Hamel 为准，把差异写进缺口清单，由总司令裁定。
 
 ## 范围外
 
@@ -62,7 +66,8 @@
 
 - 表 2.1、2.2 的每一项都有对应字段（`source` / `derived` / `missing` 之一）。
 - 总司令抽查 10 个字段，与原页（以及第二阶段的原始文献）一致。
-- `derived` 字段的公式可以复算；对工况 1，用 λ、燃料分析和一次风、二次风做一次与 ADR 0004 相同的相容性检查，结果写进缺口清单（ADR 0004 批准前，只作检查，不用于换算）。
+- `derived` 字段的公式可以复算。
+- 对工况 1 做一次相容性检查，结果写进缺口清单：干燃料量 m_dry = ṁ_B·(1 − w_H2O)；理论需氧量 n_O2,st = m_dry·(w_C/M_C + w_H/(4·M_H) + w_S/M_S − w_O/(2·M_O))，原子量取 M_C = 12,011、M_H = 1,008、M_O = 15,999、M_S = 32,06 kg/kmol；空气量 = n_O2,st · λ_O2 / 0,21 · V_M，V_M = 22,414 m³/kmol（即 0,022414 m³/mol，ADR 0004），与表 7.2 的一次风加二次风之和比较。若相差明显（例如超过 2%），写出可能的原因（例如 λ_O2 的定义是否包含其它进氧途径、空气量的计量位置），交总司令裁定，不得调整输入去凑。
 - `python3 tools/drift_check.py` 通过。
 
 ## 停止条件

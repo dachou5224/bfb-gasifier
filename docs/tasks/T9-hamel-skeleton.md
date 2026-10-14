@@ -4,7 +4,7 @@
 |---|---|
 | 执行者 | cursor |
 | 审查方 | codex（代码类，CHARTER §8） |
-| 前置任务 | T6 的 `drift_check.py`；T7 的 `data/cases/wsv400.json` 格式确定（可先按格式草案开工） |
+| 前置任务 | T6 的 `drift_check.py`（已完成）；工况输入格式：#21 合并后的 `data/cases/wsv400.json`（格式已审定）与 T10 第一阶段的 `data/cases/vtt_pressurized.json`；VTT 加压 1 的验收目标：T3 完成 Bild 7.10 读数并在 CHARTER §2.2 登记验收量（未完成前可先用 WSV400 A 开发和测试，见下） |
 | 分支 | `task/T9-hamel-skeleton` |
 | 时间上限 | 2 个工作日 |
 | 状态 | 待开始 |
@@ -16,9 +16,11 @@
 ## 范围内
 
 1. **包结构**：按 CHARTER §6.1 建立 `hamel/` 下的各子包（`properties`、`hydrodynamics`、`freeboard`、`pyrolysis`、`kinetics`、`balances`、`solver`、`cases`）。没有内容的子包只放 `__init__.py`，不写占位实现。
-2. **配置**：物理参数与求解器参数分为两组 dataclass。物理参数只放 T7 输入文件里确实存在的字段，**字段名与 `data/cases/*.json` 中的键名保持一致**（这样才能适用 CHARTER v0.6 §9 的 ADR 例外），总数不超过 30 项（CHARTER §6.2）；不设功能开关。求解器参数每一项都须有对应 ADR。
-3. **工况装配** `hamel/cases/`：读取 `data/cases/wsv400.json`，换算为 SI 单位的配置对象；遇到 `status=missing` 的字段时报错，并指出字段名，不静默填默认值。
-4. **验收目标读取**：从 `data/digitized/fig_7_17.json` 等文件读出 Hamel 模拟值，按 CHARTER §2.2 的容差与登记的验收量生成目标区间。WSV400 A 的结果须与 `docs/STATUS.md` 中的“WSV400 A 验收目标”表一致。
+2. **配置**：物理参数与求解器参数分为两组 dataclass。物理参数只放工况输入文件里确实存在的字段，**字段名与 `data/cases/*.json` 中的键名保持一致**（这样才能适用 CHARTER v0.6 §9 的 ADR 例外），总数不超过 30 项（CHARTER §6.2）；不设功能开关。求解器参数每一项都须有对应 ADR。
+3. **工况装配** `hamel/cases/`：通用地读取 `data/cases/*.json`（同一套键名与 `status` 语义），按装置与工况编号装配为 SI 单位的配置对象；遇到 `status=missing` 的字段时报错并指出字段名，不静默填默认值；`status=cited` 的字段只有在正式 ADR 批准后才可使用（见 T10）。主线目标是 VTT 加压 1（CHARTER v0.7 §3）；WSV400 作为后备工况，保留为可选的回归数据。体积流量按 ADR 0004 换算。
+4. **验收目标读取**：通用地从 `data/digitized/fig_*.json`（parity 格式与剖面格式）读出 Hamel 模拟值，按 CHARTER §2.2 的容差与该装置登记的验收量生成目标区间。
+   - VTT 加压 1：读 T3 交付的 `fig_7_10.json`；其验收量以 CHARTER §2.2 的登记为准，登记前不得自行选定。
+   - 在 VTT 目标就绪前，可先以 WSV400 A（`fig_7_17.json`、`fig_7_16.json`）开发和测试读取逻辑；其结果须与 `docs/STATUS.md` 的“WSV400 A–F 验收目标”表一致。
 5. **外部元素平衡检查器**：给定进口物流与出口物流（组分摩尔流、固体质量流及其元素组成），计算 C/H/O 的缺口（mol/s）与总能量缺口（W）。它只依赖进出口物流，不依赖模型内部，T1 那类“床顶凭空产生碳”的问题必须能被它捕获。
 6. **验收判定**：输入模型出口结果，输出每个验收量的四种状态之一：“通过 / 不通过 / 边界待定 / 原文无”（CHARTER §2.2 v0.5），以及元素平衡是否闭合。
    - “边界待定”：模型结果与区间某一端的距离小于该量的 `est_error`，区间内外两侧都算。
@@ -50,4 +52,4 @@
 
 ## 停止条件
 
-时间上限到期，或 T7 的输入格式与本卡需求冲突时，停下上报。
+时间上限到期，或工况输入格式、验收目标格式与本卡需求冲突时，停下上报。
