@@ -1,0 +1,1727 @@
+{
+  "plant_id": "VTT_PRESSURIZED",
+  "description": "VTT 加压流化床，Espoo，Technical Research Centre of Finland。输入清单是表 2.1 与表 2.2（S. 13）。数值来自表 7.2（S. 133 为工况 1–8，S. 134 续表为工况 9–15）和 §7.1.3（S. 132–137）。Bild 7.7 的 cell 高度和各进料高度尚未读取。",
+  "checklist": {
+    "table_2_1": "表 2.1, S. 13",
+    "table_2_2": "表 2.2, S. 13"
+  },
+  "shared": {
+    "bed_diameter": {
+      "value": 0.15,
+      "unit": "m",
+      "source": "§7.1.3, S. 132；Bild 7.7, S. 132 图框相同",
+      "status": "source"
+    },
+    "freeboard_diameter": {
+      "value": 0.25,
+      "unit": "m",
+      "source": "§7.1.3, S. 132；Bild 7.7, S. 132 图框相同",
+      "status": "source"
+    },
+    "reactor_height": {
+      "value": null,
+      "unit": "m",
+      "source": "表 2.1, S. 13 要求反应器分段高度；§7.1.3, S. 133 给出的是 Gesamtanlagenhöhe 3,5 m，已记入 plant_height，未把它当成 Reaktorhöhe",
+      "status": "missing"
+    },
+    "plant_height": {
+      "value": 3.5,
+      "unit": "m",
+      "source": "§7.1.3, S. 133；原文 Gesamtanlagenhöhe",
+      "status": "source"
+    },
+    "connecting_line_geometry": {
+      "value": null,
+      "unit": "m",
+      "source": "表 2.1, S. 13 要求 Verbindungsleitungen；§7.1.3, S. 132–137 与 Bild 7.7, S. 132 未给尺寸",
+      "status": "missing"
+    },
+    "cyclone_geometry": {
+      "value": null,
+      "unit": "m",
+      "source": "表 2.1, S. 13 要求 Zyklon 尺寸；§7.1.3, S. 133 写明实际旋风尺寸没有给出。模型采用的 cell 数见 cyclone_cell_count",
+      "status": "missing"
+    },
+    "cyclone_cell_count": {
+      "value": 2,
+      "unit": "1",
+      "source": "§7.1.3, S. 133；原文 mit zwei Zellen gemäß Bild 7.7 angenommen",
+      "status": "source"
+    },
+    "return_line_geometry": {
+      "value": null,
+      "unit": "m",
+      "source": "表 2.1, S. 13 要求 Rückführleitungen；§7.1.3, S. 132–137 与 Bild 7.7, S. 132 未给尺寸",
+      "status": "missing"
+    },
+    "fuel_feed_count": {
+      "value": 1,
+      "unit": "1",
+      "source": "§7.1.3, S. 134；原文 Die Brennstoffzufuhr, unmittelbar über dem Düsenboden",
+      "status": "source"
+    },
+    "fuel_feed_height": {
+      "value": null,
+      "unit": "m",
+      "source": "§7.1.3, S. 134 只说 unmittelbar über dem Düsenboden，没有毫米数；Bild 7.7, S. 132 的箭头高度待读取",
+      "status": "missing"
+    },
+    "agent_feed_count": {
+      "value": 2,
+      "unit": "1",
+      "source": "§7.1.3, S. 134；Primärluft 与 Dampf 经 Düsenboden 送入，Sekundärluft 在床层上方自由空间。按两处进气计，蒸汽不另计一处",
+      "status": "source"
+    },
+    "agent_feed_height": {
+      "value": null,
+      "unit": "m",
+      "source": "§7.1.3, S. 134 只说明两处进气的区域，没有高度；Bild 7.7, S. 132 的箭头高度待读取",
+      "status": "missing"
+    },
+    "ash_withdrawal_count": {
+      "value": null,
+      "unit": "1",
+      "source": "表 2.1, S. 13 要求 Ascheabzugstellen；§7.1.3, S. 132–137 未给出。Bild 7.7 是否画有排灰口待读取",
+      "status": "missing"
+    },
+    "return_location": {
+      "value": "Zyklon in die Wirbelschicht",
+      "unit": "1",
+      "source": "§7.1.3, S. 133；旋风分离的固体返回流化床。Bild 7.7, S. 132 标有 Feststoffrückführung。各工况是否启用见 recirculation",
+      "status": "source"
+    },
+    "wall_heat_transfer_coefficient": {
+      "value": null,
+      "unit": "W/(m2·K)",
+      "source": "表 2.1, S. 13 要求 Wärmedurchgangskoeffizient；§7.1.3, S. 132–137 未给出",
+      "status": "missing"
+    },
+    "thermal_design_power": {
+      "value": null,
+      "unit": "W",
+      "source": "§7.1.3, S. 132 的 20–150 MW_el 是所讨论的电站规模，不是本装置 Feuerungswärmeleistung。Bild 7.7, S. 132 图框约为 25–75 kg Brennstoff/h，是处理量范围，不是热功率",
+      "status": "missing"
+    },
+    "gasifying_agent": {
+      "value": "Luft/Dampf",
+      "unit": "1",
+      "source": "§7.1.3, S. 132；Bild 7.7, S. 132 图框为 Luft/Dampf",
+      "status": "source"
+    },
+    "bed_inventory_composition": {
+      "value": null,
+      "unit": "kg/kg",
+      "source": "表 2.2, S. 13 要求 Feststoffinventar 的组成；§7.1.3, S. 132–137 与表 7.2 未给出",
+      "status": "missing"
+    },
+    "bed_inventory_diameter": {
+      "value": null,
+      "unit": "m",
+      "source": "表 2.2, S. 13 允许给出平均粒径；§7.1.3, S. 132–137 与表 7.2 未给出",
+      "status": "missing"
+    },
+    "bed_height": {
+      "value": null,
+      "unit": "m",
+      "source": "表 2.2, S. 13 要求 Wirbelbetthöhe；§7.1.3, S. 132–137 未给数值。Bild 7.7, S. 132 的床层高度待读取",
+      "status": "missing"
+    },
+    "cell_count": {
+      "value": null,
+      "unit": "1",
+      "source": "Bild 7.7, S. 132；反应器 cell 数待读取。旋风的两格另见 cyclone_cell_count，不计入这里",
+      "status": "missing"
+    },
+    "cell_heights": {
+      "value": null,
+      "unit": "m",
+      "source": "Bild 7.7, S. 132；各 cell 高度待读取",
+      "status": "missing"
+    }
+  },
+  "fuels": {
+    "rhein_braunkohle": {
+      "ash_mass_fraction_wf": {
+        "value": 0.043,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133；合并单元格跨工况 1–4",
+        "status": "derived",
+        "formula": "w = 4.3 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "volatiles_mass_fraction_waf": {
+        "value": 0.53,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133；合并单元格跨工况 1–4",
+        "status": "derived",
+        "formula": "w = 53.0 / 100；原文单位 Gew.-%，基准 waf"
+      },
+      "carbon_mass_fraction_wf": {
+        "value": 0.638,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133；合并单元格跨工况 1–4",
+        "status": "derived",
+        "formula": "w = 63.8 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "hydrogen_mass_fraction_wf": {
+        "value": 0.046,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133；合并单元格跨工况 1–4",
+        "status": "derived",
+        "formula": "w = 4.6 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "oxygen_mass_fraction_wf": {
+        "value": 0.262,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133；合并单元格跨工况 1–4",
+        "status": "derived",
+        "formula": "w = 26.2 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "nitrogen_mass_fraction_wf": {
+        "value": 0.008,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133；合并单元格跨工况 1–4",
+        "status": "derived",
+        "formula": "w = 0.8 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "sulfur_mass_fraction_wf": {
+        "value": 0.003,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133；合并单元格跨工况 1–4",
+        "status": "derived",
+        "formula": "w = 0.3 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "heating_value": {
+        "value": null,
+        "unit": "J/kg",
+        "source": "表 2.2, S. 13 要求 Heizwert；表 7.2, S. 133–134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    },
+    "finn_torf": {
+      "ash_mass_fraction_wf": {
+        "value": 0.043,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133（工况 5–8）与 S. 134（工况 9–13）；两处印刷值相同",
+        "status": "derived",
+        "formula": "w = 4.3 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "volatiles_mass_fraction_waf": {
+        "value": 0.684,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133（工况 5–8）与 S. 134（工况 9–13）；两处印刷值相同",
+        "status": "derived",
+        "formula": "w = 68.4 / 100；原文单位 Gew.-%，基准 waf"
+      },
+      "carbon_mass_fraction_wf": {
+        "value": 0.545,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133（工况 5–8）与 S. 134（工况 9–13）；两处印刷值相同",
+        "status": "derived",
+        "formula": "w = 54.5 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "hydrogen_mass_fraction_wf": {
+        "value": 0.055999999999999994,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133（工况 5–8）与 S. 134（工况 9–13）；两处印刷值相同",
+        "status": "derived",
+        "formula": "w = 5.6 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "oxygen_mass_fraction_wf": {
+        "value": 0.336,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133（工况 5–8）与 S. 134（工况 9–13）；两处印刷值相同",
+        "status": "derived",
+        "formula": "w = 33.6 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "nitrogen_mass_fraction_wf": {
+        "value": 0.018000000000000002,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133（工况 5–8）与 S. 134（工况 9–13）；两处印刷值相同",
+        "status": "derived",
+        "formula": "w = 1.8 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "sulfur_mass_fraction_wf": {
+        "value": 0.0025,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133（工况 5–8）与 S. 134（工况 9–13）；两处印刷值相同",
+        "status": "derived",
+        "formula": "w = 0.25 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "heating_value": {
+        "value": null,
+        "unit": "J/kg",
+        "source": "表 2.2, S. 13 要求 Heizwert；表 7.2, S. 133–134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    },
+    "saegemehl": {
+      "ash_mass_fraction_wf": {
+        "value": 0.002,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 134；合并单元格跨工况 14–15",
+        "status": "derived",
+        "formula": "w = 0.2 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "volatiles_mass_fraction_waf": {
+        "value": 0.83,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 134；合并单元格跨工况 14–15",
+        "status": "derived",
+        "formula": "w = 83.0 / 100；原文单位 Gew.-%，基准 waf"
+      },
+      "carbon_mass_fraction_wf": {
+        "value": 0.502,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 134；合并单元格跨工况 14–15",
+        "status": "derived",
+        "formula": "w = 50.2 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "hydrogen_mass_fraction_wf": {
+        "value": 0.061,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 134；合并单元格跨工况 14–15",
+        "status": "derived",
+        "formula": "w = 6.1 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "oxygen_mass_fraction_wf": {
+        "value": 0.434,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 134；合并单元格跨工况 14–15",
+        "status": "derived",
+        "formula": "w = 43.4 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "nitrogen_mass_fraction_wf": {
+        "value": 0.001,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 134；合并单元格跨工况 14–15",
+        "status": "derived",
+        "formula": "w = 0.1 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "sulfur_mass_fraction_wf": {
+        "value": 0.0,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 134；合并单元格跨工况 14–15",
+        "status": "derived",
+        "formula": "w = 0.0 / 100；原文单位 Gew.-%，基准 wf"
+      },
+      "heating_value": {
+        "value": null,
+        "unit": "J/kg",
+        "source": "表 2.2, S. 13 要求 Heizwert；表 7.2, S. 133–134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    }
+  },
+  "cases": {
+    "1": {
+      "case_id": "CASE_VTT_PRESSURIZED_1",
+      "fuel_id": "rhein_braunkohle",
+      "fuel_name": {
+        "value": "Rhein. Braunk.",
+        "unit": "1",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.013027777777777777,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "m = 46.9 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.11800000000000001,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "w = 11.8 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.33,
+        "unit": "1",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 51.8,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": 0.6419598861822472,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 133；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 51.8 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "secondary_air_volume_flow": {
+        "value": 30.1,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "secondary_air_amount_flow": {
+        "value": 0.373030744673468,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 133；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 30.1 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "steam_mass_flow": {
+        "value": 0.001888888888888889,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "m = 6.8 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.2, S. 133 与 §7.1.3, S. 132–137 只写 Luft/Dampf，未给空气的 y_i",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 500000.0,
+        "unit": "Pa",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "p = 0.5 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": false,
+        "unit": "1",
+        "source": "表 7.2, S. 133；原文 Nein",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    },
+    "2": {
+      "case_id": "CASE_VTT_PRESSURIZED_2",
+      "fuel_id": "rhein_braunkohle",
+      "fuel_name": {
+        "value": "Rhein. Braunk.",
+        "unit": "1",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.0115,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "m = 41.4 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.11699999999999999,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "w = 11.7 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.4,
+        "unit": "1",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 51.6,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": 0.639481276583088,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 133；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 51.6 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "secondary_air_volume_flow": {
+        "value": 37.5,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "secondary_air_amount_flow": {
+        "value": 0.46473929984236045,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 133；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 37.5 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "steam_mass_flow": {
+        "value": 0.0025,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "m = 9.0 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.2, S. 133 与 §7.1.3, S. 132–137 只写 Luft/Dampf，未给空气的 y_i",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 500000.0,
+        "unit": "Pa",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "p = 0.5 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": true,
+        "unit": "1",
+        "source": "表 7.2, S. 133；原文 Ja",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    },
+    "3": {
+      "case_id": "CASE_VTT_PRESSURIZED_3",
+      "fuel_id": "rhein_braunkohle",
+      "fuel_name": {
+        "value": "Rhein. Braunk.",
+        "unit": "1",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.0115,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "m = 41.4 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.11900000000000001,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "w = 11.9 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.44,
+        "unit": "1",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 51.4,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": 0.6370026669839287,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 133；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 51.4 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "secondary_air_volume_flow": {
+        "value": 46.5,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "secondary_air_amount_flow": {
+        "value": 0.576276731804527,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 133；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 46.5 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "steam_mass_flow": {
+        "value": 0.001888888888888889,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "m = 6.8 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.2, S. 133 与 §7.1.3, S. 132–137 只写 Luft/Dampf，未给空气的 y_i",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 500000.0,
+        "unit": "Pa",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "p = 0.5 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": true,
+        "unit": "1",
+        "source": "表 7.2, S. 133；原文 Ja",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    },
+    "4": {
+      "case_id": "CASE_VTT_PRESSURIZED_4",
+      "fuel_id": "rhein_braunkohle",
+      "fuel_name": {
+        "value": "Rhein. Braunk.",
+        "unit": "1",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.01361111111111111,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "m = 49.0 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.11800000000000001,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "w = 11.8 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.41,
+        "unit": "1",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 62.2,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": 0.7708475853385285,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 133；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 62.2 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "secondary_air_volume_flow": {
+        "value": 42.8,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "secondary_air_amount_flow": {
+        "value": 0.5304224542200807,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 133；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 42.8 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "steam_mass_flow": {
+        "value": 0.003138888888888889,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "m = 11.3 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.2, S. 133 与 §7.1.3, S. 132–137 只写 Luft/Dampf，未给空气的 y_i",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 700000.0,
+        "unit": "Pa",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "p = 0.7 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": true,
+        "unit": "1",
+        "source": "表 7.2, S. 133；原文 Ja",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    },
+    "5": {
+      "case_id": "CASE_VTT_PRESSURIZED_5",
+      "fuel_id": "finn_torf",
+      "fuel_name": {
+        "value": "Finn. Torf",
+        "unit": "1",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.01911111111111111,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "m = 68.8 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.161,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "w = 16.1 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.31,
+        "unit": "1",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 43.8,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": 0.5428155022158769,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 133；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 43.8 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "secondary_air_volume_flow": {
+        "value": 49.5,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "secondary_air_amount_flow": {
+        "value": 0.6134558757919157,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 133；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 49.5 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "steam_mass_flow": {
+        "value": 0.0,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 133；表内为短横",
+        "status": "derived",
+        "formula": "m = 0 kg/h / 3600 s/h；表内为短横"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.2, S. 133 与 §7.1.3, S. 132–137 只写 Luft/Dampf，未给空气的 y_i",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 500000.0,
+        "unit": "Pa",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "p = 0.5 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": false,
+        "unit": "1",
+        "source": "表 7.2, S. 133；原文 Nein",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    },
+    "6": {
+      "case_id": "CASE_VTT_PRESSURIZED_6",
+      "fuel_id": "finn_torf",
+      "fuel_name": {
+        "value": "Finn. Torf",
+        "unit": "1",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.018194444444444444,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "m = 65.5 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.14800000000000002,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "w = 14.8 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.29,
+        "unit": "1",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 60.7,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": 0.7522580133448341,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 133；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 60.7 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "secondary_air_volume_flow": {
+        "value": 21.9,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "secondary_air_amount_flow": {
+        "value": 0.27140775110793847,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 133；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 21.9 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "steam_mass_flow": {
+        "value": 0.0043055555555555555,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "m = 15.5 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.2, S. 133 与 §7.1.3, S. 132–137 只写 Luft/Dampf，未给空气的 y_i",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 500000.0,
+        "unit": "Pa",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "p = 0.5 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": false,
+        "unit": "1",
+        "source": "表 7.2, S. 133；原文 Nein",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    },
+    "7": {
+      "case_id": "CASE_VTT_PRESSURIZED_7",
+      "fuel_id": "finn_torf",
+      "fuel_name": {
+        "value": "Finn. Torf",
+        "unit": "1",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.01711111111111111,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "m = 61.6 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.159,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "w = 15.9 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.32,
+        "unit": "1",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 53.3,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": 0.6605494581759416,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 133；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 53.3 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "secondary_air_volume_flow": {
+        "value": 31.9,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "secondary_air_amount_flow": {
+        "value": 0.39533823106590127,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 133；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 31.9 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "steam_mass_flow": {
+        "value": 0.0015,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "m = 5.4 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.2, S. 133 与 §7.1.3, S. 132–137 只写 Luft/Dampf，未给空气的 y_i",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 500000.0,
+        "unit": "Pa",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "p = 0.5 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": false,
+        "unit": "1",
+        "source": "表 7.2, S. 133；原文 Nein",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    },
+    "8": {
+      "case_id": "CASE_VTT_PRESSURIZED_8",
+      "fuel_id": "finn_torf",
+      "fuel_name": {
+        "value": "Finn. Torf",
+        "unit": "1",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.017694444444444443,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "m = 63.7 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.185,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "w = 18.5 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.37,
+        "unit": "1",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 48.1,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": 0.5961056085978009,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 133；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 48.1 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "secondary_air_volume_flow": {
+        "value": 46.9,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 133",
+        "status": "source"
+      },
+      "secondary_air_amount_flow": {
+        "value": 0.5812339510028455,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 133；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 46.9 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "steam_mass_flow": {
+        "value": 0.0,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 133；表内为短横",
+        "status": "derived",
+        "formula": "m = 0 kg/h / 3600 s/h；表内为短横"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.2, S. 133 与 §7.1.3, S. 132–137 只写 Luft/Dampf，未给空气的 y_i",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 500000.0,
+        "unit": "Pa",
+        "source": "表 7.2, S. 133",
+        "status": "derived",
+        "formula": "p = 0.5 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": false,
+        "unit": "1",
+        "source": "表 7.2, S. 133；原文 Nein",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    },
+    "9": {
+      "case_id": "CASE_VTT_PRESSURIZED_9",
+      "fuel_id": "finn_torf",
+      "fuel_name": {
+        "value": "Finn. Torf",
+        "unit": "1",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.021194444444444443,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "m = 76.3 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.162,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "w = 16.2 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.3,
+        "unit": "1",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 62.7,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": 0.7770441093364266,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 134；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 62.7 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "secondary_air_volume_flow": {
+        "value": 35.7,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "secondary_air_amount_flow": {
+        "value": 0.4424318134499271,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 134；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 35.7 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "steam_mass_flow": {
+        "value": 0.005194444444444444,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "m = 18.7 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.2, S. 134 与 §7.1.3, S. 132–137 只写 Luft/Dampf，未给空气的 y_i",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 700000.0,
+        "unit": "Pa",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "p = 0.7 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": false,
+        "unit": "1",
+        "source": "表 7.2, S. 134；原文 Nein",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    },
+    "10": {
+      "case_id": "CASE_VTT_PRESSURIZED_10",
+      "fuel_id": "finn_torf",
+      "fuel_name": {
+        "value": "Finn. Torf",
+        "unit": "1",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.017361111111111112,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "m = 62.5 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.155,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "w = 15.5 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.29,
+        "unit": "1",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 65.2,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": 0.8080267293259173,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 134；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 65.2 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "secondary_air_volume_flow": {
+        "value": 34.0,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "secondary_air_amount_flow": {
+        "value": 0.42136363185707343,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 134；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 34.0 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "steam_mass_flow": {
+        "value": 0.0075,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "m = 27.0 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.2, S. 134 与 §7.1.3, S. 132–137 只写 Luft/Dampf，未给空气的 y_i",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 1000000.0,
+        "unit": "Pa",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "p = 1.0 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": false,
+        "unit": "1",
+        "source": "表 7.2, S. 134；原文 Nein",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    },
+    "11": {
+      "case_id": "CASE_VTT_PRESSURIZED_11",
+      "fuel_id": "finn_torf",
+      "fuel_name": {
+        "value": "Finn. Torf",
+        "unit": "1",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.0125,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "m = 45.0 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.157,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "w = 15.7 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.4,
+        "unit": "1",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 51.4,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": 0.6370026669839287,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 134；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 51.4 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "secondary_air_volume_flow": {
+        "value": 27.7,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "secondary_air_amount_flow": {
+        "value": 0.3432874294835569,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 134；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 27.7 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "steam_mass_flow": {
+        "value": 0.0018055555555555555,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "m = 6.5 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.2, S. 134 与 §7.1.3, S. 132–137 只写 Luft/Dampf，未给空气的 y_i",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 500000.0,
+        "unit": "Pa",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "p = 0.5 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": true,
+        "unit": "1",
+        "source": "表 7.2, S. 134；原文 Ja",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    },
+    "12": {
+      "case_id": "CASE_VTT_PRESSURIZED_12",
+      "fuel_id": "finn_torf",
+      "fuel_name": {
+        "value": "Finn. Torf",
+        "unit": "1",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.007361111111111111,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "m = 26.5 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.16,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "w = 16.0 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.43,
+        "unit": "1",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 38.9,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": 0.4820895670364752,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 134；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 38.9 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "secondary_air_volume_flow": {
+        "value": 10.4,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "secondary_air_amount_flow": {
+        "value": 0.1288876991562813,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 134；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 10.4 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "steam_mass_flow": {
+        "value": 0.0021944444444444446,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "m = 7.9 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.2, S. 134 与 §7.1.3, S. 132–137 只写 Luft/Dampf，未给空气的 y_i",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 400000.0,
+        "unit": "Pa",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "p = 0.4 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": true,
+        "unit": "1",
+        "source": "表 7.2, S. 134；原文 Ja",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    },
+    "13": {
+      "case_id": "CASE_VTT_PRESSURIZED_13",
+      "fuel_id": "finn_torf",
+      "fuel_name": {
+        "value": "Finn. Torf",
+        "unit": "1",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.013944444444444445,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "m = 50.2 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.161,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "w = 16.1 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.41,
+        "unit": "1",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 47.0,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": 0.582473255802425,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 134；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 47.0 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "secondary_air_volume_flow": {
+        "value": 41.6,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "secondary_air_amount_flow": {
+        "value": 0.5155507966251252,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 134；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 41.6 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "steam_mass_flow": {
+        "value": 0.002111111111111111,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "m = 7.6 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.2, S. 134 与 §7.1.3, S. 132–137 只写 Luft/Dampf，未给空气的 y_i",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 500000.0,
+        "unit": "Pa",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "p = 0.5 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": true,
+        "unit": "1",
+        "source": "表 7.2, S. 134；原文 Ja",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    },
+    "14": {
+      "case_id": "CASE_VTT_PRESSURIZED_14",
+      "fuel_id": "saegemehl",
+      "fuel_name": {
+        "value": "Sägemehl",
+        "unit": "1",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.011888888888888888,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "m = 42.8 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.113,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "w = 11.3 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.28,
+        "unit": "1",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 39.1,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": 0.48456817663563445,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 134；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 39.1 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "secondary_air_volume_flow": {
+        "value": 11.6,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "secondary_air_amount_flow": {
+        "value": 0.14375935675123683,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 134；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 11.6 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "steam_mass_flow": {
+        "value": 0.0008055555555555556,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "m = 2.9 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.2, S. 134 与 §7.1.3, S. 132–137 只写 Luft/Dampf，未给空气的 y_i",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 400000.0,
+        "unit": "Pa",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "p = 0.4 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": false,
+        "unit": "1",
+        "source": "表 7.2, S. 134；原文 Nein",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    },
+    "15": {
+      "case_id": "CASE_VTT_PRESSURIZED_15",
+      "fuel_id": "saegemehl",
+      "fuel_name": {
+        "value": "Sägemehl",
+        "unit": "1",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "fuel_mass_flow": {
+        "value": 0.011111111111111112,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "m = 40.0 kg/h / 3600 s/h"
+      },
+      "moisture_mass_fraction": {
+        "value": 0.059000000000000004,
+        "unit": "kg/kg",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "w = 5.9 / 100；原文单位 Gew.-%，基准 收到基"
+      },
+      "lambda_o2": {
+        "value": 0.39,
+        "unit": "1",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "primary_air_volume_flow": {
+        "value": 37.6,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "primary_air_amount_flow": {
+        "value": 0.4659786046419401,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 134；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 37.6 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "secondary_air_volume_flow": {
+        "value": 22.3,
+        "unit": "m3(VN)/h",
+        "source": "表 7.2, S. 134",
+        "status": "source"
+      },
+      "secondary_air_amount_flow": {
+        "value": 0.276364970306257,
+        "unit": "mol/s",
+        "source": "表 7.2, S. 134；解释性选择：ADR 0004",
+        "status": "derived",
+        "formula": "n = 22.3 m3(VN)/h / 0.022414 m3/mol / 3600 s/h；V_M = 0,022414 m³/mol（ADR 0004）"
+      },
+      "steam_mass_flow": {
+        "value": 0.0035555555555555557,
+        "unit": "kg/s",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "m = 12.8 kg/h / 3600 s/h"
+      },
+      "inlet_gas_mole_fractions": {
+        "value": null,
+        "unit": "mol/mol",
+        "source": "表 2.2, S. 13 要求进入气体组成；表 7.2, S. 134 与 §7.1.3, S. 132–137 只写 Luft/Dampf，未给空气的 y_i",
+        "status": "missing"
+      },
+      "inlet_temperature": {
+        "value": null,
+        "unit": "K",
+        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "pressure": {
+        "value": 400000.0,
+        "unit": "Pa",
+        "source": "表 7.2, S. 134",
+        "status": "derived",
+        "formula": "p = 0.4 MPa * 1e6 Pa/MPa"
+      },
+      "recirculation": {
+        "value": false,
+        "unit": "1",
+        "source": "表 7.2, S. 134；原文 Nein",
+        "status": "source"
+      },
+      "fuel_size_class_mass_fractions": {
+        "value": null,
+        "unit": "kg/kg",
+        "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      }
+    }
+  }
+}
