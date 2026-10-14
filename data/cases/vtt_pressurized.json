@@ -1,6 +1,6 @@
 {
   "plant_id": "VTT_PRESSURIZED",
-  "description": "VTT 加压流化床，Espoo，Technical Research Centre of Finland。输入清单是表 2.1 与表 2.2（S. 13）。数值来自表 7.2（S. 133 为工况 1–8，S. 134 续表为工况 9–15）和 §7.1.3（S. 132–137）。Bild 7.7 的 cell 高度和各进料高度尚未读取。",
+  "description": "VTT 加压流化床，Espoo，Technical Research Centre of Finland。输入清单是表 2.1 与表 2.2（S. 13）。Hamel 给出的数来自表 7.2（S. 133 为工况 1–8，S. 134 续表为工况 9–15）和 §7.1.3（S. 132–137）。文献补上的数来自 Kurkela & Ståhlberg 1992，status 为 cited。操作床高、格子高度和二次风的毫米高度尚未读取。",
   "checklist": {
     "table_2_1": "表 2.1, S. 13",
     "table_2_2": "表 2.2, S. 13"
@@ -29,6 +29,46 @@
       "unit": "m",
       "source": "§7.1.3, S. 133；原文 Gesamtanlagenhöhe",
       "status": "source"
+    },
+    "bed_zone_height": {
+      "value": 1.2,
+      "unit": "m",
+      "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+      "cited_source": "KURKELA_1992, Table 3, p. 5",
+      "status": "cited",
+      "note": "表内写 Bed diameter and height = 0.15 m, 1.2 m，与自由空间高度 2.3 m 并列，是床区筒体高度。不是表 2.2 的操作床高，bed_height 仍空着。"
+    },
+    "freeboard_height": {
+      "value": 2.3,
+      "unit": "m",
+      "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+      "cited_source": "KURKELA_1992, Table 3, p. 5",
+      "status": "cited",
+      "note": "Freeboard diameter and height = 0.25 m, 2.3 m。直径与 §7.1.3 的 0.25 m 一致，高度是文献补上的。"
+    },
+    "distributor_to_outlet_height": {
+      "value": 3.7,
+      "unit": "m",
+      "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+      "cited_source": "KURKELA_1992, p. 4",
+      "status": "cited",
+      "note": "从空气分配器到气体出口管 3.7 m。床区 1.2 m 加自由空间 2.3 m 等于 3.5 m，与 3.7 m 相差 0.2 m，原文没有说明这 0.2 m 属于哪一段。不把它改写成 Hamel 的 Gesamtanlagenhöhe 3.5 m。"
+    },
+    "pressure_vessel_height": {
+      "value": 5.6,
+      "unit": "m",
+      "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+      "cited_source": "KURKELA_1992, p. 4",
+      "status": "cited",
+      "note": "压力容器高 5.6 m，是外壳，不是耐火层以内的反应器高度。"
+    },
+    "pressure_vessel_inside_diameter": {
+      "value": 0.6,
+      "unit": "m",
+      "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+      "cited_source": "KURKELA_1992, p. 4",
+      "status": "cited",
+      "note": "压力容器内径 0.6 m。耐火层以内的床径 0.15 m、自由空间直径 0.25 m 仍以 Hamel 正文为准。"
     },
     "connecting_line_geometry": {
       "value": null,
@@ -60,11 +100,19 @@
       "source": "§7.1.3, S. 134；原文 Die Brennstoffzufuhr, unmittelbar über dem Düsenboden",
       "status": "source"
     },
+    "fuel_feed_location": {
+      "value": "unmittelbar über dem Düsenboden",
+      "unit": "1",
+      "source": "§7.1.3, S. 134；原文 Die Brennstoffzufuhr, unmittelbar über dem Düsenboden",
+      "status": "source"
+    },
     "fuel_feed_height": {
-      "value": null,
+      "value": 0.12,
       "unit": "m",
-      "source": "§7.1.3, S. 134 只说 unmittelbar über dem Düsenboden，没有毫米数；Bild 7.7, S. 132 的箭头高度待读取",
-      "status": "missing"
+      "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+      "cited_source": "KURKELA_1992, p. 5–6",
+      "status": "cited",
+      "note": "进料口在分配器以上 0.12 m。两台螺旋进入这一个口。与 S. 134「紧贴布风板上方」相符，毫米级高度只在文献里。"
     },
     "agent_feed_count": {
       "value": 2,
@@ -78,11 +126,32 @@
       "source": "§7.1.3, S. 134 只说明两处进气的区域，没有高度；Bild 7.7, S. 132 的箭头高度待读取",
       "status": "missing"
     },
+    "steam_feed_location": {
+      "value": "mit der Primärluft über den Düsenboden",
+      "unit": "1",
+      "source": "§7.1.3, S. 134；原文 in allen Fällen mit der Primärluft über den Düsenboden",
+      "status": "source"
+    },
+    "secondary_air_location": {
+      "value": "Freiraum oberhalb des Wirbelbettes",
+      "unit": "1",
+      "source": "§7.1.3, S. 134；原文 Im Freiraum oberhalb des Wirbelbettes wird zur Nachvergasung Sekundärluft eingedüst",
+      "status": "source"
+    },
     "ash_withdrawal_count": {
       "value": null,
       "unit": "1",
-      "source": "表 2.1, S. 13 要求 Ascheabzugstellen；§7.1.3, S. 132–137 未给出。Bild 7.7 是否画有排灰口待读取",
+      "source": "表 2.1, S. 13 要求 Ascheabzugstellen；§7.1.3, S. 132–137 未给出个数。KURKELA_1992, p. 6 只写底部有一根 35 mm 取样管，已记入 ash_sample_pipe_diameter",
       "status": "missing"
+    },
+    "ash_sample_pipe_diameter": {
+      "value": 0.035,
+      "unit": "m",
+      "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+      "cited_source": "KURKELA_1992, p. 6",
+      "status": "cited",
+      "note": "底部引出床料样品的管子，内文写 35 mm pipe。这是取样管，不是已经数清的排灰口，ash_withdrawal_count 仍空着。",
+      "formula": "d = 35 mm / 1000 mm/m"
     },
     "return_location": {
       "value": "Zyklon in die Wirbelschicht",
@@ -97,10 +166,13 @@
       "status": "missing"
     },
     "thermal_design_power": {
-      "value": null,
+      "value": 400000.0,
       "unit": "W",
-      "source": "§7.1.3, S. 132 的 20–150 MW_el 是所讨论的电站规模，不是本装置 Feuerungswärmeleistung。Bild 7.7, S. 132 图框约为 25–75 kg Brennstoff/h，是处理量范围，不是热功率",
-      "status": "missing"
+      "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+      "cited_source": "KURKELA_1992, Table 3, p. 5",
+      "status": "cited",
+      "note": "Thermal input (maximum)，用泥炭时的最大值，不是各工况的燃料热功率。§7.1.3 的 20–150 MW_el 仍是电站规模，没有采用。",
+      "formula": "P = 400 kW * 1000 W/kW"
     },
     "gasifying_agent": {
       "value": "Luft/Dampf",
@@ -193,8 +265,26 @@
       "heating_value": {
         "value": null,
         "unit": "J/kg",
-        "source": "表 2.2, S. 13 要求 Heizwert；表 7.2, S. 133–134 与 §7.1.3, S. 132–137 未给出",
+        "source": "表 2.2, S. 13 要求 Heizwert。KURKELA_1992, Table 6, p. 18 只给代表工况的收到基低位热值，不是一种燃料一个数，写在对得上的 cases.*.heating_value",
         "status": "missing"
+      },
+      "fixed_carbon_mass_fraction_wf": {
+        "value": 0.427,
+        "unit": "kg/kg",
+        "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+        "cited_source": "KURKELA_1992, Table 1, p. 3",
+        "status": "cited",
+        "note": "褐煤固定碳，平均值。挥发分、灰分和元素仍用表 7.2，不用表 1 的波动范围替换。",
+        "formula": "w = 42.7 / 100；原文 wt%，dry basis，对应 wf"
+      },
+      "particle_size_max": {
+        "value": 0.004,
+        "unit": "m",
+        "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+        "cited_source": "KURKELA_1992, p. 3",
+        "status": "cited",
+        "note": "sieved below 4 mm。下限原文没有写成 0。Fig. 1 是累积曲线，没有读质量分数。",
+        "formula": "d = 4 mm / 1000 mm/m"
       }
     },
     "finn_torf": {
@@ -250,8 +340,29 @@
       "heating_value": {
         "value": null,
         "unit": "J/kg",
-        "source": "表 2.2, S. 13 要求 Heizwert；表 7.2, S. 133–134 与 §7.1.3, S. 132–137 未给出",
+        "source": "表 2.2, S. 13 要求 Heizwert。KURKELA_1992, Table 6, p. 18 只给代表工况的收到基低位热值，不是一种燃料一个数，写在对得上的 cases.*.heating_value",
         "status": "missing"
+      },
+      "fixed_carbon_mass_fraction_wf": {
+        "value": 0.274,
+        "unit": "kg/kg",
+        "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+        "cited_source": "KURKELA_1992, Table 1, p. 3",
+        "status": "cited",
+        "note": "泥炭固定碳，平均值。表 1 的氧（差减）印为 33.55 wt%，表 7.2 是 33.6，元素仍用表 7.2。",
+        "formula": "w = 27.4 / 100；原文 wt%，dry basis，对应 wf"
+      },
+      "particle_size_range": {
+        "value": [
+          0.0,
+          0.004
+        ],
+        "unit": "m",
+        "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+        "cited_source": "KURKELA_1992, p. 3",
+        "status": "cited",
+        "note": "sieved to 0–4 mm。Fig. 1 的累积曲线没有读成质量分数。",
+        "formula": "0 mm 与 4 mm 各除以 1000"
       }
     },
     "saegemehl": {
@@ -307,8 +418,17 @@
       "heating_value": {
         "value": null,
         "unit": "J/kg",
-        "source": "表 2.2, S. 13 要求 Heizwert；表 7.2, S. 133–134 与 §7.1.3, S. 132–137 未给出",
+        "source": "表 2.2, S. 13 要求 Heizwert。KURKELA_1992, Table 6, p. 18 只给代表工况的收到基低位热值，不是一种燃料一个数，写在对得上的 cases.*.heating_value",
         "status": "missing"
+      },
+      "fixed_carbon_mass_fraction_wf": {
+        "value": 0.168,
+        "unit": "kg/kg",
+        "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+        "cited_source": "KURKELA_1992, Table 1, p. 3",
+        "status": "cited",
+        "note": "锯末固定碳，平均值。粒径只在 Fig. 1，正文没有筛分上下限。",
+        "formula": "w = 16.8 / 100；原文 wt%，dry basis，对应 wf"
       }
     }
   },
@@ -382,10 +502,13 @@
         "status": "missing"
       },
       "inlet_temperature": {
-        "value": null,
+        "value": 458.15,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
-        "status": "missing"
+        "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+        "cited_source": "KURKELA_1992, Table 6, p. 18",
+        "status": "cited",
+        "note": "空气和蒸汽温度同为 185 °C。褐煤、不循环、蒸汽/无灰干基 0.17，对上表 5 第一列（燃料 46.9 kg/h）。表 6 的 ER 印成 0.32，表 5 与表 7.2 是 0.33。λ 仍用 0.33。",
+        "formula": "T = 185 °C + 273.15"
       },
       "pressure": {
         "value": 500000.0,
@@ -405,6 +528,15 @@
         "unit": "kg/kg",
         "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
         "status": "missing"
+      },
+      "heating_value": {
+        "value": 21000000.0,
+        "unit": "J/kg",
+        "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+        "cited_source": "KURKELA_1992, Table 6, p. 18",
+        "status": "cited",
+        "note": "收到基低位热值。褐煤、不循环、蒸汽/无灰干基 0.17，对上表 5 第一列（燃料 46.9 kg/h）。表 6 的 ER 印成 0.32，表 5 与表 7.2 是 0.33。λ 仍用 0.33。",
+        "formula": "q = 21.0 MJ/kg * 1e6 J/MJ；原文 Fuel LHV (wet)"
       }
     },
     "2": {
@@ -478,7 +610,7 @@
       "inlet_temperature": {
         "value": null,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "source": "表 2.2, S. 13 要求进入气体温度。KURKELA_1992, Table 6, p. 18 的空气和蒸汽温度 185 °C 只印在六个代表点上，这一列不在其中，不外推",
         "status": "missing"
       },
       "pressure": {
@@ -498,6 +630,12 @@
         "value": null,
         "unit": "kg/kg",
         "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "heating_value": {
+        "value": null,
+        "unit": "J/kg",
+        "source": "表 2.2, S. 13 要求 Heizwert。KURKELA_1992, Table 6, p. 18 没有与这一列的 λ、蒸汽比和循环同时对上的热值",
         "status": "missing"
       }
     },
@@ -570,10 +708,13 @@
         "status": "missing"
       },
       "inlet_temperature": {
-        "value": null,
+        "value": 458.15,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
-        "status": "missing"
+        "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+        "cited_source": "KURKELA_1992, Table 6, p. 18",
+        "status": "cited",
+        "note": "空气和蒸汽温度同为 185 °C。褐煤、循环、ER 0.44、蒸汽/无灰干基 0.20，对上表 5 第三列（燃料 41.4 kg/h）。",
+        "formula": "T = 185 °C + 273.15"
       },
       "pressure": {
         "value": 500000.0,
@@ -593,6 +734,15 @@
         "unit": "kg/kg",
         "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
         "status": "missing"
+      },
+      "heating_value": {
+        "value": 20900000.0,
+        "unit": "J/kg",
+        "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+        "cited_source": "KURKELA_1992, Table 6, p. 18",
+        "status": "cited",
+        "note": "收到基低位热值。褐煤、循环、ER 0.44、蒸汽/无灰干基 0.20，对上表 5 第三列（燃料 41.4 kg/h）。",
+        "formula": "q = 20.9 MJ/kg * 1e6 J/MJ；原文 Fuel LHV (wet)"
       }
     },
     "4": {
@@ -666,7 +816,7 @@
       "inlet_temperature": {
         "value": null,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "source": "表 2.2, S. 13 要求进入气体温度。KURKELA_1992, Table 6, p. 18 的空气和蒸汽温度 185 °C 只印在六个代表点上，这一列不在其中，不外推",
         "status": "missing"
       },
       "pressure": {
@@ -686,6 +836,12 @@
         "value": null,
         "unit": "kg/kg",
         "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "heating_value": {
+        "value": null,
+        "unit": "J/kg",
+        "source": "表 2.2, S. 13 要求 Heizwert。KURKELA_1992, Table 6, p. 18 没有与这一列的 λ、蒸汽比和循环同时对上的热值",
         "status": "missing"
       }
     },
@@ -760,7 +916,7 @@
       "inlet_temperature": {
         "value": null,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "source": "表 2.2, S. 13 要求进入气体温度。KURKELA_1992, Table 6, p. 18 的空气和蒸汽温度 185 °C 只印在六个代表点上，这一列不在其中，不外推",
         "status": "missing"
       },
       "pressure": {
@@ -780,6 +936,12 @@
         "value": null,
         "unit": "kg/kg",
         "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "heating_value": {
+        "value": null,
+        "unit": "J/kg",
+        "source": "表 2.2, S. 13 要求 Heizwert。KURKELA_1992, Table 6, p. 18 没有与这一列的 λ、蒸汽比和循环同时对上的热值",
         "status": "missing"
       }
     },
@@ -854,7 +1016,7 @@
       "inlet_temperature": {
         "value": null,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "source": "表 2.2, S. 13 要求进入气体温度。KURKELA_1992, Table 6, p. 18 的空气和蒸汽温度 185 °C 只印在六个代表点上，这一列不在其中，不外推",
         "status": "missing"
       },
       "pressure": {
@@ -874,6 +1036,12 @@
         "value": null,
         "unit": "kg/kg",
         "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "heating_value": {
+        "value": null,
+        "unit": "J/kg",
+        "source": "表 2.2, S. 13 要求 Heizwert。KURKELA_1992, Table 6, p. 18 没有与这一列的 λ、蒸汽比和循环同时对上的热值",
         "status": "missing"
       }
     },
@@ -946,10 +1114,13 @@
         "status": "missing"
       },
       "inlet_temperature": {
-        "value": null,
+        "value": 458.15,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
-        "status": "missing"
+        "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+        "cited_source": "KURKELA_1992, Table 6, p. 18",
+        "status": "cited",
+        "note": "空气和蒸汽温度同为 185 °C。泥炭、不循环、ER 0.32、蒸汽/无灰干基 0.11，对上表 4 第三列（燃料 61.6 kg/h）。",
+        "formula": "T = 185 °C + 273.15"
       },
       "pressure": {
         "value": 500000.0,
@@ -969,6 +1140,15 @@
         "unit": "kg/kg",
         "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
         "status": "missing"
+      },
+      "heating_value": {
+        "value": 17300000.0,
+        "unit": "J/kg",
+        "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+        "cited_source": "KURKELA_1992, Table 6, p. 18",
+        "status": "cited",
+        "note": "收到基低位热值。泥炭、不循环、ER 0.32、蒸汽/无灰干基 0.11，对上表 4 第三列（燃料 61.6 kg/h）。",
+        "formula": "q = 17.3 MJ/kg * 1e6 J/MJ；原文 Fuel LHV (wet)"
       }
     },
     "8": {
@@ -1042,7 +1222,7 @@
       "inlet_temperature": {
         "value": null,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "source": "表 2.2, S. 13 要求进入气体温度。KURKELA_1992, Table 6, p. 18 的空气和蒸汽温度 185 °C 只印在六个代表点上，这一列不在其中，不外推",
         "status": "missing"
       },
       "pressure": {
@@ -1062,6 +1242,12 @@
         "value": null,
         "unit": "kg/kg",
         "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 133 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "heating_value": {
+        "value": null,
+        "unit": "J/kg",
+        "source": "表 2.2, S. 13 要求 Heizwert。KURKELA_1992, Table 6, p. 18 没有与这一列的 λ、蒸汽比和循环同时对上的热值",
         "status": "missing"
       }
     },
@@ -1136,7 +1322,7 @@
       "inlet_temperature": {
         "value": null,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "source": "表 2.2, S. 13 要求进入气体温度。KURKELA_1992, Table 6, p. 18 的空气和蒸汽温度 185 °C 只印在六个代表点上，这一列不在其中，不外推",
         "status": "missing"
       },
       "pressure": {
@@ -1156,6 +1342,12 @@
         "value": null,
         "unit": "kg/kg",
         "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "heating_value": {
+        "value": null,
+        "unit": "J/kg",
+        "source": "表 2.2, S. 13 要求 Heizwert。KURKELA_1992, Table 6, p. 18 没有与这一列的 λ、蒸汽比和循环同时对上的热值",
         "status": "missing"
       }
     },
@@ -1230,7 +1422,7 @@
       "inlet_temperature": {
         "value": null,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "source": "表 2.2, S. 13 要求进入气体温度。KURKELA_1992, Table 6, p. 18 的空气和蒸汽温度 185 °C 只印在六个代表点上，这一列不在其中，不外推",
         "status": "missing"
       },
       "pressure": {
@@ -1250,6 +1442,12 @@
         "value": null,
         "unit": "kg/kg",
         "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "heating_value": {
+        "value": null,
+        "unit": "J/kg",
+        "source": "表 2.2, S. 13 要求 Heizwert。KURKELA_1992, Table 6, p. 18 没有与这一列的 λ、蒸汽比和循环同时对上的热值",
         "status": "missing"
       }
     },
@@ -1322,10 +1520,13 @@
         "status": "missing"
       },
       "inlet_temperature": {
-        "value": null,
+        "value": 458.15,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
-        "status": "missing"
+        "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+        "cited_source": "KURKELA_1992, Table 6, p. 18",
+        "status": "cited",
+        "note": "空气和蒸汽温度同为 185 °C。泥炭、循环、ER 0.40、蒸汽/无灰干基 0.18，对上表 4 第七列（燃料 45.0 kg/h）。",
+        "formula": "T = 185 °C + 273.15"
       },
       "pressure": {
         "value": 500000.0,
@@ -1345,6 +1546,15 @@
         "unit": "kg/kg",
         "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
         "status": "missing"
+      },
+      "heating_value": {
+        "value": 17300000.0,
+        "unit": "J/kg",
+        "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+        "cited_source": "KURKELA_1992, Table 6, p. 18",
+        "status": "cited",
+        "note": "收到基低位热值。泥炭、循环、ER 0.40、蒸汽/无灰干基 0.18，对上表 4 第七列（燃料 45.0 kg/h）。",
+        "formula": "q = 17.3 MJ/kg * 1e6 J/MJ；原文 Fuel LHV (wet)"
       }
     },
     "12": {
@@ -1418,7 +1628,7 @@
       "inlet_temperature": {
         "value": null,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "source": "表 2.2, S. 13 要求进入气体温度。KURKELA_1992, Table 6, p. 18 的空气和蒸汽温度 185 °C 只印在六个代表点上，这一列不在其中，不外推",
         "status": "missing"
       },
       "pressure": {
@@ -1438,6 +1648,12 @@
         "value": null,
         "unit": "kg/kg",
         "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "heating_value": {
+        "value": null,
+        "unit": "J/kg",
+        "source": "表 2.2, S. 13 要求 Heizwert。KURKELA_1992, Table 6, p. 18 没有与这一列的 λ、蒸汽比和循环同时对上的热值",
         "status": "missing"
       }
     },
@@ -1512,7 +1728,7 @@
       "inlet_temperature": {
         "value": null,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "source": "表 2.2, S. 13 要求进入气体温度。KURKELA_1992, Table 6, p. 18 的空气和蒸汽温度 185 °C 只印在六个代表点上，这一列不在其中，不外推",
         "status": "missing"
       },
       "pressure": {
@@ -1532,6 +1748,12 @@
         "value": null,
         "unit": "kg/kg",
         "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "heating_value": {
+        "value": null,
+        "unit": "J/kg",
+        "source": "表 2.2, S. 13 要求 Heizwert。KURKELA_1992, Table 6, p. 18 没有与这一列的 λ、蒸汽比和循环同时对上的热值",
         "status": "missing"
       }
     },
@@ -1604,10 +1826,13 @@
         "status": "missing"
       },
       "inlet_temperature": {
-        "value": null,
+        "value": 458.15,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
-        "status": "missing"
+        "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+        "cited_source": "KURKELA_1992, Table 6, p. 18",
+        "status": "cited",
+        "note": "空气和蒸汽温度同为 185 °C。锯末、不循环、蒸汽/无灰干基 0.08，对上表 5 锯末第一列（燃料 42.8 kg/h）。表 6 的 ER 印成 0.27，表 5 与表 7.2 是 0.28。λ 仍用 0.28。",
+        "formula": "T = 185 °C + 273.15"
       },
       "pressure": {
         "value": 400000.0,
@@ -1627,6 +1852,15 @@
         "unit": "kg/kg",
         "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
         "status": "missing"
+      },
+      "heating_value": {
+        "value": 16800000.0,
+        "unit": "J/kg",
+        "source": "§7.1.3, S. 133 引用 KURKELA_1992",
+        "cited_source": "KURKELA_1992, Table 6, p. 18",
+        "status": "cited",
+        "note": "收到基低位热值。锯末、不循环、蒸汽/无灰干基 0.08，对上表 5 锯末第一列（燃料 42.8 kg/h）。表 6 的 ER 印成 0.27，表 5 与表 7.2 是 0.28。λ 仍用 0.28。",
+        "formula": "q = 16.8 MJ/kg * 1e6 J/MJ；原文 Fuel LHV (wet)"
       }
     },
     "15": {
@@ -1700,7 +1934,7 @@
       "inlet_temperature": {
         "value": null,
         "unit": "K",
-        "source": "表 2.2, S. 13 要求进入气体温度；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "source": "表 2.2, S. 13 要求进入气体温度。KURKELA_1992, Table 6, p. 18 的空气和蒸汽温度 185 °C 只印在六个代表点上，这一列不在其中，不外推",
         "status": "missing"
       },
       "pressure": {
@@ -1720,6 +1954,12 @@
         "value": null,
         "unit": "kg/kg",
         "source": "表 2.2, S. 13 要求 Anfangspartikelgrößenverteilung；表 7.2, S. 134 与 §7.1.3, S. 132–137 未给出",
+        "status": "missing"
+      },
+      "heating_value": {
+        "value": null,
+        "unit": "J/kg",
+        "source": "表 2.2, S. 13 要求 Heizwert。KURKELA_1992, Table 6, p. 18 没有与这一列的 λ、蒸汽比和循环同时对上的热值",
         "status": "missing"
       }
     }
