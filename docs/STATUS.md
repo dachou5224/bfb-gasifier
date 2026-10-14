@@ -42,6 +42,7 @@ cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令�
 - 2026-10-14：物理参数的 ADR 例外按章程 v0.6 §9。`status` 为 `source` 或 `derived` 且 `source` 给出页码的物理参数不必另写 ADR；`missing` 字段和求解器参数仍须 ADR。
 - 2026-10-14：工况推进顺序改为 VTT 加压 1 → VTT 加压 2–4 → HTW Wesseling 1 → Wesseling 2 → Berrenrath；WSV400、VTT 加压 5–8、VTT 常压改为后备与扩展工况（章程 v0.7 §3）。
 - 2026-10-14：批准引入 DIN 1343 标准状态，仅用于 m³(V_N) 到摩尔流量的换算（ADR 0004 批准记录）。
+- 2026-10-14：批准使用 Hamel 未引用的 Kurkela, Ståhlberg & Laatikainen-Luntama (1995)，*Pressurised fluidised-bed gasification experiments with wood, peat and coal at VTT in 1991–1994. Part 2*，VTT Publications 249（CHARTER §4.3）。**采用范围**：(1) 只用于补齐 VTT 加压装置的装置与运行数据，不引入任何模型或关联式；(2) 只有逐字段核对确认与 Hamel 表 7.2 为同一次试验（试验编号、燃料、工况一致）的值才可采用，对应不上的不用；(3) 采用的字段按 T10 标为 `cited`，经总司令成组登记 ADR 后才可进入模型。本地文件 `docs/VTTPubl.249_Part2.pdf`（扫描件，无文本层，SHA256 前缀 9b91c58f5407），不入库。
 
 ## 待目标所有者决策
 
@@ -53,6 +54,7 @@ cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令�
 ## 已知风险
 
 - Hamel 原文、`docs/hamel_submodels/` 仅本地保留；本地备份位于 `~/bfb-gasifier-local-backup-2026-10-13/`（含清单与 SHA256）。
+- 本地文献（均不入库，CHARTER §11）：`docs/kurkela1992.pdf`（`KURKELA_1992`，Hamel 表 7.2 的数据来源，SHA256 前缀 6f7a4c0d93ab）、`docs/VTTPubl.249_Part2.pdf`（Hamel 未引用，按上条批准范围使用）。Hamel 实际引用的 Part 1（`KURKELA_1991`，VTT Publications 161）尚未取得。
 - 原文页面图像与逐页全文在主目录 `refs/hamel/pages/`（仅本地）。原扫描 113 页；印刷页 152–153（Bild 7.20、7.21）由补页编为 PDF 114，不插入原页序。PDF 84、85 重复扫描 S.148–149。页码一律以 `refs/hamel/index.json` 为准，不按固定偏移换算。补页 PDF 与页面图像都不入库。
 - 原书存在重复编号：式 3.49、3.50（S.35、36），表 5.1（S.74、79），表 A.2.1.2（S.169、170）；引用时须带页码。
 - `index.json` 的坐标已换到页面图像坐标系（像素 = pt × 300/72），可直接用于裁图。268 条方程中有 24 条（`locator: page_image`）文本层缺式号、没有坐标框，只有人工核对的页码与半页，裁图时须打开整页。
