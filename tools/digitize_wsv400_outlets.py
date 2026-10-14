@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """用 JSON 里的 calibration 复算 WSV400 出口读数，并与文件中的数值对照。
 
-像素和刻度只记在 data/digitized/fig_7_17.json、fig_7_16.json 的 calibration 中。
+像素和刻度只记在 data/digitized/fig_7_17.json、fig_7_16.json、fig_7_10.json 的 calibration 中。
 本脚本做线性拟合和四舍五入（0.5 进位），不读取 PDF。
 """
 
@@ -65,6 +65,30 @@ def values_716(doc):
         "T_sim": apply_axis(tx, it, points["T_sim"]["x"], nd["T"]),
         "T_meas": apply_axis(tx, it, points["T_meas"]["x"], nd["T"]),
     }
+
+
+def values_710(doc):
+    cal = doc["calibration"]
+    out = {}
+    for variable, grid in cal["grids"].items():
+        sx, ix = fit_axis(grid["x"])
+        sy, iy = fit_axis(grid["y"])
+        nd = cal["rounding_digits"][variable]
+        out[variable] = {
+            label: [apply_axis(sx, ix, x, nd), apply_axis(sy, iy, y, nd)]
+            for label, (x, y) in cal["centers"][variable].items()
+        }
+    return out
+
+
+def recorded_710(doc):
+    out = {key: {} for key in doc["calibration"]["grids"]}
+    for case in doc["cases"]:
+        label = case["case_label_in_figure"]
+        for key in out:
+            if key in case:
+                out[key][label] = case[key]
+    return out
 
 
 def recorded_717(doc):
@@ -189,12 +213,23 @@ def pixels_of(doc717, doc716):
     return pixels
 
 
-def check(doc717=None, doc716=None):
+def check(doc717=None, doc716=None, doc710=None):
     if doc717 is None:
         doc717 = json.loads((ROOT / "data/digitized/fig_7_17.json").read_text())
     if doc716 is None:
         doc716 = json.loads((ROOT / "data/digitized/fig_7_16.json").read_text())
+    path710 = ROOT / "data/digitized/fig_7_10.json"
+    if doc710 is None and path710.exists():
+        doc710 = json.loads(path710.read_text())
     mismatches = []
+    if doc710 is not None:
+        mismatches.extend(check_error_map(doc710, "7.10", quantity_keys_717(doc710)))
+        got710 = values_710(doc710)
+        recorded710 = recorded_710(doc710)
+        for variable, labels in got710.items():
+            for label, pair in labels.items():
+                if pair != recorded710[variable][label]:
+                    mismatches.append(f"7.10 {variable} {label}: 复算 {pair}，JSON {recorded710[variable][label]}")
     mismatches.extend(check_error_map(doc717, "7.17", quantity_keys_717(doc717)))
     mismatches.extend(check_error_map(doc716, "7.16", series_variables(doc716)))
     mismatches.extend(check_716_units(doc716))
@@ -225,7 +260,7 @@ def main():
     if mismatches:
         print("\n".join(mismatches), file=sys.stderr)
         return 1
-    print("复算与 fig_7_17.json、fig_7_16.json 的 calibration 一致，REPORT 含全部像素。")
+    print("复算与 fig_7_17.json、fig_7_16.json、fig_7_10.json 的 calibration 一致，REPORT 含 7.16 与 7.17 的全部像素。")
     return 0
 
 

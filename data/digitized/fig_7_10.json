@@ -1,0 +1,1542 @@
+{
+  "figure": "7.10",
+  "pdf_page": 78,
+  "printed_page": "136-137",
+  "side": "left_and_right",
+  "caption_de": "Bild 7.10: Vergleich von Messungen mit den Simulationsergebnissen für die mittlere Freiraumtemperatur und den Gesamtkohlenstoffumsatz der VTT-Druckvergasungsanlage. Die Nummern in den Symbolen entsprechen der jeweiligen Versuchsnummer gemäß Tabelle 7.2. Bild 7.10 (Fortsetzung): Vergleich der Messungen mit den Simulationsergebnissen für die wichtigsten Gaskomponenten der VTT-Druckvergasungsanlage.",
+  "read_date": "2026-10-15",
+  "tool": "PyMuPDF 1.26.5 渲染，zoom=8（8 px/pt）。网格线取细墨迹质心后线性拟合。符号中心是空心圆、菱形或方框描边模板的相关峰，不取数字笔画的质心。复算：tools/digitize_wsv400_outlets.py。",
+  "est_error": {
+    "T_FRB_K": 13,
+    "X_C": 1.3,
+    "CO": 0.009,
+    "CO2": 0.004,
+    "H2": 0.004,
+    "CH4": 0.004,
+    "H2O": 0.013
+  },
+  "basis_gas": "unspecified",
+  "basis_note": "续图坐标轴写 CO、CO2、H2、CH4、H2O in mol/mol，没有写 feucht 或 trocken。同一 PDF 页上 Bild 7.9 的轴向图写的是 mol/mol feucht，该词不转写到本图。",
+  "units": {
+    "T_FRB_K": "K",
+    "X_C": "%",
+    "CO": "mol/mol",
+    "CO2": "mol/mol",
+    "H2": "mol/mol",
+    "CH4": "mol/mol",
+    "H2O": "mol/mol"
+  },
+  "quantity_definition": {
+    "T_FRB_K": "平均自由空间温度（图注 mittlere Freiraumtemperatur）",
+    "X_C": "总碳转化率（图注 Gesamtkohlenstoffumsatz）",
+    "CO": "主要气体组分",
+    "CO2": "主要气体组分",
+    "H2": "主要气体组分",
+    "CH4": "主要气体组分",
+    "H2O": "主要气体组分"
+  },
+  "points_format": "[实验值（x，Messung）, 模拟值（y，Sim.）]",
+  "symbol_legend": {
+    "circle": "Braunkohle，表 7.2 模拟号 1–4",
+    "diamond": "Torf，表 7.2 模拟号 5–13",
+    "square": "Holz，表 7.2 模拟号 14–15"
+  },
+  "cases": [
+    {
+      "case_label_in_figure": "1",
+      "case_id": "CASE_VTT_PRESSURIZED_1",
+      "validation_case_id": "CASE_VTT_PRESSURIZED_COAL_1",
+      "T_FRB_K": [
+        1156,
+        1164
+      ],
+      "X_C": [
+        80.5,
+        78.1
+      ],
+      "CO2": [
+        0.103,
+        0.091
+      ],
+      "H2": [
+        0.131,
+        0.109
+      ]
+    },
+    {
+      "case_label_in_figure": "2",
+      "case_id": "CASE_VTT_PRESSURIZED_2",
+      "X_C": [
+        91.9,
+        93.7
+      ],
+      "CO": [
+        0.14,
+        0.183
+      ],
+      "CO2": [
+        0.119,
+        0.084
+      ],
+      "H2": [
+        0.123,
+        0.106
+      ]
+    },
+    {
+      "case_label_in_figure": "3",
+      "case_id": "CASE_VTT_PRESSURIZED_3",
+      "T_FRB_K": [
+        1183,
+        1283
+      ],
+      "X_C": [
+        96.4,
+        96.4
+      ],
+      "CO": [
+        0.165,
+        0.168
+      ],
+      "CO2": [
+        0.108,
+        0.085
+      ],
+      "H2O": [
+        0.072,
+        0.098
+      ]
+    },
+    {
+      "case_label_in_figure": "4",
+      "case_id": "CASE_VTT_PRESSURIZED_4",
+      "X_C": [
+        94.1,
+        96.3
+      ],
+      "CO": [
+        0.157,
+        0.191
+      ],
+      "CO2": [
+        0.098,
+        0.082
+      ],
+      "H2": [
+        0.123,
+        0.115
+      ],
+      "H2O": [
+        0.092,
+        0.106
+      ]
+    },
+    {
+      "case_label_in_figure": "5",
+      "case_id": "CASE_VTT_PRESSURIZED_5",
+      "CO": [
+        0.134,
+        0.144
+      ]
+    },
+    {
+      "case_label_in_figure": "6",
+      "case_id": "CASE_VTT_PRESSURIZED_6",
+      "validation_case_id": "CASE_VTT_PRESSURIZED_PEAT_6",
+      "T_FRB_K": [
+        1105,
+        1150
+      ],
+      "CO2": [
+        0.133,
+        0.132
+      ]
+    },
+    {
+      "case_label_in_figure": "7",
+      "case_id": "CASE_VTT_PRESSURIZED_7",
+      "T_FRB_K": [
+        1175,
+        1194
+      ],
+      "CO": [
+        0.121,
+        0.132
+      ],
+      "CO2": [
+        0.124,
+        0.115
+      ],
+      "H2": [
+        0.119,
+        0.096
+      ]
+    },
+    {
+      "case_label_in_figure": "8",
+      "case_id": "CASE_VTT_PRESSURIZED_8",
+      "T_FRB_K": [
+        1217,
+        1252
+      ],
+      "CO": [
+        0.122,
+        0.146
+      ],
+      "H2": [
+        0.105,
+        0.092
+      ],
+      "CH4": [
+        0.024,
+        0.026
+      ]
+    },
+    {
+      "case_label_in_figure": "9",
+      "case_id": "CASE_VTT_PRESSURIZED_9",
+      "X_C": [
+        86.2,
+        85.4
+      ],
+      "CO": [
+        0.091,
+        0.099
+      ],
+      "CO2": [
+        0.14,
+        0.13
+      ],
+      "H2": [
+        0.127,
+        0.093
+      ],
+      "CH4": [
+        0.035,
+        0.046
+      ],
+      "H2O": [
+        0.174,
+        0.198
+      ]
+    },
+    {
+      "case_label_in_figure": "10",
+      "case_id": "CASE_VTT_PRESSURIZED_10",
+      "T_FRB_K": [
+        1123,
+        1201
+      ],
+      "X_C": [
+        83.9,
+        92.3
+      ],
+      "CO": [
+        0.091,
+        0.087
+      ],
+      "CO2": [
+        0.132,
+        0.126
+      ],
+      "H2": [
+        0.123,
+        0.083
+      ],
+      "CH4": [
+        0.038,
+        0.037
+      ],
+      "H2O": [
+        0.206,
+        0.229
+      ]
+    },
+    {
+      "case_label_in_figure": "11",
+      "case_id": "CASE_VTT_PRESSURIZED_11",
+      "T_FRB_K": [
+        1153,
+        1214
+      ],
+      "X_C": [
+        92.9,
+        97.9
+      ],
+      "CO": [
+        0.108,
+        0.148
+      ],
+      "H2": [
+        0.109,
+        0.1
+      ],
+      "H2O": [
+        0.131,
+        0.133
+      ]
+    },
+    {
+      "case_label_in_figure": "12",
+      "case_id": "CASE_VTT_PRESSURIZED_12",
+      "T_FRB_K": [
+        1140,
+        1153
+      ],
+      "X_C": [
+        95.3,
+        97.9
+      ],
+      "CO": [
+        0.076,
+        0.114
+      ],
+      "CO2": [
+        0.135,
+        0.113
+      ],
+      "CH4": [
+        0.023,
+        0.015
+      ],
+      "H2O": [
+        0.177,
+        0.175
+      ]
+    },
+    {
+      "case_label_in_figure": "13",
+      "case_id": "CASE_VTT_PRESSURIZED_13",
+      "validation_case_id": "CASE_VTT_PRESSURIZED_PEAT_13",
+      "T_FRB_K": [
+        1161,
+        1239
+      ],
+      "X_C": [
+        90.4,
+        97.7
+      ],
+      "CO": [
+        0.098,
+        0.144
+      ],
+      "CO2": [
+        0.129,
+        0.102
+      ],
+      "H2": [
+        0.099,
+        0.098
+      ],
+      "CH4": [
+        0.02,
+        0.021
+      ],
+      "H2O": [
+        0.148,
+        0.144
+      ]
+    },
+    {
+      "case_label_in_figure": "14",
+      "case_id": "CASE_VTT_PRESSURIZED_14",
+      "validation_case_id": "CASE_VTT_PRESSURIZED_SAWDUST_14",
+      "T_FRB_K": [
+        1153,
+        1043
+      ],
+      "X_C": [
+        95.1,
+        94.1
+      ],
+      "CO": [
+        0.143,
+        0.123
+      ],
+      "CO2": [
+        0.115,
+        0.144
+      ],
+      "H2": [
+        0.084,
+        0.089
+      ],
+      "CH4": [
+        0.046,
+        0.053
+      ],
+      "H2O": [
+        0.18,
+        0.152
+      ]
+    },
+    {
+      "case_label_in_figure": "15",
+      "case_id": "CASE_VTT_PRESSURIZED_15",
+      "T_FRB_K": [
+        1236,
+        1142
+      ],
+      "X_C": [
+        96.2,
+        91.4
+      ],
+      "CO": [
+        0.107,
+        0.098
+      ],
+      "CO2": [
+        0.12,
+        0.131
+      ],
+      "H2": [
+        0.089,
+        0.086
+      ],
+      "CH4": [
+        0.027,
+        0.038
+      ],
+      "H2O": [
+        0.217,
+        0.211
+      ]
+    }
+  ],
+  "not_in_source": [],
+  "pending": [
+    {
+      "case_label_in_figure": "1",
+      "quantities": [
+        "CO",
+        "CH4",
+        "H2O"
+      ],
+      "reason": "该点的符号与相邻符号或 ±15% 线重叠，描边模板的相关峰不落在这个符号的中心。本次不采用该峰，也不改用目测值。"
+    },
+    {
+      "case_label_in_figure": "2",
+      "quantities": [
+        "T_FRB_K",
+        "CH4",
+        "H2O"
+      ],
+      "reason": "该点的符号与相邻符号或 ±15% 线重叠，描边模板的相关峰不落在这个符号的中心。本次不采用该峰，也不改用目测值。"
+    },
+    {
+      "case_label_in_figure": "3",
+      "quantities": [
+        "H2",
+        "CH4"
+      ],
+      "reason": "该点的符号与相邻符号或 ±15% 线重叠，描边模板的相关峰不落在这个符号的中心。本次不采用该峰，也不改用目测值。"
+    },
+    {
+      "case_label_in_figure": "4",
+      "quantities": [
+        "T_FRB_K",
+        "CH4"
+      ],
+      "reason": "该点的符号与相邻符号或 ±15% 线重叠，描边模板的相关峰不落在这个符号的中心。本次不采用该峰，也不改用目测值。"
+    },
+    {
+      "case_label_in_figure": "5",
+      "quantities": [
+        "T_FRB_K",
+        "X_C",
+        "CO2",
+        "H2",
+        "CH4",
+        "H2O"
+      ],
+      "reason": "该点的符号与相邻符号或 ±15% 线重叠，描边模板的相关峰不落在这个符号的中心。本次不采用该峰，也不改用目测值。"
+    },
+    {
+      "case_label_in_figure": "6",
+      "quantities": [
+        "X_C",
+        "CO",
+        "H2",
+        "CH4",
+        "H2O"
+      ],
+      "reason": "该点的符号与相邻符号或 ±15% 线重叠，描边模板的相关峰不落在这个符号的中心。本次不采用该峰，也不改用目测值。"
+    },
+    {
+      "case_label_in_figure": "7",
+      "quantities": [
+        "X_C",
+        "CH4",
+        "H2O"
+      ],
+      "reason": "该点的符号与相邻符号或 ±15% 线重叠，描边模板的相关峰不落在这个符号的中心。本次不采用该峰，也不改用目测值。"
+    },
+    {
+      "case_label_in_figure": "8",
+      "quantities": [
+        "X_C",
+        "CO2",
+        "H2O"
+      ],
+      "reason": "该点的符号与相邻符号或 ±15% 线重叠，描边模板的相关峰不落在这个符号的中心。本次不采用该峰，也不改用目测值。"
+    },
+    {
+      "case_label_in_figure": "9",
+      "quantities": [
+        "T_FRB_K"
+      ],
+      "reason": "该点的符号与相邻符号或 ±15% 线重叠，描边模板的相关峰不落在这个符号的中心。本次不采用该峰，也不改用目测值。"
+    },
+    {
+      "case_label_in_figure": "11",
+      "quantities": [
+        "CO2",
+        "CH4"
+      ],
+      "reason": "该点的符号与相邻符号或 ±15% 线重叠，描边模板的相关峰不落在这个符号的中心。本次不采用该峰，也不改用目测值。"
+    },
+    {
+      "case_label_in_figure": "12",
+      "quantities": [
+        "H2"
+      ],
+      "reason": "该点的符号与相邻符号或 ±15% 线重叠，描边模板的相关峰不落在这个符号的中心。本次不采用该峰，也不改用目测值。"
+    }
+  ],
+  "owner_disagreements": [
+    {
+      "case_label_in_figure": "15",
+      "quantity": "T_FRB_K",
+      "pixel": [
+        1236,
+        1142
+      ],
+      "owner": [
+        1253,
+        1140
+      ],
+      "delta": [
+        -17,
+        2
+      ],
+      "est_error": 13,
+      "status": "pending_reread"
+    },
+    {
+      "case_label_in_figure": "10",
+      "quantity": "CH4",
+      "pixel": [
+        0.038,
+        0.037
+      ],
+      "owner": [
+        0.037,
+        0.028
+      ],
+      "delta": [
+        0.001,
+        0.009
+      ],
+      "est_error": 0.004,
+      "status": "pending_reread"
+    },
+    {
+      "case_label_in_figure": "9",
+      "quantity": "CH4",
+      "pixel": [
+        0.035,
+        0.046
+      ],
+      "owner": [
+        0.034,
+        0.035
+      ],
+      "delta": [
+        0.001,
+        0.011
+      ],
+      "est_error": 0.004,
+      "status": "pending_reread"
+    },
+    {
+      "case_label_in_figure": "15",
+      "quantity": "CH4",
+      "pixel": [
+        0.027,
+        0.038
+      ],
+      "owner": [
+        0.027,
+        0.028
+      ],
+      "delta": [
+        0.0,
+        0.01
+      ],
+      "est_error": 0.004,
+      "status": "pending_reread"
+    }
+  ],
+  "legacy_comparison": [
+    {
+      "case_label_in_figure": "6",
+      "quantity": "T_FRB_K",
+      "pixel": [
+        1105,
+        1150
+      ],
+      "legacy": [
+        1055,
+        1020
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "13",
+      "quantity": "T_FRB_K",
+      "pixel": [
+        1161,
+        1239
+      ],
+      "legacy": [
+        1175,
+        1165
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "1",
+      "quantity": "T_FRB_K",
+      "pixel": [
+        1156,
+        1164
+      ],
+      "legacy": [
+        1185,
+        1200
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "14",
+      "quantity": "T_FRB_K",
+      "pixel": [
+        1153,
+        1043
+      ],
+      "legacy": [
+        1045,
+        1120
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "1",
+      "quantity": "X_C",
+      "pixel": [
+        80.5,
+        78.1
+      ],
+      "legacy": [
+        78,
+        76
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "13",
+      "quantity": "X_C",
+      "pixel": [
+        90.4,
+        97.7
+      ],
+      "legacy": [
+        97,
+        95
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "14",
+      "quantity": "X_C",
+      "pixel": [
+        95.1,
+        94.1
+      ],
+      "legacy": [
+        93,
+        90
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "13",
+      "quantity": "CO",
+      "pixel": [
+        0.098,
+        0.144
+      ],
+      "legacy": [
+        0.095,
+        0.09
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "14",
+      "quantity": "CO",
+      "pixel": [
+        0.143,
+        0.123
+      ],
+      "legacy": [
+        0.155,
+        0.145
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "1",
+      "quantity": "CO2",
+      "pixel": [
+        0.103,
+        0.091
+      ],
+      "legacy": [
+        0.105,
+        0.112
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "13",
+      "quantity": "CO2",
+      "pixel": [
+        0.129,
+        0.102
+      ],
+      "legacy": [
+        0.15,
+        0.155
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "6",
+      "quantity": "CO2",
+      "pixel": [
+        0.133,
+        0.132
+      ],
+      "legacy": [
+        0.14,
+        0.145
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "14",
+      "quantity": "CO2",
+      "pixel": [
+        0.115,
+        0.144
+      ],
+      "legacy": [
+        0.11,
+        0.118
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "1",
+      "quantity": "H2",
+      "pixel": [
+        0.131,
+        0.109
+      ],
+      "legacy": [
+        0.135,
+        0.128
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "13",
+      "quantity": "H2",
+      "pixel": [
+        0.099,
+        0.098
+      ],
+      "legacy": [
+        0.09,
+        0.085
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "14",
+      "quantity": "H2",
+      "pixel": [
+        0.084,
+        0.089
+      ],
+      "legacy": [
+        0.08,
+        0.075
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "13",
+      "quantity": "CH4",
+      "pixel": [
+        0.02,
+        0.021
+      ],
+      "legacy": [
+        0.032,
+        0.03
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "14",
+      "quantity": "CH4",
+      "pixel": [
+        0.046,
+        0.053
+      ],
+      "legacy": [
+        0.052,
+        0.048
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "13",
+      "quantity": "H2O",
+      "pixel": [
+        0.148,
+        0.144
+      ],
+      "legacy": [
+        0.16,
+        0.155
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "14",
+      "quantity": "H2O",
+      "pixel": [
+        0.18,
+        0.152
+      ],
+      "legacy": [
+        0.11,
+        0.105
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    }
+  ],
+  "calibration": {
+    "renderer": "PyMuPDF 1.26.5",
+    "zoom": 8,
+    "px_per_pt": 8,
+    "origin": "各面板裁图左上角，x 向右，y 向下",
+    "pdf_page": 78,
+    "clip_pt": {
+      "T_FRB_K": [
+        40,
+        318,
+        225,
+        490
+      ],
+      "X_C": [
+        215,
+        318,
+        400,
+        490
+      ],
+      "CO": [
+        448,
+        18,
+        640,
+        185
+      ],
+      "CO2": [
+        618,
+        18,
+        810,
+        185
+      ],
+      "H2": [
+        448,
+        172,
+        640,
+        340
+      ],
+      "CH4": [
+        618,
+        172,
+        810,
+        340
+      ],
+      "H2O": [
+        448,
+        325,
+        640,
+        490
+      ]
+    },
+    "marker": "空心符号描边模板的相关峰。圆用欧氏半径，菱形用曼哈顿半径，方框用切比雪夫半径。centers 里的一对是 [x 实验, y 模拟]，单位为裁图像素。",
+    "est_error_rule": "该面板上实际用到的最大符号外接半径（圆 30 px，方框 28 px，菱形 40 px）乘以坐标轴斜率的绝对值，再按该量的四舍五入位数进位（0.5 进位）。",
+    "rounding_digits": {
+      "T_FRB_K": 0,
+      "X_C": 1,
+      "CO": 3,
+      "CO2": 3,
+      "H2": 3,
+      "CH4": 3,
+      "H2O": 3
+    },
+    "grids": {
+      "T_FRB_K": {
+        "x": [
+          [
+            315.0,
+            1000.0
+          ],
+          [
+            630.16,
+            1100.0
+          ],
+          [
+            945.08,
+            1200.0
+          ],
+          [
+            1260.43,
+            1300.0
+          ]
+        ],
+        "y": [
+          [
+            190.87,
+            1300.0
+          ],
+          [
+            499.09,
+            1200.0
+          ],
+          [
+            803.11,
+            1100.0
+          ],
+          [
+            1109.0,
+            1000.0
+          ]
+        ]
+      },
+      "X_C": {
+        "x": [
+          [
+            329.0,
+            70.0
+          ],
+          [
+            639.39,
+            80.0
+          ],
+          [
+            948.39,
+            90.0
+          ],
+          [
+            1261.01,
+            100.0
+          ]
+        ],
+        "y": [
+          [
+            182.57,
+            100.0
+          ],
+          [
+            490.33,
+            90.0
+          ],
+          [
+            795.39,
+            80.0
+          ],
+          [
+            1101.03,
+            70.0
+          ]
+        ]
+      },
+      "CO": {
+        "x": [
+          [
+            287.72,
+            0.0
+          ],
+          [
+            741.41,
+            0.1
+          ],
+          [
+            1225.42,
+            0.2
+          ]
+        ],
+        "y": [
+          [
+            153.18,
+            0.2
+          ],
+          [
+            617.04,
+            0.1
+          ],
+          [
+            1081.55,
+            0.0
+          ]
+        ]
+      },
+      "CO2": {
+        "x": [
+          [
+            335.88,
+            0.05
+          ],
+          [
+            809.12,
+            0.1
+          ],
+          [
+            1279.47,
+            0.15
+          ]
+        ],
+        "y": [
+          [
+            155.05,
+            0.15
+          ],
+          [
+            613.0,
+            0.1
+          ],
+          [
+            1076.44,
+            0.05
+          ]
+        ]
+      },
+      "H2": {
+        "x": [
+          [
+            291.23,
+            0.05
+          ],
+          [
+            749.45,
+            0.1
+          ],
+          [
+            1230.0,
+            0.15
+          ]
+        ],
+        "y": [
+          [
+            142.1,
+            0.15
+          ],
+          [
+            599.7,
+            0.1
+          ],
+          [
+            1056.37,
+            0.05
+          ]
+        ]
+      },
+      "CH4": {
+        "x": [
+          [
+            337.79,
+            0.0
+          ],
+          [
+            807.91,
+            0.05
+          ],
+          [
+            1276.0,
+            0.1
+          ]
+        ],
+        "y": [
+          [
+            138.17,
+            0.1
+          ],
+          [
+            594.59,
+            0.05
+          ],
+          [
+            1052.0,
+            0.0
+          ]
+        ]
+      },
+      "H2O": {
+        "x": [
+          [
+            297.08,
+            0.0
+          ],
+          [
+            598.26,
+            0.1
+          ],
+          [
+            918.25,
+            0.2
+          ],
+          [
+            1232.0,
+            0.3
+          ]
+        ],
+        "y": [
+          [
+            141.99,
+            0.3
+          ],
+          [
+            447.89,
+            0.2
+          ],
+          [
+            754.28,
+            0.1
+          ],
+          [
+            1060.22,
+            0.0
+          ]
+        ]
+      }
+    },
+    "centers": {
+      "T_FRB_K": {
+        "3": [
+          893,
+          243
+        ],
+        "10": [
+          703,
+          495
+        ],
+        "11": [
+          797,
+          455
+        ],
+        "6": [
+          645,
+          650
+        ],
+        "12": [
+          757,
+          641
+        ],
+        "7": [
+          868,
+          516
+        ],
+        "13": [
+          822,
+          379
+        ],
+        "1": [
+          808,
+          609
+        ],
+        "8": [
+          1000,
+          340
+        ],
+        "14": [
+          797,
+          977
+        ],
+        "15": [
+          1060,
+          676
+        ]
+      },
+      "X_C": {
+        "4": [
+          1078,
+          297
+        ],
+        "1": [
+          654,
+          853
+        ],
+        "2": [
+          1010,
+          375
+        ],
+        "11": [
+          1040,
+          248
+        ],
+        "12": [
+          1115,
+          248
+        ],
+        "10": [
+          759,
+          418
+        ],
+        "3": [
+          1148,
+          292
+        ],
+        "13": [
+          961,
+          254
+        ],
+        "9": [
+          831,
+          630
+        ],
+        "15": [
+          1143,
+          446
+        ],
+        "14": [
+          1108,
+          364
+        ]
+      },
+      "CO": {
+        "3": [
+          1056,
+          300
+        ],
+        "10": [
+          709,
+          676
+        ],
+        "2": [
+          937,
+          233
+        ],
+        "13": [
+          741,
+          411
+        ],
+        "4": [
+          1017,
+          193
+        ],
+        "12": [
+          638,
+          551
+        ],
+        "7": [
+          849,
+          471
+        ],
+        "8": [
+          857,
+          404
+        ],
+        "9": [
+          709,
+          622
+        ],
+        "5": [
+          911,
+          414
+        ],
+        "11": [
+          790,
+          395
+        ],
+        "14": [
+          953,
+          512
+        ],
+        "15": [
+          786,
+          625
+        ]
+      },
+      "CO2": {
+        "2": [
+          985,
+          763
+        ],
+        "1": [
+          832,
+          698
+        ],
+        "4": [
+          786,
+          783
+        ],
+        "3": [
+          881,
+          756
+        ],
+        "12": [
+          1134,
+          493
+        ],
+        "9": [
+          1183,
+          340
+        ],
+        "13": [
+          1078,
+          597
+        ],
+        "10": [
+          1113,
+          373
+        ],
+        "7": [
+          1037,
+          473
+        ],
+        "6": [
+          1115,
+          322
+        ],
+        "14": [
+          954,
+          205
+        ],
+        "15": [
+          998,
+          327
+        ]
+      },
+      "H2": {
+        "2": [
+          969,
+          547
+        ],
+        "4": [
+          975,
+          458
+        ],
+        "1": [
+          1047,
+          520
+        ],
+        "7": [
+          933,
+          635
+        ],
+        "10": [
+          972,
+          758
+        ],
+        "8": [
+          804,
+          671
+        ],
+        "13": [
+          751,
+          618
+        ],
+        "11": [
+          839,
+          600
+        ],
+        "9": [
+          1009,
+          666
+        ],
+        "15": [
+          654,
+          728
+        ],
+        "14": [
+          603,
+          699
+        ]
+      },
+      "CH4": {
+        "12": [
+          553,
+          914
+        ],
+        "10": [
+          698,
+          712
+        ],
+        "9": [
+          663,
+          635
+        ],
+        "8": [
+          559,
+          811
+        ],
+        "13": [
+          522,
+          859
+        ],
+        "14": [
+          768,
+          567
+        ],
+        "15": [
+          596,
+          702
+        ]
+      },
+      "H2O": {
+        "9": [
+          835,
+          454
+        ],
+        "3": [
+          518,
+          760
+        ],
+        "12": [
+          847,
+          525
+        ],
+        "13": [
+          754,
+          619
+        ],
+        "10": [
+          935,
+          358
+        ],
+        "11": [
+          702,
+          653
+        ],
+        "15": [
+          972,
+          413
+        ],
+        "4": [
+          579,
+          735
+        ],
+        "14": [
+          855,
+          595
+        ]
+      }
+    },
+    "symbols": {
+      "T_FRB_K": {
+        "3": "circle",
+        "10": "diamond",
+        "11": "diamond",
+        "6": "diamond",
+        "12": "diamond",
+        "7": "diamond",
+        "13": "diamond",
+        "1": "circle",
+        "8": "diamond",
+        "14": "square",
+        "15": "square"
+      },
+      "X_C": {
+        "4": "circle",
+        "1": "circle",
+        "2": "circle",
+        "11": "diamond",
+        "12": "diamond",
+        "10": "diamond",
+        "3": "circle",
+        "13": "diamond",
+        "9": "diamond",
+        "15": "square",
+        "14": "square"
+      },
+      "CO": {
+        "3": "circle",
+        "10": "diamond",
+        "2": "circle",
+        "13": "diamond",
+        "4": "circle",
+        "12": "diamond",
+        "7": "diamond",
+        "8": "diamond",
+        "9": "diamond",
+        "5": "diamond",
+        "11": "diamond",
+        "14": "square",
+        "15": "square"
+      },
+      "CO2": {
+        "2": "circle",
+        "1": "circle",
+        "4": "circle",
+        "3": "circle",
+        "12": "diamond",
+        "9": "diamond",
+        "13": "diamond",
+        "10": "diamond",
+        "7": "diamond",
+        "6": "diamond",
+        "14": "square",
+        "15": "square"
+      },
+      "H2": {
+        "2": "circle",
+        "4": "circle",
+        "1": "circle",
+        "7": "diamond",
+        "10": "diamond",
+        "8": "diamond",
+        "13": "diamond",
+        "11": "diamond",
+        "9": "diamond",
+        "15": "square",
+        "14": "square"
+      },
+      "CH4": {
+        "12": "diamond",
+        "10": "diamond",
+        "9": "diamond",
+        "8": "diamond",
+        "13": "diamond",
+        "14": "square",
+        "15": "square"
+      },
+      "H2O": {
+        "9": "diamond",
+        "3": "circle",
+        "12": "diamond",
+        "13": "diamond",
+        "10": "diamond",
+        "11": "diamond",
+        "15": "square",
+        "4": "circle",
+        "14": "square"
+      }
+    }
+  }
+}
