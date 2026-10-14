@@ -36,6 +36,8 @@
 8. 目标所有者如能取得以下文献（`refs/hamel/index.json` 的 `cited_references` 键名），文献 PDF 只放在本地，不入库（CHARTER §11）：
    - `KURKELA_1992`：Kurkela & Ståhlberg, *Air Gasification of Peat, Wood and Brown Coal in a Pressurized Fluidized-Bed Reactor. 1. Carbon Conversion, Gas Yields and Tar Formation*（Hamel 表 7.2 的数据来源）；
    - `KURKELA_1991`：Kurkela, Ståhlberg, Laatikainen, *Pressurized Fluid-bed Gasification Experiments with Wood, Peat and Coal at VTT in 1991–1992. Part 1. Test Facilities …*。注意：键名中的 1991 取自标题里的试验年份（1991–1992），书目所载出版年为 1993，与正文 S. 133 的引法 Kurkela et al. (1993) 一致。
+   - 另有一份**经目标所有者批准的补充来源**（Hamel 未引用，CHARTER §4.3，2026-10-14 批准，见 `docs/STATUS.md`“已决定”）：Kurkela, Ståhlberg & Laatikainen-Luntama (1995)，VTT Publications 249，Part 2（泥炭与德国褐煤的气化）。本地文件 `docs/VTTPubl.249_Part2.pdf` 为扫描件，没有文本层，数值须在页面图像上读取，不得依赖 OCR。采用范围比下面两篇更窄：只有逐字段确认与 Hamel 表 7.2 为同一次试验的装置与运行数据才可采用，`cited_source` 写 `VTT Publ. 249 (1995), p. <页码>`，`source` 写明“目标所有者批准的补充来源，非 Hamel 引用”。
+   - 当前已取得：`KURKELA_1992`（`docs/kurkela1992.pdf`）和上述 VTT Publications 249；`KURKELA_1991`（Part 1，VTT Publications 161）尚未取得。
 9. 按 CHARTER §4.2，这两篇文献是 Hamel 明确作为 VTT 装置数据来源引用的，可用于补齐**装置与运行数据**（如热值、进气温度、床料、粒径分布、几何尺寸、散热）。不得从中引入 Hamel 没有采用的模型或关联式。
 10. **用文献补齐的字段不是“原文给出”**，不得标为 `source`，也不得借用 Hamel 的引用页码满足出处规则。记法：
     - `status: cited`（由 Hamel 引用的文献给出）；

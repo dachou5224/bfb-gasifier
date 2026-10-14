@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-章程 v0.6 已生效（2026-10-14）。主线已重置（PR #9）。T0、T1、T2、T5 完成，T3 进行中，T7 审查中；T6 第 1、3 项完成，引用校验待做；T4、T8、T9 待开始。WSV400 A–F 的 Bild 7.17 与 Bild 7.16 出口读数已写入 `data/digitized/`。WSV400 输入在 `data/cases/wsv400.json`，图上尺寸和柱高待读。
+章程 v0.7 已生效（2026-10-14）。主线已重置（PR #9）。T0、T1、T2、T5、T7 完成；T3 进行中（VTT 加压 Bild 7.10 读数优先）；T6 第 1、3 项完成，引用校验待做；下一步 T10（VTT 加压输入数据）；后续顺序以下文“执行顺序与分工”中的 cursor 队列为准。工况顺序已改为 VTT 加压褐煤 → HTW（章程 v0.7 §3），WSV400 降为后备工况，其输入（`data/cases/wsv400.json`）与出口读数（`data/digitized/`）保留备用。
 
 ## 任务
 
@@ -17,14 +17,14 @@
 | T4 | 第 5 章反应动力学独立转录与比对 | cursor（全新会话）；审查 codex | 待开始 | 前置已满足 |
 | T5 | GLOSSARY v1 与 ADR 补录 | 总司令 | 完成 | PR #10、#13；ADR 0001–0002 已原页复核并改为 accepted；GLOSSARY 页码已按 T2 索引复核 |
 | T6 | 护栏工具 | skill 文本：总司令；脚本：cursor；审查 codex | 进行中 | 第 1、3 项完成（含工况文件例外与 skill 副本检查）；第 2 项（引用校验）待做 |
-| T7 | WSV400 输入数据补全 | cursor（图上读数：目标所有者）；审查总司令 | 审查中 | `data/cases/wsv400.json`；Bild 7.14 的 cell 尺寸和 Bild 7.15 的柱高见读数清单 |
+| T7 | WSV400 输入数据补全 | cursor（图上读数：目标所有者）；审查总司令 | 完成 | #21 已合并；WSV400 已降为后备工况。`data/cases/wsv400.json` 为工况输入格式的范本；F 的氧按 ADR 0003，空气摩尔流量按 ADR 0004；Bild 7.14、7.15 的图上读数清单保留，启用 WSV400 时再读 |
 | T8 | 第 2 章与 §3.1 独立转录与比对 | cursor（全新会话）；审查 codex | 待开始 | 头号问题：式 2.6 的衡算变量是质量流还是存量 |
-| T9 | `hamel/` 骨架与验收工具 | cursor；审查 codex | 待开始 | 依赖 `drift_check.py`、T7 格式；不写物理方程 |
+| T9 | `hamel/` 骨架与验收工具 | cursor；审查 codex | 待开始 | 通用装配 `data/cases/*.json` 与读取 `data/digitized/fig_*.json`；主线目标 VTT 加压 1，依赖 T10 第一阶段与 T3 的 Bild 7.10 读数及验收量登记；不写物理方程 |
 | T10 | VTT 加压输入数据补全 | cursor（图上读数：目标所有者）；审查总司令 | 待开始 | 章程 v0.7 第 1、2 关；第二阶段需原始文献 Kurkela & Ståhlberg (1992) |
 
 ## 执行顺序与分工（2026-10-13 起）
 
-cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令协调、裁定，并审查文档与数据类 PR（CHARTER v0.6 §8）。cursor 的队列（2026-10-14 按章程 v0.7 调整）：#21（T7，WSV400 输入）按审查意见修改并合并 → T10 第一阶段 → T4（全新会话）→ T9 → T6 第 2 项 → T8（全新会话）。WSV400 已降为后备工况，但 #21 须先合并，因为 T9、T10 沿用它已审定的格式与键名。目标所有者的读数优先级：Bild 7.10（VTT 加压 parity，第 1、2 关的验收目标）→ Bild 7.7 几何与 cell 划分 → 其余。
+cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令协调、裁定，并审查文档与数据类 PR（CHARTER v0.7 §8）。cursor 的队列（2026-10-14 按章程 v0.7 调整）：T10 第一阶段 → T4（全新会话）→ T9 → T6 第 2 项 → T8（全新会话）。目标所有者的读数优先级：Bild 7.10（VTT 加压 parity，第 1、2 关的验收目标）→ Bild 7.7 几何与 cell 划分 → 其余。
 
 ## 工况指标
 
@@ -40,6 +40,9 @@ cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令�
 - 2026-10-14：WSV400 A–F 与 Bild 7.16 出口以工具读数替换早先的人工读数（目标所有者同意）。
 - 2026-10-14：读数误差按章程 v0.5 §2.2 处理。容差不放宽；模型结果距合格区间边界小于该量读数误差的，判为边界待定。
 - 2026-10-14：物理参数的 ADR 例外按章程 v0.6 §9。`status` 为 `source` 或 `derived` 且 `source` 给出页码的物理参数不必另写 ADR；`missing` 字段和求解器参数仍须 ADR。
+- 2026-10-14：工况推进顺序改为 VTT 加压 1 → VTT 加压 2–4 → HTW Wesseling 1 → Wesseling 2 → Berrenrath；WSV400、VTT 加压 5–8、VTT 常压改为后备与扩展工况（章程 v0.7 §3）。
+- 2026-10-14：批准引入 DIN 1343 标准状态，仅用于 m³(V_N) 到摩尔流量的换算（ADR 0004 批准记录）。
+- 2026-10-14：批准使用 Hamel 未引用的 Kurkela, Ståhlberg & Laatikainen-Luntama (1995)，*Pressurised fluidised-bed gasification experiments with wood, peat and coal at VTT in 1991–1994. Part 2*，VTT Publications 249（CHARTER §4.3）。**采用范围**：(1) 只用于补齐 VTT 加压装置的装置与运行数据，不引入任何模型或关联式；(2) 只有逐字段核对确认与 Hamel 表 7.2 为同一次试验（试验编号、燃料、工况一致）的值才可采用，对应不上的不用；(3) 采用的字段按 T10 标为 `cited`，经总司令成组登记 ADR 后才可进入模型。本地文件 `docs/VTTPubl.249_Part2.pdf`（扫描件，无文本层，SHA256 前缀 9b91c58f5407），不入库。
 
 ## 待目标所有者决策
 
@@ -51,6 +54,7 @@ cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令�
 ## 已知风险
 
 - Hamel 原文、`docs/hamel_submodels/` 仅本地保留；本地备份位于 `~/bfb-gasifier-local-backup-2026-10-13/`（含清单与 SHA256）。
+- 本地文献（均不入库，CHARTER §11）：`docs/kurkela1992.pdf`（`KURKELA_1992`，Hamel 表 7.2 的数据来源，SHA256 前缀 6f7a4c0d93ab）、`docs/VTTPubl.249_Part2.pdf`（Hamel 未引用，按上条批准范围使用）。Hamel 实际引用的 Part 1（`KURKELA_1991`，VTT Publications 161）尚未取得。
 - 原文页面图像与逐页全文在主目录 `refs/hamel/pages/`（仅本地）。原扫描 113 页；印刷页 152–153（Bild 7.20、7.21）由补页编为 PDF 114，不插入原页序。PDF 84、85 重复扫描 S.148–149。页码一律以 `refs/hamel/index.json` 为准，不按固定偏移换算。补页 PDF 与页面图像都不入库。
 - 原书存在重复编号：式 3.49、3.50（S.35、36），表 5.1（S.74、79），表 A.2.1.2（S.169、170）；引用时须带页码。
 - `index.json` 的坐标已换到页面图像坐标系（像素 = pt × 300/72），可直接用于裁图。268 条方程中有 24 条（`locator: page_image`）文本层缺式号、没有坐标框，只有人工核对的页码与半页，裁图时须打开整页。
