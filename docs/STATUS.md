@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-章程 v0.8（2026-10-15，登记 VTT 加压 1 的验收量）。主线已重置（PR #9）。T0、T1、T2、T4、T5、T7、T10 完成；T3 进行中（Bild 7.10 读数见 #28）；T6 第 1、3 项完成，引用校验待做；T9 进行中；后续顺序以下文“执行顺序与分工”中的 cursor 队列为准。工况顺序已改为 VTT 加压褐煤 → HTW（章程 v0.7 §3），WSV400 降为后备工况，其输入（`data/cases/wsv400.json`）与出口读数（`data/digitized/`）保留备用。
+章程 v0.8（2026-10-15，登记 VTT 加压 1 的验收量）。主线已重置（PR #9）。T0、T1、T2、T4、T5、T7、T9、T10 完成；T3 进行中（Bild 7.10 读数见 #28）；T6 第 1、3 项完成，引用校验待做；后续顺序以下文“执行顺序与分工”中的 cursor 队列为准。工况顺序已改为 VTT 加压褐煤 → HTW（章程 v0.7 §3），WSV400 降为后备工况，其输入（`data/cases/wsv400.json`）与出口读数（`data/digitized/`）保留备用。
 
 ## 任务
 
@@ -19,12 +19,11 @@
 | T6 | 护栏工具 | skill 文本：总司令；脚本：cursor；审查 codex | 进行中 | 第 1、3 项完成（含工况文件例外与 skill 副本检查）；第 2 项（引用校验）待做 |
 | T7 | WSV400 输入数据补全 | cursor（图上读数：目标所有者）；审查总司令 | 完成 | #21 已合并；WSV400 已降为后备工况。`data/cases/wsv400.json` 为工况输入格式的范本；F 的氧按 ADR 0003，空气摩尔流量按 ADR 0004；Bild 7.14、7.15 的图上读数清单保留，启用 WSV400 时再读 |
 | T8 | 第 2 章与 §3.1 独立转录与比对 | cursor（全新会话）；审查 codex | 待开始 | 头号问题：式 2.6 的衡算变量是质量流还是存量 |
-| T9 | `hamel/` 骨架与验收工具 | cursor；审查 codex | 进行中 | 通用装配 `data/cases/*.json` 与读取 `data/digitized/fig_*.json`；主线目标 VTT 加压 1，依赖 T10 第一阶段与 T3 的 Bild 7.10 读数及验收量登记；不写物理方程 |
-| T10 | VTT 加压输入数据补全 | cursor（图上读数：目标所有者）；审查总司令 | 完成 | #25、#26、#31 已合并；`cited` 字段由 ADR 0005 批准；`reactor_height` 按 ADR 0005 记为 derived（3,5 m）；各工况吹扫氮气按 ADR 0006 记录，只有工况 1、2 暂定计入模型 |
+| T9 | `hamel/` 骨架与验收工具 | cursor；审查 codex | 完成 | PR #33 已合并。通用装配 `data/cases/*.json`、读取 `data/digitized/fig_*.json`、外部元素平衡检查、四态验收判定；含验收集合、单位与干湿基、`cited` 的装置范围、按字段核量纲。不含物理方程 |
 
 ## 执行顺序与分工（2026-10-13 起）
 
-cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令协调、裁定，并审查文档与数据类 PR（CHARTER v0.7 §8）。cursor 的队列（2026-10-15 更新）：T9（进行中）→ T6 第 2 项 → T8（全新会话）。可选：用 VTT Publications 161（Part 1，`KURKELA_1991`）补二次风高度、床料等装置缺口（T10 第三阶段，须核对装置是否与 1988–1990 年试验时相同）。
+cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令协调、裁定，并审查文档与数据类 PR（CHARTER v0.7 §8）。cursor 的队列（2026-10-15 更新）：T6 第 2 项 → T8（全新会话）。可选：用 VTT Publications 161（Part 1，`KURKELA_1991`）补二次风高度、床料等装置缺口（T10 第三阶段，须核对装置是否与 1988–1990 年试验时相同）。
 
 ## 工况指标
 
@@ -49,7 +48,10 @@ cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令�
 ## 待总司令裁定（写相应模块前）
 
 - **第 5 章动力学的 11 处原文歧义**（`refs/hamel/transcription/ch5_kinetics_diff.md`“原文有歧义”一节）。与第 1 关（VTT 加压）关系最大的是：第 1 条式 (5.47) 的点号、第 2 条式 (5.45) 与第 4 条式 (5.51) 的压力单位、第 3 条 R8 采用 (5.45) 还是 (5.49)、第 9 条 Serio 与 Corella 取哪一行参数。按目标所有者 2026-10-15 的意见，先在 Hamel 原文内部寻找依据。
-- VTT 加压 1 的其余输入缺口：cell 划分与二次风高度、床料与床高、进气组成、壁面散热、吹扫氮温度、挥发分基准（ADR 0005“尚未裁定”与 ADR 0006 第 3 项）。
+- **VTT 加压 1 的输入缺口**：完整清单以 [`data/cases/vtt_pressurized_gaps.md`](../data/cases/vtt_pressurized_gaps.md) 的“缺口”表和 `data/cases/vtt_pressurized.json` 中 `status: missing` 的字段为准，本条只是摘要，未列出的不等于已解决。截至 2026-10-15，工况 1 装配时会遇到的 `missing` 字段：
+  - 装置（`shared`）：`cell_count`、`cell_heights`、`agent_feed_height`（二次风高度）、`bed_height`、`bed_inventory_composition`、`bed_inventory_diameter`、`ash_withdrawal_count`（排灰位置）、`wall_heat_transfer_coefficient`、`cyclone_geometry`、`connecting_line_geometry`、`return_line_geometry`；
+  - 工况 1：`inlet_gas_mole_fractions`（进气组成）、`fuel_size_class_mass_fractions`（燃料粒径分级质量分数）；
+  - 另有尚未裁定的解释性问题：挥发分基准、热损失、旋风返料取自哪一 cell（ADR 0005“尚未裁定”），吹扫氮温度（ADR 0006 第 3 项）。
 
 ## 待目标所有者决策
 
