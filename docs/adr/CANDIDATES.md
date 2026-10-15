@@ -7,10 +7,10 @@
 | C1 | 挥发分（Flüchtige）释放后并入气相，不作为 Eq. 2.6 的固体种类，也不作为 Eq. 2.7 中的固体出口焓载体 | `docs/handoff_wirsum_alignment_2026-09-14.md` §5（称 Hamel PAGE 18–19、§4.3 PAGE 69–70） | §2.2.2（PDF 18–19 / S. 17–18）列出的“活性固体种类”是否包含挥发分；§4.1、§4.3 中热解产物进入 cell 衡算的方式 | 待核实 |
 | C2 | 固体流出与 cell 内固体存量成正比（ṁ = K·M），床底 cell 若存量为 0 则固体出口焓为 0，导致能量残差 −10 MW 量级 | 同上 §0、§2 | 第 3 章固体流动模型中 ṁ_auf、ṁ_ab、ṁ_aus 的定义（Eq. 2.6 的各项如何由流动模型给出） | 待核实 |
 | C3 | K=0 时固体衡算对存量的雅可比为零，旧代码的 `holdup_k0_anchor='engineering'`（source−M，τ=1 s）不是 Hamel 的做法 | 同上 §2（P1） | 同 C2；Hamel 是否以存量为衡算变量，还是以质量流为变量 | 待核实 |
-| C4 | 旧 R9（H₂S 氧化）不在 Hamel 反应列表中 | 本次 T5 发现 | 反应列表 PDF 45 / S. 71 已确认无此反应；需确认 Hamel 是否在别处（如 Gibbs 平衡、附录 A1）处理 H₂S 的转化 | 部分核实 |
-| C5 | 旧 R11 的悬浮相采用 Corella 催化裂解、气泡相采用 Serio 均相裂解 | 归档 `src/kinetics/tar_reactions.py` | §5.2.6 Umsetzung der Teere（S. 95–97） | **原文确认采用**（PDF 58 / S. 97：气泡相用 Serio et al. 1987 的均相焦油热解结果，悬浮相用 Corella et al. 1991 在流化床中测得的参数）。具体参数值由 T4 比对 |
-| C6 | R8 内部压力用 atm 计算，外部接口仍用 Pa | 归档 `docs/CLAUDE.md` | §5.2.4（S. 91–94）R8 速率式的单位 | 待核实，交 T4 |
-| C7 | R5 悬浮相速率含 C_H₂O^0.5 项 | 归档 `docs/CLAUDE.md` | §5.2.1（S. 90） | 待核实，交 T4 |
+| C4 | 旧 R9（H₂S 氧化）不在 Hamel 反应列表中 | 本次 T5 发现 | 反应列表 PDF 45 / S. 71 已确认无此反应；需确认 Hamel 是否在别处（如 Gibbs 平衡、附录 A1）处理 H₂S 的转化 | 部分核实。T4 比对（`refs/hamel/transcription/ch5_kinetics_diff.md`）同样判旧 R9 为“旧代码错”；别处是否处理 H₂S 仍待核实 |
+| C5 | 旧 R11 的悬浮相采用 Corella 催化裂解、气泡相采用 Serio 均相裂解 | 归档 `src/kinetics/tar_reactions.py` | §5.2.6 Umsetzung der Teere（S. 95–97） | **原文确认采用**（PDF 58 / S. 97：气泡相用 Serio et al. 1987 的均相焦油热解结果，悬浮相用 Corella et al. 1991 在流化床中测得的参数）。T4 比对后：相的分配维持“原文确认”；但表 5.4 中 Serio 有两对参数、Corella 有两个温度段，原文没有指定用哪一行，**行的选择仍是歧义**（`ch5_kinetics_diff.md` 歧义第 9 条），不得写成原文已指定 0,7 与 5,42×10⁴ |
+| C6 | R8 内部压力用 atm 计算，外部接口仍用 Pa | 归档 `docs/CLAUDE.md` | §5.2.4（S. 91–94）R8 速率式的单位 | **作为原文结论驳回，仅为代码事实**（T4）：归档 `rate_R8` 确实把压力除以 101325 Pa，但式 (5.45) 没有印出 p 的单位（`ch5_kinetics_diff.md` 歧义第 2 条），待写动力学模块前以 ADR 裁定 |
+| C7 | R5 悬浮相速率含 C_H₂O^0.5 项 | 归档 `docs/CLAUDE.md` | §5.2.1（S. 90） | **驳回**（T4）：表 5.3（S. 91）悬浮相的 γ 为短横线；0,5 属于气泡相的 γ 和悬浮相的 β。短横线的含义见 `ch5_kinetics_diff.md` 歧义第 5 条 |
 | C8 | n_RZ 须按 Re_s 分段，不能取常数 4,65 | 归档 `docs/CLAUDE.md` | 第 3 章（Richardson–Zaki 指数） | **原文确认**（Eq. 3.26，PDF 23 / S. 27：n_RZ 按 Re_s 分四段，4.65／4.4·Re_s^−0.03／4.4·Re_s^−0.1／2.4，分界 0.2、1.0、500）；用于 Eq. 3.25 ε_d 的计算。转为 GLOSSARY／模块原文答卷依据，不需要 ADR |
-| C9 | Boudouard 反应的 k_b/k_c 指数为正 | 归档 `docs/CLAUDE.md` | §5.1.4（S. 89） | 待核实，交 T4 |
+| C9 | Boudouard 反应的 k_b/k_c 指数为正 | 归档 `docs/CLAUDE.md` | §5.1.4（S. 89） | **驳回**（T4）：式 (5.28)、(5.29) 为 8,31×10⁻⁷ 与 2,088×10⁻¹⁴，指数为负；归档 `char_reactions.py` 也是负指数 |
 | C10 | 典型模拟规模约 20 个 cell；以 10 种气体、10 个焦炭粒级为例，每个 cell 31 个衡算变量（含能量），全炉约 620 个方程。31 的构成按推断是气泡相与悬浮相各 10 种气体＋10 个粒级＋1 个能量，原文是否如此拆分待复核 | 本次 T5 发现 | PDF 49 / S. 78–79，§5.1.1.1 | 已见于原文，作为规模参考，不需要 ADR |
