@@ -1,0 +1,1762 @@
+{
+  "figure": "7.10",
+  "pdf_page": 78,
+  "printed_page": "136-137",
+  "side": "left_and_right",
+  "caption_de": "Bild 7.10: Vergleich von Messungen mit den Simulationsergebnissen für die mittlere Freiraumtemperatur und den Gesamtkohlenstoffumsatz der VTT-Druckvergasungsanlage. Die Nummern in den Symbolen entsprechen der jeweiligen Versuchsnummer gemäß Tabelle 7.2. Bild 7.10 (Fortsetzung): Vergleich der Messungen mit den Simulationsergebnissen für die wichtigsten Gaskomponenten der VTT-Druckvergasungsanlage.",
+  "read_date": "2026-10-15",
+  "tool": "PyMuPDF 1.26.5 渲染，zoom=8（8 px/pt）。网格线取细墨迹质心后线性拟合。符号中心是空心圆、菱形或方框描边模板的相关峰，不取数字笔画的质心。复算：tools/digitize_wsv400_outlets.py。",
+  "est_error": {
+    "T_FRB_K": 13,
+    "X_C": 1.3,
+    "CO": 0.009,
+    "CO2": 0.004,
+    "H2": 0.004,
+    "CH4": 0.004,
+    "H2O": 0.013
+  },
+  "basis_gas": "wet",
+  "basis_note": "续图坐标轴只写 in mol/mol，没有写 feucht 或 trocken。KURKELA_1992 Table 4（泥炭，p. 8）和 Table 5（褐煤、锯末，p. 9）的 vol% 含 H2O，与本图实验值逐点吻合，因此气体组成为湿基。同一 PDF 页 Bild 7.9 的 feucht 不作为本图的依据。",
+  "units": {
+    "T_FRB_K": "K",
+    "X_C": "%",
+    "CO": "mol/mol",
+    "CO2": "mol/mol",
+    "H2": "mol/mol",
+    "CH4": "mol/mol",
+    "H2O": "mol/mol"
+  },
+  "quantity_definition": {
+    "T_FRB_K": "平均自由空间温度（图注 mittlere Freiraumtemperatur），对应 KURKELA_1992 的 Freeboard temperature",
+    "X_C": "总碳转化率（图注 Gesamtkohlenstoffumsatz）。KURKELA_1992 列了 to dry gas 和 to dry gas + tars 两种口径，与本图实验值吻合的是 to dry gas + tars",
+    "CO": "主要气体组分",
+    "CO2": "主要气体组分",
+    "H2": "主要气体组分",
+    "CH4": "主要气体组分",
+    "H2O": "主要气体组分"
+  },
+  "points_format": "[实验值（x，Messung）, 模拟值（y，Sim.）]",
+  "symbol_legend": {
+    "circle": "Braunkohle，表 7.2 模拟号 1–4",
+    "diamond": "Torf，表 7.2 模拟号 5–13",
+    "square": "Holz，表 7.2 模拟号 14–15"
+  },
+  "cases": [
+    {
+      "case_label_in_figure": "1",
+      "case_id": "CASE_VTT_PRESSURIZED_1",
+      "validation_case_id": "CASE_VTT_PRESSURIZED_COAL_1",
+      "T_FRB_K": [
+        1156,
+        1164
+      ],
+      "X_C": [
+        80.5,
+        78.1
+      ],
+      "CO2": [
+        0.103,
+        0.091
+      ],
+      "H2": [
+        0.131,
+        0.109
+      ],
+      "CO": [
+        0.159,
+        0.164
+      ],
+      "x_located_by": {
+        "CO": "横坐标由 KURKELA_1992 Table 5 定位",
+        "CH4": "横坐标由 KURKELA_1992 Table 5 定位",
+        "H2O": "横坐标由 KURKELA_1992 Table 5 定位"
+      },
+      "CH4": [
+        0.018,
+        0.013
+      ],
+      "H2O": [
+        0.079,
+        0.122
+      ]
+    },
+    {
+      "case_label_in_figure": "2",
+      "case_id": "CASE_VTT_PRESSURIZED_2",
+      "X_C": [
+        91.9,
+        93.7
+      ],
+      "CO": [
+        0.14,
+        0.183
+      ],
+      "CO2": [
+        0.119,
+        0.084
+      ],
+      "H2": [
+        0.123,
+        0.106
+      ],
+      "CH4": [
+        0.018,
+        0.01
+      ],
+      "x_located_by": {
+        "CH4": "横坐标由 KURKELA_1992 Table 5 定位",
+        "H2O": "横坐标由 KURKELA_1992 Table 5 定位",
+        "T_FRB_K": "横坐标由 KURKELA_1992 Table 5 定位"
+      },
+      "H2O": [
+        0.082,
+        0.115
+      ],
+      "T_FRB_K": [
+        1136,
+        1207
+      ]
+    },
+    {
+      "case_label_in_figure": "3",
+      "case_id": "CASE_VTT_PRESSURIZED_3",
+      "T_FRB_K": [
+        1183,
+        1283
+      ],
+      "X_C": [
+        96.4,
+        96.4
+      ],
+      "CO": [
+        0.165,
+        0.168
+      ],
+      "CO2": [
+        0.108,
+        0.085
+      ],
+      "H2O": [
+        0.072,
+        0.098
+      ],
+      "H2": [
+        0.123,
+        0.098
+      ],
+      "x_located_by": {
+        "H2": "横坐标由 KURKELA_1992 Table 5 定位",
+        "CH4": "横坐标由 KURKELA_1992 Table 5 定位"
+      },
+      "CH4": [
+        0.01,
+        0.006
+      ]
+    },
+    {
+      "case_label_in_figure": "4",
+      "case_id": "CASE_VTT_PRESSURIZED_4",
+      "X_C": [
+        94.1,
+        96.3
+      ],
+      "CO": [
+        0.157,
+        0.191
+      ],
+      "CO2": [
+        0.098,
+        0.082
+      ],
+      "H2": [
+        0.123,
+        0.115
+      ],
+      "H2O": [
+        0.092,
+        0.106
+      ],
+      "CH4": [
+        0.015,
+        0.008
+      ],
+      "x_located_by": {
+        "CH4": "横坐标由 KURKELA_1992 Table 5 定位",
+        "T_FRB_K": "横坐标由 KURKELA_1992 Table 5 定位"
+      },
+      "T_FRB_K": [
+        1166,
+        1187
+      ]
+    },
+    {
+      "case_label_in_figure": "5",
+      "case_id": "CASE_VTT_PRESSURIZED_5",
+      "CO": [
+        0.134,
+        0.144
+      ]
+    },
+    {
+      "case_label_in_figure": "6",
+      "case_id": "CASE_VTT_PRESSURIZED_6",
+      "validation_case_id": "CASE_VTT_PRESSURIZED_PEAT_6",
+      "T_FRB_K": [
+        1105,
+        1150
+      ],
+      "CO2": [
+        0.133,
+        0.132
+      ]
+    },
+    {
+      "case_label_in_figure": "7",
+      "case_id": "CASE_VTT_PRESSURIZED_7",
+      "T_FRB_K": [
+        1175,
+        1194
+      ],
+      "CO": [
+        0.121,
+        0.132
+      ],
+      "CO2": [
+        0.124,
+        0.115
+      ],
+      "H2": [
+        0.119,
+        0.096
+      ]
+    },
+    {
+      "case_label_in_figure": "8",
+      "case_id": "CASE_VTT_PRESSURIZED_8",
+      "T_FRB_K": [
+        1217,
+        1252
+      ],
+      "CO": [
+        0.122,
+        0.146
+      ],
+      "H2": [
+        0.105,
+        0.092
+      ],
+      "CH4": [
+        0.024,
+        0.026
+      ]
+    },
+    {
+      "case_label_in_figure": "9",
+      "case_id": "CASE_VTT_PRESSURIZED_9",
+      "X_C": [
+        86.2,
+        85.4
+      ],
+      "CO": [
+        0.091,
+        0.099
+      ],
+      "CO2": [
+        0.14,
+        0.13
+      ],
+      "H2": [
+        0.127,
+        0.093
+      ],
+      "H2O": [
+        0.174,
+        0.198
+      ]
+    },
+    {
+      "case_label_in_figure": "10",
+      "case_id": "CASE_VTT_PRESSURIZED_10",
+      "T_FRB_K": [
+        1123,
+        1201
+      ],
+      "X_C": [
+        83.9,
+        92.3
+      ],
+      "CO": [
+        0.091,
+        0.087
+      ],
+      "CO2": [
+        0.132,
+        0.126
+      ],
+      "H2": [
+        0.123,
+        0.083
+      ],
+      "H2O": [
+        0.206,
+        0.229
+      ]
+    },
+    {
+      "case_label_in_figure": "11",
+      "case_id": "CASE_VTT_PRESSURIZED_11",
+      "T_FRB_K": [
+        1153,
+        1214
+      ],
+      "X_C": [
+        92.9,
+        97.9
+      ],
+      "CO": [
+        0.108,
+        0.148
+      ],
+      "H2": [
+        0.109,
+        0.1
+      ],
+      "H2O": [
+        0.131,
+        0.133
+      ]
+    },
+    {
+      "case_label_in_figure": "12",
+      "case_id": "CASE_VTT_PRESSURIZED_12",
+      "T_FRB_K": [
+        1140,
+        1153
+      ],
+      "X_C": [
+        95.3,
+        97.9
+      ],
+      "CO": [
+        0.076,
+        0.114
+      ],
+      "CO2": [
+        0.135,
+        0.113
+      ],
+      "CH4": [
+        0.023,
+        0.015
+      ],
+      "H2O": [
+        0.177,
+        0.175
+      ]
+    },
+    {
+      "case_label_in_figure": "13",
+      "case_id": "CASE_VTT_PRESSURIZED_13",
+      "validation_case_id": "CASE_VTT_PRESSURIZED_PEAT_13",
+      "T_FRB_K": [
+        1161,
+        1239
+      ],
+      "X_C": [
+        90.4,
+        97.7
+      ],
+      "CO": [
+        0.098,
+        0.144
+      ],
+      "CO2": [
+        0.129,
+        0.102
+      ],
+      "H2": [
+        0.099,
+        0.098
+      ],
+      "CH4": [
+        0.02,
+        0.021
+      ],
+      "H2O": [
+        0.148,
+        0.144
+      ]
+    },
+    {
+      "case_label_in_figure": "14",
+      "case_id": "CASE_VTT_PRESSURIZED_14",
+      "validation_case_id": "CASE_VTT_PRESSURIZED_SAWDUST_14",
+      "T_FRB_K": [
+        1153,
+        1043
+      ],
+      "X_C": [
+        95.1,
+        94.1
+      ],
+      "CO": [
+        0.143,
+        0.123
+      ],
+      "CO2": [
+        0.115,
+        0.144
+      ],
+      "H2": [
+        0.084,
+        0.089
+      ],
+      "CH4": [
+        0.046,
+        0.053
+      ],
+      "H2O": [
+        0.18,
+        0.152
+      ]
+    },
+    {
+      "case_label_in_figure": "15",
+      "case_id": "CASE_VTT_PRESSURIZED_15",
+      "T_FRB_K": [
+        1236,
+        1142
+      ],
+      "X_C": [
+        96.2,
+        91.4
+      ],
+      "CO": [
+        0.107,
+        0.098
+      ],
+      "CO2": [
+        0.12,
+        0.131
+      ],
+      "H2": [
+        0.089,
+        0.086
+      ],
+      "H2O": [
+        0.217,
+        0.211
+      ]
+    }
+  ],
+  "not_in_source": [],
+  "pending": [
+    {
+      "case_label_in_figure": "5",
+      "quantities": [
+        "T_FRB_K",
+        "X_C",
+        "CO2",
+        "H2",
+        "CH4",
+        "H2O"
+      ],
+      "reason": "T_FRB_K：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。 X_C：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。 CO2：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。 H2：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。 CH4：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。 H2O：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。"
+    },
+    {
+      "case_label_in_figure": "6",
+      "quantities": [
+        "X_C",
+        "CO",
+        "H2",
+        "CH4",
+        "H2O"
+      ],
+      "reason": "X_C：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。 CO：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。 H2：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。 CH4：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。 H2O：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。"
+    },
+    {
+      "case_label_in_figure": "7",
+      "quantities": [
+        "X_C",
+        "CH4",
+        "H2O"
+      ],
+      "reason": "X_C：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。 CH4：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。 H2O：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。"
+    },
+    {
+      "case_label_in_figure": "8",
+      "quantities": [
+        "X_C",
+        "CO2",
+        "H2O"
+      ],
+      "reason": "X_C：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。 CO2：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。 H2O：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。"
+    },
+    {
+      "case_label_in_figure": "9",
+      "quantities": [
+        "T_FRB_K",
+        "CH4"
+      ],
+      "reason": "T_FRB_K：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。 CH4：实验值已与 KURKELA_1992 对照且差值在读数误差内；模拟值与目标所有者读数之差超过读数误差，这一对不写入 cases。"
+    },
+    {
+      "case_label_in_figure": "10",
+      "quantities": [
+        "CH4"
+      ],
+      "reason": "CH4：实验值已与 KURKELA_1992 对照且差值在读数误差内；模拟值与目标所有者读数之差超过读数误差，这一对不写入 cases。"
+    },
+    {
+      "case_label_in_figure": "11",
+      "quantities": [
+        "CO2",
+        "CH4"
+      ],
+      "reason": "CO2：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。 CH4：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。"
+    },
+    {
+      "case_label_in_figure": "12",
+      "quantities": [
+        "H2"
+      ],
+      "reason": "H2：符号与相邻符号或 ±15% 线重叠，相关峰不在符号中心，不采用该峰，也不改用目测值。"
+    },
+    {
+      "case_label_in_figure": "15",
+      "quantities": [
+        "CH4"
+      ],
+      "reason": "CH4：实验值已与 KURKELA_1992 对照且差值在读数误差内；模拟值与目标所有者读数之差超过读数误差，这一对不写入 cases。"
+    }
+  ],
+  "owner_disagreements": [
+    {
+      "case_label_in_figure": "15",
+      "quantity": "T_FRB_K",
+      "pixel": [
+        1236,
+        1142
+      ],
+      "owner": [
+        1253,
+        1140
+      ],
+      "delta": [
+        -17,
+        2
+      ],
+      "est_error": 13,
+      "status": "resolved",
+      "ruling": "pixel",
+      "kurkela_C": 964,
+      "kurkela_K": 1237,
+      "note": "KURKELA_1992 Table 5 的 Freeboard temperature 为 964 °C = 1237 K。像素读数 1236 K 与之相差 1 K。目标所有者读数 1253 K 不采用。"
+    },
+    {
+      "case_label_in_figure": "10",
+      "quantity": "CH4",
+      "pixel": [
+        0.038,
+        0.037
+      ],
+      "owner": [
+        0.037,
+        0.028
+      ],
+      "delta": [
+        0.001,
+        0.009
+      ],
+      "est_error": 0.004,
+      "status": "pending_reread",
+      "note": "实验值与 KURKELA_1992 的差在读数误差以内。模拟值无法对照原表，不写入 cases，等目标所有者复读。"
+    },
+    {
+      "case_label_in_figure": "9",
+      "quantity": "CH4",
+      "pixel": [
+        0.035,
+        0.046
+      ],
+      "owner": [
+        0.034,
+        0.035
+      ],
+      "delta": [
+        0.001,
+        0.011
+      ],
+      "est_error": 0.004,
+      "status": "pending_reread",
+      "note": "实验值与 KURKELA_1992 的差在读数误差以内。模拟值无法对照原表，不写入 cases，等目标所有者复读。"
+    },
+    {
+      "case_label_in_figure": "15",
+      "quantity": "CH4",
+      "pixel": [
+        0.027,
+        0.038
+      ],
+      "owner": [
+        0.027,
+        0.028
+      ],
+      "delta": [
+        0.0,
+        0.01
+      ],
+      "est_error": 0.004,
+      "status": "pending_reread",
+      "note": "实验值与 KURKELA_1992 的差在读数误差以内。模拟值无法对照原表，不写入 cases，等目标所有者复读。"
+    }
+  ],
+  "legacy_comparison": [
+    {
+      "case_label_in_figure": "6",
+      "quantity": "T_FRB_K",
+      "pixel": [
+        1105,
+        1150
+      ],
+      "legacy": [
+        1055,
+        1020
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "13",
+      "quantity": "T_FRB_K",
+      "pixel": [
+        1161,
+        1239
+      ],
+      "legacy": [
+        1175,
+        1165
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "1",
+      "quantity": "T_FRB_K",
+      "pixel": [
+        1156,
+        1164
+      ],
+      "legacy": [
+        1185,
+        1200
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "14",
+      "quantity": "T_FRB_K",
+      "pixel": [
+        1153,
+        1043
+      ],
+      "legacy": [
+        1045,
+        1120
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "1",
+      "quantity": "X_C",
+      "pixel": [
+        80.5,
+        78.1
+      ],
+      "legacy": [
+        78,
+        76
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "13",
+      "quantity": "X_C",
+      "pixel": [
+        90.4,
+        97.7
+      ],
+      "legacy": [
+        97,
+        95
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "14",
+      "quantity": "X_C",
+      "pixel": [
+        95.1,
+        94.1
+      ],
+      "legacy": [
+        93,
+        90
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "13",
+      "quantity": "CO",
+      "pixel": [
+        0.098,
+        0.144
+      ],
+      "legacy": [
+        0.095,
+        0.09
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "14",
+      "quantity": "CO",
+      "pixel": [
+        0.143,
+        0.123
+      ],
+      "legacy": [
+        0.155,
+        0.145
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "1",
+      "quantity": "CO2",
+      "pixel": [
+        0.103,
+        0.091
+      ],
+      "legacy": [
+        0.105,
+        0.112
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "13",
+      "quantity": "CO2",
+      "pixel": [
+        0.129,
+        0.102
+      ],
+      "legacy": [
+        0.15,
+        0.155
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "6",
+      "quantity": "CO2",
+      "pixel": [
+        0.133,
+        0.132
+      ],
+      "legacy": [
+        0.14,
+        0.145
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "14",
+      "quantity": "CO2",
+      "pixel": [
+        0.115,
+        0.144
+      ],
+      "legacy": [
+        0.11,
+        0.118
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "1",
+      "quantity": "H2",
+      "pixel": [
+        0.131,
+        0.109
+      ],
+      "legacy": [
+        0.135,
+        0.128
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "13",
+      "quantity": "H2",
+      "pixel": [
+        0.099,
+        0.098
+      ],
+      "legacy": [
+        0.09,
+        0.085
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "14",
+      "quantity": "H2",
+      "pixel": [
+        0.084,
+        0.089
+      ],
+      "legacy": [
+        0.08,
+        0.075
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "13",
+      "quantity": "CH4",
+      "pixel": [
+        0.02,
+        0.021
+      ],
+      "legacy": [
+        0.032,
+        0.03
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "14",
+      "quantity": "CH4",
+      "pixel": [
+        0.046,
+        0.053
+      ],
+      "legacy": [
+        0.052,
+        0.048
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "13",
+      "quantity": "H2O",
+      "pixel": [
+        0.148,
+        0.144
+      ],
+      "legacy": [
+        0.16,
+        0.155
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    },
+    {
+      "case_label_in_figure": "14",
+      "quantity": "H2O",
+      "pixel": [
+        0.18,
+        0.152
+      ],
+      "legacy": [
+        0.11,
+        0.105
+      ],
+      "note": "旧 hamel_fig7_parity_digitized.json 只读，不作为本次读数。"
+    }
+  ],
+  "calibration": {
+    "renderer": "PyMuPDF 1.26.5",
+    "zoom": 8,
+    "px_per_pt": 8,
+    "origin": "各面板裁图左上角，x 向右，y 向下",
+    "pdf_page": 78,
+    "clip_pt": {
+      "T_FRB_K": [
+        40,
+        318,
+        225,
+        490
+      ],
+      "X_C": [
+        215,
+        318,
+        400,
+        490
+      ],
+      "CO": [
+        448,
+        18,
+        640,
+        185
+      ],
+      "CO2": [
+        618,
+        18,
+        810,
+        185
+      ],
+      "H2": [
+        448,
+        172,
+        640,
+        340
+      ],
+      "CH4": [
+        618,
+        172,
+        810,
+        340
+      ],
+      "H2O": [
+        448,
+        325,
+        640,
+        490
+      ]
+    },
+    "marker": "空心符号描边模板的相关峰。圆用欧氏半径，菱形用曼哈顿半径，方框用切比雪夫半径。centers 里的一对是 [x 实验, y 模拟]，单位为裁图像素。",
+    "est_error_rule": "该面板上实际用到的最大符号外接半径（圆 30 px，方框 28 px，菱形 40 px）乘以坐标轴斜率的绝对值，再按该量的四舍五入位数进位（0.5 进位）。",
+    "rounding_digits": {
+      "T_FRB_K": 0,
+      "X_C": 1,
+      "CO": 3,
+      "CO2": 3,
+      "H2": 3,
+      "CH4": 3,
+      "H2O": 3
+    },
+    "grids": {
+      "T_FRB_K": {
+        "x": [
+          [
+            315.0,
+            1000.0
+          ],
+          [
+            630.16,
+            1100.0
+          ],
+          [
+            945.08,
+            1200.0
+          ],
+          [
+            1260.43,
+            1300.0
+          ]
+        ],
+        "y": [
+          [
+            190.87,
+            1300.0
+          ],
+          [
+            499.09,
+            1200.0
+          ],
+          [
+            803.11,
+            1100.0
+          ],
+          [
+            1109.0,
+            1000.0
+          ]
+        ]
+      },
+      "X_C": {
+        "x": [
+          [
+            329.0,
+            70.0
+          ],
+          [
+            639.39,
+            80.0
+          ],
+          [
+            948.39,
+            90.0
+          ],
+          [
+            1261.01,
+            100.0
+          ]
+        ],
+        "y": [
+          [
+            182.57,
+            100.0
+          ],
+          [
+            490.33,
+            90.0
+          ],
+          [
+            795.39,
+            80.0
+          ],
+          [
+            1101.03,
+            70.0
+          ]
+        ]
+      },
+      "CO": {
+        "x": [
+          [
+            287.72,
+            0.0
+          ],
+          [
+            741.41,
+            0.1
+          ],
+          [
+            1225.42,
+            0.2
+          ]
+        ],
+        "y": [
+          [
+            153.18,
+            0.2
+          ],
+          [
+            617.04,
+            0.1
+          ],
+          [
+            1081.55,
+            0.0
+          ]
+        ]
+      },
+      "CO2": {
+        "x": [
+          [
+            335.88,
+            0.05
+          ],
+          [
+            809.12,
+            0.1
+          ],
+          [
+            1279.47,
+            0.15
+          ]
+        ],
+        "y": [
+          [
+            155.05,
+            0.15
+          ],
+          [
+            613.0,
+            0.1
+          ],
+          [
+            1076.44,
+            0.05
+          ]
+        ]
+      },
+      "H2": {
+        "x": [
+          [
+            291.23,
+            0.05
+          ],
+          [
+            749.45,
+            0.1
+          ],
+          [
+            1230.0,
+            0.15
+          ]
+        ],
+        "y": [
+          [
+            142.1,
+            0.15
+          ],
+          [
+            599.7,
+            0.1
+          ],
+          [
+            1056.37,
+            0.05
+          ]
+        ]
+      },
+      "CH4": {
+        "x": [
+          [
+            337.79,
+            0.0
+          ],
+          [
+            807.91,
+            0.05
+          ],
+          [
+            1276.0,
+            0.1
+          ]
+        ],
+        "y": [
+          [
+            138.17,
+            0.1
+          ],
+          [
+            594.59,
+            0.05
+          ],
+          [
+            1052.0,
+            0.0
+          ]
+        ]
+      },
+      "H2O": {
+        "x": [
+          [
+            297.08,
+            0.0
+          ],
+          [
+            598.26,
+            0.1
+          ],
+          [
+            918.25,
+            0.2
+          ],
+          [
+            1232.0,
+            0.3
+          ]
+        ],
+        "y": [
+          [
+            141.99,
+            0.3
+          ],
+          [
+            447.89,
+            0.2
+          ],
+          [
+            754.28,
+            0.1
+          ],
+          [
+            1060.22,
+            0.0
+          ]
+        ]
+      }
+    },
+    "centers": {
+      "T_FRB_K": {
+        "3": [
+          893,
+          243
+        ],
+        "10": [
+          703,
+          495
+        ],
+        "11": [
+          797,
+          455
+        ],
+        "6": [
+          645,
+          650
+        ],
+        "12": [
+          757,
+          641
+        ],
+        "7": [
+          868,
+          516
+        ],
+        "13": [
+          822,
+          379
+        ],
+        "1": [
+          808,
+          609
+        ],
+        "8": [
+          1000,
+          340
+        ],
+        "14": [
+          797,
+          977
+        ],
+        "15": [
+          1060,
+          676
+        ],
+        "2": [
+          742,
+          477
+        ],
+        "4": [
+          838,
+          536
+        ]
+      },
+      "X_C": {
+        "4": [
+          1078,
+          297
+        ],
+        "1": [
+          654,
+          853
+        ],
+        "2": [
+          1010,
+          375
+        ],
+        "11": [
+          1040,
+          248
+        ],
+        "12": [
+          1115,
+          248
+        ],
+        "10": [
+          759,
+          418
+        ],
+        "3": [
+          1148,
+          292
+        ],
+        "13": [
+          961,
+          254
+        ],
+        "9": [
+          831,
+          630
+        ],
+        "15": [
+          1143,
+          446
+        ],
+        "14": [
+          1108,
+          364
+        ]
+      },
+      "CO": {
+        "3": [
+          1056,
+          300
+        ],
+        "10": [
+          709,
+          676
+        ],
+        "2": [
+          937,
+          233
+        ],
+        "13": [
+          741,
+          411
+        ],
+        "4": [
+          1017,
+          193
+        ],
+        "12": [
+          638,
+          551
+        ],
+        "7": [
+          849,
+          471
+        ],
+        "8": [
+          857,
+          404
+        ],
+        "9": [
+          709,
+          622
+        ],
+        "5": [
+          911,
+          414
+        ],
+        "11": [
+          790,
+          395
+        ],
+        "14": [
+          953,
+          512
+        ],
+        "15": [
+          786,
+          625
+        ],
+        "1": [
+          1030,
+          320
+        ]
+      },
+      "CO2": {
+        "2": [
+          985,
+          763
+        ],
+        "1": [
+          832,
+          698
+        ],
+        "4": [
+          786,
+          783
+        ],
+        "3": [
+          881,
+          756
+        ],
+        "12": [
+          1134,
+          493
+        ],
+        "9": [
+          1183,
+          340
+        ],
+        "13": [
+          1078,
+          597
+        ],
+        "10": [
+          1113,
+          373
+        ],
+        "7": [
+          1037,
+          473
+        ],
+        "6": [
+          1115,
+          322
+        ],
+        "14": [
+          954,
+          205
+        ],
+        "15": [
+          998,
+          327
+        ]
+      },
+      "H2": {
+        "2": [
+          969,
+          547
+        ],
+        "4": [
+          975,
+          458
+        ],
+        "1": [
+          1047,
+          520
+        ],
+        "7": [
+          933,
+          635
+        ],
+        "10": [
+          972,
+          758
+        ],
+        "8": [
+          804,
+          671
+        ],
+        "13": [
+          751,
+          618
+        ],
+        "11": [
+          839,
+          600
+        ],
+        "9": [
+          1009,
+          666
+        ],
+        "15": [
+          654,
+          728
+        ],
+        "14": [
+          603,
+          699
+        ],
+        "3": [
+          970,
+          620
+        ]
+      },
+      "CH4": {
+        "12": [
+          553,
+          914
+        ],
+        "8": [
+          559,
+          811
+        ],
+        "13": [
+          522,
+          859
+        ],
+        "14": [
+          768,
+          567
+        ],
+        "1": [
+          507,
+          933
+        ],
+        "2": [
+          505,
+          956
+        ],
+        "3": [
+          434,
+          996
+        ],
+        "4": [
+          479,
+          982
+        ]
+      },
+      "H2O": {
+        "9": [
+          835,
+          454
+        ],
+        "3": [
+          518,
+          760
+        ],
+        "12": [
+          847,
+          525
+        ],
+        "13": [
+          754,
+          619
+        ],
+        "10": [
+          935,
+          358
+        ],
+        "11": [
+          702,
+          653
+        ],
+        "15": [
+          972,
+          413
+        ],
+        "4": [
+          579,
+          735
+        ],
+        "14": [
+          855,
+          595
+        ],
+        "1": [
+          538,
+          688
+        ],
+        "2": [
+          548,
+          708
+        ]
+      }
+    },
+    "symbols": {
+      "T_FRB_K": {
+        "3": "circle",
+        "10": "diamond",
+        "11": "diamond",
+        "6": "diamond",
+        "12": "diamond",
+        "7": "diamond",
+        "13": "diamond",
+        "1": "circle",
+        "8": "diamond",
+        "14": "square",
+        "15": "square",
+        "2": "circle",
+        "4": "circle"
+      },
+      "X_C": {
+        "4": "circle",
+        "1": "circle",
+        "2": "circle",
+        "11": "diamond",
+        "12": "diamond",
+        "10": "diamond",
+        "3": "circle",
+        "13": "diamond",
+        "9": "diamond",
+        "15": "square",
+        "14": "square"
+      },
+      "CO": {
+        "3": "circle",
+        "10": "diamond",
+        "2": "circle",
+        "13": "diamond",
+        "4": "circle",
+        "12": "diamond",
+        "7": "diamond",
+        "8": "diamond",
+        "9": "diamond",
+        "5": "diamond",
+        "11": "diamond",
+        "14": "square",
+        "15": "square",
+        "1": "circle"
+      },
+      "CO2": {
+        "2": "circle",
+        "1": "circle",
+        "4": "circle",
+        "3": "circle",
+        "12": "diamond",
+        "9": "diamond",
+        "13": "diamond",
+        "10": "diamond",
+        "7": "diamond",
+        "6": "diamond",
+        "14": "square",
+        "15": "square"
+      },
+      "H2": {
+        "2": "circle",
+        "4": "circle",
+        "1": "circle",
+        "7": "diamond",
+        "10": "diamond",
+        "8": "diamond",
+        "13": "diamond",
+        "11": "diamond",
+        "9": "diamond",
+        "15": "square",
+        "14": "square",
+        "3": "circle"
+      },
+      "CH4": {
+        "12": "diamond",
+        "8": "diamond",
+        "13": "diamond",
+        "14": "square",
+        "1": "circle",
+        "2": "circle",
+        "3": "circle",
+        "4": "circle"
+      },
+      "H2O": {
+        "9": "diamond",
+        "3": "circle",
+        "12": "diamond",
+        "13": "diamond",
+        "10": "diamond",
+        "11": "diamond",
+        "15": "square",
+        "4": "circle",
+        "14": "square",
+        "1": "circle",
+        "2": "circle"
+      }
+    }
+  },
+  "co2_label_recheck": {
+    "cases": [
+      "3",
+      "4"
+    ],
+    "finding": "原图 CO2 面板上，实验值约 0.098 的圆内数字是 4，约 0.108 的圆内数字是 3，与本次记录一致。KURKELA_1992 Table 5 中工况 3 为 10.0 vol%，工况 4 为 10.7 vol%，与图上这两个实验值对调后才落入读数误差。模拟值留在各自符号上，不按原表对调。",
+    "status": "figure_digits_confirmed_not_swapped"
+  },
+  "kurkela_experimental": {
+    "source": "KURKELA_1992 Table 4 p. 8（泥炭，模拟号 5–13，自左向右）和 Table 5 p. 9（褐煤 1–4、锯末 14–15，自左向右）。列序与表 7.2 的燃料质量流量一致。",
+    "temperature_conversion": "Freeboard temperature °C + 273 = K",
+    "x_c_definition": "carbon conversion to dry gas + tars, wt%",
+    "gas_conversion": "vol% / 100，表中含 H2O，湿基",
+    "cases": {
+      "1": {
+        "T_FRB_K": 1156,
+        "X_C": 80.8,
+        "CO": 0.16,
+        "CO2": 0.103,
+        "H2": 0.131,
+        "CH4": 0.016,
+        "H2O": 0.085
+      },
+      "2": {
+        "T_FRB_K": 1131,
+        "X_C": 92.3,
+        "CO": 0.139,
+        "CO2": 0.121,
+        "H2": 0.123,
+        "CH4": 0.016,
+        "H2O": 0.088
+      },
+      "3": {
+        "T_FRB_K": 1183,
+        "X_C": 96.2,
+        "CO": 0.164,
+        "CO2": 0.1,
+        "H2": 0.12,
+        "CH4": 0.011,
+        "H2O": 0.073
+      },
+      "4": {
+        "T_FRB_K": 1166,
+        "X_C": 94.7,
+        "CO": 0.156,
+        "CO2": 0.107,
+        "H2": 0.124,
+        "CH4": 0.016,
+        "H2O": 0.09
+      },
+      "5": {
+        "T_FRB_K": 1151,
+        "X_C": 84.0,
+        "CO": 0.134,
+        "CO2": 0.121,
+        "H2": 0.119,
+        "CH4": 0.029,
+        "H2O": 0.095
+      },
+      "6": {
+        "T_FRB_K": 1105,
+        "X_C": 83.8,
+        "CO": 0.099,
+        "CO2": 0.134,
+        "H2": 0.115,
+        "CH4": 0.032,
+        "H2O": 0.184
+      },
+      "7": {
+        "T_FRB_K": 1173,
+        "X_C": 82.9,
+        "CO": 0.122,
+        "CO2": 0.125,
+        "H2": 0.119,
+        "CH4": 0.026,
+        "H2O": 0.138
+      },
+      "8": {
+        "T_FRB_K": 1215,
+        "X_C": 84.5,
+        "CO": 0.123,
+        "CO2": 0.123,
+        "H2": 0.106,
+        "CH4": 0.023,
+        "H2O": 0.125
+      },
+      "9": {
+        "T_FRB_K": 1131,
+        "X_C": 86.2,
+        "CO": 0.096,
+        "CO2": 0.139,
+        "H2": 0.127,
+        "CH4": 0.033,
+        "H2O": 0.175
+      },
+      "10": {
+        "T_FRB_K": 1121,
+        "X_C": 83.7,
+        "CO": 0.093,
+        "CO2": 0.133,
+        "H2": 0.123,
+        "CH4": 0.038,
+        "H2O": 0.206
+      },
+      "11": {
+        "T_FRB_K": 1152,
+        "X_C": 93.3,
+        "CO": 0.11,
+        "CO2": 0.128,
+        "H2": 0.109,
+        "CH4": 0.022,
+        "H2O": 0.132
+      },
+      "12": {
+        "T_FRB_K": 1137,
+        "X_C": 95.4,
+        "CO": 0.077,
+        "CO2": 0.136,
+        "H2": 0.095,
+        "CH4": 0.022,
+        "H2O": 0.178
+      },
+      "13": {
+        "T_FRB_K": 1160,
+        "X_C": 90.5,
+        "CO": 0.099,
+        "CO2": 0.13,
+        "H2": 0.101,
+        "CH4": 0.021,
+        "H2O": 0.148
+      },
+      "14": {
+        "T_FRB_K": 1152,
+        "X_C": 94.9,
+        "CO": 0.143,
+        "CO2": 0.115,
+        "H2": 0.084,
+        "CH4": 0.046,
+        "H2O": 0.181
+      },
+      "15": {
+        "T_FRB_K": 1237,
+        "X_C": 96.4,
+        "CO": 0.108,
+        "CO2": 0.12,
+        "H2": 0.09,
+        "CH4": 0.028,
+        "H2O": 0.217
+      }
+    }
+  }
+}

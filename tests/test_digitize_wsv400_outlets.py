@@ -19,6 +19,14 @@ def load_pair():
     return fig717, fig716
 
 
+def load_710():
+    return json.loads((ROOT / "data" / "digitized" / "fig_7_10.json").read_text(encoding="utf-8"))
+
+
+def case_710(doc, label):
+    return next(case for case in doc["cases"] if case["case_label_in_figure"] == label)
+
+
 class OutletCheckTests(unittest.TestCase):
     def test_recorded_files_pass(self):
         self.assertEqual(DIGIT.check(), [])
@@ -70,6 +78,39 @@ class OutletCheckTests(unittest.TestCase):
         fig717["est_error"]["CH4"] = -0.001
         text = "\n".join(DIGIT.check(fig717, fig716))
         self.assertIn("7.17 est_error.CH4", text)
+
+    def test_710_official_without_center_fails(self):
+        fig717, fig716 = load_pair()
+        fig710 = load_710()
+        del fig710["calibration"]["centers"]["CO"]["1"]
+        case_710(fig710, "1")["CO"][1] = 0.299
+        text = "\n".join(DIGIT.check(fig717, fig716, fig710))
+        self.assertIn("7.10 CO 1: 正式读数没有对应的标定中心", text)
+
+    def test_710_center_without_official_fails(self):
+        fig717, fig716 = load_pair()
+        fig710 = load_710()
+        del case_710(fig710, "1")["CO"]
+        text = "\n".join(DIGIT.check(fig717, fig716, fig710))
+        self.assertIn("7.10 CO 1: 标定中心没有对应的正式读数", text)
+
+    def test_710_duplicate_label_fails(self):
+        fig717, fig716 = load_pair()
+        fig710 = load_710()
+        extra = copy.deepcopy(case_710(fig710, "1"))
+        extra["CO"] = [0.999, 0.999]
+        fig710["cases"].insert(0, extra)
+        text = "\n".join(DIGIT.check(fig717, fig716, fig710))
+        self.assertIn("7.10 case_label_in_figure 1 重复", text)
+        self.assertIn("7.10 case_id CASE_VTT_PRESSURIZED_1 重复", text)
+        self.assertIn("[0.999, 0.999]", text)
+
+    def test_710_quantity_absent_on_both_sides_passes(self):
+        fig717, fig716 = load_pair()
+        fig710 = load_710()
+        del case_710(fig710, "1")["CO"]
+        del fig710["calibration"]["centers"]["CO"]["1"]
+        self.assertEqual(DIGIT.check(fig717, fig716, fig710), [])
 
 
 if __name__ == "__main__":
