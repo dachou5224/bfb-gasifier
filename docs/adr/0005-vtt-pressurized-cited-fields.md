@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 ---
 
 # 成组批准 VTT 加压装置的文献补充字段（KURKELA_1992）
@@ -68,4 +68,5 @@ Hamel 写 VTT 装置的“Gesamtanlagenhöhe beträgt 3,5 m”（S. 133）；Kur
 
 ## 批准记录
 
-待 codex 审查后由总司令批准（CHARTER v0.7 §8：ADR 由总司令批准，目标所有者可否决；本 ADR 不引入 Hamel 未引用的来源）。
+- codex 于 PR #27 审查，结论为“未发现阻塞问题，可交总司令批准”（逐项核对 KURKELA_1992 p. 3、5、6、8、9、18 与 Hamel PDF 76–77）。
+- **2026-10-15：总司令批准**（CHARTER v0.7 §8；本 ADR 不引入 Hamel 未引用的来源，目标所有者可否决）。“尚未裁定”一节中的事项 1（吹扫氮气）由 ADR 0006 裁定。
