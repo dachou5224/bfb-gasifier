@@ -1,6 +1,6 @@
 # VTT 加压输入缺口与编号核对
 
-对照范围：表 2.1、表 2.2（S. 13）的每一项都在 `vtt_pressurized.json` 里有字段。Hamel 给出的数取自表 7.2（PDF 76 右 / S. 133，以及 PDF 77 左 / S. 134 的续表）和 §7.1.3（S. 132–137）。文献补上的数 `status` 为 `cited`，`source` 写 Hamel 在 S. 133 引用 Kurkela & Ståhlberg（1992）的位置。旧文件没有改。这些 `cited` 字段要等总司令成组登记 ADR 之后，T9 才能装配使用。
+对照范围：表 2.1、表 2.2（S. 13）的每一项都在 `vtt_pressurized.json` 里有字段。Hamel 给出的数取自表 7.2（PDF 76 右 / S. 133，以及 PDF 77 左 / S. 134 的续表）和 §7.1.3（S. 132–137）。文献补上的数 `status` 为 `cited`，`source` 写 Hamel 在 S. 133 引用 Kurkela & Ståhlberg（1992）的位置。旧文件没有改。这些 `cited` 字段已由 ADR 0005 成组批准。其中五个字段只作记录，T9 不得装配。料斗吹扫氮见 ADR 0006。
 
 ## 表 7.2 的范围
 
@@ -55,6 +55,8 @@ Hamel 在 S. 133 写模拟所用的数据取自 Kurkela & Ståhlberg（1992）�
 | 褐煤 `particle_size_max` | 4 mm | p. 3，只给上限 |
 | 三种燃料的固定碳（干基） | 27,4 / 16,8 / 42,7 Gew.-% | 表 1 平均值 |
 
+`distributor_to_outlet_height`、`pressure_vessel_height`、`pressure_vessel_inside_diameter`、`ash_sample_pipe_diameter`、`thermal_design_power` 的 note 写明：只作记录，不作模型输入（ADR 0005）。`reactor_height` 现为 3,5 m，`status: derived`，公式是 bed_zone_height + freeboard_height，与 S. 133 的 Gesamtanlagenhöhe 3,5 m 一致（ADR 0005）。`plant_height` 仍按原词记 3,5 m。
+
 空气和蒸汽温度、收到基低位热值只在表 6 的六个代表点里。其中五列对得上表 7.2，温度都是 185 °C（458,15 K）：
 
 | 工况 | 对上的条件 | 热值（收到基） | 表 6 的 ER |
@@ -71,7 +73,7 @@ Hamel 在 S. 133 写模拟所用的数据取自 Kurkela & Ståhlberg（1992）�
 
 - 泥炭氧（差减）表 1 是 33,55 wt%，表 7.2 是 33,6。按 33,55 与 C、H、N、S、灰分相加为 100,00；按 33,6 为 100,05。元素仍用 33,6。
 - 标准立方米在表 3、表 4 的注里定义为 273,15 K、101,3 kPa。摩尔流量仍按 ADR 0004 的 101 325 Pa，不改。
-- 表 4、表 5 另有石灰石进料和氮气进料，表 7.2 没有这两路。氮气在泥炭九列是 8,8、3,6、3,7、2,3、4,2、3,9、3,2、2,7、2,4 Nm³/h；石灰石是 1,8、0、0、1,1、0、0、0、0、0,3 kg/h。褐煤和锯末的石灰石都是 0，氮气是 6,2、3,2、3,5、2,5、2,0、3,5 Nm³/h。没有写入 json。
+- 表 4、表 5 另有石灰石进料和氮气进料，表 7.2 没有这两路。氮气已写入各工况的 `nitrogen_purge_volume_flow`（cited）和按 ADR 0004 换算的 `nitrogen_purge_amount_flow`（derived）。泥炭九列（表 4，p. 8，工况 5–13）是 8,8、3,6、3,7、2,3、4,2、3,9、3,2、2,7、2,4 Nm³/h。褐煤和锯末（表 5，p. 9，工况 1–4、14–15）是 6,2、3,2、3,5、2,5、2,0、3,5 Nm³/h。只有工况 1、2 的 note 写按 ADR 0006 暂定计入模型；其余写模型是否计入待裁定（ADR 0006 第 4 项）。吹扫氮的温度仍缺，没有填。石灰石是 1,8、0、0、1,1、0、0、0、0、0,3 kg/h（泥炭）和 0（褐煤、锯末），不在 ADR 0006 范围内，没有写入。
 - 床层温度、自由空间温度、床层压降和热损失是试验结果，不是进料。表 6 的热损失是差额，没有换成传热系数。
 - 文献写两台旋风。Hamel 在 S. 133 按一个旋风假设两个 cell，`cyclone_cell_count` 仍是 2。旋风尺寸两边都没有。
 - 床料成分没有给出。p. 16 的石英砂是建议另做的试验，不是这批试验的床料。
@@ -84,7 +86,7 @@ Hamel 在 S. 133 写模拟所用的数据取自 Kurkela & Ståhlberg（1992）�
 |---|---|
 | 流化床直径 | `bed_diameter` = 0,15 m |
 | 自由空间直径 | `freeboard_diameter` = 0,25 m |
-| 反应器高度 | `reactor_height` 为 missing；正文的 3,5 m 是 Gesamtanlagenhöhe，记在 `plant_height` |
+| 反应器高度 | `reactor_height` = 3,5 m（derived，ADR 0005）；正文的 3,5 m 仍记在 `plant_height` |
 | 连接管、返料管尺寸 | `connecting_line_geometry`、`return_line_geometry` |
 | 旋风尺寸 | `cyclone_geometry` 为 missing；两格假设记在 `cyclone_cell_count` = 2 |
 | 燃料进口个数与高度 | `fuel_feed_count` = 1；`fuel_feed_location` 为紧贴布风板上方；`fuel_feed_height` = 0,12 m（cited） |
@@ -95,7 +97,7 @@ Hamel 在 S. 133 写模拟所用的数据取自 Kurkela & Ståhlberg（1992）�
 | 燃料量 | `fuel_mass_flow` |
 | 工业分析、元素分析、热值 | `fuels` 与各工况水分；固定碳为 cited。热值只在工况 1、3、7、11、14 |
 | 燃料粒径分布 | `fuel_size_class_mass_fractions` |
-| 各进气口体积流量 | `primary_air_volume_flow`、`secondary_air_volume_flow`，摩尔流量按 ADR 0004 |
+| 各进气口体积流量 | `primary_air_volume_flow`、`secondary_air_volume_flow`，摩尔流量按 ADR 0004。吹扫氮另记 `nitrogen_purge_volume_flow` |
 | 进入气体组成 | `inlet_gas_mole_fractions` |
 | 进入气体温度与压力 | 工况 1、3、7、11、14 的 `inlet_temperature` 为 185 °C；其余仍 missing。`pressure` 取表 7.2 的 Druck |
 | 床料组成与粒径 | `bed_inventory_composition`、`bed_inventory_diameter` |
@@ -109,18 +111,17 @@ Hamel 在 S. 133 写模拟所用的数据取自 Kurkela & Ståhlberg（1992）�
 | 字段 | 模型里用在哪里 | 原文查过的位置 | 可能的处理 |
 |---|---|---|---|
 | `heating_value` | 能量衡算、进料焓 | 表 6 只覆盖工况 1、3、7、11、14 | 其余工况对不上代表点，不外推。不能用旧文件里的数 |
-| `inlet_gas_mole_fractions` | 进气组成 | 表 2.2；表 7.2 只写 Luft/Dampf；1992 年文献也没有空气的 y_i | 相容性检查里的 0,21 不是进气组成。氮气吹扫是另一路，没有并进空气 |
+| `inlet_gas_mole_fractions` | 进气组成 | 表 2.2；表 7.2 只写 Luft/Dampf；1992 年文献也没有空气的 y_i | 相容性检查里的 0,21 不是进气组成。吹扫氮已按 ADR 0006 另记，没有并进空气 |
 | `inlet_temperature` | 进气焓 | 表 6 的 185 °C 只用于对上的五列 | 其余工况不外推。旧文件的 293 K 没有采用 |
 | `bed_inventory_composition`、`bed_inventory_diameter` | 床料衡算与流动 | 表 2.2；§7.1.3 | 原文未给。不能用旧文件的 1–4 mm |
 | `bed_height` | 表 2.2 的操作床高 | 表 3 的 1,2 m 是床区筒体，已记入 `bed_zone_height` | 见读数清单。不把 1,2 m 当作 Wirbelbetthöhe |
 | `cell_count`、`cell_heights`、`agent_feed_height` | cell 划分与二次风高度 | Bild 7.7；文献只说二次风在床层上方 | 见读数清单。燃料口高度已由文献记为 0,12 m。旧文件的 800 mm 没有采用 |
-| `reactor_height` | 反应器本体高度 | S. 133 的词是 Gesamtanlagenhöhe 3,5 m | 3,5 m 已按原词记入 `plant_height`。是否等于反应器高度，待总司令裁定，没有直接并入 `reactor_height` |
 | `wall_heat_transfer_coefficient` | 壁面散热 | 表 2.1；§7.1.3 | 原文未给系数 |
 | `connecting_line_geometry`、`cyclone_geometry`、`return_line_geometry` | 表 2.1 的下游设备 | S. 133 写明旋风实际尺寸没有给出；图上无尺寸线 | 旋风按原文假设为两个 cell，已记入 `cyclone_cell_count`。尺寸仍缺。第二阶段若文献里其实有尺寸，与 S. 133 这句话不一致，把差异写在这里，由总司令裁定 |
 | `ash_withdrawal_count` | 排灰位置 | §7.1.3 未写；Bild 7.7 待看 | 见读数清单 |
 | `fuel_size_class_mass_fractions` | 燃料粒径分级 | KURKELA_1992, Fig. 1 是累积曲线，没有质量分数表 | 筛分上限已记入燃料字段。曲线不目测 |
 
-一次风和二次风的摩尔流已按 ADR 0004 换算，V_M = 0,022414 m³/mol。它们不再列入上表。
+一次风、二次风和吹扫氮的摩尔流已按 ADR 0004 换算，V_M = 0,022414 m³/mol。它们不再列入上表。`reactor_height` 已按 ADR 0005 记为 3,5 m，不再列入上表。吹扫氮的温度仍缺。
 
 S. 135–137 查过，没有另外的输入数。S. 135 起是 Bild 7.8，S. 136–137 是 Bild 7.9 和 Bild 7.10，都是结果图。S. 135 写 Kurkela 与 Ståhlberg 没有给出床内和自由空间测温点的位置，这是测点，不是进气温度。
 
@@ -150,7 +151,7 @@ S. 135–137 查过，没有另外的输入数。S. 135 起是 Bild 7.8，S. 136
 |---|---|---|
 | Bild 7.7 图框，S. 132 | Betriebsdruck = 0,5–1,0 MPa | 工况 12、14、15 为 0,4 MPa。正文 S. 132 只写「压力直到 1,0 MPa」，没有下限 |
 | Bild 7.7 图框，S. 132 | Durchsatz ≈ 25–75 kg Brennstoff/h | 工况燃料量从 26,5 到 76,3 kg/h。这是图框里的装置范围，各工况仍用表中的 ṁ_B |
-| S. 133 | Gesamtanlagenhöhe 3,5 m | 没有另一条叫 Reaktorhöhe 的数 |
+| S. 133 | Gesamtanlagenhöhe 3,5 m | 没有另一条叫 Reaktorhöhe 的数。ADR 0005 将 `reactor_height` 取为床区 1,2 m 与自由空间 2,3 m 之和，与这 3,5 m 一致 |
 
 图框里的直径 0,15 m / 0,25 m、气化剂 Luft/Dampf，与 S. 132 正文一致。
 
