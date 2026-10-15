@@ -2,14 +2,16 @@
 # -*- coding: utf-8 -*-
 """检查 hamel/ 里的 Hamel 引用是否对得上 refs/hamel/index.json。
 
-扫描全部 ``Source: Hamel Eq./Tab./Bild …``。式号、表号、图号必须出现在
-``equations``、``tables``、``figures`` 里。写了印刷页时，页码须与该条目的
-``printed_page`` 一致。
+扫描全部 ``Source: Hamel Eq./Tab./Bild …, S. N``。式号、表号、图号必须出现在
+``equations``、``tables``、``figures`` 里。页码必须是印刷页数字，并且落在该条目
+已登记的位置：主位置 ``printed_page``，以及 ``additional_locations`` 里的续页或
+另一处同号位置。
 
-``ambiguous_number: true`` 的重复编号（如式 3.49、3.50，表 5.1）还可以对上
-``additional_locations`` 里的某一页。这种编号不写页码就报错，不默认采用主位置。
-没有该标记的条目只认主位置的 ``printed_page``；续页写在 ``additional_locations``
-里、但没有 ``ambiguous_number`` 的，不拿来放行页码。
+``ambiguous_number: true`` 只决定“不写页码时是否无法消歧”（如式 3.49、3.50，
+表 5.1）。它不限制哪些登记页有效。没有该标记的编号同样必须写页码；写了页码则
+接受全部已登记位置，包括表 7.2 的 S. 134、图 7.10 的 S. 137 这类续页。
+
+页码写了但不是正整数（如 ``S. -90``、``S. ninety``）报格式错误，不能当成没写页码。
 
 ``balances/``、``kinetics/``、``hydrodynamics/``、``pyrolysis/``、``freeboard/``
 里的公开函数（模块级，以及公开类的公开方法；名字不以 ``_`` 开头）的 docstring
@@ -41,10 +43,13 @@ KIND_TO_SECTION = {"eq": "equations", "tab": "tables", "bild": "figures"}
 _CITATION = re.compile(
     r"Source:\s*Hamel\s+"
     r"(?P<kind>Eq|Tab|Bild)\.?\s*"
-    r"(?P<label>(?:[A-Za-z]\.)?\d+(?:\.\d+)+)"
-    r"(?:\s*,\s*S\.\s*(?P<page>\d+))?",
+    r"(?P<label>(?:[A-Za-z]\.)?\d+(?:\.\d+)+)",
     re.IGNORECASE,
 )
+# 页码和式号写在同一行。不能跨行去配后面另一条引用的 S.。
+_PAGE_CLAUSE = re.compile(r"[ \t]*,[ \t]*S\.", re.IGNORECASE)
+_PAGE_NUMBER = re.compile(r"[ \t]*(\d+)\b")
+_PAGE_TOKEN = re.compile(r"[ \t]*([^\s\"']+)")
 
 
 class CheckError(Exception):
@@ -84,16 +89,16 @@ def _pages_match(cited: str, indexed: object) -> bool:
     return cited.isdigit() and indexed_text.isdigit() and int(cited) == int(indexed_text)
 
 
-def _page_list(entry: dict, *, include_additional: bool) -> list[str]:
+def _page_list(entry: dict) -> list[str]:
+    """主位置和 additional_locations 都是已登记页，续页与重复编号一视同仁。"""
     pages: list[str] = []
     primary = entry.get("printed_page")
     if primary is not None:
         pages.append(str(primary).strip())
-    if include_additional:
-        for location in entry.get("additional_locations") or []:
-            printed = location.get("printed_page")
-            if printed is not None:
-                pages.append(str(printed).strip())
+    for location in entry.get("additional_locations") or []:
+        printed = location.get("printed_page")
+        if printed is not None:
+            pages.append(str(printed).strip())
     return pages
 
 
@@ -101,43 +106,65 @@ def _format_pages(pages: list[str]) -> str:
     return "、".join(f"S. {page}" for page in pages)
 
 
-def check_citation(kind: str, label: str, page: str | None, index: dict) -> str | None:
-    """返回错误说明；通过时返回 None。"""
+def _shown(kind: str, label: str) -> str:
+    kind_text = {"eq": "Eq.", "tab": "Tab.", "bild": "Bild "}[kind.lower()]
+    return f"{kind_text}{label}"
+
+
+def check_citation(kind: str, label: str, page: str | None, index: dict) -> tuple[str, str] | None:
+    """返回 (发现码, 说明)；通过时返回 None。page 为 None 表示引用没写页码。"""
     section = KIND_TO_SECTION[kind.lower()]
     entry = index[section].get(label)
-    kind_text = {"eq": "Eq.", "tab": "Tab.", "bild": "Bild "}[kind.lower()]
-    shown = f"{kind_text}{label}"
+    shown = _shown(kind, label)
     if entry is None:
-        return f"{shown} 不在 index.json 的 {section} 中"
+        return "unknown_label", f"{shown} 不在 index.json 的 {section} 中"
     ambiguous = bool(entry.get("ambiguous_number"))
-    allowed = _page_list(entry, include_additional=ambiguous)
+    allowed = _page_list(entry)
+    registered = _format_pages(allowed) or "（索引未给印刷页）"
     if page is None:
         if ambiguous:
-            return f"{shown} 是重复编号，引用必须带页码（{_format_pages(allowed)}）"
-        return None
+            return "ambiguous_page_required", f"{shown} 是重复编号，引用必须带页码（{registered}）"
+        return "page_required", f"{shown} 的引用缺少页码，应为 Source: Hamel {shown}, S. N"
     if any(_pages_match(page, item) for item in allowed):
         return None
-    if ambiguous:
-        return f"{shown} 的 S. {page} 不在主位置或 additional_locations（{_format_pages(allowed)}）中"
-    primary = _format_pages(allowed) or "（索引未给 printed_page）"
-    return f"{shown} 的 S. {page} 与 printed_page {primary} 不一致"
+    return "page_mismatch", f"{shown} 的 S. {page} 不在已登记页码（{registered}）中"
 
 
 def _line_number(text: str, offset: int) -> int:
     return text.count("\n", 0, offset) + 1
 
 
+def _page_after(text: str, end: int) -> tuple[str | None, str | None]:
+    """返回 (页码, 格式错误)。没写 S. 时两者都是 None。"""
+    clause = _PAGE_CLAUSE.match(text, end)
+    if clause is None:
+        return None, None
+    number = _PAGE_NUMBER.match(text, clause.end())
+    if number is not None:
+        return number.group(1), None
+    token = _PAGE_TOKEN.match(text, clause.end())
+    shown = token.group(1) if token is not None else ""
+    detail = f"S. {shown}" if shown else "S. 后没有页码"
+    return None, detail
+
+
 def _citation_findings(text: str, rel: str, index: dict) -> list[Finding]:
     findings: list[Finding] = []
     for match in _CITATION.finditer(text):
-        message = check_citation(match.group("kind"), match.group("label"), match.group("page"), index)
-        if message is None:
+        kind = match.group("kind")
+        label = match.group("label")
+        page, broken = _page_after(text, match.end())
+        line = _line_number(text, match.start())
+        if broken is not None:
+            findings.append(
+                Finding(rel, line, "page_format", f"{_shown(kind, label)} 的页码无法解析：{broken}")
+            )
             continue
-        page = match.group("page")
-        code = "unknown_label" if "不在 index.json" in message else (
-            "ambiguous_page_required" if page is None else "page_mismatch"
-        )
-        findings.append(Finding(rel, _line_number(text, match.start()), code, message))
+        result = check_citation(kind, label, page, index)
+        if result is None:
+            continue
+        code, message = result
+        findings.append(Finding(rel, line, code, message))
     return findings
 
 

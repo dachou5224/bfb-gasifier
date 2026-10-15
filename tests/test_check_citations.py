@@ -44,10 +44,12 @@ def repeated_numbers(value):
     return value
 
 
-def unique_without_page(value):
-    """没有 ambiguous_number 的式号可以不写页码。
+def continuation_pages(value):
+    """续页记在 additional_locations，没有 ambiguous_number 也是已登记页。
 
-    Source: Hamel Eq.5.39
+    Source: Hamel Tab.7.2, S. 134
+    Source: Hamel Bild 7.10, S. 137
+    Source: Hamel Bild 7.13, S. 141
     """
     return value
 
@@ -137,12 +139,36 @@ class CitationTests(unittest.TestCase):
         self.assertIn("Bild 9.99", messages)
         self.assertEqual(codes(findings).count("unknown_label"), 2)
 
-    def test_continuation_page_is_not_accepted_without_ambiguous_flag(self):
-        # Bild 7.10 的主印刷页是 136；S. 137 只在 additional_locations，且没有 ambiguous_number。
-        findings = self.check(
+    def test_registered_continuation_page_passes_and_unregistered_page_fails(self):
+        accepted = self.check(
             'def figure():\n    """Source: Hamel Bild 7.10, S. 137"""\n    return None\n'
         )
+        self.assertEqual(accepted, [])
+        findings = self.check(
+            'def figure():\n    """Source: Hamel Bild 7.10, S. 138"""\n    return None\n'
+        )
         self.assertIn("page_mismatch", codes(findings))
+
+    def test_missing_page_is_rejected(self):
+        findings = self.check(
+            'def rate_r6():\n    """Source: Hamel Eq.5.39"""\n    return None\n'
+        )
+        self.assertEqual(codes(findings), ["page_required"])
+        self.assertTrue(any("Eq.5.39" in item.message for item in findings))
+        # 下一行另一条引用的页码不能被这条缺页引用拿走。
+        adjacent = self.check(
+            'def rate_r6():\n'
+            '    """Source: Hamel Eq.5.39\\n'
+            '    Source: Hamel Eq.5.40, S. 91"""\n'
+            '    return None\n'
+        )
+        self.assertEqual(codes(adjacent), ["page_required"])
+
+    def test_broken_page_is_a_format_error(self):
+        for citation in ("Source: Hamel Eq.5.39, S. -90", "Source: Hamel Eq.5.39, S. ninety"):
+            findings = self.check(f'def rate_r6():\n    """{citation}"""\n    return None\n')
+            self.assertEqual(codes(findings), ["page_format"], citation)
+            self.assertTrue(any("Eq.5.39" in item.message for item in findings), citation)
 
     def test_public_method_without_citation(self):
         findings = self.check(
