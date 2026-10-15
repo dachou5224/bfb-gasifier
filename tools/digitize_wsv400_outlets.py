@@ -76,19 +76,65 @@ def values_710(doc):
         nd = cal["rounding_digits"][variable]
         out[variable] = {
             label: [apply_axis(sx, ix, x, nd), apply_axis(sy, iy, y, nd)]
-            for label, (x, y) in cal["centers"][variable].items()
+            for label, (x, y) in cal.get("centers", {}).get(variable, {}).items()
         }
     return out
 
 
-def recorded_710(doc):
+def official_710(doc):
+    """每个量上、非空正式读数的工况标签。同一标签的多条记录都保留。"""
     out = {key: {} for key in doc["calibration"]["grids"]}
-    for case in doc["cases"]:
-        label = case["case_label_in_figure"]
+    for case in doc.get("cases", []):
+        label = case.get("case_label_in_figure")
         for key in out:
-            if key in case:
-                out[key][label] = case[key]
+            if key not in case or case[key] is None or case[key] == []:
+                continue
+            out[key].setdefault(label, []).append(case[key])
     return out
+
+
+def check_710_identity(doc):
+    mismatches = []
+    labels = set()
+    case_ids = set()
+    for index, case in enumerate(doc.get("cases", [])):
+        label = case.get("case_label_in_figure")
+        case_id = case.get("case_id")
+        if not isinstance(label, str) or not label:
+            mismatches.append(f"7.10 第 {index} 条缺少 case_label_in_figure")
+        elif label in labels:
+            mismatches.append(f"7.10 case_label_in_figure {label} 重复")
+        else:
+            labels.add(label)
+        if not isinstance(case_id, str) or not case_id:
+            mismatches.append(f"7.10 第 {index} 条缺少 case_id")
+        elif case_id in case_ids:
+            mismatches.append(f"7.10 case_id {case_id} 重复")
+        else:
+            case_ids.add(case_id)
+    return mismatches
+
+
+def check_710(doc):
+    mismatches = []
+    mismatches.extend(check_error_map(doc, "7.10", quantity_keys_717(doc)))
+    mismatches.extend(check_710_identity(doc))
+    got = values_710(doc)
+    recorded = official_710(doc)
+    centers = doc.get("calibration", {}).get("centers", {})
+    for variable, entries in recorded.items():
+        center_labels = set(centers.get(variable, {}))
+        official_labels = set(entries)
+        for label in sorted(official_labels - center_labels, key=str):
+            mismatches.append(f"7.10 {variable} {label}: 正式读数没有对应的标定中心")
+        for label in sorted(center_labels - official_labels, key=str):
+            mismatches.append(f"7.10 {variable} {label}: 标定中心没有对应的正式读数")
+        for label in sorted(official_labels & center_labels, key=str):
+            pair = got[variable][label]
+            for value in entries[label]:
+                if value != pair:
+                    mismatches.append(f"7.10 {variable} {label}: 复算 {pair}，JSON {value}")
+    return mismatches
 
 
 def recorded_717(doc):
@@ -223,13 +269,7 @@ def check(doc717=None, doc716=None, doc710=None):
         doc710 = json.loads(path710.read_text())
     mismatches = []
     if doc710 is not None:
-        mismatches.extend(check_error_map(doc710, "7.10", quantity_keys_717(doc710)))
-        got710 = values_710(doc710)
-        recorded710 = recorded_710(doc710)
-        for variable, labels in got710.items():
-            for label, pair in labels.items():
-                if pair != recorded710[variable][label]:
-                    mismatches.append(f"7.10 {variable} {label}: 复算 {pair}，JSON {recorded710[variable][label]}")
+        mismatches.extend(check_710(doc710))
     mismatches.extend(check_error_map(doc717, "7.17", quantity_keys_717(doc717)))
     mismatches.extend(check_error_map(doc716, "7.16", series_variables(doc716)))
     mismatches.extend(check_716_units(doc716))
