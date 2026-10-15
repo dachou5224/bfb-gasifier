@@ -1,23 +1,28 @@
-"""验收判定。每个验收量四种状态之一：通过、不通过、边界待定、原文无。
-
-边界待定：结果与合格区间某一端的距离小于该量的 ``est_error``，区间内外都算。
-距离等于读数误差时不算边界待定（章程写的是“小于”）。
-任一验收量不通过，工况即为不通过；没有不通过但有边界待定，工况为待定。
-§2.1 的前提不满足时，工况直接不通过，不再做边界判定。
-"""
+"""验收判定。四种状态：通过、不通过、边界待定、原文无。前提失败则直接不通过。"""
 from __future__ import annotations
 
 import math
 from dataclasses import dataclass
 from typing import Mapping, Sequence
 
-from hamel.cases.targets import AcceptanceTarget
+from hamel.cases.targets import AcceptanceTarget, registered_signature
 
 PASS = "通过"
 FAIL = "不通过"
 BORDERLINE = "边界待定"
 ABSENT = "原文无"
 PENDING = "待定"
+
+class JudgementError(Exception):
+    """目标集合不完整、工况对不上，或测量的单位与基准和目标不一致。"""
+
+@dataclass(frozen=True)
+class Measurement:
+    """一个验收量的模型结果。单位和气体基准必须与目标一致，不做混比换算。"""
+
+    value: float
+    unit: str
+    basis: str | None
 
 @dataclass(frozen=True)
 class Premises:
@@ -44,11 +49,13 @@ class CaseJudgement:
 
 def judge(
     case_id: str,
-    measured: Mapping[str, float],
+    measured: Mapping[str, Measurement],
     targets: Sequence[AcceptanceTarget],
     premises: Premises,
 ) -> CaseJudgement:
-    """判定一个工况。``measured`` 的键与验收量名称一致，缺测不补数。"""
+    """判定一个工况。缺测不补数。目标集合不完整或单位、基准不一致时报错，不给通过。"""
+    _require_targets(case_id, targets)
+    _require_measurements(measured, targets)
     state_ok = premises.state_finite_nonnegative and _measurements_finite_nonnegative(measured, targets)
     premises_met = bool(premises.residuals_met and premises.balance_closed and state_ok)
     if not premises_met:
@@ -76,12 +83,37 @@ def distance_to_interval(value: float, lower: float, upper: float) -> float:
         return lower - value
     return value - upper
 
-def _judge_one(target: AcceptanceTarget, measured: Mapping[str, float]) -> QuantityJudgement:
+def _require_targets(case_id: str, targets: Sequence[AcceptanceTarget]) -> None:
+    names = [item.quantity for item in targets]
+    if len(names) != len(set(names)):
+        raise JudgementError("验收量有重复，不能给出整案结论")
+    if any(item.case_id != case_id for item in targets):
+        raise JudgementError(f"目标不属于 {case_id}")
+    got = set()
+    for item in targets:
+        unit = item.unit if item.present else None
+        basis = item.basis if item.present else None
+        got.add((item.quantity, item.present, unit, basis))
+    if got != registered_signature(case_id):
+        raise JudgementError(f"{case_id} 的验收量与章程登记不一致")
+
+def _require_measurements(measured: Mapping[str, Measurement], targets: Sequence[AcceptanceTarget]) -> None:
+    for target in targets:
+        if not target.present or target.quantity not in measured:
+            continue
+        item = measured[target.quantity]
+        if not isinstance(item, Measurement):
+            raise JudgementError(f"{target.quantity} 必须带单位和基准")
+        if item.unit != target.unit or item.basis != target.basis:
+            raise JudgementError(f"{target.quantity} 的单位或基准与目标不一致，不能混比")
+
+def _judge_one(target: AcceptanceTarget, measured: Mapping[str, Measurement]) -> QuantityJudgement:
     if not target.present:
-        return QuantityJudgement(target.quantity, ABSENT, measured.get(target.quantity), None)
-    if target.quantity not in measured:
+        return QuantityJudgement(target.quantity, ABSENT, None, None)
+    item = measured.get(target.quantity)
+    if item is None:
         return QuantityJudgement(target.quantity, FAIL, None, None)
-    value = float(measured[target.quantity])
+    value = float(item.value)
     distance = distance_to_interval(value, target.lower, target.upper)
     outside = value < target.lower or value > target.upper
     if distance < target.est_error:
@@ -92,21 +124,22 @@ def _judge_one(target: AcceptanceTarget, measured: Mapping[str, float]) -> Quant
         status = PASS
     return QuantityJudgement(target.quantity, status, value, distance)
 
-def _premise_failure(target: AcceptanceTarget, measured: Mapping[str, float]) -> QuantityJudgement:
+def _premise_failure(target: AcceptanceTarget, measured: Mapping[str, Measurement]) -> QuantityJudgement:
     """前提失败时不计算到边界的距离，因此不会得到“边界待定”。"""
-    value = measured.get(target.quantity)
     if not target.present:
-        return QuantityJudgement(target.quantity, ABSENT, value, None)
+        return QuantityJudgement(target.quantity, ABSENT, None, None)
+    item = measured.get(target.quantity)
+    value = None if item is None else item.value
     return QuantityJudgement(target.quantity, FAIL, value, None)
 
 def _measurements_finite_nonnegative(
-    measured: Mapping[str, float],
+    measured: Mapping[str, Measurement],
     targets: Sequence[AcceptanceTarget],
 ) -> bool:
     for target in targets:
         if not target.present or target.quantity not in measured:
             continue
-        value = measured[target.quantity]
+        value = measured[target.quantity].value
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             return False
         if not math.isfinite(float(value)) or float(value) < 0:

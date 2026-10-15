@@ -9,11 +9,14 @@ import pytest
 
 from hamel.cases.assemble import (
     PHYSICAL_FIELDS,
+    CaseAssemblyError,
     CitedFieldNotApproved,
     MissingFieldError,
     RecordOnlyFieldError,
     assemble_case,
+    load_case_file,
     read_case_field,
+    read_field,
 )
 from hamel.cases.balance import (
     BalanceInputError,
@@ -29,6 +32,8 @@ from hamel.cases.judge import (
     FAIL,
     PASS,
     PENDING,
+    JudgementError,
+    Measurement,
     Premises,
     judge,
 )
@@ -228,11 +233,23 @@ def test_t1_bed_top_carbon_gap():
     assert gap.C_mol_s == pytest.approx(-0.56, abs=0.01)
 
 
+def _measured(targets, **overrides):
+    measured = {
+        item.quantity: Measurement(item.sim, item.unit, item.basis)
+        for item in targets
+        if item.present
+    }
+    for key, value in overrides.items():
+        current = measured[key]
+        measured[key] = (
+            value if isinstance(value, Measurement) else Measurement(value, current.unit, current.basis)
+        )
+    return measured
+
+
 def _vtt_measured(**overrides):
     targets = acceptance_targets("CASE_VTT_PRESSURIZED_1", DIGITIZED)
-    measured = {item.quantity: item.sim for item in targets if item.present}
-    measured.update(overrides)
-    return targets, measured
+    return targets, _measured(targets, **overrides)
 
 
 def test_judgement_covers_pass_fail_and_both_sides_of_the_boundary():
@@ -242,29 +259,24 @@ def test_judgement_covers_pass_fail_and_both_sides_of_the_boundary():
     # CO2 合格区间 [0.076, 0.106]，读数误差 0.004。中心点远离两端。
     assert _by_name(passed.quantities)["CO2"].status == PASS
 
-    outside = dict(measured)
-    outside["CO2"] = 0.076 - 0.02
+    outside = _measured(targets, CO2=0.076 - 0.02)
     failed = judge("CASE_VTT_PRESSURIZED_1", outside, targets, _OK)
     assert _by_name(failed.quantities)["CO2"].status == FAIL
     assert failed.status == FAIL
 
-    inside_near = dict(measured)
-    inside_near["CO2"] = 0.076 + 0.001
+    inside_near = _measured(targets, CO2=0.076 + 0.001)
     near_in = judge("CASE_VTT_PRESSURIZED_1", inside_near, targets, _OK)
     assert _by_name(near_in.quantities)["CO2"].status == BORDERLINE
     assert near_in.status == PENDING
 
-    outside_near = dict(measured)
-    outside_near["CO2"] = 0.076 - 0.001
+    outside_near = _measured(targets, CO2=0.076 - 0.001)
     near_out = judge("CASE_VTT_PRESSURIZED_1", outside_near, targets, _OK)
     assert _by_name(near_out.quantities)["CO2"].status == BORDERLINE
     assert near_out.status == PENDING
 
-    on_error = dict(measured)
-    on_error["CO2"] = 0.076 + 0.004
+    on_error = _measured(targets, CO2=0.076 + 0.004)
     assert _by_name(judge("CASE_VTT_PRESSURIZED_1", on_error, targets, _OK).quantities)["CO2"].status == PASS
-    beyond = dict(measured)
-    beyond["CO2"] = 0.076 - 0.004
+    beyond = _measured(targets, CO2=0.076 - 0.004)
     assert _by_name(judge("CASE_VTT_PRESSURIZED_1", beyond, targets, _OK).quantities)["CO2"].status == FAIL
 
 
@@ -296,14 +308,67 @@ def test_failed_premise_skips_the_boundary():
 
 def test_absent_quantity_and_a_single_failure():
     targets = acceptance_targets("CASE_WSV400_A", DIGITIZED)
-    measured = {item.quantity: item.sim for item in targets if item.present}
+    measured = _measured(targets)
     verdict = judge("CASE_WSV400_A", measured, targets, _OK)
     assert _by_name(verdict.quantities)["H2O"].status == ABSENT
     assert _by_name(verdict.quantities)["X_C"].status == ABSENT
     assert verdict.status == PASS
 
-    measured["H2"] = 0.2
+    measured = _measured(targets, H2=0.2)
     failed = judge("CASE_WSV400_A", measured, targets, _OK)
     assert failed.status == FAIL
     assert _by_name(failed.quantities)["H2"].status == FAIL
     assert _by_name(failed.quantities)["CO"].status == PASS
+
+
+def test_incomplete_or_foreign_targets_are_not_a_pass():
+    targets, measured = _vtt_measured()
+    with pytest.raises(JudgementError):
+        judge("CASE_VTT_PRESSURIZED_1", _measured(targets[:1]), targets[:1], _OK)
+    duplicated = targets + (targets[0],)
+    with pytest.raises(JudgementError, match="重复"):
+        judge("CASE_VTT_PRESSURIZED_1", measured, duplicated, _OK)
+    with pytest.raises(JudgementError, match="CASE_VTT_PRESSURIZED_2"):
+        judge("CASE_VTT_PRESSURIZED_2", measured, targets, _OK)
+
+
+def test_rejects_mixed_basis_and_units():
+    targets, measured = _vtt_measured()
+    dry = dict(measured)
+    dry["CO"] = Measurement(measured["CO"].value, "mol/mol", "dry")
+    with pytest.raises(JudgementError, match="CO"):
+        judge("CASE_VTT_PRESSURIZED_1", dry, targets, _OK)
+    as_mole_fraction = dict(measured)
+    as_mole_fraction["X_C"] = Measurement(78.1, "mol/mol", None)
+    with pytest.raises(JudgementError, match="X_C"):
+        judge("CASE_VTT_PRESSURIZED_1", as_mole_fraction, targets, _OK)
+    bare = {key: item.value for key, item in measured.items()}
+    with pytest.raises(JudgementError, match="T_FRB_K"):
+        judge("CASE_VTT_PRESSURIZED_1", bare, targets, _OK)
+
+
+def test_cited_approval_stays_on_vtt_and_dimensions_are_checked():
+    doc = load_case_file(VTT)
+    doc["plant_id"] = "OTHER"
+    with pytest.raises(CitedFieldNotApproved, match="inlet_temperature"):
+        read_field(doc, "1", "inlet_temperature")
+    with pytest.raises(CitedFieldNotApproved, match="nitrogen_purge_volume_flow"):
+        read_field(doc, "1", "nitrogen_purge_volume_flow")
+    peat = load_case_file(VTT)
+    peat["fuels"]["finn_torf"]["particle_size_max"] = peat["fuels"]["rhein_braunkohle"]["particle_size_max"]
+    with pytest.raises(CitedFieldNotApproved, match="particle_size_max"):
+        read_field(peat, "5", "particle_size_max")
+    assert read_case_field(VTT, "5", "particle_size_range") == (0.0, 0.004)
+
+    wrong_unit = load_case_file(VTT)
+    wrong_unit["shared"]["bed_diameter"]["unit"] = "K"
+    with pytest.raises(CaseAssemblyError, match="bed_diameter"):
+        read_field(wrong_unit, "1", "bed_diameter")
+    text = load_case_file(VTT)
+    text["shared"]["bed_diameter"]["value"] = "0.15"
+    with pytest.raises(CaseAssemblyError, match="bed_diameter"):
+        read_field(text, "1", "bed_diameter")
+    not_a_flow = load_case_file(VTT)
+    not_a_flow["shared"]["bed_diameter"]["unit"] = "m3(VN)/h"
+    with pytest.raises(CaseAssemblyError, match="bed_diameter"):
+        read_field(not_a_flow, "1", "bed_diameter")

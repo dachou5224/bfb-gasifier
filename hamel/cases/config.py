@@ -1,9 +1,4 @@
-"""物理参数与求解器参数。
-
-字段名与 ``data/cases/*.json`` 的键名一致，供偏离检查对照出处。
-物理参数是第 1 关 VTT 加压 1 要装配的量，不超过 30 项。
-求解器参数目前没有已登记 ADR 的项，因此 ``SolverConfig`` 不设字段。
-"""
+"""物理参数与求解器参数。字段名与 data/cases/*.json 的键一致。"""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -56,9 +51,4 @@ class PhysicalConfig:
 
 @dataclass(frozen=True)
 class SolverConfig:
-    """求解器参数。
-
-    收敛残差以及元素、能量平衡的偏差阈值尚未登记 ADR
-    （见 ``docs/STATUS.md``「待目标所有者决策」）。
-    未登记前不设字段，也不填默认值。
-    """
+    """求解器参数。阈值尚未登记 ADR，故不设字段。"""
