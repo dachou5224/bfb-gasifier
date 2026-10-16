@@ -30,6 +30,7 @@ specs/hamel_checked_algorithm_spec.md
 # 原文逐页图像与全文（CHARTER §11，仅本地）。
 # 不带斜杠，这样 worktree 里指向主工作树的符号链接也不会被提交。
 refs/hamel/pages
+refs/wirsum/pages
 
 # IDE
 .idea/
