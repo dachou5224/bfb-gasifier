@@ -22,10 +22,11 @@
 | T9 | `hamel/` 骨架与验收工具 | cursor；审查 codex | 完成 | PR #33 已合并。通用装配 `data/cases/*.json`、读取 `data/digitized/fig_*.json`、外部元素平衡检查、四态验收判定；含验收集合、单位与干湿基、`cited` 的装置范围、按字段核量纲。不含物理方程 |
 | T10 | VTT 加压输入数据补全 | cursor（图上读数：目标所有者）；审查总司令 | 完成 | #25、#26、#31 已合并；`cited` 字段由 ADR 0005 批准；`reactor_height` 按 ADR 0005 记为 derived（3,5 m）；各工况吹扫氮气按 ADR 0006 记录，只有工况 1、2 暂定计入模型 |
 | T11 | cell 衡算残差（式 2.4–2.8） | cursor（新会话，worktree `../bfb-T11`）；审查 codex | 草稿 | 任务卡 `docs/tasks/T11-cell-residuals.md`。依据 T8 冻结稿；固体部分只做式 2.6 流量形式，ADR 0007 的存量闭合待 M_i 口径裁定后另行适配；ADR 0008（式 2.6 的粒级下标 k）已批准，可以开工 |
+| T12 | 固体输运与床料存量的原文答卷（ADR 0007 待定项） | cursor（新会话，worktree `../bfb-T12`）；审查 codex | 草稿 | 任务卡 `docs/tasks/T12-solids-flow-scope.md`。查 M_i 口径、整体上下固体流、ṁ_aus、两端边界在 Hamel 全书中的依据；只查证不裁定，结论交总司令写 ADR 0009。可与 T11 并行 |
 
 ## 执行顺序与分工（2026-10-13 起）
 
-cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令协调、裁定，并审查文档与数据类 PR（CHARTER v0.7 §8）。cursor 的队列（2026-10-15 更新）：T11（cell 衡算残差，可以开工）。可选：用 VTT Publications 161（Part 1，`KURKELA_1991`）补二次风高度、床料等装置缺口（T10 第三阶段，须核对装置是否与 1988–1990 年试验时相同）。
+cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令协调、裁定，并审查文档与数据类 PR（CHARTER v0.7 §8）。cursor 的队列（2026-10-15 更新）：T11（cell 衡算残差，可以开工）；T12（固体输运原文答卷，可与 T11 并行）。可选：用 VTT Publications 161（Part 1，`KURKELA_1991`）补二次风高度、床料等装置缺口（T10 第三阶段，须核对装置是否与 1988–1990 年试验时相同）。
 
 ## 工况指标
 
