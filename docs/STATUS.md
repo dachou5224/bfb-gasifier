@@ -62,6 +62,7 @@ cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令�
 
 - **ADR 0009（固体输运与床料存量）**：M_i 的口径、床区整体上下固体流 Ṁ_auf,i / Ṁ_ab,i、ṁ_aus 的数值来源、两端边界与零输运（ADR 0007 待定第 1–4 项），以及悬浮相焦油转化的催化剂质量口径（ADR 0010 第 9 条）。依据 T12 答卷与 T13（Wirsum 限定查阅）。裁定前，ADR 0007 的存量闭合与悬浮相焦油转化不得实现。
 - **第 1 关首次完整运行时复核的暂定项**：ADR 0006 第 5 项（吹扫氮 A/B）；ADR 0010 第 3 条（R8 采用 (5.49) 还是 (5.45) 的 A/B）与第 9 条（Serio 第二对参数的影响）。
+- **ADR 0011（提议中，待 codex 审查）**：T8 其余歧义（交换项方向、式 2.9、式 3.6、式 3.11/3.12、ψ_b、n_RZ、式 3.43 的 −1 等）。式 (2.8) 的下标 s 归入 ADR 0009。
 - **启用后备工况时再定**：ADR 0010 第 7 条（非莱茵褐煤燃料的 R1 参数）与第 10 条（十六烷的 k₁₀）。
 - **VTT 加压 1 的输入缺口**：完整清单以 [`data/cases/vtt_pressurized_gaps.md`](../data/cases/vtt_pressurized_gaps.md) 的“缺口”表和 `data/cases/vtt_pressurized.json` 中 `status: missing` 的字段为准，本条只是摘要，未列出的不等于已解决。截至 2026-10-15，工况 1 装配时会遇到的 `missing` 字段：
   - 装置（`shared`）：`cell_count`、`cell_heights`、`agent_feed_height`（二次风高度）、`bed_height`、`bed_inventory_composition`、`bed_inventory_diameter`、`ash_withdrawal_count`（排灰位置）、`wall_heat_transfer_coefficient`、`cyclone_geometry`、`connecting_line_geometry`、`return_line_geometry`；
