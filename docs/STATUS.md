@@ -21,7 +21,7 @@
 | T8 | 第 2 章与 §3.1 独立转录与比对 | cursor（全新会话）；审查 codex | 完成 | PR #36 已合并。头号问题（式 2.6 的衡算变量）由 ADR 0007（已批准）裁定：取粒级存量，输运流按整体固体流乘存量份额闭合；其余 12 处歧义写相应模块时再裁。冻结稿 `aa856f9` 不改。PR #36 复审：固体焓流已按粒级求和后再乘组分比焓，差异表已改；\(h_{j,k}\) 仍不随粒级变化 |
 | T9 | `hamel/` 骨架与验收工具 | cursor；审查 codex | 完成 | PR #33 已合并。通用装配 `data/cases/*.json`、读取 `data/digitized/fig_*.json`、外部元素平衡检查、四态验收判定；含验收集合、单位与干湿基、`cited` 的装置范围、按字段核量纲。不含物理方程 |
 | T10 | VTT 加压输入数据补全 | cursor（图上读数：目标所有者）；审查总司令 | 完成 | #25、#26、#31 已合并；`cited` 字段由 ADR 0005 批准；`reactor_height` 按 ADR 0005 记为 derived（3,5 m）；各工况吹扫氮气按 ADR 0006 记录，只有工况 1、2 暂定计入模型 |
-| T11 | cell 衡算残差（式 2.4–2.8） | cursor（新会话，worktree `../bfb-T11`）；审查 codex | 完成 | PR #41 已合并。`hamel/balances/` 按印刷式返回残差。固体只做式 2.6 的流量形式，按种类分别调用，不接收存量或 K。交换项正方向、式 2.8 的 s、两端边界流去向仍未裁定 |
+| T11 | cell 衡算残差（式 2.4–2.8） | cursor（新会话，worktree `../bfb-T11`）；审查 codex | 完成 | PR #41 已合并。`hamel/balances/` 按印刷式返回残差。固体只做式 2.6 的流量形式，按种类分别调用，不接收存量或 K。交换项正方向已由 ADR 0011 第 3 条裁定（悬浮相 → 气泡相为正，与本代码的印刷式符号相容）；式 2.8 的 s 与两端边界流去向待 ADR 0009 |
 | T12 | 固体输运与床料存量的原文答卷（ADR 0007 待定项） | cursor（新会话，worktree `../bfb-T12`）；审查 codex | 完成 | PR #42 已合并。答卷 `refs/hamel/answers/T12-solids-flow-scope.md`（2026-10-16）。只查证、不裁定。已按 PR #42 审查改三处：Abstrom 是流出不是向下流（Bild 5.5 为向上通过流）；未返回固体仍走 \(\dot m_{aus}\)；式 (2.8) 的 \(\dot m_s h_s\) 列入 \(M_i\) 证据且 \(s\) 未定义。床区整体上下固体流仍为原文未给出。交总司令写 ADR 0009 |
 | T13 | Wirsum（1998）限定查阅：床区固体输运、床料存量、惰性床料校正 | cursor（新会话，worktree `../bfb-T13`）；审查 codex（本轮由 Claude 暂代） | 完成 | PR #49。答卷 `refs/hamel/answers/T13-wirsum-solids-scope.md`（2026-10-16）。只查证、不采用。已按 PR #49 审查改正：Bild 5.16 为 wake 向上、bulk 向下；表 2.2 的粒级 Holdup 列入衡算变量的歧义；Abgleich 在 S. 15；\(W_1\) 沿高度恒定，\(W_2\) 随局部浓度变化。式 (5.30) 的第二个 \(f_w\) 已由目标所有者判为笔误并删去。采用与否交总司令写 ADR 0009 |
 | T14 | 物性与化学平衡的原文答卷（附录 A1 与物性数据来源） | cursor（新会话，worktree `../bfb-T14`）；审查 codex | 已批准 | 任务卡（PR #46 已合并） `docs/tasks/T14-properties-scope.md`。查模型所需物性、Hamel 给出的数据与来源、附录 A1 的方程与用途（热解气组成、ADR 0010 第 1 条的 K_eq）、可用作锚点的图表；只查证，原文未给出的数据来源交目标所有者按 §4.3 决定。可与 T13 并行 |
@@ -50,6 +50,7 @@ cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令�
 - 2026-10-15：VTT 加压 1（第 1 关）按 7 个量验收：T̄_FRB、X_C（干气加焦油口径）、CO、CO₂、H₂、CH₄、H₂O（湿基）。已登记于 CHARTER v0.8 §2.2；目标值见文末“VTT 加压 1 验收目标”。
 - 2026-10-15：原文歧义的裁定顺序：先在 Hamel 原文内部核实（上下文、同书其它式与表、Hamel 自己的模拟结果），暂不去找 Hamel 引用的原始文献。两个 agent 对页面图像的像素级读法有分歧时，由目标所有者肉眼判读并裁决。
 - 2026-10-16：批准限定查阅 Wirsum（1998），*Theoretische Beschreibung und experimentelle Untersuchung der Verbrennung von Klärschlamm in blasenbildenden Wirbelschichtfeuerungen*，Fortschr.-Ber. VDI Reihe 6 Nr. 383（CHARTER §4.3）。**采用范围**：只用于查明床区相邻 cell 间的上下固体流、床料存量与惰性床料校正、床面与床底边界、排灰，以及悬浮相反应的催化剂质量口径；不引入 Wirsum 的动力学、物性或污泥专用关联式。查得的内容经总司令在 ADR 0009 中逐项裁定后才可进入模型。本地文件 `docs/_1997_VDI-Dis._Wirsum_Klaerschlamm_blasenbildende_Wirbelschichtfeuerungen.pdf`（SHA256 前缀 e57844f81f1b），不入库。执行见 T13。
+- 2026-10-16：codex 额度不足期间，由目标所有者另开的独立 Claude Code 会话暂代 CHARTER §8 中 codex 的审查职责（须对照页面图像独立核对，不采信 PR 描述）；总司令与审查方的分歧由目标所有者裁决。codex 额度恢复后可随时改回。章程同步为 v0.9 §8 的临时例外（另提 PR，目标所有者批准）。
 
 ## 已决定（总司令，ADR）
 
@@ -58,12 +59,13 @@ cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令�
 - ADR 0007（2026-10-15）：式 (2.6) 的衡算变量取粒级存量，输运按整体固体流乘存量份额闭合（解释性选择，待定项见下）。
 - ADR 0008（2026-10-16）：式 (2.6) 第二行的 ṁ_auf 按粒级 k 处理。
 - ADR 0010（2026-10-16）：第 5 章动力学 11 处歧义。k_eq,R8 取式 (5.43)（依据 Bild 5.11 与 S. 155）；R8 为有符号进度速率；莱茵褐煤用 Lignite A；第 3、9 条暂定。表 5.3 温度因子（T^0,5，无负号）与式 (5.18) 分母（ν）由目标所有者确认。
+- ADR 0011（2026-10-16）：T8 其余歧义。交换项正方向由悬浮相到气泡相；式 (2.9) 按 J·Δx = −F；技术布风器、三维床、Geldart B/D 用 Hilligardt 式 (3.11)，B 类 ψ_b 用式 (3.14)，n_RZ 用式 (3.26)；式 (3.43) 的 −1 暂定为误印（P₀ = 101 300 Pa）；α_b = u_b·ε_d/u_d 暂定。式 (2.8) 的下标 s 归入 ADR 0009。
 
 ## 待总司令裁定（写相应模块前）
 
 - **ADR 0009（固体输运与床料存量）**：M_i 的口径、床区整体上下固体流 Ṁ_auf,i / Ṁ_ab,i、ṁ_aus 的数值来源、两端边界与零输运（ADR 0007 待定第 1–4 项），以及悬浮相焦油转化的催化剂质量口径（ADR 0010 第 9 条）。依据 T12 答卷与 T13（Wirsum 限定查阅）。裁定前，ADR 0007 的存量闭合与悬浮相焦油转化不得实现。
-- **第 1 关首次完整运行时复核的暂定项**：ADR 0006 第 5 项（吹扫氮 A/B）；ADR 0010 第 3 条（R8 采用 (5.49) 还是 (5.45) 的 A/B）与第 9 条（Serio 第二对参数的影响）。
-- **ADR 0011（提议中，待 codex 审查）**：T8 其余歧义（交换项方向、式 2.9、式 3.6、式 3.11/3.12、ψ_b、n_RZ、式 3.43 的 −1 等）。式 (2.8) 的下标 s 归入 ADR 0009。
+- **第 1 关首次完整运行时复核的暂定项**：ADR 0006 第 5 项（吹扫氮 A/B）；ADR 0010 第 3 条（R8 采用 (5.49) 还是 (5.45) 的 A/B）与第 9 条（Serio 第二对参数的影响）；ADR 0011 第 7 条（α_b 三种读法的 ξ_b、d_b、K_bd）。
+- **实现流动模块时复核**：ADR 0011 第 10 条（式 3.43 的 −1，以 Bild 3.5 做 A/B，须先数字化该图）；Bild 3.4 图文不符登记到 `refs/hamel/index.json` 的 `source_issues`，并入流动模块任务卡处理。若 Bild 3.5 不能区分，是否查阅 Heinbockel (1995) 由目标所有者决定。
 - **启用后备工况时再定**：ADR 0010 第 7 条（非莱茵褐煤燃料的 R1 参数）与第 10 条（十六烷的 k₁₀）。
 - **VTT 加压 1 的输入缺口**：完整清单以 [`data/cases/vtt_pressurized_gaps.md`](../data/cases/vtt_pressurized_gaps.md) 的“缺口”表和 `data/cases/vtt_pressurized.json` 中 `status: missing` 的字段为准，本条只是摘要，未列出的不等于已解决。截至 2026-10-15，工况 1 装配时会遇到的 `missing` 字段：
   - 装置（`shared`）：`cell_count`、`cell_heights`、`agent_feed_height`（二次风高度）、`bed_height`、`bed_inventory_composition`、`bed_inventory_diameter`、`ash_withdrawal_count`（排灰位置）、`wall_heat_transfer_coefficient`、`cyclone_geometry`、`connecting_line_geometry`、`return_line_geometry`；
