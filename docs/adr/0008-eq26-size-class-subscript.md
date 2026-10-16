@@ -1,10 +1,10 @@
 ---
-status: proposed
+status: accepted
 ---
 
 # 式 (2.6) 第二行的 ṁ_auf,j,i+1 按粒级 k 处理
 
-> **状态：提议中。** 本 ADR 裁定 T8 比对（`refs/hamel/transcription/ch2_ch3_1_diff.md`）“原文有歧义”第 2 条。只使用 Hamel 原文。按 CHARTER §8，由 codex 审查后总司令批准，目标所有者可否决。T11（cell 衡算残差）依赖本裁定。
+> **状态：已批准（2026-10-16）。** 本 ADR 裁定 T8 比对（`refs/hamel/transcription/ch2_ch3_1_diff.md`）“原文有歧义”第 2 条。只使用 Hamel 原文。按 CHARTER §8，由 codex 审查后总司令批准，目标所有者可否决。T11（cell 衡算残差）依赖本裁定。
 
 ## 原文情况
 
@@ -30,3 +30,8 @@ status: proposed
 ## 证据状态
 
 总司令 2026-10-15 在页面图像上核对了 PDF 18 右（S. 17）的式 (2.6) 与 PDF 19 左（S. 18）的定义列表和 Bild 2.4 标题。印刷行未见 k 一事，T8 执行方与 codex 已在 PR #36 中一致确认，不再列为字形判读事项。
+
+## 审查与批准记录
+
+- codex 于 PR #38 审查：直接复核 PDF 18 右 / S. 17 式 (2.6) 与 PDF 19 左 / S. 18 定义列表、Bild 2.4，确认印刷行未见 k、定义与图均带 k，按粒级 k 处理有充分同书依据；措辞小处（“次页”）已改，复审通过。
+- **2026-10-16：总司令批准**（CHARTER v0.8 §8；只用 Hamel 原文，不引入新来源，目标所有者可否决）。
