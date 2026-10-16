@@ -1,0 +1,186 @@
+{
+  "figure": "5.11",
+  "pdf_page": 56,
+  "printed_page": "93",
+  "side": "right",
+  "caption_de": "Bild 5.11: Berechnete Gleichgewichtskonstante der homogenen Wassergasreaktion und aus der Vergasung in der Wirbelschicht experimentell ermitteltes Verhältnis Kexp verschiedener Autoren in Abhängigkeit der Freiraumtemperatur.",
+  "read_date": "2026-10-16",
+  "tool": "PyMuPDF 渲染 PDF 第 56 页右半页，zoom=6，灰度。竖网格线取深色（<110）连续列的质心，横网格线取较淡（<160）连续行的质心，各自线性拟合；曲线取实线（线宽约 10 像素）逐列深色段的中心，穿过网格线或散点处按局部斜率外推，取点列两侧各 3 列的中位数。复算：tools/digitize_fig_5_11.py；重新追踪：tools/digitize_fig_5_11.py --trace <Hamel PDF>。",
+  "units": {
+    "T_K": "K",
+    "K_eq": "-"
+  },
+  "quantity_definition": {
+    "T_K": "横轴 Freiraumtemperatur in K（图中写作 1.050 等，即 1050 K）",
+    "K_eq": "图中实线：按式 (5.43) 计算的均相水煤气反应 CO + H2O ⇌ H2 + CO2 的平衡常数（S. 92–93 正文）。不是图中各文献实验比值 K_exp 的散点"
+  },
+  "points_format": "[T_K, K_eq]",
+  "points": [
+    [
+      1025,
+      1.314
+    ],
+    [
+      1050,
+      1.194
+    ],
+    [
+      1075,
+      1.084
+    ],
+    [
+      1100,
+      0.994
+    ],
+    [
+      1125,
+      0.918
+    ],
+    [
+      1150,
+      0.849
+    ],
+    [
+      1175,
+      0.789
+    ],
+    [
+      1200,
+      0.737
+    ],
+    [
+      1225,
+      0.689
+    ],
+    [
+      1250,
+      0.648
+    ]
+  ],
+  "est_error": {
+    "T_K": 3,
+    "K_eq": 0.01
+  },
+  "est_error_note": "纵轴 0,01 对应约 8,3 像素，横轴 1 K 对应约 5,2 像素；网格拟合残差在 1,3 像素以内。K_eq 取 ±0,01，覆盖线宽与扫描畸变。",
+  "range_note": "曲线约在 1010 K 处与顶边 1,4 相交，1025 K 以下不取点。1250 K 处曲线与右边框重合，取框内最后几列（约 1249,4 K）。横轴最左端为断轴记号（标 0），不参与标定。",
+  "use": "物性模块（附录 A1 标准化学势）的论文锚点测试；ADR 0010 第 1 条（k_eq,R8 取式 5.43）的检验。",
+  "pending": [],
+  "superseded_reading": "2026-10-16 收到的一组每 10 K 估读值（1100 K 为 1,02，1250 K 为 0,59）与本工具读数最大相差 0,058，超出其自称的 ±0,02，且呈线性递减、与上凸曲线不符，不采用（T3/T7 规则：不得目测估读）。",
+  "calibration": {
+    "render": {
+      "pdf_page": 56,
+      "zoom": 6,
+      "half": "right",
+      "dark_threshold": 110,
+      "grid_threshold": 160
+    },
+    "x_grid": [
+      [
+        1208.0,
+        1050
+      ],
+      [
+        1466.0,
+        1100
+      ],
+      [
+        1726.5,
+        1150
+      ],
+      [
+        1987.0,
+        1200
+      ],
+      [
+        2245.5,
+        1250
+      ]
+    ],
+    "y_grid": [
+      [
+        673.0,
+        1.4
+      ],
+      [
+        839.0,
+        1.2
+      ],
+      [
+        1004.3,
+        1.0
+      ],
+      [
+        1171.5,
+        0.8
+      ],
+      [
+        1337.0,
+        0.6
+      ],
+      [
+        1504.5,
+        0.4
+      ],
+      [
+        1669.5,
+        0.2
+      ],
+      [
+        1834.5,
+        0.0
+      ]
+    ],
+    "centerline": [
+      {
+        "T_K": 1025,
+        "pixel_x": 1078,
+        "pixel_y_center": 744.0
+      },
+      {
+        "T_K": 1050,
+        "pixel_x": 1207,
+        "pixel_y_center": 844.2
+      },
+      {
+        "T_K": 1075,
+        "pixel_x": 1337,
+        "pixel_y_center": 935.5
+      },
+      {
+        "T_K": 1100,
+        "pixel_x": 1467,
+        "pixel_y_center": 1010.0
+      },
+      {
+        "T_K": 1125,
+        "pixel_x": 1597,
+        "pixel_y_center": 1073.0
+      },
+      {
+        "T_K": 1150,
+        "pixel_x": 1727,
+        "pixel_y_center": 1130.8
+      },
+      {
+        "T_K": 1175,
+        "pixel_x": 1856,
+        "pixel_y_center": 1180.0
+      },
+      {
+        "T_K": 1200,
+        "pixel_x": 1986,
+        "pixel_y_center": 1223.8
+      },
+      {
+        "T_K": 1225,
+        "pixel_x": 2116,
+        "pixel_y_center": 1263.5
+      },
+      {
+        "T_K": 1250,
+        "pixel_x": 2243,
+        "pixel_y_center": 1297.5
+      }
+    ]
+  }
+}
