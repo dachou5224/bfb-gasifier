@@ -23,7 +23,7 @@
 | T10 | VTT 加压输入数据补全 | cursor（图上读数：目标所有者）；审查总司令 | 完成 | #25、#26、#31 已合并；`cited` 字段由 ADR 0005 批准；`reactor_height` 按 ADR 0005 记为 derived（3,5 m）；各工况吹扫氮气按 ADR 0006 记录，只有工况 1、2 暂定计入模型 |
 | T11 | cell 衡算残差（式 2.4–2.8） | cursor（新会话，worktree `../bfb-T11`）；审查 codex | 完成 | PR #41 已合并。`hamel/balances/` 按印刷式返回残差。固体只做式 2.6 的流量形式，按种类分别调用，不接收存量或 K。交换项正方向、式 2.8 的 s、两端边界流去向仍未裁定 |
 | T12 | 固体输运与床料存量的原文答卷（ADR 0007 待定项） | cursor（新会话，worktree `../bfb-T12`）；审查 codex | 完成 | PR #42 已合并。答卷 `refs/hamel/answers/T12-solids-flow-scope.md`（2026-10-16）。只查证、不裁定。已按 PR #42 审查改三处：Abstrom 是流出不是向下流（Bild 5.5 为向上通过流）；未返回固体仍走 \(\dot m_{aus}\)；式 (2.8) 的 \(\dot m_s h_s\) 列入 \(M_i\) 证据且 \(s\) 未定义。床区整体上下固体流仍为原文未给出。交总司令写 ADR 0009 |
-| T13 | Wirsum（1998）限定查阅：床区固体输运、床料存量、惰性床料校正 | cursor（新会话，worktree `../bfb-T13`）；审查 codex（本轮由 Claude 暂代） | 待审查 | 答卷 `refs/hamel/answers/T13-wirsum-solids-scope.md`（2026-10-16）。只查证、不采用。已按 PR #49 审查改三处：Bild 5.16 为 wake 向上、bulk 向下；表 2.2 的粒级 Holdup 列入衡算变量的歧义；Abgleich 在 S. 15。式 (5.30) 的第二个 \(f_w\) 已由目标所有者判为笔误并删去。采用与否交总司令写 ADR 0009 |
+| T13 | Wirsum（1998）限定查阅：床区固体输运、床料存量、惰性床料校正 | cursor（新会话，worktree `../bfb-T13`）；审查 codex（本轮由 Claude 暂代） | 待审查 | 答卷 `refs/hamel/answers/T13-wirsum-solids-scope.md`（2026-10-16）。只查证、不采用。已按 PR #49 审查改正：Bild 5.16 为 wake 向上、bulk 向下；表 2.2 的粒级 Holdup 列入衡算变量的歧义；Abgleich 在 S. 15；\(W_1\) 沿高度恒定，\(W_2\) 随局部浓度变化。式 (5.30) 的第二个 \(f_w\) 已由目标所有者判为笔误并删去。采用与否交总司令写 ADR 0009 |
 
 ## 执行顺序与分工（2026-10-13 起）
 
