@@ -23,11 +23,12 @@
 | T10 | VTT 加压输入数据补全 | cursor（图上读数：目标所有者）；审查总司令 | 完成 | #25、#26、#31 已合并；`cited` 字段由 ADR 0005 批准；`reactor_height` 按 ADR 0005 记为 derived（3,5 m）；各工况吹扫氮气按 ADR 0006 记录，只有工况 1、2 暂定计入模型 |
 | T11 | cell 衡算残差（式 2.4–2.8） | cursor（新会话，worktree `../bfb-T11`）；审查 codex | 完成 | PR #41 已合并。`hamel/balances/` 按印刷式返回残差。固体只做式 2.6 的流量形式，按种类分别调用，不接收存量或 K。交换项正方向、式 2.8 的 s、两端边界流去向仍未裁定 |
 | T12 | 固体输运与床料存量的原文答卷（ADR 0007 待定项） | cursor（新会话，worktree `../bfb-T12`）；审查 codex | 完成 | PR #42 已合并。答卷 `refs/hamel/answers/T12-solids-flow-scope.md`（2026-10-16）。只查证、不裁定。已按 PR #42 审查改三处：Abstrom 是流出不是向下流（Bild 5.5 为向上通过流）；未返回固体仍走 \(\dot m_{aus}\)；式 (2.8) 的 \(\dot m_s h_s\) 列入 \(M_i\) 证据且 \(s\) 未定义。床区整体上下固体流仍为原文未给出。交总司令写 ADR 0009 |
-| T13 | Wirsum（1998）限定查阅：床区固体输运、床料存量、惰性床料校正 | cursor（新会话，worktree `../bfb-T13`）；审查 codex（本轮由 Claude 暂代） | 待审查 | 答卷 `refs/hamel/answers/T13-wirsum-solids-scope.md`（2026-10-16）。只查证、不采用。已按 PR #49 审查改正：Bild 5.16 为 wake 向上、bulk 向下；表 2.2 的粒级 Holdup 列入衡算变量的歧义；Abgleich 在 S. 15；\(W_1\) 沿高度恒定，\(W_2\) 随局部浓度变化。式 (5.30) 的第二个 \(f_w\) 已由目标所有者判为笔误并删去。采用与否交总司令写 ADR 0009 |
+| T13 | Wirsum（1998）限定查阅：床区固体输运、床料存量、惰性床料校正 | cursor（新会话，worktree `../bfb-T13`）；审查 codex（本轮由 Claude 暂代） | 完成 | PR #49。答卷 `refs/hamel/answers/T13-wirsum-solids-scope.md`（2026-10-16）。只查证、不采用。已按 PR #49 审查改正：Bild 5.16 为 wake 向上、bulk 向下；表 2.2 的粒级 Holdup 列入衡算变量的歧义；Abgleich 在 S. 15；\(W_1\) 沿高度恒定，\(W_2\) 随局部浓度变化。式 (5.30) 的第二个 \(f_w\) 已由目标所有者判为笔误并删去。采用与否交总司令写 ADR 0009 |
+| T14 | 物性与化学平衡的原文答卷（附录 A1 与物性数据来源） | cursor（新会话，worktree `../bfb-T14`）；审查 codex | 已批准 | 任务卡（PR #46 已合并） `docs/tasks/T14-properties-scope.md`。查模型所需物性、Hamel 给出的数据与来源、附录 A1 的方程与用途（热解气组成、ADR 0010 第 1 条的 K_eq）、可用作锚点的图表；只查证，原文未给出的数据来源交目标所有者按 §4.3 决定。可与 T13 并行 |
 
 ## 执行顺序与分工（2026-10-13 起）
 
-cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令协调、裁定，并审查文档与数据类 PR（CHARTER v0.7 §8）。cursor 的队列（2026-10-16 更新）：T13（Wirsum 限定查阅，可以开工）。T11、T12 已完成。可选：用 VTT Publications 161（Part 1，`KURKELA_1991`）补二次风高度、床料等装置缺口（T10 第三阶段，须核对装置是否与 1988–1990 年试验时相同）。
+cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令协调、裁定，并审查文档与数据类 PR（CHARTER v0.7 §8）。cursor 的队列（2026-10-16 更新）：T13（Wirsum 限定查阅，进行中）；T14（物性原文答卷，任务卡审查通过后可与 T13 并行）。T11、T12 已完成。可选：用 VTT Publications 161（Part 1，`KURKELA_1991`）补二次风高度、床料等装置缺口（T10 第三阶段，须核对装置是否与 1988–1990 年试验时相同）。
 
 ## 工况指标
 
@@ -62,6 +63,7 @@ cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令�
 
 - **ADR 0009（固体输运与床料存量）**：M_i 的口径、床区整体上下固体流 Ṁ_auf,i / Ṁ_ab,i、ṁ_aus 的数值来源、两端边界与零输运（ADR 0007 待定第 1–4 项），以及悬浮相焦油转化的催化剂质量口径（ADR 0010 第 9 条）。依据 T12 答卷与 T13（Wirsum 限定查阅）。裁定前，ADR 0007 的存量闭合与悬浮相焦油转化不得实现。
 - **第 1 关首次完整运行时复核的暂定项**：ADR 0006 第 5 项（吹扫氮 A/B）；ADR 0010 第 3 条（R8 采用 (5.49) 还是 (5.45) 的 A/B）与第 9 条（Serio 第二对参数的影响）。
+- **ADR 0011（提议中，待 codex 审查）**：T8 其余歧义（交换项方向、式 2.9、式 3.6、式 3.11/3.12、ψ_b、n_RZ、式 3.43 的 −1 等）。式 (2.8) 的下标 s 归入 ADR 0009。
 - **启用后备工况时再定**：ADR 0010 第 7 条（非莱茵褐煤燃料的 R1 参数）与第 10 条（十六烷的 k₁₀）。
 - **VTT 加压 1 的输入缺口**：完整清单以 [`data/cases/vtt_pressurized_gaps.md`](../data/cases/vtt_pressurized_gaps.md) 的“缺口”表和 `data/cases/vtt_pressurized.json` 中 `status: missing` 的字段为准，本条只是摘要，未列出的不等于已解决。截至 2026-10-15，工况 1 装配时会遇到的 `missing` 字段：
   - 装置（`shared`）：`cell_count`、`cell_heights`、`agent_feed_height`（二次风高度）、`bed_height`、`bed_inventory_composition`、`bed_inventory_diameter`、`ash_withdrawal_count`（排灰位置）、`wall_heat_transfer_coefficient`、`cyclone_geometry`、`connecting_line_geometry`、`return_line_geometry`；
