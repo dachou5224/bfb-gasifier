@@ -39,6 +39,19 @@ class Fig511Test(unittest.TestCase):
         doc["calibration"]["centerline"][0]["pixel_x"] += 20
         self.assertTrue(any("T=1025" in p for p in DIGIT.check(doc)))
 
+    def test_shifted_grid_line_is_reported_even_if_points_are_recomputed(self):
+        # 改动一条网格线的像素，再按改坏的标定同步重算 points：自洽性仍成立，但标定本身须报错
+        doc = copy.deepcopy(load())
+        doc["calibration"]["y_grid"][2][0] += 25
+        doc["points"] = DIGIT.recompute(doc)
+        self.assertTrue(any("y_grid" in p for p in DIGIT.check(doc)))
+
+    def test_swapped_grid_labels_are_reported(self):
+        doc = copy.deepcopy(load())
+        grid = doc["calibration"]["x_grid"]
+        grid[1][1], grid[2][1] = grid[2][1], grid[1][1]
+        self.assertTrue(any("x_grid" in p for p in DIGIT.check(doc)))
+
     def test_error_must_be_numeric(self):
         doc = copy.deepcopy(load())
         doc["est_error"]["K_eq"] = "约 0,01"

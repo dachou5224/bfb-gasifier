@@ -51,10 +51,39 @@ def recompute(doc: dict) -> list:
     return [[c["T_K"], round_half_up(sy * c["pixel_y_center"] + iy, DIGITS)] for c in cal["centerline"]]
 
 
+MAX_GRID_RESIDUAL_PX = 2.0  # 当前标定实测最大残差：横轴 1,0 px，纵轴 1,25 px
+MAX_SPACING_DEVIATION = 0.02  # 相邻网格线间距与平均间距之差不超过 2 %（当前实测在 1 % 以内）
+
+
+def check_grid(name: str, grid: list, pixel_rises_with_value: bool) -> list:
+    """网格标定本身：标签与像素严格单调且方向正确、线性拟合残差、等间距。"""
+    if len(grid) < 3:
+        return [f"{name}：网格线少于 3 条"]
+    problems = []
+    pixels = np.asarray([p for p, _ in grid], float)
+    values = np.asarray([v for _, v in grid], float)
+    dv = np.diff(values)
+    if not (np.all(dv > 0) or np.all(dv < 0)):
+        problems.append(f"{name}：标签不严格单调")
+    steps = np.diff(pixels) / np.where(dv == 0, np.nan, dv)
+    if not (np.all(steps > 0) if pixel_rises_with_value else np.all(steps < 0)):
+        problems.append(f"{name}：像素与标签的方向不一致或不单调")
+    slope, intercept = fit(values, pixels)
+    residual = float(np.abs(pixels - (slope * values + intercept)).max())
+    if residual > MAX_GRID_RESIDUAL_PX:
+        problems.append(f"{name}：拟合残差 {residual:.2f} px 超过 {MAX_GRID_RESIDUAL_PX} px")
+    gaps = np.abs(np.diff(pixels))
+    if float(np.abs(gaps / gaps.mean() - 1).max()) > MAX_SPACING_DEVIATION:
+        problems.append(f"{name}：网格间距不均匀 {np.round(gaps, 1).tolist()}")
+    return problems
+
+
 def check(doc: dict | None = None) -> list:
     doc = doc if doc is not None else json.loads(JSON_PATH.read_text(encoding="utf-8"))
     problems = []
     cal = doc["calibration"]
+    problems += check_grid("x_grid", cal["x_grid"], pixel_rises_with_value=True)
+    problems += check_grid("y_grid", cal["y_grid"], pixel_rises_with_value=False)
     sx, ix = fit([p for p, _ in cal["x_grid"]], [v for _, v in cal["x_grid"]])
     for c in cal["centerline"]:
         t_from_pixel = sx * c["pixel_x"] + ix
