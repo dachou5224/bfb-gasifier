@@ -22,7 +22,7 @@
 | T9 | `hamel/` 骨架与验收工具 | cursor；审查 codex | 完成 | PR #33 已合并。通用装配 `data/cases/*.json`、读取 `data/digitized/fig_*.json`、外部元素平衡检查、四态验收判定；含验收集合、单位与干湿基、`cited` 的装置范围、按字段核量纲。不含物理方程 |
 | T10 | VTT 加压输入数据补全 | cursor（图上读数：目标所有者）；审查总司令 | 完成 | #25、#26、#31 已合并；`cited` 字段由 ADR 0005 批准；`reactor_height` 按 ADR 0005 记为 derived（3,5 m）；各工况吹扫氮气按 ADR 0006 记录，只有工况 1、2 暂定计入模型 |
 | T11 | cell 衡算残差（式 2.4–2.8） | cursor（新会话，worktree `../bfb-T11`）；审查 codex | 草稿 | 任务卡 `docs/tasks/T11-cell-residuals.md`。依据 T8 冻结稿；固体部分只做式 2.6 流量形式，ADR 0007 的存量闭合待 M_i 口径裁定后另行适配；ADR 0008（式 2.6 的粒级下标 k）已批准，可以开工 |
-| T12 | 固体输运与床料存量的原文答卷（ADR 0007 待定项） | cursor（新会话，worktree `../bfb-T12`）；审查 codex | 待审查 | 答卷 `refs/hamel/answers/T12-solids-flow-scope.md`（2026-10-16）。只查证、不裁定。床区整体上下固体流、床高–空隙率–存量关系、惰性衡算校正和 ṁ_aus 的算法为原文未给出；M_i 口径、床顶向上流与床面抛出是否同一量为原文有歧义。交总司令写 ADR 0009 |
+| T12 | 固体输运与床料存量的原文答卷（ADR 0007 待定项） | cursor（新会话，worktree `../bfb-T12`）；审查 codex | 待审查 | 答卷 `refs/hamel/answers/T12-solids-flow-scope.md`（2026-10-16）。只查证、不裁定。已按 PR #42 审查改三处：Abstrom 是流出不是向下流（Bild 5.5 为向上通过流）；未返回固体仍走 \(\dot m_{aus}\)；式 (2.8) 的 \(\dot m_s h_s\) 列入 \(M_i\) 证据且 \(s\) 未定义。床区整体上下固体流仍为原文未给出。交总司令写 ADR 0009 |
 
 ## 执行顺序与分工（2026-10-13 起）
 
