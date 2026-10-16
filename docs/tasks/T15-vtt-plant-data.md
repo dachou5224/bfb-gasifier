@@ -21,7 +21,7 @@
 
 | 字段 | 用途 | 线索 |
 |---|---|---|
-| `cell_count`、`cell_heights` | cell 划分 | Hamel Bild 7.7（PDF 76 左 / S. 132）是装置示意与模拟采用的 cell 划分，由目标所有者读图；读图边界见下文“Bild 7.7 的读图边界” |
+| `cell_count`、`cell_heights` | cell 划分 | 只收集证据：示意图拓扑、Bild 7.8/7.9 剖面节点、其它装置的分网做法；cell 高度由总司令另立 ADR 裁定。见下文“cell 划分：证据收集，不作数据录入” |
 | `agent_feed_height` | 二次风高度 | Hamel §7.1.3 只写二次风喷入床层上方的自由空间（S. 134）；具体高度查 VTT 文献 |
 | `bed_height` | 操作床高（膨胀床高），ADR 0009 第 3 项的几何存量需要 | VTT 文献；注意 `bed_zone_height` 1,2 m 是床区筒体高度，不是操作床高（ADR 0005） |
 | `bed_inventory_composition`、`bed_inventory_diameter`，新增 `bed_particle_density` | 床料组成、平均粒径、颗粒密度 ρ_P（ADR 0009 第 3 项，ADR 0011 第 8、9 条的 Geldart 分类） | VTT 文献 |
@@ -36,14 +36,17 @@
 
 另外，若 VTT 文献给出床层压降，一并录入（`status: cited`），注明测点位置。它可以作为床料质量的旁证，但本卡不据此推算床高。
 
-## Bild 7.7 的读图边界
+## cell 划分：证据收集，不作数据录入
 
-Bild 7.7 的图注是 „Schematische Darstellung … mit der bei der Simulation verwendeten Zelleneinteilung“，即**示意图**：图中有 cell 分界，但没有轴向刻度、尺寸线或比例尺。工具能精确读出像素，不等于图是按真实比例绘制的。因此：
+cell 高度不是可以从文献直接录入的装置数据。Hamel 写明 cell 划分可以任意选取（S. 16：„die beliebig erfolgen kann“），Bild 7.7 是示意图，没有刻度。按目标所有者 2026-10-16 的意见，cell 划分由总司令另立 ADR 作**解释性裁定**：从 Hamel 的整体算法与机理出发，在反应和湍动剧烈的区域（床层，尤其是床底、进料与进气附近）加密，在平缓的区域（自由空间上部）放大 cell 长度；不保证复现 Hamel 的具体参数，但方向须与 Hamel 一致。本卡只为该 ADR 收集证据：
 
-- **可以从图上录入的**：cell 个数，各 cell 分界、燃料口、进气口、二次风口、床面与自由空间、旋风之间的**拓扑与先后关系**（例如某进气口位于第几个 cell）。录为 `source`，出处为 Bild 7.7。
-- **不可以仅凭图上像素录入的**：有单位的高度（cell 高度、进料高度、二次风高度、操作床高）。不得用总高 3,5 m、床区筒体 1,2 m 或自由空间 2,3 m 去标定整张示意图，再把像素比例换成高度。
-- 有单位的高度只能来自原文标注，或来自同一装置的几何尺寸加上可证明的定位关系（例如某 cell 分界正好与床区和自由空间的交界重合，且原文或图中写明）。无法证明时，这些字段保持 `missing`，cell 高度的划分方式另交总司令作解释性裁定。
-- 目标所有者的工具读数照常执行。读图清单与回填结果须把“图上读得的像素与计数”和“若按比例换算所需的额外假定”分开记录；后者只作参考，不进入 `source` 或 `derived` 字段。
+1. **示意图的拓扑（可录入）**：从 Bild 7.7 与 Bild 7.8、7.9 左侧的示意图数出各段 cell 个数（床区、自由空间、连接管、旋风），记录燃料口、一次风、二次风、床面、自由空间扩径处分别位于哪个 cell 或哪条分界。录为 `source`，出处为图号。
+2. **示意图的读图边界**：Bild 7.7 的图注是 „Schematische Darstellung … mit der bei der Simulation verwendeten Zelleneinteilung“，图中没有轴向刻度、尺寸线或比例尺。不得用总高 3,5 m、床区筒体 1,2 m 或自由空间 2,3 m 标定示意图，再把像素比例换成 cell 高度。示意图上的像素只作参考，不进入 `source` 或 `derived` 字段。
+3. **轴向剖面的节点（有坐标轴，可用工具读）**：Bild 7.8、7.9（PDF 77–78 / S. 135–136）的浓度与温度剖面以归一化高度 ξ 为纵轴（0–1），曲线在 cell 节点处转折。由目标所有者用工具读出各曲线转折点的 ξ 值，作为 cell 相对位置的证据。注意：ξ 按全部部件（床区、自由空间、连接管、旋风）的总高度归一化（S. 124，Bild 7.1），连接管与旋风高度未知，所以只能得到相对位置，不能直接换成米。
+4. **其它装置的做法（作对照）**：Bild 7.2、7.3（HTW）、7.11（VTT 常压）、7.14（WSV400）也画了模拟采用的 cell 划分。数出各图床区与自由空间的 cell 个数与相对疏密，用于归纳 Hamel 的分网习惯。只记录拓扑，不量像素。
+5. **原文中的规模参考**：S. 79 的“eine realistische Gesamtzellenanzahl von 20”。
+
+`cell_count` 可以按第 1 项录入；`cell_heights` 保持 `missing`，在 gaps 文件中写明“待总司令按上述证据另立 ADR 裁定”。燃料口高度、二次风高度、操作床高若能从 VTT 文献查到有单位的值，照常录入；查不到的保持 `missing`，不得由示意图换算。
 
 ## 来源与顺序
 
@@ -90,7 +93,7 @@ Bild 7.7 的图注是 „Schematische Darstellung … mit der bei der Simulation
 
 - `data/cases/vtt_pressurized.json` 的更新
 - `data/cases/vtt_pressurized_gaps.md` 的更新
-- Bild 7.7 的读图清单，以及目标所有者读数后的回填
+- cell 划分证据：示意图拓扑（Bild 7.7、7.8、7.9 左侧示意，及 7.2、7.3、7.11、7.14），Bild 7.8/7.9 剖面节点的读图清单与目标所有者回填的 ξ 值
 - KURKELA_1991 的引用位置核实与装置一致性对照（写进 gaps 文件的一节）
 - `.gitignore` 的一行；`docs/STATUS.md` 中 T15 一行的更新
 

@@ -52,6 +52,7 @@ cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令�
 - 2026-10-15：原文歧义的裁定顺序：先在 Hamel 原文内部核实（上下文、同书其它式与表、Hamel 自己的模拟结果），暂不去找 Hamel 引用的原始文献。两个 agent 对页面图像的像素级读法有分歧时，由目标所有者肉眼判读并裁决。
 - 2026-10-16：批准限定查阅 Wirsum（1998），*Theoretische Beschreibung und experimentelle Untersuchung der Verbrennung von Klärschlamm in blasenbildenden Wirbelschichtfeuerungen*，Fortschr.-Ber. VDI Reihe 6 Nr. 383（CHARTER §4.3）。**采用范围**：只用于查明床区相邻 cell 间的上下固体流、床料存量与惰性床料校正、床面与床底边界、排灰，以及悬浮相反应的催化剂质量口径；不引入 Wirsum 的动力学、物性或污泥专用关联式。查得的内容经总司令在 ADR 0009 中逐项裁定后才可进入模型。本地文件 `docs/_1997_VDI-Dis._Wirsum_Klaerschlamm_blasenbildende_Wirbelschichtfeuerungen.pdf`（SHA256 前缀 e57844f81f1b），不入库。执行见 T13。
 - 2026-10-16：codex 额度不足期间，由目标所有者另开的独立 Claude Code 会话暂代 CHARTER §8 中 codex 的审查职责（须对照页面图像独立核对，不采信 PR 描述）；总司令与审查方的分歧由目标所有者裁决。codex 额度恢复后可随时改回。章程同步为 v0.9 §8 的临时例外（另提 PR，目标所有者批准）。
+- 2026-10-16：cell 划分不按示意图量像素。由总司令从 Hamel 的整体算法与机理出发作解释性裁定：反应与湍动剧烈的区域（床层，尤其床底与进料、进气附近）加密，平缓区域（自由空间上部）放大 cell 长度；不保证复现 Hamel 的具体参数，但方向须与 Hamel 一致（Bild 7.7 显示床区细分、自由空间较粗）。证据由 T15 收集，裁定另立 ADR。
 
 ## 已决定（总司令，ADR）
 
