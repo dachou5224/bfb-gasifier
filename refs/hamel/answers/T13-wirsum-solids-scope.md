@@ -46,6 +46,9 @@ N_{Bil}=N_{Phs}N_{Gas}+\sum_{k=1}^{N_{Fst}}N_{dp,k}+1
 ❓ **Q3 德文原句**：
 
 - S. 18：变量分成三组，„1. gasförmige Stoffströme  2. Feststoffströme  3. Energieströme“。
+- S. 15（PDF 17 右）：„Feststoffe existieren per Definition nur in einer Phase des Bilanzraums, das ist bei blasenbildenden Wirbelschichten die Emulsionsphase.“ 与 Bild 2.3 只画 Emulsion 一致，也对应 Hamel 式 (2.6) 不分相。
+- 表 2.2（PDF 16 右 / S. 13），干燥与脱挥发分行：„Partikelgrößenverteilung und Holdup jeder Partikelgrößenklasse (Brennstoffe)“。
+- 同表，活性气体与活性固体行：„Massenströme, Holdup und Verteilung aller bilanzierter Partikelgrößenklassen“。文本层检索 Holdup，只在 PDF 16 命中，就是这两处。
 - S. 19：„Bilanziert werden nur sogenannte „aktive“ Feststoffe, also solche Stoffe, welche an Umsatzreaktionen beteiligt sind.“ 举例是 Koks 和 Kalkstein。
 - S. 16：细颗粒当作飞灰，只沿烟气方向运动，„nicht dem blaseninduzierten Vermischungsverhalten der Feststoffe unterworfen“；粗颗粒才计内部返混，并分成粒级。这一条从 Dersch（1994）的做法扩到任意种固体、任意个粒级。
 - 式 (2.12)，S. 19：
@@ -62,14 +65,14 @@ N_{Bil}=N_{Phs}N_{Gas}+\sum_{k=1}^{N_{Fst}}N_{dp,k}+1
 
 ❓ **Q5 原文空白**：
 
-**结论：Wirsum 有依据。** 单元模型里，每种被衡算固体的每个粒级计 1 个变量；正文把这一组变量称为固体流。被衡算的只有活性固体。这和 ADR 0007 的选择不同：ADR 0007 把未知量取成粒级存量。
+**结论：有歧义。** 变量分组的名称是固体流（S. 18），每种被衡算固体的每个粒级计 1 个变量，被衡算的只有活性固体。表 2.2 同时又把每个粒级的质量流和 Holdup 都列为可计算量（S. 13）。未知量是流还是存量，原文没有写成一句。不能据此说 Wirsum 已经选了与 ADR 0007 不同的未知量。
 
 和 Hamel 的对照：
 
 - Hamel 式 (2.1)（S. 15）是 \(N_{Bil}=N_{Phs}\cdot N_{Gas}+\sum_j N_{dp,j}+1\)。与 Wirsum 式 (2.1) 同形。Hamel 也是每个 cell、每种固体、每个粒级 1 个变量。
 - Hamel 式 (2.6)（S. 17–18）同样是稳态质量流衡算，项里没有存量。Hamel 的定义里有 \(\dot m_{aus}\)（离开该 cell 并且离开体系）。Wirsum 式 (2.12) 没有这一项。
 - Hamel §2.2.2 也把式 (2.6) 的对象写成活性固体，举例是焦炭和石灰石。这一点与 S. 19 的原句同向。
-- Hamel S. 12 说流动模型先算出向上、向下的固体流，再把每个 cell 的固体进出流按流动模型分配。Wirsum §2.2 也是先算子模型、再映射到 cell（问题 5）。两边都没有在计数式旁边写“未知量是存量”。
+- Hamel S. 12 说流动模型先算出向上、向下的固体流，再把每个 cell 的固体进出流按流动模型分配。Wirsum §2.2 也是先算子模型、再映射到 cell（问题 5）。Hamel 式 (2.1) 旁边没有写“未知量是存量”。Wirsum 的计数式旁边也没有；Holdup 写在表 2.2，不在式 (2.1) 旁。
 - Hamel 表 2.2 的 Feststoffinventar 只写组成和粒径（或一个平均粒径），没有写总质量。Wirsum 表 2.1 把总质量列为输入（问题 3）。Bild 2.2 把活性固体粒级数和惰性床料粒级数分成两行；Wirsum 式 (2.1) 的和只计被衡算的固体，惰性料不在式 (2.12) 里。
 
 计数仍填不上式 (2.12) 里的多股流：向上、向下、外加、反应、粒级迁移不能同时都是自由未知量。原文没有写哪一股是那 1 个变量。
@@ -77,14 +80,14 @@ N_{Bil}=N_{Phs}N_{Gas}+\sum_{k=1}^{N_{Fst}}N_{dp,k}+1
 可选解释：
 
 - (a) 那 1 个变量就是某一股固体流，其余各股由预计算给定。影响：与 ADR 0007 的存量未知量不同；牛顿法的尺度是 kg/s。
-- (b) 标题写的是流，未知量仍是存量，各股流由流动模型乘份额得到。影响：与 ADR 0007 同向，但 Wirsum 没有印出份额式。
+- (b) 标题写的是流，未知量仍是存量，各股流由流动模型乘份额得到。依据是表 2.2 把每个被衡算粒级的 Holdup 列为可计算量。影响：与 ADR 0007 同向。份额式仍然没有印出。
 - (c) 细颗粒和粗颗粒不是同一套变量。细颗粒随气体走，粗颗粒才有向上、向下两股。影响：不能把每一种固体都放进式 (2.12) 的四股输运。
 
 待总司令裁定。本卡不采用。
 
 ❓ **Q6 与归档旧代码的差异**：不适用。
 
-**能否用于 Hamel 主模型：** 式 (2.1) 与 Hamel 式 (2.1) 同形，Hamel 已有自己的计数式，不必改用 Wirsum 的式号。式 (2.12) 与 Hamel 式 (2.6) 是同一类衡算，但 Wirsum 没有 \(\dot m_{aus}\)，也没有写未知量是存量。Hamel 没有把式 (2.12) 引作自己的固体衡算。不能用来替换 Hamel 式 (2.6)，也不能用来取消 ADR 0007。是否把“变量是流”当作对 ADR 0007 的修订材料，由 ADR 0009 裁定。
+**能否用于 Hamel 主模型：** 式 (2.1) 与 Hamel 式 (2.1) 同形，Hamel 已有自己的计数式，不必改用 Wirsum 的式号。式 (2.12) 与 Hamel 式 (2.6) 是同一类衡算，但 Wirsum 没有 \(\dot m_{aus}\)。S. 18 把变量称为固体流，表 2.2 又列出每个粒级的 Holdup，未知量是流还是存量仍有歧义。Hamel 没有把式 (2.12) 引作自己的固体衡算。不能用来替换 Hamel 式 (2.6)，也不能用来取消 ADR 0007。是否把“变量是流”当作对 ADR 0007 的修订材料，由 ADR 0009 裁定。
 
 ---
 
@@ -113,7 +116,7 @@ S. 81：„Eine nach oben gerichtete Bewegung der Klärschlammpartikel im Nachla
 - \(W_1\)：„Zirkulationsstrom … welcher nur aus jetsam-Material (Sand) besteht“
 - \(W_2\)：„Zirkulationsstrom … welcher nur aus flotsam-Material (Klärschlamm) besteht“
 
-S. 82，Bild 5.16：轴向微元上，bulk 相边界上的流是 \((W_1+W_2)c_{j,b}\)，wake 相边界上的流是 \(W_1 c_{j,w}\)。图上两相都有指向上方的箭头。这是浓度剖面用的体积流，不是式 (2.12) 的 \(\dot m_{auf,j,l,i}\)。
+S. 82，Bild 5.16：轴向微元上，wake 相的 \(W_1 c_{j,w}\) 箭头向上；bulk 相的 \((W_1+W_2)c_{j,b}\) 箭头向下（上边界 \(z+\mathrm{d}z\) 处指入方框，下边界 \(z\) 处指出方框）。bulk 两侧向上的箭头是弥散项 \(-\frac{D_{ax}A}{H}\frac{\mathrm{d}c_{j,b}}{\mathrm{d}z}\)，不是对流循环流。这些仍是体积流乘体积浓度，不是式 (2.12) 的 \(\dot m_{auf,j,l,i}\)。
 
 S. 82，式 (5.12)，Nienow et al.（1978）：
 
@@ -169,7 +172,7 @@ S. 84：不考虑 wake 与 bulk 的相交换时，尾涡里向上的颗粒质量
 
 - \(W_1\) 的定义句把它限制为 jetsam，也就是 Wirbelsand。向下返回写在 bulk 相的 \((W_1+W_2)c_{j,b}\) 里，用来闭合浓度剖面，没有写成每个 cell 的 \(\dot M_{ab,i}\)。
 - \(W_2\) 的定义句把它限制为 flotsam，也就是 Klärschlamm。污泥被明确排除在尾涡之外。焦炭在式 (2.12) 里是活性固体，这里没有被写成 \(W_2\)。
-- S. 85 给出的 \(\Omega\) 是别人试验里的数：煤样颗粒 \(1{,}9\,(\mathrm{cm/s})^{1/2}\)（Nienow et al. 1978），湿秸秆 \(3{,}5\,(\mathrm{cm/s})^{1/2}\)（Bilbao et al. 1988）。这是物料常数，不是砂和焦炭的通用常数。
+- S. 85 给出的 \(\Omega\) 是别人试验里的数：多种类煤颗粒 \(1{,}9\,(\mathrm{cm/s})^{1/2}\)（Nienow et al. 1978，原文 „diversen kohleähnlichen Partikeln“），湿秸秆 \(3{,}5\,(\mathrm{cm/s})^{1/2}\)（Bilbao et al. 1988）。这是物料常数，不是砂和焦炭的通用常数。
 - S. 16 已把细颗粒排除在气泡引起的固体混合之外。即使是活性固体，也不都走 \(W_1\)。
 
 和 Hamel 的对照：
@@ -180,9 +183,9 @@ S. 84：不考虑 wake 与 bulk 的相交换时，尾涡里向上的颗粒质量
 
 可选解释：
 
-- (a) \(W_1\) 只描述砂在尾涡里的向上体积流，再靠连续性在 bulk 中向下返回。影响：它覆盖不了焦炭，也给不出每个 cell 的两股 kg/s。
-- (b) 把 \(W_1\rho\) 当作 ADR 0007 的 \(\dot M_{auf}\)，再令 \(\dot M_{ab}=\dot M_{auf}\)。影响：原文没有这个密度，也没有“两股相等”；\(W_1\) 沿高度是一个常数，Hamel 的气泡是沿高度长大的。
-- (c) 焦炭借用 \(W_2\) 和 \(\Omega=1{,}9\,(\mathrm{cm/s})^{1/2}\)。影响：Wirsum 把 \(W_2\) 写成污泥，\(\Omega\) 来自煤样或秸秆试验；这是外推。
+- (a) \(W_1\) 只描述砂在尾涡里的向上体积流。Bild 5.16 上向下的对流项是 \((W_1+W_2)c_{j,b}\)，不是单独的 \(W_1\)。影响：它覆盖不了焦炭，也给不出每个 cell 的两股 kg/s。
+- (b) 把 \(W_1\rho\) 当作 ADR 0007 的 \(\dot M_{auf}\)，再令 \(\dot M_{ab}=\dot M_{auf}\)。影响：原文没有这个密度；图上向下的是 \(W_1+W_2\)，不是 \(W_1\)。\(W_1\) 沿高度是一个常数，Hamel 的气泡是沿高度长大的。
+- (c) 焦炭借用 \(W_2\) 和 \(\Omega=1{,}9\,(\mathrm{cm/s})^{1/2}\)。影响：Wirsum 把 \(W_2\) 写成污泥，\(\Omega\) 来自类煤颗粒或秸秆试验；这是外推。
 
 待总司令裁定。本卡不采用。
 
@@ -244,7 +247,7 @@ m_s=\int_0^{H_{Ws}}(1-\varepsilon_b)(1-\varepsilon_d)\rho_p A(h)\,\mathrm{d}h
 
 | 检索词 | 命中 | 读到哪里 | 和校正的关系 |
 |---|---|---|---|
-| Abgleich | PDF 17 左 / S. 14 | 读完这一句 | „muß zwischen Vorabrechnung und Zellenmodell iterativ ein Abgleich erfolgen.“ 校正的是预计算和单元模型，不是惰性料衡算 |
+| Abgleich | PDF 17 右 / S. 15 | 读完这一句 | „muß zwischen Vorabrechnung und Zellenmodell iterativ ein Abgleich erfolgen.“ 校正的是预计算和单元模型，不是惰性料衡算 |
 | Inertmaterial | PDF 16 右 / S. 13 | 表 2.2 该格 | 流动子模型计算惰性料和活性固体的 holdup；自由空间加热只写惰性料。没有校正步骤 |
 | Inertmaterial | PDF 78 右 / S. 137 | 这一句及其前一句（燃烧放热的结果叙述） | „durch Umlauf von Inertmaterial in untere Bettregionen gelangen.“ 说的是残焦随惰性料循环到床层下部。没有校正量、目标值或残差。速率和热值未取 |
 | Bettmaterial | PDF 25 左 / S. 30 | 式 (3.11) 旁的一句 | \(\psi\) 取决于床料平均粒径和床的尺寸。这是气泡系数的依赖，不是存量校正 |
@@ -257,7 +260,7 @@ m_s=\int_0^{H_{Ws}}(1-\varepsilon_b)(1-\varepsilon_d)\rho_p A(h)\,\mathrm{d}h
 
 全书检索没有出现 „Inertmaterialbilanz“ 或 „Abgleich der Inertmaterialbilanz“。已查章节是上表加上 §2.2、§2.3、§3.2、§3.4.1、§5.6。
 
-和 Hamel 的对照：Hamel 的这个校正只出现在 Bild 2.2 的预计算框里，S. 12 列举预计算内容时没有写它的方程（T12 问题 1）。Wirsum 的迭代 Abgleich 有对应的模块分工，但对象是温度和子模型，不是惰性料质量。不能把 S. 14 那句当成 Hamel 图框里的校正。
+和 Hamel 的对照：Hamel 的这个校正只出现在 Bild 2.2 的预计算框里，S. 12 列举预计算内容时没有写它的方程（T12 问题 1）。Wirsum 的迭代 Abgleich 有对应的模块分工，但对象是温度和子模型，不是惰性料质量。不能把 S. 15 那句当成 Hamel 图框里的校正。
 
 可选解释：
 
@@ -269,7 +272,7 @@ m_s=\int_0^{H_{Ws}}(1-\varepsilon_b)(1-\varepsilon_d)\rho_p A(h)\,\mathrm{d}h
 
 ❓ **Q6 与归档旧代码的差异**：不适用。
 
-**能否用于 Hamel 主模型：** 式 (3.26) 是 Hamel 没有印出的存量关系。Hamel 没有引用它。表 2.2 把床高定为输入，与 Wirsum“给定床高更合适”同向，但 Hamel 没有授权用一个 \(\rho_p\) 把空隙率乘成质量。能否把式 (3.26) 当作 ADR 0007 所缺的 \(M_i\)，以及 \(\rho_p\) 取砂还是混合物，由 ADR 0009 裁定。本卡不把它写入模型。S. 14 的 Abgleich 不能用来实现 Bild 2.2 的惰性料校正。
+**能否用于 Hamel 主模型：** 式 (3.26) 是 Hamel 没有印出的存量关系。Hamel 没有引用它。表 2.2 把床高定为输入，与 Wirsum“给定床高更合适”同向，但 Hamel 没有授权用一个 \(\rho_p\) 把空隙率乘成质量。能否把式 (3.26) 当作 ADR 0007 所缺的 \(M_i\)，以及 \(\rho_p\) 取砂还是混合物，由 ADR 0009 裁定。本卡不把它写入模型。S. 15 的 Abgleich 不能用来实现 Bild 2.2 的惰性料校正。
 
 ---
 
@@ -450,10 +453,10 @@ T12 问题 2 的可选解释 (d) 写：Hamel 写明采用 Wirsum（1998）的地
 
 | 问题 | Wirsum 结论 | Wirsum 页码 | 与 Hamel 是否相容 | 能否用于 Hamel 主模型的依据 |
 |---|---|---|---|---|
-| 1. 衡算变量是什么 | Wirsum 有依据：每个粒级 1 个变量，分组名称是固体流；只衡算活性固体。哪一股流是那个变量，有歧义 | S. 16 式 (2.1)；S. 18 分组；S. 19–20 式 (2.12) | 计数式与 Hamel 式 (2.1) 同形；固体衡算与 Hamel 式 (2.6) 同类，但 Wirsum 没有 \(\dot m_{aus}\)。Hamel 也没有把未知量印成存量 | 不能替换 Hamel 式 (2.6)，也不能取消 ADR 0007。Hamel 没有引用式 (2.12) |
+| 1. 衡算变量是什么 | 有歧义。分组名称是固体流（S. 18），每个粒级 1 个变量，只衡算活性固体；表 2.2 同时列出每个粒级的质量流和 Holdup（S. 13）。未知量是流还是存量，原文没有写成一句 | S. 16 式 (2.1)；S. 18 分组；S. 13 表 2.2；S. 19–20 式 (2.12) | 计数式与 Hamel 式 (2.1) 同形；固体衡算与 Hamel 式 (2.6) 同类，但 Wirsum 没有 \(\dot m_{aus}\) | 不能替换 Hamel 式 (2.6)，也不能取消 ADR 0007。Hamel 没有引用式 (2.12) |
 | 2. 相邻 cell 的上下固体流 | Wirsum 有依据，但是两套量：式 (2.12) 的质量流没有算法；\(W_1\) 只是砂的尾涡体积流，\(W_2\) 只是污泥的体积流。式 (5.30) 的第二个 \(f_w\) 已由目标所有者判为笔误并删去 | S. 81–85；式 (5.30) 在 PDF 52 右 / S. 85 | Hamel S. 12 只点名上下固体流，没有式子。Hamel 没有 \(W_1\)、\(W_2\)。床面的 \(f_w\) 与 40 % 在 Hamel §3.2.1，不在床内 cell | 不能直接用。污泥关联式禁止引入。删去笔误后的 \(W_1\) 仍不是每个 cell 的 kg/s，也不含焦炭 |
 | 3. 床高、空隙率、床料质量 | Wirsum 有依据：式 (3.26)。一个 \(\rho_p\) 代表谁，有歧义。总质量也可作为表 2.1 的输入 | S. 33 式 (3.26)；表 2.1 在 S. 12 | Hamel 把床高定为输入，没有这条积分。方向同为“床高可以给定” | Hamel 没有引用式 (3.26)。能否当作 \(M_i\) 由 ADR 0009 裁定。本卡不采用 |
-| 3. 惰性料校正 | 获准范围内未找到与 „Abgleich der Inertmaterialbilanz“ 同名的步骤。已查章节和检索词见问题 3 | S. 14 的 Abgleich 是预计算对单元模型 | Hamel 的校正只在 Bild 2.2 的框里，两边都没有方程 | S. 14 那句不能实现 Hamel 的惰性料校正 |
+| 3. 惰性料校正 | 获准范围内未找到与 „Abgleich der Inertmaterialbilanz“ 同名的步骤。已查章节和检索词见问题 3 | S. 15 的 Abgleich 是预计算对单元模型 | Hamel 的校正只在 Bild 2.2 的框里，两边都没有方程 | S. 15 那句不能实现 Hamel 的惰性料校正 |
 | 4. 床面抛出与最上层向上流 | 抛出有依据：模型用式 (3.59)，单位 kg/(m² s)。它是否等于最上层 \(\dot m^{auf}\)，有歧义 | S. 39–40 | 与 Hamel 的床面通量同类；Hamel 也没有写成 \(F_0\times\) 面积 | 不能填床内 \(\dot M_{auf,i}\)。Hamel 已有自己的抛出式 |
 | 4. 床底向下流 | 获准范围内未找到。式 (5.22) 是浓度边界，不是 \(\dot m^{ab}\) | S. 20；S. 83 式 (5.22) | Hamel 同样未给出（T12 问题 4） | 不能从式 (5.22) 推出床底 \(\dot m^{ab}=0\) 或等于排灰 |
 | 4. 排灰 | 式 (2.12) 没有这一项，这一点有依据。流率和 cell 位置获准范围内未找到。S. 128：污泥灰随烟气走，砂留下 | S. 19–20；S. 128 | Hamel 式 (2.6) 有 \(\dot m_{aus}\)，但没有流率 | S. 128 不能填 \(\dot m_{aus}\)。第 7 章是否另有流率，范围外未核查 |
