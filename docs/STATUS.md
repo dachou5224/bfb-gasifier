@@ -23,6 +23,7 @@
 | T10 | VTT 加压输入数据补全 | cursor（图上读数：目标所有者）；审查总司令 | 完成 | #25、#26、#31 已合并；`cited` 字段由 ADR 0005 批准；`reactor_height` 按 ADR 0005 记为 derived（3,5 m）；各工况吹扫氮气按 ADR 0006 记录，只有工况 1、2 暂定计入模型 |
 | T11 | cell 衡算残差（式 2.4–2.8） | cursor（新会话，worktree `../bfb-T11`）；审查 codex | 完成 | PR #41 已合并。`hamel/balances/` 按印刷式返回残差。固体只做式 2.6 的流量形式，按种类分别调用，不接收存量或 K。交换项正方向、式 2.8 的 s、两端边界流去向仍未裁定 |
 | T12 | 固体输运与床料存量的原文答卷（ADR 0007 待定项） | cursor（新会话，worktree `../bfb-T12`）；审查 codex | 待审查 | 答卷 `refs/hamel/answers/T12-solids-flow-scope.md`（2026-10-16）。只查证、不裁定。已按 PR #42 审查改三处：Abstrom 是流出不是向下流（Bild 5.5 为向上通过流）；未返回固体仍走 \(\dot m_{aus}\)；式 (2.8) 的 \(\dot m_s h_s\) 列入 \(M_i\) 证据且 \(s\) 未定义。床区整体上下固体流仍为原文未给出。交总司令写 ADR 0009 |
+| T13 | Wirsum（1998）限定查阅：床区固体输运、床料存量、惰性床料校正 | cursor（新会话，worktree `../bfb-T13`）；审查 codex | 已批准 | 任务卡 `docs/tasks/T13-wirsum-solids-scope.md`。T12 确认 Hamel 原文没有床区整体上下固体流与 M_i 口径；按目标所有者 2026-10-16 批准的范围查 Wirsum，只查证不采用，结论交总司令写 ADR 0009 |
 
 ## 执行顺序与分工（2026-10-13 起）
 
@@ -47,6 +48,7 @@ cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令�
 - 2026-10-14：批准使用 Hamel 未引用的 Kurkela, Ståhlberg & Laatikainen-Luntama (1995)，*Pressurised fluidised-bed gasification experiments with wood, peat and coal at VTT in 1991–1994. Part 2*，VTT Publications 249（CHARTER §4.3）。**采用范围**：(1) 只用于补齐 VTT 加压装置的装置与运行数据，不引入任何模型或关联式；(2) 只有逐字段核对确认与 Hamel 表 7.2 为同一次试验（试验编号、燃料、工况一致）的值才可采用，对应不上的不用；(3) 采用的字段按 T10 标为 `cited`，经总司令成组登记 ADR 后才可进入模型。本地文件 `docs/VTTPubl.249_Part2.pdf`（扫描件，无文本层，SHA256 前缀 9b91c58f5407），不入库。
 - 2026-10-15：VTT 加压 1（第 1 关）按 7 个量验收：T̄_FRB、X_C（干气加焦油口径）、CO、CO₂、H₂、CH₄、H₂O（湿基）。已登记于 CHARTER v0.8 §2.2；目标值见文末“VTT 加压 1 验收目标”。
 - 2026-10-15：原文歧义的裁定顺序：先在 Hamel 原文内部核实（上下文、同书其它式与表、Hamel 自己的模拟结果），暂不去找 Hamel 引用的原始文献。两个 agent 对页面图像的像素级读法有分歧时，由目标所有者肉眼判读并裁决。
+- 2026-10-16：批准限定查阅 Wirsum（1998），*Theoretische Beschreibung und experimentelle Untersuchung der Verbrennung von Klärschlamm in blasenbildenden Wirbelschichtfeuerungen*，Fortschr.-Ber. VDI Reihe 6 Nr. 383（CHARTER §4.3）。**采用范围**：只用于查明床区相邻 cell 间的上下固体流、床料存量与惰性床料校正、床面与床底边界、排灰，以及悬浮相反应的催化剂质量口径；不引入 Wirsum 的动力学、物性或污泥专用关联式。查得的内容经总司令在 ADR 0009 中逐项裁定后才可进入模型。本地文件 `docs/_1997_VDI-Dis._Wirsum_Klaerschlamm_blasenbildende_Wirbelschichtfeuerungen.pdf`（SHA256 前缀 e57844f81f1b），不入库。执行见 T13。
 
 ## 待总司令裁定（写相应模块前）
 
