@@ -50,6 +50,8 @@ cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令�
 
 ## 待总司令裁定（写相应模块前）
 
+- 2026-10-16：第 5 章动力学 11 处歧义的裁定已起草为 ADR 0010（提议中，待 codex 审查）。其中第 3 条（R8 用哪一式）与第 9 条（Serio 取哪一对）暂定，待第 1 关首次完整运行时复核；表 5.3 温度因子与式 (5.18) 分母两处字形待目标所有者肉眼判读。
+
 - **第 5 章动力学的 11 处原文歧义**（`refs/hamel/transcription/ch5_kinetics_diff.md`“原文有歧义”一节）。与第 1 关（VTT 加压）关系最大的是：第 1 条式 (5.47) 的点号、第 2 条式 (5.45) 与第 4 条式 (5.51) 的压力单位、第 3 条 R8 采用 (5.45) 还是 (5.49)、第 9 条 Serio 与 Corella 取哪一行参数。按目标所有者 2026-10-15 的意见，先在 Hamel 原文内部寻找依据。
 - **VTT 加压 1 的输入缺口**：完整清单以 [`data/cases/vtt_pressurized_gaps.md`](../data/cases/vtt_pressurized_gaps.md) 的“缺口”表和 `data/cases/vtt_pressurized.json` 中 `status: missing` 的字段为准，本条只是摘要，未列出的不等于已解决。截至 2026-10-15，工况 1 装配时会遇到的 `missing` 字段：
   - 装置（`shared`）：`cell_count`、`cell_heights`、`agent_feed_height`（二次风高度）、`bed_height`、`bed_inventory_composition`、`bed_inventory_diameter`、`ash_withdrawal_count`（排灰位置）、`wall_heat_transfer_coefficient`、`cyclone_geometry`、`connecting_line_geometry`、`return_line_geometry`；
