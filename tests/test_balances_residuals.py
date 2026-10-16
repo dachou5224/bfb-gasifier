@@ -274,6 +274,23 @@ def test_shape_mismatch_and_nan_raise():
         stream_enthalpy_flow(np.zeros((1, 1)), np.zeros((1, 1)), [], [], np.nan)
 
 
+def test_infinite_inputs_raise_and_finite_negatives_stay():
+    # 0 × ∞ 会变成 NaN。无穷大在入口拒绝，不进入残差，也不截断有限负值。
+    zeros_gas = np.zeros((1, 1))
+    for bad in (np.inf, -np.inf):
+        enthalpy = np.array([[bad]])
+        with pytest.raises(ResidualInputError):
+            stream_enthalpy_flow(zeros_gas, enthalpy, [], [], 0.0)
+        with pytest.raises(ResidualInputError):
+            stream_enthalpy_flow(zeros_gas, zeros_gas, [], [], bad)
+        upward = np.array([0.0, bad])
+        with pytest.raises(ResidualInputError):
+            energy_residual(
+                np.zeros(2), np.zeros(2), upward, np.zeros(2), np.zeros(2), np.zeros(2), np.zeros(2)
+            )
+    assert stream_enthalpy_flow(zeros_gas, zeros_gas, [], [], -3.0) == -3.0
+
+
 def test_conservation_holds_for_negative_and_single_cell_inputs():
     rng = np.random.default_rng(11)
     for n_cell in (1, 3):

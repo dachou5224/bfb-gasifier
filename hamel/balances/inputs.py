@@ -4,7 +4,7 @@ from __future__ import annotations
 import numpy as np
 
 class ResidualInputError(ValueError):
-    """形状不一致，或数值里出现 NaN。"""
+    """形状不一致，或数值不是有限值。有限负值不在此列。"""
 
 def _require_float_array(name: str, value: object, ndim: int) -> np.ndarray:
     if isinstance(value, bool):
@@ -15,8 +15,8 @@ def _require_float_array(name: str, value: object, ndim: int) -> np.ndarray:
         raise ResidualInputError(f"{name} 不能转换成浮点数组") from exc
     if array.ndim != ndim:
         raise ResidualInputError(f"{name} 应为 {ndim} 维数组，实际为 {array.ndim} 维")
-    if np.isnan(array).any():
-        raise ResidualInputError(f"{name} 含 NaN")
+    if not np.isfinite(array).all():
+        raise ResidualInputError(f"{name} 含 NaN 或无穷大")
     return array
 
 def _require_cell_array(name: str, value: object, ndim: int) -> np.ndarray:
@@ -38,8 +38,8 @@ def _require_scalar(name: str, value: object) -> float:
     if not isinstance(value, (int, float, np.integer, np.floating)):
         raise ResidualInputError(f"{name} 必须是标量，单位 W")
     number = float(value)
-    if number != number:
-        raise ResidualInputError(f"{name} 含 NaN")
+    if not np.isfinite(number):
+        raise ResidualInputError(f"{name} 含 NaN 或无穷大")
     return number
 
 def _inflow_from_below(outflow: np.ndarray) -> np.ndarray:
