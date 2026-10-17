@@ -1,0 +1,438 @@
+{
+  "figure": "3.5",
+  "pdf_page": 26,
+  "printed_page": "33",
+  "side": "right",
+  "caption_de": "Bild 3.5: Blasendurchmesser in Abhängigkeit des Drucks. Vergleich von Messwerten nach Olowson und Almstedt (1990) mit den nach Gleichung (3.14) bis (3.44) berechneten Ergebnissen.",
+  "read_date": "2026-10-17",
+  "tool": "refs/hamel/pages/026.png（300 dpi）。图框取轴边墨迹最暗的行列；Berechnung 实线从五条已经分开的一列向两侧追踪，取点列取该暗段的灰度质心。同一暗段里有两条以上追踪线时记 null。复算：python3 tools/digitize_fig_3_5.py；重新追踪：同命令 --trace <页面 PNG 或 PDF> --write。",
+  "units": {
+    "P_MPa": "MPa",
+    "d_b": "m"
+  },
+  "est_error": {
+    "P_MPa": 0.01,
+    "d_b": 0.005
+  },
+  "est_error_note": "压力按图框左右端 0 与 2,5 MPa 线性换算，轴端定位约 ±2 px（约 0,005 MPa），登记 0,01 MPa。d_b 的线宽约 6 px，质心约 ±2 px，再加图框倾斜的标定误差，分开的点用这一误差。分不开的点是 null，不另给数值。",
+  "quantity_definition": {
+    "P_MPa": "横轴 Druck",
+    "d_b": "纵轴 Blasendurchmesser d_b。只读 Berechnung 实线。曲线旁标注 0,6 m/s 在最上方，0,1 m/s 在最下方；自上而下为 0,6、0,4、0,3、0,2、0,1 m/s。"
+  },
+  "points_format": "[P_MPa, d_b]",
+  "conditions": {
+    "T_C": 25,
+    "d_P_mm": 0.7,
+    "rho_P_kg_m3": 2600,
+    "h_m": 0.55,
+    "source": "图中标注"
+  },
+  "series_order_from_top": [
+    0.6,
+    0.4,
+    0.3,
+    0.2,
+    0.1
+  ],
+  "series": [
+    {
+      "u0_minus_umf_m_s": 0.6,
+      "points": [
+        [
+          0.2,
+          0.31
+        ],
+        [
+          0.5,
+          0.284
+        ],
+        [
+          1.0,
+          0.261
+        ],
+        [
+          1.5,
+          0.242
+        ],
+        [
+          2.0,
+          0.227
+        ],
+        [
+          2.5,
+          0.216
+        ]
+      ]
+    },
+    {
+      "u0_minus_umf_m_s": 0.4,
+      "points": [
+        [
+          0.2,
+          0.258
+        ],
+        [
+          0.5,
+          0.237
+        ],
+        [
+          1.0,
+          0.207
+        ],
+        [
+          1.5,
+          0.189
+        ],
+        [
+          2.0,
+          0.177
+        ],
+        [
+          2.5,
+          0.166
+        ]
+      ]
+    },
+    {
+      "u0_minus_umf_m_s": 0.3,
+      "points": [
+        [
+          0.2,
+          0.228
+        ],
+        [
+          0.5,
+          0.212
+        ],
+        [
+          1.0,
+          0.185
+        ],
+        [
+          1.5,
+          0.168
+        ],
+        [
+          2.0,
+          0.155
+        ],
+        [
+          2.5,
+          0.143
+        ]
+      ]
+    },
+    {
+      "u0_minus_umf_m_s": 0.2,
+      "points": [
+        [
+          0.2,
+          0.197
+        ],
+        [
+          0.5,
+          0.185
+        ],
+        [
+          1.0,
+          0.164
+        ],
+        [
+          1.5,
+          0.145
+        ],
+        [
+          2.0,
+          0.134
+        ],
+        [
+          2.5,
+          0.125
+        ]
+      ]
+    },
+    {
+      "u0_minus_umf_m_s": 0.1,
+      "points": [
+        [
+          0.2,
+          0.157
+        ],
+        [
+          0.5,
+          0.152
+        ],
+        [
+          1.0,
+          0.135
+        ],
+        [
+          1.5,
+          0.12
+        ],
+        [
+          2.0,
+          0.108
+        ],
+        [
+          2.5,
+          0.098
+        ]
+      ]
+    }
+  ],
+  "use": "ADR 0013：在首次运行前用 Bild 3.5（主）与 Bild 3.3（分不开时）判别式 (3.43) 与 α_b。",
+  "calibration": {
+    "render": {
+      "pdf_page": 26,
+      "source": "refs/hamel/pages/026.png",
+      "dpi": 300,
+      "dark_threshold": 45
+    },
+    "frame": {
+      "x_left": 2083.0,
+      "x_right": 3148.0,
+      "x_left_bottom": 2074.0,
+      "x_right_bottom": 3139.0,
+      "y_top_left": 1239.0,
+      "y_top_right": 1251.0,
+      "y_bottom_left": 1921.0,
+      "y_bottom_right": 1934.0,
+      "p_left": 0.0,
+      "p_right": 2.5,
+      "y_top_value": 0.4,
+      "y_bottom_value": 0.0
+    },
+    "x_grid": [
+      [
+        2082.0,
+        0.0
+      ],
+      [
+        3148.0,
+        2.5
+      ]
+    ],
+    "y_grid": [
+      [
+        1245.4,
+        0.4
+      ],
+      [
+        1585.6,
+        0.2
+      ],
+      [
+        1929.0,
+        0.0
+      ]
+    ],
+    "series": [
+      {
+        "u0_minus_umf_m_s": 0.6,
+        "samples": [
+          {
+            "P_MPa": 0.2,
+            "pixel_x": 2164.0,
+            "pixel_y_center": 1393.5,
+            "note": null
+          },
+          {
+            "P_MPa": 0.5,
+            "pixel_x": 2292.0,
+            "pixel_y_center": 1439.0,
+            "note": null
+          },
+          {
+            "P_MPa": 1.0,
+            "pixel_x": 2504.0,
+            "pixel_y_center": 1480.5,
+            "note": null
+          },
+          {
+            "P_MPa": 1.5,
+            "pixel_x": 2717.0,
+            "pixel_y_center": 1515.0,
+            "note": null
+          },
+          {
+            "P_MPa": 2.0,
+            "pixel_x": 2929.0,
+            "pixel_y_center": 1543.0,
+            "note": null
+          },
+          {
+            "P_MPa": 2.5,
+            "pixel_x": 3139.0,
+            "pixel_y_center": 1564.5,
+            "note": null
+          }
+        ]
+      },
+      {
+        "u0_minus_umf_m_s": 0.4,
+        "samples": [
+          {
+            "P_MPa": 0.2,
+            "pixel_x": 2164.0,
+            "pixel_y_center": 1481.5,
+            "note": null
+          },
+          {
+            "P_MPa": 0.5,
+            "pixel_x": 2292.0,
+            "pixel_y_center": 1518.5,
+            "note": null
+          },
+          {
+            "P_MPa": 1.0,
+            "pixel_x": 2504.0,
+            "pixel_y_center": 1573.0,
+            "note": null
+          },
+          {
+            "P_MPa": 1.5,
+            "pixel_x": 2717.0,
+            "pixel_y_center": 1606.0,
+            "note": null
+          },
+          {
+            "P_MPa": 2.0,
+            "pixel_x": 2929.0,
+            "pixel_y_center": 1629.0,
+            "note": null
+          },
+          {
+            "P_MPa": 2.5,
+            "pixel_x": 3139.0,
+            "pixel_y_center": 1650.0,
+            "note": null
+          }
+        ]
+      },
+      {
+        "u0_minus_umf_m_s": 0.3,
+        "samples": [
+          {
+            "P_MPa": 0.2,
+            "pixel_x": 2164.0,
+            "pixel_y_center": 1533.5,
+            "note": null
+          },
+          {
+            "P_MPa": 0.5,
+            "pixel_x": 2292.0,
+            "pixel_y_center": 1562.0,
+            "note": null
+          },
+          {
+            "P_MPa": 1.0,
+            "pixel_x": 2504.0,
+            "pixel_y_center": 1611.0,
+            "note": null
+          },
+          {
+            "P_MPa": 1.5,
+            "pixel_x": 2717.0,
+            "pixel_y_center": 1642.0,
+            "note": null
+          },
+          {
+            "P_MPa": 2.0,
+            "pixel_x": 2929.0,
+            "pixel_y_center": 1667.0,
+            "note": null
+          },
+          {
+            "P_MPa": 2.5,
+            "pixel_x": 3139.0,
+            "pixel_y_center": 1690.0,
+            "note": null
+          }
+        ]
+      },
+      {
+        "u0_minus_umf_m_s": 0.2,
+        "samples": [
+          {
+            "P_MPa": 0.2,
+            "pixel_x": 2164.0,
+            "pixel_y_center": 1586.5,
+            "note": null
+          },
+          {
+            "P_MPa": 0.5,
+            "pixel_x": 2292.0,
+            "pixel_y_center": 1608.5,
+            "note": null
+          },
+          {
+            "P_MPa": 1.0,
+            "pixel_x": 2504.0,
+            "pixel_y_center": 1647.0,
+            "note": null
+          },
+          {
+            "P_MPa": 1.5,
+            "pixel_x": 2717.0,
+            "pixel_y_center": 1681.5,
+            "note": null
+          },
+          {
+            "P_MPa": 2.0,
+            "pixel_x": 2929.0,
+            "pixel_y_center": 1703.0,
+            "note": null
+          },
+          {
+            "P_MPa": 2.5,
+            "pixel_x": 3139.0,
+            "pixel_y_center": 1720.0,
+            "note": null
+          }
+        ]
+      },
+      {
+        "u0_minus_umf_m_s": 0.1,
+        "samples": [
+          {
+            "P_MPa": 0.2,
+            "pixel_x": 2164.0,
+            "pixel_y_center": 1654.5,
+            "note": null
+          },
+          {
+            "P_MPa": 0.5,
+            "pixel_x": 2292.0,
+            "pixel_y_center": 1665.0,
+            "note": null
+          },
+          {
+            "P_MPa": 1.0,
+            "pixel_x": 2504.0,
+            "pixel_y_center": 1696.5,
+            "note": null
+          },
+          {
+            "P_MPa": 1.5,
+            "pixel_x": 2717.0,
+            "pixel_y_center": 1724.0,
+            "note": null
+          },
+          {
+            "P_MPa": 2.0,
+            "pixel_x": 2929.0,
+            "pixel_y_center": 1747.0,
+            "note": null
+          },
+          {
+            "P_MPa": 2.5,
+            "pixel_x": 3139.0,
+            "pixel_y_center": 1767.0,
+            "note": null
+          }
+        ]
+      }
+    ]
+  }
+}
