@@ -52,6 +52,19 @@ class Fig511Test(unittest.TestCase):
         grid[1][1], grid[2][1] = grid[2][1], grid[1][1]
         self.assertTrue(any("x_grid" in p for p in DIGIT.check(doc)))
 
+    def test_invalid_error_values_are_reported(self):
+        for bad in (True, -1, float("nan"), float("inf"), None):
+            doc = copy.deepcopy(load())
+            doc["est_error"]["K_eq"] = bad
+            self.assertTrue(any("est_error.K_eq" in p for p in DIGIT.check(doc)), bad)
+
+    def test_degenerate_grid_is_reported_not_raised(self):
+        doc = copy.deepcopy(load())
+        for row in doc["calibration"]["y_grid"]:
+            row[0] = 700.0
+        problems = DIGIT.check(doc)  # 不得抛异常
+        self.assertTrue(any("y_grid" in p for p in problems))
+
     def test_error_must_be_numeric(self):
         doc = copy.deepcopy(load())
         doc["est_error"]["K_eq"] = "约 0,01"
