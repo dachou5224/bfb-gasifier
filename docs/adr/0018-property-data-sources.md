@@ -14,7 +14,7 @@ T14（`refs/hamel/answers/T14-properties-scope.md`）查遍 Hamel 全书与参�
 
 | # | 量 | 来源 | 决定者 |
 |---|---|---|---|
-| 1 | 气体与凝相组分的 c_p、h、s，及 μ_j^0(T) = h_j(T) − T·s_j(T)（P_0 = 101 300 Pa，ADR 0011） | NASA Glenn 7 系数多项式：McBride, Zehe & Gordon (2002), *NASA Glenn Coefficients for Calculating Thermodynamic Properties of Individual Species*, NASA/TP-2002-211556 | 目标所有者 2026-10-17 |
+| 1 | 气体与凝相组分的 c_p、h、s，及 μ_j^0(T) = h_j(T) − T·s_j(T)（P_0 = 101 300 Pa，ADR 0011） | NASA Glenn 多项式（c_p/R 的 7 项式加 H、S 的两个积分常数 b_1、b_2，通称 9 系数格式）：McBride, Zehe & Gordon (2002), *NASA Glenn Coefficients for Calculating Thermodynamic Properties of Individual Species*, NASA/TP-2002-211556 | 目标所有者 2026-10-17 |
 | 2 | 气体粘度、导热系数、扩散系数及其混合规则 | Poling, Prausnitz & O'Connell (2001), *The Properties of Gases and Liquids*, 5th ed.：粘度用 Chapman–Enskog 式与 Lennard-Jones 参数（Neufeld 碰撞积分），混合用 Wilke 规则；导热系数用该书第 10 章的低压气体方法与相应混合规则；二元扩散系数用 Fuller 法 | 目标所有者 2026-10-17 |
 | 3 | 物理常数与原子量 | R_g、σ_S 等取 CODATA 2018 推荐值；原子量取 IUPAC 标准原子量（常规值） | 目标所有者 2026-10-17 |
 | 4 | 燃料的生成焓 | 由低位热值与元素分析按定义换算（下文） | 总司令（定义） |
@@ -24,6 +24,14 @@ T14（`refs/hamel/answers/T14-properties-scope.md`）查遍 Hamel 全书与参�
 ### 第 1 项的范围
 
 覆盖第 1 关所需的全部组分：GLOSSARY 物种表中的气体（含 CO、CO₂、H₂、H₂O、CH₄、C₂H₄、N₂、O₂、NH₃、H₂S、Ar），焦油模型物质苯与萘（ADR 0015 第 4 项），液态水 H₂O(L)（干燥的蒸发焓 h_v 由 H₂O(g) 与 H₂O(L) 的焓差得到），以及石墨 C(gr)。某一组分在该文献中没有条目时，停下上报，不换用其它数据库。
+
+### 第 1 项的标准压力换算
+
+该报告中气体的标准状态是 1 bar（100 000 Pa）理想气体（报告 p. 2），而 Hamel 的 P_0 = 101 300 Pa（符号表；ADR 0011）。焓与 c_p 不随标准压力变；熵与标准化学势按理想气体换算：
+
+s_j°(T; P_0) = s_j°(T; 1 bar) − R_g·ln(P_0 / 100 000 Pa)，μ_j^0(T; P_0) = μ_j^0(T; 1 bar) + R_g·T·ln(P_0 / 100 000 Pa)
+
+式 (5.43) 的 K_eq 与附录 A1 的平衡都用换算后的 μ_j^0（P_0 = 101 300 Pa）。凝相（H₂O(L)、C(gr)）的压力修正可以忽略，不作换算。换算须有单元测试。
 
 ### 第 2 项的范围
 
