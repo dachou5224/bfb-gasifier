@@ -31,6 +31,7 @@ specs/hamel_checked_algorithm_spec.md
 # 不带斜杠，这样 worktree 里指向主工作树的符号链接也不会被提交。
 refs/hamel/pages
 refs/wirsum/pages
+refs/vtt161/pages
 
 # IDE
 .idea/
