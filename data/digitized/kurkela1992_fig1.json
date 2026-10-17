@@ -1,0 +1,118 @@
+{
+  "figure": "KURKELA_1992 Fig. 1",
+  "source": "Kurkela & Ståhlberg (1992), Fuel Processing Technology 31, 1–21, p. 4",
+  "fuel": "brown coal（Rhenish brown coal，Hamel 表 7.2 工况 1–4 的燃料）",
+  "caption_en": "Fig. 1. The particle size distribution of the feedstocks.",
+  "read_date": "2026-10-17",
+  "tool": "PyMuPDF 渲染 p. 4 图区（zoom = 8，灰度）。坐标框取深色（<120）连续行与列的质心；横轴为对数坐标，坐标框左右两端为 0,1 mm 与 5 mm（已用 1 mm、2 mm 刻度核对，偏差 < 3 px），纵轴为线性坐标，上下两端为 100 % 与 0 %。褐煤的空心圆用半径 17 px 的环形模板相关定位，按累积曲线单调上升自左向右逐个搜索。复算：tools/digitize_kurkela1992_fig1.py；重新追踪：--trace <kurkela1992.pdf>。",
+  "units": {
+    "size_mm": "mm",
+    "cumulative_pct": "wt%"
+  },
+  "quantity_definition": {
+    "size_mm": "筛孔尺寸。圆心横坐标换算为 0,105 / 0,250 / 0,498 / 0,709 / 0,998 / 2,007 / 3,149 mm，与标准筛孔 0,1 / 0,25 / 0,5 / 0,71 / 1,0 / 2,0 / 3,15 mm 一致，points 中记筛孔值",
+    "cumulative_pct": "小于该筛孔的累积质量分数（图中纵轴 CUMULATIVE DISTRIBUTION (wt %)）"
+  },
+  "points_format": "[筛孔 mm, 累积 wt%]",
+  "points": [
+    [
+      0.1,
+      11.6
+    ],
+    [
+      0.25,
+      20.2
+    ],
+    [
+      0.5,
+      42.5
+    ],
+    [
+      0.71,
+      54.2
+    ],
+    [
+      1.0,
+      68.5
+    ],
+    [
+      2.0,
+      93.4
+    ],
+    [
+      3.15,
+      100.0
+    ]
+  ],
+  "class_definition": "相邻筛孔之间的质量分数：< 0,1、0,1–0,25、0,25–0,5、0,5–0,71、0,71–1,0、1,0–2,0、2,0–3,15 mm",
+  "class_mass_fractions_pct": [
+    11.6,
+    8.6,
+    22.3,
+    11.7,
+    14.3,
+    24.9,
+    6.6
+  ],
+  "est_error": {
+    "size_mm": 0.06,
+    "cumulative_pct": 0.5
+  },
+  "est_error_note": "size_mm 为相对误差（圆心换算粒径与筛孔的偏差上限）：0,1 mm 的圆压在左边框上，左半边与框线重合，模板圆心偏右，换算为 0,105 mm；其余各点偏差 ≤ 0,4 %。纵轴 1 % 约 12,4 px，圆心定位误差约 ±2 px，取 ±0,5 %。",
+  "range_note": "3,15 mm 处的圆与泥炭方框、上边框重叠，模板得分偏低；其累积值由上边框定为 100 %。最细一档（< 0,1 mm）没有下限，换算等表面积球形颗粒时的代表粒径属解释性选择，不在本文件中给出（见 ADR 0014 D2）。",
+  "use": "ADR 0014 D2：VTT 加压工况 1 的燃料粒径分布；按 Hamel S. 144 的做法换算为等表面积球形颗粒的粒级质量分数后写入 `fuel_size_class_mass_fractions`。",
+  "pending": [],
+  "superseded_reading": "2026-10-17 收到的一组估读值（0,10 mm 为 7 %，并把横坐标读成 0,75、1,2、3,0 mm）与本工具读数不符：0,1 mm 处差 4,6 个百分点，横坐标不是筛孔（1,0 mm 被读成 1,2 mm）。不采用（T3/T7：不得目测估读）。",
+  "calibration": {
+    "render": {
+      "page": 4,
+      "zoom": 8,
+      "clip_pt": [
+        60,
+        80,
+        320,
+        265
+      ],
+      "dark_threshold": 120
+    },
+    "x_frame_px": [
+      263.5,
+      1888.0
+    ],
+    "y_frame_px": [
+      1313.5,
+      72.0
+    ],
+    "circle_radius_px": 17,
+    "circle_centers_px": [
+      [
+        284.0,
+        1170.0
+      ],
+      [
+        644.0,
+        1063.0
+      ],
+      [
+        930.0,
+        786.0
+      ],
+      [
+        1077.0,
+        641.0
+      ],
+      [
+        1219.0,
+        463.0
+      ],
+      [
+        1509.0,
+        154.0
+      ],
+      [
+        1696.0,
+        71.0
+      ]
+    ]
+  }
+}
