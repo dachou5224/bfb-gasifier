@@ -1,6 +1,6 @@
 # 项目状态（STATUS）
 
-唯一交接文档，原地更新。最后更新：2026-10-17（T18 答卷提交，待 codex 审查）
+唯一交接文档，原地更新。最后更新：2026-10-17（T18 按 PR #66 退回意见修订，待 codex 复审）
 
 ## 当前阶段
 
@@ -30,11 +30,11 @@
 | T15 | VTT 加压装置数据补全（T10 第三阶段） | cursor（新会话，worktree `../bfb-T15`）；图上读数：目标所有者；审查总司令 | 完成 | PR #60（总司令审查通过）。任务卡 `docs/tasks/T15-vtt-plant-data.md`。布风器短语与 15 个工况的床层压降已写入 `data/cases/vtt_pressurized.json`；Bild 7.7 反应器 `cell_count` = 16。`cell_heights`、操作床高、二次风毫米高度、床料组成与 ρ_P、排灰流率、给料温度和吹扫氮温度仍缺。KURKELA_1991 的 4,2 m、1,5 m、1,9 m、15 cm、38 mm 与 1992 年论文不一致，未录入。VTT 249 不是表 7.2 的试验。对照与拓扑见 `data/cases/vtt_pressurized_gaps.md` |
 | T16 | 第 4 章干燥与热解的独立转录与比对 | cursor（全新会话，worktree `../bfb-T16`）；审查 codex | 已批准 | 任务卡 `docs/tasks/T16-transcribe-pyrolysis.md`。关键路径。头号问题：挥发分基准（ADR 0005 待定 2）与热解产物分配；任务卡经 PR #61 审查通过，2026-10-17 批准 |
 | T17 | §3.2 自由空间的独立转录与比对 | cursor（全新会话，worktree `../bfb-T17`）；审查 codex | 已批准 | 任务卡 `docs/tasks/T17-transcribe-freeboard.md`。关键路径。头号问题：自由空间 cell 的固体含量、回落与带出如何由颗粒轨迹得到（ADR 0009 接口）；任务卡经 PR #61 审查通过，2026-10-17 批准 |
-| T18 | 预计算、外层循环与阻尼牛顿法的原文答卷与数据流规格 | cursor（新会话，worktree `../bfb-T18`）；审查 codex | 审查中 | 答卷 `refs/hamel/answers/T18-solver-structure.md`（2026-10-17）。不写代码。待 codex 对照原页与 ADR 审查 |
+| T18 | 预计算、外层循环与阻尼牛顿法的原文答卷与数据流规格 | cursor（新会话，worktree `../bfb-T18`）；审查 codex | 审查中 | 答卷 `refs/hamel/answers/T18-solver-structure.md`。PR #66 首轮退回 2 项，2026-10-17 已改：内层只冻结 ADR 点名的系数和边界量；残差在试探点评价。待 codex 复审 |
 
 ## 执行顺序与分工（2026-10-13 起）
 
-cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令协调、裁定，并审查文档与数据类 PR（CHARTER v0.10 §8）。cursor 的队列（2026-10-17 更新）：T15 完成（PR #60）；T16、T17 任务卡已批准，可以派发（各用全新会话）。T18 答卷已提交，待 codex 审查。“首次运行预登记”见 ADR 0013（#59）。第 1 关输入裁定见 ADR 0014（#62），其中 X1–X4 待目标所有者决定。
+cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令协调、裁定，并审查文档与数据类 PR（CHARTER v0.10 §8）。cursor 的队列（2026-10-17 更新）：T15 完成（PR #60）；T16、T17 任务卡已批准，可以派发（各用全新会话）。T18 答卷已按 PR #66 的退回意见修订，待 codex 复审。“首次运行预登记”见 ADR 0013（#59）。第 1 关输入裁定见 ADR 0014（#62），其中 X1–X4 待目标所有者决定。
 
 ## 工况指标
 
