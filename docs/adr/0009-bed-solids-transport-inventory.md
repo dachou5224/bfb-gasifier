@@ -6,6 +6,8 @@ status: accepted
 
 > **状态：已批准（2026-10-16）；第 1、2、4、5 项按“复核条件”在第 1 关首次完整运行时复核。** 本 ADR 裁定 ADR 0007 的待定第 1–4 项、ADR 0011 第 4 条（式 2.8 的下标 s）与 ADR 0010 第 9 条的催化剂质量口径。依据为 T12 答卷（`refs/hamel/answers/T12-solids-flow-scope.md`）、T13 答卷（`refs/hamel/answers/T13-wirsum-solids-scope.md`）与 Hamel 原页。采用清单已由目标所有者 2026-10-16 确认。按 CHARTER §8，由审查方审查后总司令批准，目标所有者可否决。
 
+> 2026-10-17 补注：对没有惰性砂床的装置（VTT 加压工况 1–4），本 ADR 中的“惰性床料”按燃料灰理解，第 3、4、5、7 项按 ADR 0014“对 ADR 0009 的 VTT 适用修订”执行。
+
 ## 背景
 
 - T12：Hamel 原文没有给出床区相邻 cell 之间整体向上、向下固体流的计算式，也没有写 M_i 包含哪些固体、“Abgleich der Inertmaterialbilanz”（Bild 2.2，S. 14）校正什么；这几处都没有引用文献。
