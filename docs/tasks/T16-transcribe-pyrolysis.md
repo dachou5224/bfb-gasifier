@@ -4,7 +4,7 @@
 |---|---|
 | 执行者 | cursor，**全新会话**（CHARTER §8 独立性） |
 | 审查方 | 交付物：codex 或独立会话（原文转录类，CHARTER v0.9 §8）。本任务卡：同上，总司令不审 |
-| 前置任务 | T2（原文索引）；T14（附录 A1 答卷） |
+| 前置任务 | T2（原文索引）；T14（附录 A1 答卷，只在比对阶段阅读） |
 | 分支 | `task/T16-transcribe-pyrolysis` |
 | 时间上限 | 3 个工作日 |
 
@@ -18,7 +18,7 @@
 
 ## 范围内
 
-1. **独立转录阶段**（完成前不得打开 `docs/hamel_submodels/`、归档代码、`docs/adr/CANDIDATES.md`、`GLOSSARY.md` 的旧编号表和任何旧结论；T14 答卷可以读，用于附录 A1 的接口）：只依据 `refs/hamel/` 语料转录：
+1. **独立转录阶段**（完成前不得打开 `docs/hamel_submodels/`、归档代码、`docs/adr/CANDIDATES.md`、`GLOSSARY.md` 的旧编号表、T14 答卷以及任何覆盖第 4 章内容的既有答卷、ADR 或结论）。冻结前只需知道一项接口事实：§4.3 的气体热解产物组成调用附录 A1 的 Gibbs 自由焓最小化；转录时照原文记录调用方式即可，不必、也不得为此预读 T14：只依据 `refs/hamel/` 语料转录：
    - §4.1（S. 51–57）：干燥与热解的单颗粒模型，含表 4.1 的物性（Hamel 注明取自 Dersch 1994）与莱茵褐煤、木材的分节；
    - §4.2（S. 58–68）：焦炭、焦油产率及各燃料（褐煤、泥炭、木材）的数据与关联；
    - §4.3（S. 69–71）：气体热解产物组成，按附录 A1 的 Gibbs 最小化计算（式 4.28–4.30），参与物质、温度、源汇项；S. 71 的反应焓表；
@@ -26,7 +26,7 @@
    - 与预计算的接口：热解随高度的释放如何映射到 cell（S. 12 写明“在燃料参与固体混合的假定下”；ADR 0009 已规定床区固体输运），原文写了什么、没写什么。
 
    输出 `refs/hamel/transcription/ch4_pyrolysis.md`，完成后先 commit 冻结；比对阶段不得回头改写，发现转录错误时在差异表中记录，另起一节写更正。
-2. **比对阶段**（冻结之后）：与主工作树本地的 `docs/hamel_submodels/05_drying_and_daem_pyrolysis.md`、归档代码（tag `archive-2026-10-12`）的热解实现逐项比对。旧转录不在 git 里，在主工作树中，路径为 `/Users/liuzhen/AI-projects/bfb-gasifier/docs/hamel_submodels/`。
+2. **比对阶段**（冻结之后）：先读 T14 答卷，核对第 4 章对附录 A1 的调用接口及 T14 中涉及第 4 章的记录（如式 4.4、4.8、4.9，表 4.1、4.2）；冻结前未读 T14，因此二者的吻合可作为独立证据。再与主工作树本地的 `docs/hamel_submodels/05_drying_and_daem_pyrolysis.md`、归档代码（tag `archive-2026-10-12`）的热解实现逐项比对。旧转录不在 git 里，在主工作树中，路径为 `/Users/liuzhen/AI-projects/bfb-gasifier/docs/hamel_submodels/`。
 3. 输出 `refs/hamel/transcription/ch4_pyrolysis_diff.md`：差异表（项目、Hamel 原文页码、旧转录、旧代码、判定：一致 / 旧转录错 / 旧代码错 / 原文有歧义），以及对头号问题的回答。
 4. 对每个“原文有歧义”的项，写出可选解释及其影响，作为 ADR 候选，不自行裁定。
 

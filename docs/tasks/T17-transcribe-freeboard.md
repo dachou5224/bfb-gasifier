@@ -4,7 +4,7 @@
 |---|---|
 | 执行者 | cursor，**全新会话**（CHARTER §8 独立性） |
 | 审查方 | 交付物：codex 或独立会话（原文转录类，CHARTER v0.9 §8）。本任务卡：同上，总司令不审 |
-| 前置任务 | T2（原文索引）；T12（答卷中已记录 §3.2 的若干原句）；ADR 0009（床区与自由空间的接口） |
+| 前置任务 | T2（原文索引）。T12 答卷与 ADR 0009 只在比对阶段阅读 |
 | 分支 | `task/T17-transcribe-freeboard` |
 | 时间上限 | 3 个工作日 |
 
@@ -18,7 +18,7 @@
 
 ## 范围内
 
-1. **独立转录阶段**（完成前不得打开 `docs/hamel_submodels/`、归档代码、`docs/adr/CANDIDATES.md`、`GLOSSARY.md` 的旧编号表和任何旧结论；T12 答卷与 ADR 0009 可以读）：只依据 `refs/hamel/` 语料转录：
+1. **独立转录阶段**（完成前不得打开 `docs/hamel_submodels/`、归档代码、`docs/adr/CANDIDATES.md`、`GLOSSARY.md` 的旧编号表、T12 与 T13 答卷、ADR 0009，以及任何覆盖 §3.2 内容的既有答卷、ADR 或结论）。冻结前只需知道的接口需求是：床区模型需要自由空间给出床面抛出后各粒级的回落量和出口带出量；这只是要回答的问题，不含任何答案：只依据 `refs/hamel/` 语料转录：
    - §3.2.1（S. 36–39）：床面抛出，顶盖与尾涡两种机制，式 (3.49)–(3.66)（S. 36 的式 3.49、3.50 与 S. 35 同号，引用必须带页码）；
    - §3.2.2（S. 40–42）：颗粒起始速度，Hamel 写明采用的式子与并列的文献式分开记录；
    - §3.2.3（S. 42–43）：自由空间气体运动（鬼泡、射流等），以及二次风进入自由空间的处理；
@@ -26,7 +26,7 @@
    - 每个方程：符号、单位、适用范围、所引文献（按 CHARTER §4.2 标注），附 PDF 页、印刷页、式号和德文关键原句；“Hamel 写明采用”与“文献并列”分开标注。
 
    输出 `refs/hamel/transcription/ch3_2_freeboard.md`，完成后先 commit 冻结；比对阶段不得回头改写，发现转录错误时在差异表中记录，另起一节写更正。
-2. **比对阶段**（冻结之后）：与主工作树本地的 `docs/hamel_submodels/04_freeboard_particle_trajectory_analytic.md`、归档代码（tag `archive-2026-10-12`）的自由空间实现逐项比对。旧转录在主工作树 `/Users/liuzhen/AI-projects/bfb-gasifier/docs/hamel_submodels/`。
+2. **比对阶段**（冻结之后）：先读 T12 答卷与 ADR 0009，核对床区与自由空间的接口（ADR 0009 第 1、6 项）；冻结前未读二者，因此吻合可作为独立证据。再与主工作树本地的 `docs/hamel_submodels/04_freeboard_particle_trajectory_analytic.md`、归档代码（tag `archive-2026-10-12`）的自由空间实现逐项比对。旧转录在主工作树 `/Users/liuzhen/AI-projects/bfb-gasifier/docs/hamel_submodels/`。
 3. 输出 `refs/hamel/transcription/ch3_2_freeboard_diff.md`：差异表（判定：一致 / 旧转录错 / 旧代码错 / 原文有歧义），以及对头号问题的回答。
 4. 对每个“原文有歧义”的项，写出可选解释及其影响，作为 ADR 候选，不自行裁定。
 
