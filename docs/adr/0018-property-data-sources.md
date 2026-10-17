@@ -15,7 +15,7 @@ T14（`refs/hamel/answers/T14-properties-scope.md`）查遍 Hamel 全书与参�
 | # | 量 | 来源 | 决定者 |
 |---|---|---|---|
 | 1 | 气体与凝相组分的 c_p、h、s，及 μ_j^0(T) = h_j(T) − T·s_j(T)（P_0 = 101 300 Pa，ADR 0011） | NASA Glenn 多项式（c_p/R 的 7 项式加 H、S 的两个积分常数 b_1、b_2，通称 9 系数格式）：McBride, Zehe & Gordon (2002), *NASA Glenn Coefficients for Calculating Thermodynamic Properties of Individual Species*, NASA/TP-2002-211556 | 目标所有者 2026-10-17 |
-| 2 | 气体粘度、导热系数、扩散系数及其混合规则 | Poling, Prausnitz & O'Connell (2001), *The Properties of Gases and Liquids*, 5th ed.：粘度用 Chapman–Enskog 式与 Lennard-Jones 参数（Neufeld 碰撞积分），混合用 Wilke 规则；导热系数用该书第 10 章的低压气体方法与相应混合规则；二元扩散系数用 Fuller 法 | 目标所有者 2026-10-17 |
+| 2 | 气体粘度、导热系数、扩散系数及其混合规则 | 方法：Poling, Prausnitz & O'Connell (2001), *The Properties of Gases and Liquids*, 5th ed.；纯组分数据（附录 A 的临界参数、偏心因子、偶极矩，附录 B 的 Lennard-Jones 参数）：Reid, Prausnitz & Poling (1987), 同名书 4th ed. 的附录 A、B（目标所有者提供的第 5 版电子版缺附录，2026-10-17 指定从第 4 版取附录数据）。方法细节：粘度用 Chapman–Enskog 式与 Lennard-Jones 参数（Neufeld 碰撞积分），混合用 Wilke 规则；导热系数用该书第 10 章的低压气体方法与相应混合规则；二元扩散系数用 Fuller 法 | 目标所有者 2026-10-17 |
 | 3 | 物理常数与原子量 | R_g、σ_S 等取 CODATA 2018 推荐值；原子量取 IUPAC 标准原子量（常规值） | 目标所有者 2026-10-17 |
 | 4 | 燃料的生成焓 | 由低位热值与元素分析按定义换算（下文） | 总司令（定义） |
 | 5 | 焦炭的焓 | 焦炭按碳计，用第 1 项 NASA 数据中的石墨 C(gr) | 总司令（解释性选择） |
@@ -35,7 +35,7 @@ s_j°(T; P_0) = s_j°(T; 1 bar) − R_g·ln(P_0 / 100 000 Pa)，μ_j^0(T; P_0) =
 
 ### 第 2 项的范围
 
-Lennard-Jones 参数与 Fuller 扩散体积取该书附录与第 11 章的表。某一组分缺参数时停下上报。式 (3.47)–(3.50) 的 D_g 与式 (5.18)–(5.20) 的扩散系数都用 Fuller 法计算该组分在混合气中的扩散系数；多组分混合中单个组分的有效扩散系数的写法（例如 Blanc 规则或按主体气体取二元值）由 T21 答卷列出候选，交总司令裁定。式 (5.20) 原文已给出的氧气扩散系数照原文使用，不以第 2 项替代。
+Lennard-Jones 参数取第 4 版附录 B（注明取自 Svehla 1962），临界参数、偏心因子与偶极矩取第 4 版附录 A；Fuller 扩散体积取第 5 版第 11 章表 11-1。第 4 版附录的扫描件表格有倾斜，同一行的组分名与数值可能错位，转录规则见 T21 卡。某一组分缺参数时停下上报。式 (3.47)–(3.50) 的 D_g 与式 (5.18)–(5.20) 的扩散系数都用 Fuller 法计算该组分在混合气中的扩散系数；多组分混合中单个组分的有效扩散系数的写法（例如 Blanc 规则或按主体气体取二元值）由 T21 答卷列出候选，交总司令裁定。式 (5.20) 原文已给出的氧气扩散系数照原文使用，不以第 2 项替代。
 
 ### 第 4 项：燃料生成焓（定义）
 
