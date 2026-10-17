@@ -68,10 +68,41 @@ def recompute(doc: dict) -> tuple[list, list]:
     return points, fractions
 
 
+def valid_error(value) -> bool:
+    """误差须为有限、非负的实数；布尔值不算（bool 是 int 的子类）。"""
+    return (isinstance(value, (int, float)) and not isinstance(value, bool)
+            and math.isfinite(value) and value >= 0)
+
+
+def check_frame(cal: dict) -> list:
+    """坐标框：两轴各两个有限实数端点，正跨度，方向正确（右 > 左，下 > 上）。"""
+    problems = []
+    for key in ("x_frame_px", "y_frame_px"):
+        pair = cal.get(key)
+        if (not isinstance(pair, (list, tuple)) or len(pair) != 2
+                or not all(isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) for v in pair)):
+            problems.append(f"{key} 须为两个有限实数")
+    if problems:
+        return problems
+    (xl, xr), (yb, yt) = cal["x_frame_px"], cal["y_frame_px"]
+    if not xr > xl:
+        problems.append("坐标框横向跨度须为正（右端像素大于左端）")
+    if not yb > yt:
+        problems.append("坐标框纵向跨度须为正（下端像素大于上端）")
+    return problems
+
+
 def check(doc: dict | None = None) -> list:
     doc = doc if doc is not None else json.loads(JSON_PATH.read_text(encoding="utf-8"))
     problems = []
+    for key in ("size_mm", "cumulative_pct"):
+        if not valid_error(doc.get("est_error", {}).get(key)):
+            problems.append(f"est_error.{key} 须为有限、非负的实数")
     cal = doc["calibration"]
+    frame_problems = check_frame(cal)
+    if frame_problems:
+        # 坐标框无效时不构造坐标变换，直接返回诊断
+        return problems + frame_problems
     size_mm, _ = axes(cal)
     if len(cal["circle_centers_px"]) != len(SIEVES_MM):
         problems.append("圆心个数与筛孔个数不一致")
@@ -79,9 +110,6 @@ def check(doc: dict | None = None) -> list:
         d = size_mm(c[0])
         if abs(d / sieve - 1) > SIEVE_TOLERANCE:
             problems.append(f"筛孔 {sieve} mm：圆心换算为 {d:.3f} mm")
-    (xl, xr), (yb, yt) = cal["x_frame_px"], cal["y_frame_px"]
-    if not (xr > xl and yb > yt):
-        problems.append("坐标框像素方向不对")
     points, fractions = recompute(doc)
     if points != doc["points"]:
         problems.append(f"points 与 calibration 复算不一致：{points} != {doc['points']}")
@@ -91,9 +119,6 @@ def check(doc: dict | None = None) -> list:
         problems.append("累积分布不单调")
     if abs(sum(fractions) - 100.0) > 0.2:
         problems.append(f"粒级质量分数之和为 {sum(fractions):.1f} %")
-    for key in ("size_mm", "cumulative_pct"):
-        if not isinstance(doc.get("est_error", {}).get(key), (int, float)):
-            problems.append(f"est_error.{key} 须为数值")
     return problems
 
 

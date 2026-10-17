@@ -47,6 +47,21 @@ class KurkelaFig1Test(unittest.TestCase):
         doc["points"], doc["class_mass_fractions_pct"] = DIGIT.recompute(doc)
         self.assertTrue(any("不单调" in p for p in DIGIT.check(doc)))
 
+    def test_degenerate_or_reversed_frame_is_reported_not_raised(self):
+        for key, pair in (("x_frame_px", [500.0, 500.0]), ("y_frame_px", [700.0, 700.0]),
+                          ("x_frame_px", [1888.0, 263.5]), ("y_frame_px", [72.0, 1313.5]),
+                          ("x_frame_px", [263.5, float("nan")])):
+            doc = copy.deepcopy(load())
+            doc["calibration"][key] = pair
+            problems = DIGIT.check(doc)  # 不得抛异常
+            self.assertTrue(any(key in p or "坐标框" in p for p in problems), (key, pair, problems))
+
+    def test_invalid_error_values_are_reported(self):
+        for bad in (True, -1, float("nan"), float("inf"), "约 0,5", None):
+            doc = copy.deepcopy(load())
+            doc["est_error"]["cumulative_pct"] = bad
+            self.assertTrue(any("est_error.cumulative_pct" in p for p in DIGIT.check(doc)), bad)
+
     def test_error_must_be_numeric(self):
         doc = copy.deepcopy(load())
         doc["est_error"]["cumulative_pct"] = "约 0,5"
