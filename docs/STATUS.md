@@ -1,6 +1,6 @@
 # 项目状态（STATUS）
 
-唯一交接文档，原地更新。最后更新：2026-10-17（T15 装置数据审查通过；方向审计后续）
+唯一交接文档，原地更新。最后更新：2026-10-17（T18 按 PR #66 退回意见修订，待 codex 复审）
 
 ## 当前阶段
 
@@ -28,13 +28,13 @@
 | T13 | Wirsum（1998）限定查阅：床区固体输运、床料存量、惰性床料校正 | cursor（新会话，worktree `../bfb-T13`）；审查 codex（本轮由 Claude 暂代） | 完成 | PR #49。答卷 `refs/hamel/answers/T13-wirsum-solids-scope.md`（2026-10-16）。只查证、不采用。已按 PR #49 审查改正：Bild 5.16 为 wake 向上、bulk 向下；表 2.2 的粒级 Holdup 列入衡算变量的歧义；Abgleich 在 S. 15；\(W_1\) 沿高度恒定，\(W_2\) 随局部浓度变化。式 (5.30) 的第二个 \(f_w\) 已由目标所有者判为笔误并删去。采用与否交总司令写 ADR 0009 |
 | T14 | 物性与化学平衡的原文答卷（附录 A1 与物性数据来源） | cursor（新会话，worktree `../bfb-T14`）；审查 codex | 完成 | PR #55（复审通过）。答卷 `refs/hamel/answers/T14-properties-scope.md`（2026-10-17 已按审查补第 3 章使用位置）。只查证。\(\mu_j^0\)、气体比热、气体粘度、气体导热系数、气体密度，以及气泡—悬浮相交换所用的 \(D_g\)，原文未给出；式 (5.20) 只覆盖氧气膜扩散。式 (A.30) 右端上标待确认。不选数据来源 |
 | T15 | VTT 加压装置数据补全（T10 第三阶段） | cursor（新会话，worktree `../bfb-T15`）；图上读数：目标所有者；审查总司令 | 完成 | PR #60（总司令审查通过）。任务卡 `docs/tasks/T15-vtt-plant-data.md`。布风器短语与 15 个工况的床层压降已写入 `data/cases/vtt_pressurized.json`；Bild 7.7 反应器 `cell_count` = 16。`cell_heights`、操作床高、二次风毫米高度、床料组成与 ρ_P、排灰流率、给料温度和吹扫氮温度仍缺。KURKELA_1991 的 4,2 m、1,5 m、1,9 m、15 cm、38 mm 与 1992 年论文不一致，未录入。VTT 249 不是表 7.2 的试验。对照与拓扑见 `data/cases/vtt_pressurized_gaps.md` |
-| T16 | 第 4 章干燥与热解的独立转录与比对 | cursor（全新会话，worktree `../bfb-T16`）；审查 codex | 已批准 | 任务卡 `docs/tasks/T16-transcribe-pyrolysis.md`。关键路径。头号问题：挥发分基准（ADR 0005 待定 2）与热解产物分配；任务卡经 PR #61 审查通过，2026-10-17 批准 |
-| T17 | §3.2 自由空间的独立转录与比对 | cursor（全新会话，worktree `../bfb-T17`）；审查 codex | 完成 | PR #67。冻结稿 `refs/hamel/transcription/ch3_2_freeboard.md`（`5a68797`）未改。比对稿补了两项：式 (3.96)、(3.98)、(3.103) 与式 (3.88) 或初条件不相容，对调 \(\Psi\) 不是充分修复；Bild 3.7 图内还有 \(T_{WS}=1073\,\mathrm{K}\)、\(p=0{,}1\,\mathrm{MPa}\)、\(d_P=1{,}0\,\mathrm{mm}\)。S. 45、S. 48 仍没有含量、回落、带出的换算式。歧义未裁定 |
-| T18 | 预计算、外层循环与阻尼牛顿法的原文答卷与数据流规格 | cursor（新会话，worktree `../bfb-T18`）；审查 codex | 已批准 | 任务卡 `docs/tasks/T18-solver-structure.md`。关键路径。Wirsum 只读 §2.3.3 求解过程（ADR 0002 范围）；任务卡经 PR #61 审查通过，2026-10-17 批准 |
+| T16 | 第 4 章干燥与热解的独立转录与比对 | cursor（全新会话，worktree `../bfb-T16`）；审查 codex | 完成 | PR #68 已合并。转录 `refs/hamel/transcription/ch4_pyrolysis.md`（冻结 `87e6fa6`），比对 `refs/hamel/transcription/ch4_pyrolysis_diff.md`。挥发分基准与热解产物分配只记录、不裁定。式 (4.3) 锋面符号、式 (4.11) 负号、式 (4.12) 的幂、图 4.11 图题交总司令。表 4.4 焦炭列 \(\xi_1\) 印面 5.499 即 5499，冻结稿误作 5,499，更正在比对稿，不改冻结稿 |
+| T17 | §3.2 自由空间的独立转录与比对 | cursor（全新会话，worktree `../bfb-T17`）；审查 codex | 完成 | PR #67（复审通过）。冻结稿 `refs/hamel/transcription/ch3_2_freeboard.md`（`5a68797`）未改。比对稿补了两项：式 (3.96)、(3.98)、(3.103) 与式 (3.88) 或初条件不相容，对调 \(\Psi\) 不是充分修复；Bild 3.7 图内还有 \(T_{WS}=1073\,\mathrm{K}\)、\(p=0{,}1\,\mathrm{MPa}\)、\(d_P=1{,}0\,\mathrm{mm}\)。S. 45、S. 48 仍没有含量、回落、带出的换算式。歧义未裁定 |
+| T18 | 预计算、外层循环与阻尼牛顿法的原文答卷与数据流规格 | cursor（新会话，worktree `../bfb-T18`）；审查 codex | 完成 | PR #66 已合并。答卷 `refs/hamel/answers/T18-solver-structure.md`。PR #66 首轮退回 2 项，2026-10-17 已改：内层只冻结 ADR 点名的系数和边界量；残差在试探点评价。复审通过 |
 
 ## 执行顺序与分工（2026-10-13 起）
 
-cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令协调、裁定，并审查文档与数据类 PR（CHARTER v0.10 §8）。cursor 的队列（2026-10-17 更新）：T15 完成（PR #60）；T16、T17、T18 任务卡已批准，可以派发（T16、T17 各用全新会话；T18 用新会话，ADR 0012 已合入）。“首次运行预登记”见 ADR 0013（#59）。第 1 关输入裁定见 ADR 0014（#62），其中 X1–X4 待目标所有者决定。
+cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令协调、裁定，并审查文档与数据类 PR（CHARTER v0.10 §8）。cursor 的队列（2026-10-17 更新）：T15 完成（PR #60）；T16、T17 任务卡已批准，可以派发（各用全新会话）。T18 答卷已按 PR #66 的退回意见修订，待 codex 复审。“首次运行预登记”见 ADR 0013（#59）。第 1 关输入裁定见 ADR 0014（#62），其中 X1–X4 待目标所有者决定。
 
 ## 工况指标
 

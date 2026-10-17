@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import json
+import math
 import sys
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
@@ -62,6 +63,10 @@ def check_grid(name: str, grid: list, pixel_rises_with_value: bool) -> list:
     problems = []
     pixels = np.asarray([p for p, _ in grid], float)
     values = np.asarray([v for _, v in grid], float)
+    if not (np.all(np.isfinite(pixels)) and np.all(np.isfinite(values))):
+        return [f"{name}：像素或标签不是有限实数"]
+    if np.ptp(pixels) == 0 or np.ptp(values) == 0:
+        return [f"{name}：像素或标签的跨度为 0"]
     dv = np.diff(values)
     if not (np.all(dv > 0) or np.all(dv < 0)):
         problems.append(f"{name}：标签不严格单调")
@@ -78,12 +83,25 @@ def check_grid(name: str, grid: list, pixel_rises_with_value: bool) -> list:
     return problems
 
 
+def valid_error(value) -> bool:
+    """误差须为有限、非负的实数；布尔值不算（bool 是 int 的子类）。"""
+    return (isinstance(value, (int, float)) and not isinstance(value, bool)
+            and math.isfinite(value) and value >= 0)
+
+
 def check(doc: dict | None = None) -> list:
     doc = doc if doc is not None else json.loads(JSON_PATH.read_text(encoding="utf-8"))
     problems = []
+    err = doc.get("est_error", {})
+    for key in ("T_K", "K_eq"):
+        if not valid_error(err.get(key)):
+            problems.append(f"est_error.{key} 须为有限、非负的实数")
     cal = doc["calibration"]
-    problems += check_grid("x_grid", cal["x_grid"], pixel_rises_with_value=True)
-    problems += check_grid("y_grid", cal["y_grid"], pixel_rises_with_value=False)
+    grid_problems = (check_grid("x_grid", cal["x_grid"], pixel_rises_with_value=True)
+                     + check_grid("y_grid", cal["y_grid"], pixel_rises_with_value=False))
+    if grid_problems:
+        # 网格标定无效时不再拟合与复算，直接返回诊断
+        return problems + grid_problems
     sx, ix = fit([p for p, _ in cal["x_grid"]], [v for _, v in cal["x_grid"]])
     for c in cal["centerline"]:
         t_from_pixel = sx * c["pixel_x"] + ix
@@ -91,10 +109,6 @@ def check(doc: dict | None = None) -> list:
             problems.append(f"T={c['T_K']}：取点列换算为 {t_from_pixel:.2f} K")
     if recompute(doc) != doc["points"]:
         problems.append(f"points 与 calibration 复算不一致：{recompute(doc)} != {doc['points']}")
-    err = doc.get("est_error", {})
-    for key in ("T_K", "K_eq"):
-        if not isinstance(err.get(key), (int, float)):
-            problems.append(f"est_error.{key} 须为数值")
     return problems
 
 
