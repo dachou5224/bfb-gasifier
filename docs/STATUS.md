@@ -53,6 +53,7 @@ cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令�
 - 2026-10-16：批准限定查阅 Wirsum（1998），*Theoretische Beschreibung und experimentelle Untersuchung der Verbrennung von Klärschlamm in blasenbildenden Wirbelschichtfeuerungen*，Fortschr.-Ber. VDI Reihe 6 Nr. 383（CHARTER §4.3）。**采用范围**：只用于查明床区相邻 cell 间的上下固体流、床料存量与惰性床料校正、床面与床底边界、排灰，以及悬浮相反应的催化剂质量口径；不引入 Wirsum 的动力学、物性或污泥专用关联式。查得的内容经总司令在 ADR 0009 中逐项裁定后才可进入模型。本地文件 `docs/_1997_VDI-Dis._Wirsum_Klaerschlamm_blasenbildende_Wirbelschichtfeuerungen.pdf`（SHA256 前缀 e57844f81f1b），不入库。执行见 T13。
 - 2026-10-16：codex 额度不足期间，由目标所有者另开的独立 Claude Code 会话暂代 CHARTER §8 中 codex 的审查职责（须对照页面图像独立核对，不采信 PR 描述）；总司令与审查方的分歧由目标所有者裁决。codex 额度恢复后可随时改回。章程同步为 v0.9 §8 的临时例外（另提 PR，目标所有者批准）。
 - 2026-10-16：cell 划分不按示意图量像素。由总司令从 Hamel 的整体算法与机理出发作解释性裁定：反应与湍动剧烈的区域（床层，尤其床底与进料、进气附近）加密，平缓区域（自由空间上部）放大 cell 长度；不保证复现 Hamel 的具体参数，但方向须与 Hamel 一致（Bild 7.7 显示床区细分、自由空间较粗）。证据由 T15 收集，裁定另立 ADR。
+- 2026-10-17：CHARTER §2.1 的数值阈值：各分块相对残差 ≤ 1·10⁻⁶；外层对齐温度变化 ≤ 0,1 K、固体流相对变化 ≤ 1·10⁻⁴；元素平衡 ≤ 0,1 %；总能量平衡 ≤ 0,5 %（相对燃料低位热值功率）。登记于 ADR 0012。
 
 ## 已决定（总司令，ADR）
 
@@ -77,7 +78,6 @@ cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令�
 
 ## 待目标所有者决策
 
-- 章程 §2.1 收敛残差与元素/能量平衡的具体阈值（可在 T1 探针后确定）。
 - `validation_cases.json` 中 WSV400 的出口值与 Bild 7.17 的工具读数不符（A 的文件内 H₂ 为 0.11、CH₄ 为 0.022；图上实验值为 H₂ 0.087、CH₄ 0.048，模拟值为 0.081、0.022）。B–F 的工具读数已在下方验收表。是否改 `validation_cases.json` 仍由目标所有者决定（T3 不改该文件）。
 - VTT 加压 13、14 的标签：表 7.2 的模拟编号只有 1–8，`validation_cases.json` 却收录了 13、14，需对照表 7.2 核对。
 - WSV400 A 输入缺口（T1 发现）：床高、床料密度与粒径、燃料粒径分布、热值、热损失；自由空间直径 0.6 m 而床径 0.4 m。待从表 7.4、§7.1.5 提取，查不到的由目标所有者裁定。
