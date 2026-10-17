@@ -24,11 +24,12 @@
 | T11 | cell 衡算残差（式 2.4–2.8） | cursor（新会话，worktree `../bfb-T11`）；审查 codex | 完成 | PR #41 已合并。`hamel/balances/` 按印刷式返回残差。固体只做式 2.6 的流量形式，按种类分别调用，不接收存量或 K。交换项正方向已由 ADR 0011 第 3 条裁定（悬浮相 → 气泡相为正，与本代码的印刷式符号相容）；式 2.8 的 s（惰性床料）与两端边界已由 ADR 0009 裁定；固体部分的存量闭合可在 ADR 0009 有效域条件下实现 |
 | T12 | 固体输运与床料存量的原文答卷（ADR 0007 待定项） | cursor（新会话，worktree `../bfb-T12`）；审查 codex | 完成 | PR #42 已合并。答卷 `refs/hamel/answers/T12-solids-flow-scope.md`（2026-10-16）。只查证、不裁定。已按 PR #42 审查改三处：Abstrom 是流出不是向下流（Bild 5.5 为向上通过流）；未返回固体仍走 \(\dot m_{aus}\)；式 (2.8) 的 \(\dot m_s h_s\) 列入 \(M_i\) 证据且 \(s\) 未定义。床区整体上下固体流仍为原文未给出。交总司令写 ADR 0009 |
 | T13 | Wirsum（1998）限定查阅：床区固体输运、床料存量、惰性床料校正 | cursor（新会话，worktree `../bfb-T13`）；审查 codex（本轮由 Claude 暂代） | 完成 | PR #49。答卷 `refs/hamel/answers/T13-wirsum-solids-scope.md`（2026-10-16）。只查证、不采用。已按 PR #49 审查改正：Bild 5.16 为 wake 向上、bulk 向下；表 2.2 的粒级 Holdup 列入衡算变量的歧义；Abgleich 在 S. 15；\(W_1\) 沿高度恒定，\(W_2\) 随局部浓度变化。式 (5.30) 的第二个 \(f_w\) 已由目标所有者判为笔误并删去。采用与否交总司令写 ADR 0009 |
-| T14 | 物性与化学平衡的原文答卷（附录 A1 与物性数据来源） | cursor（新会话，worktree `../bfb-T14`）；审查 codex | 待审查 | PR #55。答卷 `refs/hamel/answers/T14-properties-scope.md`（2026-10-17 已按审查补第 3 章使用位置）。只查证。\(\mu_j^0\)、气体比热、气体粘度、气体导热系数、气体密度，以及气泡—悬浮相交换所用的 \(D_g\)，原文未给出；式 (5.20) 只覆盖氧气膜扩散。式 (A.30) 右端上标待确认。不选数据来源 |
+| T14 | 物性与化学平衡的原文答卷（附录 A1 与物性数据来源） | cursor（新会话，worktree `../bfb-T14`）；审查 codex | 完成 | PR #55（复审通过）。答卷 `refs/hamel/answers/T14-properties-scope.md`（2026-10-17 已按审查补第 3 章使用位置）。只查证。\(\mu_j^0\)、气体比热、气体粘度、气体导热系数、气体密度，以及气泡—悬浮相交换所用的 \(D_g\)，原文未给出；式 (5.20) 只覆盖氧气膜扩散。式 (A.30) 右端上标待确认。不选数据来源 |
+| T15 | VTT 加压装置数据补全（T10 第三阶段） | cursor（新会话，worktree `../bfb-T15`）；图上读数：目标所有者；审查总司令 | 进行中 | 任务卡（PR #54 已合并） `docs/tasks/T15-vtt-plant-data.md`。补第 1 关所缺的 cell 划分（Bild 7.7）、二次风高度、床高、床料组成/粒径/密度、排灰、布风器类型、固体加入温度、燃料粒径分布等；来源依次为 Hamel、KURKELA_1992、KURKELA_1991（须先核实 Hamel 引用位置与装置一致性）、VTT 249（限定范围）。可与 T14 并行 |
 
 ## 执行顺序与分工（2026-10-13 起）
 
-cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令协调、裁定，并审查文档与数据类 PR（CHARTER v0.7 §8）。cursor 的队列（2026-10-17 更新）：T14 物性答卷已按 PR #55 审查修改，待 codex 复审。T11、T12、T13 已完成。可选：用 VTT Publications 161（Part 1，`KURKELA_1991`）补二次风高度、床料等装置缺口（T10 第三阶段，须核对装置是否与 1988–1990 年试验时相同）。
+cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令协调、裁定，并审查文档与数据类 PR（CHARTER v0.9 §8）。cursor 的队列（2026-10-17 更新）：T15（VTT 装置数据补全，进行中）。T11–T14 已完成。
 
 ## 工况指标
 
@@ -51,6 +52,7 @@ cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令�
 - 2026-10-15：原文歧义的裁定顺序：先在 Hamel 原文内部核实（上下文、同书其它式与表、Hamel 自己的模拟结果），暂不去找 Hamel 引用的原始文献。两个 agent 对页面图像的像素级读法有分歧时，由目标所有者肉眼判读并裁决。
 - 2026-10-16：批准限定查阅 Wirsum（1998），*Theoretische Beschreibung und experimentelle Untersuchung der Verbrennung von Klärschlamm in blasenbildenden Wirbelschichtfeuerungen*，Fortschr.-Ber. VDI Reihe 6 Nr. 383（CHARTER §4.3）。**采用范围**：只用于查明床区相邻 cell 间的上下固体流、床料存量与惰性床料校正、床面与床底边界、排灰，以及悬浮相反应的催化剂质量口径；不引入 Wirsum 的动力学、物性或污泥专用关联式。查得的内容经总司令在 ADR 0009 中逐项裁定后才可进入模型。本地文件 `docs/_1997_VDI-Dis._Wirsum_Klaerschlamm_blasenbildende_Wirbelschichtfeuerungen.pdf`（SHA256 前缀 e57844f81f1b），不入库。执行见 T13。
 - 2026-10-16：codex 额度不足期间，由目标所有者另开的独立 Claude Code 会话暂代 CHARTER §8 中 codex 的审查职责（须对照页面图像独立核对，不采信 PR 描述）；总司令与审查方的分歧由目标所有者裁决。codex 额度恢复后可随时改回。章程同步为 v0.9 §8 的临时例外（另提 PR，目标所有者批准）。
+- 2026-10-16：cell 划分不按示意图量像素。由总司令从 Hamel 的整体算法与机理出发作解释性裁定：反应与湍动剧烈的区域（床层，尤其床底与进料、进气附近）加密，平缓区域（自由空间上部）放大 cell 长度；不保证复现 Hamel 的具体参数，但方向须与 Hamel 一致（Bild 7.7 显示床区细分、自由空间较粗）。证据由 T15 收集，裁定另立 ADR。
 
 ## 已决定（总司令，ADR）
 
