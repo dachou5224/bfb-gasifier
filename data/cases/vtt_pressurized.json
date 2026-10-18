@@ -662,6 +662,22 @@
         "formula": "w = class_mass_fractions_pct / 100；级序为 <0.1、0.1–0.25、0.25–0.5、0.5–0.71、0.71–1.0、1.0–2.0、2.0–3.15 mm，累积读数之差",
         "note": "筛分级质量分数，来自 data/digitized/kurkela1992_fig1.json。尚未换成等表面积球形颗粒：ADR 0014 D2 没有写明 <0.1 mm 一级的代表粒径，本卡不自定。只写入工况 1。"
       },
+      "fuel_size_class_diameters": {
+        "value": [
+          5.06e-05,
+          0.0001527,
+          0.0003466,
+          0.0005928,
+          0.0008385,
+          0.0013863,
+          0.0024885
+        ],
+        "unit": "m",
+        "source": "解释性选择：ADR 0023；KURKELA_1992 Fig. 1, p. 4（data/digitized/kurkela1992_fig1.json）；Hamel S. 144 的等表面积原则",
+        "status": "derived",
+        "formula": "d_k = ln(b/a)/(1/a − 1/b)，粒级 [a, b] 内累积质量对 ln d 线性；最细一档下限 d_min = 0,1 mm × 10^(−11,6/21,61) = 0,0291 mm（第一段对数斜率外推到 0 %）",
+        "note": "粒级次序与 fuel_size_class_mass_fractions 相同：<0,1、0,1–0,25、0,25–0,5、0,5–0,71、0,71–1,0、1,0–2,0、2,0–3,15 mm。筛孔尺寸按球径计，不作形状修正。只写入工况 1。"
+      },
       "heating_value": {
         "value": 21000000.0,
         "unit": "J/kg",
