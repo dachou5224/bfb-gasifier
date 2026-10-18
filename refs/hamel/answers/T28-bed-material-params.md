@@ -6,11 +6,11 @@
 | 执行者 | cursor |
 | 会话 | 新开的 cursor 会话 |
 | 工作树 | `../bfb-T28`，分支 `task/T28-bed-material-params`，基点 `origin/main`（`ce020ae`） |
-| 日期 | 2026-10-18 |
+| 日期 | 2026-10-18；同日补第 2 项 |
 | 审查方 | 总司令 |
-| 本次范围 | 任务卡第 1、3 项。第 2 项标为待原文 |
+| 本次范围 | 任务卡第 1、2、3 项。A/C 分界只有图，未数字化 |
 
-只查证 Hamel 原文（页面图像；逐页文本只用于定位）。不选定 \(\varepsilon_{mf}\)、\(\varphi_S\)，不计算 Geldart 类别，不写 `hamel/` 代码。Geldart (1973) 的本地 PDF 未提供，未打开。未打开归档代码、`docs/hamel_submodels/` 和旧 parity 读数。第 6 问一律写“未查看归档”。
+只查证。Hamel 部分以页面图像为准，逐页文本只用于定位。Geldart (1973) 用主工作树本地文件 `refs/external/geldart1973-types-of-gas-fluidization.pdf`（不入库）；该 PDF 的文字层是 OCR，数值与式子以页面图像为准。不选定 \(\varepsilon_{mf}\)、\(\varphi_S\)，不计算 Geldart 类别，不写 `hamel/` 代码。未打开归档代码、`docs/hamel_submodels/` 和旧 parity 读数。第 6 问一律写“未查看归档”。
 
 德文排版：点是千分位，逗号是小数点。
 
@@ -216,19 +216,95 @@ u_{mf}=42{,}9\cdot\frac{(1-\varepsilon_{mf})\cdot\nu_g}{\varphi_S\cdot\bar d_P}
 
 ---
 
-## 16. Geldart (1973) 的分界 — 待原文
+## 16. Geldart (1973) 的 A/B、B/D、A/C 分界
 
-任务卡第 2 项暂缓。目标所有者尚未提供 Geldart (1973) 的本地 PDF。
+文献：D. Geldart, *Types of Gas Fluidization*, Powder Technology, 7 (1973) 285–292。本地文件不入库。下面的印刷页是期刊页码；PDF 第 1 页即 p. 285。只录分界。式 (1)、(2) 是最小鼓泡速度与粒径的关联，式 (3) 是最小流化速度关联，式 (9) 起是与其它判据的比较，都不转录。不计算 VTT 床料的类别。
 
-本项不转录 A/B、B/D、A/C 的分界式或分界图，不目测，不引入 Geldart (1973) 以外的文献，也不用 Hamel 正文里的类别名称代替分界。Hamel 参考文献表中的书目条目只说明他引用了这篇文献，分界内容不在 Hamel 书内。
+符号以 p. 291 的符号表为准（页面图像）：
 
-待原文到达后，只录分界，并注明页码或按仓库里的数字化范式另提读图，不在本答卷里补算类别。
+| 符号 | 原文 | 单位 |
+|---|---|---|
+| \(d_{sv}\) | surface/volume diameter of particle | cm |
+| \(U_0\) | superficial velocity of gas at minimum fluidization | cm s\(^{-1}\) |
+| \(U_{MB}\) | superficial velocity of gas at minimum bubbling condition | cm s\(^{-1}\) |
+| \(K_{MB}\) | constant in eqn. (1) | s\(^{-1}\) |
+| \(\rho_s\) | density of particle (including any internal porosity) | g cm\(^{-3}\) |
+| \(\rho_f\) | density of fluidizing gas | g cm\(^{-3}\) |
+| \(\mu\) | viscosity of fluidizing gas | g cm\(^{-1}\) s\(^{-1}\) |
+| \(\varepsilon_0\) | bed voidage at minimum fluidization velocity | — |
+| \(d_B\) | frontal diameter of bubble | cm |
+| \(g\) | gravitation constant | 981 cm s\(^{-2}\) |
+| \(x\) | weight fraction of particles in each size range | — |
+
+Geldart 的 \(U_0\) 是最小流化时的空塔速度。p. 288 把平均粒径写成 \(\bar d_{sv}(=1/\sum x/d_{sv})\)，符号表称 \(d_{sv}\) 为表面/体积直径。行内求和号两边都用了 \(d_{sv}\)，没有另给粒级粒径的符号。
+
+### 16.1 A/B：式 (4)、(5)、(6)
+
+❓ **Q1 出处**：p. 289（PDF 第 5 页）右栏，§4.3。式 (6) 画在 Fig. 3（p. 290）上，标为 XY。p. 288 的正文用了另一个不等号，见 Q5。
+❓ **Q2 变量与单位**：属于 A 类的判据印为
+
+\[
+\frac{U_{MB}}{U_0}\ge 1
+\tag{4}
+\]
+
+\[
+\frac{8\times 10^{-4}\, g\, d_{sv}(\rho_s-\rho_f)}{K_{MB}\mu}\le 1
+\tag{5}
+\]
+
+\[
+(\rho_s-\rho_f)\,d'\le 225
+\tag{6}
+\]
+
+式 (5) 中 \(d_{sv}\) 是一次方。式 (6) 把 \(d_{sv}\)（cm）换成 \(d'\)（粒径，μm）。同页写明，空气、室温、常压时 \(K_{MB}=100\)，\(\mu=1.8\times 10^{-4}\) poise。\(K_{MB}=100\) 的单位条件在 p. 288：\(U_{MB}\) 用 cm s\(^{-1}\)，\(d_{sv}\) 用 cm。式 (6) 的 225 旁边没有再印单位；同页例子把密度差写成 g cm\(^{-3}\)（“density difference 1 g cm\(^{-3}\) larger than about 250 μm”）。
+❓ **Q3 原句**：„Thus for a powder to belong to group A“；„Now for air at room temperature and pressure \(K_{MB}=100\) and \(\mu=1.8\times 10^{-4}\) poise.“；„Equation (6) has been plotted on Fig. 3 as XY“. p. 288：„(\(U_{MB}/U_0>1\) for group A powders)“.
+❓ **Q4 上游依赖**：p. 289 写明式 (5) 由式 (1) 与式 (3) 代入式 (4)。式 (1)、(3) 本身不在本节约录。Fig. 3 的图题：„Powder classification diagram for fluidization by air (ambient conditions).“ 横轴 „Mean particle size \(d_{sv}\) (μm)“，纵轴 „Density difference \((\rho_s-\rho_f)\) (g/cm\(^3\))“。
+❓ **Q5 原文空白**：p. 288 正文是 \(U_{MB}/U_0>1\)，式 (4) 是 \(\ge 1\)。两处都照印，这里不取舍。式 (6) 的界是 225，同页散文把密度差 1 g cm\(^{-3}\) 的 B 类写成 “larger than about 250 μm”。式 (6) 的适用句是空气、室温、常压。p. 291 写，压力升高会增大式 (6) 右端的常数，从而把 Fig. 3 上的 XY 向右移；该页没有给出加压后的新常数，并写 „we do not know the effect on \(K_{MB}\) of simultaneously reducing the gas density“. 因此式 (6) 没有给出非空气或非常压的数值形式。
+❓ **Q6**：未查看归档。
+
+### 16.2 B/D：式 (7)、(8)，以及喷动床一句
+
+❓ **Q1 出处**：式 (7) 在 p. 289 右栏末，§4.4。式 (8) 与喷动床一句在 p. 290 左栏。
+❓ **Q2 变量与单位**：作者写，气泡上升慢于颗粒间隙气速的密度–粒径组合用式 (7)。属于 D 类的数值形式是式 (8)。
+
+\[
+\left(g\frac{d_B}{2}\right)^{1/2}
+\le
+\frac{8\times 10^{-4}\,(\rho_s-\rho_f)\,g\,d_{sv}^{2}}{\mu\varepsilon_0}
+\tag{7}
+\]
+
+\[
+(\rho_s-\rho_f)\,(d')^{2}\ge 10^{6}
+\tag{8}
+\]
+
+式 (7) 左端的指数是 \(1/2\)；下一页写 „in eqn. (7) we are considering \(\sqrt{d_B}\)“. 式 (7) 右端的 \(d_{sv}\) 是平方。代入式 (8) 时作者取 \(d_B=25\) cm，大颗粒体系 \(\varepsilon_0\approx 0.4\)，空气 \(\mu=1.8\times 10^{-4}\) g cm\(^{-1}\) s\(^{-1}\)，并用 \(d'\)（μm）替换 \(d_{sv}\)（cm）。\(10^{6}\) 旁边没有另印单位。第二条判据没有式子：D 类粉末能在深于 30 cm 的床里维持稳定喷动。已报道为可喷动的密度–粒径组合在 Fig. 3 上用叉号表示。叉号的坐标不在这里读取。
+❓ **Q3 原句**：„The distinction between groups B and D is not as clear-cut as that between A and B“；„so let us choose \(d_B=25\) cm“；„For large-particle systems \(\varepsilon_0\approx 0.4\)“；„we obtain, for group D“；„group D powders are capable of maintaining a stable spout in a bed more than 30 cm deep“.
+❓ **Q4 上游依赖**：式 (7) 的右端用了式 (3)。作者接着写，对大颗粒这样用式 (3) „is not strictly justified“，因为流态是过渡区，不是层流；他又写 \(d_B\) 的选取是任意的，因此不改用更复杂的 \(U_0\) 式。喷动床一句引用 Baeyens，并写实验仍在进行。
+❓ **Q5 原文空白**：B 与 D 被写成连续过渡，不是一条非此即彼的线。式 (8) 的 \(10^{6}\) 依赖 \(d_B=25\) cm 和 \(\varepsilon_0\approx 0.4\) 这两个作者写入的数。式 (8) 与式 (6) 一样，数值形式对应的是空气和上述代入，不是加压气化条件。p. 290 写，Fig. 3 上的叉号落在“the line”附近或右侧，并说这给式 (8) 一些支持。判据以式 (8) 的印刷式为准，不从图上辨认曲线、不读坐标。30 cm 喷动床这一条没有 \((\rho_s-\rho_f)\)–\(d\) 的式子，叉号也不读。
+❓ **Q6**：未查看归档。
+
+### 16.3 A/C：只有图
+
+❓ **Q1 出处**：p. 289 右栏，紧接在式 (6) 的数据说明之后；图是 Fig. 3，p. 290。
+❓ **Q2 变量与单位**：没有 A/C 的分界式。原文把 C 与 A 的分界写成 Fig. 3 上的阴影区 PQ。坐标轴与 16.1 的 Fig. 3 相同：横轴 \(d_{sv}\)（μm），纵轴 \((\rho_s-\rho_f)\)（g/cm\(^3\)），空气、环境条件。空心点是作者们认为极难流化的粉末（C 类），半实心点是观察到无气泡床层膨胀的粉末（A 类）。
+❓ **Q3 原句**：„The division between groups C and A is represented by the shaded area PQ which has been drawn so as to separate empirically open and half-closed points.“ §3.3（p. 287）对 C 类只有定性句：„Powders which are in any way cohesive belong in this category“，并把它联系到粒径很小、静电或湿粘物料。该节没有粒径或密度的数值界。
+❓ **Q4 上游依赖**：PQ 是按图上的点经验画出的。没有写出 PQ 的方程。
+❓ **Q5 原文空白**：A/C 只有图。本答卷不目测阴影的坐标，不把图上的刻度读成分界值。是否另开数字化，由总司令决定。
+❓ **Q6**：未查看归档。
+
+### 16.4 第 3 节的描述性范围（不是 §4 的分界式）
+
+p. 286，§3.1：A 类是平均粒径小，并且/或者颗粒密度低，“less than about 1.4 g/cm\(^3\)”。p. 286，§3.2：B 类的大多数物料落在 \(40\,\mu\mathrm{m}<d_{sv}<500\,\mu\mathrm{m}\)、\(4\,\mathrm{g/cm^3}>\rho_s>1.4\,\mathrm{g/cm^3}\)，砂是最典型的粉末。这两句写的是 “most materials” 和 “about”，不是式 (6) 或式 (8)。p. 287，§3.4：D 类限于大颗粒和/或很密的颗粒；除最大的气泡外，气泡上升慢于间隙气体。数值界是式 (8)，不在这一节。
 
 ---
 
 ## 17. VTT 工况 1：若做 Geldart 分类，各量从哪里来
 
-床料按 ADR 0014 A1：燃料生成的焦炭与灰，不含惰性砂。本节只列出处，不计算类别，不选 \(\varepsilon_{mf}\) 或 \(\varphi_S\)。分界式尚未读入（第 16 节），因此“分界式还需要哪些气体物性”要等原文；下面只列任务卡已经点名的床料量，以及 Hamel 在式 (3.1)–(3.4) 里和这些量写在一起的量。
+床料按 ADR 0014 A1：燃料生成的焦炭与灰，不含惰性砂。分界已在第 16 节转录。本节只列各量的出处，不把工况 1 代入式 (4)–(8)，不读 Fig. 3，不给出 A、B、C、D 中的任何一类。
 
 ### 平均粒径 \(\bar d_P\)
 
@@ -249,10 +325,15 @@ u_{mf}=42{,}9\cdot\frac{(1-\varepsilon_{mf})\cdot\nu_g}{\varphi_S\cdot\bar d_P}
 - 式 (3.3) 把 \(\varphi_S\cdot\bar d_P\) 写成 \(u_{mf,0}\)、\(\varepsilon_{mf}\) 和物性的函数。式 (3.4) 再用 \(\varphi_S\)、\(\varepsilon_{mf}\)、\(\bar d_P\) 和操作条件下的 \(\nu_g\)、\(\rho_g\) 求 \(u_{mf}\)。
 - Bild 3.6 的 0,46 和 0,8，以及 S. 45 的 \(\bar\varphi_S=0{,}8\)，出处见第 5、6 节。它们没有写成工况 1 的床料。本答卷不拿来分类。
 
-### 与式 (3.1)–(3.4) 写在一起、而分界原文尚未确认要不要的量
+### 分界式要用、而工况 1 尚未闭合的量
 
-- \(\rho_g\)、\(\mu_g\)、\(\nu_g\)：符号表有定义，式 (3.2)–(3.4) 使用它们。工况 1 的数值不在本答卷的检索范围内被 Hamel 给出；物性来源已由 T14 / T21 另卷处理，这里不重开，也不补数。
-- Geldart (1973) 的分界是否还要气体密度或粘度：待第 16 节的原文。在此之前不列出分界式的符号，也不判断工况 1 属于 A、B、C、D 中的哪一类。
+式 (6)、式 (8) 的数值形式用的是 \((\rho_s-\rho_f)\) 与 \(d'\)（μm）。式 (5) 还用 \(d_{sv}\)（cm）、\(\mu\)、\(g\) 和 \(K_{MB}\)。式 (7) 还用 \(\varepsilon_0\) 与 \(d_B\)。这些式子都不用 \(\varphi_S\)，也不用 Hamel 的 \(u_{mf,0}\)。
+
+- 粒径：Geldart 的 \(d_{sv}\) 是表面/体积平均，行内写成 \(1/\sum x/d_{sv}\)，\(x\) 是各粒级的质量分数。ADR 0015 第 11 项的 \(\bar d_P\) 是床区焦炭的质量加权算术平均。两处定义不同。本答卷不把它们当成同一个数，也不把 ADR 的平均代入式 (6) 或式 (8)。
+- 颗粒密度：Geldart 的 \(\rho_s\) 写明包含内孔，单位 g cm\(^{-3}\)。ADR 0014 A4 的 \(\rho_P\) 由床层压降和几何存量确定，单位在 Hamel 符号表里是 kg/m³。两处没有写成同一个量。本答卷不换算、不代入。
+- 气体密度与粘度：式 (6)、式 (8) 的数值系数对应空气、室温、常压（式 (8) 还代入了 \(\varepsilon_0\approx 0.4\)、\(d_B=25\) cm）。工况 1 是加压气化，不是这个条件。p. 291 只定性地写压力升高会使 XY 右移，没有新的常数。\(\mu\) 与 \(\rho_f\) 的工况数值不在这里补。
+- \(\varepsilon_0\)：符号表定义为最小流化时的床层空隙率。它出现在式 (7)。式 (8) 已经用作者写入的 \(\varepsilon_0\approx 0.4\) 把它代掉。Hamel 没有给出工况 1 的 \(\varepsilon_{mf}\)。本答卷不用 0.4 代替那个空白。
+- A/C：只有 Fig. 3 的阴影 PQ，没有式子。不读图，因此也不列出一条“从图上分类还要哪些数”的清单。
 
 ### 交给总司令的空白（不在本答卷中取值）
 
@@ -260,4 +341,4 @@ u_{mf}=42{,}9\cdot\frac{(1-\varepsilon_{mf})\cdot\nu_g}{\varphi_S\cdot\bar d_P}
 2. \(u_{mf,0}\)：原文未给出测量值。式 (3.3) 因此缺一个输入。
 3. 式 (3.2) 中 \(\bar d_P\) 与 \(d_P\) 是否同一个直径。
 4. 程序走式 (3.3)–(3.4)，还是走常数 \(C_1\)、\(C_2\)。\(C_1\)、\(C_2\) 与指数 \(m\) 都没有选定的值。
-5. Geldart 分界：待原文。分类结论不在本次。
+5. 式 (4) 的 \(\ge\) 与 p. 288 的 \(>\)；式 (6) 的 225 与同页 “about 250 μm”。A/C 是否数字化 Fig. 3 的 PQ。这些都不在本答卷中取值。工况 1 的类别不计算。
