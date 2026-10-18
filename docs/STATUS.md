@@ -32,7 +32,7 @@
 | T17 | §3.2 自由空间的独立转录与比对 | cursor（全新会话，worktree `../bfb-T17`）；审查 codex | 完成 | PR #67（复审通过）。冻结稿 `refs/hamel/transcription/ch3_2_freeboard.md`（`5a68797`）未改。比对稿补了两项：式 (3.96)、(3.98)、(3.103) 与式 (3.88) 或初条件不相容，对调 \(\Psi\) 不是充分修复；Bild 3.7 图内还有 \(T_{WS}=1073\,\mathrm{K}\)、\(p=0{,}1\,\mathrm{MPa}\)、\(d_P=1{,}0\,\mathrm{mm}\)。S. 45、S. 48 仍没有含量、回落、带出的换算式。歧义未裁定 |
 | T18 | 预计算、外层循环与阻尼牛顿法的原文答卷与数据流规格 | cursor（新会话，worktree `../bfb-T18`）；审查 codex | 完成 | PR #66 已合并。答卷 `refs/hamel/answers/T18-solver-structure.md`。PR #66 首轮退回 2 项，2026-10-17 已改：内层只冻结 ADR 点名的系数和边界量；残差在试探点评价。复审通过 |
 | T19 | 床区流动模型（§3.1）与床区固体输运系数 | cursor（新会话，worktree `../bfb-T19`）；审查 codex | 进行中（2026-10-18 派发） | 任务卡 `docs/tasks/T19-hydrodynamics.md`（2026-10-18 复审通过并经 PR #71 合并，已批准，可派发） |
-| T20 | 反应速率（第 5 章，R1–R11） | cursor（新会话，worktree `../bfb-T20`）；审查 codex | 待审查 | `hamel/kinetics/` 按冻结稿实现 R1–R11。R8 用式 (5.45)，a_R8 = 0,02（ADR 0013）。式 (5.23) 的 T、式 (5.10) 的 T_c 与 d_c 原文未说明是否等于 T_P、d_P，保持为调用方参数；颗粒温度迭代只更新式 (5.21) 的 T_P |
+| T20 | 反应速率（第 5 章，R1–R11） | cursor（新会话，worktree `../bfb-T20`）；审查 codex | 待审查 | PR #77。`hamel/kinetics/` 按冻结稿实现 R1–R11。R8 用式 (5.45)，a_R8 = 0,02（ADR 0013）。式 (5.23) 的 T、式 (5.10) 的 T_c 与 d_c 原文未说明是否等于 T_P、d_P，保持为调用方参数；颗粒温度迭代只更新式 (5.21) 的 T_P |
 | T21 | 物性与气相化学平衡（附录 A1） | cursor（新会话，worktree `../bfb-T21`）；审查 codex | 待派发 | 任务卡 `docs/tasks/T21-properties.md`（2026-10-18 复审通过并经 PR #72 合并，已批准，可派发）；先交数据来源答卷 |
 
 ## 执行顺序与分工（2026-10-13 起）
