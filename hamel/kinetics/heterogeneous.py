@@ -97,23 +97,23 @@ def _r1_numbers(
 
 
 def r1_combustion_rate(
-    m_char_kg, rho_c_kg_m3, d_k_m, d_c_m, t_c_k, t_r1_k, t_p_k, t_inf_k,
-    c_o2_mol_m3, pressure_pa, u_r_m_s, mu_g_pa_s, rho_g_kg_m3,
+    m_char_kg, m_ash_kg, rho_p_kg_m3, d_k_m, d_c_m, t_c_k, t_r1_k, t_p_k,
+    t_inf_k, c_o2_mol_m3, pressure_pa, u_r_m_s, mu_g_pa_s, rho_g_kg_m3,
 ) -> ReactionRate:
     """R1 单颗粒进度乘颗粒数。莱茵褐煤用表 5.2 的 Lignite A。
 
+    N_k = (m_C,k + m_A,k) / (ρ_P · π d_k³ / 6)。ρ_P 是含灰颗粒密度，
+    不在这里改成另一种有效密度。解释性选择：ADR 0017 第 19 项。
     ``t_r1_k`` 是式 (5.23) 的 T，``d_c_m`` 与 ``t_c_k`` 是式 (5.9)、(5.10) 的符号。
     原文未说明它们是否等于颗粒温度和 d_P，这里不替换。
-    外表面积取 π d_k²，与 N_k = m/(ρ·π d³/6) 的球体一致。
-    氧气膜扩散用式 (5.20)，粘度与密度由调用方传入。
 
     Source: Hamel Eq.5.14, S. 86
     Source: Hamel Eq.5.15, S. 87
     Source: Hamel Eq.5.23, S. 88
     Source: Hamel Tab.5.2, S. 88
     """
-    mass = _finite("m_char_kg", m_char_kg)
-    density = _positive("rho_c_kg_m3", rho_c_kg_m3)
+    particle_mass = _finite("m_char_kg", m_char_kg) + _finite("m_ash_kg", m_ash_kg)
+    density = _positive("rho_p_kg_m3", rho_p_kg_m3)
     values = _r1_numbers(
         d_k_m, t_inf_k, pressure_pa, u_r_m_s, mu_g_pa_s, rho_g_kg_m3, c_o2_mol_m3
     )
@@ -122,7 +122,7 @@ def r1_combustion_rate(
     _positive("t_r1_k", t_r1_k)
     _positive("t_p_k", t_p_k)
     progress, _area = _r1_progress_per_particle(values, d_c_m, t_c_k, t_r1_k, t_p_k)
-    count = _particle_count(mass, density, values["d_p_m"])
+    count = _particle_count(particle_mass, density, values["d_p_m"])
     return ReactionRate(specific=progress, extent_mol_s=progress * count)
 
 
@@ -193,17 +193,12 @@ def particle_temperature(
 
 
 def _surface_progress(
-    mass_kg: float,
-    density_kg_m3: float,
-    diameter_m: float,
-    temperature_k: float,
-    concentration_mol_m3: float,
-    prefactor_m_s_k: float,
-    activation_temperature_k: float,
+    m_char_kg, m_ash_kg, rho_p_kg_m3, diameter_m, temperature_k,
+    concentration_mol_m3, prefactor_m_s_k, activation_temperature_k,
 ) -> ReactionRate:
-    """R2、R4：单颗粒 A_C·k·C，再乘颗粒数。A_C 取颗粒外表面。"""
-    mass = _finite("m_char_kg", mass_kg)
-    density = _positive("rho_c_kg_m3", density_kg_m3)
+    """R2、R4：单颗粒 A_C·k·C，再乘含灰颗粒数。A_C 取颗粒外表面。"""
+    mass = _finite("m_char_kg", m_char_kg) + _finite("m_ash_kg", m_ash_kg)
+    density = _positive("rho_p_kg_m3", rho_p_kg_m3)
     diameter = _positive("d_k_m", diameter_m)
     temperature = _positive("temperature_k", temperature_k)
     concentration = _finite("concentration_mol_m3", concentration_mol_m3)
@@ -218,22 +213,18 @@ def _surface_progress(
 
 
 def r2_steam_gasification_rate(
-    m_char_kg: float,
-    rho_c_kg_m3: float,
-    d_k_m: float,
-    c_h2o_mol_m3: float,
-    temperature_k: float,
+    m_char_kg, m_ash_kg, rho_p_kg_m3, d_k_m, c_h2o_mol_m3, temperature_k,
 ) -> ReactionRate:
     """R2。式 (5.25) 的 T 原文未说明是哪一个温度，由调用方传入。
 
-    冻结稿记 A_C 的几何意义原文未写。式面是面积乘浓度，不是按粒级质量给出的比速率，
-    故按颗粒外表面乘 N_k。
+    颗粒数同 R1，按 ADR 0017 第 19 项用 m_C + m_A 与 ρ_P。
+    冻结稿记 A_C 的几何意义原文未写。式面是面积乘浓度，不是按粒级质量给出的比速率。
 
     Source: Hamel Eq.5.24, S. 88
     Source: Hamel Eq.5.25, S. 88
     """
     return _surface_progress(
-        m_char_kg, rho_c_kg_m3, d_k_m, temperature_k, c_h2o_mol_m3, 3.42, 15_600.0
+        m_char_kg, m_ash_kg, rho_p_kg_m3, d_k_m, temperature_k, c_h2o_mol_m3, 3.42, 15_600.0
     )
 
 
@@ -247,7 +238,7 @@ def r3_boudouard_rate(
 ) -> ReactionRate:
     """R3。比速率为 1/s，cell 速率只乘 m_j,k/M_C 一次。
 
-    不使用粒径和焦炭密度。T 取 cell 温度，R_g 由调用方传入。
+    只乘焦炭质量，不乘颗粒内灰，也不用粒径和 ρ_P。T 取 cell 温度，R_g 由调用方传入。
     解释性选择：ADR 0010 第 8 条。负活化能保留。
 
     Source: Hamel Eq.5.26, S. 89
@@ -279,17 +270,13 @@ def r3_boudouard_rate(
 
 
 def r4_hydrogasification_rate(
-    m_char_kg: float,
-    rho_c_kg_m3: float,
-    d_k_m: float,
-    c_h2_mol_m3: float,
-    temperature_k: float,
+    m_char_kg, m_ash_kg, rho_p_kg_m3, d_k_m, c_h2_mol_m3, temperature_k,
 ) -> ReactionRate:
-    """R4。对 H₂ 是一次，不是计量系数 2 的二次。T 的含义同 R2，由调用方传入。
+    """R4。对 H₂ 是一次，不是计量系数 2 的二次。颗粒数同 R2。
 
     Source: Hamel Eq.5.34, S. 89
     Source: Hamel Eq.5.35, S. 89
     """
     return _surface_progress(
-        m_char_kg, rho_c_kg_m3, d_k_m, temperature_k, c_h2_mol_m3, 3.42e-3, 15_600.0
+        m_char_kg, m_ash_kg, rho_p_kg_m3, d_k_m, temperature_k, c_h2_mol_m3, 3.42e-3, 15_600.0
     )

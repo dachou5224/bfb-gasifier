@@ -12,8 +12,10 @@ _ATM_PA = 101_325.0
 _A_R8 = 0.02
 # 式 (5.45) 第二个指数里与温度无关的项。
 _R8_SHIFT = -8.91
-# 解释性选择：ADR 0010 第 9 条。740 °C 归高温段。
+# 解释性选择：ADR 0010 第 9 条。740 °C 归高温段。表 5.4 的区间端点含在内。
+_CORELLA_LOW_K = 600.0 + 273.15
 _CORELLA_SPLIT_K = 740.0 + 273.15
+_CORELLA_HIGH_K = 900.0 + 273.15
 
 
 def _extent(specific: float, factor: float) -> ReactionRate:
@@ -255,7 +257,7 @@ def r11_corella_rate(
     """悬浮相焦油二次反应。频率因子单位 m³/(s·kg 催化剂)，再乘催化剂质量。
 
     ``m_catalyst_kg`` 是焦炭加灰的质量（ADR 0014 A6），与 R8、R9 的灰质量不是同一个参数。
-    740 °C 用高温段。区间外仍用所在一侧的参数，不把速率置零。
+    740 °C 用高温段。低于 600 °C 或高于 900 °C 时拒绝计算：ADR 0010 第 9 条没有批准外推。
     解释性选择：ADR 0010 第 9 条。
 
     Source: Hamel Tab.5.4, S. 97
@@ -264,6 +266,8 @@ def r11_corella_rate(
     temperature = _positive("temperature_k", temperature_k)
     gas_constant = _positive("gas_constant_j_mol_k", gas_constant_j_mol_k)
     catalyst = _finite("m_catalyst_kg", m_catalyst_kg)
+    if temperature < _CORELLA_LOW_K or temperature > _CORELLA_HIGH_K:
+        raise KineticsInputError("Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没有批准外推")
     if temperature >= _CORELLA_SPLIT_K:
         prefactor = 0.7
         energy = 63.1e3

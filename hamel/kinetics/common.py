@@ -65,7 +65,7 @@ def _sphere_area_m2(diameter_m: float) -> float:
 
 
 def _particle_count(mass_kg: float, density_kg_m3: float, diameter_m: float) -> float:
-    """N = m / (ρ · π d³ / 6)。质量与密度由调用方传入。"""
+    """N = m / (ρ · π d³ / 6)。m 已是调用方给出的颗粒总质量。"""
     volume_m3 = math.pi * diameter_m**3 / 6.0
     denominator = density_kg_m3 * volume_m3
     if denominator == 0.0:
