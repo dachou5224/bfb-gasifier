@@ -31,9 +31,9 @@
 | T16 | 第 4 章干燥与热解的独立转录与比对 | cursor（全新会话，worktree `../bfb-T16`）；审查 codex | 完成 | PR #68 已合并。转录 `refs/hamel/transcription/ch4_pyrolysis.md`（冻结 `87e6fa6`），比对 `refs/hamel/transcription/ch4_pyrolysis_diff.md`。挥发分基准与热解产物分配只记录、不裁定。式 (4.3) 锋面符号、式 (4.11) 负号、式 (4.12) 的幂、图 4.11 图题交总司令。表 4.4 焦炭列 \(\xi_1\) 印面 5.499 即 5499，冻结稿误作 5,499，更正在比对稿，不改冻结稿 |
 | T17 | §3.2 自由空间的独立转录与比对 | cursor（全新会话，worktree `../bfb-T17`）；审查 codex | 完成 | PR #67（复审通过）。冻结稿 `refs/hamel/transcription/ch3_2_freeboard.md`（`5a68797`）未改。比对稿补了两项：式 (3.96)、(3.98)、(3.103) 与式 (3.88) 或初条件不相容，对调 \(\Psi\) 不是充分修复；Bild 3.7 图内还有 \(T_{WS}=1073\,\mathrm{K}\)、\(p=0{,}1\,\mathrm{MPa}\)、\(d_P=1{,}0\,\mathrm{mm}\)。S. 45、S. 48 仍没有含量、回落、带出的换算式。歧义未裁定 |
 | T18 | 预计算、外层循环与阻尼牛顿法的原文答卷与数据流规格 | cursor（新会话，worktree `../bfb-T18`）；审查 codex | 完成 | PR #66 已合并。答卷 `refs/hamel/answers/T18-solver-structure.md`。PR #66 首轮退回 2 项，2026-10-17 已改：内层只冻结 ADR 点名的系数和边界量；残差在试探点评价。复审通过 |
-| T19 | 床区流动模型（§3.1）与床区固体输运系数 | cursor（新会话，worktree `../bfb-T19`）；审查 codex | 待复审 | PR #78。ADR 0020（待审查）登记搜索参数。复审指出的 JSON `search` 在进入 6 个读法之前绑定为 HydroSearch。X5 未裁定。Bild 3.5/3.3 图注仍缺容器直径、ε_mf、φ_S，真实比较未跑 |
-| T20 | 反应速率（第 5 章，R1–R11） | cursor（新会话，worktree `../bfb-T20`）；审查 codex | 进行中（2026-10-18 派发） | 任务卡 `docs/tasks/T20-kinetics.md`（2026-10-18 复审通过并经 PR #71 合并，已批准，可派发） |
-| T21 | 物性与气相化学平衡（附录 A1） | cursor（新会话，worktree `../bfb-T21`）；审查总司令（答卷与数据录入） | 答卷已交，待总司令审查 | 任务卡 `docs/tasks/T21-properties.md`。答卷 `refs/hamel/answers/T21-properties-sources.md`，行对齐 `data/properties/t21-reid4-appendix-alignment.json`。未写 `hamel/` 代码。苯的 Lennard-Jones 参数已从附录 B 补录；萘仍缺该参数；萘的 Fuller 稠环增量未定；导热式与有效扩散、灰比热未选定；SO₂ 与附录 A 的两行氢待裁定；H₂O(L) 多项式止于 600 K |
+| T19 | 床区流动模型（§3.1）与床区固体输运系数 | cursor（新会话，worktree `../bfb-T19`）；审查 codex | 完成 | PR #78 已合并（2026-10-18）。ADR 0020 登记标量搜索参数。X5 由 ADR 0019 裁定（待批准）。Bild 3.5/3.3 按 ADR 0022 A1 冻结暂定读法，比较工具只作诊断 |
+| T20 | 反应速率（第 5 章，R1–R11） | cursor（新会话，worktree `../bfb-T20`）；审查 codex | 复审通过，待合并 | PR #77。`hamel/kinetics/` 按冻结稿实现 R1–R11。R1、R2、R4 的颗粒数按 ADR 0017 第 19 项用 m_C+m_A 与 ρ_P；R3 仍只用焦炭质量。R8 用式 (5.45)，a_R8 = 0,02（ADR 0013）。式 (5.23) 的 T、式 (5.10) 的 T_c 与 d_c 保持为调用方参数；取值由 ADR 0022 C1 裁定（待批准）：取颗粒温度 T_P 与粒级粒径 |
+| T21 | 物性与气相化学平衡（附录 A1） | cursor（新会话，worktree `../bfb-T21`）；审查：答卷总司令，代码 codex | 第一步完成，第二步待派发 | 数据来源答卷经 PR #79 合并（`refs/hamel/answers/T21-properties-sources.md`，行对齐 `data/properties/t21-reid4-appendix-alignment.json`）。答卷留下的各项由 ADR 0021（待审查）裁定；灰的比热 950 J/(kg·K)（ADR 0018 第 6 项，目标所有者 2026-10-18）。ADR 0021 批准后派发第二步（写代码） |
 
 ## 执行顺序与分工（2026-10-13 起）
 
