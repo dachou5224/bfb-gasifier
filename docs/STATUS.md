@@ -33,7 +33,7 @@
 | T18 | 预计算、外层循环与阻尼牛顿法的原文答卷与数据流规格 | cursor（新会话，worktree `../bfb-T18`）；审查 codex | 完成 | PR #66 已合并。答卷 `refs/hamel/answers/T18-solver-structure.md`。PR #66 首轮退回 2 项，2026-10-17 已改：内层只冻结 ADR 点名的系数和边界量；残差在试探点评价。复审通过 |
 | T19 | 床区流动模型（§3.1）与床区固体输运系数 | cursor（新会话，worktree `../bfb-T19`）；审查 codex | 进行中（2026-10-18 派发） | 任务卡 `docs/tasks/T19-hydrodynamics.md`（2026-10-18 复审通过并经 PR #71 合并，已批准，可派发） |
 | T20 | 反应速率（第 5 章，R1–R11） | cursor（新会话，worktree `../bfb-T20`）；审查 codex | 进行中（2026-10-18 派发） | 任务卡 `docs/tasks/T20-kinetics.md`（2026-10-18 复审通过并经 PR #71 合并，已批准，可派发） |
-| T21 | 物性与气相化学平衡（附录 A1） | cursor（新会话，worktree `../bfb-T21`）；审查总司令（答卷与数据录入） | 答卷已交，待总司令审查 | 任务卡 `docs/tasks/T21-properties.md`。答卷 `refs/hamel/answers/T21-properties-sources.md`，行对齐 `data/properties/t21-reid4-appendix-alignment.json`。未写 `hamel/` 代码。苯、萘缺 Lennard-Jones 参数；萘的 Fuller 稠环增量未定；导热式与有效扩散、灰比热未选定；SO₂ 与附录 A 的两行氢待裁定；H₂O(L) 多项式止于 600 K |
+| T21 | 物性与气相化学平衡（附录 A1） | cursor（新会话，worktree `../bfb-T21`）；审查总司令（答卷与数据录入） | 答卷已交，待总司令审查 | 任务卡 `docs/tasks/T21-properties.md`。答卷 `refs/hamel/answers/T21-properties-sources.md`，行对齐 `data/properties/t21-reid4-appendix-alignment.json`。未写 `hamel/` 代码。苯的 Lennard-Jones 参数已从附录 B 补录；萘仍缺该参数；萘的 Fuller 稠环增量未定；导热式与有效扩散、灰比热未选定；SO₂ 与附录 A 的两行氢待裁定；H₂O(L) 多项式止于 600 K |
 
 ## 执行顺序与分工（2026-10-13 起）
 
