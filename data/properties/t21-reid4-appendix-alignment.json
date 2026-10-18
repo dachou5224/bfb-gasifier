@@ -1,0 +1,737 @@
+{
+  "source": "Reid, Prausnitz, Poling, The Properties of Gases and Liquids, 4th ed., 1987. Scan: main worktree refs/external/reid1987-properties-of-gases-and-liquids-4th.pdf. Not copied into this worktree.",
+  "appendix_B": {
+    "render_dpi": 260,
+    "rotation": "numpy.rot90(image, k=1), i.e. 90 degrees counter-clockwise. In this raster each substance is a vertical strip; pair b0, sigma and epsilon by x, not by a horizontal line.",
+    "pages": {
+      "732": {
+        "printed_page": 733,
+        "fine_skew_deg_ccw": 0.0,
+        "ocr_image": "tab array after rotation; OCR crop drops tab x<620, so ocr_x = tab_x-620. TSV y is the vertical coordinate in that crop.",
+        "note": "Index alignment of the three numeric columns holds for the first 26 substances (b0 deviation within 0.18). Sigma and epsilon OCR lists have 30 values; b0 has 29. The missing b0 is the duplicate 148.3 of ethyl chloride (sigma 4.898, epsilon/k 300), after ethane. He sigma is 2.551 with footnote section sign; OCR read 2.5518."
+      },
+      "733": {
+        "printed_page": 734,
+        "fine_skew_deg_ccw": 1.8,
+        "note": "45 numeric strips. Index alignment of b0, sigma and epsilon passes the b0 test on 43 strips. Two strips fail and are not used: one near HBr, one near HgCl2. Benzene and naphthalene are not on either appendix B page."
+      }
+    },
+    "b0_identity": "b0 = 1.2615 * sigma^3, b0 in cm3/mol, sigma in angstrom. Rows with |b0-calc| above about 0.15 are flagged.",
+    "footnote": "R. A. Svehla, NASA Tech. Rep. R-132, Lewis Research Center, Cleveland, Ohio, 1962. Section sign: sigma determined by quantum-mechanical formulas.",
+    "page_732_rows_0_to_25": [
+      {
+        "pdf_page": 732,
+        "index": 0,
+        "species": "Ar",
+        "b0_cm3_mol": 56.08,
+        "sigma_A": 3.542,
+        "eps_over_k_K": 93.3,
+        "x_b0": 372,
+        "x_sigma": 359,
+        "x_eps": 346,
+        "b0_calc": 56.057,
+        "b0_minus_calc": 0.023
+      },
+      {
+        "pdf_page": 732,
+        "index": 1,
+        "species": "He",
+        "b0_cm3_mol": 20.95,
+        "sigma_A": 2.551,
+        "eps_over_k_K": 10.22,
+        "x_b0": 413,
+        "x_sigma": 398,
+        "x_eps": 385,
+        "b0_calc": 20.942,
+        "b0_minus_calc": 0.008
+      },
+      {
+        "pdf_page": 732,
+        "index": 2,
+        "species": null,
+        "b0_cm3_mol": 61.62,
+        "sigma_A": 3.655,
+        "eps_over_k_K": 178.9,
+        "x_b0": 452,
+        "x_sigma": 439,
+        "x_eps": 426,
+        "b0_calc": 61.596,
+        "b0_minus_calc": 0.024
+      },
+      {
+        "pdf_page": 732,
+        "index": 3,
+        "species": null,
+        "b0_cm3_mol": 28.3,
+        "sigma_A": 2.82,
+        "eps_over_k_K": 32.8,
+        "x_b0": 496,
+        "x_sigma": 486,
+        "x_eps": 468,
+        "b0_calc": 28.29,
+        "b0_minus_calc": 0.01
+      },
+      {
+        "pdf_page": 732,
+        "index": 4,
+        "species": null,
+        "b0_cm3_mol": 83.66,
+        "sigma_A": 4.047,
+        "eps_over_k_K": 231.0,
+        "x_b0": 535,
+        "x_sigma": 521,
+        "x_eps": 509,
+        "b0_calc": 83.616,
+        "b0_minus_calc": 0.044
+      },
+      {
+        "pdf_page": 732,
+        "index": 5,
+        "species": null,
+        "b0_cm3_mol": 64.5,
+        "sigma_A": 3.711,
+        "eps_over_k_K": 78.6,
+        "x_b0": 574,
+        "x_sigma": 564,
+        "x_eps": 551,
+        "b0_calc": 64.47,
+        "b0_minus_calc": 0.03
+      },
+      {
+        "pdf_page": 732,
+        "index": 6,
+        "species": null,
+        "b0_cm3_mol": 89.88,
+        "sigma_A": 4.145,
+        "eps_over_k_K": 259.8,
+        "x_b0": 616,
+        "x_sigma": 609,
+        "x_eps": 592,
+        "b0_calc": 89.838,
+        "b0_minus_calc": 0.042
+      },
+      {
+        "pdf_page": 732,
+        "index": 7,
+        "species": null,
+        "b0_cm3_mol": 170.1,
+        "sigma_A": 5.127,
+        "eps_over_k_K": 337.7,
+        "x_b0": 663,
+        "x_sigma": 649,
+        "x_eps": 632,
+        "b0_calc": 170.011,
+        "b0_minus_calc": 0.089
+      },
+      {
+        "pdf_page": 732,
+        "index": 8,
+        "species": null,
+        "b0_cm3_mol": 93.35,
+        "sigma_A": 4.198,
+        "eps_over_k_K": 186.3,
+        "x_b0": 702,
+        "x_sigma": 686,
+        "x_eps": 673,
+        "b0_calc": 93.329,
+        "b0_minus_calc": 0.021
+      },
+      {
+        "pdf_page": 732,
+        "index": 9,
+        "species": null,
+        "b0_cm3_mol": 210.3,
+        "sigma_A": 5.503,
+        "eps_over_k_K": 396.7,
+        "x_b0": 743,
+        "x_sigma": 726,
+        "x_eps": 715,
+        "b0_calc": 210.226,
+        "b0_minus_calc": 0.074
+      },
+      {
+        "pdf_page": 732,
+        "index": 10,
+        "species": null,
+        "b0_cm3_mol": 100.1,
+        "sigma_A": 4.296,
+        "eps_over_k_K": 507.9,
+        "x_b0": 785,
+        "x_sigma": 769,
+        "x_eps": 759,
+        "b0_calc": 100.018,
+        "b0_minus_calc": 0.082
+      },
+      {
+        "pdf_page": 732,
+        "index": 11,
+        "species": null,
+        "b0_cm3_mol": 265.5,
+        "sigma_A": 5.947,
+        "eps_over_k_K": 322.7,
+        "x_b0": 826,
+        "x_sigma": 806,
+        "x_eps": 798,
+        "b0_calc": 265.327,
+        "b0_minus_calc": 0.173
+      },
+      {
+        "pdf_page": 732,
+        "index": 12,
+        "species": null,
+        "b0_cm3_mol": 127.9,
+        "sigma_A": 4.662,
+        "eps_over_k_K": 134.0,
+        "x_b0": 865,
+        "x_sigma": 850,
+        "x_eps": 842,
+        "b0_calc": 127.822,
+        "b0_minus_calc": 0.078
+      },
+      {
+        "pdf_page": 732,
+        "index": 13,
+        "species": null,
+        "b0_cm3_mol": 197.5,
+        "sigma_A": 5.389,
+        "eps_over_k_K": 340.2,
+        "x_b0": 902,
+        "x_sigma": 890,
+        "x_eps": 881,
+        "b0_calc": 197.429,
+        "b0_minus_calc": 0.071
+      },
+      {
+        "pdf_page": 732,
+        "index": 14,
+        "species": null,
+        "b0_cm3_mol": 148.3,
+        "sigma_A": 4.898,
+        "eps_over_k_K": 356.3,
+        "x_b0": 946,
+        "x_sigma": 932,
+        "x_eps": 925,
+        "b0_calc": 148.233,
+        "b0_minus_calc": 0.067
+      },
+      {
+        "pdf_page": 732,
+        "index": 15,
+        "species": null,
+        "b0_cm3_mol": 88.14,
+        "sigma_A": 4.118,
+        "eps_over_k_K": 449.2,
+        "x_b0": 995,
+        "x_sigma": 974,
+        "x_eps": 964,
+        "b0_calc": 88.094,
+        "b0_minus_calc": 0.046
+      },
+      {
+        "pdf_page": 732,
+        "index": 16,
+        "species": null,
+        "b0_cm3_mol": 92.31,
+        "sigma_A": 4.182,
+        "eps_over_k_K": 350,
+        "x_b0": 1033,
+        "x_sigma": 1012,
+        "x_eps": 1006,
+        "b0_calc": 92.266,
+        "b0_minus_calc": 0.044
+      },
+      {
+        "pdf_page": 732,
+        "index": 17,
+        "species": null,
+        "b0_cm3_mol": 60.17,
+        "sigma_A": 3.626,
+        "eps_over_k_K": 481.8,
+        "x_b0": 1069,
+        "x_sigma": 1058,
+        "x_eps": 1047,
+        "b0_calc": 60.141,
+        "b0_minus_calc": 0.029
+      },
+      {
+        "pdf_page": 732,
+        "index": 18,
+        "species": "CH4",
+        "b0_cm3_mol": 66.98,
+        "sigma_A": 3.758,
+        "eps_over_k_K": 148.6,
+        "x_b0": 1110,
+        "x_sigma": 1097,
+        "x_eps": 1089,
+        "b0_calc": 66.951,
+        "b0_minus_calc": 0.029
+      },
+      {
+        "pdf_page": 732,
+        "index": 19,
+        "species": "CO",
+        "b0_cm3_mol": 63.41,
+        "sigma_A": 3.69,
+        "eps_over_k_K": 91.7,
+        "x_b0": 1144,
+        "x_sigma": 1136,
+        "x_eps": 1128,
+        "b0_calc": 63.382,
+        "b0_minus_calc": 0.028
+      },
+      {
+        "pdf_page": 732,
+        "index": 20,
+        "species": null,
+        "b0_cm3_mol": 88.91,
+        "sigma_A": 4.13,
+        "eps_over_k_K": 336.0,
+        "x_b0": 1188,
+        "x_sigma": 1176,
+        "x_eps": 1172,
+        "b0_calc": 88.866,
+        "b0_minus_calc": 0.044
+      },
+      {
+        "pdf_page": 732,
+        "index": 21,
+        "species": "CO2",
+        "b0_cm3_mol": 77.25,
+        "sigma_A": 3.941,
+        "eps_over_k_K": 195.2,
+        "x_b0": 1233,
+        "x_sigma": 1219,
+        "x_eps": 1211,
+        "b0_calc": 77.216,
+        "b0_minus_calc": 0.034
+      },
+      {
+        "pdf_page": 732,
+        "index": 22,
+        "species": null,
+        "b0_cm3_mol": 113.7,
+        "sigma_A": 4.483,
+        "eps_over_k_K": 467,
+        "x_b0": 1276,
+        "x_sigma": 1258,
+        "x_eps": 1253,
+        "b0_calc": 113.656,
+        "b0_minus_calc": 0.044
+      },
+      {
+        "pdf_page": 732,
+        "index": 23,
+        "species": null,
+        "b0_cm3_mol": 82.79,
+        "sigma_A": 4.033,
+        "eps_over_k_K": 231.8,
+        "x_b0": 1318,
+        "x_sigma": 1297,
+        "x_eps": 1294,
+        "b0_calc": 82.751,
+        "b0_minus_calc": 0.039
+      },
+      {
+        "pdf_page": 732,
+        "index": 24,
+        "species": "C2H4",
+        "b0_cm3_mol": 91.06,
+        "sigma_A": 4.163,
+        "eps_over_k_K": 224.7,
+        "x_b0": 1357,
+        "x_sigma": 1341,
+        "x_eps": 1333,
+        "b0_calc": 91.014,
+        "b0_minus_calc": 0.046
+      },
+      {
+        "pdf_page": 732,
+        "index": 25,
+        "species": null,
+        "b0_cm3_mol": 110.7,
+        "sigma_A": 4.443,
+        "eps_over_k_K": 215.7,
+        "x_b0": 1401,
+        "x_sigma": 1385,
+        "x_eps": 1375,
+        "b0_calc": 110.641,
+        "b0_minus_calc": 0.059
+      }
+    ],
+    "page_733_adopted": [
+      {
+        "species": "H2",
+        "b0": 28.51,
+        "sigma": 2.827,
+        "eps": 59.7,
+        "x_b0": 628,
+        "name": "Hydrogen",
+        "name_x": 626,
+        "b0_calc": 28.501,
+        "b0_minus_calc": 0.009,
+        "pdf_page": 733
+      },
+      {
+        "species": "H2O",
+        "b0": 23.25,
+        "sigma": 2.641,
+        "eps": 809.1,
+        "x_b0": 648,
+        "name": "Water",
+        "name_x": 646,
+        "b0_calc": 23.238,
+        "b0_minus_calc": 0.012,
+        "pdf_page": 733
+      },
+      {
+        "species": "H2S",
+        "b0": 60.02,
+        "sigma": 3.623,
+        "eps": 301.1,
+        "x_b0": 693,
+        "name": "Hydrogen sulfide",
+        "name_x": 697,
+        "b0_calc": 59.992,
+        "b0_minus_calc": 0.028,
+        "pdf_page": 733
+      },
+      {
+        "species": "NH3",
+        "b0": 30.78,
+        "sigma": 2.9,
+        "eps": 558.3,
+        "x_b0": 826,
+        "name": "Ammonia",
+        "name_x": 821,
+        "b0_calc": 30.767,
+        "b0_minus_calc": 0.013,
+        "pdf_page": 733
+      },
+      {
+        "species": "N2",
+        "b0": 69.14,
+        "sigma": 3.798,
+        "eps": 71.4,
+        "x_b0": 897,
+        "name": "Nitrogen",
+        "name_x": 894,
+        "b0_calc": 69.112,
+        "b0_minus_calc": 0.028,
+        "pdf_page": 733
+      },
+      {
+        "species": "O2",
+        "b0": 52.6,
+        "sigma": 3.467,
+        "eps": 106.7,
+        "x_b0": 937,
+        "name": "Oxygen",
+        "name_x": 939,
+        "b0_calc": 52.571,
+        "b0_minus_calc": 0.029,
+        "pdf_page": 733
+      },
+      {
+        "species": "SO2",
+        "b0": 87.75,
+        "sigma": 4.112,
+        "eps": 335.4,
+        "x_b0": 1003,
+        "name": "Sulfur dioxide",
+        "name_x": 1005,
+        "b0_calc": 87.709,
+        "b0_minus_calc": 0.041,
+        "pdf_page": 733
+      }
+    ],
+    "independent_checks": {
+      "CH4": "sigma 3.758 A, epsilon/k 148.6 K, stated in the task card and recovered at x_sigma=1097, x_eps=1089, x_b0=1110.",
+      "CO2": "Poling 5th ed. Example 11-1, PDF 629, printed 11.6: sigma 3.941 A, epsilon/k 195.2 K, cited there as Appendix B.",
+      "N2": "Same example: sigma 3.798 A, epsilon/k 71.4 K."
+    }
+  },
+  "appendix_A": {
+    "render": "Critical-property pages are every third PDF page starting at 657. Rotation numpy.rot90(k=3), 90 degrees clockwise. Small pages at 260 dpi, large pages at 200 dpi.",
+    "columns": [
+      "No",
+      "Formula",
+      "Name",
+      "MolWt",
+      "Tfp_K",
+      "Tb_K",
+      "Tc_K",
+      "Pc_bar",
+      "Vc_cm3_mol",
+      "Zc",
+      "omega",
+      "dipole_debye"
+    ],
+    "printed_page_offset": "Printed page = PDF page + 1, checked on PDF 660->661, 696->697, 720->721.",
+    "naphthalene_baseline": {
+      "pdf_page": 720,
+      "y_of_x": "y = 737 - 0.0295*(x-858), coordinates in the 200 dpi clockwise image",
+      "reason": "A horizontal crop mixes this row with the next. The line is fixed by MW 128.174 at x=858,y=737 and Tc 748.4 at x=1197,y=727."
+    },
+    "species": [
+      {
+        "species": "Ar",
+        "pdf": 657,
+        "no": 4,
+        "y": 242,
+        "values": [
+          39.948,
+          83.8,
+          87.3,
+          150.8,
+          48.7,
+          74.9,
+          0.291,
+          0.001,
+          0.0
+        ]
+      },
+      {
+        "species": "N2",
+        "pdf": 663,
+        "no": 56,
+        "y": 346,
+        "values": [
+          28.013,
+          63.3,
+          77.4,
+          126.2,
+          33.9,
+          89.8,
+          0.29,
+          0.039,
+          0.0
+        ]
+      },
+      {
+        "species": "O2",
+        "pdf": 663,
+        "no": 59,
+        "y": 403,
+        "values": [
+          31.999,
+          54.4,
+          90.2,
+          154.6,
+          50.4,
+          73.4,
+          0.288,
+          0.025,
+          0.0
+        ]
+      },
+      {
+        "species": "SO2",
+        "pdf": 663,
+        "no": 60,
+        "formula_as_printed": "O2S",
+        "y": 422,
+        "values": [
+          64.063,
+          197.7,
+          263.2,
+          430.8,
+          78.8,
+          122.2,
+          0.269,
+          0.256,
+          1.6
+        ]
+      },
+      {
+        "species": "H2_equilibrium",
+        "pdf": 663,
+        "no": 75,
+        "y": 756,
+        "values": [
+          2.016,
+          14.0,
+          20.3,
+          33.0,
+          12.9,
+          64.3,
+          0.303,
+          -0.216,
+          0.0
+        ]
+      },
+      {
+        "species": "H2_normal",
+        "pdf": 666,
+        "no": 76,
+        "y": 192,
+        "values": [
+          2.016,
+          14.0,
+          20.4,
+          33.2,
+          13.0,
+          65.1,
+          0.306,
+          -0.218,
+          0.0
+        ]
+      },
+      {
+        "species": "H2O",
+        "pdf": 666,
+        "no": 77,
+        "y": 219,
+        "values": [
+          18.015,
+          273.2,
+          373.2,
+          647.3,
+          221.2,
+          57.1,
+          0.235,
+          0.344,
+          1.8
+        ]
+      },
+      {
+        "species": "H2S",
+        "pdf": 666,
+        "no": 78,
+        "y": 244,
+        "values": [
+          34.08,
+          189.6,
+          213.5,
+          373.2,
+          89.4,
+          98.6,
+          0.284,
+          0.081,
+          0.9
+        ]
+      },
+      {
+        "species": "NH3",
+        "pdf": 666,
+        "no": 80,
+        "formula_as_printed": "H3N",
+        "y": 294,
+        "values": [
+          17.031,
+          195.4,
+          239.8,
+          405.5,
+          113.5,
+          72.5,
+          0.244,
+          0.25,
+          1.5
+        ]
+      },
+      {
+        "species": "CO",
+        "pdf": 666,
+        "no": 97,
+        "y": 876,
+        "values": [
+          28.01,
+          68.1,
+          81.7,
+          132.9,
+          35.0,
+          93.2,
+          0.295,
+          0.066,
+          0.1
+        ]
+      },
+      {
+        "species": "CO2",
+        "pdf": 666,
+        "no": 99,
+        "y": 932,
+        "Tb": null,
+        "values_note": "Tb cell blank",
+        "values": [
+          44.01,
+          216.6,
+          null,
+          304.1,
+          73.8,
+          93.9,
+          0.274,
+          0.239,
+          0.0
+        ]
+      },
+      {
+        "species": "CH4",
+        "pdf": 669,
+        "no": 116,
+        "y": 559,
+        "values": [
+          16.043,
+          90.7,
+          111.6,
+          190.4,
+          46.0,
+          99.2,
+          0.288,
+          0.011,
+          0.0
+        ]
+      },
+      {
+        "species": "C2H4",
+        "pdf": 675,
+        "no": 155,
+        "y": 293,
+        "values": [
+          28.054,
+          104.0,
+          169.3,
+          282.4,
+          50.4,
+          130.4,
+          0.28,
+          0.089,
+          0.0
+        ]
+      },
+      {
+        "species": "C6H6",
+        "pdf": 696,
+        "no": 343,
+        "y": 743,
+        "values": [
+          78.114,
+          278.7,
+          353.2,
+          562.2,
+          48.9,
+          259.0,
+          0.271,
+          0.212,
+          0.0
+        ]
+      },
+      {
+        "species": "C10H8",
+        "pdf": 720,
+        "no": 543,
+        "baseline": "sloped",
+        "values": [
+          128.174,
+          353.5,
+          491.1,
+          748.4,
+          40.5,
+          413.0,
+          0.269,
+          0.302,
+          0.0
+        ]
+      }
+    ]
+  }
+}

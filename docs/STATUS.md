@@ -33,7 +33,7 @@
 | T18 | 预计算、外层循环与阻尼牛顿法的原文答卷与数据流规格 | cursor（新会话，worktree `../bfb-T18`）；审查 codex | 完成 | PR #66 已合并。答卷 `refs/hamel/answers/T18-solver-structure.md`。PR #66 首轮退回 2 项，2026-10-17 已改：内层只冻结 ADR 点名的系数和边界量；残差在试探点评价。复审通过 |
 | T19 | 床区流动模型（§3.1）与床区固体输运系数 | cursor（新会话，worktree `../bfb-T19`）；审查 codex | 进行中（2026-10-18 派发） | 任务卡 `docs/tasks/T19-hydrodynamics.md`（2026-10-18 复审通过并经 PR #71 合并，已批准，可派发） |
 | T20 | 反应速率（第 5 章，R1–R11） | cursor（新会话，worktree `../bfb-T20`）；审查 codex | 进行中（2026-10-18 派发） | 任务卡 `docs/tasks/T20-kinetics.md`（2026-10-18 复审通过并经 PR #71 合并，已批准，可派发） |
-| T21 | 物性与气相化学平衡（附录 A1） | cursor（新会话，worktree `../bfb-T21`）；审查 codex | 待派发 | 任务卡 `docs/tasks/T21-properties.md`（2026-10-18 复审通过并经 PR #72 合并，已批准，可派发）；先交数据来源答卷 |
+| T21 | 物性与气相化学平衡（附录 A1） | cursor（新会话，worktree `../bfb-T21`）；审查总司令（答卷与数据录入） | 答卷已交，待总司令审查 | 任务卡 `docs/tasks/T21-properties.md`。答卷 `refs/hamel/answers/T21-properties-sources.md`，行对齐 `data/properties/t21-reid4-appendix-alignment.json`。未写 `hamel/` 代码。苯、萘缺 Lennard-Jones 参数；萘的 Fuller 稠环增量未定；导热式与有效扩散、灰比热未选定；SO₂ 与附录 A 的两行氢待裁定；H₂O(L) 多项式止于 600 K |
 
 ## 执行顺序与分工（2026-10-13 起）
 
@@ -45,7 +45,7 @@ cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令�
 |---|---|---|---|---|
 | T19 | `hamel/hydrodynamics/`：§3.1 与 ADR 0009 的床内 Ṁ_auf、M_i、ρ_P；Bild 3.5 A/B 工具 | T8 冻结稿；ADR 0009、0011、0013、0014 | 无（Bild 3.5/3.3 读数可后到；VTT 的 n_0、h_A 为阻塞项 X5，不阻塞本卡） | 与 T20 并行 |
 | T20 | `hamel/kinetics/`：R1–R11 速率 | T4 冻结稿；ADR 0010、0013、0014 A6 | 无（ε_P、σ 作为必填参数） | 与 T19 并行 |
-| T21 | `hamel/properties/`：常数、组分数据、焓、μ^0、输运性质、附录 A1 的自由焓最小化 | T14 答卷；附录 A1；ADR 0017、0018 | ADR 0017、0018 批准；先交数据来源答卷；文献本地文件由目标所有者提供 | 与 T19、T20 并行 |
+| T21 | `hamel/properties/`：常数、组分数据、焓、μ^0、输运性质、附录 A1 的自由焓最小化 | T14 答卷；附录 A1；ADR 0017、0018 | 数据来源答卷已交，待总司令审查；通过后再写代码 | 与 T19、T20 并行 |
 | T22 | `hamel/pyrolysis/`：单颗粒干燥与热解、产率、热解气平衡、释放份额 | T16 冻结稿；ADR 0015 | T21（平衡要 μ^0）；单颗粒部分可先做 | T19、T20 之后 |
 | T23 | `hamel/freeboard/`：床面抛出、轨迹积分、输运系数、悬停检测 | T17 冻结稿；ADR 0016 | T19（ε_b、u_b）；先做工况 1 的悬停预检 | 与 T22 并行 |
 | T24 | 求解器的未定接口（ADR 0017，已起草）：气相与能量变量的形式、雅可比、初值、第一次外层、Wirsum 的 ν_max 与终止条件、ε_P 与 σ 的取值 | T18 答卷“待定”各项 | 无 | 可与 T19–T23 并行起草 |
