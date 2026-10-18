@@ -22,7 +22,9 @@ from pathlib import Path
 
 from hamel.hydrodynamics.bed import (
     BedConditions,
+    HydroSearch,
     HydrodynamicsError,
+    _use_search,
     alpha_b,
     bubble_growth_rate,
     bubble_lifetime,
@@ -215,6 +217,7 @@ def _undecided(rows, reason, pending=None):
 
 def compare(diameter_figure, throughflow_figure, model):
     """对图中各点计算 6 个组合的 E 与 E′，并给出候选集合。"""
+    _require_bound_search(model)
     sigma_d = float(diameter_figure["est_error"]["bubble_diameter_m"])
     sigma_u = float(throughflow_figure["est_error"]["throughflow_velocity_m_s"])
     diameter_points = list(diameter_figure["points"])
@@ -331,9 +334,10 @@ def main(argv=None):
     parser.add_argument("--model", type=Path, required=True, help="模型条件 JSON，不含默认物性")
     args = parser.parse_args(argv)
     model = load_figure(args.model)
-    if "properties_at" not in model and "pressures" not in model:
-        raise SystemExit("模型 JSON 必须给出各压力下的 rho_g、mu_g、nu_g")
-    model = _bind_properties(model)
+    try:
+        model = _bind_properties(model)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise SystemExit(f"模型配置无效，尚未比较 6 个读法：{exc}") from exc
     result = compare(
         normalize_diameter_figure(load_figure(args.fig_3_5)),
         normalize_throughflow_figure(load_figure(args.fig_3_3)),
@@ -359,6 +363,10 @@ def main(argv=None):
 
 
 def _bind_properties(model):
+    if "pressures" not in model:
+        raise ValueError("模型 JSON 必须给出各压力下的 rho_g、mu_g、nu_g")
+    if "search" not in model:
+        raise ValueError("模型 JSON 必须给出 search，且含 ADR 0020 的全部字段")
     table = {float(item["pressure_Pa"]): item for item in model["pressures"]}
 
     def properties_at(pressure):
@@ -367,7 +375,44 @@ def _bind_properties(model):
 
     bound = dict(model)
     bound["properties_at"] = properties_at
+    bound["search"] = _bind_search(model["search"])
     return bound
+
+
+def _require_bound_search(model):
+    search = model.get("search")
+    if not isinstance(search, HydroSearch):
+        raise ValueError(
+            "model['search'] 必须是 HydroSearch。JSON 对象要先绑定，不能把类型错误记成读法无解"
+        )
+    try:
+        _use_search(search)
+    except HydrodynamicsError as exc:
+        raise ValueError(f"search 未通过 ADR 0020 的校验：{exc}") from exc
+
+
+def _bind_search(payload):
+    """把 JSON 对象做成 HydroSearch。缺字段不补默认值。"""
+    names = tuple(HydroSearch.__dataclass_fields__)
+    if isinstance(payload, HydroSearch):
+        built = payload
+    elif isinstance(payload, dict):
+        missing = [name for name in names if name not in payload]
+        unknown = sorted(set(payload) - set(names))
+        if missing or unknown:
+            raise ValueError(
+                "search 必须正好包含 ADR 0020 的字段，不能补默认值。缺少："
+                + ("、".join(missing) or "无")
+                + "；多余："
+                + ("、".join(unknown) or "无")
+            )
+        built = HydroSearch(**{name: payload[name] for name in names})
+    else:
+        raise ValueError("search 必须是 HydroSearch，或含全部登记字段的 JSON 对象")
+    try:
+        return _use_search(built)
+    except HydrodynamicsError as exc:
+        raise ValueError(f"search 未通过 ADR 0020 的校验：{exc}") from exc
 
 
 if __name__ == "__main__":
