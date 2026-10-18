@@ -1,6 +1,6 @@
 # 项目状态（STATUS）
 
-唯一交接文档，原地更新。最后更新：2026-10-17（T18 按 PR #66 退回意见修订，待 codex 复审）
+唯一交接文档，原地更新。最后更新：2026-10-18（Bild 3.3 与 Bild 3.5 读数完成，待按 ADR 0013 判定；PR #73）
 
 ## 当前阶段
 
@@ -81,7 +81,7 @@ cursor 为主执行者，codex 审查代码、转录和 ADR 类 PR，总司令�
 - **第 1 关输入裁定（ADR 0014，2026-10-17 批准）**：床料为焦炭与灰（无惰性砂）、床高 1,2 m、床料质量由床层压降得 3,96 kg、ρ_P 由压降确定、排灰为外层量（灰分量与总流率分开，应接近 0）、cell 划分 8 × 0,15 m + 8 × 0,2875 m、干空气、加入温度 298,15 K、燃料粒径分布用 KURKELA Fig. 1 的工具读数；并对 ADR 0009 作 VTT 适用修订。阻塞项：X1 壁面散热——方案 (a)，按章程 v0.11 §1 例外取 21,7 kW（表 6 唯一不循环褐煤列，与表 5 首列即工况 1 对应，依据见 ADR 0014；须报告绝热对照的全部 7 个验收量）；X2 旋风——目标所有者决定为纯物理的粗细颗粒分离（不计反应与传热，等温通过；按原文两个 cell），见 ADR 0014；X2a 连接管——目标所有者决定为不计反应与传热的输运段（方案 a）；X3 床料粒径——由 ADR 0015 第 11 项闭合（已批准）；X4 a_R8——目标所有者选 (a)，0,02，登记于 ADR 0013。
 
 - **第 1 关首次完整运行时复核的暂定项**：ADR 0006 第 5 项（吹扫氮 A/B）；ADR 0010 第 3 条（R8 采用 (5.49) 还是 (5.45) 的 A/B）与第 9 条（Serio 第二对参数的影响）；ADR 0011 第 7 条（α_b 三种读法的 ξ_b、d_b、K_bd）；ADR 0009 第 1、2、4、5 项（各 cell 的上下固体流、存量与焦炭存量）。
-- **实现流动模块时复核**：ADR 0011 第 10 条（式 3.43 的 −1，以 Bild 3.5 做 A/B，须先数字化该图）；Bild 3.4 图文不符登记到 `refs/hamel/index.json` 的 `source_issues`，并入流动模块任务卡处理。若 Bild 3.5 不能区分，是否查阅 Heinbockel (1995) 由目标所有者决定。
+- **实现流动模块时复核**：ADR 0011 第 10 条（式 3.43 的 −1，以 Bild 3.5 做 A/B）。Bild 3.5 与 Bild 3.3 的五条 Berechnung 实线已由 cursor 按目标所有者指派读完（PR #73，`data/digitized/fig_3_5.json`、`fig_3_3.json`），待按 ADR 0013 判定。Bild 3.4 图文不符登记到 `refs/hamel/index.json` 的 `source_issues`，并入流动模块任务卡处理。若 Bild 3.5 不能区分，是否查阅 Heinbockel (1995) 由目标所有者决定。
 - **启用后备工况时再定**：ADR 0010 第 7 条（非莱茵褐煤燃料的 R1 参数）与第 10 条（十六烷的 k₁₀）。
 - **VTT 加压 1 的输入缺口**：完整清单以 [`data/cases/vtt_pressurized_gaps.md`](../data/cases/vtt_pressurized_gaps.md) 的“缺口”表和 `data/cases/vtt_pressurized.json` 中 `status: missing` 的字段为准，本条只是摘要，未列出的不等于已解决。截至 2026-10-15，工况 1 装配时会遇到的 `missing` 字段：
   - 装置（`shared`）：`cell_count`、`cell_heights`、`agent_feed_height`（二次风高度）、`bed_height`、`bed_inventory_composition`、`bed_inventory_diameter`、`ash_withdrawal_count`（排灰位置）、`wall_heat_transfer_coefficient`、`cyclone_geometry`、`connecting_line_geometry`、`return_line_geometry`；
