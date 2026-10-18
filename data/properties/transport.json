@@ -1,0 +1,102 @@
+{
+  "fuller_increments": {
+    "source": "Poling, Prausnitz & O'Connell, The Properties of Gases and Liquids, 5th ed., Table 11-1, PDF 634（书眉 11.11）。",
+    "C": 15.9,
+    "H": 2.31,
+    "O": 6.11,
+    "N": 4.54,
+    "S": 22.9,
+    "aromatic_ring": -18.3,
+    "heterocyclic_ring": -18.3
+  },
+  "lennard_jones_source": "Reid, Prausnitz & Poling, 4th ed., Appendix B（Svehla, NASA Tech. Rep. R-132, 1962）。σ 单位 Å，ε/k 单位 K。",
+  "critical_source": "Reid, Prausnitz & Poling, 4th ed., Appendix A。T_c 单位 K，P_c 单位 bar，V_c 单位 cm³/mol，偶极矩单位 debye。",
+  "naphthalene_lennard_jones": {
+    "method": "Poling 第 5 版式 (9-4.7)、(9-4.8)，PDF 462：ε/k = T_c/1.2593，σ = 0.809·V_c^(1/3)。T_c、V_c 取附录 A。解释性选择：ADR 0021 第 1 项。",
+    "epsilon_factor": 1.2593,
+    "sigma_factor": 0.809
+  },
+  "species": {
+    "Ar": {
+      "sigma_A": 3.542, "epsilon_K": 93.3, "lj_pdf_page": 732,
+      "tc_K": 150.8, "pc_bar": 48.7, "vc_cm3_mol": 74.9, "omega": 0.001, "dipole_D": 0.0,
+      "critical_pdf_page": 657, "critical_number": 4,
+      "fuller_volume": 16.2, "aromatic_rings": 0
+    },
+    "CO": {
+      "sigma_A": 3.69, "epsilon_K": 91.7, "lj_pdf_page": 732,
+      "tc_K": 132.9, "pc_bar": 35.0, "vc_cm3_mol": 93.2, "omega": 0.066, "dipole_D": 0.1,
+      "critical_pdf_page": 666, "critical_number": 97,
+      "fuller_volume": 18.0, "aromatic_rings": 0
+    },
+    "CO2": {
+      "sigma_A": 3.941, "epsilon_K": 195.2, "lj_pdf_page": 732,
+      "tc_K": 304.1, "pc_bar": 73.8, "vc_cm3_mol": 93.9, "omega": 0.239, "dipole_D": 0.0,
+      "critical_pdf_page": 666, "critical_number": 99,
+      "fuller_volume": 26.9, "aromatic_rings": 0
+    },
+    "H2": {
+      "sigma_A": 2.827, "epsilon_K": 59.7, "lj_pdf_page": 733,
+      "tc_K": 33.2, "pc_bar": 13.0, "vc_cm3_mol": 65.1, "omega": -0.218, "dipole_D": 0.0,
+      "critical_pdf_page": 666, "critical_number": 76,
+      "critical_note": "normal hydrogen，ADR 0021 第 7 项。不用 equilibrium 行（编号 75）。",
+      "fuller_volume": 6.12, "aromatic_rings": 0
+    },
+    "H2O": {
+      "sigma_A": 2.641, "epsilon_K": 809.1, "lj_pdf_page": 733,
+      "tc_K": 647.3, "pc_bar": 221.2, "vc_cm3_mol": 57.1, "omega": 0.344, "dipole_D": 1.8,
+      "critical_pdf_page": 666, "critical_number": 77,
+      "fuller_volume": 13.1, "aromatic_rings": 0
+    },
+    "CH4": {
+      "sigma_A": 3.758, "epsilon_K": 148.6, "lj_pdf_page": 732,
+      "tc_K": 190.4, "pc_bar": 46.0, "vc_cm3_mol": 99.2, "omega": 0.011, "dipole_D": 0.0,
+      "critical_pdf_page": 669, "critical_number": 116,
+      "fuller_volume": null, "aromatic_rings": 0
+    },
+    "C2H4": {
+      "sigma_A": 4.163, "epsilon_K": 224.7, "lj_pdf_page": 732,
+      "tc_K": 282.4, "pc_bar": 50.4, "vc_cm3_mol": 130.4, "omega": 0.089, "dipole_D": 0.0,
+      "critical_pdf_page": 675, "critical_number": 155,
+      "fuller_volume": null, "aromatic_rings": 0
+    },
+    "N2": {
+      "sigma_A": 3.798, "epsilon_K": 71.4, "lj_pdf_page": 733,
+      "tc_K": 126.2, "pc_bar": 33.9, "vc_cm3_mol": 89.8, "omega": 0.039, "dipole_D": 0.0,
+      "critical_pdf_page": 663, "critical_number": 56,
+      "fuller_volume": 18.5, "aromatic_rings": 0
+    },
+    "O2": {
+      "sigma_A": 3.467, "epsilon_K": 106.7, "lj_pdf_page": 733,
+      "tc_K": 154.6, "pc_bar": 50.4, "vc_cm3_mol": 73.4, "omega": 0.025, "dipole_D": 0.0,
+      "critical_pdf_page": 663, "critical_number": 59,
+      "fuller_volume": 16.3, "aromatic_rings": 0
+    },
+    "NH3": {
+      "sigma_A": 2.9, "epsilon_K": 558.3, "lj_pdf_page": 733,
+      "tc_K": 405.5, "pc_bar": 113.5, "vc_cm3_mol": 72.5, "omega": 0.25, "dipole_D": 1.5,
+      "critical_pdf_page": 666, "critical_number": 80,
+      "fuller_volume": 20.7, "aromatic_rings": 0
+    },
+    "H2S": {
+      "sigma_A": 3.623, "epsilon_K": 301.1, "lj_pdf_page": 733,
+      "tc_K": 373.2, "pc_bar": 89.4, "vc_cm3_mol": 98.6, "omega": 0.081, "dipole_D": 0.9,
+      "critical_pdf_page": 666, "critical_number": 78,
+      "fuller_volume": null, "aromatic_rings": 0
+    },
+    "C6H6": {
+      "sigma_A": 5.349, "epsilon_K": 412.3, "lj_pdf_page": 733,
+      "tc_K": 562.2, "pc_bar": 48.9, "vc_cm3_mol": 259.0, "omega": 0.212, "dipole_D": 0.0,
+      "critical_pdf_page": 696, "critical_number": 343,
+      "fuller_volume": null, "aromatic_rings": 1
+    },
+    "C10H8": {
+      "sigma_A": null, "epsilon_K": null, "lj_pdf_page": null,
+      "lj_note": "附录 B 无萘。用式 (9-4.7)、(9-4.8) 由临界参数估算。ADR 0021 第 1 项。",
+      "tc_K": 748.4, "pc_bar": 40.5, "vc_cm3_mol": 413.0, "omega": 0.302, "dipole_D": 0.0,
+      "critical_pdf_page": 720, "critical_number": 543,
+      "fuller_volume": null, "aromatic_rings": 2,
+      "fuller_note": "两个芳香环各计一次增量。ADR 0021 第 2 项。"
+    }
+  }
+}
