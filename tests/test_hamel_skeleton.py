@@ -117,10 +117,10 @@ def test_assemble_vtt_pressurized_1():
 
 
 def test_missing_field_is_an_error_on_both_plants():
-    with pytest.raises(MissingFieldError, match="bed_height"):
-        read_case_field(VTT, "1", "bed_height")
+    with pytest.raises(MissingFieldError, match="bed_inventory_diameter"):
+        read_case_field(VTT, "1", "bed_inventory_diameter")
     with pytest.raises(MissingFieldError, match="inlet_gas_mole_fractions"):
-        read_case_field(VTT, "CASE_VTT_PRESSURIZED_1", "inlet_gas_mole_fractions")
+        read_case_field(VTT, "2", "inlet_gas_mole_fractions")
     with pytest.raises(MissingFieldError, match="inlet_temperature"):
         assemble_case(VTT, "2")
     with pytest.raises(MissingFieldError, match="bed_height"):

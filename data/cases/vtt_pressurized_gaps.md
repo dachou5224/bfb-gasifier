@@ -73,12 +73,12 @@ Hamel 在 S. 133 写模拟所用的数据取自 Kurkela & Ståhlberg（1992）�
 
 - 泥炭氧（差减）表 1 是 33,55 wt%，表 7.2 是 33,6。按 33,55 与 C、H、N、S、灰分相加为 100,00；按 33,6 为 100,05。元素仍用 33,6。
 - 标准立方米在表 3、表 4 的注里定义为 273,15 K、101,3 kPa。摩尔流量仍按 ADR 0004 的 101 325 Pa，不改。
-- 表 4、表 5 另有石灰石进料和氮气进料，表 7.2 没有这两路。氮气已写入各工况的 `nitrogen_purge_volume_flow`（cited）和按 ADR 0004 换算的 `nitrogen_purge_amount_flow`（derived）。泥炭九列（表 4，p. 8，工况 5–13）是 8,8、3,6、3,7、2,3、4,2、3,9、3,2、2,7、2,4 Nm³/h。褐煤和锯末（表 5，p. 9，工况 1–4、14–15）是 6,2、3,2、3,5、2,5、2,0、3,5 Nm³/h。只有工况 1、2 的 note 写按 ADR 0006 暂定计入模型；其余写模型是否计入待裁定（ADR 0006 第 4 项）。吹扫氮的温度仍缺，没有填。石灰石是 1,8、0、0、1,1、0、0、0、0、0,3 kg/h（泥炭）和 0（褐煤、锯末），不在 ADR 0006 范围内，没有写入。
+- 表 4、表 5 另有石灰石进料和氮气进料，表 7.2 没有这两路。氮气已写入各工况的 `nitrogen_purge_volume_flow`（cited）和按 ADR 0004 换算的 `nitrogen_purge_amount_flow`（derived）。泥炭九列（表 4，p. 8，工况 5–13）是 8,8、3,6、3,7、2,3、4,2、3,9、3,2、2,7、2,4 Nm³/h。褐煤和锯末（表 5，p. 9，工况 1–4、14–15）是 6,2、3,2、3,5、2,5、2,0、3,5 Nm³/h。只有工况 1、2 的 note 写按 ADR 0006 暂定计入模型；其余写模型是否计入待裁定（ADR 0006 第 4 项）。吹扫氮温度与燃料加入温度按 ADR 0014 C2 记为 298,15 K，见 T29。石灰石是 1,8、0、0、1,1、0、0、0、0、0,3 kg/h（泥炭）和 0（褐煤、锯末），不在 ADR 0006 范围内，没有写入。
 - 床层温度、自由空间温度、床层压降和热损失是试验结果，不是进料。表 6 的热损失是差额，没有换成传热系数。
 - 文献写两台旋风。Hamel 在 S. 133 按一个旋风假设两个 cell，`cyclone_cell_count` 仍是 2。旋风尺寸两边都没有。
-- 床料成分没有给出。p. 16 的石英砂是建议另做的试验，不是这批试验的床料。
+- 床料成分原文没有给出。p. 16 的石英砂是建议另做的试验，不是这批试验的床料。ADR 0014 A1 的种类裁定没有质量分数，字段仍 missing，见 T29。
 
-`bed_height` 仍空着。表 3 的 1,2 m 是床区筒体。各列床层压降从 0 到 4,3 kPa，不是同一个操作床高。
+`bed_height` 按 ADR 0014 A2 记为 1,2 m（derived，字段在 shared）。表 3 的 1,2 m 仍是床区筒体；操作床高取床面标记与细筒段顶边重合，不由各列压降推算。工况 1 的床料质量另记 `bed_mass`。
 
 ## 清单对应
 
@@ -90,18 +90,18 @@ Hamel 在 S. 133 写模拟所用的数据取自 Kurkela & Ståhlberg（1992）�
 | 连接管、返料管尺寸 | `connecting_line_geometry`、`return_line_geometry` |
 | 旋风尺寸 | `cyclone_geometry` 为 missing；两格假设记在 `cyclone_cell_count` = 2 |
 | 燃料进口个数与高度 | `fuel_feed_count` = 1；`fuel_feed_location` 为紧贴布风板上方；`fuel_feed_height` = 0,12 m（cited） |
-| 气化剂进口个数与高度 | `agent_feed_count` = 2；`agent_feed_height` 为 missing |
+| 气化剂进口个数与高度 | `agent_feed_count` = 2；`agent_feed_height` = 1,4875 m（derived，ADR 0014 B） |
 | 排灰口 | `ash_withdrawal_count` |
 | 返料位置 | `return_location`；各工况开关是 `recirculation` |
 | 壁面传热系数 | `wall_heat_transfer_coefficient` |
 | 燃料量 | `fuel_mass_flow` |
 | 工业分析、元素分析、热值 | `fuels` 与各工况水分；固定碳为 cited。热值只在工况 1、3、7、11、14 |
-| 燃料粒径分布 | `fuel_size_class_mass_fractions` |
+| 燃料粒径分布 | 工况 1 的 `fuel_size_class_mass_fractions` 为筛分级份额；等表面积换算见 T29 |
 | 各进气口体积流量 | `primary_air_volume_flow`、`secondary_air_volume_flow`，摩尔流量按 ADR 0004。吹扫氮另记 `nitrogen_purge_volume_flow` |
-| 进入气体组成 | `inlet_gas_mole_fractions` |
+| 进入气体组成 | 工况 1 的 `inlet_gas_mole_fractions` 为干空气与纯蒸汽（ADR 0014 C1）；其余工况仍 missing |
 | 进入气体温度与压力 | 工况 1、3、7、11、14 的 `inlet_temperature` 为 185 °C；其余仍 missing。`pressure` 取表 7.2 的 Druck |
-| 床料组成与粒径 | `bed_inventory_composition`、`bed_inventory_diameter` |
-| 床高 | `bed_height` |
+| 床料组成与粒径 | `bed_inventory_composition` 仍 missing（见 T29）；`bed_inventory_diameter` 仍 missing |
+| 床高 | `bed_height` = 1,2 m（derived，ADR 0014 A2） |
 | 蒸汽 | `steam_mass_flow`（表 7.2 的 Dampf；与一次风一起从 Düsenboden 进入） |
 
 `secondary_air_amount_flow` 与已有的 `primary_air_amount_flow` 同一换算。WSV400 的二次风是短横，所以那个文件没有这个键。
@@ -111,21 +111,20 @@ Hamel 在 S. 133 写模拟所用的数据取自 Kurkela & Ståhlberg（1992）�
 | 字段 | 模型里用在哪里 | 原文查过的位置 | 可能的处理 |
 |---|---|---|---|
 | `heating_value` | 能量衡算、进料焓 | 表 6 只覆盖工况 1、3、7、11、14 | 其余工况对不上代表点，不外推。不能用旧文件里的数 |
-| `inlet_gas_mole_fractions` | 进气组成 | 表 2.2；表 7.2 只写 Luft/Dampf；1992 年文献也没有空气的 y_i | 相容性检查里的 0,21 不是进气组成。吹扫氮已按 ADR 0006 另记，没有并进空气 |
-| `inlet_temperature` | 进气焓 | 表 6 的 185 °C 只用于对上的五列 | 其余工况不外推。旧文件的 293 K 没有采用 |
-| `bed_inventory_composition`、`bed_inventory_diameter`、`bed_particle_density` | 床料衡算、流动、ADR 0009 的 ρ_P、ADR 0011 的 Geldart 分类 | 表 2.2；§7.1.3；KURKELA_1992 p. 6、p. 16；KURKELA_1991 装置章 | 仍缺。p. 16 的石英砂是建议另做的试验。不取典型密度或 1–4 mm |
-| `bed_height` | 表 2.2 的操作床高；ADR 0009 第 3 项的几何存量 | 表 3 的 1,2 m 是筒体；表 4、表 5 有压降 | 压降已录入 `bed_pressure_drop`，不据此推床高。示意图不量像素 |
+| `inlet_gas_mole_fractions` | 进气组成 | 表 2.2；表 7.2 只写 Luft/Dampf | 工况 1 已按 ADR 0014 C1 录入。工况 2–15 仍缺。吹扫氮不并进空气 |
+| `inlet_temperature` | 进气焓 | 表 6 的 185 °C 只用于对上的五列 | 工况 1、3、7、11、14 的 458,15 K 不改。其余工况不外推。燃料与吹扫氮的温度不在这个字段 |
+| `bed_inventory_composition` | 床料种类 | ADR 0014 A1 | 未录入。裁定是焦炭与灰、不含砂，没有质量分数；字段单位是 kg/kg |
+| `bed_inventory_diameter` | 床料流动、Geldart | ADR 0014 X3；ADR 0015 | 仍缺。不把燃料筛分当作床料粒径 |
+| `bed_particle_density` | ADR 0009 的 ρ_P | ADR 0014 A4 | 不录主值。外层由床区积分等于工况 1 的 `bed_mass` 反求 |
 | `cell_count` | 反应器分格 | Bild 7.7 | 已录入 16（床 8、扩径 1、自由空间直筒 7），不含旋风。见下文“cell 划分” |
-| `cell_heights` | 各 cell 高度 | Bild 7.7 无刻度；S. 16 写划分可以任意 | 保持 missing。待总司令另立 ADR。不用 3,5 m 标定示意图 |
-| `agent_feed_height` | 二次风高度 | KURKELA_1992 p. 5；KURKELA_1991 印刷页 8 | 1992 年论文没有毫米数。1991 年报告的 1,5 m 与 1,9 m 未录入，见装置对照 |
+| `distributor_orifice_count`、`distributor_outlet_height` | 式 (3.37)、(3.39) | ADR 0019 | 已录入 139,5 与 0。第二块板 95,6 只在 note |
 | `wall_heat_transfer_coefficient` | 壁面散热 | 表 2.1；Table 6, p. 18 | 工况 1 对上的差额是 21,7 kW，不是传热系数 |
 | `connecting_line_geometry`、`cyclone_geometry`、`return_line_geometry` | 表 2.1 的下游设备 | S. 133；KURKELA_1992 p. 6；KURKELA_1991 印刷页 7–10 | 两台旋风，没有尺寸。`cyclone_cell_count` 仍是 2 |
 | `ash_withdrawal_count`、`ash_withdrawal_mass_flow` | ADR 0009 第 6 项的排灰位置与流率 | KURKELA_1992 p. 6；KURKELA_1991 印刷页 8 | 仍缺。35 mm 与 38 mm 不一致，取样管原值不改，流率没有 |
-| `fuel_size_class_mass_fractions` | 燃料粒径分级 | KURKELA_1992 p. 3、Fig. 1 | 只有筛分上限。曲线不目测 |
-| `distributor_type` | ADR 0011 第 8、9 条 | KURKELA_1992 p. 5 | 已录入 multiorifice plate distributor。不改写成式 (3.11) 或 (3.14) 的某一类 |
-| `solid_feed_temperature`、`nitrogen_purge_temperature` | ADR 0009 第 4 项；ADR 0006 第 3 项 | KURKELA_1992 p. 5；KURKELA_1991 印刷页 8 | 仍缺。不得取默认温度 |
+| `fuel_size_class_mass_fractions` | 燃料粒径分级 | ADR 0014 D2；Fig. 1 | 工况 1 已录入筛分级份额。`<0,1 mm` 的代表粒径 ADR 未写明，等表面积换算未做。工况 2–15 仍缺 |
+| `distributor_type` | ADR 0011 第 8、9 条 | KURKELA_1992 p. 5 | 已录入 multiorifice plate distributor。孔数另见 `distributor_orifice_count` |
 
-一次风、二次风和吹扫氮的摩尔流已按 ADR 0004 换算，V_M = 0,022414 m³/mol。它们不再列入上表。`reactor_height` 已按 ADR 0005 记为 3,5 m，不再列入上表。吹扫氮的温度仍缺。
+一次风、二次风和吹扫氮的摩尔流已按 ADR 0004 换算，V_M = 0,022414 m³/mol。它们不再列入上表。`reactor_height` 已按 ADR 0005 记为 3,5 m。`bed_height`、`cell_heights`、`agent_feed_height`、`solid_feed_temperature`、`nitrogen_purge_temperature` 已按 ADR 0014 录入，不再列入上表。吹扫氮温度是 298,15 K。
 
 S. 135–137 查过，没有另外的输入数。S. 135 起是 Bild 7.8，S. 136–137 是 Bild 7.9 和 Bild 7.10，都是结果图。S. 135 写 Kurkela 与 Ståhlberg 没有给出床内和自由空间测温点的位置，这是测点，不是进气温度。
 
@@ -176,10 +175,10 @@ T15 又看了封面、摘要、前言和目录（PDF 页 1–6，印刷页含 3�
 | 13、14 的页码 | 续表 S. 134 | 写成 Table 7.2 (p.133) |
 | 工况 13 的水分 | 16,1 Gew.-% | proximate 里写成 16,0。16,0 是工况 12 那一列 |
 | 工况 6、13 的水分区间 | 不设区间，各列单独记 | 11,3–18,5，把锯末和其他泥炭列混进一条 |
-| 进气温度 | 对上表 6 的五列为 185 °C；其余仍无 | 293 K |
-| 床高 | 仍缺。表 4、表 5 的压降不推床高 | 1,2 m，注明来自表 7.5 |
-| 二次风高度 | 仍缺。KURKELA_1991 的 1,5 m 与 1,9 m 未录入 | 分配器以上 800 mm |
-| 粒径 | 原文无 | 1–4 mm，或锯末 0,1–1 mm |
+| 进气温度 | 对上表 6 的五列为 185 °C；其余仍无。燃料与吹扫氮另为 298,15 K（ADR 0014 C2） | 293 K |
+| 床高 | 1,2 m（ADR 0014 A2）。不是由表 7.5 或压降推得 | 1,2 m，注明来自表 7.5 |
+| 二次风高度 | 1,4875 m（ADR 0014 B）。不是 1991 年报告的 1,5 m、1,9 m | 分配器以上 800 mm |
+| 粒径 | 工况 1 为 Fig. 1 的筛分级份额。不是旧文件的 1–4 mm | 1–4 mm，或锯末 0,1–1 mm |
 | 旋风效率 | 原文无；只记两个 cell | 工况 13 写约 90–95% |
 | 由 λ 回算的空气量 | 不采用。工况 1 的核算见上，表值仍是 81,9 | 工况 6、13、14 另有一组 calculated_flows |
 
@@ -268,3 +267,32 @@ Bild 7.7（PDF 76 左 / S. 132）没有刻度。下面的个数是柱内连续�
 Bild 7.7 与 7.8、7.9、7.11、7.14 都是床比自由空间密。Bild 7.2 的侧面进气段很密，床本身只有 2 格，和加压 VTT 不是同一套习惯。这些个数给总司令写 cell 高度的 ADR 用。`cell_heights` 不在本卡填。
 
 Bild 7.8、7.9 剖面转折点的 ξ 由目标所有者用工具读，清单在 `vtt_pressurized_reading_list.md`。ξ 按全部部件的总高度归一化，连接管和旋风高度未知，不能换成米。
+
+## T29：已裁定输入的录入（2026-10-18）
+
+只把 ADR 0014、0019 已经写明的数写入 `vtt_pressurized.json`。下表是这次写入的字段。T15 各段里的“仍缺”是 2026-10-17 当时的检索结果。
+
+| 字段 | 值 | status | 位置 |
+|---|---|---|---|
+| `bed_height` | 1,2 m | derived，ADR 0014 A2；Bild 7.7, S. 132；KURKELA_1992 表 3, p. 5 | shared。15 个工况共用 |
+| `cell_heights` | 8 × 0,15 m + 8 × 0,2875 m | derived，ADR 0014 B；S. 132；表 3, p. 5 | shared。自下而上，不含旋风 |
+| `agent_feed_height` | 1,4875 m | derived，ADR 0014 B。1,2 m + 2,3 m / 8 | shared。自由空间第 2 格下沿 |
+| `solid_feed_temperature` | 298,15 K | derived，ADR 0014 C2；表 2.2, S. 13 | shared。只覆盖燃料 |
+| `nitrogen_purge_temperature` | 298,15 K | derived，ADR 0014 C2；表 2.2, S. 13 | shared。只覆盖料斗吹扫氮 |
+| `cases.1.inlet_gas_mole_fractions` | 干空气 y_O₂ = 0,21、y_N₂ = 0,79；蒸汽 y_H₂O = 1 | derived，ADR 0014 C1；表 7.2, S. 133 | 只工况 1 |
+| `cases.1.bed_mass` | 2200 × 0,017671 / 9,81 = 3,9629153924566762 kg | derived，ADR 0014 A3；表 5, p. 9；表 2.2, S. 13 | 只工况 1 |
+| `cases.1.fuel_size_class_mass_fractions` | 0,116、0,086、0,223、0,117、0,143、0,249、0,066 | derived，ADR 0014 D2；Fig. 1, p. 4；S. 133 | 筛分级，只工况 1 |
+| `distributor_orifice_count` | 139,5 | derived，ADR 0019；KURKELA_1991 印刷页 8；式 (3.37), S. 29 | shared。n₀ = φ·(D/d_h)² |
+| `distributor_outlet_height` | 0 m | derived，ADR 0019 第 1 项；式 (3.39), S. 29 | shared |
+
+工况 1、3、7、11、14 的 `inlet_temperature` 仍是 458,15 K（KURKELA_1992 表 6, p. 18，cited），没有改。其余工况的 `inlet_temperature` 仍是 missing。
+
+`bed_particle_density` 不录主值。note 写明由 ADR 0014 A4 在外层计算。ε_mf、φ_S 不录。
+
+孔数 note 写明：年代一致性未确认，目标所有者 2026-10-18 批准作跨时期外推假设。第二块板 n₀ = 95,6 只写在 note 中。
+
+停下、没有自定的两项：
+
+1. `<0,1 mm` 一级的代表粒径。ADR 0014 D2 只写它是解释性选择、在数据 PR 登记；`kurkela1992_fig1.json` 也写明未给出。Hamel S. 144 是把木片边长矩阵换成等表面积球的直径分级，没有从这条筛分曲线算出该档代表粒径的式子。筛分级质量分数已录入，等表面积换算没有做。
+2. `bed_inventory_composition`。ADR 0014 A1 裁定工况 1 的床料是燃料生成的焦炭与灰、不含惰性砂，没有质量分数。字段单位是 kg/kg。两者不是同一个量，值保持 missing。
+
