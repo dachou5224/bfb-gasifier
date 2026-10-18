@@ -14,6 +14,7 @@ from hamel.hydrodynamics.bed import (
     N_B,
     P_0,
     BedConditions,
+    HydroSearch,
     HydrodynamicsError,
     alpha_b,
     archimedes_number,
@@ -180,7 +181,7 @@ def test_bubble_rise_fixed_point():
     excess = velocity - upsilon * isolated
     assert bubble_drag_coefficient(reynolds) == pytest.approx(drag)
     assert isolated_bubble_velocity(diameter, drag) == pytest.approx(isolated)
-    assert bubble_rise_velocity(excess, upsilon, diameter, kinematic) == pytest.approx(velocity)
+    assert bubble_rise_velocity(excess, upsilon, diameter, kinematic, _search()) == pytest.approx(velocity)
 
 
 def test_lifetime_growth_and_exchange():
@@ -216,7 +217,7 @@ def test_distributor_diameters():
 
 def test_atmospheric_state_matches_printed_bubble_fraction():
     conditions = _conditions(pressure=P_0, rho_p=2000.0)
-    state = state_at_height(0.4, 0.55, 0.2, 0.02, 40, 0.0, 40, conditions)
+    state = state_at_height(0.4, 0.55, 0.2, 0.02, 40, 0.0, 40, conditions, _search())
     printed = (0.55 - state.u_d) / (state.u_b + N_B * state.u_d - state.u_d)
     assert state.u_br == pytest.approx(N_B * state.u_d)
     assert state.epsilon_b == pytest.approx(printed)
@@ -226,7 +227,7 @@ def test_atmospheric_state_matches_printed_bubble_fraction():
 
 def test_pressurized_fraction_uses_corrected_throughflow():
     conditions = _conditions(pressure=5.0e5, rho_p=2000.0)
-    state = state_at_height(0.4, 0.8, 0.2, 0.02, 40, 0.0, 60, conditions)
+    state = state_at_height(0.4, 0.8, 0.2, 0.02, 40, 0.0, 60, conditions, _search())
     balance = (0.8 - state.u_d) / (state.u_b + state.u_br - state.u_d)
     printed = (0.8 - state.u_d) / (state.u_b + N_B * state.u_d - state.u_d)
     assert state.u_br != pytest.approx(N_B * state.u_d)
@@ -237,7 +238,7 @@ def test_pressurized_fraction_uses_corrected_throughflow():
 def test_visible_fraction_vanishes_as_u0_approaches_umf():
     conditions = _conditions(pressure=P_0, rho_p=2000.0)
     # 取 h=0，直径停在 d_b,0，避免长大项在极小过剩气速下把直径积成非正数。
-    state = state_at_height(0.0, 0.2001, 0.2, 0.02, 40, 0.0, 20, conditions)
+    state = state_at_height(0.0, 0.2001, 0.2, 0.02, 40, 0.0, 20, conditions, _search())
     assert 0.0 < state.epsilon_b < 1.0e-3
 
 
@@ -252,8 +253,8 @@ def test_pressure_rise_shrinks_bubbles_in_the_stated_window():
 def test_inventory_converges_when_the_mesh_is_refined():
     edges = np.linspace(0.0, 1.2, 9)
     velocities = np.full(8, 0.6)
-    coarse = bed_profile(edges, velocities, 0.2, 0.02, 80, 0.0, 8, _conditions(P_0, 900.0))
-    fine = bed_profile(edges, velocities, 0.2, 0.02, 80, 0.0, 16, _conditions(P_0, 900.0))
+    coarse = bed_profile(edges, velocities, 0.2, 0.02, 80, 0.0, 8, _conditions(P_0, 900.0), _search())
+    fine = bed_profile(edges, velocities, 0.2, 0.02, 80, 0.0, 16, _conditions(P_0, 900.0), _search())
     assert coarse.solids_mass.sum() > 0.0
     assert fine.solids_mass.sum() == pytest.approx(coarse.solids_mass.sum(), rel=1e-4)
 
@@ -275,7 +276,7 @@ def test_density_inversion_recovers_the_mass():
     conditions = _conditions(P_0, 900.0)
     u_mf = minimum_fluidization_velocity(0.45, conditions.nu_g, 0.7, 1.0e-3, 900.0, 1.2)
     velocities = np.full(4, u_mf + 0.4)
-    profile = bed_profile(edges, velocities, u_mf, 0.02, 40, 0.0, 4, conditions)
+    profile = bed_profile(edges, velocities, u_mf, 0.02, 40, 0.0, 4, conditions, _search())
     recovered = particle_density_from_bed_mass(
         float(profile.solids_mass.sum()),
         edges,
@@ -286,6 +287,7 @@ def test_density_inversion_recovers_the_mass():
         4,
         0.7,
         conditions,
+        _search(),
     )
     assert recovered == pytest.approx(900.0, rel=1e-3)
 
@@ -308,6 +310,52 @@ def test_vtt_case_1_smoke_with_temporary_inputs():
     assert result["solids_mass"].sum() == pytest.approx(result["bed_mass"], rel=1e-6)
     assert result["internal_wake_upflow"].size == 7
     assert result["bed_surface"] == "待 T23 接入"
+
+
+def test_unmet_rise_residual_is_a_search_failure():
+    search = _search()
+    tight = HydroSearch(
+        search.velocity_floor,
+        search.velocity_margin,
+        1,
+        1e-18,
+        search.density_start_factor,
+        search.density_growth_factor,
+        search.density_scan_limit,
+        search.density_cap,
+        search.density_bisection_steps,
+        search.density_mass_tolerance,
+    )
+    with pytest.raises(HydrodynamicsError, match="数值搜索失败"):
+        bubble_rise_velocity(0.2, 0.64, 0.05, 1e-4, tight)
+
+
+def test_unbracketed_density_is_a_search_failure():
+    conditions = _conditions(P_0, 900.0)
+    edges = np.linspace(0.0, 0.3, 3)
+    velocities = np.full(2, 0.6)
+    search = _search()
+    narrow = HydroSearch(
+        search.velocity_floor,
+        search.velocity_margin,
+        search.rise_bisection_steps,
+        search.rise_residual_tolerance,
+        search.density_start_factor,
+        search.density_growth_factor,
+        2,
+        5.0,
+        search.density_bisection_steps,
+        search.density_mass_tolerance,
+    )
+    with pytest.raises(HydrodynamicsError, match="不能据此断言质量闭合没有物理解"):
+        particle_density_from_bed_mass(
+            10.0, edges, velocities, 0.02, 40, 0.0, 2, 0.7, conditions, narrow
+        )
+
+
+def _search():
+    """ADR 0020 待审查的登记值。测试作为调用方传入，模块里没有默认值。"""
+    return HydroSearch(1e-12, 1.0, 80, 1e-8, 2.0, 1.35, 36, 8000.0, 60, 1e-6)
 
 
 def _conditions(pressure, rho_p):
@@ -345,7 +393,7 @@ def _pressurized_state(pressure):
         True,
     )
     u_mf = minimum_fluidization_velocity(0.46, mu_g / rho_g, 0.8, 0.7e-3, 2600.0, rho_g)
-    return state_at_height(0.55, u_mf + 0.6, u_mf, 0.02, 100, 0.0, 40, conditions)
+    return state_at_height(0.55, u_mf + 0.6, u_mf, 0.02, 100, 0.0, 40, conditions, _search())
 
 
 def _vtt_case_1_smoke():
@@ -376,13 +424,13 @@ def _vtt_case_1_smoke():
         diameter, epsilon_mf, 100.0, rho_g, mu_g, nu_g, pressure, diffusivity, 0.15, "technical", "B", True
     )
     rho_p = particle_density_from_bed_mass(
-        bed_mass, edges, velocities, area, n_0, h_a, 6, phi_s, seed
+        bed_mass, edges, velocities, area, n_0, h_a, 6, phi_s, seed, _search()
     )
     u_mf = minimum_fluidization_velocity(epsilon_mf, nu_g, phi_s, diameter, rho_p, rho_g)
     conditions = BedConditions(
         diameter, epsilon_mf, rho_p, rho_g, mu_g, nu_g, pressure, diffusivity, 0.15, "technical", "B", True
     )
-    profile = bed_profile(edges, velocities, u_mf, area, n_0, h_a, 6, conditions)
+    profile = bed_profile(edges, velocities, u_mf, area, n_0, h_a, 6, conditions, _search())
     return {
         "u_0": u_0,
         "u_mf": u_mf,

@@ -76,7 +76,7 @@ def _pressure_factor(reading, pressure):
     raise ValueError(f"未知的压力系数读法：{reading}")
 
 
-def _variant_growth(u_0, d_b, u_mf, conditions, alpha_reading, pressure_reading):
+def _variant_growth(u_0, d_b, u_mf, conditions, alpha_reading, pressure_reading, search):
     suspension = suspension_superficial_velocity(
         u_mf, u_0, conditions.distributor, conditions.geldart, conditions.three_dimensional
     )
@@ -90,7 +90,7 @@ def _variant_growth(u_0, d_b, u_mf, conditions, alpha_reading, pressure_reading)
     factor = _pressure_factor(pressure_reading, conditions.pressure)
     excess = psi_b(conditions.distributor, conditions.geldart) * (u_0 - u_mf) * factor
     velocity = bubble_rise_velocity(
-        excess, upsilon_b(conditions.vessel_diameter, conditions.geldart), d_b, kinematic
+        excess, upsilon_b(conditions.vessel_diameter, conditions.geldart), d_b, kinematic, search
     )
     fraction = visible_bubble_fraction(u_0, suspension, velocity, through)
     if fraction <= 0.0 or fraction >= 1.0:
@@ -142,7 +142,7 @@ def bubble_diameter(height_m, excess_velocity, pressure, alpha_reading, pressure
 
     def derivative(diameter):
         growth, _through = _variant_growth(
-            u_0, diameter, u_mf, conditions, alpha_reading, pressure_reading
+            u_0, diameter, u_mf, conditions, alpha_reading, pressure_reading, model["search"]
         )
         return growth
 

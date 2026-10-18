@@ -11,6 +11,7 @@ from hamel.hydrodynamics.bed import (
     throughflow_velocity,
     suspension_superficial_velocity,
 )
+from tests.test_hydrodynamics import _search
 from tools.compare_fig_3_5 import (
     bubble_diameter,
     compare,
@@ -104,6 +105,7 @@ def test_synthetic_figure_selects_the_adopted_reading():
                 model["h_a"],
                 model["n_steps"],
                 conditions,
+                model["search"],
             )
             tool_diameter = bubble_diameter(
                 model["height_m"], excess, pressure, "interstitial", "power", model
@@ -176,5 +178,6 @@ def _synthetic_model():
         "h_a": 0.0,
         "height_m": 0.55,
         "n_steps": 24,
+        "search": _search(),
         "properties_at": properties_at,
     }
