@@ -121,6 +121,67 @@ def test_uniform_remaining_fraction_averages_to_one():
     assert pyro.average_volatile(radius, np.ones_like(radius), radius[-1]) == pytest.approx(1.0, rel=1.0e-6)
 
 
+def test_each_density_combination_keeps_its_own_verdict():
+    rows = [
+        {
+            "label": "未检验：没有下限",
+            "diameter_m": None,
+            "epsilon_mf": 0.4,
+            "phi_s": 0.6,
+            "rho_p": math.nan,
+            "v_t": math.nan,
+            "stable_m": [],
+            "bed": "未检验",
+            "local": "未检验",
+            "overall": "未检验",
+        },
+        {
+            "label": "筛孔 1 mm",
+            "diameter_m": 1.0e-3,
+            "epsilon_mf": 0.40,
+            "phi_s": 0.60,
+            "rho_p": 900.0,
+            "v_t": 1.2,
+            "stable_m": [],
+            "bed": "不会",
+            "local": "不会",
+            "overall": "不会",
+        },
+        {
+            "label": "筛孔 1 mm",
+            "diameter_m": 1.0e-3,
+            "epsilon_mf": 0.55,
+            "phi_s": 0.90,
+            "rho_p": 1400.0,
+            "v_t": 1.5,
+            "stable_m": [2.0],
+            "bed": "会",
+            "local": "不会",
+            "overall": "会",
+        },
+    ]
+    text = hover.format_combinations(hover.combination_lines(rows))
+    assert text.count("筛孔 1 mm") == 2
+    assert "900" in text and "1400" in text
+    assert "| 会 |" in text and "| 不会 |" in text
+
+
+def test_drying_shell_closes_the_energy_balance():
+    """湿核推进期间，显热增量与蒸发潜热之和等于表面传入的热。"""
+    particle = pyro.case1_properties()
+    radius = 0.5e-3
+    solved = pyro.integrate_drying(particle, radius)
+    assert solved is not None
+    balance = pyro.drying_energy_balance(particle, radius, solved)
+    assert balance["entered_j"][-1] > 0.0
+    assert balance["latent_j"][-1] > 0.0
+    assert balance["relative"] < 0.02
+    end = solved.sol(float(solved.t[-1]))
+    assert float(end[0]) < 0.05 * radius
+    core = pyro.temperature_on_radius(end, [0.0], particle, radius)
+    assert float(core[0]) == pytest.approx(particle.evaporation_temperature_k)
+
+
 def test_small_particle_times_are_finite_and_use_the_same_integral():
     particle = pyro.case1_properties()
     result = pyro.single_particle(0.1e-3, particle, radial_count=13)

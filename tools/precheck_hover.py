@@ -789,6 +789,71 @@ def hover_sentence(lines: list[dict]) -> str:
     )
 
 
+def combination_lines(rows: list[dict]) -> list[dict]:
+    """每个（筛孔、ε_mf、φ_S）一行。最细档没有下限时只留一行。"""
+    lines = []
+    missing = False
+    for row in rows:
+        if row["diameter_m"] is None:
+            if missing:
+                continue
+            missing = True
+            lines.append(
+                {
+                    "粒级": row["label"],
+                    "ε_mf": "—",
+                    "φ_S": "—",
+                    "ρ_P": "—",
+                    "v_t": "—",
+                    "h*": "—",
+                    "床面抛出": "未检验",
+                    "当地生成": "未检验",
+                    "综合": "未检验",
+                }
+            )
+            continue
+        if not math.isfinite(row["v_t"]):
+            lines.append(
+                {
+                    "粒级": row["label"],
+                    "ε_mf": f"{row['epsilon_mf']:.3f}",
+                    "φ_S": f"{row['phi_s']:.2f}",
+                    "ρ_P": "—",
+                    "v_t": "—",
+                    "h*": "—",
+                    "床面抛出": "未检验",
+                    "当地生成": "未检验",
+                    "综合": "未检验",
+                }
+            )
+            continue
+        heights = row["stable_m"]
+        lines.append(
+            {
+                "粒级": row["label"],
+                "ε_mf": f"{row['epsilon_mf']:.3f}",
+                "φ_S": f"{row['phi_s']:.2f}",
+                "ρ_P": f"{row['rho_p']:.0f}",
+                "v_t": f"{row['v_t']:.3f}",
+                "h*": "无" if not heights else "、".join(f"{height:.3f}" for height in heights),
+                "床面抛出": row["bed"],
+                "当地生成": row["local"],
+                "综合": row["overall"],
+            }
+        )
+    return lines
+
+
+def format_combinations(lines: list[dict]) -> str:
+    header = "| 粒级 | ε_mf | φ_S | ρ_P / kg/m³ | v_t / m/s | h* / m | 床面抛出 | 当地生成 | 综合 |"
+    rule = "|---|---|---|---|---|---|---|---|---|"
+    body = [
+        "| {粒级} | {ε_mf} | {φ_S} | {ρ_P} | {v_t} | {h*} | {床面抛出} | {当地生成} | {综合} |".format(**item)
+        for item in lines
+    ]
+    return "\n".join([header, rule, *body])
+
+
 def format_table(lines: list[dict]) -> str:
     header = "| 粒级 | v_t | 稳定高度 h* | 床面抛出 | 当地生成 | 综合 |"
     rule = "|---|---|---|---|---|---|"
@@ -823,6 +888,9 @@ def main() -> None:
     for item in failed:
         print(f"未反求到 ρ_P：ε_mf={item['epsilon_mf']}，φ_S={item['phi_s']}，{item['error']}")
     print()
+    print(format_combinations(combination_lines(report["rows"])))
+    print()
+    print("按筛孔归并（密度角点不一致时写「取决于 ρ_P 区间」）：")
     print(format_table(lines))
     print()
     print(hover_sentence(lines))

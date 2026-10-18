@@ -9,6 +9,10 @@ Y_w 是剩余水分份额，Y_v = 1 − V/V_∞ 是剩余挥发分份额。
 式 (4.3) 取负号，式 (4.11) 的指数取负号，式 (4.12) 的前置因子取 3/R₀³。
 这三处是 ADR 0015 第 5–7 条的读法。湿核内不热解：§4.1 写明热解只发生在已干壳层。
 
+同步干燥与热解的温度来自已干壳层的非稳态导热（式 4.1，边界 4.2、4.3）。
+S. 53 写明这一段不用准稳态剖面；S. 54 写明式 (4.12) 的温度由该非稳态模型给定。
+原文说把式 (4.1) 变换后假设二次温度函数，系数没有印出，这里不补系数。
+
 物性在 T21 未合入时用表 4.1 和临时气体数据，出处写在 INPUT_NOTES。
 """
 from __future__ import annotations
@@ -98,6 +102,7 @@ def front_rate(phi: float, particle: ParticleProperties, radius_m: float) -> flo
     """dφ/dt，φ = r_e/R。式 (4.3) 按 ADR 0015 取负号，使锋面内移时热流为正。
 
     φ = 1 处的极限是 −α (T_a − T_e) / (R ρ h'_v w)。
+    这是式 (4.5) 的准稳态降阶，只用来核对表面热流极限，不进入同步阶段的温度。
     Source: Hamel Eq.4.3, S. 52
     Source: Hamel Eq.4.5, S. 53
     """
@@ -115,29 +120,6 @@ def front_rate(phi: float, particle: ParticleProperties, radius_m: float) -> flo
         * (phi + biot * (1.0 - phi))
     )
     return -particle.conductivity * biot * span / denominator
-
-
-def shell_temperature(radius_m: np.ndarray, front_m: float, outer_m: float, core_k: float, surface_k: float):
-    """准稳态干壳温度。r ≤ r_e 保持 T_e。Source: Hamel Eq.4.5, S. 53"""
-    temperature = np.full(radius_m.shape, core_k)
-    dry = radius_m > front_m
-    if not np.any(dry):
-        return temperature
-    radial = radius_m[dry]
-    factor = (1.0 - front_m / radial) / (1.0 - front_m / outer_m)
-    temperature[dry] = core_k + (surface_k - core_k) * factor
-    return temperature
-
-
-def surface_temperature(phi: float, particle: ParticleProperties, radius_m: float) -> float:
-    alpha = heat_transfer_coefficient(particle, 2.0 * radius_m)
-    biot = alpha * radius_m / particle.conductivity
-    if phi >= 1.0:
-        return particle.evaporation_temperature_k
-    ratio = biot * (1.0 - phi) / phi
-    core = particle.evaporation_temperature_k
-    ambient = particle.temperature_k
-    return (core + ratio * ambient) / (1.0 + ratio)
 
 
 def _energy_nodes(particle: ParticleProperties, count: int = 12):
@@ -161,6 +143,162 @@ def average_volatile(radius, remaining_profile, outer_m: float) -> float:
     weight = np.asarray(radius, dtype=float) ** 2
     profile = np.asarray(remaining_profile, dtype=float)
     return float(np.trapz(profile * weight, radius) / np.trapz(weight, radius))
+
+
+# 初始干壳只为避开 ξ 变换在锋面贴着表面时的零厚度。临时离散，不是模型参数。
+INITIAL_SHELL_FRACTION = 1.0e-3
+FRONT_STOP_FRACTION = 1.0e-3
+SHELL_INTERVALS = 12
+
+
+def _shell_nodes(state, evaporation_k: float):
+    """state[0] 是 r_e，其后是 ξ = 1/N … 1 上的温度。ξ = 0 固定为 T_e。"""
+    values = np.empty(state.size)
+    values[0] = evaporation_k
+    values[1:] = state[1:]
+    return values
+
+
+def drying_rhs(time, state, particle: ParticleProperties, radius_m: float, alpha: float):
+    """已干壳层上的式 (4.1)。ξ = (r − r_e)/(R − r_e) 把移动壳层固定到 [0, 1]。
+
+    锋面速度来自式 (4.3) 的 ADR 0015 读法：导热通量为正时锋面内移。
+    Source: Hamel Eq.4.1, S. 52
+    Source: Hamel Eq.4.2, S. 52
+    Source: Hamel Eq.4.3, S. 52
+    """
+    del time
+    front = float(state[0])
+    thickness = radius_m - front
+    intervals = state.size - 1
+    out = np.zeros_like(state)
+    if thickness <= 0.0 or front <= FRONT_STOP_FRACTION * radius_m:
+        return out
+    values = _shell_nodes(state, particle.evaporation_temperature_k)
+    xi_step = 1.0 / intervals
+    surface_slope = (alpha * thickness / particle.conductivity) * (
+        particle.temperature_k - values[-1]
+    )
+    ghost = values[-2] + 2.0 * xi_step * surface_slope
+    front_slope = (-3.0 * values[0] + 4.0 * values[1] - values[2]) / (2.0 * xi_step)
+    capacity = particle.corrected_latent_heat * particle.moisture_dry_basis * particle.density_kg_m3
+    speed = -(particle.conductivity / capacity) * front_slope / thickness
+    diffusivity = particle.diffusivity_m2_s
+    for index in range(1, intervals + 1):
+        left = values[index - 1]
+        center = values[index]
+        right = ghost if index == intervals else values[index + 1]
+        dxi = (right - left) / (2.0 * xi_step)
+        dxi2 = (right - 2.0 * center + left) / xi_step**2
+        xi = index * xi_step
+        radial = front + xi * thickness
+        conduction = diffusivity * (dxi2 / thickness**2 + 2.0 * dxi / (radial * thickness))
+        motion = speed * (1.0 - xi) / thickness * dxi
+        out[index] = conduction + motion
+    out[0] = speed
+    return out
+
+
+def integrate_drying(particle: ParticleProperties, radius_m: float, intervals: int = SHELL_INTERVALS):
+    """把锋面从贴近表面积到接近中心。失败时返回 None，不改用准稳态剖面。"""
+    if intervals < 4:
+        raise ValueError("干壳离散至少要 4 个区间，锋面单侧差分才用得到两个内点")
+    alpha = heat_transfer_coefficient(particle, 2.0 * radius_m)
+    front0 = radius_m * (1.0 - INITIAL_SHELL_FRACTION)
+    initial = np.full(intervals + 1, particle.evaporation_temperature_k)
+    initial[0] = front0
+    horizon = max(600.0, 800.0 * radius_m**2 / particle.diffusivity_m2_s)
+
+    def center(_time, state):
+        return float(state[0] - FRONT_STOP_FRACTION * radius_m)
+
+    def rhs(time, state):
+        return drying_rhs(time, state, particle, radius_m, alpha)
+
+    center.terminal = True
+    center.direction = -1
+    tolerances = np.full(intervals + 1, 1.0e-3)
+    tolerances[0] = 1.0e-10
+    solved = solve_ivp(
+        rhs,
+        (0.0, horizon),
+        initial,
+        method="BDF",
+        dense_output=True,
+        events=center,
+        rtol=1.0e-5,
+        atol=tolerances,
+    )
+    if (not solved.success) or solved.sol is None or solved.t_events[0].size == 0:
+        return None
+    return solved
+
+
+def temperature_on_radius(state, query, particle: ParticleProperties, radius_m: float) -> np.ndarray:
+    """把壳层节点插到固定半径上。湿核（r < r_e）保持 T_e，不热解。"""
+    front = float(state[0])
+    values = _shell_nodes(state, particle.evaporation_temperature_k)
+    nodes = np.linspace(0.0, 1.0, values.size)
+    thickness = radius_m - front
+    temperature = np.empty(np.shape(query), dtype=float)
+    flat_query = np.asarray(query, dtype=float).reshape(-1)
+    flat_temperature = temperature.reshape(-1)
+    for index, radial in enumerate(flat_query):
+        if radial <= front or thickness <= 0.0:
+            flat_temperature[index] = particle.evaporation_temperature_k
+        else:
+            flat_temperature[index] = float(np.interp((radial - front) / thickness, nodes, values))
+    return temperature
+
+
+def drying_energy_balance(particle: ParticleProperties, radius_m: float, solved, samples: int = 40) -> dict:
+    """同步阶段的积分能量：壳层显热增量 + 锋面潜热 = 表面传入的热。
+
+    潜热用锋面扫过的干基水质量乘 h'_v。显热以 T_e 为参考，式 (4.4) 已经把
+    湿核从初温升到 T_e 的热放进 h'_v。准稳态剖面会把显热增量漏掉，这项不平衡。
+    """
+    grid = np.linspace(float(solved.t[0]), float(solved.t[-1]), samples)
+    alpha = heat_transfer_coefficient(particle, 2.0 * radius_m)
+    area = 4.0 * math.pi * radius_m**2
+    sensible = []
+    power = []
+    for instant in grid:
+        state = solved.sol(instant)
+        front = float(state[0])
+        values = _shell_nodes(state, particle.evaporation_temperature_k)
+        nodes = np.linspace(0.0, 1.0, values.size)
+        radial = front + nodes * (radius_m - front)
+        excess = (values - particle.evaporation_temperature_k) * radial**2
+        sensible.append(
+            particle.density_kg_m3
+            * particle.solid_heat_j_kg_k
+            * 4.0
+            * math.pi
+            * float(np.trapz(excess, radial))
+        )
+        power.append(area * alpha * (particle.temperature_k - float(values[-1])))
+    entered = np.concatenate([[0.0], np.cumsum(0.5 * (np.asarray(power[:-1]) + np.asarray(power[1:])) * np.diff(grid))])
+    latent_factor = (
+        particle.corrected_latent_heat
+        * particle.moisture_dry_basis
+        * particle.density_kg_m3
+        * 4.0
+        * math.pi
+        / 3.0
+    )
+    front0 = float(solved.sol(grid[0])[0])
+    latent = [latent_factor * (front0**3 - float(solved.sol(instant)[0]) ** 3) for instant in grid]
+    sensible = np.asarray(sensible)
+    latent = np.asarray(latent)
+    residual = sensible - sensible[0] + latent - entered
+    scale = max(float(np.max(entered)), 1.0)
+    return {
+        "time_s": grid,
+        "relative": float(np.max(np.abs(residual)) / scale),
+        "entered_j": entered,
+        "sensible_j": sensible,
+        "latent_j": latent,
+    }
 
 
 def _heat_rhs(temperature, particle: ParticleProperties, radius_m: float, alpha: float):
@@ -197,49 +335,36 @@ def single_particle(diameter_m: float, particle: ParticleProperties, radial_coun
     gas_constant = 8.314462618
     exposure = np.zeros((radial_count, energies.size))
     times = [0.0]
-    water = [1.0]
+    # 初始干壳是数值起点。对应的水分份额从 φ³ 起算，不把这层壳写成尚未干燥。
+    water = [(1.0 - INITIAL_SHELL_FRACTION) ** 3]
     volatile = [1.0]
-    phi = 1.0
     elapsed = 0.0
-    # 锋面从表面推进到接近中心。φ³ 在 10⁻³ 时已是 10⁻⁹，后面的水分积分可以忽略。
-    for _ in range(20_000):
-        if phi <= 1.0e-3:
-            break
-        rate = front_rate(phi, particle, radius_m)
-        if rate >= 0.0:
-            raise RuntimeError("干燥锋面没有向内移动")
-        step = min(0.05, max(1.0e-6, 0.01 / abs(rate)))
-        next_phi = phi + step * rate
-        if next_phi < 1.0e-3:
-            step = (1.0e-3 - phi) / rate
-            next_phi = 1.0e-3
-        front = phi * radius_m
-        surface = surface_temperature(phi, particle, radius_m)
-        temperature = shell_temperature(
-            radius, front, radius_m, particle.evaporation_temperature_k, surface
-        )
-        dry = radius >= front
-        exposure[dry] += np.exp(
-            -energies / (gas_constant * np.maximum(temperature[dry, None], 250.0))
-        ) * step
-        phi = next_phi
-        elapsed += step
-        profile = np.ones(radial_count)
-        profile[dry] = _remaining(exposure[dry], particle.frequency_s, weights)
-        times.append(elapsed)
-        water.append(phi**3)
-        volatile.append(average_volatile(radius, profile, radius_m))
-    else:
-        return _unresolved(diameter_m, "干燥锋面在步数上限内没有推进到中心")
+    # 湿核推进期间联立非稳态导热。准稳态式 (4.5) 不进入这段温度历程。
+    dried = integrate_drying(particle, radius_m)
+    if dried is None:
+        return _unresolved(diameter_m, "非稳态干壳没有积分到锋面接近中心")
+    substeps = 8
+    for left, right in zip(dried.t[:-1], dried.t[1:]):
+        width = float(right - left) / substeps
+        if width <= 0.0:
+            continue
+        for step_index in range(substeps):
+            instant = float(left) + (step_index + 1) * width
+            state = dried.sol(instant)
+            temperature = temperature_on_radius(state, radius, particle, radius_m)
+            dry = radius >= float(state[0])
+            exposure[dry] += np.exp(
+                -energies / (gas_constant * np.maximum(temperature[dry, None], 250.0))
+            ) * width
+            profile = np.ones(radial_count)
+            profile[dry] = _remaining(exposure[dry], particle.frequency_s, weights)
+            times.append(instant)
+            water.append((float(state[0]) / radius_m) ** 3)
+            volatile.append(average_volatile(radius, profile, radius_m))
+    elapsed = float(dried.t[-1])
 
     alpha = heat_transfer_coefficient(particle, diameter_m)
-    initial = shell_temperature(
-        radius,
-        phi * radius_m,
-        radius_m,
-        particle.evaporation_temperature_k,
-        surface_temperature(max(phi, 1.0e-3), particle, radius_m),
-    )
+    initial = temperature_on_radius(dried.y[:, -1], radius, particle, radius_m)
 
     def rhs(_time, temperature):
         return _heat_rhs(temperature, particle, radius_m, alpha)
@@ -332,7 +457,9 @@ INPUT_NOTES = (
     "式 (4.9) 的特征速度原文未说明，临时取床层表观气速（一次风 + 蒸汽 + 吹扫氮，按床温与 0,5 MPa）。",
     "气体粘度用空气 Sutherland 公式，导热用 λ = 2,334·10⁻³ T^{1.5}/(T+164,54) W/(m·K)，Pr = 0,70：临时。",
     "干空气、水、氮的摩尔质量与 R：临时。吹扫氮按 ADR 0006 暂定计入。",
-    "活化能用 12 个 Gauss–Hermite 节点。径向 21 个节点。干燥推进到 φ = 10⁻³ 后改积导热方程。临时离散。",
+    "同步阶段把式 (4.1) 变到 ξ = (r−r_e)/(R−r_e) 后用 12 个等距区间离散。"
+    "二次温度函数的系数原文没有印出，不补。初始干壳厚度和锋面停止位置都是半径的 10⁻³，临时。"
+    "锋面到达停止位置后，整颗颗粒继续按式 (4.1)、(4.2) 升温。活化能 12 个 Gauss–Hermite 节点，挥发分平均用 21 个固定半径。",
     "粒级用 kurkela1992_fig1.json 的筛孔上限与下限。<0,1 mm 没有下限，该端未检验。",
 )
 
