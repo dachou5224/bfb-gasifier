@@ -1,6 +1,6 @@
 # 项目状态（STATUS）
 
-唯一交接文档，原地更新。最后更新：2026-10-18（T19 床区流动待审查；Bild 3.3 与 Bild 3.5 读数已合入，PR #73）
+唯一交接文档，原地更新。最后更新：2026-10-18（T19 床区流动待审查，PR #78；Bild 3.3 与 Bild 3.5 读数已合入，PR #73）
 
 ## 当前阶段
 
@@ -31,7 +31,7 @@
 | T16 | 第 4 章干燥与热解的独立转录与比对 | cursor（全新会话，worktree `../bfb-T16`）；审查 codex | 完成 | PR #68 已合并。转录 `refs/hamel/transcription/ch4_pyrolysis.md`（冻结 `87e6fa6`），比对 `refs/hamel/transcription/ch4_pyrolysis_diff.md`。挥发分基准与热解产物分配只记录、不裁定。式 (4.3) 锋面符号、式 (4.11) 负号、式 (4.12) 的幂、图 4.11 图题交总司令。表 4.4 焦炭列 \(\xi_1\) 印面 5.499 即 5499，冻结稿误作 5,499，更正在比对稿，不改冻结稿 |
 | T17 | §3.2 自由空间的独立转录与比对 | cursor（全新会话，worktree `../bfb-T17`）；审查 codex | 完成 | PR #67（复审通过）。冻结稿 `refs/hamel/transcription/ch3_2_freeboard.md`（`5a68797`）未改。比对稿补了两项：式 (3.96)、(3.98)、(3.103) 与式 (3.88) 或初条件不相容，对调 \(\Psi\) 不是充分修复；Bild 3.7 图内还有 \(T_{WS}=1073\,\mathrm{K}\)、\(p=0{,}1\,\mathrm{MPa}\)、\(d_P=1{,}0\,\mathrm{mm}\)。S. 45、S. 48 仍没有含量、回落、带出的换算式。歧义未裁定 |
 | T18 | 预计算、外层循环与阻尼牛顿法的原文答卷与数据流规格 | cursor（新会话，worktree `../bfb-T18`）；审查 codex | 完成 | PR #66 已合并。答卷 `refs/hamel/answers/T18-solver-structure.md`。PR #66 首轮退回 2 项，2026-10-17 已改：内层只冻结 ADR 点名的系数和边界量；残差在试探点评价。复审通过 |
-| T19 | 床区流动模型（§3.1）与床区固体输运系数 | cursor（新会话，worktree `../bfb-T19`）；审查 codex | 待审查 | `hamel/hydrodynamics/` 与 `tools/compare_fig_3_5.py`。X5 未裁定，工况 1 冒烟用临时 n_0、h_A。Bild 3.5/3.3 读数已入库；图注缺容器直径、ε_mf、φ_S，真实比较未跑 |
+| T19 | 床区流动模型（§3.1）与床区固体输运系数 | cursor（新会话，worktree `../bfb-T19`）；审查 codex | 待审查 | PR #78。`hamel/hydrodynamics/` 与 `tools/compare_fig_3_5.py`。X5 未裁定，工况 1 冒烟用临时 n_0、h_A。Bild 3.5/3.3 读数已入库；图注缺容器直径、ε_mf、φ_S，真实比较未跑 |
 | T20 | 反应速率（第 5 章，R1–R11） | cursor（新会话，worktree `../bfb-T20`）；审查 codex | 进行中（2026-10-18 派发） | 任务卡 `docs/tasks/T20-kinetics.md`（2026-10-18 复审通过并经 PR #71 合并，已批准，可派发） |
 | T21 | 物性与气相化学平衡（附录 A1） | cursor（新会话，worktree `../bfb-T21`）；审查 codex | 待派发 | 任务卡 `docs/tasks/T21-properties.md`（2026-10-18 复审通过并经 PR #72 合并，已批准，可派发）；先交数据来源答卷 |
 
