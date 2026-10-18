@@ -35,7 +35,7 @@
 | T18 | 预计算、外层循环与阻尼牛顿法的原文答卷与数据流规格 | cursor（新会话，worktree `../bfb-T18`）；审查 codex | 完成 | PR #66 已合并。答卷 `refs/hamel/answers/T18-solver-structure.md`。PR #66 首轮退回 2 项，2026-10-17 已改：内层只冻结 ADR 点名的系数和边界量；残差在试探点评价。复审通过 |
 | T19 | 床区流动模型（§3.1）与床区固体输运系数 | cursor（新会话，worktree `../bfb-T19`）；审查 codex | 完成 | PR #78 已合并（2026-10-18）。ADR 0020 登记标量搜索参数。X5 由 ADR 0019 裁定。Bild 3.5/3.3 按 ADR 0022 A1 冻结暂定读法，比较工具只作诊断 |
 | T20 | 反应速率（第 5 章，R1–R11） | cursor（新会话，worktree `../bfb-T20`）；审查 codex | 完成 | PR #77 已合并（2026-10-18）。`hamel/kinetics/` 按冻结稿实现 R1–R11。R1、R2、R4 的颗粒数按 ADR 0017 第 19 项用 m_C+m_A 与 ρ_P；R3 仍只用焦炭质量。R8 用式 (5.45)，a_R8 = 0,02（ADR 0013）。式 (5.23) 的 T、式 (5.10) 的 T_c 与 d_c 保持为调用方参数；取值由 ADR 0022 C1 裁定（待批准）：取颗粒温度 T_P 与粒级粒径 |
-| T21 | 物性与气相化学平衡（附录 A1） | cursor（新会话，worktree `../bfb-T21b`）；审查：答卷总司令，代码 codex | 第二步代码已交，待审查 | PR #86，待 codex 审查。数据来源答卷经 PR #79 合并。代码在 `hamel/properties/` 与 `data/properties/`。灰比热 950 J/(kg·K) 的 CHEMIK 原句由审查方核对。Bild 5.11 的 \(K\) 最大偏差 0.0186（1025 K），落在读数误差（T ±3 K、K ±0.01）之内 |
+| T21 | 物性与气相化学平衡（附录 A1） | cursor（新会话，worktree `../bfb-T21b`）；审查：答卷总司令，代码 codex | 第二步代码已交，待审查 | PR #86，待 codex 复审。不可行初值的一步阻尼见 ADR 0023（待批准）。数据来源答卷经 PR #79 合并。灰比热的 CHEMIK 原句已由审查方按可检索正文核对。Bild 5.11 的 \(K\) 最大偏差 0.0186（1025 K） |
 | T27 | 自由空间悬停与热解有效域预检 | cursor（新会话）；审查 codex | 待派发（T19 已合并） | 任务卡 `docs/tasks/T27-validity-precheck.md`（2026-10-18 复审通过，已批准）；M1 审计建议 1 |
 | T28 | 床料 ε_mf、φ_S、u_mf,0（X6）与 Geldart 分界 | cursor（新会话）；审查总司令 | 待派发 | 任务卡 `docs/tasks/T28-bed-material-params.md`（2026-10-18 复审通过，已批准）；Geldart (1973) 原文由目标所有者提供 |
 | T29 | 已裁定的第 1 关输入写入工况文件 | cursor（新会话）；审查总司令 | 完成 | PR #83（2026-10-18 总司令审查通过）。任务卡 `docs/tasks/T29-vtt1-case-data.md`。ADR 0014、0019 已写明的数已写入 `data/cases/vtt_pressurized.json`。`<0,1 mm` 代表粒径与床料质量分数两处 ADR 未给出可录入的数，保持 missing，见缺口文件 T29 节 |

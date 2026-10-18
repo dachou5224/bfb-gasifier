@@ -162,11 +162,10 @@ def gibbs_minimization(
             raise PropertyError(f"{name} 不是气相组分，不能进入附录 A1")
     sources = {name: float(amount) for name, amount in (source_amounts_mol or {}).items() if amount}
     elements, b_map, active, dropped = _prepare(element_amounts_mol, requested, sources)
-    zeros = {name: 0.0 for name in requested}
     if not active:
         if elements:
             raise EquilibriumError("有元素量，但含这些元素的组分都被移除了")
-        return EquilibriumResult(zeros, dict(zeros), 0.0, temperature, pressure, 0, dropped)
+        return _assemble(requested, [], None, None, sources, temperature, pressure, 0, dropped)
     b_plus = np.asarray([b_map[element] for element in elements], dtype=float)
     stoichiometry = _stoichiometry(active, elements)
     c_values = _c_values(active, temperature, pressure)
@@ -178,7 +177,10 @@ def gibbs_minimization(
     iterations = 0
     for iterations in range(1, _MAX_ITERATIONS + 1):
         exponent = stoichiometry.T @ lambdas - c_values
-        mole_fraction = np.exp(np.clip(exponent, -700.0, 60.0))
+        # 式 (A.26) 使用未截断的指数。超出浮点范围时失败，不 clip。ADR 0023。
+        if not np.all(np.isfinite(exponent)) or float(np.max(exponent)) > 700.0:
+            raise EquilibriumError("式 (A.26) 的指数超出可计算范围")
+        mole_fraction = np.exp(exponent)
         residual = _residuals(q_matrix, d_values, mole_fraction)
         amounts = total_amounts(stoichiometry, b_plus, mole_fraction)
         deviation = balance_deviation(stoichiometry, b_plus, amounts)
@@ -191,8 +193,7 @@ def gibbs_minimization(
             raise EquilibriumError("式 (A.29) 的线性方程奇异") from exc
         eta = _ETA0
         accepted = False
-        # 当前点已经使某个 y_j > 1 时，η 减向 0 仍停在不可行点。此时取起始值 0.5
-        # 走出这一区域；进入之后才按 ADR 0017 第 16 项减半，直到式 (A.31) 成立。
+        # 当前点已不满足式 (A.31) 时，减半仍停在不可行点。解释性选择：ADR 0023。
         if not _exponent_feasible(stoichiometry, lambdas, c_values):
             lambdas = lambdas + eta * step
             continue
@@ -208,12 +209,22 @@ def gibbs_minimization(
     else:
         raise EquilibriumError(f"迭代 {_MAX_ITERATIONS} 次后未同时满足式 (A.26) 和式 (A.34)")
     amounts = total_amounts(stoichiometry, b_plus, mole_fraction)
-    total = float(np.sum(amounts) + source_total)
-    fractions = dict(zeros)
-    amount_map = dict(zeros)
-    for index, name in enumerate(active):
-        fractions[name] = float(mole_fraction[index])
-        amount_map[name] = float(amounts[index])
+    return _assemble(
+        requested, active, mole_fraction, amounts, sources,
+        temperature, pressure, iterations, dropped,
+    )
+
+
+def _assemble(requested, active, mole_fraction, amounts, sources, temperature, pressure, iterations, dropped):
+    """待平衡量加上给定源汇量。源汇不因零元素移除而被删掉。ADR 0017 第 16 项。"""
+    fractions = {name: 0.0 for name in requested}
+    amount_map = {name: 0.0 for name in requested}
+    total = float(sum(sources.values()))
+    if mole_fraction is not None:
+        for index, name in enumerate(active):
+            fractions[name] = float(mole_fraction[index])
+            amount_map[name] = float(amounts[index])
+            total += float(amounts[index])
     if total > 0:
         for name, amount in sources.items():
             fractions[name] = amount / total

@@ -275,3 +275,27 @@ def test_adiabatic_gas_equilibrium_matches_feed_enthalpy() -> None:
 def test_equilibrium_failure_is_reported() -> None:
     with pytest.raises(EquilibriumError):
         gibbs_minimization(1000.0, 101_300.0, {"C": 1.0}, ["H2"])
+
+
+def test_source_only_feed_keeps_the_given_amounts() -> None:
+    result = gibbs_minimization(
+        1000.0, 500_000.0, {"N": 2.0}, ["N2"], source_amounts_mol={"N2": 1.0},
+    )
+    assert result.amounts_mol["N2"] == pytest.approx(1.0)
+    assert result.total_mol == pytest.approx(1.0)
+    assert result.mole_fractions["N2"] == pytest.approx(1.0)
+
+
+def test_sources_stay_beside_equilibrium_gas() -> None:
+    result = gibbs_minimization(
+        1000.0, 500_000.0, {"C": 1.0, "O": 2.0, "N": 2.0},
+        ["CO", "CO2", "O2", "N2"], source_amounts_mol={"N2": 1.0},
+    )
+    assert result.amounts_mol["N2"] == pytest.approx(1.0)
+    totals = {"C": 0.0, "O": 0.0, "N": 0.0}
+    for name, amount in result.amounts_mol.items():
+        for element, count in nasa_species(name)["atoms"].items():
+            if element in totals:
+                totals[element] += amount * count
+    assert totals == pytest.approx({"C": 1.0, "O": 2.0, "N": 2.0}, abs=1e-8)
+    assert sum(result.mole_fractions.values()) == pytest.approx(1.0, abs=1e-8)
