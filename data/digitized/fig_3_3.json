@@ -1,0 +1,471 @@
+{
+  "figure": "3.3",
+  "pdf_page": 26,
+  "printed_page": "32",
+  "side": "left",
+  "caption_de": "Bild 3.3: Geschwindigkeit der Blasendurchströmung in Abhängigkeit des Drucks. Vergleich von Messwerten nach Olowson und Almstedt (1990) mit den nach Gleichung (3.44) berechneten Ergebnissen.",
+  "read_date": "2026-10-17",
+  "tool": "refs/hamel/pages/026.png（300 dpi）。图框取轴边墨迹最暗的行列；Berechnung 实线从五条已经分开的一列向两侧追踪，取点列取该暗段的灰度质心。同一暗段里有两条以上追踪线时记 null。复算：python3 tools/digitize_fig_3_5.py；重新追踪：同命令 --trace <页面 PNG 或 PDF> --write。",
+  "units": {
+    "P_MPa": "MPa",
+    "u_b_r": "m/s"
+  },
+  "est_error": {
+    "P_MPa": 0.01,
+    "u_b_r": 0.02
+  },
+  "est_error_note": "压力按图框左右端 0 与 2,5 MPa 线性换算，轴端定位约 ±2 px（约 0,005 MPa），登记 0,01 MPa。u_b_r 的线宽约 6 px，质心约 ±2 px，再加图框倾斜的标定误差，分开的点用这一误差。分不开的点是 null，不另给数值。",
+  "quantity_definition": {
+    "P_MPa": "横轴 Druck",
+    "u_b_r": "纵轴 Gasgeschwindigkeit u_b,r relativ zur Blase。只读 Berechnung 实线。引线：标注 0,1 m/s 指向最上方曲线，0,6 m/s 指向最下方曲线；自上而下为 0,1、0,2、0,3、0,4、0,6 m/s。"
+  },
+  "points_format": "[P_MPa, u_b_r]",
+  "conditions": {
+    "T_C": 25,
+    "d_P_mm": 0.7,
+    "rho_P_kg_m3": 2600,
+    "h_m": 0.55,
+    "source": "图中标注"
+  },
+  "series_order_from_top": [
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.6
+  ],
+  "series": [
+    {
+      "u0_minus_umf_m_s": 0.1,
+      "points": [
+        [
+          0.2,
+          1.078
+        ],
+        [
+          0.5,
+          0.598
+        ],
+        [
+          1.0,
+          0.381
+        ],
+        [
+          1.5,
+          0.292
+        ],
+        [
+          2.0,
+          0.246
+        ],
+        [
+          2.5,
+          0.207
+        ]
+      ]
+    },
+    {
+      "u0_minus_umf_m_s": 0.2,
+      "points": [
+        [
+          0.2,
+          0.948
+        ],
+        [
+          0.5,
+          0.513
+        ],
+        [
+          1.0,
+          0.317
+        ],
+        [
+          1.5,
+          0.241
+        ],
+        [
+          2.0,
+          null
+        ],
+        [
+          2.5,
+          null
+        ]
+      ]
+    },
+    {
+      "u0_minus_umf_m_s": 0.3,
+      "points": [
+        [
+          0.2,
+          0.88
+        ],
+        [
+          0.5,
+          0.468
+        ],
+        [
+          1.0,
+          0.285
+        ],
+        [
+          1.5,
+          0.212
+        ],
+        [
+          2.0,
+          null
+        ],
+        [
+          2.5,
+          null
+        ]
+      ]
+    },
+    {
+      "u0_minus_umf_m_s": 0.4,
+      "points": [
+        [
+          0.2,
+          0.818
+        ],
+        [
+          0.5,
+          0.427
+        ],
+        [
+          1.0,
+          0.251
+        ],
+        [
+          1.5,
+          0.186
+        ],
+        [
+          2.0,
+          null
+        ],
+        [
+          2.5,
+          null
+        ]
+      ]
+    },
+    {
+      "u0_minus_umf_m_s": 0.6,
+      "points": [
+        [
+          0.2,
+          0.748
+        ],
+        [
+          0.5,
+          0.381
+        ],
+        [
+          1.0,
+          0.221
+        ],
+        [
+          1.5,
+          0.16
+        ],
+        [
+          2.0,
+          null
+        ],
+        [
+          2.5,
+          null
+        ]
+      ]
+    }
+  ],
+  "use": "ADR 0013：在首次运行前用 Bild 3.5（主）与 Bild 3.3（分不开时）判别式 (3.43) 与 α_b。",
+  "calibration": {
+    "render": {
+      "pdf_page": 26,
+      "source": "refs/hamel/pages/026.png",
+      "dpi": 300,
+      "dark_threshold": 45
+    },
+    "frame": {
+      "x_left": 380.0,
+      "x_right": 1444.0,
+      "x_left_bottom": 380.0,
+      "x_right_bottom": 1444.0,
+      "y_top_left": 1180.0,
+      "y_top_right": 1176.0,
+      "y_bottom_left": 1861.0,
+      "y_bottom_right": 1858.0,
+      "p_left": 0.0,
+      "p_right": 2.5,
+      "y_top_value": 2.5,
+      "y_bottom_value": 0.0
+    },
+    "grid_reference": {
+      "y_grid_x": 892.0,
+      "x_grid_y": 1525.0,
+      "note": "横刻度像素是参考列上的带心；竖刻度像素是参考行上的竖线。复算检查按这两处经图框换算。"
+    },
+    "x_grid": [
+      [
+        380.0,
+        0.0
+      ],
+      [
+        596.0,
+        0.5
+      ],
+      [
+        809.0,
+        1.0
+      ],
+      [
+        1023.0,
+        1.5
+      ],
+      [
+        1231.0,
+        2.0
+      ],
+      [
+        1444.0,
+        2.5
+      ]
+    ],
+    "y_grid": [
+      [
+        1179.4,
+        2.5
+      ],
+      [
+        1317.2,
+        2.0
+      ],
+      [
+        1451.1,
+        1.5
+      ],
+      [
+        1588.8,
+        1.0
+      ],
+      [
+        1724.7,
+        0.5
+      ],
+      [
+        1861.0,
+        0.0
+      ]
+    ],
+    "series": [
+      {
+        "u0_minus_umf_m_s": 0.1,
+        "samples": [
+          {
+            "P_MPa": 0.2,
+            "pixel_x": 465.0,
+            "pixel_y_center": 1567.0,
+            "note": null
+          },
+          {
+            "P_MPa": 0.5,
+            "pixel_x": 593.0,
+            "pixel_y_center": 1697.5,
+            "note": null
+          },
+          {
+            "P_MPa": 1.0,
+            "pixel_x": 806.0,
+            "pixel_y_center": 1756.0,
+            "note": null
+          },
+          {
+            "P_MPa": 1.5,
+            "pixel_x": 1018.0,
+            "pixel_y_center": 1779.5,
+            "note": null
+          },
+          {
+            "P_MPa": 2.0,
+            "pixel_x": 1231.0,
+            "pixel_y_center": 1791.5,
+            "note": null
+          },
+          {
+            "P_MPa": 2.5,
+            "pixel_x": 1440.0,
+            "pixel_y_center": 1801.5,
+            "note": null
+          }
+        ]
+      },
+      {
+        "u0_minus_umf_m_s": 0.2,
+        "samples": [
+          {
+            "P_MPa": 0.2,
+            "pixel_x": 465.0,
+            "pixel_y_center": 1602.5,
+            "note": null
+          },
+          {
+            "P_MPa": 0.5,
+            "pixel_x": 593.0,
+            "pixel_y_center": 1720.5,
+            "note": null
+          },
+          {
+            "P_MPa": 1.0,
+            "pixel_x": 806.0,
+            "pixel_y_center": 1773.5,
+            "note": null
+          },
+          {
+            "P_MPa": 1.5,
+            "pixel_x": 1018.0,
+            "pixel_y_center": 1793.5,
+            "note": null
+          },
+          {
+            "P_MPa": 2.0,
+            "pixel_x": 1231.0,
+            "pixel_y_center": null,
+            "note": "P=2.0 MPa 处有 4 条 Berechnung 实线落在同一条宽 25 px 的墨段里，中间没有亮隙，线距小于线宽，分不开"
+          },
+          {
+            "P_MPa": 2.5,
+            "pixel_x": 1440.0,
+            "pixel_y_center": null,
+            "note": "P=2.5 MPa 处有 4 条 Berechnung 实线落在同一条宽 22 px 的墨段里，中间没有亮隙，线距小于线宽，分不开"
+          }
+        ]
+      },
+      {
+        "u0_minus_umf_m_s": 0.3,
+        "samples": [
+          {
+            "P_MPa": 0.2,
+            "pixel_x": 465.0,
+            "pixel_y_center": 1621.0,
+            "note": null
+          },
+          {
+            "P_MPa": 0.5,
+            "pixel_x": 593.0,
+            "pixel_y_center": 1733.0,
+            "note": null
+          },
+          {
+            "P_MPa": 1.0,
+            "pixel_x": 806.0,
+            "pixel_y_center": 1782.0,
+            "note": null
+          },
+          {
+            "P_MPa": 1.5,
+            "pixel_x": 1018.0,
+            "pixel_y_center": 1801.5,
+            "note": null
+          },
+          {
+            "P_MPa": 2.0,
+            "pixel_x": 1231.0,
+            "pixel_y_center": null,
+            "note": "P=2.0 MPa 处有 4 条 Berechnung 实线落在同一条宽 25 px 的墨段里，中间没有亮隙，线距小于线宽，分不开"
+          },
+          {
+            "P_MPa": 2.5,
+            "pixel_x": 1440.0,
+            "pixel_y_center": null,
+            "note": "P=2.5 MPa 处有 4 条 Berechnung 实线落在同一条宽 22 px 的墨段里，中间没有亮隙，线距小于线宽，分不开"
+          }
+        ]
+      },
+      {
+        "u0_minus_umf_m_s": 0.4,
+        "samples": [
+          {
+            "P_MPa": 0.2,
+            "pixel_x": 465.0,
+            "pixel_y_center": 1638.0,
+            "note": null
+          },
+          {
+            "P_MPa": 0.5,
+            "pixel_x": 593.0,
+            "pixel_y_center": 1744.0,
+            "note": null
+          },
+          {
+            "P_MPa": 1.0,
+            "pixel_x": 806.0,
+            "pixel_y_center": 1791.5,
+            "note": null
+          },
+          {
+            "P_MPa": 1.5,
+            "pixel_x": 1018.0,
+            "pixel_y_center": 1808.5,
+            "note": null
+          },
+          {
+            "P_MPa": 2.0,
+            "pixel_x": 1231.0,
+            "pixel_y_center": null,
+            "note": "P=2.0 MPa 处有 4 条 Berechnung 实线落在同一条宽 25 px 的墨段里，中间没有亮隙，线距小于线宽，分不开"
+          },
+          {
+            "P_MPa": 2.5,
+            "pixel_x": 1440.0,
+            "pixel_y_center": null,
+            "note": "P=2.5 MPa 处有 4 条 Berechnung 实线落在同一条宽 22 px 的墨段里，中间没有亮隙，线距小于线宽，分不开"
+          }
+        ]
+      },
+      {
+        "u0_minus_umf_m_s": 0.6,
+        "samples": [
+          {
+            "P_MPa": 0.2,
+            "pixel_x": 465.0,
+            "pixel_y_center": 1657.0,
+            "note": null
+          },
+          {
+            "P_MPa": 0.5,
+            "pixel_x": 593.0,
+            "pixel_y_center": 1756.5,
+            "note": null
+          },
+          {
+            "P_MPa": 1.0,
+            "pixel_x": 806.0,
+            "pixel_y_center": 1799.5,
+            "note": null
+          },
+          {
+            "P_MPa": 1.5,
+            "pixel_x": 1018.0,
+            "pixel_y_center": 1815.5,
+            "note": null
+          },
+          {
+            "P_MPa": 2.0,
+            "pixel_x": 1231.0,
+            "pixel_y_center": null,
+            "note": "P=2.0 MPa 处有 4 条 Berechnung 实线落在同一条宽 25 px 的墨段里，中间没有亮隙，线距小于线宽，分不开"
+          },
+          {
+            "P_MPa": 2.5,
+            "pixel_x": 1440.0,
+            "pixel_y_center": null,
+            "note": "P=2.5 MPa 处有 4 条 Berechnung 实线落在同一条宽 22 px 的墨段里，中间没有亮隙，线距小于线宽，分不开"
+          }
+        ]
+      }
+    ]
+  }
+}
