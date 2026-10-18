@@ -37,7 +37,7 @@
 | T20 | 反应速率（第 5 章，R1–R11） | cursor（新会话，worktree `../bfb-T20`）；审查 codex | 完成 | PR #77 已合并（2026-10-18）。`hamel/kinetics/` 按冻结稿实现 R1–R11。R1、R2、R4 的颗粒数按 ADR 0017 第 19 项用 m_C+m_A 与 ρ_P；R3 仍只用焦炭质量。R8 用式 (5.45)，a_R8 = 0,02（ADR 0013）。式 (5.23) 的 T、式 (5.10) 的 T_c 与 d_c 保持为调用方参数；取值由 ADR 0022 C1 裁定（待批准）：取颗粒温度 T_P 与粒级粒径 |
 | T21 | 物性与气相化学平衡（附录 A1） | cursor（新会话，worktree `../bfb-T21`）；审查：答卷总司令，代码 codex | 第一步完成，第二步可派发 | 数据来源答卷经 PR #79 合并（`refs/hamel/answers/T21-properties-sources.md`，行对齐 `data/properties/t21-reid4-appendix-alignment.json`）。答卷留下的各项由 ADR 0021（2026-10-18 批准）裁定；灰的比热 950 J/(kg·K)（ADR 0018 第 6 项，目标所有者 2026-10-18）。ADR 0021 已批准，第二步（写代码）可以派发 |
 | T27 | 自由空间悬停与热解有效域预检 | cursor（新会话）；审查 codex | 待派发（T19 已合并） | 任务卡 `docs/tasks/T27-validity-precheck.md`（2026-10-18 复审通过，已批准）；M1 审计建议 1 |
-| T28 | 床料 ε_mf、φ_S、u_mf,0（X6）与 Geldart 分界 | cursor（新会话）；审查总司令 | 待审查 | 答卷 `refs/hamel/answers/T28-bed-material-params.md`（2026-10-18）：第 1–3 项已查证。VTT/HTW 床料的 ε_mf、φ_S、u_mf,0 原文未给出。Geldart (1973) 的 A/B 为式 (4)–(6)、B/D 为式 (7)–(8)；A/C 只有 Fig. 3 阴影 PQ，未数字化。未算工况 1 的类别 |
+| T28 | 床料 ε_mf、φ_S、u_mf,0（X6）与 Geldart 分界 | cursor（新会话）；审查总司令 | 完成 | PR #87（2026-10-18 总司令审查通过）。答卷 `refs/hamel/answers/T28-bed-material-params.md`（2026-10-18）：第 1–3 项已查证。VTT/HTW 床料的 ε_mf、φ_S、u_mf,0 原文未给出。Geldart (1973) 的 A/B 为式 (4)–(6)、B/D 为式 (7)–(8)；A/C 只有 Fig. 3 阴影 PQ，未数字化。未算工况 1 的类别 |
 | T29 | 已裁定的第 1 关输入写入工况文件 | cursor（新会话）；审查总司令 | 完成 | PR #83（2026-10-18 总司令审查通过）。任务卡 `docs/tasks/T29-vtt1-case-data.md`。ADR 0014、0019 已写明的数已写入 `data/cases/vtt_pressurized.json`。`<0,1 mm` 代表粒径与床料质量分数两处 ADR 未给出可录入的数，保持 missing，见缺口文件 T29 节 |
 
 ## 执行顺序与分工（2026-10-13 起）
