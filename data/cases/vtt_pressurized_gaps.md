@@ -96,7 +96,7 @@ Hamel 在 S. 133 写模拟所用的数据取自 Kurkela & Ståhlberg（1992）�
 | 壁面传热系数 | `wall_heat_transfer_coefficient` |
 | 燃料量 | `fuel_mass_flow` |
 | 工业分析、元素分析、热值 | `fuels` 与各工况水分；固定碳为 cited。热值只在工况 1、3、7、11、14 |
-| 燃料粒径分布 | 工况 1 的 `fuel_size_class_mass_fractions` 为筛分级份额；等表面积换算见 T29 |
+| 燃料粒径分布 | 工况 1 的 `fuel_size_class_mass_fractions` 为筛分级份额；代表粒径 `fuel_size_class_diameters` 按 ADR 0023（2026-10-19 批准）录入 |
 | 各进气口体积流量 | `primary_air_volume_flow`、`secondary_air_volume_flow`，摩尔流量按 ADR 0004。吹扫氮另记 `nitrogen_purge_volume_flow` |
 | 进入气体组成 | 工况 1 的 `inlet_gas_mole_fractions` 为干空气与纯蒸汽（ADR 0014 C1）；其余工况仍 missing |
 | 进入气体温度与压力 | 工况 1、3、7、11、14 的 `inlet_temperature` 为 185 °C；其余仍 missing。`pressure` 取表 7.2 的 Druck |
@@ -121,7 +121,7 @@ Hamel 在 S. 133 写模拟所用的数据取自 Kurkela & Ståhlberg（1992）�
 | `wall_heat_transfer_coefficient` | 壁面散热 | 表 2.1；Table 6, p. 18 | 工况 1 对上的差额是 21,7 kW，不是传热系数 |
 | `connecting_line_geometry`、`cyclone_geometry`、`return_line_geometry` | 表 2.1 的下游设备 | S. 133；KURKELA_1992 p. 6；KURKELA_1991 印刷页 7–10 | 两台旋风，没有尺寸。`cyclone_cell_count` 仍是 2 |
 | `ash_withdrawal_count`、`ash_withdrawal_mass_flow` | ADR 0009 第 6 项的排灰位置与流率 | KURKELA_1992 p. 6；KURKELA_1991 印刷页 8 | 仍缺。35 mm 与 38 mm 不一致，取样管原值不改，流率没有 |
-| `fuel_size_class_mass_fractions` | 燃料粒径分级 | ADR 0014 D2；Fig. 1 | 工况 1 已录入筛分级份额。`<0,1 mm` 的代表粒径 ADR 未写明，等表面积换算未做。工况 2–15 仍缺 |
+| `fuel_size_class_mass_fractions` | 燃料粒径分级 | ADR 0014 D2；Fig. 1 | 工况 1 已录入筛分级份额；代表粒径与等表面积换算按 ADR 0023（2026-10-19 批准）录入 `fuel_size_class_diameters`。工况 2–15 仍缺 |
 | `distributor_type` | ADR 0011 第 8、9 条 | KURKELA_1992 p. 5 | 已录入 multiorifice plate distributor。孔数另见 `distributor_orifice_count` |
 
 一次风、二次风和吹扫氮的摩尔流已按 ADR 0004 换算，V_M = 0,022414 m³/mol。它们不再列入上表。`reactor_height` 已按 ADR 0005 记为 3,5 m。`bed_height`、`cell_heights`、`agent_feed_height`、`solid_feed_temperature`、`nitrogen_purge_temperature` 已按 ADR 0014 录入，不再列入上表。吹扫氮温度是 298,15 K。
@@ -293,6 +293,6 @@ Bild 7.8、7.9 剖面转折点的 ξ 由目标所有者用工具读，清单在 
 
 停下、没有自定的两项：
 
-1. `<0,1 mm` 一级的代表粒径。ADR 0014 D2 只写它是解释性选择、在数据 PR 登记；`kurkela1992_fig1.json` 也写明未给出。Hamel S. 144 是把木片边长矩阵换成等表面积球的直径分级，没有从这条筛分曲线算出该档代表粒径的式子。筛分级质量分数已录入，等表面积换算没有做。
+1. （2026-10-18 后续：由 ADR 0023 裁定，2026-10-19 批准，已录入 `fuel_size_class_diameters`。以下为 T29 当时的记录。）`<0,1 mm` 一级的代表粒径。ADR 0014 D2 只写它是解释性选择、在数据 PR 登记；`kurkela1992_fig1.json` 也写明未给出。Hamel S. 144 是把木片边长矩阵换成等表面积球的直径分级，没有从这条筛分曲线算出该档代表粒径的式子。筛分级质量分数已录入，等表面积换算没有做。
 2. `bed_inventory_composition`。ADR 0014 A1 裁定工况 1 的床料是燃料生成的焦炭与灰、不含惰性砂，没有质量分数。字段单位是 kg/kg。两者不是同一个量，值保持 missing。
 
