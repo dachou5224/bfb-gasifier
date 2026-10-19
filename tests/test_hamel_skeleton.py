@@ -74,10 +74,22 @@ def _by_name(items):
     return {item.quantity: item for item in items}
 
 
-def test_physical_and_solver_are_separate_and_have_no_defaults():
+def test_physical_config_has_no_defaults_and_solver_fields_match_adr_0027():
     assert len(PHYSICAL_FIELDS) <= 30
     assert {field.name for field in dataclasses.fields(PhysicalConfig)} == set(PHYSICAL_FIELDS)
-    assert dataclasses.fields(SolverConfig) == ()
+    solver = SolverConfig()
+    assert {field.name for field in dataclasses.fields(SolverConfig)} == {
+        "pyrolysis_radial_intervals",
+        "pyrolysis_time_rtol",
+        "pyrolysis_activation_nodes",
+        "pyrolysis_tail_delta_t_k",
+        "pyrolysis_initial_shell_fraction",
+    }
+    assert solver.pyrolysis_radial_intervals == 24
+    assert solver.pyrolysis_time_rtol == 1.0e-6
+    assert solver.pyrolysis_activation_nodes == 16
+    assert solver.pyrolysis_tail_delta_t_k == 0.02
+    assert solver.pyrolysis_initial_shell_fraction == 1.0e-3
     with pytest.raises(TypeError):
         PhysicalConfig()
     with pytest.raises(TypeError):
