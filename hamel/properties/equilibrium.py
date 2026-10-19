@@ -177,7 +177,7 @@ def gibbs_minimization(
     iterations = 0
     for iterations in range(1, _MAX_ITERATIONS + 1):
         exponent = stoichiometry.T @ lambdas - c_values
-        # 式 (A.26) 使用未截断的指数。超出浮点范围时失败，不 clip。ADR 0023。
+        # 式 (A.26) 使用未截断的指数。超出浮点范围时失败，不 clip。ADR 0025。
         if not np.all(np.isfinite(exponent)) or float(np.max(exponent)) > 700.0:
             raise EquilibriumError("式 (A.26) 的指数超出可计算范围")
         mole_fraction = np.exp(exponent)
@@ -193,7 +193,7 @@ def gibbs_minimization(
             raise EquilibriumError("式 (A.29) 的线性方程奇异") from exc
         eta = _ETA0
         accepted = False
-        # 当前点已不满足式 (A.31) 时，减半仍停在不可行点。解释性选择：ADR 0023。
+        # 当前点已不满足式 (A.31) 时，减半仍停在不可行点。解释性选择：ADR 0025。
         if not _exponent_feasible(stoichiometry, lambdas, c_values):
             lambdas = lambdas + eta * step
             continue
