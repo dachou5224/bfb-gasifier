@@ -38,7 +38,7 @@
 | T21 | 物性与气相化学平衡（附录 A1） | cursor（新会话，worktree `../bfb-T21b`）；审查：答卷总司令，代码 codex | 完成 | PR #86（2026-10-19 复审通过）。不可行初值的一步阻尼见 ADR 0025（2026-10-19 批准；0023 已用于燃料粒级代表径，0024 已用于 X6）。数据来源答卷经 PR #79 合并。灰比热的 CHEMIK 原句已由审查方按可检索正文核对。Bild 5.11 的 \(K\) 最大偏差 0.0186（1025 K） |
 | T27 | 自由空间悬停与热解有效域预检 | cursor（新会话）；审查 codex | 待派发（T19 已合并） | 任务卡 `docs/tasks/T27-validity-precheck.md`（2026-10-18 复审通过，已批准）；M1 审计建议 1 |
 | T28 | 床料 ε_mf、φ_S、u_mf,0（X6）与 Geldart 分界 | cursor（新会话）；审查总司令 | 完成 | PR #87（2026-10-18 总司令审查通过）。答卷 `refs/hamel/answers/T28-bed-material-params.md`（2026-10-18）：第 1–3 项已查证。VTT/HTW 床料的 ε_mf、φ_S、u_mf,0 原文未给出。Geldart (1973) 的 A/B 为式 (4)–(6)、B/D 为式 (7)–(8)；A/C 只有 Fig. 3 阴影 PQ，未数字化。未算工况 1 的类别 |
-| T22 | 干燥与热解（第 4 章） | cursor（新会话，worktree `../bfb-T22`）；审查 codex | 待派发（任务卡待审查） | 任务卡 `docs/tasks/T22-pyrolysis.md` |
+| T22 | 干燥与热解（第 4 章） | cursor（新会话，worktree `../bfb-T22`）；审查 codex | 待派发（任务卡待审查；T27 合并后派发） | 任务卡 `docs/tasks/T22-pyrolysis.md` |
 | T29 | 已裁定的第 1 关输入写入工况文件 | cursor（新会话）；审查总司令 | 完成 | PR #83（2026-10-18 总司令审查通过）。任务卡 `docs/tasks/T29-vtt1-case-data.md`。ADR 0014、0019 已写明的数已写入 `data/cases/vtt_pressurized.json`。`<0,1 mm` 代表粒径与床料质量分数两处 ADR 未给出可录入的数，保持 missing，见缺口文件 T29 节 |
 
 ## 执行顺序与分工（2026-10-13 起）
