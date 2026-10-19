@@ -121,6 +121,48 @@ def test_uniform_remaining_fraction_averages_to_one():
     assert pyro.average_volatile(radius, np.ones_like(radius), radius[-1]) == pytest.approx(1.0, rel=1.0e-6)
 
 
+def test_fuel_conversion_conserves_elements_and_gasifies_char():
+    converted = hover.fuel_to_gas()
+    assert converted["char_left_mol_s"] == pytest.approx(0.0, abs=1.0e-8)
+    for name, expected in converted["expected_atoms"].items():
+        assert converted["atoms"][name] == pytest.approx(expected, rel=1.0e-9, abs=1.0e-12)
+    lower = hover.case1_gas()
+    upper = hover.case1_gas_upper()
+    assert upper["primary_mol_s"] > lower["primary_mol_s"] + 0.4
+    assert hover.superficial_velocity(2.0, upper) > hover.superficial_velocity(2.0, lower)
+
+
+def test_adr_0023_diameters_match_the_sauter_mean():
+    assert hover.fine_lower_mm() == pytest.approx(0.0291, abs=5.0e-5)
+    published = (
+        (0.0291, 0.1, 0.0506),
+        (0.1, 0.25, 0.1527),
+        (0.25, 0.5, 0.3466),
+        (0.5, 0.71, 0.5928),
+        (0.71, 1.0, 0.8385),
+        (1.0, 2.0, 1.3863),
+        (2.0, 3.15, 2.4885),
+    )
+    for low, high, diameter in published:
+        assert hover.sauter_diameter_mm(low, high) == pytest.approx(diameter, abs=5.0e-4)
+
+
+def test_declining_profile_defines_a_hover_band():
+    def velocity(height):
+        return 0.4 + 2.0 * math.exp(-1.5 * height)
+
+    spans = hover.hover_velocity_spans(velocity, [(0.0, 3.0)])
+    assert len(spans) == 1
+    low, high = spans[0]
+    assert low == pytest.approx(velocity(3.0), rel=1.0e-3)
+    assert high == pytest.approx(velocity(0.0), rel=1.0e-3)
+    assert hover.hover_velocity_spans(lambda height: 0.2 + 2.0 * height, [(0.0, 2.0)]) == []
+    particle = hover.Particle(2.0e-4, 800.0, 1.2, 3.0e-5, 0.8)
+    target = hover.terminal_settling_velocity(particle)
+    found = hover.diameter_for_settling(target, 800.0, 1.2, 3.0e-5, 0.8)
+    assert found == pytest.approx(2.0e-4, rel=1.0e-4)
+
+
 def test_each_density_combination_keeps_its_own_verdict():
     rows = [
         {

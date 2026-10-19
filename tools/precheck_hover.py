@@ -5,6 +5,10 @@
 气速取 u_gb(h)（式 3.74），u_g = u_gb（ADR 0016 第 7 条）。终端沉降速度由式 (3.82)
 在加速度为零时与式 (3.85) 联立，z 取 Re_∞ → ∞（ADR 0016 第 8 条）。
 
+自由空间气量有下界和上界。下界只用入口气。上界再把燃料水分、ADR 0015
+的热解产物和全部气化后的焦炭算进气相，元素守恒，组成是临时估的。
+判定用 ADR 0023 的代表粒径；筛孔边界只作附表。
+
 两类参考轨迹分开报告「会 / 不会 / 未检验」：
 - 床面抛出样本：式 (3.72) 的起始速度，σ 按 ADR 0016 第 6 条；
 - 当地生成：床面样本到不了的 cell，从中点以 u_g(h_i) − v_t 起步（ADR 0016 第 9、10 条）。
@@ -434,7 +438,27 @@ GAS_CONSTANT = 8.314462618  # 临时：摩尔气体常数，J/(mol·K)
 AIR_MOLAR_MASS = 0.0289647  # 临时：干空气
 WATER_MOLAR_MASS = 0.01801528  # 临时
 N2_MOLAR_MASS = 0.0280134  # 临时
-FINE_DIAMETER_M = 0.05e-3  # 临时：<0,1 mm 没有下限，床料代表粒径用筛孔上限的一半
+# ADR 0023 已批准的代表粒径。最细档下限 0,0291 mm 由 Fig. 1 第一段外推，不再留空。
+MODEL_CLASSES_MM = (
+    (0.0506, 0.116, "0,0291–0,1"),
+    (0.1527, 0.086, "0,1–0,25"),
+    (0.3466, 0.223, "0,25–0,5"),
+    (0.5928, 0.117, "0,5–0,71"),
+    (0.8385, 0.143, "0,71–1,0"),
+    (1.3863, 0.249, "1,0–2,0"),
+    (2.4885, 0.066, "2,0–3,15"),
+)
+FINE_LOWER_MM = 0.0291
+# 表 7.2 干基质量分数。C+H+O+N+S+灰 = 1。
+DRY_MASS_FRACTION = {"C": 0.638, "H": 0.046, "O": 0.262, "N": 0.008, "S": 0.003, "ash": 0.043}
+ATOM_MASS = {"C": 0.012011, "H": 0.00100784, "O": 0.015999, "N": 0.0140067, "S": 0.032065}
+# 表 4.3。式 (4.21) 与式 (4.22) 的 ξ 不通用。
+CHAR_XI = (0.3027, 0.1047, 0.9356, -0.08578)
+TAR_XI = (-0.2168, 0.04148, 0.1566, 1.333)
+FUEL_MASS_KG_S = 0.013027777777777777  # 表 7.2，46,9 kg/h
+MOISTURE_AS_RECEIVED = 0.118
+AIR_O2 = 0.21  # ADR 0014 C1
+AIR_N2 = 0.79
 
 INPUT_NOTES = (
     "床径 0,15 m、自由空间直径 0,25 m：Hamel §7.1.3，S. 132。",
@@ -449,12 +473,21 @@ INPUT_NOTES = (
     "气体粘度用空气 Sutherland 公式（1,716·10⁻⁵ Pa·s，S = 110,4 K）：临时，T21 未合入。",
     "n_0：ADR 0019 为 139,5。T19 的式 (3.37) 只接受正整数，临时取 139。"
     "h_A = 0：ADR 0019 第 1 项。",
-    "Geldart 取 B：临时，待 T28。原文没有印出分类边界。",
-    "ε_mf ∈ {0,40, 0,475, 0,55}，φ_S ∈ {0,60, 0,75, 0,90}：临时区间，待 T28。"
+    "Geldart 取 B：临时。T28 转录了分界，没有算出工况 1 的类别。",
+    "ε_mf ∈ {0,40, 0,475, 0,55}，φ_S ∈ {0,60, 0,75, 0,90}：临时区间。"
+    "T28 的结论是原文没有给出这三项，扫描范围不改。"
     "ρ_P 用 T19 的 particle_density_from_bed_mass，床料质量按 ADR 0014 A3。",
-    "床料代表粒径：有上下限的筛分级取几何平均；<0,1 mm 没有下限，临时取 0,05 mm。"
-    "只用于反求 ρ_P 和 u_b,WS，不作为悬停粒级。",
-    "悬停粒级用 kurkela1992_fig1.json 的筛孔上限与下限。<0,1 mm 的下限未检验。",
+    "β_A = 1/(3·d_b,WS)：Hamel 式 (3.75)，S. 43，PDF 31 右栏。u_gb,0 = u_b,WS：式 (3.76)，同页。",
+    "气量下界：一次风、蒸汽、吹扫氮，风口以上再加二次风。不上燃料产气。",
+    "气量上界：下界再加燃料完全转入气相后的产物。水分按 ADR 0015 第 9 项单独成为 H2O。"
+    "无水无灰基按式 (4.21)–(4.24)、(4.26)、(4.27) 与表 4.3 分成焦炭、焦油和热解气，"
+    "床温 1092,15 K、0,5 MPa 落在表 4.3 的适用区间内。焦油按 ADR 0015 收成苯与萘，"
+    "摩尔 H/C 等于原煤。焦炭是纯碳，再全部气化：先 C+½O2→CO，不够再用 C+H2O→CO+H2，"
+    "仍不够则 C+2H2→CH4。热解气本身按 S→H2S、N→N2、其余收成 CO、CO2、H2O、H2 的顺序估计。"
+    "这套分子组成是临时的，只保证元素守恒。灰不进气相。不用 KURKELA 的产品气流量。",
+    "床料代表粒径：ADR 0023 七档 d_k 的质量平均。临时，只用于反求 ρ_P 和 u_b,WS，不是悬停粒级。",
+    "悬停判定用 ADR 0023 的 d_k（0,0506–2,4885 mm）。最细档下限 0,0291 mm，不再标未检验。"
+    "筛孔上下限只留在附表。",
     "床区积分每格 6 段，与 T19 冒烟相同。搜索参数用 ADR 0020 登记值（该 ADR 待审查）。",
     "鬼泡坐标 h 从床面起算：u_gb(0) = u_b,WS。这是式 (3.76) 的读法，任务卡没有另给原点。",
     "床面样本 17 个等概率正初速：临时离散，不是求解器参数。",
@@ -465,6 +498,171 @@ def sutherland_air_viscosity(temperature_k: float) -> float:
     """空气动力粘度。临时：Sutherland，参考 273,15 K、1,716·10⁻⁵ Pa·s、S = 110,4 K。"""
     reference = 273.15
     return 1.716e-5 * (temperature_k / reference) ** 1.5 * (reference + 110.4) / (temperature_k + 110.4)
+
+
+def sauter_diameter_mm(low_mm: float, high_mm: float) -> float:
+    """对数均匀质量分布的 Sauter 平均径。ADR 0023 第 2 项：ln(b/a)/(1/a−1/b)。"""
+    if low_mm <= 0.0 or high_mm <= low_mm:
+        raise ValueError("粒级上下限必须为正，且上限大于下限")
+    return math.log(high_mm / low_mm) / (1.0 / low_mm - 1.0 / high_mm)
+
+
+def fine_lower_mm() -> float:
+    """ADR 0023 第 3 项：把 0,1–0,25 mm 的对数斜率外推到累积 0。"""
+    slope = (20.2 - 11.6) / math.log10(0.25 / 0.1)
+    return 0.1 * 10.0 ** (-11.6 / slope)
+
+
+def _molecule_mass() -> dict[str, float]:
+    carbon, hydrogen, oxygen, nitrogen, sulfur = (
+        ATOM_MASS["C"], ATOM_MASS["H"], ATOM_MASS["O"], ATOM_MASS["N"], ATOM_MASS["S"]
+    )
+    return {
+        "O2": 2.0 * oxygen,
+        "N2": 2.0 * nitrogen,
+        "H2O": 2.0 * hydrogen + oxygen,
+        "H2": 2.0 * hydrogen,
+        "CO": carbon + oxygen,
+        "CO2": carbon + 2.0 * oxygen,
+        "CH4": carbon + 4.0 * hydrogen,
+        "H2S": 2.0 * hydrogen + sulfur,
+        "C6H6": 6.0 * carbon + 6.0 * hydrogen,
+        "C10H8": 10.0 * carbon + 8.0 * hydrogen,
+    }
+
+
+def _empty_species() -> dict[str, float]:
+    return {name: 0.0 for name in _molecule_mass()}
+
+
+def _close_small_molecules(n_c: float, n_h: float, n_o: float, n_n: float, n_s: float) -> dict[str, float]:
+    """把一组原子收成小分子。临时顺序：H2S、N2、CO、H2O、CO2、O2、CH4、H2。"""
+    species = _empty_species()
+    species["H2S"] = n_s
+    hydrogen = n_h - 2.0 * n_s
+    species["N2"] = n_n / 2.0
+    carbon = n_c
+    oxygen = n_o
+    if oxygen >= carbon:
+        species["CO"] = carbon
+        oxygen -= carbon
+        carbon = 0.0
+    else:
+        species["CO"] = oxygen
+        carbon -= oxygen
+        oxygen = 0.0
+    water = min(oxygen, max(hydrogen, 0.0) / 2.0)
+    species["H2O"] = water
+    oxygen -= water
+    hydrogen -= 2.0 * water
+    dioxide = min(species["CO"], max(oxygen, 0.0))
+    species["CO"] -= dioxide
+    species["CO2"] = dioxide
+    oxygen -= dioxide
+    species["O2"] = max(oxygen, 0.0) / 2.0
+    methane = min(max(carbon, 0.0), max(hydrogen, 0.0) / 4.0)
+    species["CH4"] = methane
+    carbon -= methane
+    hydrogen -= 4.0 * methane
+    species["H2"] = max(hydrogen, 0.0) / 2.0
+    species["C_left"] = max(carbon, 0.0)
+    return species
+
+
+def _species_atoms(species: dict[str, float]) -> dict[str, float]:
+    return {
+        "C": species["CO"] + species["CO2"] + species["CH4"] + 6.0 * species["C6H6"] + 10.0 * species["C10H8"],
+        "H": (
+            2.0 * species["H2O"] + 2.0 * species["H2"] + 4.0 * species["CH4"]
+            + 2.0 * species["H2S"] + 6.0 * species["C6H6"] + 8.0 * species["C10H8"]
+        ),
+        "O": 2.0 * species["O2"] + species["H2O"] + species["CO"] + 2.0 * species["CO2"],
+        "N": 2.0 * species["N2"],
+        "S": species["H2S"],
+    }
+
+
+def _gasify_char(species: dict[str, float], carbon_mol_s: float) -> float:
+    """把纯碳焦炭并入已有气相。先耗 O2，再耗 H2O，最后耗 H2。返回没能气化的碳。"""
+    left = carbon_mol_s
+    via_oxygen = min(left, 2.0 * species["O2"])
+    species["O2"] -= 0.5 * via_oxygen
+    species["CO"] += via_oxygen
+    left -= via_oxygen
+    via_steam = min(left, species["H2O"])
+    species["H2O"] -= via_steam
+    species["CO"] += via_steam
+    species["H2"] += via_steam
+    left -= via_steam
+    via_hydrogen = min(left, species["H2"] / 2.0)
+    species["H2"] -= 2.0 * via_hydrogen
+    species["CH4"] += via_hydrogen
+    left -= via_hydrogen
+    return left
+
+
+def fuel_to_gas() -> dict:
+    """工况 1 燃料完全转入气相后，并到一次风、蒸汽和吹扫氮上的床层气体。
+
+    二次风不在这里加。组成是临时的；元素量由入口和表 7.2 决定。
+    """
+    temperature = BED_TEMPERATURE_K
+    pressure = PRESSURE_PA
+    char_fraction = (
+        CHAR_XI[0] * pressure ** CHAR_XI[1] * CHAR_XI[2] ** (1.0e-6 * pressure) * temperature ** CHAR_XI[3]
+    )
+    tar_fraction = TAR_XI[0] * pressure ** TAR_XI[1] * temperature ** TAR_XI[2] + TAR_XI[3]
+    dry = FUEL_MASS_KG_S * (1.0 - MOISTURE_AS_RECEIVED)
+    organic = dry * (1.0 - DRY_MASS_FRACTION["ash"])
+    waf = {name: DRY_MASS_FRACTION[name] / (1.0 - DRY_MASS_FRACTION["ash"]) for name in ("C", "H", "O", "N", "S")}
+    atoms = {name: organic * waf[name] / ATOM_MASS[name] for name in waf}
+    carbon_char = atoms["C"] * char_fraction
+    carbon_tar = atoms["C"] * tar_fraction
+    hydrogen_tar = carbon_tar * atoms["H"] / atoms["C"]
+    carbon_gas = atoms["C"] - carbon_char - carbon_tar
+    hydrogen_gas = atoms["H"] - hydrogen_tar
+    pyrolysis = _close_small_molecules(carbon_gas, hydrogen_gas, atoms["O"], atoms["N"], atoms["S"])
+    if pyrolysis["C_left"] > 1.0e-9:
+        raise RuntimeError("热解气的碳没有全部进入小分子")
+    ratio = hydrogen_tar / carbon_tar
+    if not 0.8 <= ratio <= 1.0:
+        raise RuntimeError("原煤摩尔 H/C 落在苯与萘能够配出的范围之外")
+    benzene_carbon = (ratio - 0.8) / 0.2
+    steam = STEAM_KG_S / WATER_MOLAR_MASS
+    moisture = FUEL_MASS_KG_S * MOISTURE_AS_RECEIVED / WATER_MOLAR_MASS
+    species = _empty_species()
+    species["O2"] = AIR_O2 * PRIMARY_AIR_MOL_S
+    species["N2"] = AIR_N2 * PRIMARY_AIR_MOL_S + PURGE_N2_MOL_S
+    species["H2O"] = steam + moisture
+    for name in species:
+        species[name] += pyrolysis[name]
+    species["C6H6"] = benzene_carbon * carbon_tar / 6.0
+    species["C10H8"] = (1.0 - benzene_carbon) * carbon_tar / 10.0
+    char_left = _gasify_char(species, carbon_char)
+    if char_left > 1.0e-8:
+        raise RuntimeError("入口的氧和氢不够把焦炭全部气化")
+    expected = {
+        "C": atoms["C"],
+        "H": atoms["H"] + 2.0 * steam + 2.0 * moisture,
+        "O": atoms["O"] + 2.0 * AIR_O2 * PRIMARY_AIR_MOL_S + steam + moisture,
+        "N": atoms["N"] + 2.0 * AIR_N2 * PRIMARY_AIR_MOL_S + 2.0 * PURGE_N2_MOL_S,
+        "S": atoms["S"],
+    }
+    got = _species_atoms(species)
+    moles = sum(species.values())
+    mass = sum(species[name] * weight for name, weight in _molecule_mass().items())
+    return {
+        "species_mol_s": species,
+        "bed_mol_s": moles,
+        "molar_mass": mass / moles,
+        "char_carbon_fraction": char_fraction,
+        "tar_carbon_fraction": tar_fraction,
+        "char_mass_fraction_waf": waf["C"] * char_fraction,
+        "tar_mass_fraction_waf": waf["C"] * tar_fraction * (1.0 + waf["H"] / waf["C"]),
+        "atoms": got,
+        "expected_atoms": expected,
+        "char_left_mol_s": char_left,
+    }
 
 
 def case1_gas():
@@ -492,7 +690,21 @@ def case1_gas():
         "mu_g": mu_g,
         "bed_area_m2": math.pi * (BED_DIAMETER_M / 2.0) ** 2,
         "freeboard_area_m2": math.pi * (FREEBOARD_DIAMETER_M / 2.0) ** 2,
+        "bound": "下界",
+        "conversion": None,
     }
+
+
+def case1_gas_upper() -> dict:
+    """下界的入口摩尔数，加上燃料完全转入气相后的床层气体。二次风仍只在风口以上加入。"""
+    gas = case1_gas()
+    converted = fuel_to_gas()
+    gas["primary_mol_s"] = converted["bed_mol_s"]
+    gas["molar_mass"] = converted["molar_mass"]
+    gas["rho_g"] = PRESSURE_PA * converted["molar_mass"] / (GAS_CONSTANT * BED_TEMPERATURE_K)
+    gas["bound"] = "上界"
+    gas["conversion"] = converted
+    return gas
 
 
 def superficial_velocity(height_above_distributor_m: float, gas: dict) -> float:
@@ -526,17 +738,56 @@ def size_bounds():
     return classes
 
 
-def bed_representative_diameter_m(classes) -> float:
-    total = 0.0
-    moment = 0.0
-    for low_mm, high_mm, fraction in classes:
-        if low_mm is None:
-            diameter = FINE_DIAMETER_M
+def bed_representative_diameter_m(classes=None) -> float:
+    """ADR 0023 各档 d_k 的质量平均。只用于反求 ρ_P，不作为悬停粒级。"""
+    del classes
+    total = sum(fraction for _diameter, fraction, _label in MODEL_CLASSES_MM)
+    moment = sum(diameter * fraction for diameter, fraction, _label in MODEL_CLASSES_MM)
+    return moment / total * 1.0e-3
+
+
+def hover_velocity_spans(u_of_h, pieces: list[tuple[float, float]], count: int = 400) -> list[tuple[float, float]]:
+    """气速下降段上，能与 u_g 相交且该处斜率为负的 v_t 区间。上升段不产生稳定点。"""
+    spans = []
+    for start, stop in pieces:
+        grid = np.linspace(start, stop, count)
+        values = [float(u_of_h(height)) for height in grid]
+        for left, right in zip(values, values[1:]):
+            if right < left:
+                spans.append((right, left))
+    if not spans:
+        return []
+    spans.sort()
+    merged = [list(spans[0])]
+    for low, high in spans[1:]:
+        if low <= merged[-1][1]:
+            merged[-1][1] = max(merged[-1][1], high)
         else:
-            diameter = math.sqrt(low_mm * high_mm) * 1.0e-3
-        total += fraction
-        moment += fraction * diameter
-    return moment / total
+            merged.append([low, high])
+    return [(low, high) for low, high in merged]
+
+
+def diameter_for_settling(settling_m_s: float, rho_p: float, rho_g: float, mu_g: float, phi_s: float) -> float:
+    """反解终端沉降速度对应的粒径。v_t 随粒径增大。"""
+    if settling_m_s <= 0.0:
+        raise ValueError("沉降速度必须为正")
+    low = 1.0e-7
+    high = 2.0e-2
+
+    def settling(diameter):
+        return terminal_settling_velocity(Particle(diameter, rho_p, rho_g, mu_g, phi_s))
+
+    if settling(high) < settling_m_s:
+        return math.inf
+    if settling(low) > settling_m_s:
+        return low
+    for _ in range(60):
+        mid = 0.5 * (low + high)
+        if settling(mid) < settling_m_s:
+            low = mid
+        else:
+            high = mid
+    return 0.5 * (low + high)
 
 
 def ghost_bubble_velocity(
@@ -636,20 +887,98 @@ def case1_pieces() -> list[tuple[float, float]]:
     return [(0.0, port), (port + 1.0e-4, FREEBOARD_HEIGHT_M)]
 
 
-def case1_scan() -> dict:
-    """扫 ε_mf、φ_S 与各筛孔边界。失败的密度角点记为未检验，不换一组参数重试。"""
-    gas = case1_gas()
-    classes = size_bounds()
-    bed_diameter = bed_representative_diameter_m(classes)
-    diameters = [(None, "未检验：kurkela1992_fig1 最细一档没有下限")]
+def _diameter_sets():
+    model = [
+        (diameter_mm * 1.0e-3, f"d_k {diameter_mm:.4f} mm（{label}）")
+        for diameter_mm, _fraction, label in MODEL_CLASSES_MM
+    ]
+    sieve = []
     seen = set()
-    for low_mm, high_mm, _fraction in classes:
-        for bound in (low_mm, high_mm):
-            if bound is None or bound in seen:
+    for low_mm, high_mm, _fraction in size_bounds():
+        for edge in (low_mm, high_mm):
+            if edge is None or edge in seen:
                 continue
-            seen.add(bound)
-            diameters.append((bound * 1.0e-3, f"筛孔 {bound} mm"))
+            seen.add(edge)
+            sieve.append((edge * 1.0e-3, f"筛孔 {edge} mm"))
+    return model, sieve
+
+
+def _assess_rows(gas: dict, states: list[dict], diameters: list[tuple[float, str]], bound: str) -> list[dict]:
     rows = []
+    pieces = case1_pieces()
+    for diameter_m, label in diameters:
+        for state in states:
+            row = {
+                "bound": bound,
+                "label": label,
+                "diameter_m": diameter_m,
+                "epsilon_mf": state["epsilon_mf"],
+                "phi_s": state["phi_s"],
+                "rho_p": state["rho_p"],
+                "u_b": state["u_b"],
+                "d_b": state["d_b"],
+                "v_t": math.nan,
+                "stable_m": [],
+                "bed": "未检验",
+                "local": "未检验",
+                "overall": "未检验",
+                "note": state["error"] or label,
+            }
+            if state["error"]:
+                rows.append(row)
+                continue
+            particle = Particle(diameter_m, state["rho_p"], gas["rho_g"], gas["mu_g"], state["phi_s"])
+
+            def u_of_h(height, bubble=state["u_b"], diameter=state["d_b"], used=gas):
+                return ghost_bubble_velocity(height, bubble, diameter, used)
+
+            assessed = assess_piecewise(
+                u_of_h, pieces, freeboard_edges(), particle, ejection_samples(state["u_b"])
+            )
+            row["v_t"] = assessed.v_t_m_s
+            row["stable_m"] = [BED_HEIGHT_M + item for item in assessed.stable_heights_m]
+            row["bed"] = assessed.bed.status
+            row["local"] = assessed.local.status
+            row["overall"] = assessed.overall
+            row["note"] = f"{bound}；{label}；床面：{assessed.bed.detail}；当地：{assessed.local.detail}"
+            rows.append(row)
+    return rows
+
+
+def _band_rows(gas: dict, states: list[dict], bound: str) -> list[dict]:
+    pieces = case1_pieces()
+    rows = []
+    for state in states:
+        row = {
+            "bound": bound,
+            "epsilon_mf": state["epsilon_mf"],
+            "phi_s": state["phi_s"],
+            "rho_p": state["rho_p"],
+            "spans_m_s": [],
+            "diameters_mm": [],
+            "note": state["error"],
+        }
+        if state["error"]:
+            rows.append(row)
+            continue
+
+        def u_of_h(height, bubble=state["u_b"], diameter=state["d_b"], used=gas):
+            return ghost_bubble_velocity(height, bubble, diameter, used)
+
+        spans = hover_velocity_spans(u_of_h, pieces)
+        row["spans_m_s"] = spans
+        for low, high in spans:
+            row["diameters_mm"].append(
+                (
+                    diameter_for_settling(low, state["rho_p"], gas["rho_g"], gas["mu_g"], state["phi_s"]) * 1.0e3,
+                    diameter_for_settling(high, state["rho_p"], gas["rho_g"], gas["mu_g"], state["phi_s"]) * 1.0e3,
+                )
+            )
+        rows.append(row)
+    return rows
+
+
+def _scan_bound(bound: str, gas: dict, bed_diameter: float, model, sieve) -> dict:
     states = []
     for epsilon_mf in EPSILON_MF_GRID:
         for phi_s in PHI_S_GRID:
@@ -668,48 +997,28 @@ def case1_scan() -> dict:
             state["epsilon_mf"] = epsilon_mf
             state["phi_s"] = phi_s
             states.append(state)
-    for diameter_m, label in diameters:
-        for state in states:
-            row = {
-                "label": label,
-                "diameter_m": diameter_m,
-                "epsilon_mf": state["epsilon_mf"],
-                "phi_s": state["phi_s"],
-                "rho_p": state["rho_p"],
-                "u_b": state["u_b"],
-                "d_b": state["d_b"],
-                "v_t": math.nan,
-                "stable_m": [],
-                "bed": "未检验",
-                "local": "未检验",
-                "overall": "未检验",
-                "note": state["error"] or label,
-            }
-            if diameter_m is None or state["error"]:
-                rows.append(row)
-                continue
-            particle = Particle(diameter_m, state["rho_p"], gas["rho_g"], gas["mu_g"], state["phi_s"])
-
-            def u_of_h(height, bubble=state["u_b"], diameter=state["d_b"], used=gas):
-                return ghost_bubble_velocity(height, bubble, diameter, used)
-
-            samples = ejection_samples(state["u_b"])
-            pieces = case1_pieces()
-            assessed = assess_piecewise(u_of_h, pieces, freeboard_edges(), particle, samples)
-            row["v_t"] = assessed.v_t_m_s
-            row["stable_m"] = [BED_HEIGHT_M + item for item in assessed.stable_heights_m]
-            row["bed"] = assessed.bed.status
-            row["local"] = assessed.local.status
-            row["overall"] = assessed.overall
-            row["note"] = f"{label}；床面：{assessed.bed.detail}；当地：{assessed.local.detail}"
-            rows.append(row)
     return {
+        "bound": bound,
         "gas": gas,
-        "bed_diameter_m": bed_diameter,
         "states": states,
-        "rows": rows,
+        "model_rows": _assess_rows(gas, states, model, bound),
+        "sieve_rows": _assess_rows(gas, states, sieve, bound),
+        "bands": _band_rows(gas, states, bound),
         "u_bed": superficial_velocity(0.6, gas),
         "u_freeboard": superficial_velocity(2.0, gas),
+    }
+
+
+def case1_scan() -> dict:
+    """两个气量界、ADR 0023 的七档，以及筛孔附表。密度角点失败时记为未检验。"""
+    bed_diameter = bed_representative_diameter_m()
+    model, sieve = _diameter_sets()
+    return {
+        "bed_diameter_m": bed_diameter,
+        "bounds": [
+            _scan_bound("下界", case1_gas(), bed_diameter, model, sieve),
+            _scan_bound("上界", case1_gas_upper(), bed_diameter, model, sieve),
+        ],
     }
 
 
@@ -773,8 +1082,8 @@ def summary_table(report: dict) -> list[dict]:
     return lines
 
 
-def hover_sentence(lines: list[dict]) -> str:
-    """一句预检结论，不裁定闭合。"""
+def hover_sentence(lines: list[dict], bound: str) -> str:
+    """一句预检结论，不裁定闭合。只看这一气量界下的模型粒级。"""
     if any(item["综合"] == "取决于 ρ_P 区间" for item in lines):
         head = "取决于 ρ_P 区间"
     elif any(item["综合"] == "会" for item in lines):
@@ -784,8 +1093,8 @@ def hover_sentence(lines: list[dict]) -> str:
     else:
         head = "未检验"
     return (
-        f"悬停预检的综合结果是「{head}」。"
-        f"这只是所列临时输入下两类参考轨迹的计算记录，不是悬停闭合的裁定。"
+        f"{bound}的悬停预检是「{head}」。"
+        f"这只是这一气量界下两类参考轨迹的计算记录，不是悬停闭合的裁定。"
     )
 
 
@@ -800,6 +1109,7 @@ def combination_lines(rows: list[dict]) -> list[dict]:
             missing = True
             lines.append(
                 {
+                    "气量": row.get("bound", "—"),
                     "粒级": row["label"],
                     "ε_mf": "—",
                     "φ_S": "—",
@@ -815,6 +1125,7 @@ def combination_lines(rows: list[dict]) -> list[dict]:
         if not math.isfinite(row["v_t"]):
             lines.append(
                 {
+                    "气量": row.get("bound", "—"),
                     "粒级": row["label"],
                     "ε_mf": f"{row['epsilon_mf']:.3f}",
                     "φ_S": f"{row['phi_s']:.2f}",
@@ -830,6 +1141,7 @@ def combination_lines(rows: list[dict]) -> list[dict]:
         heights = row["stable_m"]
         lines.append(
             {
+                "气量": row.get("bound", "—"),
                 "粒级": row["label"],
                 "ε_mf": f"{row['epsilon_mf']:.3f}",
                 "φ_S": f"{row['phi_s']:.2f}",
@@ -845,12 +1157,34 @@ def combination_lines(rows: list[dict]) -> list[dict]:
 
 
 def format_combinations(lines: list[dict]) -> str:
-    header = "| 粒级 | ε_mf | φ_S | ρ_P / kg/m³ | v_t / m/s | h* / m | 床面抛出 | 当地生成 | 综合 |"
-    rule = "|---|---|---|---|---|---|---|---|---|"
+    header = "| 气量 | 粒级 | ε_mf | φ_S | ρ_P / kg/m³ | v_t / m/s | h* / m | 床面抛出 | 当地生成 | 综合 |"
+    rule = "|---|---|---|---|---|---|---|---|---|---|"
     body = [
-        "| {粒级} | {ε_mf} | {φ_S} | {ρ_P} | {v_t} | {h*} | {床面抛出} | {当地生成} | {综合} |".format(**item)
+        "| {气量} | {粒级} | {ε_mf} | {φ_S} | {ρ_P} | {v_t} | {h*} | {床面抛出} | {当地生成} | {综合} |".format(**item)
         for item in lines
     ]
+    return "\n".join([header, rule, *body])
+
+
+def format_bands(rows: list[dict]) -> str:
+    header = "| 气量 | ε_mf | φ_S | ρ_P / kg/m³ | 会遇到稳定点的 v_t / m/s | 对应粒径 / mm |"
+    rule = "|---|---|---|---|---|---|"
+    body = []
+    for row in rows:
+        rho = f"{row['rho_p']:.0f}" if math.isfinite(row["rho_p"]) else "—"
+        if not row["spans_m_s"]:
+            body.append(
+                f"| {row['bound']} | {row['epsilon_mf']:.3f} | {row['phi_s']:.2f} | {rho} | 无 | 无 |"
+            )
+            continue
+        velocity = "；".join(f"{low:.3f}–{high:.3f}" for low, high in row["spans_m_s"])
+        diameter = "；".join(
+            f"{low:.3f}–{high:.3f}" if math.isfinite(high) else f"{low:.3f}–"
+            for low, high in row["diameters_mm"]
+        )
+        body.append(
+            f"| {row['bound']} | {row['epsilon_mf']:.3f} | {row['phi_s']:.2f} | {rho} | {velocity} | {diameter} |"
+        )
     return "\n".join([header, rule, *body])
 
 
@@ -864,15 +1198,27 @@ def format_table(lines: list[dict]) -> str:
     return "\n".join([header, rule, *body])
 
 
-def main() -> None:
-    report = case1_scan()
-    lines = summary_table(report)
-    print("工况 1 悬停预检")
-    print(f"床层表观气速 {report['u_bed']:.3f} m/s，自由空间直筒表观气速 {report['u_freeboard']:.3f} m/s")
-    print("对照：KURKELA_1992 表 5 给出床层 0,74 m/s、自由空间 0,67 m/s。这里不向这两个数调整输入。")
-    print(f"床料代表粒径 {report['bed_diameter_m'] * 1e3:.3f} mm（临时）")
-    print()
-    finite = [item for item in report["states"] if math.isfinite(item["rho_p"])]
+def _print_bound(block: dict) -> None:
+    gas = block["gas"]
+    print(f"## {block['bound']}")
+    print(
+        f"床层表观气速 {block['u_bed']:.3f} m/s，自由空间直筒表观气速 {block['u_freeboard']:.3f} m/s，"
+        f"床层气体 {gas['primary_mol_s']:.4f} mol/s，摩尔质量 {gas['molar_mass'] * 1e3:.2f} g/mol"
+    )
+    converted = gas["conversion"]
+    if converted is not None:
+        species = converted["species_mol_s"]
+        print(
+            "热解：焦炭碳份额 x_C,Koks = {:.3f}，焦油碳份额 x_C,Teer = {:.3f}；"
+            "焦炭占无水无灰基 {:.3f}，焦油占 {:.3f}。临时组成（mol/s）：".format(
+                converted["char_carbon_fraction"],
+                converted["tar_carbon_fraction"],
+                converted["char_mass_fraction_waf"],
+                converted["tar_mass_fraction_waf"],
+            )
+        )
+        print("、".join(f"{name} {amount:.4f}" for name, amount in species.items() if amount > 1.0e-6))
+    finite = [item for item in block["states"] if math.isfinite(item["rho_p"])]
     if finite:
         print(
             "ρ_P {:.0f}–{:.0f} kg/m³，u_b,WS {:.3f}–{:.3f} m/s，d_b,WS {:.4f}–{:.4f} m".format(
@@ -884,17 +1230,32 @@ def main() -> None:
                 max(item["d_b"] for item in finite),
             )
         )
-    failed = [item for item in report["states"] if item["error"]]
-    for item in failed:
-        print(f"未反求到 ρ_P：ε_mf={item['epsilon_mf']}，φ_S={item['phi_s']}，{item['error']}")
+    for item in block["states"]:
+        if item["error"]:
+            print(f"未反求到 ρ_P：ε_mf={item['epsilon_mf']}，φ_S={item['phi_s']}，{item['error']}")
     print()
-    print(format_combinations(combination_lines(report["rows"])))
+    print("悬停带（沉降速度落在下降段气速范围内的颗粒会遇到稳定点）：")
+    print(format_bands(block["bands"]))
     print()
-    print("按筛孔归并（密度角点不一致时写「取决于 ρ_P 区间」）：")
-    print(format_table(lines))
+    print("模型粒级（ADR 0023）：")
+    print(format_combinations(combination_lines(block["model_rows"])))
     print()
-    print(hover_sentence(lines))
+    print(hover_sentence(summary_table({"rows": block["model_rows"]}), block["bound"]))
     print()
+    print("附表：筛孔边界")
+    print(format_table(summary_table({"rows": block["sieve_rows"]})))
+    print()
+
+
+def main() -> None:
+    report = case1_scan()
+    print("工况 1 悬停预检")
+    print("对照：KURKELA_1992 表 5 给出床层 0,74 m/s、自由空间 0,67 m/s。这里不向这两个数调整输入。")
+    print(f"床料代表粒径 {report['bed_diameter_m'] * 1e3:.3f} mm（ADR 0023 质量平均，临时，只用于反求 ρ_P）")
+    print("β_A = 1/(3·d_b,WS)，Hamel 式 (3.75)，S. 43。")
+    print()
+    for block in report["bounds"]:
+        _print_bound(block)
     print("输入：")
     for note in INPUT_NOTES:
         print(f"- {note}")

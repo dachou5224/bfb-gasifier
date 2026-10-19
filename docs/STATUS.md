@@ -36,7 +36,7 @@
 | T19 | 床区流动模型（§3.1）与床区固体输运系数 | cursor（新会话，worktree `../bfb-T19`）；审查 codex | 完成 | PR #78 已合并（2026-10-18）。ADR 0020 登记标量搜索参数。X5 由 ADR 0019 裁定。Bild 3.5/3.3 按 ADR 0022 A1 冻结暂定读法，比较工具只作诊断 |
 | T20 | 反应速率（第 5 章，R1–R11） | cursor（新会话，worktree `../bfb-T20`）；审查 codex | 完成 | PR #77 已合并（2026-10-18）。`hamel/kinetics/` 按冻结稿实现 R1–R11。R1、R2、R4 的颗粒数按 ADR 0017 第 19 项用 m_C+m_A 与 ρ_P；R3 仍只用焦炭质量。R8 用式 (5.45)，a_R8 = 0,02（ADR 0013）。式 (5.23) 的 T、式 (5.10) 的 T_c 与 d_c 保持为调用方参数；取值由 ADR 0022 C1 裁定（待批准）：取颗粒温度 T_P 与粒级粒径 |
 | T21 | 物性与气相化学平衡（附录 A1） | cursor（新会话，worktree `../bfb-T21`）；审查：答卷总司令，代码 codex | 第一步完成，第二步可派发 | 数据来源答卷经 PR #79 合并（`refs/hamel/answers/T21-properties-sources.md`，行对齐 `data/properties/t21-reid4-appendix-alignment.json`）。答卷留下的各项由 ADR 0021（2026-10-18 批准）裁定；灰的比热 950 J/(kg·K)（ADR 0018 第 6 项，目标所有者 2026-10-18）。ADR 0021 已批准，第二步（写代码）可以派发 |
-| T27 | 自由空间悬停与热解有效域预检 | cursor（新会话，worktree `../bfb-T27`）；审查 codex | 待审查 | PR #84。悬停：会（0,25 mm 的 9 个密度角点都是床面样本趋近；其余已检验筛孔为不会；<0,1 mm 下限未检验）。热解：同步阶段改用非稳态干壳后，已检验筛孔 T_v ≥ T_w 仍成立，最细档下限未检验。不是裁定 |
+| T27 | 自由空间悬停与热解有效域预检 | cursor（新会话，worktree `../bfb-T27`）；审查 codex | 待审查 | PR #84。气量下界：悬停取决于 ρ_P（只有 d_k 0,3466 mm、φ_S=0,60、ε_mf=0,40 或 0,475 为会）。气量上界：直筒 0,685 m/s，d_k 0,3466 mm 的 9 个角点都是会。热解：已检验筛孔 T_v ≥ T_w 仍成立。不是裁定 |
 | T28 | 床料 ε_mf、φ_S、u_mf,0（X6）与 Geldart 分界 | cursor（新会话）；审查总司令 | 待派发 | 任务卡 `docs/tasks/T28-bed-material-params.md`（2026-10-18 复审通过，已批准）；Geldart (1973) 原文由目标所有者提供 |
 | T29 | 已裁定的第 1 关输入写入工况文件 | cursor（新会话）；审查总司令 | 完成 | PR #83（2026-10-18 总司令审查通过）。任务卡 `docs/tasks/T29-vtt1-case-data.md`。ADR 0014、0019 已写明的数已写入 `data/cases/vtt_pressurized.json`。`<0,1 mm` 代表粒径与床料质量分数两处 ADR 未给出可录入的数，保持 missing，见缺口文件 T29 节 |
 
