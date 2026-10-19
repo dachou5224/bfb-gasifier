@@ -5,8 +5,9 @@
 气速取 u_gb(h)（式 3.74），u_g = u_gb（ADR 0016 第 7 条）。终端沉降速度由式 (3.82)
 在加速度为零时与式 (3.85) 联立，z 取 Re_∞ → ∞（ADR 0016 第 8 条）。
 
-自由空间气量有下界和上界。下界只用入口气。上界再把燃料水分、ADR 0015
-的热解产物和全部气化后的焦炭算进气相，元素守恒，组成是临时估的。
+自由空间气量分三个情景，结论只对所列情景。
+情景 A 只用入口气。情景 B 再把燃料水分、ADR 0015 的热解产物和全部气化后的焦炭
+算进气相，焦油保持为苯和萘。情景 C 在 B 上把这些焦油与蒸汽完全重整。
 判定用 ADR 0023 的代表粒径；筛孔边界只作附表。
 
 两类参考轨迹分开报告「会 / 不会 / 未检验」：
@@ -478,13 +479,15 @@ INPUT_NOTES = (
     "T28 的结论是原文没有给出这三项，扫描范围不改。"
     "ρ_P 用 T19 的 particle_density_from_bed_mass，床料质量按 ADR 0014 A3。",
     "β_A = 1/(3·d_b,WS)：Hamel 式 (3.75)，S. 43，PDF 31 右栏。u_gb,0 = u_b,WS：式 (3.76)，同页。",
-    "气量下界：一次风、蒸汽、吹扫氮，风口以上再加二次风。不上燃料产气。",
-    "气量上界：下界再加燃料完全转入气相后的产物。水分按 ADR 0015 第 9 项单独成为 H2O。"
+    "情景 A：一次风、蒸汽、吹扫氮，风口以上再加二次风。不上燃料产气。",
+    "情景 B：情景 A 的入口，再加上燃料转入气相后的产物。水分按 ADR 0015 第 9 项单独成为 H2O。"
     "无水无灰基按式 (4.21)–(4.24)、(4.26)、(4.27) 与表 4.3 分成焦炭、焦油和热解气，"
     "床温 1092,15 K、0,5 MPa 落在表 4.3 的适用区间内。焦油按 ADR 0015 收成苯与萘，"
     "摩尔 H/C 等于原煤。焦炭是纯碳，再全部气化：先 C+½O2→CO，不够再用 C+H2O→CO+H2，"
     "仍不够则 C+2H2→CH4。热解气本身按 S→H2S、N→N2、其余收成 CO、CO2、H2O、H2 的顺序估计。"
     "这套分子组成是临时的，只保证元素守恒。灰不进气相。不用 KURKELA 的产品气流量。",
+    "情景 C：在情景 B 上把苯和萘与剩余蒸汽完全重整，"
+    "C6H6+6 H2O→6 CO+9 H2，C10H8+10 H2O→10 CO+14 H2。临时。它只是另一个所列情景。",
     "床料代表粒径：ADR 0023 七档 d_k 的质量平均。临时，只用于反求 ρ_P 和 u_b,WS，不是悬停粒级。",
     "悬停判定用 ADR 0023 的 d_k（0,0506–2,4885 mm）。最细档下限 0,0291 mm，不再标未检验。"
     "筛孔上下限只留在附表。",
@@ -665,6 +668,39 @@ def fuel_to_gas() -> dict:
     }
 
 
+def reform_tar(species: dict[str, float]) -> dict[str, float]:
+    """苯、萘与蒸汽完全重整。蒸汽不够或出现负组分时停下，不把组分截成 0。
+
+    C6H6 + 6 H2O → 6 CO + 9 H2
+    C10H8 + 10 H2O → 10 CO + 14 H2
+    """
+    reformed = dict(species)
+    benzene = reformed["C6H6"]
+    naphthalene = reformed["C10H8"]
+    water = 6.0 * benzene + 10.0 * naphthalene
+    reformed["H2O"] -= water
+    reformed["C6H6"] = 0.0
+    reformed["C10H8"] = 0.0
+    reformed["CO"] += 6.0 * benzene + 10.0 * naphthalene
+    reformed["H2"] += 9.0 * benzene + 14.0 * naphthalene
+    if any(amount < -1.0e-10 for amount in reformed.values()):
+        raise RuntimeError("焦油重整后出现负组分")
+    for name, amount in reformed.items():
+        if amount < 0.0:
+            reformed[name] = 0.0
+    return reformed
+
+
+def _gas_from_conversion(converted: dict, label: str) -> dict:
+    gas = case1_gas()
+    gas["primary_mol_s"] = converted["bed_mol_s"]
+    gas["molar_mass"] = converted["molar_mass"]
+    gas["rho_g"] = PRESSURE_PA * converted["molar_mass"] / (GAS_CONSTANT * BED_TEMPERATURE_K)
+    gas["bound"] = label
+    gas["conversion"] = converted
+    return gas
+
+
 def case1_gas():
     """工况 1 预检用的气体状态。组成是床层气体（一次风 + 蒸汽 + 吹扫氮），自由空间不另算二次风稀释。"""
     steam_mol_s = STEAM_KG_S / WATER_MOLAR_MASS
@@ -690,21 +726,28 @@ def case1_gas():
         "mu_g": mu_g,
         "bed_area_m2": math.pi * (BED_DIAMETER_M / 2.0) ** 2,
         "freeboard_area_m2": math.pi * (FREEBOARD_DIAMETER_M / 2.0) ** 2,
-        "bound": "下界",
+        "bound": "情景 A",
         "conversion": None,
     }
 
 
-def case1_gas_upper() -> dict:
-    """下界的入口摩尔数，加上燃料完全转入气相后的床层气体。二次风仍只在风口以上加入。"""
-    gas = case1_gas()
-    converted = fuel_to_gas()
-    gas["primary_mol_s"] = converted["bed_mol_s"]
-    gas["molar_mass"] = converted["molar_mass"]
-    gas["rho_g"] = PRESSURE_PA * converted["molar_mass"] / (GAS_CONSTANT * BED_TEMPERATURE_K)
-    gas["bound"] = "上界"
-    gas["conversion"] = converted
-    return gas
+def case1_gas_scenario_b() -> dict:
+    """情景 B：入口气加上燃料转入气相的产物，焦油保持为苯和萘。二次风仍只在风口以上加入。"""
+    return _gas_from_conversion(fuel_to_gas(), "情景 B")
+
+
+def case1_gas_scenario_c() -> dict:
+    """情景 C：情景 B 再把苯和萘与蒸汽完全重整。"""
+    base = fuel_to_gas()
+    species = reform_tar(base["species_mol_s"])
+    moles = sum(species.values())
+    mass = sum(species[name] * weight for name, weight in _molecule_mass().items())
+    converted = dict(base)
+    converted["species_mol_s"] = species
+    converted["bed_mol_s"] = moles
+    converted["molar_mass"] = mass / moles
+    converted["atoms"] = _species_atoms(species)
+    return _gas_from_conversion(converted, "情景 C")
 
 
 def superficial_velocity(height_above_distributor_m: float, gas: dict) -> float:
@@ -1010,14 +1053,15 @@ def _scan_bound(bound: str, gas: dict, bed_diameter: float, model, sieve) -> dic
 
 
 def case1_scan() -> dict:
-    """两个气量界、ADR 0023 的七档，以及筛孔附表。密度角点失败时记为未检验。"""
+    """三个气量情景、ADR 0023 的七档，以及筛孔附表。密度角点失败时记为未检验。"""
     bed_diameter = bed_representative_diameter_m()
     model, sieve = _diameter_sets()
     return {
         "bed_diameter_m": bed_diameter,
-        "bounds": [
-            _scan_bound("下界", case1_gas(), bed_diameter, model, sieve),
-            _scan_bound("上界", case1_gas_upper(), bed_diameter, model, sieve),
+        "scenarios": [
+            _scan_bound("情景 A", case1_gas(), bed_diameter, model, sieve),
+            _scan_bound("情景 B", case1_gas_scenario_b(), bed_diameter, model, sieve),
+            _scan_bound("情景 C", case1_gas_scenario_c(), bed_diameter, model, sieve),
         ],
     }
 
@@ -1094,7 +1138,7 @@ def hover_sentence(lines: list[dict], bound: str) -> str:
         head = "未检验"
     return (
         f"{bound}的悬停预检是「{head}」。"
-        f"这只是这一气量界下两类参考轨迹的计算记录，不是悬停闭合的裁定。"
+        f"结论只限于这个情景，不是悬停闭合的裁定。"
     )
 
 
@@ -1254,7 +1298,7 @@ def main() -> None:
     print(f"床料代表粒径 {report['bed_diameter_m'] * 1e3:.3f} mm（ADR 0023 质量平均，临时，只用于反求 ρ_P）")
     print("β_A = 1/(3·d_b,WS)，Hamel 式 (3.75)，S. 43。")
     print()
-    for block in report["bounds"]:
+    for block in report["scenarios"]:
         _print_bound(block)
     print("输入：")
     for note in INPUT_NOTES:

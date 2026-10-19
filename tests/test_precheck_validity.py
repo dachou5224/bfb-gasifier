@@ -126,10 +126,25 @@ def test_fuel_conversion_conserves_elements_and_gasifies_char():
     assert converted["char_left_mol_s"] == pytest.approx(0.0, abs=1.0e-8)
     for name, expected in converted["expected_atoms"].items():
         assert converted["atoms"][name] == pytest.approx(expected, rel=1.0e-9, abs=1.0e-12)
-    lower = hover.case1_gas()
-    upper = hover.case1_gas_upper()
-    assert upper["primary_mol_s"] > lower["primary_mol_s"] + 0.4
-    assert hover.superficial_velocity(2.0, upper) > hover.superficial_velocity(2.0, lower)
+    scenario_a = hover.case1_gas()
+    scenario_b = hover.case1_gas_scenario_b()
+    assert scenario_b["primary_mol_s"] > scenario_a["primary_mol_s"] + 0.4
+    assert hover.superficial_velocity(2.0, scenario_b) > hover.superficial_velocity(2.0, scenario_a)
+
+
+def test_tar_reforming_conserves_elements_without_negative_amounts():
+    scenario_b = hover.case1_gas_scenario_b()
+    scenario_c = hover.case1_gas_scenario_c()
+    before = scenario_b["conversion"]["atoms"]
+    after = scenario_c["conversion"]["atoms"]
+    for name in before:
+        assert after[name] == pytest.approx(before[name], rel=1.0e-9, abs=1.0e-12)
+    species = scenario_c["conversion"]["species_mol_s"]
+    assert species["C6H6"] == pytest.approx(0.0, abs=1.0e-12)
+    assert species["C10H8"] == pytest.approx(0.0, abs=1.0e-12)
+    assert all(amount >= -1.0e-12 for amount in species.values())
+    assert scenario_c["primary_mol_s"] == pytest.approx(1.650, abs=0.002)
+    assert scenario_c["primary_mol_s"] > scenario_b["primary_mol_s"]
 
 
 def test_adr_0023_diameters_match_the_sauter_mean():
