@@ -1,0 +1,29 @@
+{
+  "gas_constant_J_mol_K": {
+    "value": 8.314462618,
+    "exact": true,
+    "source": "CODATA 2018：Tiesinga, Mohr, Newell, Taylor, Rev. Mod. Phys. 93, 025010 (2021)。2019 年 SI 修订后 R 为精确值，CODATA 2018 采用该值。ADR 0018 第 3 项。"
+  },
+  "stefan_boltzmann_W_m2_K4": {
+    "value": 5.670374419e-8,
+    "exact": true,
+    "source": "CODATA 2018：Tiesinga, Mohr, Newell, Taylor, Rev. Mod. Phys. 93, 025010 (2021)。σ 为精确值。ADR 0018 第 3 项。"
+  },
+  "standard_pressure_Pa": {
+    "value": 101300,
+    "source": "Hamel 符号表 Bezugsdruck P_0 = 101300 Pa。ADR 0011、ADR 0018 第 1 项。"
+  },
+  "reference_pressure_bar_Pa": {
+    "value": 100000,
+    "source": "NASA/TP-2002-211556 p. 2：气体标准状态为 1 bar。"
+  },
+  "atomic_weights": {
+    "source": "CIAAW abridged standard atomic weights，https://www.ciaaw.org/abridged-atomic-weights.htm ，2026-10-18 读取。区间原子量的常规单值。ADR 0018 第 3 项。",
+    "H": 1.0080,
+    "C": 12.011,
+    "N": 14.007,
+    "O": 15.999,
+    "S": 32.06,
+    "Ar": 39.95
+  }
+}

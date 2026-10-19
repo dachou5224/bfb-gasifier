@@ -1,0 +1,993 @@
+{
+  "source": "McBride, Zehe & Gordon (2002), NASA/TP-2002-211556. Coefficients transcribed from Appendix D of the local PDF. Table values at 298.15 K are from Appendix B.",
+  "equations": {
+    "pdf_page": 10,
+    "printed_page": 2,
+    "cp_over_R": "a1*T**-2 + a2*T**-1 + a3 + a4*T + a5*T**2 + a6*T**3 + a7*T**4",
+    "h_over_RT": "-a1*T**-2 + a2*ln(T)/T + a3 + a4*T/2 + a5*T**2/3 + a6*T**3/4 + a7*T**4/5 + b1/T",
+    "s_over_R": "-a1*T**-2/2 - a2*T**-1 + a3*ln(T) + a4*T + a5*T**2/2 + a6*T**3/3 + a7*T**4/4 + b2",
+    "note": "Eqs. (1)-(3), p. 2. Coefficient order a1..a7, b1, b2. Gas standard pressure in the report is 1 bar."
+  },
+  "species": {
+    "Ar": {
+      "nasa_name": "Ar",
+      "pdf_page": 63,
+      "printed_page": 55,
+      "phase_code": 0,
+      "role": "gas",
+      "nasa_molar_mass_g_mol": 39.948,
+      "formation_enthalpy_J_mol": 0.0,
+      "atoms": {
+        "Ar": 1.0
+      },
+      "intervals": [
+        {
+          "t_low_K": 200.0,
+          "t_high_K": 1000.0,
+          "coefficients": [
+            0.0,
+            0.0,
+            2.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            -745.375,
+            4.37967491
+          ]
+        },
+        {
+          "t_low_K": 1000.0,
+          "t_high_K": 6000.0,
+          "coefficients": [
+            20.10538475,
+            -0.0599266107,
+            2.500069401,
+            -3.99214116e-08,
+            1.20527214e-11,
+            -1.819015576e-15,
+            1.078576636e-19,
+            -744.993961,
+            4.37918011
+          ]
+        },
+        {
+          "t_low_K": 6000.0,
+          "t_high_K": 20000.0,
+          "coefficients": [
+            -995126508.0,
+            645888.726,
+            -167.5894697,
+            0.02319933363,
+            -1.721080911e-06,
+            6.53193846e-11,
+            -9.740147729e-16,
+            -5078300.34,
+            1465.298484
+          ]
+        }
+      ],
+      "source": "McBride, Zehe & Gordon, NASA/TP-2002-211556, Appendix D",
+      "table_298": {
+        "pdf_page": 18,
+        "printed_page": 10,
+        "temperature_K": 298.15,
+        "formation_enthalpy_kJ_mol": 0.0,
+        "cp_J_mol_K": 20.786,
+        "entropy_J_mol_K": 154.847,
+        "source": "NASA/TP-2002-211556 Appendix B, T = 298.15 K"
+      }
+    },
+    "CH4": {
+      "nasa_name": "CH4",
+      "pdf_page": 91,
+      "printed_page": 83,
+      "phase_code": 0,
+      "role": "gas",
+      "nasa_molar_mass_g_mol": 16.04246,
+      "formation_enthalpy_J_mol": -74600.0,
+      "atoms": {
+        "C": 1.0,
+        "H": 4.0
+      },
+      "intervals": [
+        {
+          "t_low_K": 200.0,
+          "t_high_K": 1000.0,
+          "coefficients": [
+            -176685.0998,
+            2786.18102,
+            -12.0257785,
+            0.0391761929,
+            -3.61905443e-05,
+            2.026853043e-08,
+            -4.97670549e-12,
+            -23313.1436,
+            89.0432275
+          ]
+        },
+        {
+          "t_low_K": 1000.0,
+          "t_high_K": 6000.0,
+          "coefficients": [
+            3730042.76,
+            -13835.01485,
+            20.49107091,
+            -0.001961974759,
+            4.72731304e-07,
+            -3.72881469e-11,
+            1.623737207e-15,
+            75320.6691,
+            -121.9124889
+          ]
+        }
+      ],
+      "source": "McBride, Zehe & Gordon, NASA/TP-2002-211556, Appendix D",
+      "table_298": {
+        "pdf_page": 22,
+        "printed_page": 14,
+        "temperature_K": 298.15,
+        "formation_enthalpy_kJ_mol": -74.6,
+        "cp_J_mol_K": 35.691,
+        "entropy_J_mol_K": 186.371,
+        "source": "NASA/TP-2002-211556 Appendix B, T = 298.15 K"
+      }
+    },
+    "CO": {
+      "nasa_name": "CO",
+      "pdf_page": 92,
+      "printed_page": 84,
+      "phase_code": 0,
+      "role": "gas",
+      "nasa_molar_mass_g_mol": 28.0101,
+      "formation_enthalpy_J_mol": -110535.196,
+      "atoms": {
+        "C": 1.0,
+        "O": 1.0
+      },
+      "intervals": [
+        {
+          "t_low_K": 200.0,
+          "t_high_K": 1000.0,
+          "coefficients": [
+            14890.45326,
+            -292.2285939,
+            5.72452717,
+            -0.00817623503,
+            1.456903469e-05,
+            -1.087746302e-08,
+            3.027941827e-12,
+            -13031.31878,
+            -7.85924135
+          ]
+        },
+        {
+          "t_low_K": 1000.0,
+          "t_high_K": 6000.0,
+          "coefficients": [
+            461919.725,
+            -1944.704863,
+            5.91671418,
+            -0.000566428283,
+            1.39881454e-07,
+            -1.787680361e-11,
+            9.62093557e-16,
+            -2466.261084,
+            -13.87413108
+          ]
+        },
+        {
+          "t_low_K": 6000.0,
+          "t_high_K": 20000.0,
+          "coefficients": [
+            886866296.0,
+            -750037.784,
+            249.5474979,
+            -0.039563511,
+            3.29777208e-06,
+            -1.318409933e-10,
+            1.998937948e-15,
+            5701421.13,
+            -2060.704786
+          ]
+        }
+      ],
+      "source": "McBride, Zehe & Gordon, NASA/TP-2002-211556, Appendix D",
+      "table_298": {
+        "pdf_page": 22,
+        "printed_page": 14,
+        "temperature_K": 298.15,
+        "formation_enthalpy_kJ_mol": -110.535,
+        "cp_J_mol_K": 29.141,
+        "entropy_J_mol_K": 197.66,
+        "source": "NASA/TP-2002-211556 Appendix B, T = 298.15 K"
+      }
+    },
+    "CO2": {
+      "nasa_name": "CO2",
+      "pdf_page": 93,
+      "printed_page": 85,
+      "phase_code": 0,
+      "role": "gas",
+      "nasa_molar_mass_g_mol": 44.0095,
+      "formation_enthalpy_J_mol": -393510.0,
+      "atoms": {
+        "C": 1.0,
+        "O": 2.0
+      },
+      "intervals": [
+        {
+          "t_low_K": 200.0,
+          "t_high_K": 1000.0,
+          "coefficients": [
+            49436.5054,
+            -626.411601,
+            5.30172524,
+            0.002503813816,
+            -2.127308728e-07,
+            -7.68998878e-10,
+            2.849677801e-13,
+            -45281.9846,
+            -7.04827944
+          ]
+        },
+        {
+          "t_low_K": 1000.0,
+          "t_high_K": 6000.0,
+          "coefficients": [
+            117696.2419,
+            -1788.791477,
+            8.29152319,
+            -9.22315678e-05,
+            4.86367688e-09,
+            -1.891053312e-12,
+            6.33003659e-16,
+            -39083.5059,
+            -26.52669281
+          ]
+        },
+        {
+          "t_low_K": 6000.0,
+          "t_high_K": 20000.0,
+          "coefficients": [
+            -1544423287.0,
+            1016847.056,
+            -256.140523,
+            0.0336940108,
+            -2.181184337e-06,
+            6.99142084e-11,
+            -8.8423515e-16,
+            -8043214.51,
+            2254.177493
+          ]
+        }
+      ],
+      "source": "McBride, Zehe & Gordon, NASA/TP-2002-211556, Appendix D",
+      "table_298": {
+        "pdf_page": 23,
+        "printed_page": 15,
+        "temperature_K": 298.15,
+        "formation_enthalpy_kJ_mol": -393.51,
+        "cp_J_mol_K": 37.135,
+        "entropy_J_mol_K": 213.787,
+        "source": "NASA/TP-2002-211556 Appendix B, T = 298.15 K"
+      }
+    },
+    "C2H4": {
+      "nasa_name": "C2H4",
+      "pdf_page": 99,
+      "printed_page": 91,
+      "phase_code": 0,
+      "role": "gas",
+      "nasa_molar_mass_g_mol": 28.05316,
+      "formation_enthalpy_J_mol": 52500.0,
+      "atoms": {
+        "C": 2.0,
+        "H": 4.0
+      },
+      "intervals": [
+        {
+          "t_low_K": 200.0,
+          "t_high_K": 1000.0,
+          "coefficients": [
+            -116360.5836,
+            2554.85151,
+            -16.09746428,
+            0.0662577932,
+            -7.88508186e-05,
+            5.12522482e-08,
+            -1.370340031e-11,
+            -6176.19107,
+            109.3338343
+          ]
+        },
+        {
+          "t_low_K": 1000.0,
+          "t_high_K": 6000.0,
+          "coefficients": [
+            3408763.67,
+            -13748.47903,
+            23.65898074,
+            -0.002423804419,
+            4.43139566e-07,
+            -4.35268339e-11,
+            1.775410633e-15,
+            88204.2938,
+            -137.1278108
+          ]
+        }
+      ],
+      "source": "McBride, Zehe & Gordon, NASA/TP-2002-211556, Appendix D",
+      "table_298": {
+        "pdf_page": 23,
+        "printed_page": 15,
+        "temperature_K": 298.15,
+        "formation_enthalpy_kJ_mol": 52.5,
+        "cp_J_mol_K": 42.887,
+        "entropy_J_mol_K": 219.322,
+        "source": "NASA/TP-2002-211556 Appendix B, T = 298.15 K"
+      }
+    },
+    "C6H6": {
+      "nasa_name": "C6H6",
+      "pdf_page": 108,
+      "printed_page": 100,
+      "phase_code": 0,
+      "role": "gas",
+      "nasa_molar_mass_g_mol": 78.11184,
+      "formation_enthalpy_J_mol": 82880.0,
+      "atoms": {
+        "C": 6.0,
+        "H": 6.0
+      },
+      "intervals": [
+        {
+          "t_low_K": 200.0,
+          "t_high_K": 1000.0,
+          "coefficients": [
+            -167734.0902,
+            4404.50004,
+            -37.1737791,
+            0.1640509559,
+            -0.0002020812374,
+            1.307915264e-07,
+            -3.4442841e-11,
+            -10354.55401,
+            216.9853345
+          ]
+        },
+        {
+          "t_low_K": 1000.0,
+          "t_high_K": 6000.0,
+          "coefficients": [
+            4538575.72,
+            -22605.02547,
+            46.940073,
+            -0.00420667683,
+            7.90799433e-07,
+            -7.9683021e-11,
+            3.32821208e-15,
+            139146.4686,
+            -286.8751333
+          ]
+        }
+      ],
+      "source": "McBride, Zehe & Gordon, NASA/TP-2002-211556, Appendix D",
+      "table_298": {
+        "pdf_page": 25,
+        "printed_page": 17,
+        "temperature_K": 298.15,
+        "formation_enthalpy_kJ_mol": 82.88,
+        "cp_J_mol_K": 81.935,
+        "entropy_J_mol_K": 269.159,
+        "source": "NASA/TP-2002-211556 Appendix B, T = 298.15 K"
+      }
+    },
+    "C10H8": {
+      "nasa_name": "C10H8,naphthale",
+      "pdf_page": 111,
+      "printed_page": 103,
+      "phase_code": 0,
+      "role": "gas",
+      "nasa_molar_mass_g_mol": 128.17052,
+      "formation_enthalpy_J_mol": 150580.0,
+      "atoms": {
+        "C": 10.0,
+        "H": 8.0
+      },
+      "intervals": [
+        {
+          "t_low_K": 200.0,
+          "t_high_K": 1000.0,
+          "coefficients": [
+            -260284.5316,
+            6237.40957,
+            -52.2609504,
+            0.2397692776,
+            -0.0002912244803,
+            1.854944401e-07,
+            -4.81661927e-11,
+            -11147.0088,
+            297.2139517
+          ]
+        },
+        {
+          "t_low_K": 1000.0,
+          "t_high_K": 6000.0,
+          "coefficients": [
+            5906172.11,
+            -31632.2924,
+            70.3034203,
+            -0.00601886554,
+            1.142052144e-06,
+            -1.161605689e-10,
+            4.89284402e-15,
+            196256.7046,
+            -434.784895
+          ]
+        }
+      ],
+      "source": "McBride, Zehe & Gordon, NASA/TP-2002-211556, Appendix D",
+      "table_298": {
+        "pdf_page": 25,
+        "printed_page": 17,
+        "temperature_K": 298.15,
+        "formation_enthalpy_kJ_mol": 150.58,
+        "cp_J_mol_K": 131.92,
+        "entropy_J_mol_K": 333.267,
+        "source": "NASA/TP-2002-211556 Appendix B, T = 298.15 K"
+      }
+    },
+    "H2": {
+      "nasa_name": "H2",
+      "pdf_page": 138,
+      "printed_page": 130,
+      "phase_code": 0,
+      "role": "gas",
+      "nasa_molar_mass_g_mol": 2.01588,
+      "formation_enthalpy_J_mol": 0.0,
+      "atoms": {
+        "H": 2.0
+      },
+      "intervals": [
+        {
+          "t_low_K": 200.0,
+          "t_high_K": 1000.0,
+          "coefficients": [
+            40783.2321,
+            -800.918604,
+            8.21470201,
+            -0.01269714457,
+            1.753605076e-05,
+            -1.20286027e-08,
+            3.36809349e-12,
+            2682.484665,
+            -30.43788844
+          ]
+        },
+        {
+          "t_low_K": 1000.0,
+          "t_high_K": 6000.0,
+          "coefficients": [
+            560812.801,
+            -837.150474,
+            2.975364532,
+            0.001252249124,
+            -3.74071619e-07,
+            5.9366252e-11,
+            -3.6069941e-15,
+            5339.82441,
+            -2.202774769
+          ]
+        },
+        {
+          "t_low_K": 6000.0,
+          "t_high_K": 20000.0,
+          "coefficients": [
+            496688412.0,
+            -314754.7149,
+            79.8412188,
+            -0.00841478921,
+            4.75324835e-07,
+            -1.371873492e-11,
+            1.605461756e-16,
+            2488433.516,
+            -669.572811
+          ]
+        }
+      ],
+      "source": "McBride, Zehe & Gordon, NASA/TP-2002-211556, Appendix D",
+      "table_298": {
+        "pdf_page": 29,
+        "printed_page": 21,
+        "temperature_K": 298.15,
+        "formation_enthalpy_kJ_mol": 0.0,
+        "cp_J_mol_K": 28.836,
+        "entropy_J_mol_K": 130.681,
+        "source": "NASA/TP-2002-211556 Appendix B, T = 298.15 K"
+      }
+    },
+    "H2O": {
+      "nasa_name": "H2O",
+      "pdf_page": 139,
+      "printed_page": 131,
+      "phase_code": 0,
+      "role": "gas",
+      "nasa_molar_mass_g_mol": 18.01528,
+      "formation_enthalpy_J_mol": -241826.0,
+      "atoms": {
+        "H": 2.0,
+        "O": 1.0
+      },
+      "intervals": [
+        {
+          "t_low_K": 200.0,
+          "t_high_K": 1000.0,
+          "coefficients": [
+            -39479.6083,
+            575.573102,
+            0.931782653,
+            0.00722271286,
+            -7.34255737e-06,
+            4.95504349e-09,
+            -1.336933246e-12,
+            -33039.7431,
+            17.24205775
+          ]
+        },
+        {
+          "t_low_K": 1000.0,
+          "t_high_K": 6000.0,
+          "coefficients": [
+            1034972.096,
+            -2412.698562,
+            4.64611078,
+            0.002291998307,
+            -6.83683048e-07,
+            9.42646893e-11,
+            -4.82238053e-15,
+            -13842.86509,
+            -7.97814851
+          ]
+        }
+      ],
+      "source": "McBride, Zehe & Gordon, NASA/TP-2002-211556, Appendix D",
+      "table_298": {
+        "pdf_page": 29,
+        "printed_page": 21,
+        "temperature_K": 298.15,
+        "formation_enthalpy_kJ_mol": -241.826,
+        "cp_J_mol_K": 33.588,
+        "entropy_J_mol_K": 188.829,
+        "source": "NASA/TP-2002-211556 Appendix B, T = 298.15 K"
+      }
+    },
+    "H2S": {
+      "nasa_name": "H2S",
+      "pdf_page": 140,
+      "printed_page": 132,
+      "phase_code": 0,
+      "role": "gas",
+      "nasa_molar_mass_g_mol": 34.08088,
+      "formation_enthalpy_J_mol": -20600.0,
+      "atoms": {
+        "H": 2.0,
+        "S": 1.0
+      },
+      "intervals": [
+        {
+          "t_low_K": 200.0,
+          "t_high_K": 1000.0,
+          "coefficients": [
+            9543.80881,
+            -68.7517508,
+            4.05492196,
+            -0.0003014557336,
+            3.76849775e-06,
+            -2.239358925e-09,
+            3.086859108e-13,
+            -3278.45728,
+            1.415194691
+          ]
+        },
+        {
+          "t_low_K": 1000.0,
+          "t_high_K": 6000.0,
+          "coefficients": [
+            1430040.22,
+            -5284.02865,
+            10.16182124,
+            -0.000970384996,
+            2.154003405e-07,
+            -2.1696957e-11,
+            9.31816307e-16,
+            29086.96214,
+            -43.49160391
+          ]
+        }
+      ],
+      "source": "McBride, Zehe & Gordon, NASA/TP-2002-211556, Appendix D",
+      "table_298": {
+        "pdf_page": 29,
+        "printed_page": 21,
+        "temperature_K": 298.15,
+        "formation_enthalpy_kJ_mol": -20.6,
+        "cp_J_mol_K": 34.255,
+        "entropy_J_mol_K": 205.816,
+        "source": "NASA/TP-2002-211556 Appendix B, T = 298.15 K"
+      }
+    },
+    "NH3": {
+      "nasa_name": "NH3",
+      "pdf_page": 162,
+      "printed_page": 154,
+      "phase_code": 0,
+      "role": "gas",
+      "nasa_molar_mass_g_mol": 17.03052,
+      "formation_enthalpy_J_mol": -45940.0,
+      "atoms": {
+        "N": 1.0,
+        "H": 3.0
+      },
+      "intervals": [
+        {
+          "t_low_K": 200.0,
+          "t_high_K": 1000.0,
+          "coefficients": [
+            -76812.2615,
+            1270.951578,
+            -3.89322913,
+            0.02145988418,
+            -2.183766703e-05,
+            1.317385706e-08,
+            -3.33232206e-12,
+            -12648.86413,
+            43.66014588
+          ]
+        },
+        {
+          "t_low_K": 1000.0,
+          "t_high_K": 6000.0,
+          "coefficients": [
+            2452389.535,
+            -8040.89424,
+            12.71346201,
+            -0.000398018658,
+            3.55250275e-08,
+            2.53092357e-12,
+            -3.32270053e-16,
+            43861.9196,
+            -64.62330602
+          ]
+        }
+      ],
+      "source": "McBride, Zehe & Gordon, NASA/TP-2002-211556, Appendix D",
+      "table_298": {
+        "pdf_page": 32,
+        "printed_page": 24,
+        "temperature_K": 298.15,
+        "formation_enthalpy_kJ_mol": -45.94,
+        "cp_J_mol_K": 35.63,
+        "entropy_J_mol_K": 192.77,
+        "source": "NASA/TP-2002-211556 Appendix B, T = 298.15 K"
+      }
+    },
+    "N2": {
+      "nasa_name": "N2",
+      "pdf_page": 164,
+      "printed_page": 156,
+      "phase_code": 0,
+      "role": "gas",
+      "nasa_molar_mass_g_mol": 28.0134,
+      "formation_enthalpy_J_mol": 0.0,
+      "atoms": {
+        "N": 2.0
+      },
+      "intervals": [
+        {
+          "t_low_K": 200.0,
+          "t_high_K": 1000.0,
+          "coefficients": [
+            22103.71497,
+            -381.846182,
+            6.08273836,
+            -0.00853091441,
+            1.384646189e-05,
+            -9.62579362e-09,
+            2.519705809e-12,
+            710.846086,
+            -10.76003744
+          ]
+        },
+        {
+          "t_low_K": 1000.0,
+          "t_high_K": 6000.0,
+          "coefficients": [
+            587712.406,
+            -2239.249073,
+            6.06694922,
+            -0.00061396855,
+            1.491806679e-07,
+            -1.923105485e-11,
+            1.061954386e-15,
+            12832.10415,
+            -15.86640027
+          ]
+        },
+        {
+          "t_low_K": 6000.0,
+          "t_high_K": 20000.0,
+          "coefficients": [
+            831013916.0,
+            -642073.354,
+            202.0264635,
+            -0.03065092046,
+            2.486903333e-06,
+            -9.70595411e-11,
+            1.437538881e-15,
+            4938707.04,
+            -1672.09974
+          ]
+        }
+      ],
+      "source": "McBride, Zehe & Gordon, NASA/TP-2002-211556, Appendix D",
+      "table_298": {
+        "pdf_page": 32,
+        "printed_page": 24,
+        "temperature_K": 298.15,
+        "formation_enthalpy_kJ_mol": 0.0,
+        "cp_J_mol_K": 29.124,
+        "entropy_J_mol_K": 191.61,
+        "source": "NASA/TP-2002-211556 Appendix B, T = 298.15 K"
+      }
+    },
+    "O2": {
+      "nasa_name": "O2",
+      "pdf_page": 174,
+      "printed_page": 166,
+      "phase_code": 0,
+      "role": "gas",
+      "nasa_molar_mass_g_mol": 31.9988,
+      "formation_enthalpy_J_mol": 0.0,
+      "atoms": {
+        "O": 2.0
+      },
+      "intervals": [
+        {
+          "t_low_K": 200.0,
+          "t_high_K": 1000.0,
+          "coefficients": [
+            -34255.6342,
+            484.700097,
+            1.119010961,
+            0.00429388924,
+            -6.83630052e-07,
+            -2.0233727e-09,
+            1.039040018e-12,
+            -3391.45487,
+            18.4969947
+          ]
+        },
+        {
+          "t_low_K": 1000.0,
+          "t_high_K": 6000.0,
+          "coefficients": [
+            -1037939.022,
+            2344.830282,
+            1.819732036,
+            0.001267847582,
+            -2.188067988e-07,
+            2.053719572e-11,
+            -8.19346705e-16,
+            -16890.10929,
+            17.38716506
+          ]
+        },
+        {
+          "t_low_K": 6000.0,
+          "t_high_K": 20000.0,
+          "coefficients": [
+            497529430.0,
+            -286610.6874,
+            66.9035225,
+            -0.00616995902,
+            3.016396027e-07,
+            -7.4214166e-12,
+            7.27817577e-17,
+            2293554.027,
+            -553.062161
+          ]
+        }
+      ],
+      "source": "McBride, Zehe & Gordon, NASA/TP-2002-211556, Appendix D",
+      "table_298": {
+        "pdf_page": 34,
+        "printed_page": 26,
+        "temperature_K": 298.15,
+        "formation_enthalpy_kJ_mol": 0.0,
+        "cp_J_mol_K": 29.378,
+        "entropy_J_mol_K": 205.149,
+        "source": "NASA/TP-2002-211556 Appendix B, T = 298.15 K"
+      }
+    },
+    "SO2": {
+      "nasa_name": "SO2",
+      "pdf_page": 191,
+      "printed_page": 183,
+      "phase_code": 0,
+      "role": "reference",
+      "nasa_molar_mass_g_mol": 64.0638,
+      "formation_enthalpy_J_mol": -296810.0,
+      "atoms": {
+        "S": 1.0,
+        "O": 2.0
+      },
+      "intervals": [
+        {
+          "t_low_K": 200.0,
+          "t_high_K": 1000.0,
+          "coefficients": [
+            -53108.4214,
+            909.031167,
+            -2.356891244,
+            0.02204449885,
+            -2.510781471e-05,
+            1.446300484e-08,
+            -3.36907094e-12,
+            -41137.5208,
+            40.45512519
+          ]
+        },
+        {
+          "t_low_K": 1000.0,
+          "t_high_K": 6000.0,
+          "coefficients": [
+            -112764.0116,
+            -825.226138,
+            7.61617863,
+            -0.000199932761,
+            5.65563143e-08,
+            -5.45431661e-12,
+            2.918294102e-16,
+            -33513.0869,
+            -16.55776085
+          ]
+        }
+      ],
+      "source": "McBride, Zehe & Gordon, NASA/TP-2002-211556, Appendix D",
+      "table_298": {
+        "pdf_page": 36,
+        "printed_page": 28,
+        "temperature_K": 298.15,
+        "formation_enthalpy_kJ_mol": -296.81,
+        "cp_J_mol_K": 39.842,
+        "entropy_J_mol_K": 248.222,
+        "source": "NASA/TP-2002-211556 Appendix B, T = 298.15 K"
+      }
+    },
+    "C_gr": {
+      "nasa_name": "C(gr)",
+      "pdf_page": 227,
+      "printed_page": 219,
+      "phase_code": 1,
+      "role": "condensed",
+      "nasa_molar_mass_g_mol": 12.0107,
+      "formation_enthalpy_J_mol": 0.0,
+      "atoms": {
+        "C": 1.0
+      },
+      "intervals": [
+        {
+          "t_low_K": 200.0,
+          "t_high_K": 600.0,
+          "coefficients": [
+            113285.676,
+            -1980.421677,
+            13.65384188,
+            -0.0463609644,
+            0.0001021333011,
+            -1.082893179e-07,
+            4.47225886e-11,
+            8943.85976,
+            -72.9582474
+          ]
+        },
+        {
+          "t_low_K": 600.0,
+          "t_high_K": 2000.0,
+          "coefficients": [
+            335600.441,
+            -2596.528368,
+            6.94884191,
+            -0.00348483609,
+            1.844192445e-06,
+            -5.05520596e-10,
+            5.75063901e-14,
+            13984.12456,
+            -44.7718304
+          ]
+        },
+        {
+          "t_low_K": 2000.0,
+          "t_high_K": 6000.0,
+          "coefficients": [
+            202310.5106,
+            -1138.235908,
+            3.7002795,
+            -0.0001833807727,
+            6.34368325e-08,
+            -7.06858948e-12,
+            3.33543598e-16,
+            5848.13485,
+            -23.50925275
+          ]
+        }
+      ],
+      "source": "McBride, Zehe & Gordon, NASA/TP-2002-211556, Appendix D",
+      "table_298": {
+        "pdf_page": 41,
+        "printed_page": 33,
+        "temperature_K": 298.15,
+        "formation_enthalpy_kJ_mol": 0.0,
+        "cp_J_mol_K": 8.528,
+        "entropy_J_mol_K": 5.734,
+        "source": "NASA/TP-2002-211556 Appendix B, T = 298.15 K"
+      }
+    },
+    "H2O_L": {
+      "nasa_name": "H2O(L)",
+      "pdf_page": 240,
+      "printed_page": 232,
+      "phase_code": 2,
+      "role": "condensed",
+      "nasa_molar_mass_g_mol": 18.01528,
+      "formation_enthalpy_J_mol": -285830.0,
+      "atoms": {
+        "H": 2.0,
+        "O": 1.0
+      },
+      "intervals": [
+        {
+          "t_low_K": 273.15,
+          "t_high_K": 373.15,
+          "coefficients": [
+            1326371304.0,
+            -24482953.88,
+            187942.8776,
+            -767.899505,
+            1.761556813,
+            -0.002151167128,
+            1.092570813e-06,
+            110176047.6,
+            -977970.097
+          ]
+        },
+        {
+          "t_low_K": 373.15,
+          "t_high_K": 600.0,
+          "coefficients": [
+            1263631001.0,
+            -16803802.49,
+            92782.3479,
+            -272.237395,
+            0.447924376,
+            -0.000391939743,
+            1.425743266e-07,
+            81131768.8,
+            -513441.808
+          ]
+        }
+      ],
+      "source": "McBride, Zehe & Gordon, NASA/TP-2002-211556, Appendix D",
+      "table_298": {
+        "pdf_page": 43,
+        "printed_page": 35,
+        "temperature_K": 298.15,
+        "formation_enthalpy_kJ_mol": -285.83,
+        "cp_J_mol_K": 75.351,
+        "entropy_J_mol_K": 69.942,
+        "source": "NASA/TP-2002-211556 Appendix B, T = 298.15 K"
+      }
+    }
+  }
+}
