@@ -25,6 +25,7 @@ include = ["hamel*"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+addopts = ["-m", "not slow"]
 markers = [
     "slow: 单个工况完整求解（CHARTER §7）",
 ]

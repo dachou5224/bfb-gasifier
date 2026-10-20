@@ -1,6 +1,15 @@
-"""自由空间：床面抛出、气速与单颗粒轨迹。"""
+"""自由空间：床面抛出、气速、单颗粒轨迹与参考记账。"""
 
 from hamel.freeboard._common import FreeboardError
+from hamel.freeboard.accounting import (
+    CellTransport,
+    ReferenceAccounting,
+    StableEquilibrium,
+    TrajectoryFate,
+    account_freeboard,
+    stable_equilibria,
+    trace_until_fate,
+)
 from hamel.freeboard.ejection import (
     approach_factor,
     coalescence_weight,
@@ -24,7 +33,12 @@ from hamel.freeboard.motion import (
 from hamel.freeboard.transport import cross_section_m2, ghost_bubble_velocity, superficial_velocity
 
 __all__ = [
+    "CellTransport",
     "FreeboardError",
+    "ReferenceAccounting",
+    "StableEquilibrium",
+    "TrajectoryFate",
+    "account_freeboard",
     "approach_factor",
     "closed_form_state",
     "coalescence_weight",
@@ -42,6 +56,8 @@ __all__ = [
     "pair_coalescence_probability",
     "particle_acceleration",
     "spacing_ratio",
+    "stable_equilibria",
     "superficial_velocity",
     "terminal_settling_velocity",
+    "trace_until_fate",
 ]
