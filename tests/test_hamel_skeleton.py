@@ -87,6 +87,8 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_their_adrs():
         "freeboard_ejection_samples",
         "freeboard_max_step_s",
         "freeboard_time_limit_s",
+        "freeboard_delta_h_m",
+        "freeboard_delta_u_m_s",
     }
     assert solver.pyrolysis_radial_intervals == 24
     assert solver.pyrolysis_time_rtol == 1.0e-6
@@ -96,6 +98,8 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_their_adrs():
     assert solver.freeboard_ejection_samples == 48
     assert solver.freeboard_max_step_s == 2.0e-4
     assert solver.freeboard_time_limit_s == 80.0
+    assert solver.freeboard_delta_h_m == 1.0e-3
+    assert solver.freeboard_delta_u_m_s == 1.0e-2
     with pytest.raises(TypeError):
         PhysicalConfig()
     with pytest.raises(TypeError):
