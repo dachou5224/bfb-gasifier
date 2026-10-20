@@ -1,7 +1,7 @@
 """自由空间参考轨迹的归宿、记账与输运系数。
 
 模型边界选择：ADR 0026（目标所有者 2026-10-19）。
-邻域只用来确定归宿。解释性选择：ADR 0033。
+邻域只用来确定归宿。解释性选择：ADR 0034。
 积分步与格边界处理同 integrate_freeboard，这里另记停留和穿越。
 """
 
@@ -17,11 +17,11 @@ from hamel.cases.config import SolverConfig
 from hamel.freeboard._common import FreeboardError, _finite, _positive
 from hamel.freeboard.motion import _step_velocity, drag_groups, terminal_settling_velocity
 
-# 界面上 |u_g − v_t| 不超过这个值，就认为根在界面上。解释性选择：ADR 0033。
+# 界面上 |u_g − v_t| 不超过这个值，就认为根在界面上。解释性选择：ADR 0034。
 _FACE_RESIDUAL_M_S = 1.0e-8
-# 与界面根相距不超过这个值的内部根并入界面根。解释性选择：ADR 0033。
+# 与界面根相距不超过这个值的内部根并入界面根。解释性选择：ADR 0034。
 _FACE_MATCH_M = 1.0e-6
-# 不变区域势能的取样间距。解释性选择：ADR 0033。
+# 不变区域势能的取样间距。解释性选择：ADR 0034。
 _WELL_SPACING_M = 1.0e-4
 _FREE_ABSENT = "自由状态不存在"
 
@@ -134,7 +134,7 @@ def stable_equilibria(
 ) -> tuple[StableEquilibrium, ...]:
     """u_g(h) = v_t 且 du_g/dh < 0 的根。界面根的捕获区是相邻两格。
 
-    v_t 用该格的气体密度和粘度。解释性选择：ADR 0026 第 2 项；界面判据见 ADR 0033。
+    v_t 用该格的气体密度和粘度。解释性选择：ADR 0026 第 2 项；界面判据见 ADR 0034。
     Source: Hamel Eq.3.82, S. 44
     """
     edges, densities, viscosities = _edges_and_gas(edges_m, rho_g, mu_g)
@@ -240,7 +240,7 @@ def _potential_density(gas_velocity, groups, edges, star: float, height: float) 
 def _build_well(item: StableEquilibrium, edges, gas_velocity, groups) -> _Well:
     """沿捕获区把 −∫ a(z, 0) dz 积到恢复力消失或外边界之前。
 
-    每块用两端和中点的最大、最小作势能上、下界。解释性选择：ADR 0033。
+    每块用两端和中点的最大、最小作势能上、下界。解释性选择：ADR 0034。
     """
     left = float(edges[item.cells[0]])
     right = float(edges[item.cells[-1] + 1])
@@ -413,7 +413,7 @@ def trace_until_fate(
 
     邻域只用来选定候选根。能量低于该根的势垒才停止，因此不会把还能穿出捕获区的状态记成捕获。
     捕获时刻是最后一次进入这个根自己的捕获区的时刻。时间上限到了仍未确定归宿就报错，不改判。
-    解释性选择：ADR 0026 第 2 项，ADR 0033。
+    解释性选择：ADR 0026 第 2 项，ADR 0034。
     Source: Hamel Eq.3.82, S. 44
     """
     edges, densities, viscosities = _edges_and_gas(edges_m, rho_g, mu_g)
