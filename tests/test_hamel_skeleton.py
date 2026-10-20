@@ -84,6 +84,9 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
         "pyrolysis_activation_nodes",
         "pyrolysis_tail_delta_t_k",
         "pyrolysis_initial_shell_fraction",
+        "freeboard_ejection_samples",
+        "freeboard_max_step_s",
+        "freeboard_time_limit_s",
         "particle_tolerance_w",
         "particle_max_iterations",
         "coupling_tolerance_k",
@@ -94,6 +97,9 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
     assert solver.pyrolysis_activation_nodes == 16
     assert solver.pyrolysis_tail_delta_t_k == 0.02
     assert solver.pyrolysis_initial_shell_fraction == 1.0e-3
+    assert solver.freeboard_ejection_samples == 48
+    assert solver.freeboard_max_step_s == 2.0e-4
+    assert solver.freeboard_time_limit_s == 80.0
     assert solver.particle_tolerance_w == 1.0e-4
     assert solver.particle_max_iterations == 25
     assert solver.coupling_tolerance_k == 1.0e-3
