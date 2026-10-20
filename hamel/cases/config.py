@@ -51,7 +51,7 @@ class PhysicalConfig:
 
 @dataclass(frozen=True)
 class SolverConfig:
-    """求解器参数。热解见 ADR 0027，自由空间轨迹见 ADR 0028，悬停邻域见 ADR 0034。"""
+    """求解器参数。热解离散见 ADR 0027，自由空间轨迹见 ADR 0028，颗粒温度见 ADR 0033，悬停邻域见 ADR 0034。"""
 
     pyrolysis_radial_intervals: int = 24
     pyrolysis_time_rtol: float = 1.0e-6
@@ -68,3 +68,7 @@ class SolverConfig:
     freeboard_delta_h_m: float = 1.0e-3
     # 确定悬停归宿的速度邻域，m/s。见 ADR 0034。
     freeboard_delta_u_m_s: float = 1.0e-2
+    particle_tolerance_w: float = 1.0e-4
+    particle_max_iterations: int = 25
+    coupling_tolerance_k: float = 1.0e-3
+    coupling_max_iterations: int = 16

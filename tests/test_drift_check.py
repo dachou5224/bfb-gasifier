@@ -216,6 +216,31 @@ class DriftRepoTests(unittest.TestCase):
         self.assertEqual(signal_codes(report), ["net_lines"])
         self.assertIn("超过 800 行", drift_check.format_text(report))
 
+    def test_status_approval_raises_the_net_limit_only_on_that_branch(self):
+        self.git(["checkout", "-b", "task/T25a-assembly"])
+        self.write(
+            "docs/STATUS.md",
+            STATUS_TEMPLATE.format(day="2026-10-13")
+            + "\nT25a 净增代码上限 1000 行，目标所有者 2026-10-20 派发前批准\n",
+        )
+        self.write("hamel/core.py", py_lines(1000))
+        self.commit("approved ceiling")
+        report = self.check()
+        self.assertEqual(report.net_lines, 1000)
+        self.assertEqual(report.approved_net_limit, 1000)
+        self.assertEqual(signal_codes(report), [])
+        self.assertIn("批准上限 1000", drift_check.format_text(report))
+        self.write("hamel/core.py", py_lines(1001))
+        self.commit("over approval")
+        report = self.check()
+        self.assertEqual(signal_codes(report), ["net_lines"])
+        self.assertIn("超过批准上限 1000 行", drift_check.format_text(report))
+        self.git(["checkout", "-b", "task/other"])
+        report = self.check()
+        self.assertIsNone(report.approved_net_limit)
+        self.assertEqual(signal_codes(report), ["net_lines"])
+        self.assertIn("超过 800 行", drift_check.format_text(report))
+
     def test_hamel_total_limit_is_exclusive_at_8000(self):
         self.write("hamel/core.py", py_lines(8000))
         self.commit("bulk")

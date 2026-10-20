@@ -9,7 +9,9 @@
 
 - 工作树不干净。
 - ``hamel/`` 下非测试 Python 相对共同祖先的净增行数超过 800（CHARTER §9）。
-  未提交改动计入，避免超限代码只留在工作树里。
+  未提交改动计入，避免超限代码只留在工作树里。目标所有者在派发前书面批准、
+  并且批准记在 ``docs/STATUS.md`` 的任务卡除外：同一行要有任务号、
+  「净增代码上限 N 行」和「派发前批准」，当前分支名含该任务号，净增不超过 N。
 - ``hamel/`` 非测试 Python 的当前总行数超过 8000（CHARTER §6.2）。
 - 新增配置字段没有出处。字段只从 ``hamel/**/config.py`` 读取：模块级字面量字典
   ``PHYSICAL`` / ``PHYSICAL_CONFIG``、``SOLVER`` / ``SOLVER_CONFIG``，以及类
@@ -38,8 +40,11 @@ from datetime import date
 from pathlib import Path
 
 
-# CHARTER §9：单张任务卡净增代码超过 800 行。
+# CHARTER §9：单张任务卡净增代码超过 800 行。派发前批准的上限见 _approved_net_limit。
 NET_CODE_LIMIT = 800
+_NET_APPROVAL = re.compile(
+    r"(T\d+[a-z]?)\D{0,40}净增代码上限\s*(\d+)\s*行[^|\n]{0,80}派发前批准"
+)
 # CHARTER §6.2：WSV400 全部通过前，hamel/ 代码总量上限 8000 行（不含测试）。
 HAMEL_LINE_LIMIT = 8000
 # CHARTER §6.2：物理参数配置不超过 30 项。求解器参数单独成组，不计入此项。
@@ -101,6 +106,7 @@ class Report:
     metrics_date: str | None
     metrics_age_days: int | None
     signals: list[Signal]
+    approved_net_limit: int | None = None
 
     def as_dict(self) -> dict:
         return {
@@ -127,7 +133,7 @@ class Report:
             "metrics_age_days": self.metrics_age_days,
             "signals": [{"code": signal.code, "message": signal.message} for signal in self.signals],
             "limits": {
-                "net_lines": NET_CODE_LIMIT,
+                "net_lines": self.approved_net_limit or NET_CODE_LIMIT,
                 "hamel_lines": HAMEL_LINE_LIMIT,
                 "physical_fields": PHYSICAL_FIELD_LIMIT,
                 "stale_days": STALE_DAYS,
@@ -749,9 +755,41 @@ def _worktree_text(report: Report) -> str:
 
 
 def _net_text(report: Report) -> str:
-    if report.net_lines > NET_CODE_LIMIT:
+    limit = report.approved_net_limit or NET_CODE_LIMIT
+    if report.net_lines > limit:
+        if report.approved_net_limit:
+            return f"相对共同祖先净增代码 {report.net_lines} 行，超过批准上限 {limit} 行"
         return f"相对共同祖先净增代码 {report.net_lines} 行，超过 {NET_CODE_LIMIT} 行"
+    if report.approved_net_limit and report.approved_net_limit > NET_CODE_LIMIT:
+        return (
+            f"相对共同祖先净增代码 {report.net_lines} 行"
+            f"（章程 §9 批准上限 {report.approved_net_limit}，默认上限 {NET_CODE_LIMIT}）"
+        )
     return f"相对共同祖先净增代码 {report.net_lines} 行（上限 {NET_CODE_LIMIT}）"
+
+
+def _task_in_branch(task: str, branch: str) -> bool:
+    return re.search(rf"(?<![A-Za-z0-9]){re.escape(task)}(?![A-Za-z0-9])", branch) is not None
+
+
+def _approved_net_limit(root: Path) -> int | None:
+    """STATUS 里记了派发前批准、且当前分支就是该任务卡时，返回批准上限。"""
+    branch = _git(root, ["rev-parse", "--abbrev-ref", "HEAD"]).decode().strip()
+    if branch in ("", "HEAD"):
+        return None
+    path = root / "docs" / "STATUS.md"
+    if not path.is_file():
+        return None
+    try:
+        text = path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        return None
+    approved: int | None = None
+    for match in _NET_APPROVAL.finditer(text):
+        task, limit = match.group(1), int(match.group(2))
+        if _task_in_branch(task, branch):
+            approved = limit if approved is None else max(approved, limit)
+    return approved
 
 
 def _hamel_text(report: Report) -> str:
@@ -853,8 +891,13 @@ def check(root: Path, base: str, today: date) -> Report:
     signals: list[Signal] = []
     if dirty:
         signals.append(Signal("dirty", "工作树不干净"))
-    if net_lines > NET_CODE_LIMIT:
-        signals.append(Signal("net_lines", f"相对共同祖先净增代码 {net_lines} 行，超过 {NET_CODE_LIMIT} 行"))
+    approved_net = _approved_net_limit(root)
+    net_limit = approved_net if approved_net is not None and approved_net > NET_CODE_LIMIT else NET_CODE_LIMIT
+    if net_lines > net_limit:
+        if approved_net is not None and approved_net > NET_CODE_LIMIT:
+            signals.append(Signal("net_lines", f"相对共同祖先净增代码 {net_lines} 行，超过批准上限 {net_limit} 行"))
+        else:
+            signals.append(Signal("net_lines", f"相对共同祖先净增代码 {net_lines} 行，超过 {NET_CODE_LIMIT} 行"))
     if hamel_lines > HAMEL_LINE_LIMIT:
         signals.append(
             Signal("hamel_lines", f"hamel/ 代码 {hamel_lines} 行，超过 {HAMEL_LINE_LIMIT} 行（不含测试）")
@@ -907,6 +950,7 @@ def check(root: Path, base: str, today: date) -> Report:
         config_errors=config_errors,
         metrics_date=None if metrics_date is None else metrics_date.isoformat(),
         metrics_age_days=metrics_age,
+        approved_net_limit=approved_net if approved_net is not None and approved_net > NET_CODE_LIMIT else None,
         signals=signals,
     )
 
