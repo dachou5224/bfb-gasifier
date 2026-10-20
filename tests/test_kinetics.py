@@ -6,6 +6,7 @@ import inspect
 import math
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from hamel.kinetics import (
@@ -28,6 +29,7 @@ from hamel.kinetics import (
     r9_methane_reforming_rate,
     reaction_stoichiometry,
 )
+from hamel.kinetics.arrhenius import arrhenius_rate_constant_array
 
 # 测试传入的气体常数，ADR 0010 第 8 条。库内不写死这个数。
 R_G = 8.314
@@ -71,6 +73,20 @@ def test_arrhenius_factory_matches_hand_calculation():
     )
     assert negative == pytest.approx(8.31e-7 * math.exp(38_900.0 / (R_G * temperature)))
     assert negative > 8.31e-7
+
+
+def test_arrhenius_array_matches_the_scalar_factory():
+    energies = np.array([1.0e5, 1.88e5, -3.89e4])
+    temperatures = np.array([900.0, 1100.0])
+    got = arrhenius_rate_constant_array(2.72, temperatures[:, None], energies, R_G)
+    for i, temperature in enumerate(temperatures):
+        for j, energy in enumerate(energies):
+            expected = arrhenius_rate_constant(
+                2.72, float(temperature), activation_energy_j_mol=float(energy), gas_constant_j_mol_k=R_G,
+            )
+            assert got[i, j] == pytest.approx(expected, rel=1.0e-12)
+    with pytest.raises(KineticsInputError):
+        arrhenius_rate_constant_array(1.0, np.array([0.0, 1100.0]), energies, R_G)
 
 
 def test_arrhenius_exponent_is_only_in_the_factory():
