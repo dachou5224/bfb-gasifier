@@ -40,7 +40,7 @@
 | T28 | 床料 ε_mf、φ_S、u_mf,0（X6）与 Geldart 分界 | cursor（新会话）；审查总司令 | 完成 | PR #87（2026-10-18 总司令审查通过）。答卷 `refs/hamel/answers/T28-bed-material-params.md`（2026-10-18）：第 1–3 项已查证。VTT/HTW 床料的 ε_mf、φ_S、u_mf,0 原文未给出。Geldart (1973) 的 A/B 为式 (4)–(6)、B/D 为式 (7)–(8)；A/C 只有 Fig. 3 阴影 PQ，未数字化。未算工况 1 的类别 |
 | T22 | 干燥与热解（第 4 章） | cursor（新会话，worktree `../bfb-T22`）；审查 codex | 完成 | 任务卡 `docs/tasks/T22-pyrolysis.md`。PR #91（2026-10-20 复审通过）：`hamel/pyrolysis/`（单颗粒、时间常数、产率、热解气、释放份额）；离散参数见 ADR 0027（已批准） |
 | T23 | 自由空间：床面抛出、颗粒轨迹与输运系数（§3.2） | cursor（新会话，worktree `../bfb-T23`）；审查 codex | 可派发（ADR 0026 已批准） | 任务卡 `docs/tasks/T23-freeboard.md`（2026-10-20 复审通过，已批准，PR #92） |
-| T25a | 衡算装配：完整残差 F(x) | cursor（新会话，worktree `../bfb-T25a`）；审查 codex | 待审查 | 任务卡 `docs/tasks/T25a-assembly.md`（2026-10-20 复审通过，已批准，PR #94）。实现 PR #98：`hamel/solver/` 装配残差。T25a 净增代码上限 1000 行，目标所有者 2026-10-20 派发前批准（CHARTER v0.12 §9）；本卡净增 996 行 |
+| T25a | 衡算装配：完整残差 F(x) | cursor（新会话，worktree `../bfb-T25a`）；审查 codex | 待审查 | 任务卡 `docs/tasks/T25a-assembly.md`（2026-10-20 复审通过，已批准，PR #94）。实现 PR #98：`hamel/solver/` 装配残差。T25a 净增代码上限 1000 行，目标所有者 2026-10-20 派发前批准（CHARTER v0.12 §9）；本卡净增 1000 行 |
 | T25b | 预计算与初值 | cursor（新会话，worktree `../bfb-T25b`）；审查 codex | 待派发（T23 合并后派发） | 任务卡 `docs/tasks/T25b-precalc.md`（2026-10-20 复审通过，已批准，PR #94） |
 | T29 | 已裁定的第 1 关输入写入工况文件 | cursor（新会话）；审查总司令 | 完成 | PR #83（2026-10-18 总司令审查通过）。任务卡 `docs/tasks/T29-vtt1-case-data.md`。ADR 0014、0019 已写明的数已写入 `data/cases/vtt_pressurized.json`。`<0,1 mm` 代表粒径与床料质量分数两处 ADR 未给出可录入的数，保持 missing，见缺口文件 T29 节 |
 

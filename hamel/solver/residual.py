@@ -255,28 +255,7 @@ class _Context:
         return bed.residual_kg_s, free_residual, hover_residual, gap
     def ashes(self):
         frozen, state = self.frozen, self.state
-        entering_free = frozen.ash_gen_free_kg_s.copy()
-        entering_hover = frozen.ash_gen_hover_kg_s.copy()
-        for cell in range(frozen.n_freeboard):
-            for klass in range(frozen.n_class):
-                self._deposit_release(entering_free, entering_hover, cell, self.ash_release_free[cell, klass] + self.ash_release_hover[cell, klass])
-                if klass == 0:
-                    continue
-                self._deposit_migration(entering_free, entering_hover, cell, klass - 1, self.ash_migration_free[cell, klass], self.ash_migration_hover[cell, klass])
-        ejection = frozen.k_auf_per_s[0] * self._bed_ash_share[0]
-        for klass in range(frozen.n_class):
-            self._deposit(entering_free, entering_hover, frozen.n_freeboard - 1, klass, False, ejection[klass] * frozen.ejection_to_free[klass])
-            self._deposit(entering_free, entering_hover, frozen.n_freeboard - 1, klass, True, ejection[klass] * frozen.ejection_to_hover[klass])
-        for cell in range(frozen.n_freeboard - 1):
-            mobile = self._mobile_ash(cell + 1)
-            for klass in range(frozen.n_class):
-                self._deposit(entering_free, entering_hover, cell, klass, False, frozen.a_free_per_s[cell + 1, klass] * mobile[klass])
-                self._deposit(entering_free, entering_hover, cell, klass, True, frozen.a_hover_per_s[cell + 1, klass] * mobile[klass])
-        for cell in range(1, frozen.n_freeboard):
-            mobile = self._mobile_ash(cell - 1)
-            for klass in range(frozen.n_class):
-                self._deposit(entering_free, entering_hover, cell, klass, False, frozen.b_free_per_s[cell - 1, klass] * mobile[klass])
-                self._deposit(entering_free, entering_hover, cell, klass, True, frozen.b_hover_per_s[cell - 1, klass] * mobile[klass])
+        entering_free, entering_hover, ejection = self._ash_entering()
         free_residual = np.zeros_like(entering_free)
         hover_residual = np.zeros_like(entering_hover)
         for cell in range(frozen.n_freeboard):
@@ -314,7 +293,40 @@ class _Context:
         )
         gap = float(bed.residual_w.sum() + free.residual_w.sum() - feeds + free_up[0] + bed_down[-1] + bed_out.sum() + wall_bed.sum() + wall_free.sum())
         return bed.residual_w, free.residual_w, gap
+    def _ash_entering(self):
+        """灰方程与最小粒级有效域共用的入流。含按状态的热解灰、全部粒级的燃尽释放，以及 m_C ≤ 0 时向 k = 1 的改记。"""
+        frozen = self.frozen
+        entering_free = np.zeros_like(frozen.ash_gen_free_kg_s)
+        entering_hover = np.zeros_like(frozen.ash_gen_hover_kg_s)
+        for cell in range(frozen.n_freeboard):
+            for klass in range(frozen.n_class):
+                self._deposit(entering_free, entering_hover, cell, klass, False, float(frozen.ash_gen_free_kg_s[cell, klass]))
+                self._deposit(entering_free, entering_hover, cell, klass, True, float(frozen.ash_gen_hover_kg_s[cell, klass]))
+        for cell in range(frozen.n_freeboard):
+            for klass in range(frozen.n_class):
+                self._deposit_release(entering_free, entering_hover, cell, self.ash_release_free[cell, klass] + self.ash_release_hover[cell, klass])
+                if klass == 0:
+                    continue
+                self._deposit_migration(entering_free, entering_hover, cell, klass - 1, self.ash_migration_free[cell, klass], self.ash_migration_hover[cell, klass])
+        ejection = frozen.k_auf_per_s[0] * self._bed_ash_share[0]
+        for klass in range(frozen.n_class):
+            self._deposit(entering_free, entering_hover, frozen.n_freeboard - 1, klass, False, ejection[klass] * frozen.ejection_to_free[klass])
+            self._deposit(entering_free, entering_hover, frozen.n_freeboard - 1, klass, True, ejection[klass] * frozen.ejection_to_hover[klass])
+        for cell in range(frozen.n_freeboard - 1):
+            mobile = self._mobile_ash(cell + 1)
+            for klass in range(frozen.n_class):
+                self._deposit(entering_free, entering_hover, cell, klass, False, frozen.a_free_per_s[cell + 1, klass] * mobile[klass])
+                self._deposit(entering_free, entering_hover, cell, klass, True, frozen.a_hover_per_s[cell + 1, klass] * mobile[klass])
+        for cell in range(1, frozen.n_freeboard):
+            mobile = self._mobile_ash(cell - 1)
+            for klass in range(frozen.n_class):
+                self._deposit(entering_free, entering_hover, cell, klass, False, frozen.b_free_per_s[cell - 1, klass] * mobile[klass])
+                self._deposit(entering_free, entering_hover, cell, klass, True, frozen.b_hover_per_s[cell - 1, klass] * mobile[klass])
+        return entering_free, entering_hover, ejection
     def _char_rate(self, m_char, m_ash, klass, temperature, pressure, velocity, y, c, fractions, mu, rho):
+        # 有灰无焦炭时不能按 (m_C+m_A)/m_p 计颗粒数。空库存仍计算比速率，避免把 m=0 的悬停误判为无反应。
+        if m_char <= 0.0 and m_ash > 0.0:
+            return np.zeros(len(GAS_SPECIES)), 0.0, 0.0, 0.0, 0.0, True
         diameter = float(self.frozen.diameter_m[klass])
         particle_k = _particle_k(diameter, temperature, pressure, velocity, c, fractions, mu, rho, self.frozen)
         film = 0.5 * (temperature + particle_k)
@@ -412,24 +424,12 @@ class _Context:
                 ash[klass] = 0.0
         return ash
     def _ash_inflow_to_smallest_hover(self) -> None:
-        """用与灰残差相同的入流规则检查 k = 1 悬停。"""
+        """与灰方程同一份入流。热解生成、燃尽释放和零焦炭改记都算流入。"""
         frozen = self.frozen
         if not np.any(frozen.hover[:, 0]):
             return
-        entering_free = np.zeros_like(self.ash_release_free)
-        entering_hover = np.zeros_like(self.ash_release_hover)
+        _, entering_hover, _ = self._ash_entering()
         for cell in range(frozen.n_freeboard):
-            self._deposit_release(entering_free, entering_hover, cell, self.ash_release_free[cell, 0] + self.ash_release_hover[cell, 0])
-            if frozen.n_class > 1:
-                self._deposit_migration(entering_free, entering_hover, cell, 0, self.ash_migration_free[cell, 1], self.ash_migration_hover[cell, 1])
-        ejection = frozen.k_auf_per_s[0] * self._bed_ash_share[0, 0]
-        self._deposit(entering_free, entering_hover, frozen.n_freeboard - 1, 0, False, ejection * frozen.ejection_to_free[0])
-        self._deposit(entering_free, entering_hover, frozen.n_freeboard - 1, 0, True, ejection * frozen.ejection_to_hover[0])
-        for cell in range(frozen.n_freeboard):
-            if cell + 1 < frozen.n_freeboard:
-                self._deposit(entering_free, entering_hover, cell, 0, True, frozen.a_hover_per_s[cell + 1, 0] * self._mobile_ash(cell + 1)[0])
-            if cell > 0:
-                self._deposit(entering_free, entering_hover, cell, 0, True, frozen.b_hover_per_s[cell - 1, 0] * self._mobile_ash(cell - 1)[0])
             if frozen.hover[cell, 0] and entering_hover[cell, 0] > 0.0:
                 raise FreeboardDomainError(f"最小粒级在自由空间格 {cell} 被捕获，且有灰流入悬停状态")
     def _wall(self, zone: str) -> np.ndarray:

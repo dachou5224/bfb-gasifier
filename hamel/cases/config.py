@@ -51,10 +51,14 @@ class PhysicalConfig:
 
 @dataclass(frozen=True)
 class SolverConfig:
-    """求解器参数。取值与收敛判据见 ADR 0027。"""
+    """求解器参数。热解离散见 ADR 0027，颗粒温度见 ADR 0033。"""
 
     pyrolysis_radial_intervals: int = 24
     pyrolysis_time_rtol: float = 1.0e-6
     pyrolysis_activation_nodes: int = 16
     pyrolysis_tail_delta_t_k: float = 0.02
     pyrolysis_initial_shell_fraction: float = 1.0e-3
+    particle_tolerance_w: float = 1.0e-4
+    particle_max_iterations: int = 25
+    coupling_tolerance_k: float = 1.0e-3
+    coupling_max_iterations: int = 16

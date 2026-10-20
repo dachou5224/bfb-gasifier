@@ -6,6 +6,7 @@ import math
 import numpy as np
 import pytest
 
+from hamel.cases.config import SolverConfig
 from hamel.properties.data import GAS_SPECIES, atomic_weight, atoms, molar_mass_kg_mol
 from hamel.solver import (
     CASE1_BED_CELLS, CASE1_FREEBOARD_CELLS, AssemblyError, FreeboardDomainError,
@@ -90,10 +91,10 @@ def make_frozen(n_bed=2, n_free=2, n_class=2, **overrides) -> FrozenQuantities:
         bed_diameter_m=0.15,
         freeboard_diameter_m=0.25,
         epsilon_mf=0.46,
-        particle_tolerance_w=1.0e-4,
-        particle_max_iterations=25,
-        coupling_tolerance_k=1.0e-3,
-        coupling_max_iterations=8,
+        particle_tolerance_w=SolverConfig().particle_tolerance_w,
+        particle_max_iterations=SolverConfig().particle_max_iterations,
+        coupling_tolerance_k=SolverConfig().coupling_tolerance_k,
+        coupling_max_iterations=SolverConfig().coupling_max_iterations,
     )
     fields["m_dot_ab_kg_s"][-1] = 0.0
     fields.update(overrides)
@@ -408,7 +409,6 @@ def test_case1_smoke_prints_block_magnitudes(capsys):
         geometric_mass_kg=np.full(n_bed, 3.9629153924566762 / n_bed),
         k_auf_per_s=np.full(n_bed, 0.02),
         rho_p_kg_m3=700.0, k_w_w_m2_k=5.0,
-        coupling_max_iterations=40,
     )
     state = make_state(frozen, temperature=1100.0, char=0.01, ash=0.0)
     state.freeboard_ash_free_kg[:] = 1.0e-4
@@ -448,6 +448,58 @@ def _case1_primary():
     feed[_SPECIES["N2"]] = air * 0.79 + purge
     feed[_SPECIES["H2O"]] = steam
     return feed
+
+
+def test_pure_ash_does_not_react_as_char():
+    """含 O2、H2O、H2 的纯灰不产生异相碳汇，灰仍按出流系数离开。"""
+    frozen = make_frozen(
+        n_class=1, k_auf_per_s=np.zeros(2), m_dot_ab_kg_s=np.zeros(2),
+        a_free_per_s=np.array([[0.0], [0.2]]), b_free_per_s=np.zeros((2, 1)),
+    )
+    state = make_state(frozen, char=0.01, ash=0.0)
+    state.freeboard_char_free_kg[:] = 0.0
+    state.freeboard_ash_free_kg[:] = 0.0
+    state.freeboard_ash_free_kg[-1, 0] = 0.005
+    result = _evaluate(frozen, state)
+    assert np.allclose(result.char_consumption_free_kg_s, 0.0, atol=1.0e-15)
+    assert np.allclose(result.char_migration_free_kg_s, 0.0, atol=1.0e-15)
+    ash_slot = next(slot for slot in result.slots if slot.kind == "ash" and slot.balance_index == 1)
+    assert result.values[ash_slot.index] == pytest.approx(-0.001, abs=1.0e-12)
+    assert abs(result.element_gap_kg_s["C"]) <= _closure_scale(result)
+    assert abs(result.ash_gap_kg_s) <= 1.0e-12
+
+
+def test_pyrolysis_ash_into_smallest_hover_stops():
+    hover = np.zeros((2, 1), dtype=bool)
+    hover[-1, 0] = True
+    ash_gen = np.zeros((2, 1))
+    ash_gen[-1, 0] = 0.001
+    frozen = make_frozen(n_class=1, hover=hover, k_auf_per_s=np.zeros(2), ash_gen_hover_kg_s=ash_gen)
+    state = make_state(frozen, char=0.002, ash=0.0)
+    with pytest.raises(FreeboardDomainError, match="最小粒级"):
+        _evaluate(frozen, state)
+
+
+def test_large_class_ash_redirected_into_captured_fines_stops():
+    hover = np.zeros((2, 2), dtype=bool)
+    absent = np.zeros((2, 2), dtype=bool)
+    hover[-1, 0] = True
+    absent[-1, 0] = True
+    theta = np.zeros((2, 2))
+    theta[-1, 0] = 1.0
+    ash_gen = np.zeros((2, 2))
+    ash_gen[-1, 1] = 0.001
+    frozen = make_frozen(
+        hover=hover, free_absent=absent, theta=theta,
+        ejection_to_free=np.array([0.0, 1.0]), ejection_to_hover=np.array([1.0, 0.0]),
+        k_auf_per_s=np.zeros(2), ash_gen_free_kg_s=ash_gen,
+        a_free_per_s=np.zeros((2, 2)), a_hover_per_s=np.zeros((2, 2)),
+        b_free_per_s=np.zeros((2, 2)), b_hover_per_s=np.zeros((2, 2)),
+    )
+    state = make_state(frozen, char=0.002, ash=0.0)
+    state.freeboard_char_free_kg[-1, 1] = 0.0
+    with pytest.raises(FreeboardDomainError, match="最小粒级"):
+        _evaluate(frozen, state)
 
 
 def test_element_weights_are_available_for_the_closure():
