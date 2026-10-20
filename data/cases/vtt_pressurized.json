@@ -686,6 +686,14 @@
         "status": "cited",
         "note": "收到基低位热值。褐煤、不循环、蒸汽/无灰干基 0.17，对上表 5 第一列（燃料 46.9 kg/h）。表 6 的 ER 印成 0.32，表 5 与表 7.2 是 0.33。λ 仍用 0.33。",
         "formula": "q = 21.0 MJ/kg * 1e6 J/MJ；原文 Fuel LHV (wet)"
+      },
+      "wall_heat_loss": {
+        "value": 21700.0,
+        "unit": "W",
+        "source": "章程 v0.11 §1 例外；ADR 0014 X1；ADR 0029",
+        "cited_source": "KURKELA_1992, Table 6, p. 18（brown coal, recycle of fines: No）",
+        "status": "cited",
+        "note": "Heat losses (as diff.)，Kurkela 用实验数据做的能量平衡差额，21,7 kW。表 6 该列对应表 5 首列即工况 1（ADR 0014 X1 的对应依据）。只用于按 ADR 0029 求壁面传热系数 k_W；依赖实验出口数据，验收结论须注明共享这一校准输入。"
       }
     },
     "2": {

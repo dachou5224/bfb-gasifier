@@ -21,7 +21,9 @@ status: proposed
 
 ## 实现约束
 
-- k_W 不进入 `PhysicalConfig` 的输入，作为外层计算量输出；21 700 W 由工况文件给出（`cited`，KURKELA_1992 表 6 p. 18，ADR 0014 X1）。
+- k_W 不进入 `PhysicalConfig` 的输入，作为外层计算量输出；`wall_heat_transfer_coefficient` 保持 missing（它是计算量，不是输入）。
+- 21 700 W 由工况 1 的新字段 `wall_heat_loss`（单位 W，`cited`，KURKELA_1992 表 6 p. 18，note 写明 as diff. 与 ADR 0014 X1、ADR 0029）给出，本 PR 一并录入；其它工况保持 missing（CHARTER v0.11 §1 例外第 4 条，不外推）。
 - 注明 `章程 v0.11 §1 例外；ADR 0014 X1；ADR 0029`。
 
 ## 审查记录
+- PR #93 审查：指出 21,7 kW 只在说明文字中，工况文件没有可读字段。已修订：工况 1 录入 `wall_heat_loss`（cited），其它工况保持 missing。
