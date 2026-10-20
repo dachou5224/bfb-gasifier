@@ -16,7 +16,7 @@ _ELEMENTS = ("C", "H", "O", "N", "S")
 
 @dataclass(frozen=True)
 class ReleaseDistribution:
-    """流率按 cell。焦炭和灰另有粒级轴。库存是加入燃料的当量质量。"""
+    """流率按 cell。库存是当量质量；dried_exit_kg_s 是 (1−水分) 乘当量出流。"""
 
     water_kg_s: np.ndarray
     gas_mol_s: dict[str, np.ndarray]
@@ -94,7 +94,7 @@ def release_distribution(
     return ReleaseDistribution(
         water, gas_flow, benzene, naphthalene, char, ash_made,
         _system_exit(upward, downward, leaving, undried),
-        _system_exit(upward, downward, leaving, dried_stock),
+        (1.0 - moisture) * _system_exit(upward, downward, leaving, dried_stock),
         undried, dried_stock, mass_gap, element_gap,
     )
 

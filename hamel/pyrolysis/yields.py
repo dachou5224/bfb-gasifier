@@ -33,16 +33,24 @@ class LigniteYields:
     benzene_mol_per_kg: float
     naphthalene_mol_per_kg: float
 
+def _yield_conditions(pressure_pa, temperature_k) -> tuple[float, float]:
+    """表 4.3：1073–1273 K，0.1–2.5 MPa。式中压力为 Pa。越界不外推。"""
+    try:
+        pressure, temperature = float(pressure_pa), float(temperature_k)
+    except (TypeError, ValueError) as exc:
+        raise PyrolysisError("产率式的压力和温度必须是有限实数") from exc
+    inside = math.isfinite(pressure) and math.isfinite(temperature) and 1073.0 <= temperature <= 1273.0 and 1.0e5 <= pressure <= 2.5e6
+    if not inside:
+        raise PyrolysisError("温度或压力超出表 4.3 的适用范围，或不是有限实数")
+    return pressure, temperature
+
 def carbon_retained_in_char(pressure_pa: float, temperature_k: float) -> float:
     """kg C in char / kg C in fuel (waf)。
 
     Source: Hamel Eq.4.21, S. 63
     Source: Hamel Tab.4.3, S. 64
     """
-    pressure = float(pressure_pa)
-    temperature = float(temperature_k)
-    if pressure <= 0.0 or temperature <= 0.0:
-        raise PyrolysisError("产率式的压力和温度必须为正")
+    pressure, temperature = _yield_conditions(pressure_pa, temperature_k)
     factor, exponent, base, power = _CHAR
     return factor * pressure**exponent * base ** (1.0e-6 * pressure) * temperature**power
 
@@ -52,10 +60,7 @@ def carbon_retained_in_tar(pressure_pa: float, temperature_k: float) -> float:
     Source: Hamel Eq.4.22, S. 64
     Source: Hamel Tab.4.3, S. 64
     """
-    pressure = float(pressure_pa)
-    temperature = float(temperature_k)
-    if pressure <= 0.0 or temperature <= 0.0:
-        raise PyrolysisError("产率式的压力和温度必须为正")
+    pressure, temperature = _yield_conditions(pressure_pa, temperature_k)
     factor, exponent, power, offset = _TAR
     return factor * pressure**exponent * temperature**power + offset
 

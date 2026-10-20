@@ -8,6 +8,7 @@ import numpy as np
 from scipy.integrate import simpson, solve_ivp
 
 from hamel.cases.config import SolverConfig
+from hamel.kinetics.arrhenius import arrhenius_rate_constant_array
 from hamel.properties.data import gas_constant_j_mol_k, molar_mass_kg_mol, standard_pressure_pa
 from hamel.properties.thermo import (
     chemical_potential_j_mol, density_kg_m3, enthalpy_j_mol, heat_capacity_j_mol_k,
@@ -15,14 +16,11 @@ from hamel.properties.thermo import (
 )
 from hamel.properties.transport import mixture_thermal_conductivity_w_m_k, mixture_viscosity_pa_s
 
-
 class PyrolysisError(ValueError):
     """热解输入或积分不能按式 (4.1)–(4.12) 继续。"""
 
-
 class PyrolysisDomainError(PyrolysisError):
     """T_v < T_w。解释性选择：ADR 0015 第 10 项。"""
-
 
 @dataclass(frozen=True)
 class ParticleProperties:
@@ -35,7 +33,6 @@ class ParticleProperties:
     heat_capacity_j_kg_k: float
     diffusivity_m2_s: float
 
-
 @dataclass(frozen=True)
 class ReleaseTimes:
     """τ_dry = T_w，τ_pyr = T_v − T_w。tail_error_bound_s 是温度阈值造成的上界。"""
@@ -46,11 +43,9 @@ class ReleaseTimes:
     tau_pyr_s: float
     tail_error_bound_s: float
 
-
 def lignite_particle_properties() -> ParticleProperties:
     """湿褐煤，Dersch 1994。k_0、ρ_s、c_s 用表内 k_0,P、ρ_P、c_P。Source: Hamel Tab.4.1, S. 54"""
     return ParticleProperties(192_000.0, 40_000.0, 1.67e13, 1250.0, 1256.0, 1.0e-7)
-
 
 def pyrolysis_duration_s(water_time_s: float, volatile_time_s: float) -> float:
     """τ_pyr = T_v − T_w。T_v < T_w 超出两级串联的有效域。Source: Hamel Eq.4.10, S. 53"""
@@ -60,7 +55,6 @@ def pyrolysis_duration_s(water_time_s: float, volatile_time_s: float) -> float:
         )
     return volatile_time_s - water_time_s
 
-
 def _finite(name: str, value: object) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float, np.integer, np.floating)):
         raise PyrolysisError(f"{name} 必须是有限实数")
@@ -68,7 +62,6 @@ def _finite(name: str, value: object) -> float:
     if not math.isfinite(number):
         raise PyrolysisError(f"{name} 不是有限实数")
     return number
-
 
 def _positive(name: str, value: object) -> float:
     number = _finite(name, value)
@@ -244,7 +237,7 @@ def _map_shell(state, evaporation, radius, outer):
 def _exposure_rate(temperature, dry, energies, gas_constant):
     rate = np.zeros((temperature.size, energies.size))
     if np.any(dry):
-        rate[dry] = np.exp(-energies / (gas_constant * temperature[dry, None]))
+        rate[dry] = arrhenius_rate_constant_array(1.0, temperature[dry, None], energies, gas_constant)
     return rate
 
 
@@ -342,8 +335,8 @@ def _dry_particle(diameter_m, temperature_k, pressure_pa, moisture_mass_fraction
 
 
 def _tail(theta, frequency, weights, energies, gas_constant, bed, delta):
-    coefficient = frequency * np.exp(-energies / (gas_constant * bed))
-    slower = frequency * np.exp(-energies / (gas_constant * (bed - delta)))
+    coefficient = arrhenius_rate_constant_array(frequency, bed, energies, gas_constant)
+    slower = arrhenius_rate_constant_array(frequency, bed - delta, energies, gas_constant)
     remain = np.exp(-frequency * theta)
     return remain @ (weights / coefficient), remain @ (weights * (1.0 / slower - 1.0 / coefficient))
 

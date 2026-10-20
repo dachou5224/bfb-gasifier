@@ -89,6 +89,18 @@ def test_each_yield_equation_matches_a_hand_evaluation():
     assert ratio == pytest.approx(hydrogen_mol / carbon_mol, rel=1e-12)
 
 
+def test_yield_correlation_rejects_the_outside_of_table_4_3():
+    assert math.isfinite(carbon_retained_in_char(1.0e5, 1073.0))
+    assert math.isfinite(carbon_retained_in_tar(2.5e6, 1273.0))
+    for pressure, temperature in ((5.0e5, 900.0), (4.0e6, _BED_K), (1.0e5 - 1.0, 1100.0), (5.0e5, 1273.1), (float("nan"), 1100.0)):
+        with pytest.raises(PyrolysisError):
+            carbon_retained_in_char(pressure, temperature)
+        with pytest.raises(PyrolysisError):
+            carbon_retained_in_tar(pressure, temperature)
+    with pytest.raises(PyrolysisError):
+        lignite_yields(5.0e5, 900.0, _WF["C"], _WF["H"], _WF["O"], _WF["N"], _WF["S"], _ASH)
+
+
 def test_tar_outside_benzene_naphthalene_range_raises():
     with pytest.raises(PyrolysisError):
         lignite_yields(_PRESSURE, _BED_K, 0.20, 0.50, 0.20, 0.01, 0.01, 0.08)
@@ -113,6 +125,12 @@ def test_pyrolysis_gas_conserves_the_element_pool_without_drying_water():
             got[element] += amount * count
     for name, target in expected.items():
         assert got[name] == pytest.approx(target, rel=1e-8, abs=1e-10)
+
+
+def test_daem_rate_uses_the_arrhenius_factory():
+    text = Path("hamel/pyrolysis/particle.py").read_text(encoding="utf-8")
+    assert "arrhenius_rate_constant_array" in text
+    assert "np.exp(-energies" not in text
 
 
 def test_exponential_decay_integral_plus_tail_is_the_time_constant():
@@ -223,6 +241,29 @@ def test_single_cell_release_matches_the_feed_and_closes():
     assert np.all(instant.undried_kg == 0.0)
     assert np.all(instant.dried_kg == 0.0)
     assert instant.water_kg_s[0] == pytest.approx(_MOISTURE * float(np.sum(feed)))
+
+
+def test_dried_exit_reports_actual_solid_mass():
+    yields = _yields()
+    feed = np.array([1.0])
+    zeros = np.zeros((1, 1))
+    result = release_distribution(
+        feed, 0.05, [0.0], [0.10], zeros, zeros, np.ones((1, 1)), np.array([0.0]), np.array([1.0]),
+        0.118, _ASH, yields, _BED_K, _PRESSURE,
+    )
+    assert result.dried_kg[0, 0] == pytest.approx(0.5)
+    assert result.dried_exit_kg_s[0, 0] == pytest.approx(0.5 * (1.0 - 0.118))
+    gas_mass = sum(flow * molar_mass_kg_mol(name) for name, flow in result.gas_mol_s.items())
+    tar_mass = (
+        result.benzene_mol_s * molar_mass_kg_mol("C6H6")
+        + result.naphthalene_mol_s * molar_mass_kg_mol("C10H8")
+    )
+    left = (
+        result.water_kg_s + gas_mass + tar_mass + np.sum(result.char_kg_s, axis=1)
+        + np.sum(result.ash_kg_s, axis=1) + np.sum(result.undried_exit_kg_s, axis=1)
+        + np.sum(result.dried_exit_kg_s, axis=1)
+    )
+    assert left[0] == pytest.approx(1.0, abs=1.0e-9)
 
 
 def test_feed_on_a_shared_face_enters_the_upper_cell():
