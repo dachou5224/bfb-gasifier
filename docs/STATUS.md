@@ -43,7 +43,7 @@
 | T23b | 自由空间的参考轨迹记账、输运系数与悬停判定（T23 第 5 项） | cursor；审查 codex | 进行中（2026-10-20 派发） | 任务卡 `docs/tasks/T23b-freeboard-accounting.md`（2026-10-20 审查通过，已批准，PR #96）；T23 按停止条件拆分，含 ADR 0026 记账的完整写法约 1300 行 |
 | T25a | 衡算装配：完整残差 F(x) | cursor（新会话，worktree `../bfb-T25a`）；审查 codex | 进行中（2026-10-20 派发） | 任务卡 `docs/tasks/T25a-assembly.md`（2026-10-20 复审通过，已批准，PR #94）；**目标所有者 2026-10-20 批准单卡上限 1000 行**（CHARTER v0.12 §9） |
 | T25b | 预计算与初值 | cursor（新会话，worktree `../bfb-T25b`）；审查 codex | 待派发（T23、T23b 合并后派发） | 任务卡 `docs/tasks/T25b-precalc.md`（2026-10-20 复审通过，已批准，PR #94） |
-| T25c | 求解驱动与运行框架 | cursor（新会话，worktree `../bfb-T25c`）；审查 codex | 待派发（任务卡待审查；T25a、T25b 合并后派发） | 任务卡 `docs/tasks/T25c-driver.md`；按 ADR 0030 执行基准与 S1–S16，只用玩具工况验证框架，首次运行结果属 T26 |
+| T25c | 求解驱动与运行框架 | cursor（新会话，worktree `../bfb-T25c`）；审查 codex | 待派发（T25a、T25b 合并后派发） | 任务卡 `docs/tasks/T25c-driver.md`（2026-10-20 审查通过，已批准，PR #97）；按 ADR 0030 执行基准与 S1–S16，只用玩具工况验证框架，首次运行结果属 T26 |
 | T29 | 已裁定的第 1 关输入写入工况文件 | cursor（新会话）；审查总司令 | 完成 | PR #83（2026-10-18 总司令审查通过）。任务卡 `docs/tasks/T29-vtt1-case-data.md`。ADR 0014、0019 已写明的数已写入 `data/cases/vtt_pressurized.json`。`<0,1 mm` 代表粒径与床料质量分数两处 ADR 未给出可录入的数，保持 missing，见缺口文件 T29 节 |
 
 ## 执行顺序与分工（2026-10-13 起）
