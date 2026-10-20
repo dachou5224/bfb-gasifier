@@ -74,7 +74,7 @@ def _by_name(items):
     return {item.quantity: item for item in items}
 
 
-def test_physical_config_has_no_defaults_and_solver_fields_match_their_adrs():
+def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs():
     assert len(PHYSICAL_FIELDS) <= 30
     assert {field.name for field in dataclasses.fields(PhysicalConfig)} == set(PHYSICAL_FIELDS)
     solver = SolverConfig()
@@ -87,6 +87,10 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_their_adrs():
         "freeboard_ejection_samples",
         "freeboard_max_step_s",
         "freeboard_time_limit_s",
+        "particle_tolerance_w",
+        "particle_max_iterations",
+        "coupling_tolerance_k",
+        "coupling_max_iterations",
     }
     assert solver.pyrolysis_radial_intervals == 24
     assert solver.pyrolysis_time_rtol == 1.0e-6
@@ -96,6 +100,10 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_their_adrs():
     assert solver.freeboard_ejection_samples == 48
     assert solver.freeboard_max_step_s == 2.0e-4
     assert solver.freeboard_time_limit_s == 80.0
+    assert solver.particle_tolerance_w == 1.0e-4
+    assert solver.particle_max_iterations == 25
+    assert solver.coupling_tolerance_k == 1.0e-3
+    assert solver.coupling_max_iterations == 16
     with pytest.raises(TypeError):
         PhysicalConfig()
     with pytest.raises(TypeError):

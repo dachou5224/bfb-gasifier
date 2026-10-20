@@ -51,7 +51,7 @@ class PhysicalConfig:
 
 @dataclass(frozen=True)
 class SolverConfig:
-    """求解器参数。热解见 ADR 0027，自由空间轨迹见 ADR 0028。"""
+    """求解器参数。热解离散见 ADR 0027，自由空间轨迹见 ADR 0028，颗粒温度见 ADR 0033。"""
 
     pyrolysis_radial_intervals: int = 24
     pyrolysis_time_rtol: float = 1.0e-6
@@ -64,3 +64,7 @@ class SolverConfig:
     freeboard_max_step_s: float = 2.0e-4
     # 只用于报错。到时仍未离开自由空间就失败。见 ADR 0028。
     freeboard_time_limit_s: float = 80.0
+    particle_tolerance_w: float = 1.0e-4
+    particle_max_iterations: int = 25
+    coupling_tolerance_k: float = 1.0e-3
+    coupling_max_iterations: int = 16
