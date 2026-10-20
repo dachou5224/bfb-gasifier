@@ -51,4 +51,10 @@ class PhysicalConfig:
 
 @dataclass(frozen=True)
 class SolverConfig:
-    """求解器参数。阈值尚未登记 ADR，故不设字段。"""
+    """求解器参数。取值与收敛判据见 ADR 0027。"""
+
+    pyrolysis_radial_intervals: int = 24
+    pyrolysis_time_rtol: float = 1.0e-6
+    pyrolysis_activation_nodes: int = 16
+    pyrolysis_tail_delta_t_k: float = 0.02
+    pyrolysis_initial_shell_fraction: float = 1.0e-3
