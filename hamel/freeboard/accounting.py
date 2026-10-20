@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import bisect
 import math
 from dataclasses import dataclass
 
@@ -20,6 +21,8 @@ from hamel.freeboard.motion import _step_velocity, drag_groups, terminal_settlin
 _FACE_RESIDUAL_M_S = 1.0e-8
 # 与界面根相距不超过这个值的内部根并入界面根。解释性选择：ADR 0033。
 _FACE_MATCH_M = 1.0e-6
+# 不变区域势能的取样间距。解释性选择：ADR 0033。
+_WELL_SPACING_M = 1.0e-4
 _FREE_ABSENT = "自由状态不存在"
 
 
@@ -209,8 +212,117 @@ def _check_delta(equilibria: tuple[StableEquilibrium, ...], config: SolverConfig
     return delta_h, delta_u
 
 
-def _inside(height: float, velocity: float, equilibria: tuple[StableEquilibrium, ...], delta_h: float, delta_u: float) -> bool:
-    return any(abs(height - item.height_m) <= delta_h and abs(velocity) <= delta_u for item in equilibria)
+def _rest_acceleration(gas: float, stokes: float, quadratic: float, weight: float) -> float:
+    """速度为零时的加速度。u_g = v_t 时为零。"""
+    return stokes * gas + quadratic * gas * abs(gas) - weight
+
+
+@dataclass(frozen=True)
+class _Well:
+    """一个稳定根的势能阱。E < level 的状态离不开这个根自己的捕获区。"""
+
+    heights: tuple[float, ...]
+    phi_upper: tuple[float, ...]
+    level: float
+
+
+def _potential_density(gas_velocity, groups, edges, star: float, height: float) -> float:
+    """离开 h* 时势能的线密度。恢复段上为正。"""
+    index = int(np.searchsorted(edges, height, side="right") - 1)
+    index = min(max(index, 0), len(groups) - 1)
+    stokes, quadratic, weight = groups[index]
+    accel = _rest_acceleration(float(gas_velocity(index, height)), stokes, quadratic, weight)
+    if height >= star:
+        return -accel
+    return accel
+
+
+def _build_well(item: StableEquilibrium, edges, gas_velocity, groups) -> _Well:
+    """沿捕获区把 −∫ a(z, 0) dz 积到恢复力消失或外边界之前。
+
+    每块用两端和中点的最大、最小作势能上、下界。解释性选择：ADR 0033。
+    """
+    left = float(edges[item.cells[0]])
+    right = float(edges[item.cells[-1] + 1])
+    star = item.height_m
+    spacing = min(_WELL_SPACING_M, item.half_width_m / 4.0)
+
+    def density(height: float) -> float:
+        return _potential_density(gas_velocity, groups, edges, star, height)
+
+    def walk(step: float, limit: float, cap: float | None) -> tuple[list[float], list[float], list[float]]:
+        heights = [star]
+        upper = [0.0]
+        lower = [0.0]
+        height = star
+        while True:
+            nxt = height + step
+            if step > 0.0 and nxt >= limit:
+                break
+            if step < 0.0 and nxt <= limit:
+                break
+            mid = 0.5 * (height + nxt)
+            samples = (max(density(height), 0.0), density(mid), density(nxt))
+            if min(samples[1], samples[2]) <= 0.0:
+                break
+            width = abs(nxt - height)
+            heights.append(nxt)
+            upper.append(upper[-1] + max(samples) * width)
+            lower.append(lower[-1] + min(samples) * width)
+            height = nxt
+            if cap is not None and lower[-1] >= cap:
+                break
+        return heights, upper, lower
+
+    # 势垒由较近的外边界决定。另一侧积到同一势能即可，不必走到远处边界。
+    if star - left <= right - star:
+        left_h, left_up, left_lo = walk(-spacing, left, None)
+        right_h, right_up, right_lo = walk(spacing, right, left_lo[-1])
+    else:
+        right_h, right_up, right_lo = walk(spacing, right, None)
+        left_h, left_up, left_lo = walk(-spacing, left, right_lo[-1])
+    if len(right_h) < 2 or len(left_h) < 2:
+        raise FreeboardError("稳定根附近没有正宽度的不变区域")
+    level = min(left_lo[-1], right_lo[-1])
+    if level <= 0.0:
+        raise FreeboardError("稳定根的不变区域势能为零")
+    heights = list(reversed(left_h[1:])) + right_h
+    phi_upper = list(reversed(left_up[1:])) + right_up
+    return _Well(tuple(heights), tuple(phi_upper), level)
+
+
+def _in_well(well: _Well, height: float, velocity: float) -> bool:
+    if not well.heights[0] < height < well.heights[-1]:
+        return False
+    index = bisect.bisect_right(well.heights, height) - 1
+    span = well.heights[index + 1] - well.heights[index]
+    fraction = (height - well.heights[index]) / span
+    phi = well.phi_upper[index] + fraction * (well.phi_upper[index + 1] - well.phi_upper[index])
+    return 0.5 * velocity * velocity + phi < well.level
+
+
+def _accepted_equilibrium(
+    height: float,
+    velocity: float,
+    equilibria: tuple[StableEquilibrium, ...],
+    wells: tuple[_Well, ...],
+    delta_h: float,
+    delta_u: float,
+    cell: int,
+) -> int | None:
+    """邻域只框住候选根。能量低于该根自己的势垒，才确定不会离开它的捕获区。"""
+    found = None
+    for index, item in enumerate(equilibria):
+        if cell not in item.cells:
+            continue
+        if abs(height - item.height_m) > delta_h or abs(velocity) > delta_u:
+            continue
+        if not _in_well(wells[index], height, velocity):
+            continue
+        if found is not None:
+            raise FreeboardError("同一状态落在两个稳定根的不变区域里")
+        found = index
+    return found
 
 
 def _classify(
@@ -297,10 +409,11 @@ def trace_until_fate(
     config: SolverConfig,
     equilibria: tuple[StableEquilibrium, ...],
 ) -> TrajectoryFate:
-    """把式 (3.82) 积到回落、带出或进入稳定平衡的邻域。
+    """把式 (3.82) 积到回落、带出，或进入某个稳定根自己的不变区域。
 
-    邻域只决定归宿。捕获时刻是最后一次进入捕获区的时刻，起步就在里面且没有离开则为 0。
-    时间上限到了仍未确定归宿就报错，不改判。解释性选择：ADR 0026 第 2 项，ADR 0033。
+    邻域只用来选定候选根。能量低于该根的势垒才停止，因此不会把还能穿出捕获区的状态记成捕获。
+    捕获时刻是最后一次进入这个根自己的捕获区的时刻。时间上限到了仍未确定归宿就报错，不改判。
+    解释性选择：ADR 0026 第 2 项，ADR 0033。
     Source: Hamel Eq.3.82, S. 44
     """
     edges, densities, viscosities = _edges_and_gas(edges_m, rho_g, mu_g)
@@ -319,7 +432,7 @@ def trace_until_fate(
         for index in range(count)
     )
     bounds = tuple(float(edge) for edge in edges)
-    capture_cells = frozenset(cell for item in equilibria for cell in item.cells)
+    wells = tuple(_build_well(item, edges, gas_velocity, groups) for item in equilibria)
     cell = int(np.searchsorted(edges, height, side="right") - 1)
     cell = min(max(cell, 0), count - 1)
     start_cell = cell
@@ -378,6 +491,7 @@ def trace_until_fate(
 
     stalled = 0
     outcome = None
+    chosen = None
     while elapsed < time_limit:
         resolved, domain = resolve_face(cell)
         if resolved != cell:
@@ -391,9 +505,8 @@ def trace_until_fate(
             crossings.append((elapsed, cell, None, "down" if domain == "return" else "up"))
             outcome = domain
             break
-        if _inside(height, velocity, equilibria, delta_h, delta_u):
-            if cell not in capture_cells:
-                raise FreeboardError("进入邻域时粒子不在捕获区里")
+        chosen = _accepted_equilibrium(height, velocity, equilibria, wells, delta_h, delta_u, cell)
+        if chosen is not None:
             close(elapsed)
             outcome = "capture"
             break
@@ -440,7 +553,8 @@ def trace_until_fate(
             raise FreeboardError("轨迹出现非有限的高度或速度")
     if outcome is None:
         raise FreeboardError(f"积分时间达到上限 {time_limit} s，归宿仍未确定")
-    # 第一步 resolve 之前的格子才是起步格。跨过界面的那一步已经写进 crossings。
+    # 捕获区只取最终这个根自己的格子，不与其他稳定根合并。
+    capture_cells = frozenset(equilibria[chosen].cells) if chosen is not None else frozenset()
     return _classify(count, outcome, elapsed, height, velocity, reversals, start_cell, segments, crossings, capture_cells)
 
 

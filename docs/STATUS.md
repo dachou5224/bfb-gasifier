@@ -1,6 +1,6 @@
 # 项目状态（STATUS）
 
-唯一交接文档，原地更新。最后更新：2026-10-20（T23b 交参考轨迹记账与悬停判定，待审查）
+唯一交接文档，原地更新。最后更新：2026-10-20（T23b 按审查改捕获区和势能势垒，待审查）
 
 ## 当前阶段
 
@@ -40,7 +40,7 @@
 | T28 | 床料 ε_mf、φ_S、u_mf,0（X6）与 Geldart 分界 | cursor（新会话）；审查总司令 | 完成 | PR #87（2026-10-18 总司令审查通过）。答卷 `refs/hamel/answers/T28-bed-material-params.md`（2026-10-18）：第 1–3 项已查证。VTT/HTW 床料的 ε_mf、φ_S、u_mf,0 原文未给出。Geldart (1973) 的 A/B 为式 (4)–(6)、B/D 为式 (7)–(8)；A/C 只有 Fig. 3 阴影 PQ，未数字化。未算工况 1 的类别 |
 | T22 | 干燥与热解（第 4 章） | cursor（新会话，worktree `../bfb-T22`）；审查 codex | 完成 | 任务卡 `docs/tasks/T22-pyrolysis.md`。PR #91（2026-10-20 复审通过）：`hamel/pyrolysis/`（单颗粒、时间常数、产率、热解气、释放份额）；离散参数见 ADR 0027（已批准） |
 | T23 | 自由空间：床面抛出、颗粒轨迹与输运系数（§3.2） | cursor（新会话，worktree `../bfb-T23`）；审查 codex | 完成（第 1–4 项；第 5 项转 T23b） | PR #95（2026-10-20 审查通过）。任务卡 `docs/tasks/T23-freeboard.md`。本 PR 只交第 1–4 项：抛出、初速、气速、轨迹积分；样本数与步长见 ADR 0028（待审查）。含 ADR 0026 记账的实现约 1 300 行，超过 800 行，第 5 项（参考轨迹、a^f/a^t/b^f/b^t、悬停归宿、δ）需另开卡。平均泡间距取式 (3.57)，解释性选择见 ADR 0028（待审查） |
-| T23b | 自由空间的参考轨迹记账、输运系数与悬停判定（T23 第 5 项） | cursor（新会话，worktree `../bfb-T23b`）；审查 codex | 待审查 | PR #99。任务卡 `docs/tasks/T23b-freeboard-accounting.md`。`hamel/freeboard/accounting.py`：参考轨迹、a^f/a^t/b^f/b^t、悬停归宿。δ_h、δ_u 见 ADR 0033（待审查）。不改第 1–4 项接口。工况 1 冒烟标为 slow：情景 B、C 下 d_k 0,3466 mm 被捕获（h* 0,686 m、0,821 m，捕获区都在格 2，该格自由状态不存在、θ=1）；0,0506 mm 与 0,1527 mm 带出；0,5928 mm 及以上回落。与 T27 悬停带约 0,26–0,59 mm 一致 |
+| T23b | 自由空间的参考轨迹记账、输运系数与悬停判定（T23 第 5 项） | cursor（新会话，worktree `../bfb-T23b`）；审查 codex | 待审查 | PR #99。任务卡 `docs/tasks/T23b-freeboard-accounting.md`。`hamel/freeboard/accounting.py`：参考轨迹、a^f/a^t/b^f/b^t、悬停归宿。δ_h、δ_u 见 ADR 0033（待审查）。不改第 1–4 项接口。审查两项 P1 已改：按最终稳定根自己的捕获区记账，并用势能势垒确认不再离开。工况 1 冒烟标为 slow：情景 B、C 下 d_k 0,3466 mm 被捕获（h* 0,686 m、0,821 m，捕获区都在格 2，该格自由状态不存在、θ=1）；0,0506 mm 与 0,1527 mm 带出；0,5928 mm 及以上回落。与 T27 悬停带约 0,26–0,59 mm 一致 |
 | T25a | 衡算装配：完整残差 F(x) | cursor（新会话，worktree `../bfb-T25a`）；审查 codex | 进行中（2026-10-20 派发） | 任务卡 `docs/tasks/T25a-assembly.md`（2026-10-20 复审通过，已批准，PR #94）；**目标所有者 2026-10-20 批准单卡上限 1000 行**（CHARTER v0.12 §9） |
 | T25b | 预计算与初值 | cursor（新会话，worktree `../bfb-T25b`）；审查 codex | 待派发（T23、T23b 合并后派发） | 任务卡 `docs/tasks/T25b-precalc.md`（2026-10-20 复审通过，已批准，PR #94） |
 | T29 | 已裁定的第 1 关输入写入工况文件 | cursor（新会话）；审查总司令 | 完成 | PR #83（2026-10-18 总司令审查通过）。任务卡 `docs/tasks/T29-vtt1-case-data.md`。ADR 0014、0019 已写明的数已写入 `data/cases/vtt_pressurized.json`。`<0,1 mm` 代表粒径与床料质量分数两处 ADR 未给出可录入的数，保持 missing，见缺口文件 T29 节 |

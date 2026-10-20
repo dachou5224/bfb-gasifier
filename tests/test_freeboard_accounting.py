@@ -468,6 +468,106 @@ def test_oversized_delta_is_rejected_and_the_time_limit_is_only_an_error():
         )
 
 
+def test_adjacent_stable_roots_keep_the_final_capture_region():
+    """两个稳定根的捕获格相邻。穿过第一根再进入第二根时，按第二根自己的捕获区记账。"""
+    edges = np.array([0.0, 1.0, 2.0])
+    rho = np.ones(2)
+    mu = np.full(2, 2.0e-5)
+    diameter, density, phi = 3.0e-4, 1000.0, 0.8
+    settling = terminal_settling_velocity(1.0, 2.0e-5, diameter, density, phi)
+
+    def gas(_cell, height, settling=settling):
+        h = float(height)
+        return settling - 2.0 * (h - 0.5) * (h - 1.0) * (h - 1.5)
+
+    config = _config(
+        freeboard_max_step_s=1.0e-3,
+        freeboard_delta_h_m=0.01,
+        freeboard_delta_u_m_s=0.01,
+        freeboard_time_limit_s=30.0,
+    )
+    equilibria = stable_equilibria(edges, gas, rho, mu, diameter, density, phi)
+    assert [item.cells for item in equilibria] == [(0,), (1,)]
+    assert equilibria[0].height_m == pytest.approx(0.5)
+    assert equilibria[1].height_m == pytest.approx(1.5)
+    traced = trace_until_fate(0.75, 5.0, edges, gas, rho, mu, diameter, density, phi, config, equilibria)
+    assert traced.fate == "capture"
+    assert traced.entered_cell == 1
+    assert traced.capture_time_s > 0.0
+    assert not traced.captured_at_start
+    assert traced.residence_s[0] > 0.0
+    assert traced.residence_s[1] == 0.0
+    assert traced.upward_hover[0] == 1.0
+    assert traced.upward_free[0] == 0.0
+    assert abs(traced.height_m - 1.5) <= config.freeboard_delta_h_m
+    result = account_freeboard(
+        edges, gas, rho, mu, diameter, density, phi, np.array([20.0]), np.array([1.0]), 0.0, config
+    )
+    assert result.hover_inflow == pytest.approx((0.0, 1.0))
+    lower, upper = result.cells
+    assert lower.theta == 1 and upper.theta == 1
+    assert lower.free_state == "存在"
+    assert lower.a_f == 0.0 and lower.b_f == 0.0 and lower.b_t == 0.0
+    assert lower.a_t > 0.0
+    assert lower.a_t * lower.m_hat == pytest.approx(1.0)
+    assert lower.m_hat > 0.0
+    assert upper.free_state == "自由状态不存在"
+    assert upper.a_f is None
+
+
+def test_neighborhood_velocity_can_still_leave_before_the_energy_barrier():
+    """贴着格面、恢复力很弱时，邻域里的速度仍可能靠惯性离开捕获区。
+
+    默认 80 s 不够确认，只能报错，不能记成起步即捕获。时间够长时保留这次离开，
+    δ 减半不删掉这段自由停留。
+    """
+    edges = np.array([0.0, 1.0, 2.0])
+    rho = np.ones(2)
+    mu = np.full(2, 2.0e-5)
+    diameter, density, phi = 0.003, 1000.0, 0.8
+    settling = terminal_settling_velocity(1.0, 2.0e-5, diameter, density, phi)
+    height_star = 0.9975
+    gas = _linear_gas(settling, 0.01, height_star)
+    equilibria = stable_equilibria(edges, gas, rho, mu, diameter, density, phi)
+    assert len(equilibria) == 1
+    assert equilibria[0].cells == (0,)
+    assert equilibria[0].half_width_m == pytest.approx(0.00125)
+    with pytest.raises(FreeboardError, match="归宿仍未确定"):
+        trace_until_fate(
+            height_star, 0.0099, edges, gas, rho, mu, diameter, density, phi, SolverConfig(), equilibria
+        )
+    config = _config(freeboard_time_limit_s=200.0)
+    traced = trace_until_fate(
+        height_star, 0.0099, edges, gas, rho, mu, diameter, density, phi, config, equilibria
+    )
+    assert traced.fate == "capture"
+    assert traced.entered_cell == 0
+    assert not traced.captured_at_start
+    assert traced.capture_time_s > 0.0
+    assert traced.residence_s[0] > 0.0
+    assert traced.residence_s[1] > 0.0
+    assert traced.upward_free[0] == 1.0
+    assert traced.downward_hover[1] == 1.0
+    halved = trace_until_fate(
+        height_star,
+        0.0099,
+        edges,
+        gas,
+        rho,
+        mu,
+        diameter,
+        density,
+        phi,
+        _config(freeboard_time_limit_s=400.0, freeboard_delta_h_m=5.0e-4, freeboard_delta_u_m_s=5.0e-3),
+        equilibria,
+    )
+    assert halved.capture_time_s == traced.capture_time_s
+    assert halved.residence_s == traced.residence_s
+    assert halved.upward_free == traced.upward_free
+    assert halved.downward_hover == traced.downward_hover
+    assert halved.residence_s[0] > 0.0
+
+
 def _assert_books_close(left, right, tolerance: float) -> None:
     assert _relative(left.return_share, right.return_share) < tolerance
     assert _relative(left.elutriation_share, right.elutriation_share) < tolerance
