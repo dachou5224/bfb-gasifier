@@ -793,6 +793,25 @@ def _with_density(conditions: BedConditions, density: float) -> BedConditions:
         conditions.geldart,
         conditions.three_dimensional,
     )
+def geldart_group(surface_volume_diameter_m: float, rho_s_kg_m3: float, rho_f_kg_m3: float) -> str:
+    """常压 Geldart（1973）式 (6)、(8)。密度差用 g/cm³，粒径用 μm。
+
+    Hamel 没有印出这两条分界，只在采用式里要求 Gruppe-B。式 (3.14) 不是分界式。
+    ADR 0024 第 4 项。不是 B 类由调用方停止。
+    Source: Hamel Eq.3.14, S. 26
+    """
+    diameter = _positive("d_sv", surface_volume_diameter_m)
+    solid = _finite("rho_s", rho_s_kg_m3)
+    fluid = _finite("rho_f", rho_f_kg_m3)
+    difference = (solid - fluid) / 1000.0
+    if difference <= 0.0:
+        raise HydrodynamicsError("Geldart 判据的密度差不是正数")
+    micron = diameter * 1.0e6
+    if difference * micron <= 225.0:
+        return "A"
+    if difference * micron**2 >= 1.0e6:
+        return "D"
+    return "B"
 def _require_technical_three_dimensional(distributor: str, three_dimensional: bool) -> None:
     if distributor != "technical":
         raise HydrodynamicsError("式 (3.11) 只用于技术布风器；多孔板原文没有采用式")
