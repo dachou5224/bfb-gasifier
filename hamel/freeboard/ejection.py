@@ -1,8 +1,6 @@
 """床面抛出通量与抛出初速分布。
 
-平均泡间距用式 (3.57)。式 (3.58) 是 Baron 的轨道修正，还要 h_WS 和 A_0。
-冻结稿写明正文没有在两式之间选定，ADR 0016 也没有选。任务卡给定的床面气泡量
-是 ε_b、u_b、d_b，不含这两项，因此抛出通量按式 (3.57) 计算。
+平均泡间距取式 (3.57)。解释性选择：ADR 0028。
 """
 
 from __future__ import annotations
@@ -42,8 +40,9 @@ def _normal_ppf(probability: float, mean: float, sigma: float) -> float:
 
 
 def spacing_ratio(bubble_fraction: float) -> float:
-    """Δl_m / d_b。气泡在床截面上均匀分布。
+    """Δl_m / d_b。气泡在床截面上均匀分布，不用式 (3.58) 的轨道修正。
 
+    解释性选择：ADR 0028。
     Source: Hamel Eq.3.57, S. 38
     """
     fraction = _positive("bubble_fraction", bubble_fraction)

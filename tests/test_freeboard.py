@@ -45,6 +45,7 @@ def _config(**changes) -> SolverConfig:
 
 
 def test_spacing_and_approach_by_hand():
+    """式 (3.57)。解释性选择：ADR 0028。不用式 (3.58)。"""
     fraction = 0.25
     ratio = (6.0 * fraction / math.pi) ** (-1.0 / 3.0)
     assert spacing_ratio(fraction) == pytest.approx(ratio)
@@ -250,6 +251,80 @@ def test_doubling_ejection_samples_changes_the_mean_flight_time_by_less_than_1e_
         return total / weight
 
     assert _relative(mean_time(count), mean_time(2 * count)) < 1.0e-4
+
+
+def test_stationary_boundary_uses_acceleration_and_not_every_zero_speed_leaves():
+    edges = np.array([0.0, 1.0])
+    rho = np.array([RHO_G])
+    mu = np.array([MU])
+    diameter = 2.0e-4
+    terminal = terminal_settling_velocity(RHO_G, MU, diameter, RHO_P, PHI)
+
+    def still(_cell, _height):
+        return 0.0
+
+    def lifting(_cell, _height, terminal=terminal):
+        return terminal + 3.0
+
+    def balanced(_cell, _height, terminal=terminal):
+        return terminal
+
+    fate, time, height, velocity = integrate_freeboard(
+        0.0, 0.0, edges, still, rho, mu, diameter, RHO_P, PHI, _config(freeboard_time_limit_s=1.0e-6)
+    )
+    assert (fate, time, height, velocity) == ("return", 0.0, 0.0, 0.0)
+    fate, time, height, velocity = integrate_freeboard(
+        1.0, 0.0, edges, lifting, rho, mu, diameter, RHO_P, PHI, SolverConfig()
+    )
+    assert (fate, time, height, velocity) == ("elutriate", 0.0, 1.0, 0.0)
+    fate, time, height, _velocity = integrate_freeboard(
+        0.0, 0.0, edges, lifting, rho, mu, diameter, RHO_P, PHI, SolverConfig()
+    )
+    assert fate == "elutriate"
+    assert time > 0.0
+    assert height == pytest.approx(1.0)
+    fate, time, height, velocity = integrate_freeboard(
+        1.0, 0.0, edges, still, rho, mu, diameter, RHO_P, PHI, SolverConfig()
+    )
+    assert fate == "return"
+    assert time > 0.0
+    assert height == pytest.approx(0.0)
+    assert velocity < 0.0
+    with pytest.raises(FreeboardError, match="积分时间达到上限"):
+        integrate_freeboard(
+            0.0,
+            0.0,
+            edges,
+            balanced,
+            rho,
+            mu,
+            diameter,
+            RHO_P,
+            PHI,
+            _config(freeboard_time_limit_s=1.0e-3),
+        )
+
+    split = np.array([0.0, 0.5, 1.0])
+    split_rho = np.full(2, RHO_G)
+    split_mu = np.full(2, MU)
+
+    def upper_lifts(cell, _height, terminal=terminal):
+        return terminal + 3.0 if cell == 1 else 0.0
+
+    fate, time, height, _velocity = integrate_freeboard(
+        0.5, 0.0, split, upper_lifts, split_rho, split_mu, diameter, RHO_P, PHI, SolverConfig()
+    )
+    assert fate == "elutriate"
+    assert time > 0.0
+    assert height == pytest.approx(1.0)
+
+    def both_point_across(cell, _height, terminal=terminal):
+        return 0.0 if cell == 1 else terminal + 3.0
+
+    with pytest.raises(FreeboardError, match="格面两侧"):
+        integrate_freeboard(
+            0.5, 0.0, split, both_point_across, split_rho, split_mu, diameter, RHO_P, PHI, SolverConfig()
+        )
 
 
 def test_ghost_bubble_uses_local_flow_and_area():

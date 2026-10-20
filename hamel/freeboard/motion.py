@@ -284,17 +284,56 @@ def integrate_freeboard(
     cell = int(np.searchsorted(edges, height, side="right") - 1)
     cell = min(max(cell, 0), cell_count - 1)
     elapsed = 0.0
+
+    def local_acceleration(index: int, height_now: float, velocity_now: float) -> float:
+        gas_now = float(gas_velocity(index, height_now))
+        stokes_now, quadratic_now, weight_now = groups[index]
+        relative = velocity_now - gas_now
+        return -stokes_now * relative - quadratic_now * relative * abs(relative) - weight_now
+
+    def resolve_face(cell_now: int) -> tuple[int, str | None]:
+        """速度为零时用加速度判断是否正在离开。进入哪一格，就用那一格的物性。"""
+        if height <= float(edges[0]):
+            accel = local_acceleration(0, height, velocity)
+            if velocity < 0.0 or (velocity == 0.0 and accel < 0.0):
+                return 0, "return"
+            return 0, None
+        if height >= float(edges[-1]):
+            last = cell_count - 1
+            accel = local_acceleration(last, height, velocity)
+            if velocity > 0.0 or (velocity == 0.0 and accel > 0.0):
+                return last, "elutriate"
+            return last, None
+        face = None
+        for index in range(1, cell_count):
+            if height == float(edges[index]):
+                face = index
+                break
+        if face is None:
+            return cell_now, None
+        lower = face - 1
+        upper = face
+        if velocity > 0.0:
+            return upper, None
+        if velocity < 0.0:
+            return lower, None
+        accel_upper = local_acceleration(upper, height, 0.0)
+        accel_lower = local_acceleration(lower, height, 0.0)
+        leaves_upper = accel_upper < 0.0
+        leaves_lower = accel_lower > 0.0
+        if leaves_upper and leaves_lower:
+            raise FreeboardError("格面两侧的加速度都指向对面，不能确定进入哪一格")
+        if leaves_upper or (accel_upper == 0.0 and accel_lower < 0.0):
+            return lower, None
+        return upper, None
+
+    stalled = 0
     while elapsed < time_limit:
-        if height >= float(edges[cell + 1]) and velocity > 0.0:
-            if cell + 1 >= cell_count:
-                return "elutriate", elapsed, height, velocity
-            cell += 1
-            continue
-        if height <= float(edges[cell]) and velocity < 0.0:
-            if cell == 0:
-                return "return", elapsed, height, velocity
-            cell -= 1
-            continue
+        cell, fate = resolve_face(cell)
+        if fate == "return":
+            return fate, elapsed, float(edges[0]), velocity
+        if fate == "elutriate":
+            return fate, elapsed, float(edges[-1]), velocity
         step = min(step_cap, time_limit - elapsed)
         stokes, quadratic, weight = groups[cell]
 
@@ -317,6 +356,12 @@ def integrate_freeboard(
         elif height_1 < low and height_1 != height:
             fraction = (low - height) / (height_1 - height)
             boundary = low if 0.0 < fraction < 1.0 else None
+        if fraction is not None and fraction <= 0.0:
+            stalled += 1
+            if stalled > 2:
+                raise FreeboardError("粒子停在格边界上，这一步没有进入相邻格")
+            continue
+        stalled = 0
         if boundary is None:
             height, velocity = height_1, velocity_1
             elapsed += step
