@@ -119,8 +119,11 @@ def initial_precalculation(path, case_id: str = "1", *, adiabatic: bool = False)
     return precalculate(path, case_id, None, adiabatic=adiabatic)
 
 
-def precalculate(path, case_id, previous: ReactorState | None, *, reaction_solid_kg_s=None, previous_drain_kg_s: float = 0.0, adiabatic: bool = False) -> PrecalcResult:
-    """用上一轮单元解填满冻结量。previous 为空时构造初值。"""
+def precalculate(path, case_id, previous: ReactorState | None, *, reaction_solid_kg_s=None, previous_drain_kg_s: float = 0.0, previous_fuel_return_kg_s: float = 0.0, adiabatic: bool = False) -> PrecalcResult:
+    """用上一轮单元解填满冻结量。previous 为空时构造初值。
+
+    自由空间燃料回落由调用方传入，第一次外层为 0。一次风温度是混合焓的等效温度。
+    """
     case = _load(path, case_id)
     equilibrium = _equilibrium(case, adiabatic)
     state = previous if previous is not None else _blank_state(case, equilibrium)
@@ -144,10 +147,11 @@ def precalculate(path, case_id, previous: ReactorState | None, *, reaction_solid
     masses = profile.solids_mass
     k_up = upflow / masses
     reaction = np.zeros(case.n_bed) if reaction_solid_kg_s is None else _column("reaction_solid_kg_s", reaction_solid_kg_s)
-    returned = _returned(state, ejection, accounting)
-    added = np.zeros(case.n_bed)
-    added[-1] = case.fuel_kg_s
-    down, residual = downward_mass_flow(upflow, added, np.zeros(case.n_bed), np.zeros(case.n_bed), reaction, returned)
+    returned = freeboard_return_kg_s(
+        transport[2]["b_f"][-1], transport[2]["b_t"][-1], state.freeboard_char_free_kg[-1],
+        state.freeboard_ash_free_kg[-1], previous_fuel_return_kg_s,
+    )
+    down, residual = bed_downflow(upflow, case.fuel_kg_s, reaction, returned, previous_drain_kg_s)
     k_down = down / masses
     k_exit = np.zeros_like(k_down)
     if previous_drain_kg_s:
@@ -280,7 +284,7 @@ def _value(doc, key, name):
 def _equilibrium(case: _Case, adiabatic: bool) -> _Equilibrium:
     """全炉进料的气相绝热平衡。基准运行扣除壁面热损，绝热对照不扣。焦炭不从元素池扣除。
 
-    吹扫氮按 ADR 0014 C2 用 298.15 K。冻结量只有一个一次风温度，残差里这股氮会按空气温度计焓。
+    吹扫氮按 ADR 0014 C2 用 298.15 K。冻结量的一次风温度是使混合进气焓与此相同的等效温度。
     """
     physical = case.physical
     air = np.array([0.21, 0.79]) * float(physical.primary_air_amount_flow)
@@ -538,7 +542,8 @@ def _transport(books):
                 raise PrecalcError(f"粒级 {klass} 格 {balance} 自由状态不存在但 θ 不是 1")
             absent[balance, klass] = missing
             theta[balance, klass] = 1.0 if missing else float(item.theta)
-            hover[balance, klass] = bool(missing or item.theta == 1)
+            # θ = 0 仍可能有稳定根。悬停由捕获区决定；θ = 1 时冻结量不允许没有悬停状态。
+            hover[balance, klass] = bool(missing or cell in book.capture_cells or item.theta == 1)
             if not missing:
                 arrays["a_f"][balance, klass] = item.a_f
                 arrays["a_t"][balance, klass] = item.a_t
@@ -549,20 +554,27 @@ def _transport(books):
     return (hover, absent, arrays, to_free, to_hover, theta), theta, hover, absent
 
 
-def _returned(state, ejection, books) -> float:
-    """回到床面的质量。直接回落不离开床。抛出按床顶焦炭的粒级比例分配。"""
-    char = np.asarray(state.bed_char_kg[0], dtype=float)
-    total = float(char.sum())
-    if total <= 0.0:
-        return 0.0
-    entered = (1.0 - ejection.direct) * ejection.mass_flow
-    came = 0.0
-    for klass, book in enumerate(books):
-        launched = book.ejection_free + book.ejection_hover
-        if launched <= 0.0:
-            continue
-        came += (book.return_share - ejection.direct) / launched * char[klass] / total * entered
-    return came
+def freeboard_return_kg_s(b_free_bottom, b_hover_bottom, char_free_kg, ash_free_kg, fuel_return_kg_s: float = 0.0) -> float:
+    """床面回落 = 最下自由格 (b^f+b^t) 乘上一轮可输运存量，再加未转化燃料回落。
+
+    直接回落不进入自由空间，无反应参考份额不参与递推。ADR 0016 第 10 条；ADR 0032。
+    """
+    coeff = np.asarray(b_free_bottom, dtype=float) + np.asarray(b_hover_bottom, dtype=float)
+    mobile = np.asarray(char_free_kg, dtype=float) + np.asarray(ash_free_kg, dtype=float)
+    if coeff.shape != mobile.shape:
+        raise PrecalcError("回落系数与自由空间存量的粒级不一致")
+    return float(np.sum(coeff * mobile) + float(fuel_return_kg_s))
+
+
+def bed_downflow(up, fuel_feed_kg_s, reaction, returned, drain_kg_s):
+    """整体固体向下流。最底格排灰进入守恒残差，不改写 Ṁ_ab = 0。ADR 0009 第 2 项。"""
+    upward = _column("up", up)
+    added = np.zeros(upward.size)
+    added[-1] = float(fuel_feed_kg_s)
+    leaving = np.zeros(upward.size)
+    leaving[-1] = float(drain_kg_s)
+    reacted = np.zeros(upward.size) if reaction is None else _column("reaction", reaction)
+    return downward_mass_flow(upward, added, np.zeros(upward.size), leaving, reacted, returned)
 
 
 def _release(case, state, flow, profile, packed, k_up, k_down, k_exit):
@@ -660,7 +672,7 @@ def _frozen(case, state, flow, profile, share, coefficient, rho_p, k_up, down, p
         v_bubble_exchange_m3=_bubble_volume(case, profile), v_suspension_m3=_suspension_volume(case, profile),
         v_bubble_m3=_bubble_volume(case, profile), v_freeboard_m3=_free_volume(case),
         primary_feed_mol_s=_primary_vector(case), feed_to_suspension=share,
-        primary_temperature_k=float(case.physical.inlet_temperature), secondary_feed_mol_s=_secondary_vector(case),
+        primary_temperature_k=_primary_temperature(case), secondary_feed_mol_s=_secondary_vector(case),
         secondary_temperature_k=float(case.physical.inlet_temperature), secondary_balance_index=secondary_air_balance_index(free),
         pyro_bed_mol_s=pyro_bed, pyro_freeboard_mol_s=pyro_free,
         char_gen_bed_kg_s=released.char_kg_s[free:], char_gen_free_kg_s=char_free, char_gen_hover_kg_s=char_hover,
@@ -744,6 +756,31 @@ def _primary_vector(case):
     vector[index["N2"]] = 0.79 * air + float(physical.nitrogen_purge_volume_flow)
     vector[index["H2O"]] = float(physical.steam_mass_flow) / molar_mass_kg_mol("H2O")
     return vector
+
+
+def _primary_temperature(case) -> float:
+    """一个温度，使一次风、蒸汽与吹扫氮的混合焓等于各自温度下的焓。ADR 0014 C2。"""
+    physical = case.physical
+    inlet = float(physical.inlet_temperature)
+    air = float(physical.primary_air_amount_flow)
+    purge = float(physical.nitrogen_purge_volume_flow)
+    steam = float(physical.steam_mass_flow) / molar_mass_kg_mol("H2O")
+    target = (
+        _gas_enthalpy({"O2": 0.21 * air, "N2": 0.79 * air}, inlet)
+        + _gas_enthalpy({"H2O": steam}, inlet)
+        + _gas_enthalpy({"N2": purge}, case.purge_temperature_k)
+    )
+    flows = {name: float(amount) for name, amount in zip(GAS_SPECIES, _primary_vector(case)) if amount}
+    lo, hi = 200.0, 2500.0
+    if (_gas_enthalpy(flows, lo) - target) * (_gas_enthalpy(flows, hi) - target) > 0.0:
+        raise PrecalcError("一次风等效温度不在 200–2500 K")
+    for _ in range(60):
+        mid = 0.5 * (lo + hi)
+        if _gas_enthalpy(flows, mid) > target:
+            hi = mid
+        else:
+            lo = mid
+    return 0.5 * (lo + hi)
 
 
 def _secondary_vector(case):

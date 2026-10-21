@@ -182,15 +182,16 @@ def _release_states(
     dry_free, dry_hover = np.zeros((n_free, classes)), np.zeros((n_free, classes))
     pyro_free, pyro_hover = np.zeros((n_free, classes)), np.zeros((n_free, classes))
     for klass in range(classes):
-        source = np.zeros(cells)
-        source[cell] = feed[klass]
         stock, free_stock, hover_stock, rate, free_rate, hover_rate = _two_inventories(
-            upward[:, klass], downward[:, klass], leaving[:, klass], dry[klass], source, transport, n_free, klass,
+            upward[:, klass], downward[:, klass], leaving[:, klass], dry[klass],
+            _feed_sources(cell, feed[klass], transport, n_free, klass), transport, n_free, klass,
         )
         undried[:, klass], undried_free[:, klass], undried_hover[:, klass] = stock, free_stock, hover_stock
         dry_rate[:, klass], dry_free[:, klass], dry_hover[:, klass] = rate, free_rate, hover_rate
         stock, free_stock, hover_stock, rate, free_rate, hover_rate = _two_inventories(
-            upward[:, klass], downward[:, klass], leaving[:, klass], pyro[klass], dry_rate[:, klass], transport, n_free, klass,
+            upward[:, klass], downward[:, klass], leaving[:, klass], pyro[klass],
+            _conversion_sources(dry_rate[:, klass], dry_free[:, klass], dry_hover[:, klass], n_free),
+            transport, n_free, klass,
         )
         dried[:, klass], dried_free[:, klass], dried_hover[:, klass] = stock, free_stock, hover_stock
         pyro_rate[:, klass], pyro_free[:, klass], pyro_hover[:, klass] = rate, free_rate, hover_rate
@@ -219,15 +220,42 @@ def _release_states(
     )
 
 
-def _two_inventories(up, down, exit_rate, tau, source, transport, n_free, klass):
-    cells = source.size
+def _feed_sources(cell, feed, transport, n_free, klass):
+    """新鲜燃料只进入进料格的入口状态。床区是唯一状态，自由空间优先自由状态。"""
+    if float(feed) == 0.0:
+        return {}
+    if cell >= n_free:
+        return {(cell, "bed"): float(feed)}
+    if _has_free(transport, cell, klass):
+        return {(cell, "free"): float(feed)}
+    if bool(transport.hover[cell, klass]):
+        return {(cell, "hover"): float(feed)}
+    raise PyrolysisError(f"进料格 {cell} 没有可进入的燃料状态")
+
+
+def _conversion_sources(bed_rate, free_rate, hover_rate, n_free):
+    """干燥产物按产生它的状态进入热解。不把悬停部分并回自由状态。ADR 0032。"""
+    sources = {}
+    for cell, amount in enumerate(bed_rate):
+        if cell >= n_free and amount != 0.0:
+            sources[(cell, "bed")] = float(amount)
+    for cell, amount in enumerate(free_rate):
+        if amount != 0.0:
+            sources[(cell, "free")] = float(amount)
+    for cell, amount in enumerate(hover_rate):
+        if amount != 0.0:
+            sources[(cell, "hover")] = float(amount)
+    return sources
+
+
+def _two_inventories(up, down, exit_rate, tau, sources, transport, n_free, klass):
+    cells = up.size
     stock = np.zeros(cells)
     rate = np.zeros(cells)
     free_stock, hover_stock = np.zeros(n_free), np.zeros(n_free)
     free_rate, hover_rate = np.zeros(n_free), np.zeros(n_free)
     if float(tau) == 0.0:
-        rate[:] = source
-        _scatter_rate(rate, free_rate, hover_rate, transport, n_free, klass)
+        _place_instant(rate, free_rate, hover_rate, sources, transport, n_free, klass)
         return stock, free_stock, hover_stock, rate, free_rate, hover_rate
     nodes = _nodes(transport, cells, n_free, klass)
     index = {node: position for position, node in enumerate(nodes)}
@@ -238,19 +266,14 @@ def _two_inventories(up, down, exit_rate, tau, source, transport, n_free, klass)
         for coeff, dest in _outflows(node, up, down, exit_rate, transport, n_free, klass):
             if coeff == 0.0:
                 continue
-            if dest is None and node[1] == "free" and coeff < 0.0:
-                raise PyrolysisError("输运系数不能为负")
             matrix[position, position] += coeff
             if dest is not None:
                 matrix[index[dest], position] -= coeff
     rhs = np.zeros(len(nodes))
-    for cell in range(cells):
-        if source[cell] == 0.0:
-            continue
-        target = _entry(index, cell)
-        if target is None:
-            raise PyrolysisError(f"格 {cell} 没有可进入的燃料状态")
-        rhs[index[target]] += float(source[cell])
+    for node, amount in sources.items():
+        if node not in index:
+            raise PyrolysisError(f"格 {node[0]} 的{node[1]}状态不能接受转化量")
+        rhs[index[node]] += float(amount)
     try:
         solved = np.linalg.solve(matrix, rhs)
     except np.linalg.LinAlgError as exc:
@@ -266,21 +289,23 @@ def _two_inventories(up, down, exit_rate, tau, source, transport, n_free, klass)
     return stock, free_stock, hover_stock, rate, free_rate, hover_rate
 
 
-def _entry(index, cell):
-    for kind in ("bed", "free", "hover"):
-        if (cell, kind) in index:
-            return (cell, kind)
-    return None
-
-
-def _scatter_rate(rate, free_rate, hover_rate, transport, n_free, klass):
-    for cell in range(n_free):
-        if rate[cell] == 0.0:
-            continue
-        if transport.free_absent[cell, klass] or not _has_free(transport, cell, klass):
-            hover_rate[cell] = rate[cell]
+def _place_instant(rate, free_rate, hover_rate, sources, transport, n_free, klass):
+    """τ = 0 时转化留在来源状态，不重新选择自由或悬停。"""
+    for (cell, kind), amount in sources.items():
+        if kind == "bed":
+            rate[cell] += amount
+        elif kind == "free":
+            if cell >= n_free or not _has_free(transport, cell, klass):
+                raise PyrolysisError(f"格 {cell} 没有自由状态来接受即时转化")
+            free_rate[cell] += amount
+            rate[cell] += amount
+        elif kind == "hover":
+            if cell >= n_free or not bool(transport.hover[cell, klass]):
+                raise PyrolysisError(f"格 {cell} 没有悬停状态来接受即时转化")
+            hover_rate[cell] += amount
+            rate[cell] += amount
         else:
-            free_rate[cell] = rate[cell]
+            raise PyrolysisError(f"不能识别的燃料状态 {kind}")
 
 
 def _has_free(transport, cell, klass) -> bool:

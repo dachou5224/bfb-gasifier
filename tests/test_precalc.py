@@ -13,8 +13,14 @@ from hamel.properties.data import GAS_SPECIES, atoms, molar_mass_kg_mol
 from hamel.properties.thermo import mixture_enthalpy_j
 from hamel.pyrolysis.release import FuelTransport, release_distribution
 from hamel.pyrolysis.yields import lignite_yields
-from hamel.solver.precalc import PrecalcError, downward_mass_flow, require_geldart_b, wall_coefficient
-from hamel.solver.precalc import _equilibrium, _load
+from hamel.freeboard import account_freeboard, terminal_settling_velocity
+from hamel.cases.config import SolverConfig
+from hamel.solver.precalc import (
+    PrecalcError, bed_downflow, downward_mass_flow, freeboard_return_kg_s, require_geldart_b,
+    wall_coefficient,
+)
+from hamel.solver.precalc import _equilibrium, _gas_enthalpy, _load, _primary_temperature, _primary_vector
+from hamel.solver.precalc import _transport as pack_transport
 from hamel.solver.residual import wall_area_m2
 
 _CASE = Path("data/cases/vtt_pressurized.json")
@@ -102,6 +108,86 @@ def test_release_with_capture_partial_conversion_and_absent_free_state():
     assert absent.char_hover_kg_s[1] > 0.0
 
 
+def test_hover_drying_stays_in_the_hover_state():
+    """ADR 0032。悬停中干燥得到的 P 不回到自由状态。"""
+    yields = _yields()
+    transport = FuelTransport(
+        1, np.array([[True]]), np.array([[False]]), np.array([[0.5]]), np.zeros((1, 1)),
+        np.zeros((1, 1)), np.zeros((1, 1)), np.array([0.0]), np.array([1.0]),
+    )
+    result = _run_cells(np.array([1.0]), np.array([1.0]), transport, feed=1.0, up=1.0)
+    assert result.undried_free_kg[0, 0] == pytest.approx(0.0)
+    assert result.undried_hover_kg[0, 0] == pytest.approx(0.5)
+    assert result.dried_free_kg[0, 0] == pytest.approx(0.0)
+    assert result.dried_hover_kg[0, 0] == pytest.approx(0.75)
+    assert result.char_free_kg_s[0, 0] == pytest.approx(0.0)
+    assert result.fuel_up_kg_s[0, 0] == pytest.approx(0.0)
+    waf = (1.0 - _MOISTURE) * (1.0 - _ASH)
+    assert result.char_hover_kg_s[0, 0] == pytest.approx(waf * yields.x_char * 0.75)
+    instant = _run_cells(np.array([1.0]), np.array([0.0]), transport, feed=1.0, up=1.0)
+    assert instant.char_free_kg_s[0, 0] == pytest.approx(0.0)
+    assert instant.char_hover_kg_s[0, 0] == pytest.approx(waf * yields.x_char * 0.5)
+
+
+def test_hover_exists_when_theta_is_zero():
+    """捕获区决定悬停。θ = 0 只表示当地轨迹不是起步即被捕获。"""
+    edges = np.array([0.0, 1.0, 1.25, 2.5])
+    rho = np.full(3, 0.4)
+    mu = np.full(3, 1.5e-5)
+    diameter, density, phi = 1.0e-3, 1500.0, 0.8
+    settling = terminal_settling_velocity(0.4, 1.5e-5, diameter, density, phi)
+
+    def gas(_cell, height, settling=settling):
+        return settling + 8.0 * (1.01 - float(height))
+
+    book = account_freeboard(
+        edges, gas, rho, mu, diameter, density, phi, np.array([0.1]), np.array([1.0]), 0.0,
+        SolverConfig(freeboard_delta_h_m=1.0e-3, freeboard_max_step_s=1.0e-3, freeboard_time_limit_s=20.0),
+    )
+    assert book.capture_cells == (1,)
+    assert all(cell.theta == 0 and cell.free_state == "存在" for cell in book.cells)
+    _packed, theta, hover, absent = pack_transport((book,))
+    assert absent.sum() == 0
+    assert theta.sum() == 0.0
+    assert hover[1, 0]
+    assert not hover[0, 0] and not hover[2, 0]
+
+
+def test_return_uses_the_freeboard_inventory_and_the_drain_enters_the_residual():
+    """ADR 0016 第 10 条。同一床顶、不同自由存量，回落不同；排灰进入底格残差。"""
+    coeff = np.array([0.25, 0.25])
+    empty = freeboard_return_kg_s(coeff, np.zeros(2), np.zeros(2), np.zeros(2))
+    filled = freeboard_return_kg_s(coeff, np.zeros(2), np.array([1.0, 1.0]), np.array([0.5, 0.5]), 0.1)
+    assert empty == 0.0
+    assert filled == pytest.approx(0.85)
+    up = np.array([1.0, 1.0, 1.0])
+    _down, closed = bed_downflow(up, 0.0, np.zeros(3), 1.0, 0.0)
+    _down, drained = bed_downflow(up, 0.0, np.zeros(3), 1.0, 0.3)
+    _down, reacted = bed_downflow(up, 0.0, np.array([0.0, 0.0, -0.2]), 1.0, 0.0)
+    assert closed == pytest.approx(0.0)
+    assert drained == pytest.approx(-0.3)
+    assert reacted == pytest.approx(-0.2)
+
+
+def test_primary_enthalpy_keeps_the_purge_temperature():
+    """ADR 0014 C2。冻结的一次风温度复现分温度的混合焓。"""
+    case = _load(_CASE, "1")
+    temperature = _primary_temperature(case)
+    vector = _primary_vector(case)
+    flows = {name: float(amount) for name, amount in zip(GAS_SPECIES, vector) if amount}
+    air = float(case.physical.primary_air_amount_flow)
+    purge = float(case.physical.nitrogen_purge_volume_flow)
+    steam = float(case.physical.steam_mass_flow) / molar_mass_kg_mol("H2O")
+    inlet = float(case.physical.inlet_temperature)
+    target = (
+        _gas_enthalpy({"O2": 0.21 * air, "N2": 0.79 * air}, inlet)
+        + _gas_enthalpy({"H2O": steam}, inlet)
+        + _gas_enthalpy({"N2": purge}, case.purge_temperature_k)
+    )
+    assert _gas_enthalpy(flows, temperature) == pytest.approx(target, rel=1.0e-9)
+    assert temperature != pytest.approx(inlet)
+
+
 def _yields():
     return lignite_yields(
         _PRESSURE, _BED_K, float(_FUEL["carbon_mass_fraction_wf"]["value"]),
@@ -122,6 +208,16 @@ def _transport(bottom_absent: bool) -> FuelTransport:
     to_free = np.array([0.0 if bottom_absent else 0.25])
     to_hover = np.array([1.0 if bottom_absent else 0.75])
     return FuelTransport(1, hover, absent, a_free, a_hover, b_free, b_hover, to_free, to_hover)
+
+
+def _run_cells(tau_dry, tau_pyr, transport, feed=0.01, up=0.5):
+    upward = np.array([[0.0], [up]])
+    downward = np.zeros((2, 1))
+    leaving = np.zeros((2, 1))
+    return release_distribution(
+        np.array([feed]), 0.2, [1.0, 0.0], [2.0, 1.0], upward, downward, leaving,
+        tau_dry, tau_pyr, _MOISTURE, _ASH, _yields(), _BED_K, _PRESSURE, transport=transport,
+    )
 
 
 def _run(tau_dry, tau_pyr, transport):
