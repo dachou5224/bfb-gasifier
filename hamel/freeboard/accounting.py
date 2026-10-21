@@ -336,10 +336,9 @@ def _classify(
     velocity: float,
     reversals: int,
     start_cell: int,
-    segments: list[tuple[int, float, float]],
+    segments: list[tuple[int, float, float, float]],
     crossings: list[tuple[float, int, int | None, str]],
     capture_cells: frozenset[int],
-    slip_m: list[float],
 ) -> TrajectoryFate:
     entry_index = None
     entered = start_cell if start_cell in capture_cells else None
@@ -363,17 +362,20 @@ def _classify(
         entry_index = None
     at_start = captured and entry_index is None
     residence = [0.0] * count
+    slip = [0.0] * count
     upward_free = [0.0] * count
     upward_hover = [0.0] * count
     downward_free = [0.0] * count
     downward_hover = [0.0] * count
-    for cell, start, end in segments:
-        if capture_time is None:
-            residence[cell] += end - start
-        elif end <= capture_time:
-            residence[cell] += end - start
+    for cell, start, end, piece in segments:
+        if capture_time is None or end <= capture_time:
+            kept = end - start
         elif start < capture_time:
-            residence[cell] += capture_time - start
+            kept = capture_time - start
+        else:
+            continue
+        residence[cell] += kept
+        slip[cell] += piece * kept / (end - start)
     for index, (time, from_cell, _to_cell, direction) in enumerate(crossings):
         hover = captured and entry_index is not None and index == entry_index
         free = (not captured) or (capture_time is not None and time < capture_time)
@@ -393,7 +395,7 @@ def _classify(
         at_start,
         entered if captured else None,
         tuple(residence),
-        tuple(slip_m),
+        tuple(slip),
         tuple(upward_free),
         tuple(upward_hover),
         tuple(downward_free),
@@ -444,9 +446,9 @@ def trace_until_fate(
     elapsed = 0.0
     open_time = 0.0
     reversals = 0
-    segments: list[tuple[int, float, float]] = []
+    segments: list[tuple[int, float, float, float]] = []
     crossings: list[tuple[float, int, int | None, str]] = []
-    slip = [0.0] * count
+    pending = 0.0
 
     def local_acceleration(index: int, height_now: float, velocity_now: float) -> float:
         gas_now = float(gas_velocity(index, height_now))
@@ -490,10 +492,11 @@ def trace_until_fate(
         return upper, None
 
     def close(end: float) -> None:
-        nonlocal open_time
+        nonlocal open_time, pending
         if end > open_time:
-            segments.append((cell, open_time, end))
+            segments.append((cell, open_time, end, pending))
             open_time = end
+        pending = 0.0
 
     stalled = 0
     outcome = None
@@ -555,7 +558,7 @@ def trace_until_fate(
             height, velocity = _step_velocity(height, velocity, used, gas_at, stokes, quadratic, weight)
             elapsed += used
             height = boundary
-        slip[cell] += 0.5 * (abs(float(gas_at(height_before)) - velocity_before) + abs(float(gas_at(height)) - velocity)) * used
+        pending += 0.5 * (abs(float(gas_at(height_before)) - velocity_before) + abs(float(gas_at(height)) - velocity)) * used
         if velocity_before * velocity < 0.0:
             reversals += 1
         if not math.isfinite(height) or not math.isfinite(velocity):
@@ -564,7 +567,7 @@ def trace_until_fate(
         raise FreeboardError(f"积分时间达到上限 {time_limit} s，归宿仍未确定")
     # 捕获区只取最终这个根自己的格子，不与其他稳定根合并。
     capture_cells = frozenset(equilibria[chosen].cells) if chosen is not None else frozenset()
-    return _classify(count, outcome, elapsed, height, velocity, reversals, start_cell, segments, crossings, capture_cells, slip)
+    return _classify(count, outcome, elapsed, height, velocity, reversals, start_cell, segments, crossings, capture_cells)
 
 
 def _sum_ledgers(ledgers: list[tuple[TrajectoryFate, float]], count: int):

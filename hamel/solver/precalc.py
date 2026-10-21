@@ -152,8 +152,6 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
     coefficient = wall_coefficient(*temperatures, case.bed_cell_m, case.free_cell_m, case.bed_diameter_m, case.free_diameter_m, case.heat_loss_w, adiabatic=adiabatic)
     if previous is None:
         state = _initial_inventory(case, flow, profile.solids_mass, share, fractions, t_init, notes, iteration, consistency)
-    _watch_yields(case, flow.bed_temperature, notes, iteration, consistency)
-    _watch_yields(case, flow.free_temperature, notes, iteration, consistency)
     try:
         ejection, accounting, rho_free, mu_free = _segregate(case, flow, profile, rho_p, d_bar)
     except FreeboardError as exc:
@@ -437,20 +435,15 @@ def _fuel(case):
         physical.nitrogen_mass_fraction_wf, physical.sulfur_mass_fraction_wf, physical.ash_mass_fraction_wf,
     )
 def _yield_at(case, temperature, cell, klass, notes, iteration, consistency):
+    """只检查这次实际代入产率式的温度和压力。求解手段：ADR 0035。"""
     pressure = float(case.pressure_pa)
-    if not (1073.0 <= float(temperature) <= 1273.0 and 1.0e5 <= pressure <= 2.5e6):
+    value = float(temperature)
+    if not (1073.0 <= value <= 1273.0 and 1.0e5 <= pressure <= 2.5e6):
+        notes.append((int(iteration), "产率式温度或压力", value, cell, klass))
         if consistency:
-            _halt(iteration, "产率式温度或压力", float(temperature), cell, klass)
-        return path_yields(pressure, temperature, *_fuel(case))
-    return lignite_yields(pressure, temperature, *_fuel(case))
-def _watch_yields(case, temperatures, notes, iteration, consistency):
-    pressure = float(case.pressure_pa)
-    for cell, temperature in enumerate(np.asarray(temperatures, dtype=float)):
-        if 1073.0 <= float(temperature) <= 1273.0 and 1.0e5 <= pressure <= 2.5e6:
-            continue
-        notes.append((int(iteration), "产率式温度", float(temperature), int(cell), None))
-        if consistency:
-            _halt(iteration, "产率式温度", float(temperature), int(cell), None)
+            _halt(iteration, "产率式温度或压力", value, cell, klass)
+        return path_yields(pressure, value, *_fuel(case))
+    return lignite_yields(pressure, value, *_fuel(case))
 def _initial_inventory(case, flow, masses, share, fractions, temperature, notes, iteration, consistency) -> ReactorState:
     yields = _yield_at(case, temperature, None, None, notes, iteration, consistency)
     ash = _ash_fraction(case, yields.x_char)

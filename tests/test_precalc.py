@@ -246,6 +246,22 @@ def _feed_elements(case) -> dict[str, float]:
     return _elements(case, primary, secondary)
 
 
+def test_yield_range_follows_only_the_substituted_temperature():
+    """产率式只约束实际代入的温度。自由空间气温不另成整炉约束。"""
+    from hamel.solver.precalc import _load, _yield_at
+
+    case = _load(_CASE, "1")
+    notes = []
+    legal = _yield_at(case, 1100.0, None, None, notes, 0, True)
+    assert notes == []
+    assert legal.x_char > 0.0
+    recorded = []
+    _yield_at(case, 1000.0, None, None, recorded, 0, False)
+    assert recorded == [(0, "产率式温度或压力", 1000.0, None, None)]
+    with pytest.raises(PrecalcError, match="产率式"):
+        _yield_at(case, 1000.0, None, None, [], 0, True)
+
+
 def test_initial_temperature_is_projected_onto_the_yield_interval():
     """求解手段：ADR 0035。报告里的 T_ad 不改，初值用投影后的温度。"""
     assert initial_temperature_k(971.5) == 1073.0
