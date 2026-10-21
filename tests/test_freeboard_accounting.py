@@ -70,10 +70,10 @@ def _column(count: int, length: float, rho_g: float, mu: float):
     return edges, np.full(count, rho_g), np.full(count, mu)
 
 
-def _account(edges, gas, rho, mu, diameter, rho_p, phi, bubble_velocity, samples, **config):
+def _account(edges, gas, rho, mu, diameter, rho_p, phi, bubble_velocity, samples, scale=1.0, **config):
     speeds, shares, direct = ejection_velocity_samples(bubble_velocity, samples)
     result = account_freeboard(
-        edges, gas, rho, mu, diameter, rho_p, phi, speeds, shares, direct, _config(**config)
+        edges, gas, rho, mu, diameter, rho_p, phi, speeds, shares, direct, _config(**config), scale
     )
     return result, direct
 
@@ -463,9 +463,31 @@ def test_halving_delta_leaves_split_coefficients_unchanged():
 def test_oversized_delta_is_rejected_and_the_time_limit_is_only_an_error():
     settling = terminal_settling_velocity(_NODE_GAS, _NODE_MU, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI)
     edges, rho, mu = _column(1, 1.0, _NODE_GAS, _NODE_MU)
+    gas = _linear_gas(settling, 1.5, 0.02)
+    equilibria = stable_equilibria(edges, gas, rho, mu, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI)
+    width = equilibria[0].half_width_m
+    assert width < 0.025
+    base, _direct_base = _account(
+        edges, gas, rho, mu, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI, 0.05, 2, freeboard_delta_h_m=0.05
+    )
+    fine, _direct_fine = _account(
+        edges, gas, rho, mu, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI, 0.05, 2, 0.5, freeboard_delta_h_m=0.05
+    )
+    assert base.roots[0][5] == pytest.approx(width)
+    assert fine.roots[0][5] == pytest.approx(width / 2.0)
+    assert fine.roots[0][6] == pytest.approx(base.roots[0][6] / 2.0)
+    for left, right in zip(base.cells, fine.cells):
+        assert left.free_state == right.free_state
+        for name in ("a_f", "a_t", "b_f", "b_t", "m_hat", "mean_slip_m_s"):
+            assert _relative(getattr(left, name) or 0.0, getattr(right, name) or 0.0) < 1.0e-4
+    with pytest.raises(FreeboardError, match="跨过邻域"):
+        _account(edges, gas, rho, mu, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI, 0.05, 2, freeboard_delta_h_m=0.05, freeboard_delta_u_m_s=100.0)
+    with pytest.raises(FreeboardError, match="跨过邻域"):
+        _account(
+            edges, gas, rho, mu, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI, 0.05, 2, 0.5,
+            freeboard_delta_h_m=0.05, freeboard_delta_u_m_s=100.0,
+        )
     gas = _linear_gas(settling, 1.5, 0.6)
-    with pytest.raises(FreeboardError, match="一半"):
-        _account(edges, gas, rho, mu, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI, 0.05, 2, freeboard_delta_h_m=0.5)
     equilibria = stable_equilibria(edges, gas, rho, mu, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI)
     with pytest.raises(FreeboardError, match="跨过邻域"):
         trace_until_fate(

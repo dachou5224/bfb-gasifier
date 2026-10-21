@@ -58,6 +58,9 @@ class PrecalcResult:
     geldart_record: tuple
     yield_notes: tuple
     slip_ratios: tuple
+    bed_intervals: int
+    substep_history: tuple
+    delta_notes: tuple
 def require_geldart_b(surface_volume_diameter_m: float, rho_s_kg_m3: float, rho_f_kg_m3: float) -> str:
     """收敛后的真实类别必须是 B。求解手段：ADR 0035。"""
     group = geldart_group(surface_volume_diameter_m, rho_s_kg_m3, rho_f_kg_m3)
@@ -137,8 +140,7 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
     d_bar, d_sv = _diameters(case.diameters_m, fractions)
     flow = _flows(case, state, equilibrium, previous is None, t_init)
     gas = _bed_gas(flow)
-    intervals = int(case.solver.bed_integration_intervals_per_cell)
-    rho_p = _density(case, flow, gas, d_bar, intervals)
+    rho_p, profile, conditions, intervals, substeps = _adaptive_bed(case, flow, gas, d_bar)
     group = geldart_group(d_sv, rho_p, gas.rho)
     record = (int(iteration), float(d_sv), group, _eq8_distance(d_sv, rho_p, gas.rho))
     hydro = group if consistency or group == "B" else "B"
@@ -146,14 +148,13 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
         raise PrecalcError(
             f"迭代 {iteration}：Geldart={group}；记录（迭代号, d_sv, 类别, 式(8)距离）={record}；T_ad={t_ad}；T_init={t_init}"
         )
-    profile, conditions = _profile(case, flow, gas, d_bar, rho_p, hydro, intervals)
     share = _feed_share(case, flow, conditions, intervals)
     temperatures = state.bed_temperature_k, state.freeboard_temperature_k
     coefficient = wall_coefficient(*temperatures, case.bed_cell_m, case.free_cell_m, case.bed_diameter_m, case.free_diameter_m, case.heat_loss_w, adiabatic=adiabatic)
     if previous is None:
         state = _initial_inventory(case, flow, profile.solids_mass, share, fractions, t_init, notes, iteration, consistency)
     try:
-        ejection, accounting, rho_free, mu_free = _segregate(case, flow, profile, rho_p, d_bar)
+        ejection, accounting, rho_free, mu_free, delta_notes = _segregate(case, flow, profile, rho_p, d_bar)
     except FreeboardError as exc:
         raise PrecalcError(
             f"迭代 {iteration} 停止：{exc}；Geldart 记录（迭代号, d_sv, 类别, 式(8)距离）={record}；T_ad={t_ad}；T_init={t_init}"
@@ -186,7 +187,7 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
     return PrecalcResult(
         frozen, state, t_ad, dict(equilibrium.fractions), group, d_bar, d_sv, residual,
         equilibrium.feed_enthalpy, equilibrium.product_enthalpy, ejection.mass_flow, _hover_pairs(hover),
-        gas_out / case.fuel_kg_s, t_init, hydro, record, tuple(notes), ratios,
+        gas_out / case.fuel_kg_s, t_init, hydro, record, tuple(notes), ratios, intervals, substeps, delta_notes,
     )
 @dataclass
 class _Case:
@@ -481,11 +482,18 @@ def _segregate(case, flow, profile, rho_p, d_bar):
     speeds, shares, direct = ejection_velocity_samples(float(profile.u_b[0]), case.solver.freeboard_ejection_samples)
     area = np.pi * (0.5 * case.bed_diameter_m) ** 2
     mass = ejection_mass_flow(float(profile.epsilon_b[0]), float(profile.u_b[0]), float(profile.d_b[0]), rho_p, float(profile.epsilon_d[0]), d_bar, area)
-    books = tuple(
-        account_freeboard(edges, velocity, rho, mu, float(diameter), rho_p, PHI_S, speeds, shares, direct, case.solver)
-        for diameter in case.diameters_m
-    )
-    return _Ejection(mass, speeds, shares, direct), books, rho, mu
+    books = []
+    delta_notes = []
+    configured = float(case.solver.freeboard_delta_h_m)
+    for klass, diameter in enumerate(case.diameters_m):
+        args = (edges, velocity, rho, mu, float(diameter), rho_p, PHI_S, speeds, shares, direct, case.solver)
+        base = account_freeboard(*args)
+        if any(row[5] < configured for row in base.roots):
+            fine = account_freeboard(*args, 0.5)
+            _gate_delta(base, fine)
+            delta_notes.append((klass, base.roots, fine.roots))
+        books.append(base)
+    return _Ejection(mass, speeds, shares, direct), tuple(books), rho, mu, tuple(delta_notes)
 def _fractions(flow) -> dict[str, float]:
     total = float(np.asarray(flow).sum())
     if total <= 0.0:
@@ -759,23 +767,44 @@ def _slip(case, flow, profile, books, rho_p, group, gas, hover, rho_free, mu_fre
                 hover_u[balance, klass] = terminal
                 ratios.append(("hover", balance, klass, terminal, terminal, 1.0))
     return bed, free_u, hover_u, tuple(ratios)
-def bed_substep_relative_change(path, case_id: str = "1"):
-    """求解手段：ADR 0035。子步数加倍时 ρ_P 与各格 M_i 的相对变化。"""
-    case = _load(path, case_id)
-    equilibrium = _equilibrium(case, False)
-    t_init = initial_temperature_k(equilibrium.temperature)
-    fractions = _class_fractions(None, case)
-    d_bar, _sv = _diameters(case.diameters_m, fractions)
-    flow = _flows(case, _blank_state(case, t_init), equilibrium, True, t_init)
-    gas = _bed_gas(flow)
-    base = int(case.solver.bed_integration_intervals_per_cell)
+def _adaptive_bed(case, flow, gas, d_bar, group="B"):
+    """求解器参数：ADR 0036。整床同一 n，加倍后重求 ρ_P 与 profile，采用较细的一组。"""
+    n = int(case.solver.bed_integration_intervals_per_cell)
+    limit = int(case.solver.bed_integration_max_intervals_per_cell)
     def once(intervals):
         rho = _density(case, flow, gas, d_bar, intervals)
-        profile, _unused = _profile(case, flow, gas, d_bar, rho, "B", intervals)
-        return rho, np.asarray(profile.solids_mass, dtype=float)
-    rho_a, mass_a = once(base)
-    rho_b, mass_b = once(base * 2)
-    return abs(rho_b - rho_a) / abs(rho_a), np.abs(mass_b - mass_a) / np.abs(mass_a)
+        profile, conditions = _profile(case, flow, gas, d_bar, rho, group, intervals)
+        return rho, profile, conditions
+    def rel(left, right):
+        den = max(abs(float(left)), abs(float(right)))
+        return 0.0 if den == 0.0 else abs(float(left) - float(right)) / den
+    rho, profile, conditions = once(n)
+    history = []
+    while n * 2 <= limit:
+        rho_n, profile_n, conditions_n = once(n * 2)
+        masses = tuple(rel(a, b) for a, b in zip(profile.solids_mass, profile_n.solids_mass))
+        rho_rel = rel(rho, rho_n)
+        history.append((n, n * 2, rho_rel, masses))
+        rho, profile, conditions, n = rho_n, profile_n, conditions_n, n * 2
+        if rho_rel < 1.0e-6 and max(masses) < 1.0e-6:
+            return rho, profile, conditions, n, tuple(history)
+    raise PrecalcError(f"床层子步到上限 {limit} 仍未过门：{tuple(history)}")
+def _gate_delta(base, fine):
+    """加密组与基准组的系数、停留和滑移。求解手段：ADR 0036。"""
+    worst = 0.0
+    for left, right in zip(base.cells, fine.cells):
+        if left.free_state != right.free_state:
+            raise PrecalcError("δ 加密改变了自由状态是否存在")
+        for name in ("a_f", "a_t", "b_f", "b_t", "m_hat", "mean_slip_m_s"):
+            first, second = getattr(left, name), getattr(right, name)
+            if first is None and second is None:
+                continue
+            if first is None or second is None:
+                raise PrecalcError("δ 加密改变了自由状态是否存在")
+            den = max(abs(first), abs(second))
+            worst = max(worst, 0.0 if den == 0.0 else abs(first - second) / den)
+    if worst >= 1.0e-4:
+        raise PrecalcError(f"δ 加密相对变化 {worst} 超过 1e-4")
 def _seed_freeboard(case, state, masses, temperature, hover, absent, notes, iteration, consistency) -> None:
     """每个存在的状态焦炭取 1e-6·M_tot，灰按 w_A,0/(1−w_A,0)。ADR 0017 第 9 项。"""
     yields = _yield_at(case, temperature, None, None, notes, iteration, consistency)

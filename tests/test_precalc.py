@@ -16,7 +16,7 @@ from hamel.pyrolysis.yields import lignite_yields
 from hamel.freeboard import account_freeboard, terminal_settling_velocity
 from hamel.cases.config import SolverConfig
 from hamel.solver.precalc import (
-    PrecalcError, bed_downflow, bed_substep_relative_change, downward_mass_flow, freeboard_return_kg_s,
+    PrecalcError, _adaptive_bed, bed_downflow, downward_mass_flow, freeboard_return_kg_s,
     initial_precalculation, initial_temperature_k, require_geldart_b, wall_coefficient,
 )
 from hamel.solver.precalc import _equilibrium, _gas_enthalpy, _load, _primary_temperature, _primary_vector
@@ -269,21 +269,34 @@ def test_initial_temperature_is_projected_onto_the_yield_interval():
     assert initial_temperature_k(1400.0) == 1273.0
 
 
-def test_case1_stops_at_the_registered_hover_neighbourhood():
-    """第一次外层在 T_init 下类别为 B，随后在 ADR 0034 的 δ_h 检查停下。不改 δ_h。"""
-    with pytest.raises(PrecalcError, match="δ_h") as caught:
-        initial_precalculation(_CASE, "1")
+def test_case1_first_iteration_finishes():
+    """工况 1 第一次外层。逐根 δ_h 与整床子步按 ADR 0036。"""
+    result = initial_precalculation(_CASE, "1")
+    assert result.geldart == "B" and result.t_init_k == 1073.0
+    assert result.bed_intervals >= 16
+    _previous, _finer, rho_rel, masses = result.substep_history[-1]
+    assert rho_rel < 1.0e-6 and max(masses) < 1.0e-6
+    assert result.slip_ratios
+    assert all(item[4] > 0.0 and np.isfinite(item[5]) for item in result.slip_ratios)
+
+
+def test_bed_substeps_stop_at_the_cap_without_splicing_cells():
+    """求解器参数：ADR 0036。到上限仍不过门就失败，并带上各次整床相对变化。"""
+    from dataclasses import replace
+
+    from hamel.solver.precalc import _bed_gas, _blank_state, _class_fractions, _diameters, _equilibrium, _flows, _load
+
+    case = _load(_CASE, "1")
+    case = replace(case, solver=replace(case.solver, bed_integration_max_intervals_per_cell=16))
+    equilibrium = _equilibrium(case, False)
+    temperature = initial_temperature_k(equilibrium.temperature)
+    fractions = _class_fractions(None, case)
+    d_bar, _sv = _diameters(case.diameters_m, fractions)
+    flow = _flows(case, _blank_state(case, temperature), equilibrium, True, temperature)
+    with pytest.raises(PrecalcError, match="上限") as caught:
+        _adaptive_bed(case, flow, _bed_gas(flow), d_bar)
     text = str(caught.value)
-    assert "迭代 0" in text and "T_init=1073" in text and "'B'" in text
-    assert "0.00019640930656081477" in text
-
-
-def test_bed_substep_doubling_misses_the_mass_gate():
-    """求解手段：ADR 0035。子步保持 8。ρ_P 的相对变化在 1e-6 以内，最上一格 M_i 超出该门。"""
-    rho_rel, mass_rel = bed_substep_relative_change(_CASE, "1")
-    assert rho_rel < 1.0e-6
-    assert float(np.max(mass_rel)) > 1.0e-6
-    assert np.all(np.isfinite(mass_rel))
+    assert "16" in text and text.count("(") > 1
 
 
 def test_density_search_recovers_the_requested_bed_mass():

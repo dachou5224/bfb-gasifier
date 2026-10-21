@@ -72,5 +72,6 @@ class SolverConfig:
     particle_max_iterations: int = 25
     coupling_tolerance_k: float = 1.0e-3
     coupling_max_iterations: int = 16
-    # 床区几何积分的 RK4 子步。求解手段：ADR 0035。
+    # 床区几何积分的起始子步与上限。求解器参数：ADR 0036。
     bed_integration_intervals_per_cell: int = 8
+    bed_integration_max_intervals_per_cell: int = 256

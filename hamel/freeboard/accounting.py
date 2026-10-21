@@ -86,6 +86,7 @@ class ReferenceAccounting:
     local_return: float
     local_elutriation: float
     cells: tuple[CellTransport, ...]
+    roots: tuple = ()
 
 
 def _edges_and_gas(edges_m, rho_g, mu_g) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -201,18 +202,16 @@ def stable_equilibria(
     return tuple(equilibria)
 
 
-def _check_delta(equilibria: tuple[StableEquilibrium, ...], config: SolverConfig) -> tuple[float, float]:
+def _neighbourhoods(equilibria, config: SolverConfig, scale: float = 1.0):
+    """逐根 δ_h,eff = scale·min(δ_h, w)，并检查 δ_u·步长 < δ_h,eff。求解手段：ADR 0036。"""
     delta_h = _positive("freeboard_delta_h_m", config.freeboard_delta_h_m)
     delta_u = _positive("freeboard_delta_u_m_s", config.freeboard_delta_u_m_s)
     step = _positive("freeboard_max_step_s", config.freeboard_max_step_s)
-    if not equilibria:
-        return delta_h, delta_u
-    limit = min(item.half_width_m for item in equilibria)
-    if delta_h > limit:
-        raise FreeboardError(f"δ_h = {delta_h} m 超过 h* 到捕获区外边界距离的一半 {limit} m")
-    if delta_u * step >= delta_h:
-        raise FreeboardError("δ_u 与步长的乘积必须小于 δ_h，否则一步可能跨过邻域")
-    return delta_h, delta_u
+    pairs = tuple((scale * min(delta_h, item.half_width_m), scale * delta_u) for item in equilibria)
+    for height, speed in pairs:
+        if speed * step >= height:
+            raise FreeboardError("δ_u 与步长的乘积必须小于该根的 δ_h,eff，否则一步可能跨过邻域")
+    return pairs
 
 
 def _rest_acceleration(gas: float, stokes: float, quadratic: float, weight: float) -> float:
@@ -309,8 +308,7 @@ def _accepted_equilibrium(
     velocity: float,
     equilibria: tuple[StableEquilibrium, ...],
     wells: tuple[_Well, ...],
-    delta_h: float,
-    delta_u: float,
+    neighbourhoods,
     cell: int,
 ) -> int | None:
     """邻域只框住候选根。能量低于该根自己的势垒，才确定不会离开它的捕获区。"""
@@ -318,7 +316,8 @@ def _accepted_equilibrium(
     for index, item in enumerate(equilibria):
         if cell not in item.cells:
             continue
-        if abs(height - item.height_m) > delta_h or abs(velocity) > delta_u:
+        tol_h, tol_u = neighbourhoods[index]
+        if abs(height - item.height_m) > tol_h or abs(velocity) > tol_u:
             continue
         if not _in_well(wells[index], height, velocity):
             continue
@@ -415,6 +414,7 @@ def trace_until_fate(
     phi_s: float,
     config: SolverConfig,
     equilibria: tuple[StableEquilibrium, ...],
+    scale: float = 1.0,
 ) -> TrajectoryFate:
     """把式 (3.82) 积到回落、带出，或进入某个稳定根自己的不变区域。
 
@@ -429,7 +429,7 @@ def trace_until_fate(
     velocity = _finite("velocity_0", velocity_0)
     if not float(edges[0]) <= height <= float(edges[-1]):
         raise FreeboardError("起步高度不在自由空间内")
-    delta_h, delta_u = _check_delta(equilibria, config)
+    neighbourhoods = _neighbourhoods(equilibria, config, scale)
     step_cap = _positive("freeboard_max_step_s", config.freeboard_max_step_s)
     time_limit = _positive("freeboard_time_limit_s", config.freeboard_time_limit_s)
     diameter = _positive("diameter_m", diameter_m)
@@ -514,7 +514,7 @@ def trace_until_fate(
             crossings.append((elapsed, cell, None, "down" if domain == "return" else "up"))
             outcome = domain
             break
-        chosen = _accepted_equilibrium(height, velocity, equilibria, wells, delta_h, delta_u, cell)
+        chosen = _accepted_equilibrium(height, velocity, equilibria, wells, neighbourhoods, cell)
         if chosen is not None:
             close(elapsed)
             outcome = "capture"
@@ -600,6 +600,7 @@ def account_freeboard(
     ejection_shares,
     direct_return_share: float,
     config: SolverConfig,
+    scale: float = 1.0,
 ) -> ReferenceAccounting:
     """由床面样本和各格当地轨迹得到 a^f、a^t、b^f、b^t、抛出拆分和 θ。
 
@@ -620,7 +621,7 @@ def account_freeboard(
     if direct < 0.0 or abs(float(shares.sum()) + direct - 1.0) > 1.0e-8:
         raise FreeboardError("抛出份额与直接回落之和必须为 1，直接回落不能为负")
     equilibria = stable_equilibria(edges, gas_velocity, densities, viscosities, diameter_m, rho_p, phi_s)
-    _check_delta(equilibria, config)
+    neighbourhoods = _neighbourhoods(equilibria, config, scale)
     capture = tuple(sorted({cell for item in equilibria for cell in item.cells}))
     capture_set = frozenset(capture)
     bed_surface = float(edges[0])
@@ -638,6 +639,7 @@ def account_freeboard(
             phi_s,
             config,
             equilibria,
+            scale,
         )
 
     bed = [(follow(bed_surface, float(speeds[index])), float(shares[index])) for index in range(speeds.size)]
@@ -718,4 +720,8 @@ def account_freeboard(
         local_return,
         local_elutriation,
         tuple(cells),
+        tuple(
+            (item.cells, item.height_m, item.height_m - float(edges[item.cells[0]]), float(edges[item.cells[-1] + 1]) - item.height_m, item.half_width_m, eff, speed)
+            for item, (eff, speed) in zip(equilibria, neighbourhoods)
+        ),
     )
