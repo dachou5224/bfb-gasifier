@@ -3,6 +3,10 @@
 from __future__ import annotations
 
 import json
+import os
+import signal
+import subprocess
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -17,7 +21,7 @@ from hamel.freeboard import account_freeboard, terminal_settling_velocity
 from hamel.cases.config import SolverConfig
 from hamel.solver.precalc import (
     PrecalcError, _adaptive_bed, bed_downflow, downward_mass_flow, freeboard_return_kg_s,
-    initial_precalculation, initial_temperature_k, require_geldart_b, wall_coefficient,
+    initial_temperature_k, require_geldart_b, wall_coefficient,
 )
 from hamel.solver.precalc import _equilibrium, _gas_enthalpy, _load, _primary_temperature, _primary_vector
 from hamel.solver.precalc import _transport as pack_transport
@@ -269,15 +273,59 @@ def test_initial_temperature_is_projected_onto_the_yield_interval():
     assert initial_temperature_k(1400.0) == 1273.0
 
 
+def _run_bounded(code: str, seconds: float) -> subprocess.CompletedProcess:
+    """墙钟到点就杀掉整个进程组，并记 TIMEOUT。CHARTER §7。"""
+    proc = subprocess.Popen(
+        [sys.executable, "-c", code],
+        cwd=str(Path(__file__).resolve().parents[1]),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        start_new_session=True,
+    )
+    try:
+        out, err = proc.communicate(timeout=seconds)
+    except subprocess.TimeoutExpired:
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        proc.wait()
+        pytest.fail("TIMEOUT")
+    return subprocess.CompletedProcess(proc.args, proc.returncode, out, err)
+
+
+def test_precalculation_timeout_is_recorded():
+    with pytest.raises(pytest.fail.Exception, match="TIMEOUT"):
+        _run_bounded("import time; time.sleep(30)", 0.2)
+
+
+_CASE1_SMOKE = r"""
+import json, math
+from hamel.solver.precalc import initial_precalculation
+result = initial_precalculation("data/cases/vtt_pressurized.json", "1")
+_previous, _finer, rho_rel, masses = result.substep_history[-1]
+print(json.dumps({
+    "geldart": result.geldart,
+    "t_init_k": result.t_init_k,
+    "bed_intervals": result.bed_intervals,
+    "rho_rel": rho_rel,
+    "max_mass": max(masses),
+    "slip_ok": bool(result.slip_ratios) and all(item[4] > 0.0 and math.isfinite(item[5]) for item in result.slip_ratios),
+}))
+"""
+
+
+@pytest.mark.slow
 def test_case1_first_iteration_finishes():
-    """工况 1 第一次外层。逐根 δ_h 与整床子步按 ADR 0036。"""
-    result = initial_precalculation(_CASE, "1")
-    assert result.geldart == "B" and result.t_init_k == 1073.0
-    assert result.bed_intervals >= 16
-    _previous, _finer, rho_rel, masses = result.substep_history[-1]
-    assert rho_rel < 1.0e-6 and max(masses) < 1.0e-6
-    assert result.slip_ratios
-    assert all(item[4] > 0.0 and np.isfinite(item[5]) for item in result.slip_ratios)
+    """工况 1 第一次外层。默认集不跑；墙钟 900 s 到点记 TIMEOUT。"""
+    completed = _run_bounded(_CASE1_SMOKE, 900)
+    assert completed.returncode == 0, completed.stderr
+    payload = json.loads(completed.stdout.strip().splitlines()[-1])
+    assert payload["geldart"] == "B" and payload["t_init_k"] == 1073.0
+    assert payload["bed_intervals"] >= 16
+    assert payload["rho_rel"] < 1.0e-6 and payload["max_mass"] < 1.0e-6
+    assert payload["slip_ok"] is True
 
 
 def test_bed_substeps_stop_at_the_cap_without_splicing_cells():
