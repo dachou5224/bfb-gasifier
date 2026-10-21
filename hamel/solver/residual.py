@@ -158,7 +158,9 @@ class _Context:
         ash_mass = state.freeboard_ash_hover_kg if hover else state.freeboard_ash_free_kg
         gas, consumed, migrated, released, ash_migrated, silent = self._char_rate(
             char[cell, klass], ash_mass[cell, klass], klass, state.freeboard_temperature_k[cell],
-            frozen.freeboard_pressure_pa[cell], frozen.u_r_freeboard_m_s[cell], y, c, fractions, mu, rho,
+            frozen.freeboard_pressure_pa[cell],
+            frozen.u_r_hover_m_s[cell, klass] if hover else frozen.u_r_freeboard_m_s[cell, klass],
+            y, c, fractions, mu, rho,
         )
         self.reaction_free[cell] += gas
         if hover:

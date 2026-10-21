@@ -211,8 +211,10 @@ def test_distributor_diameters():
     )
     assert growth_start_height("technical", 0.04, 0.01) == pytest.approx(0.01 + 0.02)
     assert growth_start_height("porous", 0.04, 0.01) == pytest.approx(0.02)
-    with pytest.raises(HydrodynamicsError):
-        orifice_volumetric_flow(0.5, 0.02, 10.5)
+    assert orifice_volumetric_flow(0.5, 0.02, 10.5) == pytest.approx(0.5 * 0.02 / 10.5)
+    for bad in (0.0, -3.0, float("nan"), float("inf")):
+        with pytest.raises(HydrodynamicsError):
+            orifice_volumetric_flow(0.5, 0.02, bad)
 
 
 def test_atmospheric_state_matches_printed_bubble_fraction():

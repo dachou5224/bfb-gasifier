@@ -352,14 +352,13 @@ def bubble_growth_rate(diameter_m, epsilon_b, xi_b, lifetime_s, u_b, pressure) -
     splitting_term = diameter / (3.0 * lifetime * velocity)
     return coalescence_term - splitting_term
 def orifice_volumetric_flow(u_0, area_m2, n_0) -> float:
-    """单孔体积流量 V̇_0 = u_0 A / n_0。
+    """单孔体积流量 V̇_0 = u_0 A / n_0。n_0 为有限正实数，不取整。
+    实现修正：ADR 0019、ADR 0035。
     Source: Hamel Eq.3.37, S. 29
     """
     superficial = _positive("u_0", u_0)
     area = _positive("area_m2", area_m2)
     count = _positive("n_0", n_0)
-    if count != int(count) or int(count) < 1:
-        raise HydrodynamicsError("n_0 必须是正整数")
     return superficial * area / count
 def initial_bubble_diameter(distributor, u_0, area_m2, n_0, u_mf) -> float:
     """技术布风器用式 (3.36)、(3.37)；多孔板用式 (3.38)。

@@ -48,6 +48,8 @@ class TrajectoryFate:
     captured_at_start: bool
     entered_cell: int | None
     residence_s: tuple[float, ...]
+    # 捕获前 ∫|u_g−u_P|dt，与停留时间同一段。解释性选择：ADR 0035。
+    slip_m: tuple[float, ...]
     upward_free: tuple[float, ...]
     upward_hover: tuple[float, ...]
     downward_free: tuple[float, ...]
@@ -65,6 +67,7 @@ class CellTransport:
     b_f: float | None
     b_t: float | None
     m_hat: float | None
+    mean_slip_m_s: float | None = None
 
 
 @dataclass(frozen=True)
@@ -336,6 +339,7 @@ def _classify(
     segments: list[tuple[int, float, float]],
     crossings: list[tuple[float, int, int | None, str]],
     capture_cells: frozenset[int],
+    slip_m: list[float],
 ) -> TrajectoryFate:
     entry_index = None
     entered = start_cell if start_cell in capture_cells else None
@@ -389,6 +393,7 @@ def _classify(
         at_start,
         entered if captured else None,
         tuple(residence),
+        tuple(slip_m),
         tuple(upward_free),
         tuple(upward_hover),
         tuple(downward_free),
@@ -441,6 +446,7 @@ def trace_until_fate(
     reversals = 0
     segments: list[tuple[int, float, float]] = []
     crossings: list[tuple[float, int, int | None, str]] = []
+    slip = [0.0] * count
 
     def local_acceleration(index: int, height_now: float, velocity_now: float) -> float:
         gas_now = float(gas_velocity(index, height_now))
@@ -517,6 +523,7 @@ def trace_until_fate(
             return gas_velocity(index, height_now)
 
         velocity_before = velocity
+        height_before = height
         height_1, velocity_1 = _step_velocity(height, velocity, step, gas_at, stokes, quadratic, weight)
         shrinks = 0
         while velocity * velocity_1 < 0.0 and step > step_cap * 1.0e-4 and shrinks < 16:
@@ -542,11 +549,13 @@ def trace_until_fate(
         if boundary is None:
             height, velocity = height_1, velocity_1
             elapsed += step
+            used = step
         else:
             used = fraction * step
             height, velocity = _step_velocity(height, velocity, used, gas_at, stokes, quadratic, weight)
             elapsed += used
             height = boundary
+        slip[cell] += 0.5 * (abs(float(gas_at(height_before)) - velocity_before) + abs(float(gas_at(height)) - velocity)) * used
         if velocity_before * velocity < 0.0:
             reversals += 1
         if not math.isfinite(height) or not math.isfinite(velocity):
@@ -555,11 +564,12 @@ def trace_until_fate(
         raise FreeboardError(f"积分时间达到上限 {time_limit} s，归宿仍未确定")
     # 捕获区只取最终这个根自己的格子，不与其他稳定根合并。
     capture_cells = frozenset(equilibria[chosen].cells) if chosen is not None else frozenset()
-    return _classify(count, outcome, elapsed, height, velocity, reversals, start_cell, segments, crossings, capture_cells)
+    return _classify(count, outcome, elapsed, height, velocity, reversals, start_cell, segments, crossings, capture_cells, slip)
 
 
-def _sum_ledgers(ledgers: list[tuple[TrajectoryFate, float]], count: int) -> tuple[list[float], list[float], list[float], list[float], list[float]]:
+def _sum_ledgers(ledgers: list[tuple[TrajectoryFate, float]], count: int):
     residence = [0.0] * count
+    slip = [0.0] * count
     upward_free = [0.0] * count
     upward_hover = [0.0] * count
     downward_free = [0.0] * count
@@ -567,11 +577,12 @@ def _sum_ledgers(ledgers: list[tuple[TrajectoryFate, float]], count: int) -> tup
     for ledger, weight in ledgers:
         for cell in range(count):
             residence[cell] += weight * ledger.residence_s[cell]
+            slip[cell] += weight * ledger.slip_m[cell]
             upward_free[cell] += weight * ledger.upward_free[cell]
             upward_hover[cell] += weight * ledger.upward_hover[cell]
             downward_free[cell] += weight * ledger.downward_free[cell]
             downward_hover[cell] += weight * ledger.downward_hover[cell]
-    return residence, upward_free, upward_hover, downward_free, downward_hover
+    return residence, slip, upward_free, upward_hover, downward_free, downward_hover
 
 
 def account_freeboard(
@@ -668,28 +679,20 @@ def account_freeboard(
             if ledger.entered_cell is None:
                 raise FreeboardError("当地轨迹捕获后没有进入的格子")
             local_hover[ledger.entered_cell] += 1.0
-    bed_residence, bed_up_f, bed_up_t, bed_down_f, bed_down_t = _sum_ledgers(bed, count)
+    bed_residence, bed_slip, bed_up_f, bed_up_t, bed_down_f, bed_down_t = _sum_ledgers(bed, count)
     local_weighted = [(ledger, 1.0) for ledger in local]
-    loc_residence, loc_up_f, loc_up_t, loc_down_f, loc_down_t = _sum_ledgers(local_weighted, count)
+    loc_residence, loc_slip, loc_up_f, loc_up_t, loc_down_f, loc_down_t = _sum_ledgers(local_weighted, count)
     cells = []
     for cell in range(count):
         theta = 1 if local[cell].captured_at_start else 0
         use_bed = bed_residence[cell] > 0.0 or bed_up_f[cell] + bed_up_t[cell] + bed_down_f[cell] + bed_down_t[cell] > 0.0
         if use_bed:
-            mass, up_f, up_t, down_f, down_t = (
-                bed_residence[cell],
-                bed_up_f[cell],
-                bed_up_t[cell],
-                bed_down_f[cell],
-                bed_down_t[cell],
+            mass, moved, up_f, up_t, down_f, down_t = (
+                bed_residence[cell], bed_slip[cell], bed_up_f[cell], bed_up_t[cell], bed_down_f[cell], bed_down_t[cell],
             )
         else:
-            mass, up_f, up_t, down_f, down_t = (
-                loc_residence[cell],
-                loc_up_f[cell],
-                loc_up_t[cell],
-                loc_down_f[cell],
-                loc_down_t[cell],
+            mass, moved, up_f, up_t, down_f, down_t = (
+                loc_residence[cell], loc_slip[cell], loc_up_f[cell], loc_up_t[cell], loc_down_f[cell], loc_down_t[cell],
             )
         outflow = up_f + up_t + down_f + down_t
         if mass == 0.0:
@@ -697,17 +700,7 @@ def account_freeboard(
                 raise FreeboardError("自由段有穿出通量但停留时间为 0")
             cells.append(CellTransport(theta, _FREE_ABSENT, None, None, None, None, None))
             continue
-        cells.append(
-            CellTransport(
-                theta,
-                "存在",
-                up_f / mass,
-                up_t / mass,
-                down_f / mass,
-                down_t / mass,
-                mass,
-            )
-        )
+        cells.append(CellTransport(theta, "存在", up_f / mass, up_t / mass, down_f / mass, down_t / mass, mass, moved / mass))
     captured = sum(hover_inflow)
     return ReferenceAccounting(
         tuple(item.height_m for item in equilibria),
