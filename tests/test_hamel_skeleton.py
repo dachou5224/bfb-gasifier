@@ -104,11 +104,10 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
         "element_balance_tolerance",
         "energy_balance_tolerance",
         "wall_timeout_s",
-        "particle_emissivity",
+        "particle_emissivity_case",
         "interphase_diffusivity",
         "hover_closure",
-        "serio_frequency_per_s",
-        "serio_activation_j_mol",
+        "serio_pair",
     }
     assert solver.pyrolysis_radial_intervals == 24
     assert solver.pyrolysis_time_rtol == 1.0e-6
@@ -135,11 +134,10 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
     assert solver.element_balance_tolerance == 1.0e-3
     assert solver.energy_balance_tolerance == 5.0e-3
     assert solver.wall_timeout_s == 90_000.0
-    assert solver.particle_emissivity == 0.85
+    assert solver.particle_emissivity_case == "frozen"
     assert solver.interphase_diffusivity == "hamel_5_20"
     assert solver.hover_closure == "A"
-    assert solver.serio_frequency_per_s == 5.42e4
-    assert solver.serio_activation_j_mol == 100.5e3
+    assert solver.serio_pair == "first"
     with pytest.raises(TypeError):
         PhysicalConfig()
     with pytest.raises(TypeError):

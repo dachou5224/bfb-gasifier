@@ -88,9 +88,29 @@ class SolverConfig:
     energy_balance_tolerance: float = 5.0e-3
     # 单次运行的墙钟上限，s。依据见 ADR 0037。
     wall_timeout_s: float = 90_000.0
-    # 默认等于冻结值。敏感性只改副本。ADR 0039。
-    particle_emissivity: float = 0.85
+    # 只选择已批准的固定对，不接受任意数值。ADR 0039。
+    particle_emissivity_case: str = "frozen"
     interphase_diffusivity: str = "hamel_5_20"
     hover_closure: str = "A"
-    serio_frequency_per_s: float = 5.42e4
-    serio_activation_j_mol: float = 100.5e3
+    serio_pair: str = "first"
+
+
+# 已批准的 ε_P 与 Serio 对。不是新的可调物理参数。ADR 0017 第 17 项；表 5.4，S. 97。
+_EMISSIVITY = {"frozen": 0.85, "S3": 0.79, "S4": 0.91}
+_SERIO = {"first": (5.42e4, 100.5e3), "second": (9.96e2, 64.5e3)}
+
+
+def approved_emissivity(choice: str) -> float:
+    """返回冻结值或 S3、S4 这一对里的一个。其它字符串拒绝。"""
+    try:
+        return _EMISSIVITY[choice]
+    except KeyError as exc:
+        raise ValueError("ε_P 只能取已批准的 frozen、S3 或 S4") from exc
+
+
+def approved_serio(choice: str) -> tuple[float, float]:
+    """返回表 5.4 的第一对或第二对，单位 s^-1 与 J/mol。"""
+    try:
+        return _SERIO[choice]
+    except KeyError as exc:
+        raise ValueError("Serio 参数只能取已批准的 first 或 second") from exc

@@ -196,16 +196,18 @@
           "freeboard_superficial_m_s": 0.05016214459289958,
           "kurkela_bed_m_s": 0.74,
           "kurkela_freeboard_m_s": 0.67,
-          "freeboard_mass_gap_kg_s": [
+          "fuel_release_mass_gap_kg_s": [
             1e-06,
             -2e-06
           ],
-          "freeboard_element_gap_kg_s": {
+          "fuel_release_element_gap_kg_s": {
             "C": [
               1e-07,
               0.0
             ]
           },
+          "freeboard_mass_element_closure": null,
+          "freeboard_mass_element_closure_note": "现有公开中间量只有燃料释放子系统的 W/P 质量与元素闭合。全自由空间的气相、焦炭、灰和边界流闭合没有对应中间量，本项不新增计算。",
           "freeboard_closed_form": null,
           "freeboard_closed_form_note": "求解路径没有数值积分与常气速闭式的中间量。ADR 0016 第 11 条写明变系数轨迹不用常气速闭式，闭式只在单元测试里对照。本项不新增计算。",
           "bubble_balance_over_visible": [

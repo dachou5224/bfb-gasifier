@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 import numpy as np
 from hamel.cases.assemble import assemble_case, load_case_file, resolve_case_key
+from hamel.cases.config import approved_emissivity, approved_serio
 from hamel.freeboard import FreeboardError, terminal_settling_velocity
 from hamel.freeboard.accounting import account_freeboard
 from hamel.freeboard.ejection import ejection_mass_flow, ejection_velocity_samples
@@ -122,18 +123,20 @@ def _halt(iteration, quantity, value, cell=None, klass=None):
     if klass is not None:
         text += f"，粒级={klass}"
     raise PrecalcError(text)
-def precalculate(path, case_id, previous: ReactorState | None, *, reaction_solid_kg_s=None, previous_drain_kg_s: float = 0.0, previous_fuel_return_kg_s: float = 0.0, adiabatic: bool = False, iteration: int = 0, consistency: bool = False, solver=None) -> PrecalcResult:
+def precalculate(path, case_id, previous: ReactorState | None, *, reaction_solid_kg_s=None, previous_drain_kg_s: float = 0.0, previous_fuel_return_kg_s: float = 0.0, adiabatic: bool = False, iteration: int = 0, consistency: bool = False, solver=None, redirected_return_kg_s: float = 0.0, redirected_ash_out_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0) -> PrecalcResult:
     """用上一轮单元解填满冻结量。previous 为空时构造初值。
     自由空间燃料回落由调用方传入，第一次外层为 0。一次风温度是混合焓的等效温度。
     consistency 为真时按真实类别重算，非 B 或产率式越界即停止。求解手段：ADR 0035。
+    B 的改送回落加入床层总流；C 的改送灰和燃料记入排灰出口。默认 0，与未改送逐位相同。
+    模型边界选择（敏感性）：ADR 0026 第 6 项、ADR 0038。
     """
     try:
-        return _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver)
+        return _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver, redirected_return_kg_s, redirected_ash_out_kg_s, redirected_fuel_out_kg_s)
     except PrecalcError:
         raise
     except (HydrodynamicsError, PyrolysisError, PropertyError, FreeboardError) as exc:
         raise PrecalcError(f"迭代 {iteration} 停止：{exc}") from exc
-def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver=None) -> PrecalcResult:
+def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver=None, redirected_return_kg_s: float = 0.0, redirected_ash_out_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0) -> PrecalcResult:
     case = _load(path, case_id, solver)
     equilibrium = _equilibrium(case, adiabatic)
     t_ad = float(equilibrium.temperature)
@@ -178,7 +181,7 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
     returned = freeboard_return_kg_s(
         transport[2]["b_f"][-1], transport[2]["b_t"][-1], state.freeboard_char_free_kg[-1],
         state.freeboard_ash_free_kg[-1], previous_fuel_return_kg_s,
-    )
+    ) + float(redirected_return_kg_s)
     down, residual = bed_downflow(upflow, case.fuel_kg_s, reaction, returned, previous_drain_kg_s)
     k_down = down / masses
     k_exit = np.zeros_like(k_down)
@@ -189,7 +192,9 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
     inert = masses - state.bed_char_kg.sum(axis=1) - fuel_bed.sum(axis=1)
     if np.any(inert < 0.0):
         raise PrecalcError("几何存量扣去焦炭和未转化燃料后灰分为负")
-    drain_ash, drain_char = _drain(case, state, released, inert, masses, accounting)
+    drain_ash, drain_char = _drain(
+        case, state, released, inert, masses, accounting, redirected_ash_out_kg_s, redirected_fuel_out_kg_s,
+    )
     frozen = _frozen(case, state, flow, profile, share, coefficient, rho_p, k_up, down, transport, theta, hover, absent, released, drain_ash, drain_char, bed_u, free_u, hover_u)
     gas_out = _gas_release(released)
     return PrecalcResult(
@@ -642,8 +647,11 @@ def _bounds(case):
         bottoms[case.n_free + cell] = geometric * bed_dz
         tops[case.n_free + cell] = bottoms[case.n_free + cell] + bed_dz
     return bottoms, tops
-def _drain(case, state, released, inert, masses, books):
-    """排灰灰分量 = 燃料带入灰 − 带出灰。ADR 0014 A5。"""
+def _drain(case, state, released, inert, masses, books, redirected_ash_out_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0):
+    """排灰灰分量 = 燃料带入灰 − 带出灰。ADR 0014 A5。
+    C 的改送灰和改送燃料是外部出口，从余额扣除。两项为 0 时与原式相同。
+    模型边界选择（敏感性）：ADR 0026 第 6 项、ADR 0038。
+    """
     moisture = float(case.physical.moisture_mass_fraction)
     ash_in = case.fuel_kg_s * float(case.physical.ash_mass_fraction_wf) * (1.0 - moisture)
     top_free = np.asarray(state.freeboard_ash_free_kg[0], dtype=float)
@@ -655,7 +663,8 @@ def _drain(case, state, released, inert, masses, books):
     carried = float(np.sum(top_free * coeff))
     fuel_top = 0.0 if released.fuel_up_kg_s is None else float(released.fuel_up_kg_s[0].sum())
     fuel_drain = float(released.undried_exit_kg_s[case.n_free:].sum() + released.dried_exit_kg_s[case.n_free:].sum())
-    ash_out = carried + ash_in / case.fuel_kg_s * (fuel_top + fuel_drain)
+    ash_out = carried + ash_in / case.fuel_kg_s * (fuel_top + fuel_drain + float(redirected_fuel_out_kg_s))
+    ash_out += float(redirected_ash_out_kg_s)
     if ash_out > ash_in:
         raise PrecalcError("带出灰多于燃料带入灰")
     fraction = float(inert[-1] / masses[-1])
@@ -677,6 +686,8 @@ def _frozen(case, state, flow, profile, share, coefficient, rho_p, k_up, down, p
     ash_free = np.zeros_like(char_free) if released.ash_free_kg_s is None else released.ash_free_kg_s
     ash_hover = np.zeros_like(char_free) if released.ash_hover_kg_s is None else released.ash_hover_kg_s
     formation = _formation(case)
+    emissivity = _approved(approved_emissivity, case.solver.particle_emissivity_case)
+    frequency, activation = _approved(approved_serio, case.solver.serio_pair)
     return FrozenQuantities(
         diameter_m=case.diameters_m, bed_pressure_pa=np.full(bed, flow.pressure), freeboard_pressure_pa=np.full(free, flow.pressure),
         k_auf_per_s=k_up, m_dot_ab_kg_s=down, geometric_mass_kg=profile.solids_mass, k_bd_per_s=profile.k_bd,
@@ -699,11 +710,16 @@ def _frozen(case, state, flow, profile, share, coefficient, rho_p, k_up, down, p
         rho_p_kg_m3=rho_p, drain_char_kg_s=drain_char, drain_ash_kg_s=drain_ash, k_w_w_m2_k=coefficient,
         bed_height_m=case.bed_cell_m, freeboard_height_m=case.free_cell_m, bed_diameter_m=case.bed_diameter_m,
         freeboard_diameter_m=case.free_diameter_m, epsilon_mf=case.epsilon_mf,
-        particle_emissivity=case.solver.particle_emissivity, hover_closure=case.solver.hover_closure,
-        serio_frequency_per_s=case.solver.serio_frequency_per_s, serio_activation_j_mol=case.solver.serio_activation_j_mol,
+        particle_emissivity=emissivity, hover_closure=case.solver.hover_closure,
+        serio_frequency_per_s=frequency, serio_activation_j_mol=activation,
         particle_tolerance_w=case.solver.particle_tolerance_w, particle_max_iterations=case.solver.particle_max_iterations,
         coupling_tolerance_k=case.solver.coupling_tolerance_k, coupling_max_iterations=case.solver.coupling_max_iterations,
     )
+def _approved(resolver, choice):
+    try:
+        return resolver(choice)
+    except ValueError as exc:
+        raise PrecalcError(str(exc)) from exc
 def _formation(case) -> float:
     physical = case.physical
     moisture = float(physical.moisture_mass_fraction)

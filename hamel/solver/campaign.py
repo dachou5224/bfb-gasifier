@@ -153,9 +153,9 @@ def config_for(name: str) -> SolverConfig:
     """敏感性只改这份副本。默认字段等于冻结值。"""
     base = SolverConfig()
     if name == "S3":
-        return replace(base, particle_emissivity=0.79)
+        return replace(base, particle_emissivity_case="S3")
     if name == "S4":
-        return replace(base, particle_emissivity=0.91)
+        return replace(base, particle_emissivity_case="S4")
     if name == "S5":
         return replace(base, interphase_diffusivity="fuller_o2_n2")
     if name == "S13":
@@ -163,7 +163,7 @@ def config_for(name: str) -> SolverConfig:
     if name == "S14":
         return replace(base, hover_closure="C")
     if name == "S15":
-        return replace(base, serio_frequency_per_s=9.96e2, serio_activation_j_mol=64.5e3)
+        return replace(base, serio_pair="second")
     return base
 
 

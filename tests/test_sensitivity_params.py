@@ -8,16 +8,16 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from hamel.cases.config import SolverConfig
+from hamel.cases.config import SolverConfig, approved_emissivity, approved_serio
 from hamel.hydrodynamics.bed import BedConditions, BedProfile
 from hamel.properties.data import GAS_SPECIES
 from hamel.pyrolysis.release import FuelTransport, feed_cell_index
 from hamel.solver.campaign import config_for, overlay, run_specs
 from hamel.solver.frozen import AssemblyError
-from hamel.solver.precalc import EPSILON_MF, PHI_S, _bounds, _exchange_diffusivity, _load
+from hamel.solver.precalc import EPSILON_MF, PHI_S, _bounds, _drain, _exchange_diffusivity, _load, bed_downflow
 from hamel.solver.residual import _bed_ash_by_class, evaluate_residual, wall_area_m2
 from hamel.solver.sensitivity import (
-    bubble_balance_ratio, edge_diameters, interface_balance_index, pack_reported, redirect_ledger,
+    bubble_balance_ratio, edge_diameters, interface_balance_index, pack_reported, redirect_feedback, redirect_ledger,
 )
 from hamel.solver.vector import pack_state, unknown_slots, unpack_state
 from test_assembly import make_frozen, make_state
@@ -56,7 +56,12 @@ def test_case_file_voidage_matches_the_module_literal():
     case = _load(_CASE, "1")
     assert case.epsilon_mf == EPSILON_MF == 0.46
     assert case.phi_s == PHI_S == 0.8
-    assert case.solver.particle_emissivity == 0.85
+    assert case.solver.particle_emissivity_case == "frozen"
+    assert approved_emissivity("frozen") == 0.85
+    assert approved_emissivity("S3") == 0.79
+    assert approved_serio("second") == (9.96e2, 64.5e3)
+    with pytest.raises(ValueError):
+        approved_emissivity("0.50")
     assert case.solver.interphase_diffusivity == "hamel_5_20"
 
 
@@ -304,6 +309,56 @@ def _solve_char(frozen, state, steps=8):
     raise AssertionError(f"焦炭未解到格残差 1e-8 以内，当前范数 {char_norm}")
 
 
+def test_redirect_feedback_enters_the_next_precalc_without_double_counting():
+    """求解得到的改送量进入床层总流或排灰出口。底格普通回落不重复计入。"""
+    state = make_state(_closure_frozen("A"), char=2.0e-3, ash=1.0e-4)
+    state.freeboard_char_hover_kg[:] = 0.0
+    state.freeboard_ash_hover_kg[:] = 0.0
+    upward = np.array([0.2, 0.1])
+    base_down, _ = bed_downflow(upward, 0.05, np.zeros(2), 0.0, 0.0)
+    for closure, expect_return in (("B", True), ("C", False)):
+        frozen = _closure_frozen(closure)
+        residual = evaluate_residual(pack_state(state, frozen), frozen)
+        redirect = (
+            residual.redirect_char_kg_s, residual.redirect_ash_kg_s,
+            residual.redirect_fuel_kg_s, residual.redirect_enthalpy_w,
+        )
+        bed_return, ash_out, fuel_out = redirect_feedback(closure, redirect)
+        assert redirect_feedback("A", redirect) == (0.0, 0.0, 0.0)
+        assert residual.redirect_char_kg_s > 0.0
+        if expect_return:
+            assert bed_return == pytest.approx(sum(redirect[:3]))
+            assert ash_out == 0.0 and fuel_out == 0.0
+            shifted, _ = bed_downflow(upward, 0.05, np.zeros(2), bed_return, 0.0)
+            assert shifted[0] - base_down[0] == pytest.approx(bed_return)
+        else:
+            assert bed_return == 0.0
+            assert ash_out == pytest.approx(residual.redirect_ash_kg_s)
+            assert ash_out > 0.0
+            plain = _drain_ash(0.0, 0.0)
+            only_ash = _drain_ash(ash_out, 0.0)
+            both = _drain_ash(ash_out, fuel_out)
+            assert plain - only_ash == pytest.approx(ash_out)
+            assert plain - both == pytest.approx(ash_out + 0.18 * fuel_out)
+
+
+def _drain_ash(ash_out: float, fuel_out: float) -> float:
+    physical = SimpleNamespace(moisture_mass_fraction=0.1, ash_mass_fraction_wf=0.2)
+    case = SimpleNamespace(physical=physical, fuel_kg_s=1.0, n_free=1)
+    state = SimpleNamespace(
+        freeboard_ash_free_kg=np.zeros((1, 1)), bed_char_kg=np.array([[0.4]]),
+    )
+    released = SimpleNamespace(
+        fuel_up_kg_s=np.zeros((1, 1)), undried_exit_kg_s=np.zeros(2), dried_exit_kg_s=np.zeros(2),
+    )
+    cell = SimpleNamespace(a_f=0.0, a_t=0.0)
+    ash, _char = _drain(
+        case, state, released, np.array([0.5]), np.array([1.0]), [SimpleNamespace(cells=[cell])],
+        ash_out, fuel_out,
+    )
+    return ash
+
+
 def test_diagnostics_publish_existing_intermediates():
     profile = SimpleNamespace(
         epsilon_b=np.array([0.2, 0.1]), u_b=np.array([1.5, 1.2]), d_b=np.array([0.2, 0.05]),
@@ -321,7 +376,9 @@ def test_diagnostics_publish_existing_intermediates():
     assert reported["cells_db_exceeds_d"] == 1
     assert reported["kurkela_bed_m_s"] == 0.74
     assert reported["kurkela_freeboard_m_s"] == 0.67
-    assert len(reported["freeboard_mass_gap_kg_s"]) == 2
+    assert len(reported["fuel_release_mass_gap_kg_s"]) == 2
+    assert reported["freeboard_mass_element_closure"] is None
+    assert "不新增计算" in reported["freeboard_mass_element_closure_note"]
     assert reported["freeboard_closed_form"] is None
     assert "不新增计算" in reported["freeboard_closed_form_note"]
     ratio = bubble_balance_ratio(0.01, 1000.0, 101300.0, reported["visible_bubble_m3_s"][0])
@@ -331,11 +388,14 @@ def test_diagnostics_publish_existing_intermediates():
 def test_campaign_rows_are_wired_and_overlay_changes_the_copy(tmp_path):
     assert [item.name for item in run_specs() if not item.wired] == []
     specs = {item.name: item for item in run_specs()}
-    assert config_for("S3").particle_emissivity == 0.79
+    assert config_for("S3").particle_emissivity_case == "S3"
+    assert config_for("S4").particle_emissivity_case == "S4"
+    assert approved_emissivity(config_for("S3").particle_emissivity_case) == 0.79
     assert config_for("S5").interphase_diffusivity == "fuller_o2_n2"
     assert config_for("S13").hover_closure == "B"
     assert config_for("S14").hover_closure == "C"
-    assert config_for("S15").serio_frequency_per_s == pytest.approx(9.96e2)
+    assert config_for("S15").serio_pair == "second"
+    assert approved_serio(config_for("S15").serio_pair)[0] == pytest.approx(9.96e2)
     assert config_for("baseline").hover_closure == "A"
     dest = tmp_path / "s9.json"
     overlay(_CASE, dest, specs["S9"])

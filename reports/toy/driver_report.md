@@ -107,7 +107,8 @@ S1–S16 都已接线。样例不启动工况进程，表中不列装置结果�
 ## 诊断
 
 每次运行的 JSON `diagnostics` 写入预计算已经算出的量，以及求解后由这些量整理的诊断。
-气泡相总流之比、d_b/D 与 d_b>D 的格数、与 KURKELA 表 5 的气速对照、自由空间元素与质量闭合、悬停焦炭消耗占比，都取自这些中间量。
+气泡相总流之比、d_b/D 与 d_b>D 的格数、与 KURKELA 表 5 的气速对照、悬停焦炭消耗占比，都取自这些中间量。
+燃料释放子系统的 W/P 质量与元素缺口单独列出。全自由空间的气相、焦炭、灰和边界流闭合没有对应中间量，记为未计算。
 数值积分与常气速闭式的比对在求解路径上没有中间量。ADR 0016 第 11 条写明变系数轨迹不用常气速闭式，本项不新增计算，诊断里记为未计算。
 
 构造例不启动工况进程。五项由已有中间量的打包函数算出；闭式比对未计算。
@@ -119,8 +120,10 @@ S1–S16 都已接线。样例不启动工况进程，表中不列装置结果�
 - freeboard_superficial_m_s：0.0501621
 - kurkela_bed_m_s：0.74
 - kurkela_freeboard_m_s：0.67
-- freeboard_mass_gap_kg_s：[1e-06, -2e-06]
-- freeboard_element_gap_kg_s：{'C': [1e-07, 0.0]}
+- fuel_release_mass_gap_kg_s：[1e-06, -2e-06]
+- fuel_release_element_gap_kg_s：{'C': [1e-07, 0.0]}
+- freeboard_mass_element_closure：None
+- freeboard_mass_element_closure_note：现有公开中间量只有燃料释放子系统的 W/P 质量与元素闭合。全自由空间的气相、焦炭、灰和边界流闭合没有对应中间量，本项不新增计算。
 - freeboard_closed_form：None
 - freeboard_closed_form_note：求解路径没有数值积分与常气速闭式的中间量。ADR 0016 第 11 条写明变系数轨迹不用常气速闭式，闭式只在单元测试里对照。本项不新增计算。
 - bubble_balance_over_visible：[0.15482143392870237, 0.3034500105002567]

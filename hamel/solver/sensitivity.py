@@ -20,6 +20,10 @@ _CLOSED_FORM = (
     "求解路径没有数值积分与常气速闭式的中间量。"
     "ADR 0016 第 11 条写明变系数轨迹不用常气速闭式，闭式只在单元测试里对照。本项不新增计算。"
 )
+_FREEBOARD_CLOSURE = (
+    "现有公开中间量只有燃料释放子系统的 W/P 质量与元素闭合。"
+    "全自由空间的气相、焦炭、灰和边界流闭合没有对应中间量，本项不新增计算。"
+)
 
 
 def diameter_at(height_m: float, bed_diameter_m: float, freeboard_diameter_m: float) -> float:
@@ -197,6 +201,21 @@ def _mobile_ash(state, frozen, cell) -> np.ndarray:
     return ash
 
 
+def redirect_feedback(closure: str, redirect) -> tuple[float, float, float]:
+    """本轮改送进入下一轮预计算的三份质量。
+
+    返回床顶回落增量、出口灰、出口燃料。B 把焦炭、灰和燃料加进床层总流递推；
+    C 把灰和燃料记为外部出口。顶格 a^t 与底格 b^t 不在改送量里，这里不再加一次。
+    模型边界选择（敏感性）：ADR 0026 第 6 项、ADR 0038。
+    """
+    char, ash, fuel = float(redirect[0]), float(redirect[1]), float(redirect[2])
+    if closure == "B":
+        return char + ash + fuel, 0.0, 0.0
+    if closure == "C":
+        return 0.0, ash, fuel
+    return 0.0, 0.0, 0.0
+
+
 def visible_bubble_m3_s(epsilon_b, u_b, bed_diameter_m) -> np.ndarray:
     """可见气泡流 ε_b·u_b·床面积。下标 0 是最上层。ADR 0017 第 3 项。"""
     area = math.pi * (0.5 * float(bed_diameter_m)) ** 2
@@ -232,10 +251,12 @@ def pack_reported(profile, flow, case, released) -> dict:
         "freeboard_superficial_m_s": float(free_u),
         "kurkela_bed_m_s": KURKELA_BED_M_S,
         "kurkela_freeboard_m_s": KURKELA_FREEBOARD_M_S,
-        "freeboard_mass_gap_kg_s": np.asarray(released.mass_gap_kg_s[:n_free], dtype=float),
-        "freeboard_element_gap_kg_s": {
+        "fuel_release_mass_gap_kg_s": np.asarray(released.mass_gap_kg_s[:n_free], dtype=float),
+        "fuel_release_element_gap_kg_s": {
             name: np.asarray(values[:n_free], dtype=float) for name, values in released.element_gap_kg_s.items()
         },
+        "freeboard_mass_element_closure": None,
+        "freeboard_mass_element_closure_note": _FREEBOARD_CLOSURE,
         "freeboard_closed_form": None,
         "freeboard_closed_form_note": _CLOSED_FORM,
     }

@@ -16,7 +16,7 @@ from hamel.properties import (
 )
 from hamel.properties.data import GAS_SPECIES, atomic_weight, atoms
 from hamel.solver.frozen import TrialNotEvaluable
-from hamel.solver.sensitivity import bubble_balance_ratio
+from hamel.solver.sensitivity import bubble_balance_ratio, redirect_feedback
 from hamel.solver.gates import (
     OuterMonitor, ResidualBlocks, arrays_allowed, balance_met, block_ratios, inner_met, outer_met,
 )
@@ -108,15 +108,20 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
     config = assembled.solver if config is None else config
     physical = assembled.physical
     n_ref, m_ref, q_ref = _references(physical)
-    holder = {"state": None, "reaction": None, "drain": 0.0, "fuel_return": 0.0, "records": []}
+    holder = {"state": None, "reaction": None, "drain": 0.0, "fuel_return": 0.0, "records": [], "redirect": (0.0, 0.0, 0.0, 0.0)}
 
-    def refresh(x, iteration, consistency):
-        del x
-        result = precalculate(
+    def _precalc(iteration, consistency):
+        bed_return, ash_out, fuel_out = redirect_feedback(config.hover_closure, holder["redirect"])
+        return precalculate(
             path, case_id, holder["state"], reaction_solid_kg_s=holder["reaction"],
             previous_drain_kg_s=holder["drain"], previous_fuel_return_kg_s=holder["fuel_return"],
             adiabatic=adiabatic, iteration=iteration, consistency=consistency, solver=config,
+            redirected_return_kg_s=bed_return, redirected_ash_out_kg_s=ash_out, redirected_fuel_out_kg_s=fuel_out,
         )
+
+    def refresh(x, iteration, consistency):
+        del x
+        result = _precalc(iteration, consistency)
         holder["drain"] = float(result.frozen.drain_ash_kg_s + result.frozen.drain_char_kg_s.sum())
         holder["fuel_return"] = float(result.frozen.fuel_down_free_kg_s[-1].sum())
         holder["records"].append(result)
@@ -143,11 +148,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
     def consistent(values, iteration):
         state = unpack_state(values, holder["records"][-1].frozen)
         holder["state"] = state
-        result = precalculate(
-            path, case_id, state, reaction_solid_kg_s=holder["reaction"],
-            previous_drain_kg_s=holder["drain"], previous_fuel_return_kg_s=holder["fuel_return"],
-            adiabatic=adiabatic, iteration=iteration, consistency=True, solver=config,
-        )
+        result = _precalc(iteration, True)
         residual = evaluate_residual(pack_state(state, result.frozen), result.frozen)
         holder["redirect"] = _redirect_tuple(residual)
         holder["assembly"] = residual
