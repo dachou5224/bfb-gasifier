@@ -101,6 +101,10 @@ class FrozenQuantities:
     particle_max_iterations: int
     coupling_tolerance_k: float
     coupling_max_iterations: int
+    particle_emissivity: float = 0.85
+    hover_closure: str = "A"
+    serio_frequency_per_s: float = 5.42e4
+    serio_activation_j_mol: float = 100.5e3
     def __post_init__(self) -> None:
         n_bed = len(np.asarray(self.bed_pressure_pa))
         n_free = len(np.asarray(self.freeboard_pressure_pa))
@@ -173,8 +177,25 @@ class FrozenQuantities:
             raise AssemblyError("粒径必须严格从小到大")
         if self.m_dot_ab_kg_s[-1] != 0.0:
             raise AssemblyError("床区最下层没有更下方的格子，向下总流必须为 0")
+        if self.hover_closure not in {"A", "B", "C"}:
+            raise AssemblyError("悬停闭合只能是 A、B 或 C")
+        emissivity = float(self.particle_emissivity)
+        if not np.isfinite(emissivity) or not 0.0 < emissivity <= 1.0:
+            raise AssemblyError("ε_P 必须在 (0, 1] 内")
+        object.__setattr__(self, "particle_emissivity", emissivity)
+        for name in ("serio_frequency_per_s", "serio_activation_j_mol"):
+            number = float(getattr(self, name))
+            if not np.isfinite(number) or number <= 0.0:
+                raise AssemblyError(f"{name} 必须是有限正数")
+            object.__setattr__(self, name, number)
     def _check_states(self) -> None:
-        if np.any(self.free_absent & ~self.hover):
+        if self.hover_closure != "A":
+            # 模型边界选择（敏感性）：ADR 0026 第 6 项、ADR 0038
+            if np.any(self.hover):
+                raise AssemblyError("B 或 C 不设悬停状态")
+            if np.any(self.char_gen_hover_kg_s != 0.0) or np.any(self.ash_gen_hover_kg_s != 0.0):
+                raise AssemblyError("B 或 C 不能向悬停状态给生成量")
+        elif np.any(self.free_absent & ~self.hover):
             raise AssemblyError("自由状态不存在的格子必须设有悬停状态")
         if np.any(self.char_gen_free_kg_s[self.free_absent] != 0.0) or np.any(self.ash_gen_free_kg_s[self.free_absent] != 0.0):
             raise AssemblyError("自由状态不存在时不能向该状态给生成量")
@@ -184,7 +205,7 @@ class FrozenQuantities:
             raise AssemblyError("θ 只能是 0 或 1")
         if np.any(self.free_absent & (self.theta != 1.0)):
             raise AssemblyError("自由状态不存在时 θ 必须为 1")
-        if np.any(~self.hover & (self.theta != 0.0)):
+        if self.hover_closure == "A" and np.any(~self.hover & (self.theta != 0.0)):
             raise AssemblyError("没有悬停状态时 θ 必须为 0")
         if np.any(np.abs(self.ejection_to_free + self.ejection_to_hover - 1.0) > 1.0e-12):
             raise AssemblyError("床面抛出进入自由与悬停的份额之和必须为 1")

@@ -23,9 +23,9 @@ from hamel.properties.data import atomic_weight, atoms
 from hamel.properties.transport import mixture_thermal_conductivity_w_m_k, mixture_viscosity_pa_s
 from hamel.pyrolysis import heat_transfer_coefficient
 from hamel.solver.frozen import AssemblyError, FreeboardDomainError, FrozenQuantities, TrialNotEvaluable
+from hamel.solver.sensitivity import diameter_at, redirect_ledger, section_volume_m3, section_wall_m2
 from hamel.solver.vector import ReactorState, UnknownSlot, unpack_state, unknown_slots
-# 解释性选择：ADR 0017 第 17 项。外侧温度：ADR 0029。
-_EMISSIVITY = 0.85
+# 外侧温度：ADR 0029。ε_P 在冻结量上，默认 0.85。ADR 0017 第 17 项；ADR 0039。
 _AMBIENT_K = 298.15
 _INDEX = {name: index for index, name in enumerate(GAS_SPECIES)}
 _TARS = ("C6H6", "C10H8")
@@ -47,6 +47,10 @@ class AssemblyResidual:
     ash_gap_kg_s: float
     energy_gap_w: float
     element_gap_kg_s: dict[str, float]
+    redirect_char_kg_s: float = 0.0
+    redirect_ash_kg_s: float = 0.0
+    redirect_fuel_kg_s: float = 0.0
+    redirect_enthalpy_w: float = 0.0
 
 def wall_area_m2(zone: str, balance_index: int, count: int, height_m: float, bed_diameter_m: float, freeboard_diameter_m: float) -> float:
     """侧壁面积。锥段是自由空间最下格。章程 v0.11 §1 例外；ADR 0014 X1；ADR 0029。
@@ -54,12 +58,13 @@ def wall_area_m2(zone: str, balance_index: int, count: int, height_m: float, bed
     """
     if zone == "bed":
         return math.pi * bed_diameter_m * height_m
-    if balance_index == count - 1:
-        radius_bed = 0.5 * bed_diameter_m
-        radius_free = 0.5 * freeboard_diameter_m
-        slant = math.sqrt(height_m**2 + (radius_free - radius_bed) ** 2)
-        return math.pi * (radius_bed + radius_free) * slant
-    return math.pi * freeboard_diameter_m * height_m
+    geometric = count - 1 - balance_index
+    z0 = geometric * height_m
+    d0 = diameter_at(z0, bed_diameter_m, freeboard_diameter_m)
+    d1 = diameter_at(z0 + height_m, bed_diameter_m, freeboard_diameter_m)
+    if d0 == d1:
+        return math.pi * d0 * height_m
+    return section_wall_m2(z0, z0 + height_m, bed_diameter_m, freeboard_diameter_m)
 
 def evaluate_residual(unknown: np.ndarray, frozen: FrozenQuantities) -> AssemblyResidual:
     """返回式 (2.4)–(2.7)。调用方先解包。自由空间出口即体系出口。
@@ -96,6 +101,7 @@ def evaluate_residual(unknown: np.ndarray, frozen: FrozenQuantities) -> Assembly
         context.consumption_free, context.consumption_hover,
         context.migration_free, context.migration_hover,
         gas_gap, char_gap, ash_gap, energy_gap, context.element_gaps(),
+        context.redirect_char, context.redirect_ash, context.redirect_fuel, context.redirect_enthalpy,
     )
 
 class _Context:
@@ -118,6 +124,8 @@ class _Context:
         self.ash_migration_hover = np.zeros((n_free, n_class))
         self.silent_hover = np.ones((n_free, n_class), dtype=bool)
         self._bed_ash_share = _bed_ash_by_class(state.bed_char_kg, m_inert)
+        self.redirect_char = self.redirect_ash = self.redirect_fuel = self.redirect_enthalpy = 0.0
+        self._redirect_cache = None
     def heterogeneous(self) -> None:
         """先算异相。悬停有效域在均相之前判定，避免水蒸气为零时 R8 先抛错。"""
         frozen, state = self.frozen, self.state
@@ -235,6 +243,10 @@ class _Context:
         leaving[-1] = frozen.drain_char_kg_s
         recycle = np.zeros_like(state.bed_char_kg)
         recycle[0] = returning
+        # 模型边界选择（敏感性）：ADR 0026 第 6 项、ADR 0038
+        redirected = self._redirect_mass("char")
+        if frozen.hover_closure == "B":
+            recycle[0] = recycle[0] + redirected
         entered = np.zeros_like(self.migration_bed)
         entered[:, :-1] = self.migration_bed[:, 1:]
         bed = solid_mass_flow_residual(np.zeros_like(state.bed_char_kg), recycle, leaving, frozen.char_gen_bed_kg_s - self.consumption_bed, entered, self.migration_bed, upward, downward)
@@ -250,6 +262,8 @@ class _Context:
                 if frozen.hover[cell, klass]:
                     hover_residual[cell, klass] = inflow_hover + frozen.char_gen_hover_kg_s[cell, klass] - self.consumption_hover[cell, klass] - self.migration_hover[cell, klass] + frozen.theta[cell, klass] * mig_in
         elutriation = (frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]) * state.freeboard_char_free_kg[0]
+        if frozen.hover_closure == "C":
+            elutriation = elutriation + redirected
         char_sum = bed.residual_kg_s.sum() + free_residual.sum() + hover_residual.sum()
         generated = frozen.char_gen_bed_kg_s.sum() + frozen.char_gen_free_kg_s.sum() + frozen.char_gen_hover_kg_s.sum()
         consumed = self.consumption_bed.sum() + self.consumption_free.sum() + self.consumption_hover.sum()
@@ -275,6 +289,12 @@ class _Context:
                         hover_residual[cell, klass] = entering_hover[cell, klass] - self.ash_migration_hover[cell, klass] - self.ash_release_hover[cell, klass]
         returning = (frozen.b_free_per_s[-1] + frozen.b_hover_per_s[-1]) * self._mobile_ash(-1)
         elutriation = (frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]) * self._mobile_ash(0)
+        held = entering_hover - self.ash_migration_hover - self.ash_release_hover
+        redirected = np.zeros(frozen.n_class) if frozen.hover_closure == "A" else held.sum(axis=0)
+        if frozen.hover_closure == "B":
+            returning = returning + redirected
+        elif frozen.hover_closure == "C":
+            elutriation = elutriation + redirected
         bed_gap = float(frozen.ash_gen_bed_kg_s.sum() + returning.sum() - ejection.sum() - frozen.drain_ash_kg_s)
         gap = float(free_residual.sum() + hover_residual.sum() + bed_gap - frozen.ash_gen_free_kg_s.sum() - frozen.ash_gen_hover_kg_s.sum() - frozen.ash_gen_bed_kg_s.sum() + elutriation.sum() + frozen.drain_ash_kg_s)
         return free_residual, hover_residual, gap
@@ -284,6 +304,8 @@ class _Context:
         free_up, free_down, free_ext = self._free_enthalpy()
         bed_ext[0] += free_down[-1]
         free_ext[-1] += bed_up[0]
+        # 模型边界选择（敏感性）：ADR 0026 第 6 项、ADR 0038
+        leaving_redirect = self._apply_redirect(bed_ext, free_ext)
         wall_bed, wall_free = self._wall("bed"), self._wall("freeboard")
         bed = energy_residual(bed_ext, np.zeros(frozen.n_bed), bed_up, bed_down, bed_out, wall_bed, np.zeros(frozen.n_bed))
         free = energy_residual(free_ext, np.zeros(frozen.n_freeboard), free_up, free_down, np.zeros(frozen.n_freeboard), wall_free, np.zeros(frozen.n_freeboard))
@@ -293,7 +315,7 @@ class _Context:
             + _fuel_enthalpy(float(frozen.fuel_feed_kg_s.sum()), frozen.fuel_feed_temperature_k, frozen)
             + _gas_enthalpy(frozen.secondary_feed_mol_s, frozen.secondary_temperature_k)
         )
-        gap = float(bed.residual_w.sum() + free.residual_w.sum() - feeds + free_up[0] + bed_down[-1] + bed_out.sum() + wall_bed.sum() + wall_free.sum())
+        gap = float(bed.residual_w.sum() + free.residual_w.sum() - feeds + free_up[0] + bed_down[-1] + bed_out.sum() + wall_bed.sum() + wall_free.sum() + leaving_redirect)
         return bed.residual_w, free.residual_w, gap
     def _ash_entering(self):
         """灰方程与最小粒级有效域共用的入流。含按状态的热解灰、全部粒级的燃尽释放，以及 m_C ≤ 0 时向 k = 1 的改记。"""
@@ -362,7 +384,12 @@ class _Context:
         for tar in _TARS:
             _apply(gas, "R10", r10_tar_oxidation_rate(c[_INDEX[tar]], c[_INDEX["O2"]], temperature, pressure, volume).extent_mol_s, self.molar, tar=tar)
             if serio:
-                _apply(gas, "R11", r11_serio_rate(c[_INDEX[tar]], temperature, gas_constant_j_mol_k(), volume).extent_mol_s, self.molar, tar=tar)
+                rate = r11_serio_rate(
+                    c[_INDEX[tar]], temperature, gas_constant_j_mol_k(), volume,
+                    frequency_per_s=self.frozen.serio_frequency_per_s,
+                    activation_energy_j_mol=self.frozen.serio_activation_j_mol,
+                )
+                _apply(gas, "R11", rate.extent_mol_s, self.molar, tar=tar)
             if corella:
                 _apply(gas, "R11", r11_corella_rate(c[_INDEX[tar]], temperature, gas_constant_j_mol_k(), catalyst).extent_mol_s, self.molar, tar=tar)
         del fractions
@@ -395,13 +422,15 @@ class _Context:
         frozen = self.frozen
         if frozen.free_absent[cell, klass] and free_in != 0.0:
             raise AssemblyError(f"自由空间格 {cell} 粒级 k={klass + 1} 没有自由状态，却有进入自由状态的通量")
+        if frozen.hover_closure != "A":
+            return
         if not frozen.hover[cell, klass] and hover_in != 0.0:
             raise AssemblyError(f"自由空间格 {cell} 粒级 k={klass + 1} 没有悬停状态，却有进入悬停状态的通量")
     def _deposit(self, entering_free, entering_hover, cell, klass, hover, amount) -> None:
         if amount == 0.0:
             return
         frozen, state = self.frozen, self.state
-        if klass > 0:
+        if klass > 0 and not (hover and frozen.hover_closure != "A"):
             char = state.freeboard_char_hover_kg if hover else state.freeboard_char_free_kg
             if char[cell, klass] <= 0.0:
                 self._deposit(entering_free, entering_hover, cell, 0, frozen.free_absent[cell, 0], amount)
@@ -434,6 +463,43 @@ class _Context:
         for cell in range(frozen.n_freeboard):
             if frozen.hover[cell, 0] and entering_hover[cell, 0] > 0.0:
                 raise FreeboardDomainError(f"最小粒级在自由空间格 {cell} 被捕获，且有灰流入悬停状态")
+    def _items(self):
+        if self._redirect_cache is not None:
+            return self._redirect_cache
+        frozen = self.frozen
+        if frozen.hover_closure == "A":
+            self._redirect_cache = ()
+            return self._redirect_cache
+        items = redirect_ledger(
+            frozen, self.state, self.migration_free, self.migration_hover,
+            self.ash_migration_free, self.ash_migration_hover, self._bed_ash_share,
+            self.ash_release_free, self.ash_release_hover,
+        )
+        self._redirect_cache = items
+        self.redirect_char = float(sum(item["char"] for item in items))
+        self.redirect_ash = float(sum(item["ash"] for item in items))
+        self.redirect_fuel = float(sum(item["fuel"] for item in items))
+        self.redirect_enthalpy = float(sum(item["enthalpy"] for item in items))
+        return items
+    def _redirect_mass(self, key: str) -> np.ndarray:
+        total = np.zeros(self.frozen.n_class)
+        for item in self._items():
+            total[item["klass"]] += item[key]
+        return total
+    def _apply_redirect(self, bed_ext, free_ext) -> float:
+        items = self._items()
+        if not items:
+            return 0.0
+        for item in items:
+            zone, index = item["undo"]
+            if zone == "free":
+                free_ext[index] -= item["enthalpy"]
+            else:
+                bed_ext[index] -= item["enthalpy"]
+        if self.frozen.hover_closure == "B":
+            bed_ext[0] += self.redirect_enthalpy
+            return 0.0
+        return self.redirect_enthalpy
     def _wall(self, zone: str) -> np.ndarray:
         frozen, state = self.frozen, self.state
         count = frozen.n_bed if zone == "bed" else frozen.n_freeboard
@@ -534,7 +600,7 @@ def _particle_k(diameter, temperature, pressure, velocity, concentration, fracti
         enthalpy = _r1_enthalpy(phi, guess)
         updated = particle_temperature(
             diameter, diameter, guess, guess, temperature, concentration[_INDEX["O2"]], pressure, velocity,
-            viscosity, density, enthalpy, alpha, _EMISSIVITY, stefan_boltzmann_w_m2_k4(), guess,
+            viscosity, density, enthalpy, alpha, frozen.particle_emissivity, stefan_boltzmann_w_m2_k4(), guess,
             frozen.particle_tolerance_w, frozen.particle_max_iterations,
         )
         if abs(updated - guess) <= frozen.coupling_tolerance_k:
@@ -554,11 +620,14 @@ def _particle_masses(frozen: FrozenQuantities) -> np.ndarray:
 def _cell_volume_m3(zone: str, balance: int, frozen: FrozenQuantities) -> float:
     if zone == "bed":
         return math.pi * (0.5 * frozen.bed_diameter_m) ** 2 * frozen.bed_height_m
-    if balance == frozen.n_freeboard - 1:
-        radius_bed = 0.5 * frozen.bed_diameter_m
-        radius_free = 0.5 * frozen.freeboard_diameter_m
-        return math.pi * frozen.freeboard_height_m * (radius_bed**2 + radius_bed * radius_free + radius_free**2) / 3.0
-    return math.pi * (0.5 * frozen.freeboard_diameter_m) ** 2 * frozen.freeboard_height_m
+    height = frozen.freeboard_height_m
+    geometric = frozen.n_freeboard - 1 - balance
+    z0 = geometric * height
+    d0 = diameter_at(z0, frozen.bed_diameter_m, frozen.freeboard_diameter_m)
+    d1 = diameter_at(z0 + height, frozen.bed_diameter_m, frozen.freeboard_diameter_m)
+    if d0 == d1:
+        return math.pi * (0.5 * d0) ** 2 * height
+    return section_volume_m3(z0, z0 + height, frozen.bed_diameter_m, frozen.freeboard_diameter_m)
 
 def _require_temperature(state: ReactorState) -> None:
     if np.any(state.bed_temperature_k <= 0.0) or np.any(state.freeboard_temperature_k <= 0.0):

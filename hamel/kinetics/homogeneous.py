@@ -228,10 +228,13 @@ def r11_serio_rate(
     temperature_k: float,
     gas_constant_j_mol_k: float,
     volume_m3: float,
+    *,
+    frequency_per_s: float = 5.42e4,
+    activation_energy_j_mol: float = 100.5e3,
 ) -> ReactionRate:
-    """气泡相焦油二次反应，表 5.4 的 Serio 第一对。一级，乘气体体积。
+    """气泡相焦油二次反应。默认表 5.4 的第一对，调用方可传入同一行的另一对。一级，乘气体体积。
 
-    解释性选择：ADR 0010 第 9 条。第二对不实现。对水没有级数。
+    解释性选择：ADR 0010 第 9 条。对水没有级数。
 
     Source: Hamel Tab.5.4, S. 97
     """
@@ -239,10 +242,12 @@ def r11_serio_rate(
     temperature = _positive("temperature_k", temperature_k)
     gas_constant = _positive("gas_constant_j_mol_k", gas_constant_j_mol_k)
     volume = _finite("volume_m3", volume_m3)
+    frequency = _positive("frequency_per_s", frequency_per_s)
+    activation = _positive("activation_energy_j_mol", activation_energy_j_mol)
     coefficient = arrhenius_rate_constant(
-        5.42e4,
+        frequency,
         temperature,
-        activation_energy_j_mol=100.5e3,
+        activation_energy_j_mol=activation,
         gas_constant_j_mol_k=gas_constant,
     )
     return _extent(coefficient * tar, volume)

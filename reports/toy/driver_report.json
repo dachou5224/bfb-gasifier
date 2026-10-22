@@ -151,8 +151,8 @@
       "source": "ADR 0030",
       "status": "CONVERGED",
       "reason": "",
-      "rounds": 2,
-      "iterations": 1,
+      "rounds": 0,
+      "iterations": 0,
       "ratios": {
         "gas": 0.0,
         "solid": 0.0,
@@ -165,9 +165,7 @@
           "H": 0.0,
           "O": 0.0,
           "energy": 0.0
-        },
-        "k_w": 0.0,
-        "heat_w": 0.0
+        }
       },
       "nonnegative": true,
       "measurements": {
@@ -180,25 +178,44 @@
         "H2O": 0.1
       },
       "diagnostics": {
-        "rounds": [
-          {
-            "round": 1,
-            "inner": "CONVERGED",
-            "reason": "",
-            "info": {
-              "round": 1
-            }
+        "note": "构造例，不是第 1 关的解",
+        "sensitivity": {
+          "visible_bubble_m3_s": [
+            0.005301437602932777,
+            0.0021205750411731105
+          ],
+          "bubble_diameter_over_bed": [
+            1.3333333333333335,
+            0.33333333333333337
+          ],
+          "cells_db_exceeds_d": 1,
+          "bed_superficial_m_s": [
+            0.8,
+            0.7
+          ],
+          "freeboard_superficial_m_s": 0.05016214459289958,
+          "kurkela_bed_m_s": 0.74,
+          "kurkela_freeboard_m_s": 0.67,
+          "fuel_release_mass_gap_kg_s": [
+            1e-06,
+            -2e-06
+          ],
+          "fuel_release_element_gap_kg_s": {
+            "C": [
+              1e-07,
+              0.0
+            ]
           },
-          {
-            "round": 2,
-            "inner": "CONVERGED",
-            "reason": "",
-            "info": {
-              "round": 2
-            }
-          }
-        ],
-        "note": "玩具没有装置预计算，诊断字段为空"
+          "freeboard_mass_element_closure": null,
+          "freeboard_mass_element_closure_note": "现有公开中间量只有燃料释放子系统的 W/P 质量与元素闭合。全自由空间的气相、焦炭、灰和边界流闭合没有对应中间量，本项不新增计算。",
+          "freeboard_closed_form": null,
+          "freeboard_closed_form_note": "求解路径没有数值积分与常气速闭式的中间量。ADR 0016 第 11 条写明变系数轨迹不用常气速闭式，闭式只在单元测试里对照。本项不新增计算。",
+          "bubble_balance_over_visible": [
+            0.15482143392870237,
+            0.3034500105002567
+          ],
+          "hover_char_consumption_fraction": 0.1111111111111111
+        }
       },
       "acceptance": {
         "status": "不通过",
@@ -250,11 +267,135 @@
       }
     },
     {
+      "name": "S1",
+      "change": "k_W = 0，初值不扣除壁面散热",
+      "source": "ADR 0030 F19；ADR 0029",
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "measurements": null,
+      "balance": null,
+      "nonnegative": null,
+      "ratios": {},
+      "diagnostics": {},
+      "rounds": 0,
+      "iterations": 0,
+      "acceptance": {
+        "status": "不通过",
+        "premises_met": false,
+        "quantities": [
+          {
+            "quantity": "T_FRB_K",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "X_C",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CH4",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2O",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "S2",
+      "change": "第二块布风板 n_0 = 95.6",
+      "source": "ADR 0019",
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "measurements": null,
+      "balance": null,
+      "nonnegative": null,
+      "ratios": {},
+      "diagnostics": {},
+      "rounds": 0,
+      "iterations": 0,
+      "acceptance": {
+        "status": "不通过",
+        "premises_met": false,
+        "quantities": [
+          {
+            "quantity": "T_FRB_K",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "X_C",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CH4",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2O",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          }
+        ]
+      }
+    },
+    {
       "name": "S3",
       "change": "ε_P = 0.79",
       "source": "ADR 0017 第 17 项",
-      "status": "NOT_APPLIED",
-      "reason": "ε_P 写在残差模块的常数里，evaluate_residual 没有这个参数",
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
       "measurements": null,
       "balance": null,
       "nonnegative": null,
@@ -315,8 +456,8 @@
       "name": "S4",
       "change": "ε_P = 0.91",
       "source": "ADR 0017 第 17 项",
-      "status": "NOT_APPLIED",
-      "reason": "ε_P 写在残差模块的常数里，evaluate_residual 没有这个参数",
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
       "measurements": null,
       "balance": null,
       "nonnegative": null,
@@ -377,8 +518,194 @@
       "name": "S5",
       "change": "D_g 改为 O2–N2 的 Fuller 二元值",
       "source": "ADR 0021 第 4 项",
-      "status": "NOT_APPLIED",
-      "reason": "预计算只调用式 (5.20) 的相间扩散，没有 Fuller 二元扩散的参数",
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "measurements": null,
+      "balance": null,
+      "nonnegative": null,
+      "ratios": {},
+      "diagnostics": {},
+      "rounds": 0,
+      "iterations": 0,
+      "acceptance": {
+        "status": "不通过",
+        "premises_met": false,
+        "quantities": [
+          {
+            "quantity": "T_FRB_K",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "X_C",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CH4",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2O",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "S6",
+      "change": "七个粒级改用 ADR 0023 的算术平均径",
+      "source": "ADR 0023；ADR 0030",
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "measurements": null,
+      "balance": null,
+      "nonnegative": null,
+      "ratios": {},
+      "diagnostics": {},
+      "rounds": 0,
+      "iterations": 0,
+      "acceptance": {
+        "status": "不通过",
+        "premises_met": false,
+        "quantities": [
+          {
+            "quantity": "T_FRB_K",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "X_C",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CH4",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2O",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "S7",
+      "change": "最细档代表径改为 0.0328 mm",
+      "source": "ADR 0023",
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "measurements": null,
+      "balance": null,
+      "nonnegative": null,
+      "ratios": {},
+      "diagnostics": {},
+      "rounds": 0,
+      "iterations": 0,
+      "acceptance": {
+        "status": "不通过",
+        "premises_met": false,
+        "quantities": [
+          {
+            "quantity": "T_FRB_K",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "X_C",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CH4",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2O",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "S8",
+      "change": "最细档代表径改为 0.0753 mm",
+      "source": "ADR 0023",
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
       "measurements": null,
       "balance": null,
       "nonnegative": null,
@@ -439,8 +766,8 @@
       "name": "S9",
       "change": "ε_mf = 0.40，φ_S = 0.6",
       "source": "ADR 0024",
-      "status": "NOT_APPLIED",
-      "reason": "ε_mf 与 φ_S 是预计算模块的常数，不作为参数",
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
       "measurements": null,
       "balance": null,
       "nonnegative": null,
@@ -501,8 +828,8 @@
       "name": "S10",
       "change": "ε_mf = 0.40，φ_S = 0.9",
       "source": "ADR 0024",
-      "status": "NOT_APPLIED",
-      "reason": "ε_mf 与 φ_S 是预计算模块的常数，不作为参数",
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
       "measurements": null,
       "balance": null,
       "nonnegative": null,
@@ -563,8 +890,8 @@
       "name": "S11",
       "change": "ε_mf = 0.55，φ_S = 0.6",
       "source": "ADR 0024",
-      "status": "NOT_APPLIED",
-      "reason": "ε_mf 与 φ_S 是预计算模块的常数，不作为参数",
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
       "measurements": null,
       "balance": null,
       "nonnegative": null,
@@ -625,8 +952,8 @@
       "name": "S12",
       "change": "ε_mf = 0.55，φ_S = 0.9",
       "source": "ADR 0024",
-      "status": "NOT_APPLIED",
-      "reason": "ε_mf 与 φ_S 是预计算模块的常数，不作为参数",
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
       "measurements": null,
       "balance": null,
       "nonnegative": null,
@@ -686,9 +1013,9 @@
     {
       "name": "S13",
       "change": "悬停样本计为床面回落",
-      "source": "ADR 0026 第 6 项",
-      "status": "NOT_APPLIED",
-      "reason": "悬停样本改记床面回落要改自由空间记账，预计算没有这个参数",
+      "source": "ADR 0026 第 6 项；ADR 0038",
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
       "measurements": null,
       "balance": null,
       "nonnegative": null,
@@ -748,9 +1075,9 @@
     {
       "name": "S14",
       "change": "悬停样本计为出口带出",
-      "source": "ADR 0026 第 6 项",
-      "status": "NOT_APPLIED",
-      "reason": "悬停样本改记出口带出要改自由空间记账，预计算没有这个参数",
+      "source": "ADR 0026 第 6 项；ADR 0038",
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
       "measurements": null,
       "balance": null,
       "nonnegative": null,
@@ -811,8 +1138,8 @@
       "name": "S15",
       "change": "Serio 第二对参数",
       "source": "ADR 0013 第 4 项",
-      "status": "NOT_APPLIED",
-      "reason": "Serio 第二对没有实现，r11_serio_rate 不接收另一组参数",
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
       "measurements": null,
       "balance": null,
       "nonnegative": null,
@@ -873,8 +1200,8 @@
       "name": "S16",
       "change": "cell 数加倍",
       "source": "ADR 0013 第 7 项",
-      "status": "NOT_APPLIED",
-      "reason": "二次风固定在自由空间几何下标 1。格子加倍后 1.4875 m 不再落在该格，要改 T25a 的下标",
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
       "measurements": null,
       "balance": null,
       "nonnegative": null,
@@ -934,70 +1261,100 @@
   ],
   "differences": [
     {
-      "name": "S3",
-      "status": "NOT_APPLIED",
+      "name": "S1",
+      "status": "WIRED",
       "delta": {},
-      "reason": "ε_P 写在残差模块的常数里，evaluate_residual 没有这个参数"
+      "reason": "已接线。样例不启动工况进程，不列装置结果。"
+    },
+    {
+      "name": "S2",
+      "status": "WIRED",
+      "delta": {},
+      "reason": "已接线。样例不启动工况进程，不列装置结果。"
+    },
+    {
+      "name": "S3",
+      "status": "WIRED",
+      "delta": {},
+      "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S4",
-      "status": "NOT_APPLIED",
+      "status": "WIRED",
       "delta": {},
-      "reason": "ε_P 写在残差模块的常数里，evaluate_residual 没有这个参数"
+      "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S5",
-      "status": "NOT_APPLIED",
+      "status": "WIRED",
       "delta": {},
-      "reason": "预计算只调用式 (5.20) 的相间扩散，没有 Fuller 二元扩散的参数"
+      "reason": "已接线。样例不启动工况进程，不列装置结果。"
+    },
+    {
+      "name": "S6",
+      "status": "WIRED",
+      "delta": {},
+      "reason": "已接线。样例不启动工况进程，不列装置结果。"
+    },
+    {
+      "name": "S7",
+      "status": "WIRED",
+      "delta": {},
+      "reason": "已接线。样例不启动工况进程，不列装置结果。"
+    },
+    {
+      "name": "S8",
+      "status": "WIRED",
+      "delta": {},
+      "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S9",
-      "status": "NOT_APPLIED",
+      "status": "WIRED",
       "delta": {},
-      "reason": "ε_mf 与 φ_S 是预计算模块的常数，不作为参数"
+      "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S10",
-      "status": "NOT_APPLIED",
+      "status": "WIRED",
       "delta": {},
-      "reason": "ε_mf 与 φ_S 是预计算模块的常数，不作为参数"
+      "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S11",
-      "status": "NOT_APPLIED",
+      "status": "WIRED",
       "delta": {},
-      "reason": "ε_mf 与 φ_S 是预计算模块的常数，不作为参数"
+      "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S12",
-      "status": "NOT_APPLIED",
+      "status": "WIRED",
       "delta": {},
-      "reason": "ε_mf 与 φ_S 是预计算模块的常数，不作为参数"
+      "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S13",
-      "status": "NOT_APPLIED",
+      "status": "WIRED",
       "delta": {},
-      "reason": "悬停样本改记床面回落要改自由空间记账，预计算没有这个参数"
+      "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S14",
-      "status": "NOT_APPLIED",
+      "status": "WIRED",
       "delta": {},
-      "reason": "悬停样本改记出口带出要改自由空间记账，预计算没有这个参数"
+      "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S15",
-      "status": "NOT_APPLIED",
+      "status": "WIRED",
       "delta": {},
-      "reason": "Serio 第二对没有实现，r11_serio_rate 不接收另一组参数"
+      "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S16",
-      "status": "NOT_APPLIED",
+      "status": "WIRED",
       "delta": {},
-      "reason": "二次风固定在自由空间几何下标 1。格子加倍后 1.4875 m 不再落在该格，要改 T25a 的下标"
+      "reason": "已接线。样例不启动工况进程，不列装置结果。"
     }
   ]
 }

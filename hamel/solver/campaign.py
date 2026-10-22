@@ -8,7 +8,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from hamel.cases.config import SolverConfig
@@ -21,21 +21,23 @@ _ROWS = (
     ("baseline", "不改冻结项", "ADR 0030", True, ""),
     ("S1", "k_W = 0，初值不扣除壁面散热", "ADR 0030 F19；ADR 0029", True, ""),
     ("S2", "第二块布风板 n_0 = 95.6", "ADR 0019", True, ""),
-    ("S3", "ε_P = 0.79", "ADR 0017 第 17 项", False, "ε_P 写在残差模块的常数里，evaluate_residual 没有这个参数"),
-    ("S4", "ε_P = 0.91", "ADR 0017 第 17 项", False, "ε_P 写在残差模块的常数里，evaluate_residual 没有这个参数"),
-    ("S5", "D_g 改为 O2–N2 的 Fuller 二元值", "ADR 0021 第 4 项", False, "预计算只调用式 (5.20) 的相间扩散，没有 Fuller 二元扩散的参数"),
+    ("S3", "ε_P = 0.79", "ADR 0017 第 17 项", True, ""),
+    ("S4", "ε_P = 0.91", "ADR 0017 第 17 项", True, ""),
+    ("S5", "D_g 改为 O2–N2 的 Fuller 二元值", "ADR 0021 第 4 项", True, ""),
     ("S6", "七个粒级改用 ADR 0023 的算术平均径", "ADR 0023；ADR 0030", True, ""),
     ("S7", "最细档代表径改为 0.0328 mm", "ADR 0023", True, ""),
     ("S8", "最细档代表径改为 0.0753 mm", "ADR 0023", True, ""),
-    ("S9", "ε_mf = 0.40，φ_S = 0.6", "ADR 0024", False, "ε_mf 与 φ_S 是预计算模块的常数，不作为参数"),
-    ("S10", "ε_mf = 0.40，φ_S = 0.9", "ADR 0024", False, "ε_mf 与 φ_S 是预计算模块的常数，不作为参数"),
-    ("S11", "ε_mf = 0.55，φ_S = 0.6", "ADR 0024", False, "ε_mf 与 φ_S 是预计算模块的常数，不作为参数"),
-    ("S12", "ε_mf = 0.55，φ_S = 0.9", "ADR 0024", False, "ε_mf 与 φ_S 是预计算模块的常数，不作为参数"),
-    ("S13", "悬停样本计为床面回落", "ADR 0026 第 6 项", False, "悬停样本改记床面回落要改自由空间记账，预计算没有这个参数"),
-    ("S14", "悬停样本计为出口带出", "ADR 0026 第 6 项", False, "悬停样本改记出口带出要改自由空间记账，预计算没有这个参数"),
-    ("S15", "Serio 第二对参数", "ADR 0013 第 4 项", False, "Serio 第二对没有实现，r11_serio_rate 不接收另一组参数"),
-    ("S16", "cell 数加倍", "ADR 0013 第 7 项", False, "二次风固定在自由空间几何下标 1。格子加倍后 1.4875 m 不再落在该格，要改 T25a 的下标"),
+    ("S9", "ε_mf = 0.40，φ_S = 0.6", "ADR 0024", True, ""),
+    ("S10", "ε_mf = 0.40，φ_S = 0.9", "ADR 0024", True, ""),
+    ("S11", "ε_mf = 0.55，φ_S = 0.6", "ADR 0024", True, ""),
+    ("S12", "ε_mf = 0.55，φ_S = 0.9", "ADR 0024", True, ""),
+    ("S13", "悬停样本计为床面回落", "ADR 0026 第 6 项；ADR 0038", True, ""),
+    ("S14", "悬停样本计为出口带出", "ADR 0026 第 6 项；ADR 0038", True, ""),
+    ("S15", "Serio 第二对参数", "ADR 0013 第 4 项", True, ""),
+    ("S16", "cell 数加倍", "ADR 0013 第 7 项", True, ""),
 )
+
+_BED_PAIRS = {"S9": (0.40, 0.6), "S10": (0.40, 0.9), "S11": (0.55, 0.6), "S12": (0.55, 0.9)}
 
 
 @dataclass(frozen=True)
@@ -67,7 +69,13 @@ def overlay(source, dest, spec: RunSpec) -> bool:
         diameters = list(_locate(doc, "fuel_size_class_diameters")["value"])
         diameters[0] = 3.28e-5 if spec.name == "S7" else 7.53e-5
         _assign(doc, "fuel_size_class_diameters", diameters)
-    else:
+    elif spec.name in _BED_PAIRS:
+        voidage, sphericity = _BED_PAIRS[spec.name]
+        _assign(doc, "bed_minimum_fluidization_voidage", voidage)
+        _assign(doc, "bed_sphericity", sphericity)
+    elif spec.name == "S16":
+        _assign(doc, "cell_heights", [0.075] * 16 + [0.14375] * 16)
+    elif spec.name not in {"S3", "S4", "S5", "S13", "S14", "S15"}:
         raise ValueError(spec.name)
     Path(dest).write_text(json.dumps(doc), encoding="utf-8")
     return False
@@ -122,7 +130,7 @@ def execute(name: str, path: str, adiabatic: bool) -> dict:
     spec = next(item for item in run_specs() if item.name == name)
     end = time.monotonic() + SolverConfig().wall_timeout_s
     try:
-        result = solve_case(path, adiabatic=adiabatic, deadline=lambda: time.monotonic() >= end)
+        result = solve_case(path, adiabatic=adiabatic, deadline=lambda: time.monotonic() >= end, config=config_for(name))
     except SolveTimeout:
         result = SolveResult("TIMEOUT", "运行超过墙钟上限")
     return convert({
@@ -139,6 +147,24 @@ def _absent(spec: RunSpec, status: str = "NOT_APPLIED", reason: str | None = Non
         "reason": spec.reason if reason is None else reason, "measurements": None, "balance": None,
         "nonnegative": None, "ratios": {}, "diagnostics": {}, "rounds": 0, "iterations": 0,
     }
+
+
+def config_for(name: str) -> SolverConfig:
+    """敏感性只改这份副本。默认字段等于冻结值。"""
+    base = SolverConfig()
+    if name == "S3":
+        return replace(base, particle_emissivity_case="S3")
+    if name == "S4":
+        return replace(base, particle_emissivity_case="S4")
+    if name == "S5":
+        return replace(base, interphase_diffusivity="fuller_o2_n2")
+    if name == "S13":
+        return replace(base, hover_closure="B")
+    if name == "S14":
+        return replace(base, hover_closure="C")
+    if name == "S15":
+        return replace(base, serio_pair="second")
+    return base
 
 
 def _assign(doc, name, value) -> None:

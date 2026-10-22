@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from hamel.cases.assemble import assemble_case
+from hamel.cases.config import SolverConfig
 from hamel.cases.balance import ElementStream, external_balance
 from hamel.properties import (
     ash_specific_heat_j_per_kg_k, char_specific_enthalpy_j_per_kg,
@@ -15,6 +16,7 @@ from hamel.properties import (
 )
 from hamel.properties.data import GAS_SPECIES, atomic_weight, atoms
 from hamel.solver.frozen import TrialNotEvaluable
+from hamel.solver.sensitivity import bubble_balance_ratio, redirect_feedback
 from hamel.solver.gates import (
     OuterMonitor, ResidualBlocks, arrays_allowed, balance_met, block_ratios, inner_met, outer_met,
 )
@@ -97,21 +99,29 @@ def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, 
     return SolveResult("NOT_CONVERGED", "外层超过 outer_round_limit", int(config.outer_round_limit), iterations, diagnostics=diagnostics, x=x)
 
 
-def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=None) -> SolveResult:
-    """第 1 关入口。绝热对照传 adiabatic=True：k_W = 0，初值不扣散热。"""
+def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=None, config: SolverConfig | None = None) -> SolveResult:
+    """第 1 关入口。绝热对照传 adiabatic=True：k_W = 0，初值不扣散热。
+
+    config 是 SolverConfig 副本。缺省时用工况装配的默认配置。
+    """
     assembled = assemble_case(path, case_id)
-    config = assembled.solver
+    config = assembled.solver if config is None else config
     physical = assembled.physical
     n_ref, m_ref, q_ref = _references(physical)
-    holder = {"state": None, "reaction": None, "drain": 0.0, "fuel_return": 0.0, "records": []}
+    holder = {"state": None, "reaction": None, "drain": 0.0, "fuel_return": 0.0, "records": [], "redirect": (0.0, 0.0, 0.0, 0.0)}
+
+    def _precalc(iteration, consistency):
+        bed_return, ash_out, fuel_out = redirect_feedback(config.hover_closure, holder["redirect"])
+        return precalculate(
+            path, case_id, holder["state"], reaction_solid_kg_s=holder["reaction"],
+            previous_drain_kg_s=holder["drain"], previous_fuel_return_kg_s=holder["fuel_return"],
+            adiabatic=adiabatic, iteration=iteration, consistency=consistency, solver=config,
+            redirected_return_kg_s=bed_return, redirected_ash_out_kg_s=ash_out, redirected_fuel_out_kg_s=fuel_out,
+        )
 
     def refresh(x, iteration, consistency):
         del x
-        result = precalculate(
-            path, case_id, holder["state"], reaction_solid_kg_s=holder["reaction"],
-            previous_drain_kg_s=holder["drain"], previous_fuel_return_kg_s=holder["fuel_return"],
-            adiabatic=adiabatic, iteration=iteration, consistency=consistency,
-        )
+        result = _precalc(iteration, consistency)
         holder["drain"] = float(result.frozen.drain_ash_kg_s + result.frozen.drain_char_kg_s.sum())
         holder["fuel_return"] = float(result.frozen.fuel_down_free_kg_s[-1].sum())
         holder["records"].append(result)
@@ -132,17 +142,16 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         holder["state"] = state
         assembly = evaluate_residual(values, frozen)
         holder["reaction"] = -assembly.char_consumption_bed_kg_s.sum(axis=1)
+        holder["redirect"] = _redirect_tuple(assembly)
         return _monitor(state, frozen)
 
     def consistent(values, iteration):
         state = unpack_state(values, holder["records"][-1].frozen)
         holder["state"] = state
-        result = precalculate(
-            path, case_id, state, reaction_solid_kg_s=holder["reaction"],
-            previous_drain_kg_s=holder["drain"], previous_fuel_return_kg_s=holder["fuel_return"],
-            adiabatic=adiabatic, iteration=iteration, consistency=True,
-        )
+        result = _precalc(iteration, True)
         residual = evaluate_residual(pack_state(state, result.frozen), result.frozen)
+        holder["redirect"] = _redirect_tuple(residual)
+        holder["assembly"] = residual
         holder["final"] = result
         holder["state"] = state
         return _Checked(residual.values, _blocks(result.frozen, n_ref, m_ref, q_ref), _info(result))
@@ -155,7 +164,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
     result = holder["final"]
     state = holder["state"]
     heat = _wall_heat(state, result.frozen)
-    gap_in, gap_out, inlet_mol = _streams(state, result.frozen, physical)
+    gap_in, gap_out, inlet_mol = _streams(state, result.frozen, physical, holder.get("redirect"))
     gap = external_balance(gap_in, gap_out)
     outcome.balance = balance_met(gap, inlet_mol, heat, q_ref, config.element_balance_tolerance, config.energy_balance_tolerance)
     outcome.balance["heat_w"] = heat
@@ -166,7 +175,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
     bottom = abs(float(result.bottom_residual_kg_s)) / m_ref
     outcome.nonnegative = _nonnegative(state, result.frozen) and bottom <= config.residual_tolerance and np.all(result.frozen.m_dot_ab_kg_s >= 0.0)
     outcome.diagnostics["bottom_relative"] = bottom
-    outcome.diagnostics["final"] = _info(result)
+    outcome.diagnostics["final"] = _with_sensitivity(_info(result), state, result.frozen, holder["assembly"])
     outcome.measurements = _measurements(state, physical)
     heat_ok = adiabatic or (outcome.balance["heat_relative"] is not None and outcome.balance["heat_relative"] <= _WALL_RELATIVE)
     if not outcome.balance["ok"] or not outcome.nonnegative or not heat_ok:
@@ -285,7 +294,12 @@ def _measurements(state, physical) -> dict:
     return named
 
 
-def _streams(state, frozen, physical):
+def _redirect_tuple(assembly) -> tuple:
+    return (
+        float(assembly.redirect_char_kg_s), float(assembly.redirect_ash_kg_s),
+        float(assembly.redirect_fuel_kg_s), float(assembly.redirect_enthalpy_w),
+    )
+def _streams(state, frozen, physical, redirect=None):
     inlet = {name: 0.0 for name in ("C", "H", "O")}
     fuel_mass = float(frozen.fuel_feed_kg_s.sum())
     per_kg = _fuel_moles(physical, 1.0)
@@ -314,6 +328,12 @@ def _streams(state, frozen, physical):
     outlet_h += char_drain * char_specific_enthalpy_j_per_kg(bottom)
     outlet_h += float(frozen.drain_ash_kg_s) * ash_specific_heat_j_per_kg_k() * (bottom - _AMBIENT_K)
     outlet_h += _fuel_enthalpy(float(frozen.fuel_exit_bed_kg_s.sum()), bottom, frozen)
+    if frozen.hover_closure == "C" and redirect is not None:
+        char_mass, _ash_mass, fuel_mass, enthalpy = redirect
+        outlet["C"] += char_mass / (atomic_weight("C") * 1.0e-3)
+        for index, name in enumerate(("C", "H", "O")):
+            outlet[name] += per_kg[index] * fuel_mass
+        outlet_h += enthalpy
     return (
         [ElementStream(inlet, inlet_h)], [ElementStream(outlet, outlet_h)],
         (inlet["C"], inlet["H"], inlet["O"]),
@@ -361,6 +381,29 @@ def _info(result) -> dict:
     )
     info = {name: getattr(result, name) for name in names}
     info.update({name: getattr(frozen, name) for name in copied})
+    info["sensitivity"] = result.reported
+    return info
+
+
+def _with_sensitivity(info, state, frozen, assembly) -> dict:
+    reported = dict(info.get("sensitivity") or {})
+    visible = reported.get("visible_bubble_m3_s")
+    if visible is not None:
+        reported["bubble_balance_over_visible"] = [
+            bubble_balance_ratio(
+                float(state.bed_gas_mol_s[cell, 1].sum()), float(state.bed_temperature_k[cell]),
+                float(frozen.bed_pressure_pa[cell]), float(visible[cell]),
+            )
+            for cell in range(frozen.n_bed)
+        ]
+    consumed = float(
+        assembly.char_consumption_bed_kg_s.sum()
+        + assembly.char_consumption_free_kg_s.sum()
+        + assembly.char_consumption_hover_kg_s.sum()
+    )
+    hover = float(assembly.char_consumption_hover_kg_s.sum())
+    reported["hover_char_consumption_fraction"] = 0.0 if consumed == 0.0 else hover / consumed
+    info["sensitivity"] = reported
     return info
 
 
