@@ -2,7 +2,7 @@
 解释性选择：ADR 0017 第 2、9、10 项。不在这里做牛顿迭代。
 """
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import numpy as np
 from hamel.cases.assemble import assemble_case, load_case_file, resolve_case_key
 from hamel.freeboard import FreeboardError, terminal_settling_velocity
@@ -11,22 +11,25 @@ from hamel.freeboard.ejection import ejection_mass_flow, ejection_velocity_sampl
 from hamel.freeboard.transport import ghost_bubble_velocity
 from hamel.hydrodynamics.bed import (
     BedConditions, HydroSearch, HydrodynamicsError, bed_profile, bed_upflow, geldart_group,
-    minimum_fluidization_velocity, particle_density_from_bed_mass,
+    local_bed_state, minimum_fluidization_velocity, particle_density_from_bed_mass,
     state_at_height, suspension_superficial_velocity,
 )
-from hamel.properties.data import GAS_SPECIES, PropertyError, atomic_weight, atoms, gas_constant_j_mol_k, molar_mass_kg_mol
+from hamel.properties.data import (
+    GAS_SPECIES, PropertyError, atomic_weight, atoms, gas_constant_j_mol_k, molar_mass_g_mol, molar_mass_kg_mol,
+)
 from hamel.properties.equilibrium import adiabatic_gas_equilibrium
 from hamel.properties.thermo import (
     density_kg_m3, enthalpy_j_mol, fuel_formation_enthalpy_j_per_kg, mixture_enthalpy_j, volume_flow_m3_s,
 )
-from hamel.properties.transport import interphase_diffusivity_m2_s, mixture_viscosity_pa_s
+from hamel.properties.transport import fuller_binary_diffusivity_m2_s, fuller_volume, interphase_diffusivity_m2_s, mixture_viscosity_pa_s
 from hamel.pyrolysis.particle import PyrolysisError, lignite_particle_properties, particle_release_times
 from hamel.pyrolysis.release import FuelTransport, release_distribution
 from hamel.pyrolysis.yields import PYROLYSIS_GAS_SPECIES, lignite_yields, path_yields
-from hamel.solver.frozen import FrozenQuantities
+from hamel.solver.frozen import AssemblyError, FrozenQuantities
 from hamel.solver.residual import wall_area_m2
-from hamel.solver.vector import ReactorState, secondary_air_balance_index
-# ADR 0024 第 2、3 项。不作为可切换参数。
+from hamel.solver.sensitivity import diameter_at, edge_diameters, interface_balance_index, pack_reported, section_volume_m3
+from hamel.solver.vector import ReactorState
+# ADR 0024。工况文件缺省时回退到这两个冻结值。
 EPSILON_MF = 0.46
 PHI_S = 0.8
 # ADR 0029：环境温度。壁面热损本身从工况文件读取。
@@ -61,6 +64,7 @@ class PrecalcResult:
     bed_intervals: int
     substep_history: tuple
     delta_notes: tuple
+    reported: dict
 def require_geldart_b(surface_volume_diameter_m: float, rho_s_kg_m3: float, rho_f_kg_m3: float) -> str:
     """收敛后的真实类别必须是 B。求解手段：ADR 0035。"""
     group = geldart_group(surface_volume_diameter_m, rho_s_kg_m3, rho_f_kg_m3)
@@ -118,29 +122,30 @@ def _halt(iteration, quantity, value, cell=None, klass=None):
     if klass is not None:
         text += f"，粒级={klass}"
     raise PrecalcError(text)
-def precalculate(path, case_id, previous: ReactorState | None, *, reaction_solid_kg_s=None, previous_drain_kg_s: float = 0.0, previous_fuel_return_kg_s: float = 0.0, adiabatic: bool = False, iteration: int = 0, consistency: bool = False) -> PrecalcResult:
+def precalculate(path, case_id, previous: ReactorState | None, *, reaction_solid_kg_s=None, previous_drain_kg_s: float = 0.0, previous_fuel_return_kg_s: float = 0.0, adiabatic: bool = False, iteration: int = 0, consistency: bool = False, solver=None) -> PrecalcResult:
     """用上一轮单元解填满冻结量。previous 为空时构造初值。
     自由空间燃料回落由调用方传入，第一次外层为 0。一次风温度是混合焓的等效温度。
     consistency 为真时按真实类别重算，非 B 或产率式越界即停止。求解手段：ADR 0035。
     """
     try:
-        return _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency)
+        return _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver)
     except PrecalcError:
         raise
     except (HydrodynamicsError, PyrolysisError, PropertyError, FreeboardError) as exc:
         raise PrecalcError(f"迭代 {iteration} 停止：{exc}") from exc
-def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency) -> PrecalcResult:
-    case = _load(path, case_id)
+def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver=None) -> PrecalcResult:
+    case = _load(path, case_id, solver)
     equilibrium = _equilibrium(case, adiabatic)
     t_ad = float(equilibrium.temperature)
     t_init = initial_temperature_k(t_ad)
     notes: list = []
     state = previous if previous is not None else _blank_state(case, t_init)
     fractions = _class_fractions(state if previous is not None else None, case)
-    d_bar, d_sv = _diameters(case.diameters_m, fractions)
+    d_bar, d_sv = _diameters(case.diameters_m, fractions, case.phi_s)
     flow = _flows(case, state, equilibrium, previous is None, t_init)
     gas = _bed_gas(flow)
     rho_p, profile, conditions, intervals, substeps = _adaptive_bed(case, flow, gas, d_bar)
+    profile = _exchange_diffusivity(case, flow, profile, conditions)
     group = geldart_group(d_sv, rho_p, gas.rho)
     record = (int(iteration), float(d_sv), group, _eq8_distance(d_sv, rho_p, gas.rho))
     hydro = group if consistency or group == "B" else "B"
@@ -160,6 +165,9 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
             f"迭代 {iteration} 停止：{exc}；Geldart 记录（迭代号, d_sv, 类别, 式(8)距离）={record}；T_ad={t_ad}；T_init={t_init}"
         ) from exc
     transport, theta, hover, absent = _transport(accounting)
+    if case.solver.hover_closure != "A":
+        hover = np.zeros_like(hover)
+        transport = (hover, *transport[1:])
     bed_u, free_u, hover_u, ratios = _slip(case, flow, profile, accounting, rho_p, hydro, gas, hover, rho_free, mu_free)
     if previous is None:
         _seed_freeboard(case, state, profile.solids_mass, t_init, hover, absent, notes, iteration, consistency)
@@ -188,6 +196,7 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
         frozen, state, t_ad, dict(equilibrium.fractions), group, d_bar, d_sv, residual,
         equilibrium.feed_enthalpy, equilibrium.product_enthalpy, ejection.mass_flow, _hover_pairs(hover),
         gas_out / case.fuel_kg_s, t_init, hydro, record, tuple(notes), ratios, intervals, substeps, delta_notes,
+        pack_reported(profile, flow, case, released),
     )
 @dataclass
 class _Case:
@@ -205,6 +214,9 @@ class _Case:
     n_free: int
     bed_cell_m: float
     free_cell_m: float
+    epsilon_mf: float
+    phi_s: float
+    secondary_height_m: float
     @property
     def fuel_kg_s(self) -> float:
         return float(self.physical.fuel_mass_flow)
@@ -251,8 +263,9 @@ class _Ejection:
     speeds: np.ndarray
     shares: np.ndarray
     direct: float
-def _load(path, case_id: str) -> _Case:
+def _load(path, case_id: str, solver=None) -> _Case:
     config = assemble_case(path, case_id)
+    used = config.solver if solver is None else solver
     doc = load_case_file(path)
     key = resolve_case_key(doc, case_id)
     heights = np.asarray(_value(doc, key, "cell_heights"), dtype=float)
@@ -264,13 +277,21 @@ def _load(path, case_id: str) -> _Case:
     if free.size < 1 or not np.all(np.isclose(free, free[0])):
         raise PrecalcError("自由空间格子高度必须相同")
     return _Case(
-        config.physical, config.solver, np.asarray(_value(doc, key, "fuel_size_class_diameters"), dtype=float),
+        config.physical, used, np.asarray(_value(doc, key, "fuel_size_class_diameters"), dtype=float),
         np.asarray(_value(doc, key, "fuel_size_class_mass_fractions"), dtype=float),
         float(_value(doc, key, "bed_mass")), float(_value(doc, key, "wall_heat_loss")),
         float(_value(doc, key, "distributor_orifice_count")), float(_value(doc, key, "distributor_outlet_height")),
         float(_value(doc, key, "solid_feed_temperature")), float(_value(doc, key, "nitrogen_purge_temperature")),
         n_bed, int(free.size), bed, float(free[0]),
+        float(_optional(doc, key, "bed_minimum_fluidization_voidage", EPSILON_MF)),
+        float(_optional(doc, key, "bed_sphericity", PHI_S)),
+        float(_value(doc, key, "agent_feed_height")),
     )
+def _optional(doc, key, name, default):
+    try:
+        return _value(doc, key, name)
+    except PrecalcError:
+        return default
 def _value(doc, key, name):
     case = doc["cases"][key]
     fuel = doc.get("fuels", {}).get(case.get("fuel_id"), {})
@@ -354,11 +375,11 @@ def _class_fractions(previous, case: _Case) -> np.ndarray:
     if float(mass.sum()) <= 0.0:
         raise PrecalcError("上一轮床区焦炭为 0，不能求粒径")
     return mass / float(mass.sum())
-def _diameters(diameter_m, fraction) -> tuple[float, float]:
+def _diameters(diameter_m, fraction, phi_s) -> tuple[float, float]:
     if diameter_m.shape != fraction.shape:
         raise PrecalcError("粒径与质量分数的粒级数不一致")
     d_bar = float(np.sum(fraction * diameter_m))
-    d_sv = 1.0 / float(np.sum(fraction / (PHI_S * diameter_m)))
+    d_sv = 1.0 / float(np.sum(fraction / (float(phi_s) * diameter_m)))
     return d_bar, d_sv
 def _flows(case, state, equilibrium, initial: bool, t_init: float) -> _Flow:
     pressure = case.pressure_pa
@@ -371,7 +392,7 @@ def _flows(case, state, equilibrium, initial: bool, t_init: float) -> _Flow:
         kept = equilibrium.total_mol_s * equilibrium.primary_total / gas_in
         bed = np.tile(_scaled(equilibrium.fractions, kept), (case.n_bed, 1))
         free = np.zeros((case.n_free, len(GAS_SPECIES)))
-        index = secondary_air_balance_index(case.n_free)
+        index = _secondary_index(case)
         for cell in range(case.n_free):
             amount = equilibrium.total_mol_s if cell <= index else kept
             free[cell] = _scaled(equilibrium.fractions, amount)
@@ -387,6 +408,32 @@ def _flows(case, state, equilibrium, initial: bool, t_init: float) -> _Flow:
     return _Flow(u0, bed, free, bed_t, free_t, pressure)
 def _scaled(fractions, amount) -> np.ndarray:
     return np.array([fractions[name] * amount for name in GAS_SPECIES])
+def _secondary_index(case) -> int:
+    try:
+        return interface_balance_index(
+            case.secondary_height_m, case.n_bed * case.bed_cell_m, case.n_free, case.free_cell_m,
+        )
+    except AssemblyError as exc:
+        raise PrecalcError(str(exc)) from exc
+def _exchange_diffusivity(case, flow, profile, conditions):
+    """默认式 (5.20) 不改剖面。Fuller 只替换各格 K_bd。ADR 0021 第 4 项；ADR 0039。"""
+    mode = case.solver.interphase_diffusivity
+    if mode == "hamel_5_20":
+        return profile
+    if mode != "fuller_o2_n2":
+        raise PrecalcError(f"不能识别的相间扩散 {mode}")
+    k_bd = np.array(profile.k_bd, dtype=float, copy=True)
+    for index in range(k_bd.size):
+        diffusivity = fuller_binary_diffusivity_m2_s(
+            float(flow.bed_temperature[index]), float(flow.pressure),
+            molar_mass_g_mol("O2"), molar_mass_g_mol("N2"), fuller_volume("O2"), fuller_volume("N2"),
+        )
+        local = local_bed_state(
+            float(flow.u0[index]), float(profile.d_b[index]), float(profile.u_mf),
+            replace(conditions, diffusivity=diffusivity), SEARCH,
+        )
+        k_bd[index] = local.k_bd
+    return replace(profile, k_bd=k_bd)
 def _bed_gas(flow: _Flow) -> _Gas:
     weights = flow.bed_mol_s.sum(axis=1)
     if float(weights.sum()) <= 0.0:
@@ -403,16 +450,16 @@ def _density(case, flow, gas, d_bar, intervals) -> float:
     edges = np.linspace(0.0, case.n_bed * case.bed_cell_m, case.n_bed + 1)
     area = np.pi * (0.5 * case.bed_diameter_m) ** 2
     return particle_density_from_bed_mass(
-        case.bed_mass_kg, edges, flow.u0, area, case.n_0, case.h_a, intervals, PHI_S, conditions, SEARCH,
+        case.bed_mass_kg, edges, flow.u0, area, case.n_0, case.h_a, intervals, case.phi_s, conditions, SEARCH,
     )
 def _conditions(case, gas, d_bar, rho_p, group) -> BedConditions:
     return BedConditions(
-        d_bar, EPSILON_MF, rho_p, gas.rho, gas.mu, gas.nu, case.pressure_pa, gas.diffusivity,
+        d_bar, case.epsilon_mf, rho_p, gas.rho, gas.mu, gas.nu, case.pressure_pa, gas.diffusivity,
         case.bed_diameter_m, DISTRIBUTOR, group, True,
     )
 def _profile(case, flow, gas, d_bar, rho_p, group, intervals):
     conditions = _conditions(case, gas, d_bar, rho_p, group)
-    minimum = minimum_fluidization_velocity(EPSILON_MF, gas.nu, PHI_S, d_bar, rho_p, gas.rho)
+    minimum = minimum_fluidization_velocity(case.epsilon_mf, gas.nu, case.phi_s, d_bar, rho_p, gas.rho)
     edges = np.linspace(0.0, case.n_bed * case.bed_cell_m, case.n_bed + 1)
     area = np.pi * (0.5 * case.bed_diameter_m) ** 2
     profile = bed_profile(edges, flow.u0, minimum, area, case.n_0, case.h_a, intervals, conditions, SEARCH)
@@ -423,7 +470,7 @@ def _feed_share(case, flow, conditions, intervals) -> float:
     Source: Hamel Eq.3.8, S. 24
     """
     area = np.pi * (0.5 * case.bed_diameter_m) ** 2
-    minimum = minimum_fluidization_velocity(EPSILON_MF, conditions.nu_g, PHI_S, conditions.d_p, conditions.rho_p, conditions.rho_g)
+    minimum = minimum_fluidization_velocity(conditions.epsilon_mf, conditions.nu_g, case.phi_s, conditions.d_p, conditions.rho_p, conditions.rho_g)
     local = state_at_height(0.0, float(flow.u0[-1]), minimum, area, case.n_0, case.h_a, intervals, conditions, SEARCH)
     bubble = local.epsilon_b * local.u_b / float(flow.u0[-1])
     if not 0.0 <= bubble <= 1.0:
@@ -465,7 +512,7 @@ def _ash_fraction(case, x_char: float) -> float:
     return ash / denominator
 def _segregate(case, flow, profile, rho_p, d_bar):
     edges = np.linspace(0.0, case.n_free * case.free_cell_m, case.n_free + 1)
-    diameters = np.array([case.bed_diameter_m, *([case.free_diameter_m] * case.n_free)])
+    diameters = edge_diameters(case.n_free, case.free_cell_m, case.bed_diameter_m, case.free_diameter_m)
     free_balance = flow.free_mol_s[::-1]
     temperature = flow.free_temperature[::-1]
     flows = np.array([
@@ -486,7 +533,7 @@ def _segregate(case, flow, profile, rho_p, d_bar):
     delta_notes = []
     configured = float(case.solver.freeboard_delta_h_m)
     for klass, diameter in enumerate(case.diameters_m):
-        args = (edges, velocity, rho, mu, float(diameter), rho_p, PHI_S, speeds, shares, direct, case.solver)
+        args = (edges, velocity, rho, mu, float(diameter), rho_p, case.phi_s, speeds, shares, direct, case.solver)
         base = account_freeboard(*args)
         if any(row[5] < configured for row in base.roots):
             fine = account_freeboard(*args, 0.5)
@@ -550,7 +597,10 @@ def bed_downflow(up, fuel_feed_kg_s, reaction, returned, drain_kg_s):
     return downward_mass_flow(upward, added, np.zeros(upward.size), leaving, reacted, returned)
 def _release(case, state, flow, profile, packed, k_up, k_down, k_exit, group, notes, iteration, consistency):
     hover, absent, arrays, to_free, to_hover, _theta = packed
-    transport = FuelTransport(case.n_bed, hover, absent, arrays["a_f"], arrays["a_t"], arrays["b_f"], arrays["b_t"], to_free, to_hover)
+    transport = FuelTransport(
+        case.n_bed, hover, absent, arrays["a_f"], arrays["a_t"], arrays["b_f"], arrays["b_t"], to_free, to_hover,
+        closure=case.solver.hover_closure,
+    )
     temperature = float(np.average(flow.bed_temperature, weights=flow.bed_mol_s.sum(axis=1)))
     yields = _yield_at(case, temperature, None, None, notes, iteration, consistency)
     relative = float(np.mean(_bed_slip(flow, profile, group)))
@@ -634,7 +684,7 @@ def _frozen(case, state, flow, profile, share, coefficient, rho_p, k_up, down, p
         v_bubble_m3=_bubble_volume(case, profile), v_freeboard_m3=_free_volume(case),
         primary_feed_mol_s=_primary_vector(case), feed_to_suspension=share,
         primary_temperature_k=_primary_temperature(case), secondary_feed_mol_s=_secondary_vector(case),
-        secondary_temperature_k=float(case.physical.inlet_temperature), secondary_balance_index=secondary_air_balance_index(free),
+        secondary_temperature_k=float(case.physical.inlet_temperature), secondary_balance_index=_secondary_index(case),
         pyro_bed_mol_s=pyro_bed, pyro_freeboard_mol_s=pyro_free,
         char_gen_bed_kg_s=released.char_kg_s[free:], char_gen_free_kg_s=char_free, char_gen_hover_kg_s=char_hover,
         ash_gen_bed_kg_s=released.ash_kg_s[free:], ash_gen_free_kg_s=ash_free, ash_gen_hover_kg_s=ash_hover,
@@ -648,7 +698,9 @@ def _frozen(case, state, flow, profile, share, coefficient, rho_p, k_up, down, p
         u_r_bed_m_s=bed_u, u_r_freeboard_m_s=free_u, u_r_hover_m_s=hover_u,
         rho_p_kg_m3=rho_p, drain_char_kg_s=drain_char, drain_ash_kg_s=drain_ash, k_w_w_m2_k=coefficient,
         bed_height_m=case.bed_cell_m, freeboard_height_m=case.free_cell_m, bed_diameter_m=case.bed_diameter_m,
-        freeboard_diameter_m=case.free_diameter_m, epsilon_mf=EPSILON_MF,
+        freeboard_diameter_m=case.free_diameter_m, epsilon_mf=case.epsilon_mf,
+        particle_emissivity=case.solver.particle_emissivity, hover_closure=case.solver.hover_closure,
+        serio_frequency_per_s=case.solver.serio_frequency_per_s, serio_activation_j_mol=case.solver.serio_activation_j_mol,
         particle_tolerance_w=case.solver.particle_tolerance_w, particle_max_iterations=case.solver.particle_max_iterations,
         coupling_tolerance_k=case.solver.coupling_tolerance_k, coupling_max_iterations=case.solver.coupling_max_iterations,
     )
@@ -689,11 +741,14 @@ def _suspension_volume(case, profile):
 def _free_volume(case):
     volumes = np.empty(case.n_free)
     for cell in range(case.n_free):
-        if cell == case.n_free - 1:
-            radius_bed, radius_free = 0.5 * case.bed_diameter_m, 0.5 * case.free_diameter_m
-            volumes[cell] = np.pi * case.free_cell_m * (radius_bed**2 + radius_bed * radius_free + radius_free**2) / 3.0
+        geometric = case.n_free - 1 - cell
+        z0 = geometric * case.free_cell_m
+        d0 = diameter_at(z0, case.bed_diameter_m, case.free_diameter_m)
+        d1 = diameter_at(z0 + case.free_cell_m, case.bed_diameter_m, case.free_diameter_m)
+        if d0 == d1:
+            volumes[cell] = np.pi * (0.5 * d0) ** 2 * case.free_cell_m
         else:
-            volumes[cell] = np.pi * (0.5 * case.free_diameter_m) ** 2 * case.free_cell_m
+            volumes[cell] = section_volume_m3(z0, z0 + case.free_cell_m, case.bed_diameter_m, case.free_diameter_m)
     return volumes
 def _primary_vector(case):
     physical = case.physical
@@ -754,12 +809,12 @@ def _slip(case, flow, profile, books, rho_p, group, gas, hover, rho_free, mu_fre
     ratios = []
     for cell in range(case.n_bed):
         for klass, diameter in enumerate(case.diameters_m):
-            terminal = terminal_settling_velocity(gas.rho, gas.mu, float(diameter), rho_p, PHI_S)
+            terminal = terminal_settling_velocity(gas.rho, gas.mu, float(diameter), rho_p, case.phi_s)
             ratios.append(("bed", cell, klass, float(bed[cell]), terminal, float(bed[cell]) / terminal))
     for klass, book in enumerate(books):
         for cell, item in enumerate(book.cells):
             balance = case.n_free - 1 - cell
-            terminal = terminal_settling_velocity(float(rho_free[cell]), float(mu_free[cell]), float(case.diameters_m[klass]), rho_p, PHI_S)
+            terminal = terminal_settling_velocity(float(rho_free[cell]), float(mu_free[cell]), float(case.diameters_m[klass]), rho_p, case.phi_s)
             if item.mean_slip_m_s is not None:
                 free_u[balance, klass] = item.mean_slip_m_s
                 ratios.append(("free", balance, klass, float(item.mean_slip_m_s), terminal, float(item.mean_slip_m_s) / terminal))

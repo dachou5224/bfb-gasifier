@@ -149,9 +149,8 @@ def test_run_table_changes_one_item_and_records_unwired_rows():
     assert [item.name for item in specs] == ["baseline", *[f"S{index}" for index in range(1, 17)]]
     assert len({item.change for item in specs}) == 17
     assert next(item for item in specs if item.name == "S1").wired
-    unwired = [item for item in specs if not item.wired]
-    assert [item.name for item in unwired] == ["S3", "S4", "S5", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16"]
-    assert all(item.reason for item in unwired)
+    assert [item.name for item in specs if not item.wired] == []
+    assert all(item.wired for item in specs)
 
 
 def test_overlay_changes_only_the_named_value(tmp_path):
@@ -215,7 +214,7 @@ def test_execute_report_keeps_numpy_array_shapes(tmp_path, monkeypatch):
         ),
     ]
 
-    def fake_solve(path, case_id="1", *, adiabatic=False, deadline=None):
+    def fake_solve(path, case_id="1", *, adiabatic=False, deadline=None, config=None):
         return queued.pop(0)
 
     monkeypatch.setattr("hamel.solver.campaign.solve_case", fake_solve)

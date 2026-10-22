@@ -30,6 +30,7 @@ class FuelTransport:
     b_hover_per_s: np.ndarray
     ejection_to_free: np.ndarray
     ejection_to_hover: np.ndarray
+    closure: str = "A"
 
 
 @dataclass(frozen=True)
@@ -320,10 +321,11 @@ def _nodes(transport, cells, n_free, klass):
             continue
         if _has_free(transport, cell, klass):
             nodes.append((cell, "free"))
-        if bool(transport.hover[cell, klass]):
+        if bool(transport.hover[cell, klass]) and transport.closure == "A":
             nodes.append((cell, "hover"))
         if not nodes or nodes[-1][0] != cell:
-            raise PyrolysisError(f"自由空间格 {cell} 粒级没有燃料状态")
+            if transport.closure == "A":
+                raise PyrolysisError(f"自由空间格 {cell} 粒级没有燃料状态")
     return nodes
 
 
@@ -338,7 +340,8 @@ def _outflows(node, up, down, exit_rate, transport, n_free, klass):
             if share_free != 0.0:
                 flows.append((rise * share_free, _dest_free(transport, n_free - 1, klass)))
             if share_hover != 0.0:
-                flows.append((rise * share_hover, _dest_hover(transport, n_free - 1, klass)))
+                dest = _dest_hover(transport, n_free - 1, klass) if transport.closure == "A" else _redirect_dest(transport, n_free)
+                flows.append((rise * share_hover, dest))
         elif cell > n_free:
             flows.append((float(up[cell]), (cell - 1, "bed")))
         flows.append((float(down[cell]), (cell + 1, "bed") if cell + 1 < up.size else None))
@@ -348,14 +351,14 @@ def _outflows(node, up, down, exit_rate, transport, n_free, klass):
         return []
     flows = []
     _add(flows, float(transport.a_free_per_s[cell, klass]), lambda: None if cell == 0 else _dest_free(transport, cell - 1, klass))
-    _add(flows, float(transport.a_hover_per_s[cell, klass]), lambda: None if cell == 0 else _dest_hover(transport, cell - 1, klass))
+    _add(flows, float(transport.a_hover_per_s[cell, klass]), lambda: _a_hover_dest(transport, cell, klass, n_free))
     if cell + 1 == n_free:
         bed = (n_free, "bed")
         _add(flows, float(transport.b_free_per_s[cell, klass]), lambda: bed)
         _add(flows, float(transport.b_hover_per_s[cell, klass]), lambda: bed)
     else:
         _add(flows, float(transport.b_free_per_s[cell, klass]), lambda: _dest_free(transport, cell + 1, klass))
-        _add(flows, float(transport.b_hover_per_s[cell, klass]), lambda: _dest_hover(transport, cell + 1, klass))
+        _add(flows, float(transport.b_hover_per_s[cell, klass]), lambda: _b_hover_dest(transport, cell, klass, n_free))
     return flows
 
 
@@ -368,6 +371,29 @@ def _dest_free(transport, cell, klass):
     if _has_free(transport, cell, klass):
         return (cell, "free")
     return _dest_hover(transport, cell, klass)
+
+
+def _redirect_dest(transport, n_free):
+    # 模型边界选择（敏感性）：ADR 0026 第 6 项、ADR 0038
+    if transport.closure == "B":
+        return (n_free, "bed")
+    if transport.closure == "C":
+        return None
+    raise PyrolysisError(f"不能识别的悬停闭合 {transport.closure}")
+
+
+def _a_hover_dest(transport, cell, klass, n_free):
+    if cell == 0:
+        return None
+    if transport.closure == "A":
+        return _dest_hover(transport, cell - 1, klass)
+    return _redirect_dest(transport, n_free)
+
+
+def _b_hover_dest(transport, cell, klass, n_free):
+    if transport.closure == "A":
+        return _dest_hover(transport, cell + 1, klass)
+    return _redirect_dest(transport, n_free)
 
 
 def _dest_hover(transport, cell, klass):
@@ -450,6 +476,8 @@ def _state_closure(
 
 
 def _state_in(index, undried, dried, undried_free, dried_free, transport, n_free, up, down):
+    if transport.closure != "A":
+        return _state_in_redirect(index, undried, dried, undried_free, dried_free, transport, n_free, up, down)
     w = np.zeros(undried.shape[1])
     p = np.zeros_like(w)
     if index >= n_free:
@@ -477,6 +505,52 @@ def _state_in(index, undried, dried, undried_free, dried_free, transport, n_free
     if index > 0:
         w += (transport.b_free_per_s[index - 1] + transport.b_hover_per_s[index - 1]) * undried_free[index - 1]
         p += (transport.b_free_per_s[index - 1] + transport.b_hover_per_s[index - 1]) * dried_free[index - 1]
+    return w, p
+
+
+def _state_in_redirect(index, undried, dried, undried_free, dried_free, transport, n_free, up, down):
+    """B 把悬停入流加回床顶，C 让它离开体系。底格 b^t 仍回到床顶。"""
+    w = np.zeros(undried.shape[1])
+    p = np.zeros_like(w)
+    if index >= n_free:
+        if index + 1 < undried.shape[0]:
+            w += up[index + 1] * undried[index + 1]
+            p += up[index + 1] * dried[index + 1]
+        if index > n_free:
+            w += down[index - 1] * undried[index - 1]
+            p += down[index - 1] * dried[index - 1]
+        elif index == n_free:
+            coeff = transport.b_free_per_s[-1] + transport.b_hover_per_s[-1]
+            w += coeff * undried_free[-1]
+            p += coeff * dried_free[-1]
+            if transport.closure == "B":
+                extra_w, extra_p = _redirected_fuel(transport, undried, dried, undried_free, dried_free, n_free, up)
+                w += extra_w
+                p += extra_p
+        return w, p
+    if index + 1 < n_free:
+        w += transport.a_free_per_s[index + 1] * undried_free[index + 1]
+        p += transport.a_free_per_s[index + 1] * dried_free[index + 1]
+    elif index + 1 == n_free:
+        w += transport.ejection_to_free * up[n_free] * undried[n_free]
+        p += transport.ejection_to_free * up[n_free] * dried[n_free]
+    if index > 0:
+        w += transport.b_free_per_s[index - 1] * undried_free[index - 1]
+        p += transport.b_free_per_s[index - 1] * dried_free[index - 1]
+    return w, p
+
+
+def _redirected_fuel(transport, undried, dried, undried_free, dried_free, n_free, up):
+    w = np.zeros(undried.shape[1])
+    p = np.zeros_like(w)
+    for src in range(1, n_free):
+        w += transport.a_hover_per_s[src] * undried_free[src]
+        p += transport.a_hover_per_s[src] * dried_free[src]
+    for src in range(n_free - 1):
+        w += transport.b_hover_per_s[src] * undried_free[src]
+        p += transport.b_hover_per_s[src] * dried_free[src]
+    w += transport.ejection_to_hover * up[n_free] * undried[n_free]
+    p += transport.ejection_to_hover * up[n_free] * dried[n_free]
     return w, p
 
 

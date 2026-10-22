@@ -51,7 +51,7 @@ class PhysicalConfig:
 
 @dataclass(frozen=True)
 class SolverConfig:
-    """求解器参数。热解离散见 ADR 0027，自由空间轨迹见 ADR 0028，颗粒温度见 ADR 0033，悬停邻域见 ADR 0034，驱动字段见 ADR 0037。"""
+    """求解器参数。热解离散见 ADR 0027，自由空间轨迹见 ADR 0028，颗粒温度见 ADR 0033，悬停邻域见 ADR 0034，驱动字段见 ADR 0037，敏感性字段见 ADR 0039。"""
 
     pyrolysis_radial_intervals: int = 24
     pyrolysis_time_rtol: float = 1.0e-6
@@ -88,3 +88,9 @@ class SolverConfig:
     energy_balance_tolerance: float = 5.0e-3
     # 单次运行的墙钟上限，s。依据见 ADR 0037。
     wall_timeout_s: float = 90_000.0
+    # 默认等于冻结值。敏感性只改副本。ADR 0039。
+    particle_emissivity: float = 0.85
+    interphase_diffusivity: str = "hamel_5_20"
+    hover_closure: str = "A"
+    serio_frequency_per_s: float = 5.42e4
+    serio_activation_j_mol: float = 100.5e3

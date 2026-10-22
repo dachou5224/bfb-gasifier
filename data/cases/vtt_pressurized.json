@@ -258,6 +258,22 @@
       "formula": "H_bed = bed_zone_height = 1.2 m；床面标记位于细筒段顶边",
       "note": "操作床高。字段在 shared，15 个工况共用。各列压降不同，不据此改这个高度；工况 1 的床料质量见 cases.1.bed_mass。"
     },
+    "bed_minimum_fluidization_voidage": {
+      "value": 0.46,
+      "unit": "1",
+      "source": "解释性选择：ADR 0024 第 3 项；Bild 3.6, S. 35",
+      "status": "derived",
+      "formula": "ε_mf = 0.46",
+      "note": "床料最小流化空隙率。敏感性 S9–S12 改工况副本里的这个值。ADR 0024。"
+    },
+    "bed_sphericity": {
+      "value": 0.8,
+      "unit": "1",
+      "source": "解释性选择：ADR 0024 第 1 项；S. 45",
+      "status": "derived",
+      "formula": "φ_S = 0.8",
+      "note": "没有数据时 Hamel 程序取 0.8。床区与自由空间同一个值。敏感性 S9–S12 改工况副本里的这个值。ADR 0024。"
+    },
     "cell_count": {
       "value": 16,
       "unit": "1",

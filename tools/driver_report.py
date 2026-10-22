@@ -132,6 +132,14 @@ def _numerical() -> dict:
     return noted
 
 
+def _sensitivity_example(runs) -> dict | None:
+    for run in runs:
+        sensitivity = (run.get("diagnostics") or {}).get("sensitivity")
+        if sensitivity:
+            return sensitivity
+    return None
+
+
 def _cell(value):
     if isinstance(value, float):
         return f"{value:.6g}"
@@ -143,12 +151,19 @@ def _markdown(payload) -> str:
     if payload["toy"]:
         lines += [
             "这是玩具工况，用来核对驱动、收敛门和报告。数字不是第 1 关的解。",
-            "S1、S2、S6、S7、S8 已能通过现有接口表达。样例不启动工况进程，表中不列这几次的装置结果。",
+            "S1–S16 都已接线。样例不启动工况进程，表中不列装置结果。",
             "",
         ]
     lines += [f"单次运行墙钟上限 {payload['timeout_s']} s（ADR 0037）。", "", "## 验收", ""]
     for run in payload["runs"]:
         acceptance = run.get("acceptance") or {}
+        if payload["toy"] and run.get("status") == "WIRED":
+            lines += [
+                f"### {run['name']}：已接线", "",
+                f"改动：{run.get('change', '')}。来源：{run.get('source', '')}。",
+                "样例不启动工况进程，不列装置结果。", "",
+            ]
+            continue
         lines += [f"### {run['name']}：{run['status']}", "", f"改动：{run.get('change', '')}。来源：{run.get('source', '')}。"]
         if run.get("reason"):
             lines.append(f"说明：{run['reason']}。")
@@ -165,11 +180,18 @@ def _markdown(payload) -> str:
         lines += ["", f"外部平衡：{balance.get('ratios')}。非负：{run.get('nonnegative')}。残差比：{run.get('ratios')}。", ""]
     lines += [
         "## 诊断", "",
-        "每次运行的 JSON `diagnostics` 写入 T25b 公开结果里已有的量：Geldart 记录与式 (8) 距离、T_ad、T_init、y_ad、ρ_P、排灰与灰分量、抛出与回落带出系数、悬停标记与 h* 所在的逐根 δ、ū_r/v_t、产率越界与延拓、床层子步 n、k_W。",
-        "气泡相总流、d_b/D、与 KURKELA 表 5 的气速对照、自由空间元素与质量闭合、数值积分和闭式的比对、悬停焦炭消耗占比，不在这份公开结果上。本卡不改 T25b 的接口，这些量留空，不另算。",
-        "S9–S12 未接线，因此 ρ_P 可行区间没有对应的运行。",
-        "", "## 敏感性差值", "", "| 运行 | 状态 | 差值 |", "|---|---|---|",
+        "每次运行的 JSON `diagnostics` 写入预计算已经算出的量，以及求解后由这些量整理的诊断。",
+        "气泡相总流之比、d_b/D 与 d_b>D 的格数、与 KURKELA 表 5 的气速对照、自由空间元素与质量闭合、悬停焦炭消耗占比，都取自这些中间量。",
+        "数值积分与常气速闭式的比对在求解路径上没有中间量。ADR 0016 第 11 条写明变系数轨迹不用常气速闭式，本项不新增计算，诊断里记为未计算。",
+        "",
     ]
+    example = _sensitivity_example(payload["runs"])
+    if example:
+        lines += ["构造例不启动工况进程。五项由已有中间量的打包函数算出；闭式比对未计算。", ""]
+        for key, value in example.items():
+            lines.append(f"- {key}：{_cell(value) if not isinstance(value, (dict, list)) else value}")
+        lines.append("")
+    lines += ["## 敏感性差值", "", "| 运行 | 状态 | 差值 |", "|---|---|---|"]
     for row in payload["differences"]:
         lines.append(f"| {row['name']} | {row['status']} | {row['delta'] or row['reason']} |")
     lines += ["", "## 数值加密", ""]

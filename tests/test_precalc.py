@@ -339,7 +339,7 @@ def test_bed_substeps_stop_at_the_cap_without_splicing_cells():
     equilibrium = _equilibrium(case, False)
     temperature = initial_temperature_k(equilibrium.temperature)
     fractions = _class_fractions(None, case)
-    d_bar, _sv = _diameters(case.diameters_m, fractions)
+    d_bar, _sv = _diameters(case.diameters_m, fractions, case.phi_s)
     flow = _flows(case, _blank_state(case, temperature), equilibrium, True, temperature)
     with pytest.raises(PrecalcError, match="上限") as caught:
         _adaptive_bed(case, flow, _bed_gas(flow), d_bar)
