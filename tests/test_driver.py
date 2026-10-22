@@ -9,8 +9,8 @@ import pytest
 from hamel.cases.balance import BalanceGap
 from hamel.cases.config import SolverConfig
 from hamel.kinetics.common import KineticsInputError
-from hamel.solver.campaign import _process, overlay, run_campaign, run_specs, write_report
-from hamel.solver.driver import solve_aligned
+from hamel.solver.campaign import _process, execute, overlay, run_campaign, run_specs, write_report
+from hamel.solver.driver import SolveResult, solve_aligned
 from hamel.solver.gates import OuterMonitor, ResidualBlocks, arrays_allowed, balance_met, inner_met, outer_met
 from hamel.solver.newton import damped_newton, normalized_merit
 
@@ -191,6 +191,52 @@ def test_toy_report_covers_the_required_sections(tmp_path):
     assert "T_FRB_K" in text and "TIMEOUT" not in payload["runs"][0]["status"]
     assert payload["runs"][0]["acceptance"]["premises_met"] is True
     assert payload["differences"][0]["status"] == "NOT_APPLIED"
+
+
+def _diagnostics():
+    return {"rounds": [{"info": {
+        "a_free_per_s": np.ones((2, 2)),
+        "drain_char_kg_s": np.array([0.25]),
+        "hover": np.array([[True, False]]),
+        "k_w": np.float64(3.5),
+        "bed_intervals": np.int64(64),
+    }}]}
+
+
+def test_execute_report_keeps_numpy_array_shapes(tmp_path, monkeypatch):
+    """单元素数组保持列表。失败和收敛都要能写进 JSON。"""
+    queued = [
+        SolveResult("NOT_CONVERGED", "内层未收敛", 1, 4, diagnostics=_diagnostics()),
+        SolveResult(
+            "CONVERGED", "", 2, 5, {"gas": np.float64(0.0)},
+            {"ok": True, "ratios": {"C": np.float64(0.0)}}, True,
+            {"T_FRB_K": np.float64(1100.0), "X_C": np.float64(50.0), "CO": np.float64(0.1), "CO2": np.float64(0.1), "H2": np.float64(0.1), "CH4": np.float64(0.01), "H2O": np.float64(0.1)},
+            _diagnostics(),
+        ),
+    ]
+
+    def fake_solve(path, case_id="1", *, adiabatic=False, deadline=None):
+        return queued.pop(0)
+
+    monkeypatch.setattr("hamel.solver.campaign.solve_case", fake_solve)
+    failed = execute("baseline", "case.json", False)
+    solved = execute("S1", "case.json", True)
+    for record in (failed, solved):
+        info = record["diagnostics"]["rounds"][0]["info"]
+        assert info["a_free_per_s"] == [[1.0, 1.0], [1.0, 1.0]]
+        assert info["drain_char_kg_s"] == [0.25]
+        assert type(info["drain_char_kg_s"][0]) is float
+        assert info["hover"] == [[True, False]]
+        assert type(info["k_w"]) is float and info["k_w"] == 3.5
+        assert type(info["bed_intervals"]) is int and info["bed_intervals"] == 64
+    assert failed["status"] == "NOT_CONVERGED"
+    assert solved["status"] == "CONVERGED"
+    assert type(solved["ratios"]["gas"]) is float
+    write_report(tmp_path, [failed, solved], title="诊断序列化", toy=True)
+    saved = json.loads((tmp_path / "driver_report.json").read_text(encoding="utf-8"))
+    assert [item["status"] for item in saved["runs"]] == ["NOT_CONVERGED", "CONVERGED"]
+    assert saved["runs"][1]["diagnostics"]["rounds"][0]["info"]["a_free_per_s"] == [[1.0, 1.0], [1.0, 1.0]]
+    assert saved["runs"][0]["diagnostics"]["rounds"][0]["info"]["drain_char_kg_s"] == [0.25]
 
 
 def _toy(config):

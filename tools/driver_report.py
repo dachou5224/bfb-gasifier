@@ -4,6 +4,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import numpy as np
+
 from hamel.cases.config import SolverConfig
 from hamel.cases.judge import Measurement, Premises, judge
 from hamel.cases.targets import acceptance_targets
@@ -49,16 +51,17 @@ def write_report(report_dir, records, *, title: str, toy: bool) -> dict:
 
 
 def convert(value):
+    """数组先展开成同形状的列表，再把 NumPy 标量收成 Python 标量。"""
     if isinstance(value, dict):
         return {str(key): convert(item) for key, item in value.items()}
+    if isinstance(value, np.ndarray):
+        return convert(value.tolist())
     if isinstance(value, (list, tuple)):
         return [convert(item) for item in value]
+    if isinstance(value, np.generic):
+        return convert(value.item())
     if isinstance(value, (float, int, str, bool)) or value is None:
         return value
-    if hasattr(value, "item"):
-        return value.item()
-    if hasattr(value, "tolist"):
-        return convert(value.tolist())
     return str(value)
 
 
