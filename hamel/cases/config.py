@@ -51,7 +51,7 @@ class PhysicalConfig:
 
 @dataclass(frozen=True)
 class SolverConfig:
-    """求解器参数。热解离散见 ADR 0027，自由空间轨迹见 ADR 0028，颗粒温度见 ADR 0033，悬停邻域见 ADR 0034。"""
+    """求解器参数。热解离散见 ADR 0027，自由空间轨迹见 ADR 0028，颗粒温度见 ADR 0033，悬停邻域见 ADR 0034，驱动字段见 ADR 0037。"""
 
     pyrolysis_radial_intervals: int = 24
     pyrolysis_time_rtol: float = 1.0e-6
@@ -75,3 +75,16 @@ class SolverConfig:
     # 床区几何积分的起始子步与上限。求解器参数：ADR 0036。
     bed_integration_intervals_per_cell: int = 8
     bed_integration_max_intervals_per_cell: int = 256
+    # 失败判据，不是成功判据。ADR 0017 第 8 项；字段名见 ADR 0037。
+    nu_max: int = 200
+    outer_round_limit: int = 100
+    # i ≤ 30。ADR 0017 第 7 项。
+    damping_index_limit: int = 30
+    # ADR 0012。元素 0,1 %，能量 0,5 %。
+    residual_tolerance: float = 1.0e-6
+    outer_temperature_tolerance_k: float = 0.1
+    outer_relative_tolerance: float = 1.0e-4
+    element_balance_tolerance: float = 1.0e-3
+    energy_balance_tolerance: float = 5.0e-3
+    # 单次运行的墙钟上限，s。依据见 ADR 0037。
+    wall_timeout_s: float = 90_000.0
