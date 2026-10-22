@@ -95,6 +95,15 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
         "coupling_max_iterations",
         "bed_integration_intervals_per_cell",
         "bed_integration_max_intervals_per_cell",
+        "nu_max",
+        "outer_round_limit",
+        "damping_index_limit",
+        "residual_tolerance",
+        "outer_temperature_tolerance_k",
+        "outer_relative_tolerance",
+        "element_balance_tolerance",
+        "energy_balance_tolerance",
+        "wall_timeout_s",
     }
     assert solver.pyrolysis_radial_intervals == 24
     assert solver.pyrolysis_time_rtol == 1.0e-6
@@ -112,6 +121,15 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
     assert solver.coupling_max_iterations == 16
     assert solver.bed_integration_intervals_per_cell == 8
     assert solver.bed_integration_max_intervals_per_cell == 256
+    assert solver.nu_max == 200
+    assert solver.outer_round_limit == 100
+    assert solver.damping_index_limit == 30
+    assert solver.residual_tolerance == 1.0e-6
+    assert solver.outer_temperature_tolerance_k == 0.1
+    assert solver.outer_relative_tolerance == 1.0e-4
+    assert solver.element_balance_tolerance == 1.0e-3
+    assert solver.energy_balance_tolerance == 5.0e-3
+    assert solver.wall_timeout_s == 90_000.0
     with pytest.raises(TypeError):
         PhysicalConfig()
     with pytest.raises(TypeError):

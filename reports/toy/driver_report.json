@@ -1,0 +1,1003 @@
+{
+  "title": "玩具工况",
+  "toy": true,
+  "timeout_s": 90000.0,
+  "frozen": [
+    {
+      "id": "F1",
+      "choice": "式 (3.43) 的 −1 为误印；α_b = u_b·ε_d/u_d",
+      "source": "ADR 0011 第 7、10 条；ADR 0022 A1"
+    },
+    {
+      "id": "F2",
+      "choice": "R8 用式 (5.45)，a_R8 = 0.02",
+      "source": "ADR 0013 第 3 项"
+    },
+    {
+      "id": "F3",
+      "choice": "Serio 第一对",
+      "source": "ADR 0013 第 4 项"
+    },
+    {
+      "id": "F4",
+      "choice": "料斗吹扫氮计入，298.15 K",
+      "source": "ADR 0013 第 5 项；ADR 0014 C2"
+    },
+    {
+      "id": "F5",
+      "choice": "8×0.15 m + 8×0.2875 m",
+      "source": "ADR 0014 B"
+    },
+    {
+      "id": "F6",
+      "choice": "床高 1.2 m；床料 3.963 kg；ρ_P 外层反求",
+      "source": "ADR 0014 A2–A4"
+    },
+    {
+      "id": "F7",
+      "choice": "壁面散热 21.7 kW，单一 k_W，T_amb = 298.15 K",
+      "source": "ADR 0014 X1；ADR 0029"
+    },
+    {
+      "id": "F8",
+      "choice": "旋风纯分离；连接管不计反应与传热",
+      "source": "ADR 0014 X2、X2a"
+    },
+    {
+      "id": "F9",
+      "choice": "第一块布风板，n_0 = 139.5，h_A = 0",
+      "source": "ADR 0019"
+    },
+    {
+      "id": "F10",
+      "choice": "ε_mf = 0.46，φ_S = 0.8",
+      "source": "ADR 0024"
+    },
+    {
+      "id": "F11",
+      "choice": "粒级代表径为 Sauter 平均，最细档下限 0.0291 mm",
+      "source": "ADR 0023"
+    },
+    {
+      "id": "F12",
+      "choice": "ε_P = 0.85",
+      "source": "ADR 0017 第 17 项"
+    },
+    {
+      "id": "F13",
+      "choice": "D_g 用 Hamel 式 (5.20)，cell 气体温度",
+      "source": "ADR 0021 第 4 项"
+    },
+    {
+      "id": "F14",
+      "choice": "灰的比热 950 J/(kg·K)",
+      "source": "ADR 0018 第 6 项"
+    },
+    {
+      "id": "F15",
+      "choice": "ρ_C = ρ_P",
+      "source": "ADR 0017 第 19 项"
+    },
+    {
+      "id": "F16",
+      "choice": "自由空间焦油反应只用 Serio",
+      "source": "ADR 0022 C3"
+    },
+    {
+      "id": "F17",
+      "choice": "悬停闭合为反应限制的滞留",
+      "source": "ADR 0026"
+    },
+    {
+      "id": "F18",
+      "choice": "热解时间用平均释放时间",
+      "source": "ADR 0015 第 10 项；ADR 0027"
+    },
+    {
+      "id": "F19",
+      "choice": "基准初值扣除 21.7 kW；只有 S1 不扣除",
+      "source": "ADR 0017 第 9 项；ADR 0029"
+    },
+    {
+      "id": "F20",
+      "choice": "内层 1e-6；外层 (a)(b)；元素 0.1 %；能量 0.5 %",
+      "source": "ADR 0012"
+    },
+    {
+      "id": "F21",
+      "choice": "复合颗粒 shrinking particle",
+      "source": "ADR 0031"
+    },
+    {
+      "id": "F22",
+      "choice": "燃料用同粒级焦炭的系数",
+      "source": "ADR 0032"
+    },
+    {
+      "id": "F23",
+      "choice": "平均泡间距用式 (3.57)",
+      "source": "ADR 0028"
+    },
+    {
+      "id": "F24",
+      "choice": "床区 u_r = u_d/ε_d；自由状态为轨迹加权滑移；悬停为 v_t",
+      "source": "ADR 0035 第 4 项"
+    },
+    {
+      "id": "F25",
+      "choice": "未收敛时非 B 类用 B 类系数延拓；收敛后按真实类别复核",
+      "source": "ADR 0035 第 2 项"
+    }
+  ],
+  "numerical": {
+    "pyrolysis_radial_intervals": 24,
+    "pyrolysis_time_rtol": 1e-06,
+    "freeboard_ejection_samples": 48,
+    "freeboard_max_step_s": 0.0002,
+    "freeboard_delta_h_m": 0.001,
+    "freeboard_delta_u_m_s": 0.01,
+    "particle_tolerance_w": 0.0001,
+    "particle_max_iterations": 25,
+    "coupling_tolerance_k": 0.001,
+    "coupling_max_iterations": 16,
+    "bed_integration_intervals_per_cell": 8,
+    "bed_integration_max_intervals_per_cell": 256,
+    "note": "逐根 δ 与床层子步 n 来自该次运行的预计算。玩具工况没有这些量。"
+  },
+  "runs": [
+    {
+      "name": "baseline",
+      "change": "不改冻结项",
+      "source": "ADR 0030",
+      "status": "CONVERGED",
+      "reason": "",
+      "rounds": 2,
+      "iterations": 1,
+      "ratios": {
+        "gas": 0.0,
+        "solid": 0.0,
+        "energy": 0.0
+      },
+      "balance": {
+        "ok": true,
+        "ratios": {
+          "C": 0.0,
+          "H": 0.0,
+          "O": 0.0,
+          "energy": 0.0
+        },
+        "k_w": 0.0,
+        "heat_w": 0.0
+      },
+      "nonnegative": true,
+      "measurements": {
+        "T_FRB_K": 1100.0,
+        "X_C": 50.0,
+        "CO": 0.1,
+        "CO2": 0.1,
+        "H2": 0.1,
+        "CH4": 0.01,
+        "H2O": 0.1
+      },
+      "diagnostics": {
+        "rounds": [
+          {
+            "round": 1,
+            "inner": "CONVERGED",
+            "reason": "",
+            "info": {
+              "round": 1
+            }
+          },
+          {
+            "round": 2,
+            "inner": "CONVERGED",
+            "reason": "",
+            "info": {
+              "round": 2
+            }
+          }
+        ],
+        "note": "玩具没有装置预计算，诊断字段为空"
+      },
+      "acceptance": {
+        "status": "不通过",
+        "premises_met": true,
+        "quantities": [
+          {
+            "quantity": "T_FRB_K",
+            "status": "不通过",
+            "value": 1100.0,
+            "distance": 44.0
+          },
+          {
+            "quantity": "X_C",
+            "status": "不通过",
+            "value": 50.0,
+            "distance": 25.099999999999994
+          },
+          {
+            "quantity": "CO",
+            "status": "不通过",
+            "value": 0.1,
+            "distance": 0.0476
+          },
+          {
+            "quantity": "CO2",
+            "status": "通过",
+            "value": 0.1,
+            "distance": 0.0059999999999999915
+          },
+          {
+            "quantity": "H2",
+            "status": "通过",
+            "value": 0.1,
+            "distance": 0.006000000000000005
+          },
+          {
+            "quantity": "CH4",
+            "status": "边界待定",
+            "value": 0.01,
+            "distance": 0.002
+          },
+          {
+            "quantity": "H2O",
+            "status": "边界待定",
+            "value": 0.1,
+            "distance": 0.006999999999999992
+          }
+        ]
+      }
+    },
+    {
+      "name": "S3",
+      "change": "ε_P = 0.79",
+      "source": "ADR 0017 第 17 项",
+      "status": "NOT_APPLIED",
+      "reason": "ε_P 写在残差模块的常数里，evaluate_residual 没有这个参数",
+      "measurements": null,
+      "balance": null,
+      "nonnegative": null,
+      "ratios": {},
+      "diagnostics": {},
+      "rounds": 0,
+      "iterations": 0,
+      "acceptance": {
+        "status": "不通过",
+        "premises_met": false,
+        "quantities": [
+          {
+            "quantity": "T_FRB_K",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "X_C",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CH4",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2O",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "S4",
+      "change": "ε_P = 0.91",
+      "source": "ADR 0017 第 17 项",
+      "status": "NOT_APPLIED",
+      "reason": "ε_P 写在残差模块的常数里，evaluate_residual 没有这个参数",
+      "measurements": null,
+      "balance": null,
+      "nonnegative": null,
+      "ratios": {},
+      "diagnostics": {},
+      "rounds": 0,
+      "iterations": 0,
+      "acceptance": {
+        "status": "不通过",
+        "premises_met": false,
+        "quantities": [
+          {
+            "quantity": "T_FRB_K",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "X_C",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CH4",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2O",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "S5",
+      "change": "D_g 改为 O2–N2 的 Fuller 二元值",
+      "source": "ADR 0021 第 4 项",
+      "status": "NOT_APPLIED",
+      "reason": "预计算只调用式 (5.20) 的相间扩散，没有 Fuller 二元扩散的参数",
+      "measurements": null,
+      "balance": null,
+      "nonnegative": null,
+      "ratios": {},
+      "diagnostics": {},
+      "rounds": 0,
+      "iterations": 0,
+      "acceptance": {
+        "status": "不通过",
+        "premises_met": false,
+        "quantities": [
+          {
+            "quantity": "T_FRB_K",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "X_C",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CH4",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2O",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "S9",
+      "change": "ε_mf = 0.40，φ_S = 0.6",
+      "source": "ADR 0024",
+      "status": "NOT_APPLIED",
+      "reason": "ε_mf 与 φ_S 是预计算模块的常数，不作为参数",
+      "measurements": null,
+      "balance": null,
+      "nonnegative": null,
+      "ratios": {},
+      "diagnostics": {},
+      "rounds": 0,
+      "iterations": 0,
+      "acceptance": {
+        "status": "不通过",
+        "premises_met": false,
+        "quantities": [
+          {
+            "quantity": "T_FRB_K",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "X_C",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CH4",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2O",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "S10",
+      "change": "ε_mf = 0.40，φ_S = 0.9",
+      "source": "ADR 0024",
+      "status": "NOT_APPLIED",
+      "reason": "ε_mf 与 φ_S 是预计算模块的常数，不作为参数",
+      "measurements": null,
+      "balance": null,
+      "nonnegative": null,
+      "ratios": {},
+      "diagnostics": {},
+      "rounds": 0,
+      "iterations": 0,
+      "acceptance": {
+        "status": "不通过",
+        "premises_met": false,
+        "quantities": [
+          {
+            "quantity": "T_FRB_K",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "X_C",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CH4",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2O",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "S11",
+      "change": "ε_mf = 0.55，φ_S = 0.6",
+      "source": "ADR 0024",
+      "status": "NOT_APPLIED",
+      "reason": "ε_mf 与 φ_S 是预计算模块的常数，不作为参数",
+      "measurements": null,
+      "balance": null,
+      "nonnegative": null,
+      "ratios": {},
+      "diagnostics": {},
+      "rounds": 0,
+      "iterations": 0,
+      "acceptance": {
+        "status": "不通过",
+        "premises_met": false,
+        "quantities": [
+          {
+            "quantity": "T_FRB_K",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "X_C",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CH4",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2O",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "S12",
+      "change": "ε_mf = 0.55，φ_S = 0.9",
+      "source": "ADR 0024",
+      "status": "NOT_APPLIED",
+      "reason": "ε_mf 与 φ_S 是预计算模块的常数，不作为参数",
+      "measurements": null,
+      "balance": null,
+      "nonnegative": null,
+      "ratios": {},
+      "diagnostics": {},
+      "rounds": 0,
+      "iterations": 0,
+      "acceptance": {
+        "status": "不通过",
+        "premises_met": false,
+        "quantities": [
+          {
+            "quantity": "T_FRB_K",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "X_C",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CH4",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2O",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "S13",
+      "change": "悬停样本计为床面回落",
+      "source": "ADR 0026 第 6 项",
+      "status": "NOT_APPLIED",
+      "reason": "悬停样本改记床面回落要改自由空间记账，预计算没有这个参数",
+      "measurements": null,
+      "balance": null,
+      "nonnegative": null,
+      "ratios": {},
+      "diagnostics": {},
+      "rounds": 0,
+      "iterations": 0,
+      "acceptance": {
+        "status": "不通过",
+        "premises_met": false,
+        "quantities": [
+          {
+            "quantity": "T_FRB_K",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "X_C",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CH4",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2O",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "S14",
+      "change": "悬停样本计为出口带出",
+      "source": "ADR 0026 第 6 项",
+      "status": "NOT_APPLIED",
+      "reason": "悬停样本改记出口带出要改自由空间记账，预计算没有这个参数",
+      "measurements": null,
+      "balance": null,
+      "nonnegative": null,
+      "ratios": {},
+      "diagnostics": {},
+      "rounds": 0,
+      "iterations": 0,
+      "acceptance": {
+        "status": "不通过",
+        "premises_met": false,
+        "quantities": [
+          {
+            "quantity": "T_FRB_K",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "X_C",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CH4",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2O",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "S15",
+      "change": "Serio 第二对参数",
+      "source": "ADR 0013 第 4 项",
+      "status": "NOT_APPLIED",
+      "reason": "Serio 第二对没有实现，r11_serio_rate 不接收另一组参数",
+      "measurements": null,
+      "balance": null,
+      "nonnegative": null,
+      "ratios": {},
+      "diagnostics": {},
+      "rounds": 0,
+      "iterations": 0,
+      "acceptance": {
+        "status": "不通过",
+        "premises_met": false,
+        "quantities": [
+          {
+            "quantity": "T_FRB_K",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "X_C",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CH4",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2O",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "S16",
+      "change": "cell 数加倍",
+      "source": "ADR 0013 第 7 项",
+      "status": "NOT_APPLIED",
+      "reason": "二次风固定在自由空间几何下标 1。格子加倍后 1.4875 m 不再落在该格，要改 T25a 的下标",
+      "measurements": null,
+      "balance": null,
+      "nonnegative": null,
+      "ratios": {},
+      "diagnostics": {},
+      "rounds": 0,
+      "iterations": 0,
+      "acceptance": {
+        "status": "不通过",
+        "premises_met": false,
+        "quantities": [
+          {
+            "quantity": "T_FRB_K",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "X_C",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CO2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "CH4",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          },
+          {
+            "quantity": "H2O",
+            "status": "不通过",
+            "value": null,
+            "distance": null
+          }
+        ]
+      }
+    }
+  ],
+  "differences": [
+    {
+      "name": "S3",
+      "status": "NOT_APPLIED",
+      "delta": {},
+      "reason": "ε_P 写在残差模块的常数里，evaluate_residual 没有这个参数"
+    },
+    {
+      "name": "S4",
+      "status": "NOT_APPLIED",
+      "delta": {},
+      "reason": "ε_P 写在残差模块的常数里，evaluate_residual 没有这个参数"
+    },
+    {
+      "name": "S5",
+      "status": "NOT_APPLIED",
+      "delta": {},
+      "reason": "预计算只调用式 (5.20) 的相间扩散，没有 Fuller 二元扩散的参数"
+    },
+    {
+      "name": "S9",
+      "status": "NOT_APPLIED",
+      "delta": {},
+      "reason": "ε_mf 与 φ_S 是预计算模块的常数，不作为参数"
+    },
+    {
+      "name": "S10",
+      "status": "NOT_APPLIED",
+      "delta": {},
+      "reason": "ε_mf 与 φ_S 是预计算模块的常数，不作为参数"
+    },
+    {
+      "name": "S11",
+      "status": "NOT_APPLIED",
+      "delta": {},
+      "reason": "ε_mf 与 φ_S 是预计算模块的常数，不作为参数"
+    },
+    {
+      "name": "S12",
+      "status": "NOT_APPLIED",
+      "delta": {},
+      "reason": "ε_mf 与 φ_S 是预计算模块的常数，不作为参数"
+    },
+    {
+      "name": "S13",
+      "status": "NOT_APPLIED",
+      "delta": {},
+      "reason": "悬停样本改记床面回落要改自由空间记账，预计算没有这个参数"
+    },
+    {
+      "name": "S14",
+      "status": "NOT_APPLIED",
+      "delta": {},
+      "reason": "悬停样本改记出口带出要改自由空间记账，预计算没有这个参数"
+    },
+    {
+      "name": "S15",
+      "status": "NOT_APPLIED",
+      "delta": {},
+      "reason": "Serio 第二对没有实现，r11_serio_rate 不接收另一组参数"
+    },
+    {
+      "name": "S16",
+      "status": "NOT_APPLIED",
+      "delta": {},
+      "reason": "二次风固定在自由空间几何下标 1。格子加倍后 1.4875 m 不再落在该格，要改 T25a 的下标"
+    }
+  ]
+}
