@@ -93,6 +93,8 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
         "particle_max_iterations",
         "coupling_tolerance_k",
         "coupling_max_iterations",
+        "bed_integration_intervals_per_cell",
+        "bed_integration_max_intervals_per_cell",
     }
     assert solver.pyrolysis_radial_intervals == 24
     assert solver.pyrolysis_time_rtol == 1.0e-6
@@ -108,6 +110,8 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
     assert solver.particle_max_iterations == 25
     assert solver.coupling_tolerance_k == 1.0e-3
     assert solver.coupling_max_iterations == 16
+    assert solver.bed_integration_intervals_per_cell == 8
+    assert solver.bed_integration_max_intervals_per_cell == 256
     with pytest.raises(TypeError):
         PhysicalConfig()
     with pytest.raises(TypeError):

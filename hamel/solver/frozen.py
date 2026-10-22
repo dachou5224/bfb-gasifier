@@ -87,6 +87,7 @@ class FrozenQuantities:
     ejection_to_hover: np.ndarray
     u_r_bed_m_s: np.ndarray
     u_r_freeboard_m_s: np.ndarray
+    u_r_hover_m_s: np.ndarray
     rho_p_kg_m3: float
     drain_char_kg_s: np.ndarray
     drain_ash_kg_s: float
@@ -111,12 +112,12 @@ class FrozenQuantities:
         groups = (
             (klass, "diameter_m", "fuel_feed_kg_s", "ejection_to_free", "ejection_to_hover", "drain_char_kg_s"),
             (bed, "bed_pressure_pa", "k_auf_per_s", "m_dot_ab_kg_s", "geometric_mass_kg", "k_bd_per_s", "v_bubble_exchange_m3", "v_suspension_m3", "v_bubble_m3", "u_r_bed_m_s"),
-            (free, "freeboard_pressure_pa", "v_freeboard_m3", "u_r_freeboard_m_s"),
+            (free, "freeboard_pressure_pa", "v_freeboard_m3"),
             ((n_species,), "primary_feed_mol_s", "secondary_feed_mol_s"),
             ((n_bed, n_species), "pyro_bed_mol_s"),
             ((n_free, n_species), "pyro_freeboard_mol_s"),
             ((n_bed, n_class), "char_gen_bed_kg_s", "ash_gen_bed_kg_s", "fuel_bed_kg", "fuel_up_bed_kg_s", "fuel_down_bed_kg_s", "fuel_exit_bed_kg_s"),
-            ((n_free, n_class), "char_gen_free_kg_s", "char_gen_hover_kg_s", "ash_gen_free_kg_s", "ash_gen_hover_kg_s", "fuel_up_free_kg_s", "fuel_down_free_kg_s", "a_free_per_s", "a_hover_per_s", "b_free_per_s", "b_hover_per_s", "theta"),
+            ((n_free, n_class), "char_gen_free_kg_s", "char_gen_hover_kg_s", "ash_gen_free_kg_s", "ash_gen_hover_kg_s", "fuel_up_free_kg_s", "fuel_down_free_kg_s", "a_free_per_s", "a_hover_per_s", "b_free_per_s", "b_hover_per_s", "theta", "u_r_freeboard_m_s", "u_r_hover_m_s"),
         )
         for shape, *names in groups:
             for name in names:

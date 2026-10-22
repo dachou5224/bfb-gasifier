@@ -48,6 +48,8 @@ class TrajectoryFate:
     captured_at_start: bool
     entered_cell: int | None
     residence_s: tuple[float, ...]
+    # 捕获前 ∫|u_g−u_P|dt，与停留时间同一段。解释性选择：ADR 0035。
+    slip_m: tuple[float, ...]
     upward_free: tuple[float, ...]
     upward_hover: tuple[float, ...]
     downward_free: tuple[float, ...]
@@ -65,6 +67,7 @@ class CellTransport:
     b_f: float | None
     b_t: float | None
     m_hat: float | None
+    mean_slip_m_s: float | None = None
 
 
 @dataclass(frozen=True)
@@ -83,6 +86,7 @@ class ReferenceAccounting:
     local_return: float
     local_elutriation: float
     cells: tuple[CellTransport, ...]
+    roots: tuple = ()
 
 
 def _edges_and_gas(edges_m, rho_g, mu_g) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -198,18 +202,16 @@ def stable_equilibria(
     return tuple(equilibria)
 
 
-def _check_delta(equilibria: tuple[StableEquilibrium, ...], config: SolverConfig) -> tuple[float, float]:
+def _neighbourhoods(equilibria, config: SolverConfig, scale: float = 1.0):
+    """逐根 δ_h,eff = scale·min(δ_h, w)，并检查 δ_u·步长 < δ_h,eff。求解手段：ADR 0036。"""
     delta_h = _positive("freeboard_delta_h_m", config.freeboard_delta_h_m)
     delta_u = _positive("freeboard_delta_u_m_s", config.freeboard_delta_u_m_s)
     step = _positive("freeboard_max_step_s", config.freeboard_max_step_s)
-    if not equilibria:
-        return delta_h, delta_u
-    limit = min(item.half_width_m for item in equilibria)
-    if delta_h > limit:
-        raise FreeboardError(f"δ_h = {delta_h} m 超过 h* 到捕获区外边界距离的一半 {limit} m")
-    if delta_u * step >= delta_h:
-        raise FreeboardError("δ_u 与步长的乘积必须小于 δ_h，否则一步可能跨过邻域")
-    return delta_h, delta_u
+    pairs = tuple((scale * min(delta_h, item.half_width_m), scale * delta_u) for item in equilibria)
+    for height, speed in pairs:
+        if speed * step >= height:
+            raise FreeboardError("δ_u 与步长的乘积必须小于该根的 δ_h,eff，否则一步可能跨过邻域")
+    return pairs
 
 
 def _rest_acceleration(gas: float, stokes: float, quadratic: float, weight: float) -> float:
@@ -306,8 +308,7 @@ def _accepted_equilibrium(
     velocity: float,
     equilibria: tuple[StableEquilibrium, ...],
     wells: tuple[_Well, ...],
-    delta_h: float,
-    delta_u: float,
+    neighbourhoods,
     cell: int,
 ) -> int | None:
     """邻域只框住候选根。能量低于该根自己的势垒，才确定不会离开它的捕获区。"""
@@ -315,7 +316,8 @@ def _accepted_equilibrium(
     for index, item in enumerate(equilibria):
         if cell not in item.cells:
             continue
-        if abs(height - item.height_m) > delta_h or abs(velocity) > delta_u:
+        tol_h, tol_u = neighbourhoods[index]
+        if abs(height - item.height_m) > tol_h or abs(velocity) > tol_u:
             continue
         if not _in_well(wells[index], height, velocity):
             continue
@@ -333,7 +335,7 @@ def _classify(
     velocity: float,
     reversals: int,
     start_cell: int,
-    segments: list[tuple[int, float, float]],
+    segments: list[tuple[int, float, float, float]],
     crossings: list[tuple[float, int, int | None, str]],
     capture_cells: frozenset[int],
 ) -> TrajectoryFate:
@@ -359,17 +361,20 @@ def _classify(
         entry_index = None
     at_start = captured and entry_index is None
     residence = [0.0] * count
+    slip = [0.0] * count
     upward_free = [0.0] * count
     upward_hover = [0.0] * count
     downward_free = [0.0] * count
     downward_hover = [0.0] * count
-    for cell, start, end in segments:
-        if capture_time is None:
-            residence[cell] += end - start
-        elif end <= capture_time:
-            residence[cell] += end - start
+    for cell, start, end, piece in segments:
+        if capture_time is None or end <= capture_time:
+            kept = end - start
         elif start < capture_time:
-            residence[cell] += capture_time - start
+            kept = capture_time - start
+        else:
+            continue
+        residence[cell] += kept
+        slip[cell] += piece * kept / (end - start)
     for index, (time, from_cell, _to_cell, direction) in enumerate(crossings):
         hover = captured and entry_index is not None and index == entry_index
         free = (not captured) or (capture_time is not None and time < capture_time)
@@ -389,6 +394,7 @@ def _classify(
         at_start,
         entered if captured else None,
         tuple(residence),
+        tuple(slip),
         tuple(upward_free),
         tuple(upward_hover),
         tuple(downward_free),
@@ -408,6 +414,7 @@ def trace_until_fate(
     phi_s: float,
     config: SolverConfig,
     equilibria: tuple[StableEquilibrium, ...],
+    scale: float = 1.0,
 ) -> TrajectoryFate:
     """把式 (3.82) 积到回落、带出，或进入某个稳定根自己的不变区域。
 
@@ -422,7 +429,7 @@ def trace_until_fate(
     velocity = _finite("velocity_0", velocity_0)
     if not float(edges[0]) <= height <= float(edges[-1]):
         raise FreeboardError("起步高度不在自由空间内")
-    delta_h, delta_u = _check_delta(equilibria, config)
+    neighbourhoods = _neighbourhoods(equilibria, config, scale)
     step_cap = _positive("freeboard_max_step_s", config.freeboard_max_step_s)
     time_limit = _positive("freeboard_time_limit_s", config.freeboard_time_limit_s)
     diameter = _positive("diameter_m", diameter_m)
@@ -439,8 +446,9 @@ def trace_until_fate(
     elapsed = 0.0
     open_time = 0.0
     reversals = 0
-    segments: list[tuple[int, float, float]] = []
+    segments: list[tuple[int, float, float, float]] = []
     crossings: list[tuple[float, int, int | None, str]] = []
+    pending = 0.0
 
     def local_acceleration(index: int, height_now: float, velocity_now: float) -> float:
         gas_now = float(gas_velocity(index, height_now))
@@ -484,10 +492,11 @@ def trace_until_fate(
         return upper, None
 
     def close(end: float) -> None:
-        nonlocal open_time
+        nonlocal open_time, pending
         if end > open_time:
-            segments.append((cell, open_time, end))
+            segments.append((cell, open_time, end, pending))
             open_time = end
+        pending = 0.0
 
     stalled = 0
     outcome = None
@@ -505,7 +514,7 @@ def trace_until_fate(
             crossings.append((elapsed, cell, None, "down" if domain == "return" else "up"))
             outcome = domain
             break
-        chosen = _accepted_equilibrium(height, velocity, equilibria, wells, delta_h, delta_u, cell)
+        chosen = _accepted_equilibrium(height, velocity, equilibria, wells, neighbourhoods, cell)
         if chosen is not None:
             close(elapsed)
             outcome = "capture"
@@ -517,6 +526,7 @@ def trace_until_fate(
             return gas_velocity(index, height_now)
 
         velocity_before = velocity
+        height_before = height
         height_1, velocity_1 = _step_velocity(height, velocity, step, gas_at, stokes, quadratic, weight)
         shrinks = 0
         while velocity * velocity_1 < 0.0 and step > step_cap * 1.0e-4 and shrinks < 16:
@@ -542,11 +552,13 @@ def trace_until_fate(
         if boundary is None:
             height, velocity = height_1, velocity_1
             elapsed += step
+            used = step
         else:
             used = fraction * step
             height, velocity = _step_velocity(height, velocity, used, gas_at, stokes, quadratic, weight)
             elapsed += used
             height = boundary
+        pending += 0.5 * (abs(float(gas_at(height_before)) - velocity_before) + abs(float(gas_at(height)) - velocity)) * used
         if velocity_before * velocity < 0.0:
             reversals += 1
         if not math.isfinite(height) or not math.isfinite(velocity):
@@ -558,8 +570,9 @@ def trace_until_fate(
     return _classify(count, outcome, elapsed, height, velocity, reversals, start_cell, segments, crossings, capture_cells)
 
 
-def _sum_ledgers(ledgers: list[tuple[TrajectoryFate, float]], count: int) -> tuple[list[float], list[float], list[float], list[float], list[float]]:
+def _sum_ledgers(ledgers: list[tuple[TrajectoryFate, float]], count: int):
     residence = [0.0] * count
+    slip = [0.0] * count
     upward_free = [0.0] * count
     upward_hover = [0.0] * count
     downward_free = [0.0] * count
@@ -567,11 +580,12 @@ def _sum_ledgers(ledgers: list[tuple[TrajectoryFate, float]], count: int) -> tup
     for ledger, weight in ledgers:
         for cell in range(count):
             residence[cell] += weight * ledger.residence_s[cell]
+            slip[cell] += weight * ledger.slip_m[cell]
             upward_free[cell] += weight * ledger.upward_free[cell]
             upward_hover[cell] += weight * ledger.upward_hover[cell]
             downward_free[cell] += weight * ledger.downward_free[cell]
             downward_hover[cell] += weight * ledger.downward_hover[cell]
-    return residence, upward_free, upward_hover, downward_free, downward_hover
+    return residence, slip, upward_free, upward_hover, downward_free, downward_hover
 
 
 def account_freeboard(
@@ -586,6 +600,7 @@ def account_freeboard(
     ejection_shares,
     direct_return_share: float,
     config: SolverConfig,
+    scale: float = 1.0,
 ) -> ReferenceAccounting:
     """由床面样本和各格当地轨迹得到 a^f、a^t、b^f、b^t、抛出拆分和 θ。
 
@@ -606,7 +621,7 @@ def account_freeboard(
     if direct < 0.0 or abs(float(shares.sum()) + direct - 1.0) > 1.0e-8:
         raise FreeboardError("抛出份额与直接回落之和必须为 1，直接回落不能为负")
     equilibria = stable_equilibria(edges, gas_velocity, densities, viscosities, diameter_m, rho_p, phi_s)
-    _check_delta(equilibria, config)
+    neighbourhoods = _neighbourhoods(equilibria, config, scale)
     capture = tuple(sorted({cell for item in equilibria for cell in item.cells}))
     capture_set = frozenset(capture)
     bed_surface = float(edges[0])
@@ -624,6 +639,7 @@ def account_freeboard(
             phi_s,
             config,
             equilibria,
+            scale,
         )
 
     bed = [(follow(bed_surface, float(speeds[index])), float(shares[index])) for index in range(speeds.size)]
@@ -668,28 +684,20 @@ def account_freeboard(
             if ledger.entered_cell is None:
                 raise FreeboardError("当地轨迹捕获后没有进入的格子")
             local_hover[ledger.entered_cell] += 1.0
-    bed_residence, bed_up_f, bed_up_t, bed_down_f, bed_down_t = _sum_ledgers(bed, count)
+    bed_residence, bed_slip, bed_up_f, bed_up_t, bed_down_f, bed_down_t = _sum_ledgers(bed, count)
     local_weighted = [(ledger, 1.0) for ledger in local]
-    loc_residence, loc_up_f, loc_up_t, loc_down_f, loc_down_t = _sum_ledgers(local_weighted, count)
+    loc_residence, loc_slip, loc_up_f, loc_up_t, loc_down_f, loc_down_t = _sum_ledgers(local_weighted, count)
     cells = []
     for cell in range(count):
         theta = 1 if local[cell].captured_at_start else 0
         use_bed = bed_residence[cell] > 0.0 or bed_up_f[cell] + bed_up_t[cell] + bed_down_f[cell] + bed_down_t[cell] > 0.0
         if use_bed:
-            mass, up_f, up_t, down_f, down_t = (
-                bed_residence[cell],
-                bed_up_f[cell],
-                bed_up_t[cell],
-                bed_down_f[cell],
-                bed_down_t[cell],
+            mass, moved, up_f, up_t, down_f, down_t = (
+                bed_residence[cell], bed_slip[cell], bed_up_f[cell], bed_up_t[cell], bed_down_f[cell], bed_down_t[cell],
             )
         else:
-            mass, up_f, up_t, down_f, down_t = (
-                loc_residence[cell],
-                loc_up_f[cell],
-                loc_up_t[cell],
-                loc_down_f[cell],
-                loc_down_t[cell],
+            mass, moved, up_f, up_t, down_f, down_t = (
+                loc_residence[cell], loc_slip[cell], loc_up_f[cell], loc_up_t[cell], loc_down_f[cell], loc_down_t[cell],
             )
         outflow = up_f + up_t + down_f + down_t
         if mass == 0.0:
@@ -697,17 +705,7 @@ def account_freeboard(
                 raise FreeboardError("自由段有穿出通量但停留时间为 0")
             cells.append(CellTransport(theta, _FREE_ABSENT, None, None, None, None, None))
             continue
-        cells.append(
-            CellTransport(
-                theta,
-                "存在",
-                up_f / mass,
-                up_t / mass,
-                down_f / mass,
-                down_t / mass,
-                mass,
-            )
-        )
+        cells.append(CellTransport(theta, "存在", up_f / mass, up_t / mass, down_f / mass, down_t / mass, mass, moved / mass))
     captured = sum(hover_inflow)
     return ReferenceAccounting(
         tuple(item.height_m for item in equilibria),
@@ -722,4 +720,8 @@ def account_freeboard(
         local_return,
         local_elutriation,
         tuple(cells),
+        tuple(
+            (item.cells, item.height_m, item.height_m - float(edges[item.cells[0]]), float(edges[item.cells[-1] + 1]) - item.height_m, item.half_width_m, eff, speed)
+            for item, (eff, speed) in zip(equilibria, neighbourhoods)
+        ),
     )

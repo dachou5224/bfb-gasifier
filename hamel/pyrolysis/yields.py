@@ -44,6 +44,14 @@ def _yield_conditions(pressure_pa, temperature_k) -> tuple[float, float]:
         raise PyrolysisError("温度或压力超出表 4.3 的适用范围，或不是有限实数")
     return pressure, temperature
 
+def _char_algebra(pressure: float, temperature: float) -> float:
+    factor, exponent, base, power = _CHAR
+    return factor * pressure**exponent * base ** (1.0e-6 * pressure) * temperature**power
+
+def _tar_algebra(pressure: float, temperature: float) -> float:
+    factor, exponent, power, offset = _TAR
+    return factor * pressure**exponent * temperature**power + offset
+
 def carbon_retained_in_char(pressure_pa: float, temperature_k: float) -> float:
     """kg C in char / kg C in fuel (waf)。
 
@@ -51,8 +59,7 @@ def carbon_retained_in_char(pressure_pa: float, temperature_k: float) -> float:
     Source: Hamel Tab.4.3, S. 64
     """
     pressure, temperature = _yield_conditions(pressure_pa, temperature_k)
-    factor, exponent, base, power = _CHAR
-    return factor * pressure**exponent * base ** (1.0e-6 * pressure) * temperature**power
+    return _char_algebra(pressure, temperature)
 
 def carbon_retained_in_tar(pressure_pa: float, temperature_k: float) -> float:
     """kg C in tar / kg C in fuel (waf)。
@@ -61,8 +68,7 @@ def carbon_retained_in_tar(pressure_pa: float, temperature_k: float) -> float:
     Source: Hamel Tab.4.3, S. 64
     """
     pressure, temperature = _yield_conditions(pressure_pa, temperature_k)
-    factor, exponent, power, offset = _TAR
-    return factor * pressure**exponent * temperature**power + offset
+    return _tar_algebra(pressure, temperature)
 
 def lignite_yields(
     pressure_pa: float,
@@ -81,18 +87,40 @@ def lignite_yields(
     Source: Hamel Eq.4.26, S. 69
     Source: Hamel Eq.4.27, S. 69
     """
-    ash = float(ash_mass_fraction_wf)
-    carbon = water_free_to_ash_free(carbon_mass_fraction_wf, ash)
-    hydrogen = water_free_to_ash_free(hydrogen_mass_fraction_wf, ash)
-    oxygen = water_free_to_ash_free(oxygen_mass_fraction_wf, ash)
-    nitrogen = water_free_to_ash_free(nitrogen_mass_fraction_wf, ash)
-    sulfur = water_free_to_ash_free(sulfur_mass_fraction_wf, ash)
-    if min(carbon, hydrogen, oxygen, nitrogen, sulfur) < 0.0:
+    carbon, hydrogen, oxygen, nitrogen, sulfur = _waf(
+        carbon_mass_fraction_wf, hydrogen_mass_fraction_wf, oxygen_mass_fraction_wf,
+        nitrogen_mass_fraction_wf, sulfur_mass_fraction_wf, ash_mass_fraction_wf,
+    )
+    _yield_conditions(pressure_pa, temperature_k)
+    return _assemble_yields(pressure_pa, temperature_k, carbon, hydrogen, oxygen, nitrogen, sulfur)
+
+def path_yields(pressure_pa, temperature_k, carbon_mass_fraction_wf, hydrogen_mass_fraction_wf, oxygen_mass_fraction_wf, nitrogen_mass_fraction_wf, sulfur_mass_fraction_wf, ash_mass_fraction_wf) -> LigniteYields:
+    """未收敛迭代在表 4.3 外仍用式 (4.23)、(4.24)、(4.26)、(4.27)。负元素与负产率照旧拒绝。求解手段：ADR 0035。
+
+    Source: Hamel Eq.4.23, S. 64
+    Source: Hamel Eq.4.24, S. 64
+    Source: Hamel Eq.4.26, S. 69
+    Source: Hamel Eq.4.27, S. 69
+    """
+    carbon, hydrogen, oxygen, nitrogen, sulfur = _waf(
+        carbon_mass_fraction_wf, hydrogen_mass_fraction_wf, oxygen_mass_fraction_wf,
+        nitrogen_mass_fraction_wf, sulfur_mass_fraction_wf, ash_mass_fraction_wf,
+    )
+    return _assemble_yields(pressure_pa, temperature_k, carbon, hydrogen, oxygen, nitrogen, sulfur)
+
+def _waf(carbon, hydrogen, oxygen, nitrogen, sulfur, ash) -> tuple[float, float, float, float, float]:
+    ash = float(ash)
+    values = tuple(water_free_to_ash_free(item, ash) for item in (carbon, hydrogen, oxygen, nitrogen, sulfur))
+    if min(values) < 0.0:
         raise PyrolysisError("元素质量分数不能为负")
-    if carbon == 0.0:
+    if values[0] == 0.0:
         raise PyrolysisError("无水无灰基碳为 0 时，式 (4.24) 的氢碳比没有定义")
-    char_carbon = carbon_retained_in_char(pressure_pa, temperature_k)
-    tar_carbon = carbon_retained_in_tar(pressure_pa, temperature_k)
+    return values
+
+def _assemble_yields(pressure_pa, temperature_k, carbon, hydrogen, oxygen, nitrogen, sulfur) -> LigniteYields:
+    """原式。表 4.3 的范围由调用方决定是否已经拒绝。负产率与负元素池仍在这里拒绝。"""
+    char_carbon = _char_algebra(float(pressure_pa), float(temperature_k))
+    tar_carbon = _tar_algebra(float(pressure_pa), float(temperature_k))
     # x_Koks 按燃料（waf）。焦炭在模型中是纯碳。ADR 0015 第 3 项。
     char_mass = carbon * char_carbon
     tar_mass = carbon * tar_carbon * (1.0 + hydrogen / carbon)

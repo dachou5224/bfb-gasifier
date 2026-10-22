@@ -352,14 +352,13 @@ def bubble_growth_rate(diameter_m, epsilon_b, xi_b, lifetime_s, u_b, pressure) -
     splitting_term = diameter / (3.0 * lifetime * velocity)
     return coalescence_term - splitting_term
 def orifice_volumetric_flow(u_0, area_m2, n_0) -> float:
-    """单孔体积流量 V̇_0 = u_0 A / n_0。
+    """单孔体积流量 V̇_0 = u_0 A / n_0。n_0 为有限正实数，不取整。
+    实现修正：ADR 0019、ADR 0035。
     Source: Hamel Eq.3.37, S. 29
     """
     superficial = _positive("u_0", u_0)
     area = _positive("area_m2", area_m2)
     count = _positive("n_0", n_0)
-    if count != int(count) or int(count) < 1:
-        raise HydrodynamicsError("n_0 必须是正整数")
     return superficial * area / count
 def initial_bubble_diameter(distributor, u_0, area_m2, n_0, u_mf) -> float:
     """技术布风器用式 (3.36)、(3.37)；多孔板用式 (3.38)。
@@ -793,6 +792,25 @@ def _with_density(conditions: BedConditions, density: float) -> BedConditions:
         conditions.geldart,
         conditions.three_dimensional,
     )
+def geldart_group(surface_volume_diameter_m: float, rho_s_kg_m3: float, rho_f_kg_m3: float) -> str:
+    """常压 Geldart（1973）式 (6)、(8)。密度差用 g/cm³，粒径用 μm。
+
+    Hamel 没有印出这两条分界，只在采用式里要求 Gruppe-B。式 (3.14) 不是分界式。
+    ADR 0024 第 4 项。不是 B 类由调用方停止。
+    Source: Hamel Eq.3.14, S. 26
+    """
+    diameter = _positive("d_sv", surface_volume_diameter_m)
+    solid = _finite("rho_s", rho_s_kg_m3)
+    fluid = _finite("rho_f", rho_f_kg_m3)
+    difference = (solid - fluid) / 1000.0
+    if difference <= 0.0:
+        raise HydrodynamicsError("Geldart 判据的密度差不是正数")
+    micron = diameter * 1.0e6
+    if difference * micron <= 225.0:
+        return "A"
+    if difference * micron**2 >= 1.0e6:
+        return "D"
+    return "B"
 def _require_technical_three_dimensional(distributor: str, three_dimensional: bool) -> None:
     if distributor != "technical":
         raise HydrodynamicsError("式 (3.11) 只用于技术布风器；多孔板原文没有采用式")

@@ -70,10 +70,10 @@ def _column(count: int, length: float, rho_g: float, mu: float):
     return edges, np.full(count, rho_g), np.full(count, mu)
 
 
-def _account(edges, gas, rho, mu, diameter, rho_p, phi, bubble_velocity, samples, **config):
+def _account(edges, gas, rho, mu, diameter, rho_p, phi, bubble_velocity, samples, scale=1.0, **config):
     speeds, shares, direct = ejection_velocity_samples(bubble_velocity, samples)
     result = account_freeboard(
-        edges, gas, rho, mu, diameter, rho_p, phi, speeds, shares, direct, _config(**config)
+        edges, gas, rho, mu, diameter, rho_p, phi, speeds, shares, direct, _config(**config), scale
     )
     return result, direct
 
@@ -128,6 +128,7 @@ def test_overdamped_node_has_no_reversal_and_no_free_state():
     assert traced.velocity_reversals == 0
     assert traced.captured_at_start
     assert traced.capture_time_s == 0.0
+    assert traced.slip_m == (0.0,)
     assert traced.entered_cell == 0
     assert traced.time_s > 0.0
     assert abs(traced.height_m - height_star) <= config.freeboard_delta_h_m
@@ -152,6 +153,31 @@ def test_overdamped_node_has_no_reversal_and_no_free_state():
     assert result.hover_inflow[0] == pytest.approx(1.0 - direct)
     assert result.ejection_hover == pytest.approx(1.0 - direct)
     assert result.return_share + result.elutriation_share + result.capture_share == pytest.approx(1.0)
+
+
+def test_free_slip_is_unchanged_when_the_capture_neighbourhood_shrinks():
+    """解释性选择：ADR 0035。捕获后的悬停时段不进入自由滑移。"""
+    edges = np.array([0.0, 1.0, 1.25, 2.5])
+    rho = np.full(3, _SPIRAL_GAS)
+    mu = np.full(3, _SPIRAL_MU)
+    settling = terminal_settling_velocity(_SPIRAL_GAS, _SPIRAL_MU, _SPIRAL_DIAMETER, _SPIRAL_DENSITY, _SPIRAL_PHI)
+
+    def gas(_cell, height, settling=settling):
+        return settling + 8.0 * (1.01 - float(height))
+
+    def book(delta):
+        return account_freeboard(
+            edges, gas, rho, mu, _SPIRAL_DIAMETER, _SPIRAL_DENSITY, _SPIRAL_PHI,
+            np.array([0.1]), np.array([1.0]), 0.0,
+            SolverConfig(freeboard_delta_h_m=delta, freeboard_max_step_s=1.0e-3, freeboard_time_limit_s=20.0),
+        )
+
+    full = book(1.0e-3)
+    half = book(5.0e-4)
+    assert full.cells[1].m_hat == pytest.approx(1.0136657219586103)
+    assert half.cells[1].m_hat == full.cells[1].m_hat
+    assert half.cells[1].mean_slip_m_s == full.cells[1].mean_slip_m_s
+    assert full.cells[1].mean_slip_m_s > 0.0
 
 
 def test_halving_delta_leaves_the_node_books_unchanged():
@@ -186,6 +212,7 @@ def test_starting_at_equilibrium_is_captured_at_once():
     assert traced.capture_time_s == 0.0
     assert traced.velocity_reversals == 0
     assert traced.residence_s == (0.0,)
+    assert traced.slip_m == (0.0,)
 
 
 def test_underdamped_trajectory_reenters_and_the_last_entry_is_kept():
@@ -228,6 +255,8 @@ def test_underdamped_trajectory_reenters_and_the_last_entry_is_kept():
     assert halved.capture_time_s == traced.capture_time_s
     assert halved.entered_cell == traced.entered_cell
     assert halved.residence_s == traced.residence_s
+    assert halved.slip_m == traced.slip_m
+    assert any(item > 0.0 for item in traced.slip_m)
     assert halved.upward_free == traced.upward_free
     assert halved.downward_hover == traced.downward_hover
 
@@ -434,9 +463,31 @@ def test_halving_delta_leaves_split_coefficients_unchanged():
 def test_oversized_delta_is_rejected_and_the_time_limit_is_only_an_error():
     settling = terminal_settling_velocity(_NODE_GAS, _NODE_MU, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI)
     edges, rho, mu = _column(1, 1.0, _NODE_GAS, _NODE_MU)
+    gas = _linear_gas(settling, 1.5, 0.02)
+    equilibria = stable_equilibria(edges, gas, rho, mu, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI)
+    width = equilibria[0].half_width_m
+    assert width < 0.025
+    base, _direct_base = _account(
+        edges, gas, rho, mu, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI, 0.05, 2, freeboard_delta_h_m=0.05
+    )
+    fine, _direct_fine = _account(
+        edges, gas, rho, mu, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI, 0.05, 2, 0.5, freeboard_delta_h_m=0.05
+    )
+    assert base.roots[0][5] == pytest.approx(width)
+    assert fine.roots[0][5] == pytest.approx(width / 2.0)
+    assert fine.roots[0][6] == pytest.approx(base.roots[0][6] / 2.0)
+    for left, right in zip(base.cells, fine.cells):
+        assert left.free_state == right.free_state
+        for name in ("a_f", "a_t", "b_f", "b_t", "m_hat", "mean_slip_m_s"):
+            assert _relative(getattr(left, name) or 0.0, getattr(right, name) or 0.0) < 1.0e-4
+    with pytest.raises(FreeboardError, match="跨过邻域"):
+        _account(edges, gas, rho, mu, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI, 0.05, 2, freeboard_delta_h_m=0.05, freeboard_delta_u_m_s=100.0)
+    with pytest.raises(FreeboardError, match="跨过邻域"):
+        _account(
+            edges, gas, rho, mu, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI, 0.05, 2, 0.5,
+            freeboard_delta_h_m=0.05, freeboard_delta_u_m_s=100.0,
+        )
     gas = _linear_gas(settling, 1.5, 0.6)
-    with pytest.raises(FreeboardError, match="一半"):
-        _account(edges, gas, rho, mu, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI, 0.05, 2, freeboard_delta_h_m=0.5)
     equilibria = stable_equilibria(edges, gas, rho, mu, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI)
     with pytest.raises(FreeboardError, match="跨过邻域"):
         trace_until_fate(
@@ -563,6 +614,7 @@ def test_neighborhood_velocity_can_still_leave_before_the_energy_barrier():
     )
     assert halved.capture_time_s == traced.capture_time_s
     assert halved.residence_s == traced.residence_s
+    assert halved.slip_m == traced.slip_m
     assert halved.upward_free == traced.upward_free
     assert halved.downward_hover == traced.downward_hover
     assert halved.residence_s[0] > 0.0
