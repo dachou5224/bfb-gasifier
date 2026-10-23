@@ -93,12 +93,12 @@ def run_campaign(source, report_dir, *, timeout_s: float | None = None) -> list:
             dest = Path(directory) / f"{spec.name}.json"
             adiabatic = overlay(source, dest, spec) if spec.name != "baseline" else False
             path = source if spec.name == "baseline" else dest
-            records.append(_spawn(spec, path, adiabatic, timeout))
+            records.append(_spawn(spec, path, adiabatic, timeout, report_dir))
     write_report(report_dir, records, title="第 1 关运行", toy=False)
     return records
 
 
-def _spawn(spec, path, adiabatic, timeout) -> dict:
+def _spawn(spec, path, adiabatic, timeout, report_dir) -> dict:
     completed = _process(
         [sys.executable, "-m", "hamel.solver.campaign", spec.name, str(path), "1" if adiabatic else "0"],
         timeout,
@@ -106,7 +106,13 @@ def _spawn(spec, path, adiabatic, timeout) -> dict:
     if completed is None:
         return _absent(spec, "TIMEOUT", "墙钟上限内没有返回")
     if completed.returncode != 0:
-        return _absent(spec, "NOT_CONVERGED", (completed.stderr or "")[-500:])
+        folder = Path(report_dir) / "logs"
+        folder.mkdir(parents=True, exist_ok=True)
+        log = folder / f"{spec.name}.stderr.log"
+        log.write_text(completed.stderr or "", encoding="utf-8")
+        record = _absent(spec, "ERROR", f"子进程退出码 {completed.returncode}")
+        record["stderr_log"] = str(log)
+        return record
     return json.loads(completed.stdout)
 
 

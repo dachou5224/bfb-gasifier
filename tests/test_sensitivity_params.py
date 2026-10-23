@@ -66,19 +66,29 @@ def test_case_file_voidage_matches_the_module_literal():
 
 
 def test_fuller_changes_only_the_exchange_coefficient():
-    conditions = BedConditions(1.0e-3, 0.46, 1600.0, 1.2, 2.8e-5, 2.8e-5 / 1.2, 101300.0, 2.0e-5, 0.15, "technical", "B", True)
+    from hamel.hydrodynamics.bed import local_bed_state
+    from hamel.properties.transport import interphase_diffusivity_m2_s
+    from hamel.solver.precalc import SEARCH
+
+    temperature = 1100.0
+    pressure = 101300.0
+    diffusivity = interphase_diffusivity_m2_s(temperature, pressure)
+    conditions = BedConditions(1.0e-3, 0.46, 1600.0, 1.2, 2.8e-5, 2.8e-5 / 1.2, pressure, diffusivity, 0.15, "technical", "B", True)
+    same = local_bed_state(0.8, 0.04, 0.2, conditions, SEARCH)
     profile = BedProfile(
         0.2, np.array([0.2]), np.array([1.2]), np.array([0.04]), np.array([0.7]),
-        np.array([3.0]), np.array([0.4]), np.array([0.01]),
+        np.array([same.k_bd]), np.array([0.4]), np.array([0.01]),
     )
-    flow = SimpleNamespace(bed_temperature=np.array([1100.0]), pressure=101300.0, u0=np.array([0.8]))
+    flow = SimpleNamespace(bed_temperature=np.array([temperature]), pressure=pressure, u0=np.array([0.8]))
     case = SimpleNamespace(solver=SolverConfig())
-    assert _exchange_diffusivity(case, flow, profile, conditions) is profile
+    kept = _exchange_diffusivity(case, flow, profile, conditions)
+    assert kept.k_bd[0] == same.k_bd
+    assert kept.d_b[0] == profile.d_b[0]
     fuller = _exchange_diffusivity(
         SimpleNamespace(solver=replace(SolverConfig(), interphase_diffusivity="fuller_o2_n2")),
         flow, profile, conditions,
     )
-    assert fuller.k_bd[0] != profile.k_bd[0]
+    assert fuller.k_bd[0] != kept.k_bd[0]
     assert fuller.d_b[0] == profile.d_b[0]
     assert fuller.u_b[0] == profile.u_b[0]
 
@@ -378,9 +388,9 @@ def test_diagnostics_publish_existing_intermediates():
     assert reported["kurkela_freeboard_m_s"] == 0.67
     assert len(reported["fuel_release_mass_gap_kg_s"]) == 2
     assert reported["freeboard_mass_element_closure"] is None
-    assert "不新增计算" in reported["freeboard_mass_element_closure_note"]
+    assert "ADR 0040" in reported["freeboard_mass_element_closure_note"]
     assert reported["freeboard_closed_form"] is None
-    assert "不新增计算" in reported["freeboard_closed_form_note"]
+    assert "ADR 0040" in reported["freeboard_closed_form_note"]
     ratio = bubble_balance_ratio(0.01, 1000.0, 101300.0, reported["visible_bubble_m3_s"][0])
     assert ratio is not None and ratio > 0.0
 

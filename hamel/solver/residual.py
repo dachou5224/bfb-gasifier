@@ -587,6 +587,44 @@ def _phase_point(flow_mol_s, temperature_k, pressure_pa):
     film_rho = density_kg_m3(temperature_k, pressure_pa, named)
     return fraction, concentration, named, film_mu, film_rho
 
+def particle_temperatures(frozen, state) -> dict:
+    """各 (cell, 粒级) 的颗粒温度。与残差里的式 (5.22) 是同一次对齐，只供加密检查读取。"""
+    bed = np.full((frozen.n_bed, frozen.n_class), np.nan)
+    free = np.full((frozen.n_freeboard, frozen.n_class), np.nan)
+    hover = np.full((frozen.n_freeboard, frozen.n_class), np.nan)
+    for cell in range(frozen.n_bed):
+        _y, concentration, fractions, mu, rho = _phase_point(
+            state.bed_gas_mol_s[cell, 0], state.bed_temperature_k[cell], frozen.bed_pressure_pa[cell],
+        )
+        ash = _bed_ash_by_class(state.bed_char_kg, frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1))
+        for klass in range(frozen.n_class):
+            if state.bed_char_kg[cell, klass] <= 0.0 and ash[cell, klass] > 0.0:
+                continue
+            bed[cell, klass] = _particle_k(
+                float(frozen.diameter_m[klass]), float(state.bed_temperature_k[cell]), float(frozen.bed_pressure_pa[cell]),
+                float(frozen.u_r_bed_m_s[cell]), concentration, fractions, mu, rho, frozen,
+            )
+    for cell in range(frozen.n_freeboard):
+        _y, concentration, fractions, mu, rho = _phase_point(
+            state.freeboard_gas_mol_s[cell], state.freeboard_temperature_k[cell], frozen.freeboard_pressure_pa[cell],
+        )
+        for klass in range(frozen.n_class):
+            for hover_state, target in ((False, free), (True, hover)):
+                char = state.freeboard_char_hover_kg if hover_state else state.freeboard_char_free_kg
+                ash_row = state.freeboard_ash_hover_kg if hover_state else state.freeboard_ash_free_kg
+                if hover_state and not frozen.hover[cell, klass]:
+                    continue
+                if char[cell, klass] <= 0.0 and ash_row[cell, klass] > 0.0:
+                    continue
+                if char[cell, klass] <= 0.0 and ash_row[cell, klass] <= 0.0 and not hover_state:
+                    continue
+                velocity = frozen.u_r_hover_m_s if hover_state else frozen.u_r_freeboard_m_s
+                target[cell, klass] = _particle_k(
+                    float(frozen.diameter_m[klass]), float(state.freeboard_temperature_k[cell]),
+                    float(frozen.freeboard_pressure_pa[cell]), float(velocity[cell, klass]),
+                    concentration, fractions, mu, rho, frozen,
+                )
+    return {"bed": bed, "free": free, "hover": hover}
 def _particle_k(diameter, temperature, pressure, velocity, concentration, fractions, mu, rho, frozen) -> float:
     """式 (5.22) 与式 (4.9) 对齐。d_c、T_c 与式 (5.23) 的 T 取颗粒温度。ADR 0022 C1；ADR 0017 第 20 项。"""
     del mu, rho

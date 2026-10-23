@@ -16,14 +16,8 @@ CONE_HEIGHT_M = 0.2875
 KURKELA_BED_M_S = 0.74
 KURKELA_FREEBOARD_M_S = 0.67
 _AMBIENT_K = 298.15
-_CLOSED_FORM = (
-    "求解路径没有数值积分与常气速闭式的中间量。"
-    "ADR 0016 第 11 条写明变系数轨迹不用常气速闭式，闭式只在单元测试里对照。本项不新增计算。"
-)
-_FREEBOARD_CLOSURE = (
-    "现有公开中间量只有燃料释放子系统的 W/P 质量与元素闭合。"
-    "全自由空间的气相、焦炭、灰和边界流闭合没有对应中间量，本项不新增计算。"
-)
+_CLOSED_FORM = "闭式比对在报告工具中按 ADR 0040 第 5 项执行，不参与求解，不设通过门。"
+_FREEBOARD_CLOSURE = "全自由空间闭合在报告工具中按 ADR 0040 第 5 项逐股记账，不加反应项，不进入残差。"
 
 
 def diameter_at(height_m: float, bed_diameter_m: float, freeboard_diameter_m: float) -> float:

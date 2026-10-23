@@ -3,12 +3,14 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 
 from hamel.cases.config import SolverConfig
 from hamel.cases.judge import Measurement, Premises, judge
-from hamel.cases.targets import acceptance_targets
+from hamel.cases.targets import acceptance_targets, half_width
+from tools.run_prep import _ACCEPTANCE, closed_form_report, constructed_books, refinement_report, toy_applicability_rows
 
 _CASE_ID = "CASE_VTT_PRESSURIZED_1"
 _DIGITIZED = "data/digitized"
@@ -38,7 +40,16 @@ _FROZEN = (
     ("F23", "平均泡间距用式 (3.57)", "ADR 0028"),
     ("F24", "床区 u_r = u_d/ε_d；自由状态为轨迹加权滑移；悬停为 v_t", "ADR 0035 第 4 项"),
     ("F25", "未收敛时非 B 类用 B 类系数延拓；收敛后按真实类别复核", "ADR 0035 第 2 项"),
+    ("F26", "T̄_FRB 按自由空间格子高度加权，含锥段", "ADR 0040 第 1 项"),
+    ("F27", "X_C 为出口气体（含焦油）碳／燃料碳", "ADR 0040 第 1 项"),
+    ("F28", "床区流体力学气体物性用摩尔流量加权平均；D_g 逐格", "ADR 0040 第 2 项"),
 )
+_KINDS = {
+    "T_FRB_K": "temperature", "X_C": "carbon_conversion", "CH4": "ch4",
+    "CO": "major_gas", "CO2": "major_gas", "H2": "major_gas", "H2O": "major_gas",
+}
+_SHARED = "各验收量共享壁面散热这一校准输入。"
+_TOY_EXTRA = None
 
 
 def write_report(report_dir, records, *, title: str, toy: bool) -> dict:
@@ -72,8 +83,74 @@ def _document(records, title, toy) -> dict:
     return {
         "title": title, "toy": toy, "timeout_s": SolverConfig().wall_timeout_s,
         "frozen": [{"id": item[0], "choice": item[1], "source": item[2]} for item in _FROZEN],
-        "numerical": _numerical(), "runs": judged, "differences": _differences(judged),
+        "shared_input": _SHARED,
+        "numerical": _numerical(), "runs": judged, "differences": _differences(judged, targets),
+        "closed_form": None if not toy else _toy_extra()["closed_form"],
+        "refinement": None if not toy else _toy_extra()["refinement"],
     }
+
+
+def _toy_extra() -> dict:
+    global _TOY_EXTRA
+    if _TOY_EXTRA is None:
+        config = SolverConfig()
+        example = constructed_books()
+        _TOY_EXTRA = {
+            "closed_form": closed_form_report(config, toy_applicability_rows()),
+            "refinement": refinement_report(config, (example["state"], example["frozen"], 1.0, 1.0, 1.0)),
+            "diagnostics": example["diagnostics"],
+            "measurements": example["measurements"],
+        }
+    return _TOY_EXTRA
+
+
+def publish_toy_report(report_dir) -> dict:
+    """写出 reports/toy。基准和 S1 用构造数字，S2–S16 只列接线。"""
+    from hamel.solver.campaign import run_specs
+    from hamel.solver.sensitivity import pack_reported
+
+    extra = _toy_extra()
+    profile = SimpleNamespace(
+        epsilon_b=np.array([0.2, 0.1]), u_b=np.array([1.5, 1.2]), d_b=np.array([0.2, 0.05]),
+    )
+    flow = SimpleNamespace(
+        u0=np.array([0.8, 0.7]), free_mol_s=np.array([[0.02, 0.01]]), free_temperature=np.array([1000.0]),
+        pressure=101300.0,
+    )
+    released = SimpleNamespace(
+        mass_gap_kg_s=np.array([1.0e-6, -2.0e-6, 0.0]),
+        element_gap_kg_s={"C": np.array([1.0e-7, 0.0, 3.0e-7])},
+    )
+    case = SimpleNamespace(bed_diameter_m=0.15, free_diameter_m=0.25, n_free=2)
+    diagnostics = dict(extra["diagnostics"])
+    diagnostics["sensitivity"] = pack_reported(profile, flow, case, released)
+    measurements = dict(extra["measurements"])
+    shifted = dict(measurements)
+    shifted["T_FRB_K"] = 1115.0
+    records = []
+    for spec in run_specs():
+        blank = {
+            "name": spec.name, "change": spec.change, "source": spec.source,
+            "rounds": 0, "iterations": 0, "ratios": {}, "diagnostics": {},
+        }
+        if spec.name == "baseline":
+            records.append({
+                **blank, "status": "CONVERGED", "reason": "构造例，不是第 1 关的解",
+                "balance": {"ok": True, "ratios": {"C": 0.0, "H": 0.0, "O": 0.0, "energy": 0.0}},
+                "nonnegative": True, "measurements": measurements, "diagnostics": diagnostics,
+            })
+        elif spec.name == "S1":
+            records.append({
+                **blank, "status": "CONVERGED", "reason": "构造例，k_W = 0 的并列数字，不是装置结果",
+                "balance": {"ok": True, "ratios": {"C": 0.0, "H": 0.0, "O": 0.0, "energy": 0.0}},
+                "nonnegative": True, "measurements": shifted, "diagnostics": {},
+            })
+        else:
+            records.append({
+                **blank, "status": "WIRED", "reason": "已接线。样例不启动工况进程，不列装置结果。",
+                "balance": None, "nonnegative": None, "measurements": None,
+            })
+    return write_report(report_dir, records, title="玩具工况", toy=True)
 
 
 def _judge(record, targets) -> dict:
@@ -101,7 +178,15 @@ def _judge(record, targets) -> dict:
     return convert(body)
 
 
-def _differences(runs) -> list:
+def _over_half(quantity: str, delta: float, targets) -> bool:
+    kind = _KINDS.get(quantity)
+    target = next((item for item in targets if item.quantity == quantity and item.present and item.sim is not None), None)
+    if kind is None or target is None:
+        return False
+    return abs(float(delta)) > 0.5 * half_width(kind, float(target.sim))
+
+
+def _differences(runs, targets) -> list:
     baseline = next((item for item in runs if item["name"] == "baseline"), None)
     base = None if baseline is None else (baseline.get("measurements") or {})
     rows = []
@@ -110,11 +195,18 @@ def _differences(runs) -> list:
             continue
         current = item.get("measurements") or {}
         delta = {}
+        marked = []
         if base and current and item.get("status") == "CONVERGED" and baseline.get("status") == "CONVERGED":
             for key, value in current.items():
                 if key in base and value is not None and base[key] is not None:
-                    delta[key] = float(value) - float(base[key])
-        rows.append({"name": item["name"], "status": item["status"], "delta": delta, "reason": item.get("reason", "")})
+                    gap = float(value) - float(base[key])
+                    delta[key] = gap
+                    if _over_half(key, gap, targets):
+                        marked.append(key)
+        rows.append({
+            "name": item["name"], "status": item["status"], "delta": delta,
+            "over_half_tolerance": marked, "reason": item.get("reason", ""),
+        })
     return rows
 
 
@@ -141,9 +233,144 @@ def _sensitivity_example(runs) -> dict | None:
 
 
 def _cell(value):
+    if value is None:
+        return ""
     if isinstance(value, float):
         return f"{value:.6g}"
     return value
+
+
+def _run(runs, name):
+    return next((item for item in runs if item.get("name") == name), None)
+
+
+def _measured(run, quantity):
+    if run is None:
+        return None
+    return (run.get("measurements") or {}).get(quantity)
+
+
+def _acceptance_pair(runs) -> list:
+    baseline, adiabatic = _run(runs, "baseline"), _run(runs, "S1")
+    lines = [
+        "基准与 S1 的验收量：", "",
+        "| 量 | 基准 | S1 |", "|---|---|---|",
+    ]
+    for name in _ACCEPTANCE:
+        lines.append(f"| {name} | {_cell(_measured(baseline, name))} | {_cell(_measured(adiabatic, name))} |")
+    lines.append("")
+    return lines
+
+
+def _stocks(runs) -> list:
+    lines = []
+    found = False
+    for run in runs:
+        stocks = (run.get("diagnostics") or {}).get("stocks")
+        if not stocks:
+            continue
+        found = True
+        lines.append(f"### {run['name']}")
+        lines.append("")
+        if stocks.get("note"):
+            lines.append(stocks["note"])
+            lines.append("")
+        deviation = (run.get("diagnostics") or {}).get("bed_gas_temperature_deviation_k")
+        if deviation is not None:
+            lines.append(f"床区气体温度与平均值的最大偏差：{_cell(float(deviation))} K。")
+            lines.append("")
+        lines += ["| 粒级 | 参考回落份额 | 参考带出份额 | 实际回落 kg/s | 实际带出 kg/s |", "|---|---|---|---|---|"]
+        for row in stocks.get("classes") or []:
+            lines.append(
+                f"| {row['class']} | {_cell(row['reference_return_share'])} | {_cell(row['reference_elutriation_share'])} | {_cell(row['return_kg_s'])} | {_cell(row['elutriation_kg_s'])} |"
+            )
+        lines += ["", "| 格 | 固体 kg | 反应消耗 kg/s |", "|---|---|---|"]
+        for row in stocks.get("cells") or []:
+            lines.append(f"| {row['cell']} | {_cell(row['solid_kg'])} | {_cell(row['char_consumption_kg_s'])} |")
+        lines += ["", "| 格 | 粒级 | 悬停 kg | 占该格固体 |", "|---|---|---|---|"]
+        for row in stocks.get("hover") or []:
+            lines.append(f"| {row['cell']} | {row['class']} | {_cell(row['hover_kg'])} | {_cell(row['hover_fraction'])} |")
+        lines.append("")
+    if not found:
+        lines += ["这次运行没有收敛存量。", ""]
+    return lines
+
+
+def _stream_table(closure) -> list:
+    lines = ["| 流 | 方向 | 质量 kg/s | C | H | O |", "|---|---|---|---|---|---|"]
+    for row in closure.get("streams") or []:
+        lines.append(
+            f"| {row['name']} | {row['direction']} | {_cell(row['mass'])} | {_cell(row['C'])} | {_cell(row['H'])} | {_cell(row['O'])} |"
+        )
+    lines += ["", "| 量 | 入 | 出 | 差值 | 相对差 |", "|---|---|---|---|---|"]
+    for key, row in (closure.get("totals") or {}).items():
+        lines.append(f"| {key} | {_cell(row['in'])} | {_cell(row['out'])} | {_cell(row['difference'])} | {_cell(row['relative'])} |")
+    lines.append("")
+    lines.append(f"气固反应消耗的焦炭（不进入上表）：{_cell(closure.get('reaction_char_kg_s'))} kg/s。")
+    lines.append("")
+    return lines
+
+
+def _closure_and_form(payload) -> list:
+    lines = ["## 全自由空间闭合", ""]
+    if payload["toy"]:
+        lines += ["下表是构造状态的逐股记账。反应项没有加进差值。构造状态不是收敛解，差值不必为零。", ""]
+    found = False
+    for run in payload["runs"]:
+        closure = (run.get("diagnostics") or {}).get("freeboard_closure")
+        if not closure:
+            continue
+        found = True
+        lines += [f"### {run['name']}", ""]
+        lines.extend(_stream_table(closure))
+    if not found:
+        lines += ["这次运行没有闭合记账。", ""]
+    form = payload.get("closed_form")
+    lines += ["## 数值积分与闭式", ""]
+    if not form:
+        lines += ["这次报告没有做闭式比对。", ""]
+        return lines
+    benchmark = form["benchmark"]
+    lines += [
+        f"固定构造基准：Δ = {_cell(benchmark['delta'])}，步长 {_cell(benchmark['step_s'])} s，样本数设置 {benchmark['samples']}。",
+        f"最大相对偏差 {_cell(benchmark['max_relative'])}（速度 {_cell(benchmark['velocity_relative'])}，高度 {_cell(benchmark['height_relative'])}）。",
+        "",
+        "| 粒径 m | 分支 | Δ | 较快支 Δ | 较慢支 Δ | 状态 | 截止 | 速度相对偏差 | 高度相对偏差 |",
+        "|---|---|---|---|---|---|---|---|---|",
+    ]
+    for row in form["classes"]:
+        lines.append(
+            f"| {_cell(row['diameter_m'])} | {row['branch']} | {_cell(row['delta'])} | {_cell(row['delta_faster'])} | {_cell(row['delta_slower'])} | {row['status']} | {row['stopped']} | {_cell(row['max_velocity_relative'])} | {_cell(row['max_height_relative'])} |"
+        )
+    lines.append("")
+    return lines
+
+
+def _refinement_lines(payload) -> list:
+    lines = []
+    refinement = payload.get("refinement")
+    if refinement:
+        trajectory = refinement["trajectory"]
+        lines.append(
+            f"- 轨迹样本加倍、步长减半：a、b 相对变化 {_cell(trajectory['relative_change'])}，门 {trajectory['gate']}，{'满足' if trajectory['met'] else '未满足'}。"
+        )
+        for row in refinement["pyrolysis"]["rows"]:
+            lines.append(
+                f"- 热解 {row['name']}：相对变化 {_cell(row['relative_change'])}，门 {row['gate']}，{'满足' if row['met'] else '未满足'}。玩具粒径 {_cell(refinement['pyrolysis']['diameter_m'])} m。"
+            )
+        particle = refinement.get("particle")
+        if particle:
+            lines.append(
+                f"- 颗粒温度（构造状态，不是收敛解）：最大变化 {_cell(particle['temperature_change_k'])} K，重算残差相对范数 {_cell(particle['residual_relative_norm'])}。温度门 0.1 K，残差门 1e-6，{'满足' if particle['met'] else '未满足'}。构造状态的残差不要求过门。"
+            )
+    for run in payload["runs"]:
+        info = ((run.get("diagnostics") or {}).get("final") or {})
+        if "bed_intervals" not in info and "substep_history" not in info and "delta_notes" not in info:
+            continue
+        lines.append(f"- {run['name']} 的 ADR 0036：床层子步 n = {info.get('bed_intervals')}，加倍记录 {info.get('substep_history')}，逐根 δ {info.get('delta_notes')}。")
+    if not any("ADR 0036" in line for line in lines):
+        lines.append("- ADR 0036 的逐根 δ 与床层子步：这次运行没有这两项记录。")
+    return lines
 
 
 def _markdown(payload) -> str:
@@ -151,10 +378,14 @@ def _markdown(payload) -> str:
     if payload["toy"]:
         lines += [
             "这是玩具工况，用来核对驱动、收敛门和报告。数字不是第 1 关的解。",
-            "S1–S16 都已接线。样例不启动工况进程，表中不列装置结果。",
+            "S1–S16 都已接线。样例不启动工况进程。基准与 S1 的数字来自构造例。S2–S16 不列装置结果。",
             "",
         ]
-    lines += [f"单次运行墙钟上限 {payload['timeout_s']} s（ADR 0037）。", "", "## 验收", ""]
+    lines += [
+        f"单次运行墙钟上限 {payload['timeout_s']} s（ADR 0037）。", "",
+        "## 验收", "", payload["shared_input"], "",
+    ]
+    lines.extend(_acceptance_pair(payload["runs"]))
     for run in payload["runs"]:
         acceptance = run.get("acceptance") or {}
         if payload["toy"] and run.get("status") == "WIRED":
@@ -178,26 +409,45 @@ def _markdown(payload) -> str:
             )
         balance = run.get("balance") or {}
         lines += ["", f"外部平衡：{balance.get('ratios')}。非负：{run.get('nonnegative')}。残差比：{run.get('ratios')}。", ""]
+        log = run.get("stderr_log")
+        if run.get("status") == "ERROR" and log:
+            lines.append(f"stderr 日志：{log}。")
+            lines.append("")
+        used = (run.get("diagnostics") or {}).get("used")
+        if used:
+            lines += ["实际使用的冻结值：", ""]
+            for key, value in used.items():
+                lines.append(f"- {key}：{_cell(value)}")
+            lines.append("")
+    lines += [
+        "## 存量与流量", "",
+        "参考回落与带出份额来自无反应轨迹。实际流量是收敛存量乘输运系数。悬停占比按 ADR 0026。",
+        "",
+    ]
+    lines.extend(_stocks(payload["runs"]))
     lines += [
         "## 诊断", "",
         "每次运行的 JSON `diagnostics` 写入预计算已经算出的量，以及求解后由这些量整理的诊断。",
         "气泡相总流之比、d_b/D 与 d_b>D 的格数、与 KURKELA 表 5 的气速对照、悬停焦炭消耗占比，都取自这些中间量。",
-        "燃料释放子系统的 W/P 质量与元素缺口单独列出。全自由空间的气相、焦炭、灰和边界流闭合没有对应中间量，记为未计算。",
-        "数值积分与常气速闭式的比对在求解路径上没有中间量。ADR 0016 第 11 条写明变系数轨迹不用常气速闭式，本项不新增计算，诊断里记为未计算。",
+        "床区各格气体温度与摩尔流量加权平均温度的最大偏差写在 `bed_gas_temperature_deviation_k`。",
+        "全自由空间闭合按 ADR 0040 第 5 项逐股记账，不加反应项。闭式比对只在报告工具里做，不设通过门。",
         "",
     ]
     example = _sensitivity_example(payload["runs"])
     if example:
-        lines += ["构造例不启动工况进程。五项由已有中间量的打包函数算出；闭式比对未计算。", ""]
+        lines += ["构造例不启动工况进程。已有中间量仍由打包函数给出。", ""]
         for key, value in example.items():
             lines.append(f"- {key}：{_cell(value) if not isinstance(value, (dict, list)) else value}")
         lines.append("")
-    lines += ["## 敏感性差值", "", "| 运行 | 状态 | 差值 |", "|---|---|---|"]
+    lines.extend(_closure_and_form(payload))
+    lines += ["## 敏感性差值", "", "| 运行 | 状态 | 差值 | 超过容差一半 |", "|---|---|---|---|"]
     for row in payload["differences"]:
-        lines.append(f"| {row['name']} | {row['status']} | {row['delta'] or row['reason']} |")
+        marked = "、".join(row.get("over_half_tolerance") or []) or ""
+        lines.append(f"| {row['name']} | {row['status']} | {row['delta'] or row['reason']} | {marked} |")
     lines += ["", "## 数值加密", ""]
     for key, value in payload["numerical"].items():
         lines.append(f"- {key}：{value}")
+    lines.extend(_refinement_lines(payload))
     lines += ["", "## 冻结选择", "", "| 编号 | 选择 | 来源 |", "|---|---|---|"]
     for item in payload["frozen"]:
         lines.append(f"| {item['id']} | {item['choice']} | {item['source']} |")

@@ -30,12 +30,12 @@ from hamel.solver.frozen import AssemblyError, FrozenQuantities
 from hamel.solver.residual import wall_area_m2
 from hamel.solver.sensitivity import diameter_at, edge_diameters, interface_balance_index, pack_reported, section_volume_m3
 from hamel.solver.vector import ReactorState
-# ADR 0024。工况文件缺省时回退到这两个冻结值。
+# ADR 0024 的冻结数值。缺字段不再回退。实现修正：ADR 0024、ADR 0039、ADR 0040。
 EPSILON_MF = 0.46
 PHI_S = 0.8
 # ADR 0029：环境温度。壁面热损本身从工况文件读取。
 AMBIENT_K = 298.15
-# ADR 0020，与 tests/test_hydrodynamics.py 的登记值相同。
+# 求解器参数：ADR 0020。模块常量，不进 SolverConfig。数值与 ADR 0020 相同。
 SEARCH = HydroSearch(1e-12, 1.0, 80, 1e-8, 2.0, 1.35, 36, 8000.0, 60, 1e-6)
 DISTRIBUTOR = "technical"
 SEED_CHAR = 1.0e-6
@@ -197,11 +197,18 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
     )
     frozen = _frozen(case, state, flow, profile, share, coefficient, rho_p, k_up, down, transport, theta, hover, absent, released, drain_ash, drain_char, bed_u, free_u, hover_u)
     gas_out = _gas_release(released)
+    reported = pack_reported(profile, flow, case, released)
+    reported["bed_gas_temperature_deviation_k"] = float(np.max(np.abs(flow.bed_temperature - gas.temperature)))
+    reported["reference_return_share"] = np.array([book.return_share for book in accounting], dtype=float)
+    reported["reference_elutriation_share"] = np.array([book.elutriation_share for book in accounting], dtype=float)
+    reported["phi_s"] = float(case.phi_s)
+    reported["n_0"] = float(case.n_0)
+    reported["cell_division"] = f"{case.n_bed}×{case.bed_cell_m:g} m + {case.n_free}×{case.free_cell_m:g} m"
     return PrecalcResult(
         frozen, state, t_ad, dict(equilibrium.fractions), group, d_bar, d_sv, residual,
         equilibrium.feed_enthalpy, equilibrium.product_enthalpy, ejection.mass_flow, _hover_pairs(hover),
         gas_out / case.fuel_kg_s, t_init, hydro, record, tuple(notes), ratios, intervals, substeps, delta_notes,
-        pack_reported(profile, flow, case, released),
+        reported,
     )
 @dataclass
 class _Case:
@@ -288,15 +295,10 @@ def _load(path, case_id: str, solver=None) -> _Case:
         float(_value(doc, key, "distributor_orifice_count")), float(_value(doc, key, "distributor_outlet_height")),
         float(_value(doc, key, "solid_feed_temperature")), float(_value(doc, key, "nitrogen_purge_temperature")),
         n_bed, int(free.size), bed, float(free[0]),
-        float(_optional(doc, key, "bed_minimum_fluidization_voidage", EPSILON_MF)),
-        float(_optional(doc, key, "bed_sphericity", PHI_S)),
+        float(_value(doc, key, "bed_minimum_fluidization_voidage")),
+        float(_value(doc, key, "bed_sphericity")),
         float(_value(doc, key, "agent_feed_height")),
     )
-def _optional(doc, key, name, default):
-    try:
-        return _value(doc, key, name)
-    except PrecalcError:
-        return default
 def _value(doc, key, name):
     case = doc["cases"][key]
     fuel = doc.get("fuels", {}).get(case.get("fuel_id"), {})
@@ -420,19 +422,25 @@ def _secondary_index(case) -> int:
         )
     except AssemblyError as exc:
         raise PrecalcError(str(exc)) from exc
-def _exchange_diffusivity(case, flow, profile, conditions):
-    """默认式 (5.20) 不改剖面。Fuller 只替换各格 K_bd。ADR 0021 第 4 项；ADR 0039。"""
-    mode = case.solver.interphase_diffusivity
+def _cell_diffusivity(mode: str, temperature: float, pressure: float) -> float:
+    """该格气体温度下的 D_g。流体力学物性不在这里换。实现修正：ADR 0021、ADR 0040。"""
     if mode == "hamel_5_20":
-        return profile
-    if mode != "fuller_o2_n2":
-        raise PrecalcError(f"不能识别的相间扩散 {mode}")
+        return interphase_diffusivity_m2_s(temperature, pressure)
+    if mode == "fuller_o2_n2":
+        return fuller_binary_diffusivity_m2_s(
+            temperature, pressure, molar_mass_g_mol("O2"), molar_mass_g_mol("N2"),
+            fuller_volume("O2"), fuller_volume("N2"),
+        )
+    raise PrecalcError(f"不能识别的相间扩散 {mode}")
+def _exchange_diffusivity(case, flow, profile, conditions):
+    """各床格 K_bd 用该格气体温度下的 D_g，写法与 S5 逐格分支相同。
+    ρ_g、μ_g、ν_g、气泡直径和 u_mf 仍是床区平均值上的剖面。S5 只改公式。
+    实现修正：ADR 0021、ADR 0040。
+    """
+    mode = case.solver.interphase_diffusivity
     k_bd = np.array(profile.k_bd, dtype=float, copy=True)
     for index in range(k_bd.size):
-        diffusivity = fuller_binary_diffusivity_m2_s(
-            float(flow.bed_temperature[index]), float(flow.pressure),
-            molar_mass_g_mol("O2"), molar_mass_g_mol("N2"), fuller_volume("O2"), fuller_volume("N2"),
-        )
+        diffusivity = _cell_diffusivity(mode, float(flow.bed_temperature[index]), float(flow.pressure))
         local = local_bed_state(
             float(flow.u0[index]), float(profile.d_b[index]), float(profile.u_mf),
             replace(conditions, diffusivity=diffusivity), SEARCH,
@@ -776,7 +784,9 @@ def _primary_vector(case):
     vector[index["H2O"]] = float(physical.steam_mass_flow) / molar_mass_kg_mol("H2O")
     return vector
 def _primary_temperature(case) -> float:
-    """一个温度，使一次风、蒸汽与吹扫氮的混合焓等于各自温度下的焓。ADR 0014 C2。"""
+    """一个温度，使一次风、蒸汽与吹扫氮的混合焓等于各自温度下的焓。ADR 0014 C2。
+    二分区间 200–2500 K、60 次。求解器参数：ADR 0040。
+    """
     physical = case.physical
     inlet = float(physical.inlet_temperature)
     air = float(physical.primary_air_amount_flow)

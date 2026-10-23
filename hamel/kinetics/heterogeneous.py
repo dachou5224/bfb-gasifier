@@ -17,7 +17,7 @@ from hamel.kinetics.common import (
 
 # 式 (5.20) 的参考压力，印刷为 101.300 Pa。不是 atm 的 101325 Pa。
 _FILM_REFERENCE_PA = 101_300.0
-# 牛顿法数值导数的相对步长。不是物性，也不改方程。
+# 牛顿法数值导数的相对步长 1e-6。求解器参数：ADR 0040。不是物性，也不改方程。
 _NEWTON_RELATIVE_STEP = 1.0e-6
 _LIGNITE_K0_M_S_K = 1.22
 _LIGNITE_E_OVER_R_K = 10_300.0

@@ -186,7 +186,9 @@ def test_toy_report_covers_the_required_sections(tmp_path):
         "ratios": {}, "diagnostics": {}, "rounds": 0, "iterations": 0,
     }], title="玩具工况", toy=True)
     text = (tmp_path / "driver_report.md").read_text(encoding="utf-8")
-    assert "玩具工况" in text and "数值加密" in text and "F24" in text and "F25" in text
+    assert "玩具工况" in text and "数值加密" in text and "F24" in text and "F25" in text and "F26" in text
+    assert "各验收量共享壁面散热这一校准输入" in text
+    assert "全自由空间闭合" in text and "数值积分与闭式" in text and "超过容差一半" in text
     assert "T_FRB_K" in text and "TIMEOUT" not in payload["runs"][0]["status"]
     assert payload["runs"][0]["acceptance"]["premises_met"] is True
     assert payload["differences"][0]["status"] == "NOT_APPLIED"
@@ -266,7 +268,7 @@ def test_case1_campaign_stops_at_the_wall_clock(tmp_path):
     """第 1 关全套运行。默认集不跑。每次运行到 wall_timeout_s 记 TIMEOUT。"""
     records = run_campaign(_CASE, tmp_path)
     assert [item["name"] for item in records] == [item.name for item in run_specs()]
-    assert all(item["status"] in {"CONVERGED", "NOT_CONVERGED", "DAMPING_FAILED", "TIMEOUT", "DOMAIN_STOP", "NOT_APPLIED"} for item in records)
+    assert all(item["status"] in {"CONVERGED", "NOT_CONVERGED", "DAMPING_FAILED", "TIMEOUT", "DOMAIN_STOP", "NOT_APPLIED", "ERROR"} for item in records)
 
 
 def _field(doc, name):

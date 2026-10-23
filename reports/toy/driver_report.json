@@ -127,8 +127,24 @@
       "id": "F25",
       "choice": "未收敛时非 B 类用 B 类系数延拓；收敛后按真实类别复核",
       "source": "ADR 0035 第 2 项"
+    },
+    {
+      "id": "F26",
+      "choice": "T̄_FRB 按自由空间格子高度加权，含锥段",
+      "source": "ADR 0040 第 1 项"
+    },
+    {
+      "id": "F27",
+      "choice": "X_C 为出口气体（含焦油）碳／燃料碳",
+      "source": "ADR 0040 第 1 项"
+    },
+    {
+      "id": "F28",
+      "choice": "床区流体力学气体物性用摩尔流量加权平均；D_g 逐格",
+      "source": "ADR 0040 第 2 项"
     }
   ],
+  "shared_input": "各验收量共享壁面散热这一校准输入。",
   "numerical": {
     "pyrolysis_radial_intervals": 24,
     "pyrolysis_time_rtol": 1e-06,
@@ -149,36 +165,177 @@
       "name": "baseline",
       "change": "不改冻结项",
       "source": "ADR 0030",
-      "status": "CONVERGED",
-      "reason": "",
       "rounds": 0,
       "iterations": 0,
-      "ratios": {
-        "gas": 0.0,
-        "solid": 0.0,
-        "energy": 0.0
-      },
-      "balance": {
-        "ok": true,
-        "ratios": {
-          "C": 0.0,
-          "H": 0.0,
-          "O": 0.0,
-          "energy": 0.0
-        }
-      },
-      "nonnegative": true,
-      "measurements": {
-        "T_FRB_K": 1100.0,
-        "X_C": 50.0,
-        "CO": 0.1,
-        "CO2": 0.1,
-        "H2": 0.1,
-        "CH4": 0.01,
-        "H2O": 0.1
-      },
+      "ratios": {},
       "diagnostics": {
-        "note": "构造例，不是第 1 关的解",
+        "stocks": {
+          "classes": [
+            {
+              "class": 1,
+              "reference_return_share": 0.2,
+              "reference_elutriation_share": 0.1,
+              "return_kg_s": 0.0,
+              "elutriation_kg_s": 0.0
+            },
+            {
+              "class": 2,
+              "reference_return_share": 0.8,
+              "reference_elutriation_share": 0.05,
+              "return_kg_s": 0.0,
+              "elutriation_kg_s": 0.0
+            }
+          ],
+          "cells": [
+            {
+              "cell": 0,
+              "solid_kg": 0.0042,
+              "char_consumption_kg_s": 0.001926424279081385
+            },
+            {
+              "cell": 1,
+              "solid_kg": 0.0042,
+              "char_consumption_kg_s": 0.0018966535801585036
+            }
+          ],
+          "hover": [
+            {
+              "cell": 0,
+              "class": 1,
+              "hover_kg": 0.0,
+              "cell_solid_kg": 0.0042,
+              "hover_fraction": 0.0
+            },
+            {
+              "cell": 0,
+              "class": 2,
+              "hover_kg": 0.0021,
+              "cell_solid_kg": 0.0042,
+              "hover_fraction": 0.5
+            },
+            {
+              "cell": 1,
+              "class": 1,
+              "hover_kg": 0.0,
+              "cell_solid_kg": 0.0042,
+              "hover_fraction": 0.0
+            },
+            {
+              "cell": 1,
+              "class": 2,
+              "hover_kg": 0.0,
+              "cell_solid_kg": 0.0042,
+              "hover_fraction": 0.0
+            }
+          ],
+          "note": "悬停占比来自闭合 A 的构造。B、C 不设悬停状态。"
+        },
+        "freeboard_closure": {
+          "streams": [
+            {
+              "name": "床区最上一格气体",
+              "direction": "入",
+              "mass": 0.002553205,
+              "C": 0.000132121,
+              "H": 3.6287999999999995e-05,
+              "O": 0.000703956
+            },
+            {
+              "name": "二次风及其它进入自由空间的气体",
+              "direction": "入",
+              "mass": 0.000819354,
+              "C": 1.80165e-05,
+              "H": 9.071999999999999e-06,
+              "O": 0.0002319855
+            },
+            {
+              "name": "床面抛出固体，含 F^ej,f 与 F^ej,t",
+              "direction": "入",
+              "mass": 0.0202,
+              "C": 0.00030000000000000003,
+              "H": 1.2e-05,
+              "O": 4e-05
+            },
+            {
+              "name": "自由空间出口气体",
+              "direction": "出",
+              "mass": 0.0017872435000000002,
+              "C": 9.24847e-05,
+              "H": 2.5401599999999997e-05,
+              "O": 0.0004927692
+            },
+            {
+              "name": "普通带出固体",
+              "direction": "出",
+              "mass": 0.00046,
+              "C": 0.00042,
+              "H": 2.4000000000000003e-06,
+              "O": 8.000000000000001e-06
+            },
+            {
+              "name": "普通回落固体",
+              "direction": "出",
+              "mass": 0.00010400000000000001,
+              "C": 9e-05,
+              "H": 1.2000000000000002e-06,
+              "O": 4.000000000000001e-06
+            },
+            {
+              "name": "B 的改送流",
+              "direction": "出",
+              "mass": 0.005906000000000001,
+              "C": 0.000883,
+              "H": 3.96e-06,
+              "O": 1.3200000000000002e-05
+            }
+          ],
+          "totals": {
+            "mass": {
+              "in": 0.023572559,
+              "out": 0.0082572435,
+              "difference": 0.0153153155,
+              "relative": 0.6497094990832348
+            },
+            "C": {
+              "in": 0.00045013750000000004,
+              "out": 0.0014854847,
+              "difference": -0.0010353472,
+              "relative": -2.3000687567687645
+            },
+            "H": {
+              "in": 5.735999999999999e-05,
+              "out": 3.29616e-05,
+              "difference": 2.4398399999999993e-05,
+              "relative": 0.4253556485355648
+            },
+            "O": {
+              "in": 0.0009759415,
+              "out": 0.0005179691999999999,
+              "difference": 0.00045797230000000006,
+              "relative": 0.4692620408087986
+            }
+          },
+          "reaction_char_kg_s": 0.003793307160317007,
+          "ejection_hover_char_kg_s": 5e-05,
+          "redirect_char_kg_s": 0.00085
+        },
+        "used": {
+          "epsilon_mf": 0.46,
+          "phi_s": 0.8,
+          "n_0": 139.5,
+          "epsilon_p": 0.85,
+          "serio_frequency_per_s": 54200.0,
+          "serio_activation_j_mol": 100500.0,
+          "hover_closure": "B",
+          "cell_division": "2×0.15 m + 2×0.2875 m",
+          "k_w_w_m2_k": 2.0,
+          "rho_p_kg_m3": 800.0,
+          "T_FRB_definition": "Σ T_i·Δh_i / Σ Δh_i，自由空间全部 cell，含锥段。解释性选择：ADR 0040 第 1 项。",
+          "X_C_definition": "出口气体（含焦油蒸气）中的碳 / 燃料碳。分子不计带出焦炭与排灰。解释性选择：ADR 0040 第 1 项。",
+          "T_FRB_K": 1100.0,
+          "X_C": 50.0
+        },
+        "bed_gas_temperature_deviation_k": 0.0,
         "sensitivity": {
           "visible_bubble_m3_s": [
             0.005301437602932777,
@@ -207,15 +364,31 @@
             ]
           },
           "freeboard_mass_element_closure": null,
-          "freeboard_mass_element_closure_note": "现有公开中间量只有燃料释放子系统的 W/P 质量与元素闭合。全自由空间的气相、焦炭、灰和边界流闭合没有对应中间量，本项不新增计算。",
+          "freeboard_mass_element_closure_note": "全自由空间闭合在报告工具中按 ADR 0040 第 5 项逐股记账，不加反应项，不进入残差。",
           "freeboard_closed_form": null,
-          "freeboard_closed_form_note": "求解路径没有数值积分与常气速闭式的中间量。ADR 0016 第 11 条写明变系数轨迹不用常气速闭式，闭式只在单元测试里对照。本项不新增计算。",
-          "bubble_balance_over_visible": [
-            0.15482143392870237,
-            0.3034500105002567
-          ],
-          "hover_char_consumption_fraction": 0.1111111111111111
+          "freeboard_closed_form_note": "闭式比对在报告工具中按 ADR 0040 第 5 项执行，不参与求解，不设通过门。"
         }
+      },
+      "status": "CONVERGED",
+      "reason": "构造例，不是第 1 关的解",
+      "balance": {
+        "ok": true,
+        "ratios": {
+          "C": 0.0,
+          "H": 0.0,
+          "O": 0.0,
+          "energy": 0.0
+        }
+      },
+      "nonnegative": true,
+      "measurements": {
+        "T_FRB_K": 1100.0,
+        "X_C": 50.0,
+        "CO": 0.1,
+        "CO2": 0.1,
+        "H2": 0.1,
+        "CH4": 0.01,
+        "H2O": 0.1
       },
       "acceptance": {
         "status": "不通过",
@@ -270,60 +443,76 @@
       "name": "S1",
       "change": "k_W = 0，初值不扣除壁面散热",
       "source": "ADR 0030 F19；ADR 0029",
-      "status": "WIRED",
-      "reason": "已接线。样例不启动工况进程，不列装置结果。",
-      "measurements": null,
-      "balance": null,
-      "nonnegative": null,
-      "ratios": {},
-      "diagnostics": {},
       "rounds": 0,
       "iterations": 0,
+      "ratios": {},
+      "diagnostics": {},
+      "status": "CONVERGED",
+      "reason": "构造例，k_W = 0 的并列数字，不是装置结果",
+      "balance": {
+        "ok": true,
+        "ratios": {
+          "C": 0.0,
+          "H": 0.0,
+          "O": 0.0,
+          "energy": 0.0
+        }
+      },
+      "nonnegative": true,
+      "measurements": {
+        "T_FRB_K": 1115.0,
+        "X_C": 50.0,
+        "CO": 0.1,
+        "CO2": 0.1,
+        "H2": 0.1,
+        "CH4": 0.01,
+        "H2O": 0.1
+      },
       "acceptance": {
         "status": "不通过",
-        "premises_met": false,
+        "premises_met": true,
         "quantities": [
           {
             "quantity": "T_FRB_K",
             "status": "不通过",
-            "value": null,
-            "distance": null
+            "value": 1115.0,
+            "distance": 29.0
           },
           {
             "quantity": "X_C",
             "status": "不通过",
-            "value": null,
-            "distance": null
+            "value": 50.0,
+            "distance": 25.099999999999994
           },
           {
             "quantity": "CO",
             "status": "不通过",
-            "value": null,
-            "distance": null
+            "value": 0.1,
+            "distance": 0.0476
           },
           {
             "quantity": "CO2",
-            "status": "不通过",
-            "value": null,
-            "distance": null
+            "status": "通过",
+            "value": 0.1,
+            "distance": 0.0059999999999999915
           },
           {
             "quantity": "H2",
-            "status": "不通过",
-            "value": null,
-            "distance": null
+            "status": "通过",
+            "value": 0.1,
+            "distance": 0.006000000000000005
           },
           {
             "quantity": "CH4",
-            "status": "不通过",
-            "value": null,
-            "distance": null
+            "status": "边界待定",
+            "value": 0.01,
+            "distance": 0.002
           },
           {
             "quantity": "H2O",
-            "status": "不通过",
-            "value": null,
-            "distance": null
+            "status": "边界待定",
+            "value": 0.1,
+            "distance": 0.006999999999999992
           }
         ]
       }
@@ -332,15 +521,15 @@
       "name": "S2",
       "change": "第二块布风板 n_0 = 95.6",
       "source": "ADR 0019",
-      "status": "WIRED",
-      "reason": "已接线。样例不启动工况进程，不列装置结果。",
-      "measurements": null,
-      "balance": null,
-      "nonnegative": null,
-      "ratios": {},
-      "diagnostics": {},
       "rounds": 0,
       "iterations": 0,
+      "ratios": {},
+      "diagnostics": {},
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "balance": null,
+      "nonnegative": null,
+      "measurements": null,
       "acceptance": {
         "status": "不通过",
         "premises_met": false,
@@ -394,15 +583,15 @@
       "name": "S3",
       "change": "ε_P = 0.79",
       "source": "ADR 0017 第 17 项",
-      "status": "WIRED",
-      "reason": "已接线。样例不启动工况进程，不列装置结果。",
-      "measurements": null,
-      "balance": null,
-      "nonnegative": null,
-      "ratios": {},
-      "diagnostics": {},
       "rounds": 0,
       "iterations": 0,
+      "ratios": {},
+      "diagnostics": {},
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "balance": null,
+      "nonnegative": null,
+      "measurements": null,
       "acceptance": {
         "status": "不通过",
         "premises_met": false,
@@ -456,15 +645,15 @@
       "name": "S4",
       "change": "ε_P = 0.91",
       "source": "ADR 0017 第 17 项",
-      "status": "WIRED",
-      "reason": "已接线。样例不启动工况进程，不列装置结果。",
-      "measurements": null,
-      "balance": null,
-      "nonnegative": null,
-      "ratios": {},
-      "diagnostics": {},
       "rounds": 0,
       "iterations": 0,
+      "ratios": {},
+      "diagnostics": {},
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "balance": null,
+      "nonnegative": null,
+      "measurements": null,
       "acceptance": {
         "status": "不通过",
         "premises_met": false,
@@ -518,15 +707,15 @@
       "name": "S5",
       "change": "D_g 改为 O2–N2 的 Fuller 二元值",
       "source": "ADR 0021 第 4 项",
-      "status": "WIRED",
-      "reason": "已接线。样例不启动工况进程，不列装置结果。",
-      "measurements": null,
-      "balance": null,
-      "nonnegative": null,
-      "ratios": {},
-      "diagnostics": {},
       "rounds": 0,
       "iterations": 0,
+      "ratios": {},
+      "diagnostics": {},
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "balance": null,
+      "nonnegative": null,
+      "measurements": null,
       "acceptance": {
         "status": "不通过",
         "premises_met": false,
@@ -580,15 +769,15 @@
       "name": "S6",
       "change": "七个粒级改用 ADR 0023 的算术平均径",
       "source": "ADR 0023；ADR 0030",
-      "status": "WIRED",
-      "reason": "已接线。样例不启动工况进程，不列装置结果。",
-      "measurements": null,
-      "balance": null,
-      "nonnegative": null,
-      "ratios": {},
-      "diagnostics": {},
       "rounds": 0,
       "iterations": 0,
+      "ratios": {},
+      "diagnostics": {},
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "balance": null,
+      "nonnegative": null,
+      "measurements": null,
       "acceptance": {
         "status": "不通过",
         "premises_met": false,
@@ -642,15 +831,15 @@
       "name": "S7",
       "change": "最细档代表径改为 0.0328 mm",
       "source": "ADR 0023",
-      "status": "WIRED",
-      "reason": "已接线。样例不启动工况进程，不列装置结果。",
-      "measurements": null,
-      "balance": null,
-      "nonnegative": null,
-      "ratios": {},
-      "diagnostics": {},
       "rounds": 0,
       "iterations": 0,
+      "ratios": {},
+      "diagnostics": {},
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "balance": null,
+      "nonnegative": null,
+      "measurements": null,
       "acceptance": {
         "status": "不通过",
         "premises_met": false,
@@ -704,15 +893,15 @@
       "name": "S8",
       "change": "最细档代表径改为 0.0753 mm",
       "source": "ADR 0023",
-      "status": "WIRED",
-      "reason": "已接线。样例不启动工况进程，不列装置结果。",
-      "measurements": null,
-      "balance": null,
-      "nonnegative": null,
-      "ratios": {},
-      "diagnostics": {},
       "rounds": 0,
       "iterations": 0,
+      "ratios": {},
+      "diagnostics": {},
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "balance": null,
+      "nonnegative": null,
+      "measurements": null,
       "acceptance": {
         "status": "不通过",
         "premises_met": false,
@@ -766,15 +955,15 @@
       "name": "S9",
       "change": "ε_mf = 0.40，φ_S = 0.6",
       "source": "ADR 0024",
-      "status": "WIRED",
-      "reason": "已接线。样例不启动工况进程，不列装置结果。",
-      "measurements": null,
-      "balance": null,
-      "nonnegative": null,
-      "ratios": {},
-      "diagnostics": {},
       "rounds": 0,
       "iterations": 0,
+      "ratios": {},
+      "diagnostics": {},
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "balance": null,
+      "nonnegative": null,
+      "measurements": null,
       "acceptance": {
         "status": "不通过",
         "premises_met": false,
@@ -828,15 +1017,15 @@
       "name": "S10",
       "change": "ε_mf = 0.40，φ_S = 0.9",
       "source": "ADR 0024",
-      "status": "WIRED",
-      "reason": "已接线。样例不启动工况进程，不列装置结果。",
-      "measurements": null,
-      "balance": null,
-      "nonnegative": null,
-      "ratios": {},
-      "diagnostics": {},
       "rounds": 0,
       "iterations": 0,
+      "ratios": {},
+      "diagnostics": {},
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "balance": null,
+      "nonnegative": null,
+      "measurements": null,
       "acceptance": {
         "status": "不通过",
         "premises_met": false,
@@ -890,15 +1079,15 @@
       "name": "S11",
       "change": "ε_mf = 0.55，φ_S = 0.6",
       "source": "ADR 0024",
-      "status": "WIRED",
-      "reason": "已接线。样例不启动工况进程，不列装置结果。",
-      "measurements": null,
-      "balance": null,
-      "nonnegative": null,
-      "ratios": {},
-      "diagnostics": {},
       "rounds": 0,
       "iterations": 0,
+      "ratios": {},
+      "diagnostics": {},
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "balance": null,
+      "nonnegative": null,
+      "measurements": null,
       "acceptance": {
         "status": "不通过",
         "premises_met": false,
@@ -952,15 +1141,15 @@
       "name": "S12",
       "change": "ε_mf = 0.55，φ_S = 0.9",
       "source": "ADR 0024",
-      "status": "WIRED",
-      "reason": "已接线。样例不启动工况进程，不列装置结果。",
-      "measurements": null,
-      "balance": null,
-      "nonnegative": null,
-      "ratios": {},
-      "diagnostics": {},
       "rounds": 0,
       "iterations": 0,
+      "ratios": {},
+      "diagnostics": {},
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "balance": null,
+      "nonnegative": null,
+      "measurements": null,
       "acceptance": {
         "status": "不通过",
         "premises_met": false,
@@ -1014,15 +1203,15 @@
       "name": "S13",
       "change": "悬停样本计为床面回落",
       "source": "ADR 0026 第 6 项；ADR 0038",
-      "status": "WIRED",
-      "reason": "已接线。样例不启动工况进程，不列装置结果。",
-      "measurements": null,
-      "balance": null,
-      "nonnegative": null,
-      "ratios": {},
-      "diagnostics": {},
       "rounds": 0,
       "iterations": 0,
+      "ratios": {},
+      "diagnostics": {},
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "balance": null,
+      "nonnegative": null,
+      "measurements": null,
       "acceptance": {
         "status": "不通过",
         "premises_met": false,
@@ -1076,15 +1265,15 @@
       "name": "S14",
       "change": "悬停样本计为出口带出",
       "source": "ADR 0026 第 6 项；ADR 0038",
-      "status": "WIRED",
-      "reason": "已接线。样例不启动工况进程，不列装置结果。",
-      "measurements": null,
-      "balance": null,
-      "nonnegative": null,
-      "ratios": {},
-      "diagnostics": {},
       "rounds": 0,
       "iterations": 0,
+      "ratios": {},
+      "diagnostics": {},
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "balance": null,
+      "nonnegative": null,
+      "measurements": null,
       "acceptance": {
         "status": "不通过",
         "premises_met": false,
@@ -1138,15 +1327,15 @@
       "name": "S15",
       "change": "Serio 第二对参数",
       "source": "ADR 0013 第 4 项",
-      "status": "WIRED",
-      "reason": "已接线。样例不启动工况进程，不列装置结果。",
-      "measurements": null,
-      "balance": null,
-      "nonnegative": null,
-      "ratios": {},
-      "diagnostics": {},
       "rounds": 0,
       "iterations": 0,
+      "ratios": {},
+      "diagnostics": {},
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "balance": null,
+      "nonnegative": null,
+      "measurements": null,
       "acceptance": {
         "status": "不通过",
         "premises_met": false,
@@ -1200,15 +1389,15 @@
       "name": "S16",
       "change": "cell 数加倍",
       "source": "ADR 0013 第 7 项",
-      "status": "WIRED",
-      "reason": "已接线。样例不启动工况进程，不列装置结果。",
-      "measurements": null,
-      "balance": null,
-      "nonnegative": null,
-      "ratios": {},
-      "diagnostics": {},
       "rounds": 0,
       "iterations": 0,
+      "ratios": {},
+      "diagnostics": {},
+      "status": "WIRED",
+      "reason": "已接线。样例不启动工况进程，不列装置结果。",
+      "balance": null,
+      "nonnegative": null,
+      "measurements": null,
       "acceptance": {
         "status": "不通过",
         "premises_met": false,
@@ -1262,99 +1451,207 @@
   "differences": [
     {
       "name": "S1",
-      "status": "WIRED",
-      "delta": {},
-      "reason": "已接线。样例不启动工况进程，不列装置结果。"
+      "status": "CONVERGED",
+      "delta": {
+        "T_FRB_K": 15.0,
+        "X_C": 0.0,
+        "CO": 0.0,
+        "CO2": 0.0,
+        "H2": 0.0,
+        "CH4": 0.0,
+        "H2O": 0.0
+      },
+      "over_half_tolerance": [
+        "T_FRB_K"
+      ],
+      "reason": "构造例，k_W = 0 的并列数字，不是装置结果"
     },
     {
       "name": "S2",
       "status": "WIRED",
       "delta": {},
+      "over_half_tolerance": [],
       "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S3",
       "status": "WIRED",
       "delta": {},
+      "over_half_tolerance": [],
       "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S4",
       "status": "WIRED",
       "delta": {},
+      "over_half_tolerance": [],
       "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S5",
       "status": "WIRED",
       "delta": {},
+      "over_half_tolerance": [],
       "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S6",
       "status": "WIRED",
       "delta": {},
+      "over_half_tolerance": [],
       "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S7",
       "status": "WIRED",
       "delta": {},
+      "over_half_tolerance": [],
       "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S8",
       "status": "WIRED",
       "delta": {},
+      "over_half_tolerance": [],
       "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S9",
       "status": "WIRED",
       "delta": {},
+      "over_half_tolerance": [],
       "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S10",
       "status": "WIRED",
       "delta": {},
+      "over_half_tolerance": [],
       "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S11",
       "status": "WIRED",
       "delta": {},
+      "over_half_tolerance": [],
       "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S12",
       "status": "WIRED",
       "delta": {},
+      "over_half_tolerance": [],
       "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S13",
       "status": "WIRED",
       "delta": {},
+      "over_half_tolerance": [],
       "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S14",
       "status": "WIRED",
       "delta": {},
+      "over_half_tolerance": [],
       "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S15",
       "status": "WIRED",
       "delta": {},
+      "over_half_tolerance": [],
       "reason": "已接线。样例不启动工况进程，不列装置结果。"
     },
     {
       "name": "S16",
       "status": "WIRED",
       "delta": {},
+      "over_half_tolerance": [],
       "reason": "已接线。样例不启动工况进程，不列装置结果。"
     }
-  ]
+  ],
+  "closed_form": {
+    "benchmark": {
+      "delta": 5.69257271584431,
+      "step_s": 0.0002,
+      "samples": 48,
+      "velocity_relative": 1.2318216698028572e-09,
+      "height_relative": 1.0689103920645966e-09,
+      "max_relative": 1.2318216698028572e-09
+    },
+    "classes": [
+      {
+        "diameter_m": 0.008,
+        "branch": "faster",
+        "delta": 5.69257271584431,
+        "delta_faster": 5.69257271584431,
+        "delta_slower": -5.69263599709431,
+        "initial_velocity_m_s": 1.5340503504843883,
+        "direct_return_share": 0.005386145954066723,
+        "status": "compared",
+        "stopped": "branch_change",
+        "max_velocity_relative": 2.1188650833892098e-10,
+        "max_height_relative": 1.7207719624212636e-12
+      },
+      {
+        "diameter_m": 0.00015,
+        "branch": "faster",
+        "delta": -9.989641725240297,
+        "delta_faster": -9.989641725240297,
+        "delta_slower": -118.01035827475978,
+        "initial_velocity_m_s": 1.5340503504843883,
+        "direct_return_share": 0.005386145954066723,
+        "status": "N/A",
+        "stopped": null,
+        "max_velocity_relative": null,
+        "max_height_relative": null
+      }
+    ]
+  },
+  "refinement": {
+    "trajectory": {
+      "samples": 48,
+      "step_s": 0.0002,
+      "relative_change": 7.041890522641492e-05,
+      "gate": 0.0001,
+      "met": true
+    },
+    "pyrolysis": {
+      "diameter_m": 0.0002,
+      "rows": [
+        {
+          "name": "radial",
+          "relative_change": 0.00019813149885978732,
+          "gate": 0.001,
+          "met": true
+        },
+        {
+          "name": "time",
+          "relative_change": 0.0004822064560710045,
+          "gate": 0.001,
+          "met": true
+        },
+        {
+          "name": "activation",
+          "relative_change": 0.000215280875560709,
+          "gate": 0.001,
+          "met": true
+        }
+      ]
+    },
+    "particle": {
+      "temperature_change_k": 1.1902280837778108,
+      "residual_relative_norm": 170832599966.60898,
+      "ratios": {
+        "gas": 170832599966.60898,
+        "solid": 0.10876583348483432,
+        "energy": 8797.52910409095
+      },
+      "temperature_gate_k": 0.1,
+      "residual_gate": 1e-06,
+      "met": false
+    }
+  }
 }
