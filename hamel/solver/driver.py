@@ -176,11 +176,18 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
     outcome.nonnegative = _nonnegative(state, result.frozen) and bottom <= config.residual_tolerance and np.all(result.frozen.m_dot_ab_kg_s >= 0.0)
     outcome.diagnostics["bottom_relative"] = bottom
     outcome.diagnostics["final"] = _with_sensitivity(_info(result), state, result.frozen, holder["assembly"])
-    outcome.measurements = _measurements(state, physical)
+    heights = np.full(state.freeboard_temperature_k.shape, float(result.frozen.freeboard_height_m))
+    outcome.measurements = _measurements(state, physical, heights)
     heat_ok = adiabatic or (outcome.balance["heat_relative"] is not None and outcome.balance["heat_relative"] <= _WALL_RELATIVE)
     if not outcome.balance["ok"] or not outcome.nonnegative or not heat_ok:
         outcome.status = "NOT_CONVERGED"
         outcome.reason = "外部平衡、非负或壁面散热未通过"
+        return outcome
+    from tools.run_prep import attach_converged
+    attach_converged(
+        outcome, state, result.frozen, holder["assembly"], physical, result.reported,
+        config, (n_ref, m_ref, q_ref),
+    )
     return outcome
 
 
@@ -283,13 +290,27 @@ def _nonnegative(state, frozen) -> bool:
     return _feasible(pack_state(state, frozen), frozen) and bool(np.all(np.isfinite(pack_state(state, frozen))))
 
 
-def _measurements(state, physical) -> dict:
+def _measurements(state, physical, freeboard_dh_m) -> dict:
+    """验收量。解释性选择：ADR 0040。
+
+    T̄_FRB = Σ T_i·Δh_i / Σ Δh_i，对自由空间全部 cell（含锥段）按高度加权。
+    等高时公因子约去，用算术平均，与现行求值逐位相同。
+    X_C = 自由空间出口气体（含焦油蒸气）中的碳 / 加入燃料中的碳。
+    分母只计燃料碳；分子不计带出焦炭与排灰中的碳。
+    """
     exit_flow = state.freeboard_gas_mol_s[0]
     total = float(np.sum(exit_flow))
     named = {name: float(exit_flow[GAS_SPECIES.index(name)]) / total for name in ("CO", "CO2", "H2", "CH4", "H2O")}
     carbon_out = sum(float(exit_flow[index]) * atoms(name).get("C", 0) for index, name in enumerate(GAS_SPECIES) if name in _DRY_GAS or atoms(name).get("C", 0))
     carbon_in = _fuel_moles(physical, float(physical.fuel_mass_flow))[0]
-    named["T_FRB_K"] = float(np.mean(state.freeboard_temperature_k))
+    temperatures = np.asarray(state.freeboard_temperature_k, dtype=float)
+    heights = np.asarray(freeboard_dh_m, dtype=float)
+    if heights.shape != temperatures.shape or heights.size < 1 or np.any(heights <= 0.0):
+        raise TrialNotEvaluable("自由空间格子高度必须与气体温度一一对应，且为正")
+    if np.all(heights == heights[0]):
+        named["T_FRB_K"] = float(np.mean(temperatures))
+    else:
+        named["T_FRB_K"] = float(np.dot(temperatures, heights) / np.sum(heights))
     named["X_C"] = 100.0 * carbon_out / carbon_in
     return named
 
