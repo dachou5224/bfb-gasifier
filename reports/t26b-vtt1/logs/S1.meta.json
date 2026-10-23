@@ -1,0 +1,18 @@
+{
+  "name": "S1",
+  "pid": 95985,
+  "started_unix": 1792721415.2963462,
+  "timeout_s": 90000.0,
+  "adiabatic": true,
+  "args": [
+    "/Users/liuzhen/AI-projects/bfb-gasifier/.venv/bin/python",
+    "-m",
+    "hamel.solver.campaign",
+    "S1",
+    "/Users/liuzhen/AI-projects/bfb-T26b/data/cases/vtt_pressurized.json",
+    "1"
+  ],
+  "case": "/Users/liuzhen/AI-projects/bfb-T26b/data/cases/vtt_pressurized.json",
+  "elapsed_s": 1962.2814228534698,
+  "watched_status": "DAMPING_FAILED"
+}
