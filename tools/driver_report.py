@@ -356,30 +356,45 @@ def _closure_and_form(payload) -> list:
     return lines
 
 
+def _met(flag) -> str:
+    return "满足" if flag else "未满足"
+
+
+def _variant(label, row) -> str:
+    return f"- {label}：相对变化 {_cell(row['relative_change'])}，门 {row['gate']}，{_met(row['met'])}。"
+
+
 def _refinement_lines(payload) -> list:
     lines = []
     refinement = payload.get("refinement")
     if refinement:
         trajectory = refinement["trajectory"]
+        existence = "系数存在性有变化。" if trajectory.get("existence_changed") else ""
         lines.append(
-            f"- 轨迹样本加倍、步长减半：a、b 相对变化 {_cell(trajectory['relative_change'])}，门 {trajectory['gate']}，{'满足' if trajectory['met'] else '未满足'}。"
+            f"- 轨迹样本加倍、步长减半：a、b 相对变化 {_cell(trajectory['relative_change'])}，门 {trajectory['gate']}，{existence}{_met(trajectory['met'])}。"
         )
         pyrolysis = refinement["pyrolysis"]
+        if "met" in pyrolysis:
+            lines.append(f"- 热解加密：{_met(pyrolysis['met'])}。")
         if pyrolysis.get("diameter_m") is not None:
             lines.append(f"- 热解粒径 {_cell(pyrolysis['diameter_m'])} m，温度 {_cell(pyrolysis.get('temperature_k'))} K。")
         for row in pyrolysis.get("rows") or []:
             if "name" in row:
-                lines.append(
-                    f"- 热解 {row['name']}：相对变化 {_cell(row['relative_change'])}，门 {row['gate']}，{'满足' if row['met'] else '未满足'}。"
-                )
-            else:
-                lines.append(
-                    f"- 热解粒径 {_cell(row.get('diameter_m'))} m：τ_pyr = {_cell(row.get('tau_pyr_s'))} s，温度 {_cell(row.get('temperature_k'))} K。"
-                )
-        particle = refinement.get("particle")
-        if particle:
+                lines.append(_variant(f"热解 {row['name']}", row))
+                continue
             lines.append(
-                f"- 颗粒温度（构造状态，不是收敛解）：最大变化 {_cell(particle['temperature_change_k'])} K，重算残差相对范数 {_cell(particle['residual_relative_norm'])}。温度门 0.1 K，残差门 1e-6，{'满足' if particle['met'] else '未满足'}。构造状态的残差不要求过门。"
+                f"- 热解粒径 {_cell(row.get('diameter_m'))} m：τ_pyr = {_cell(row.get('tau_pyr_s'))} s，温度 {_cell(row.get('temperature_k'))} K。"
+            )
+            for variant in row.get("rows") or []:
+                lines.append(_variant(f"热解粒径 {_cell(row.get('diameter_m'))} m {variant['name']}", variant))
+        particle = refinement.get("particle")
+        if particle and payload.get("toy"):
+            lines.append(
+                f"- 颗粒温度（构造状态，不是收敛解）：最大变化 {_cell(particle['temperature_change_k'])} K，重算残差相对范数 {_cell(particle['residual_relative_norm'])}。温度门 0.1 K，残差门 1e-6，{_met(particle['met'])}。构造状态的残差不要求过门。"
+            )
+        elif particle:
+            lines.append(
+                f"- 颗粒温度：最大变化 {_cell(particle['temperature_change_k'])} K，重算残差相对范数 {_cell(particle['residual_relative_norm'])}。温度门 0.1 K，残差门 1e-6，{_met(particle['met'])}。"
             )
     for run in payload["runs"]:
         info = ((run.get("diagnostics") or {}).get("final") or {})

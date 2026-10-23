@@ -448,6 +448,9 @@ def closed_form_report(config: SolverConfig, rows: list) -> dict:
 
 
 def _velocity(column):
+    gas = column.get("gas")
+    if callable(gas):
+        return gas
     if column.get("gas_m_s") is not None:
         speed = float(column["gas_m_s"])
         return lambda _cell, _height: speed
@@ -491,15 +494,20 @@ def toy_particle() -> dict:
     }
 
 
-def _book_change(base, fine) -> float:
+def _book_change(base, fine) -> tuple[float, bool]:
+    """两边都没有的系数是同一种自由状态缺失，不比较。只有一边缺失才记存在性变化。"""
     worst = 0.0
+    changed = False
     for left, right in zip(base.cells, fine.cells):
         for name in ("a_f", "a_t", "b_f", "b_t"):
             first, second = getattr(left, name), getattr(right, name)
+            if first is None and second is None:
+                continue
             if first is None or second is None:
-                raise RuntimeError("加密改变了系数是否存在")
+                changed = True
+                continue
             worst = max(worst, _relative(float(first), float(second)))
-    return worst
+    return worst, changed
 
 
 def _coefficients(book) -> list:
@@ -515,10 +523,11 @@ def refine_trajectory(config: SolverConfig, column: dict) -> dict:
     samples = int(config.freeboard_ejection_samples)
     base = _books(samples, step, column, config)
     fine = _books(samples * 2, step / 2.0, column, config)
-    change = _book_change(base, fine)
+    change, existence_changed = _book_change(base, fine)
     return {
         "samples": samples, "step_s": step, "diameter_m": float(column["diameter_m"]),
-        "relative_change": change, "a_f": _coefficients(base), "gate": 1.0e-4, "met": change < 1.0e-4,
+        "relative_change": change, "a_f": _coefficients(base), "existence_changed": existence_changed,
+        "gate": 1.0e-4, "met": (not existence_changed) and change < 1.0e-4,
     }
 
 
@@ -675,13 +684,18 @@ def refinement_from_case(config: SolverConfig, reported, state, frozen, refs) ->
     column = dict(reported["trajectory"])
     diameters = [float(item) for item in np.asarray(column["diameter_m"], dtype=float)]
     worst = 0.0
+    existence = False
     rows = []
     for diameter in diameters:
         one = dict(column)
         one["diameter_m"] = diameter
         result = refine_trajectory(config, one)
         worst = max(worst, result["relative_change"])
-        rows.append({"diameter_m": diameter, "relative_change": result["relative_change"], "a_f": result["a_f"], "met": result["met"]})
+        existence = existence or result["existence_changed"]
+        rows.append({
+            "diameter_m": diameter, "relative_change": result["relative_change"], "a_f": result["a_f"],
+            "existence_changed": result["existence_changed"], "met": result["met"],
+        })
     pyrolysis = dict(reported["pyrolysis"])
     pyro_rows = []
     worst_pyro = 0.0
@@ -693,7 +707,10 @@ def refinement_from_case(config: SolverConfig, reported, state, frozen, refs) ->
         worst_pyro = max(worst_pyro, change)
         pyro_rows.append({"diameter_m": diameter, "temperature_k": result["temperature_k"], "tau_pyr_s": result["tau_pyr_s"], "rows": result["rows"]})
     report = {
-        "trajectory": {"rows": rows, "relative_change": worst, "gate": 1.0e-4, "met": worst < 1.0e-4},
+        "trajectory": {
+            "rows": rows, "relative_change": worst, "existence_changed": existence,
+            "gate": 1.0e-4, "met": (not existence) and worst < 1.0e-4,
+        },
         "pyrolysis": {"rows": pyro_rows, "relative_change": worst_pyro, "gate": 1.0e-3, "met": worst_pyro < 1.0e-3},
     }
     if state is not None and frozen is not None and refs is not None:

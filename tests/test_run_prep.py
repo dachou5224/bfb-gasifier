@@ -19,8 +19,8 @@ from hamel.solver.vector import pack_state
 from tests.test_assembly import make_frozen, make_state
 from tools.driver_report import write_report
 from tools.run_prep import (
-    _fuel_packet, applicability_row, closed_form_from_state, freeboard_closure, fuel_parts, refine_particle,
-    refinement_from_case, toy_particle, toy_trajectory,
+    _book_change, _fuel_packet, applicability_row, closed_form_from_state, freeboard_closure, fuel_parts,
+    refine_particle, refine_trajectory, refinement_from_case, toy_particle, toy_trajectory,
 )
 
 _CASE = Path(__file__).resolve().parents[1] / "data" / "cases" / "vtt_pressurized.json"
@@ -359,14 +359,48 @@ def test_refinement_uses_the_supplied_case_and_the_report_prints_it(tmp_path):
                 "benchmark": {"delta": 1.0, "step_s": 0.02, "samples": 4, "max_relative": 1.25e-9, "velocity_relative": 1.25e-9, "height_relative": 1.25e-9},
                 "classes": [],
             },
-            "refinement": fast,
+            "refinement": {
+                **fast,
+                "pyrolysis": {**fast["pyrolysis"], "met": False},
+                "particle": {"temperature_change_k": 1.2, "residual_relative_norm": 3.0, "met": False},
+            },
         },
     }
     write_report(tmp_path, [record], title="真实报告", toy=False)
     rendered = (tmp_path / "driver_report.md").read_text(encoding="utf-8")
     assert "1.25e-09" in rendered or "1.25e-9" in rendered
-    assert "数值加密" in rendered
-    assert "closed_form" not in rendered or "1.25" in rendered
+    for name in ("radial", "time", "activation"):
+        assert name in rendered
+    assert "未满足" in rendered
+    assert "构造状态" not in rendered
+
+
+def test_missing_free_state_stays_in_the_refinement():
+    from dataclasses import replace
+
+    from hamel.freeboard import terminal_settling_velocity
+    from tests.test_freeboard_accounting import (
+        _NODE_DIAMETER, _NODE_DENSITY, _NODE_GAS, _NODE_MU, _NODE_PHI, _column, _linear_gas,
+    )
+
+    settling = terminal_settling_velocity(_NODE_GAS, _NODE_MU, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI)
+    edges, rho, mu = _column(1, 1.0, _NODE_GAS, _NODE_MU)
+    column = {
+        "edges_m": edges, "gas": _linear_gas(settling, 1.5, 0.6), "rho_g": rho, "mu_g": mu,
+        "diameter_m": _NODE_DIAMETER, "rho_p": _NODE_DENSITY, "phi_s": _NODE_PHI, "bubble_m_s": 0.05,
+    }
+    config = replace(
+        SolverConfig(), freeboard_ejection_samples=4, freeboard_delta_h_m=0.02, freeboard_delta_u_m_s=0.01,
+    )
+    result = refine_trajectory(config, column)
+    assert result["a_f"] == [None]
+    assert result["existence_changed"] is False
+    absent = SimpleNamespace(a_f=None, a_t=None, b_f=None, b_t=None)
+    present = SimpleNamespace(a_f=0.2, a_t=None, b_f=None, b_t=None)
+    same, unchanged = _book_change(SimpleNamespace(cells=[absent]), SimpleNamespace(cells=[absent]))
+    gap, changed = _book_change(SimpleNamespace(cells=[absent]), SimpleNamespace(cells=[present]))
+    assert same == 0.0 and unchanged is False
+    assert changed is True and gap == 0.0
 
 
 def _delete(node, name) -> None:
