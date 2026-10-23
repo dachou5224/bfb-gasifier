@@ -189,7 +189,7 @@
           "cells": [
             {
               "cell": 0,
-              "solid_kg": 0.0042,
+              "solid_kg": 0.0052,
               "char_consumption_kg_s": 0.001926424279081385
             },
             {
@@ -203,15 +203,15 @@
               "cell": 0,
               "class": 1,
               "hover_kg": 0.0,
-              "cell_solid_kg": 0.0042,
+              "cell_solid_kg": 0.0052,
               "hover_fraction": 0.0
             },
             {
               "cell": 0,
               "class": 2,
-              "hover_kg": 0.0021,
-              "cell_solid_kg": 0.0042,
-              "hover_fraction": 0.5
+              "hover_kg": 0.0031,
+              "cell_solid_kg": 0.0052,
+              "hover_fraction": 0.5961538461538461
             },
             {
               "cell": 1,
@@ -228,7 +228,7 @@
               "hover_fraction": 0.0
             }
           ],
-          "note": "悬停占比来自闭合 A 的构造。B、C 不设悬停状态。"
+          "note": "悬停占比来自闭合 A 的构造。B、C 不设悬停状态。悬停质量含未转化燃料。"
         },
         "freeboard_closure": {
           "streams": [
@@ -1614,12 +1614,19 @@
     "trajectory": {
       "samples": 48,
       "step_s": 0.0002,
+      "diameter_m": 0.0002,
       "relative_change": 7.041890522641492e-05,
+      "a_f": [
+        9.563477378169068,
+        11.576225005677134
+      ],
       "gate": 0.0001,
       "met": true
     },
     "pyrolysis": {
       "diameter_m": 0.0002,
+      "temperature_k": 1100.0,
+      "tau_pyr_s": 1.2159950719122756,
       "rows": [
         {
           "name": "radial",

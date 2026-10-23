@@ -4,6 +4,7 @@
 """
 from __future__ import annotations
 
+import math
 from dataclasses import replace
 
 import numpy as np
@@ -14,6 +15,8 @@ from hamel.freeboard import (
     integrate_motion, motion_coefficients, terminal_settling_velocity,
 )
 from hamel.properties.data import GAS_SPECIES, atomic_weight, atoms, molar_mass_kg_mol
+from hamel.properties.thermo import density_kg_m3, volume_flow_m3_s
+from hamel.properties.transport import mixture_viscosity_pa_s
 from hamel.pyrolysis import lignite_particle_properties, particle_release_times
 from hamel.solver.gates import block_ratios
 from hamel.solver.residual import _bed_ash_by_class, evaluate_residual, particle_temperatures
@@ -45,6 +48,15 @@ def fuel_element_fractions(physical) -> dict:
     }
 
 
+def dry_element_fractions(physical) -> dict:
+    """1 kg 干料（已释放水分的 P）里的 C、H、O。不含水分带入的氢和氧。"""
+    return {
+        "C": float(physical.carbon_mass_fraction_wf),
+        "H": float(physical.hydrogen_mass_fraction_wf),
+        "O": float(physical.oxygen_mass_fraction_wf),
+    }
+
+
 def _blank() -> dict:
     return {"mass": 0.0, "C": 0.0, "H": 0.0, "O": 0.0}
 
@@ -67,16 +79,70 @@ def _gas(flow) -> dict:
     return packet
 
 
-def _of(kind: str, kilograms, fractions=None) -> dict:
+def _of(kind: str, kilograms) -> dict:
     mass = float(np.sum(kilograms))
     packet = _blank()
     packet["mass"] = mass
     if kind == "char":
         packet["C"] = mass
-    elif kind == "fuel":
-        for element, share in fractions.items():
-            packet[element] = mass * float(share)
     return packet
+
+
+def _fuel_packet(mass_w, mass_p, received, dried) -> dict:
+    """W 按收到基，P 的干料质量按干基。两者不再乘同一套分数。"""
+    wet = float(np.sum(mass_w))
+    dry = float(np.sum(mass_p))
+    packet = _blank()
+    packet["mass"] = wet + dry
+    for element in ("C", "H", "O"):
+        packet[element] = wet * float(received[element]) + dry * float(dried[element])
+    return packet
+
+
+def _split_mass(coeff, undried, dried_stock, moisture: float):
+    undried = np.asarray(undried, dtype=float)
+    dried_stock = np.asarray(dried_stock, dtype=float)
+    return coeff * undried, coeff * (1.0 - moisture) * dried_stock
+
+
+def fuel_parts(frozen, reported, physical) -> dict:
+    """边界上的 W 与 P。P 的质量是 (1−水分) 乘当量库存，已不含水分。"""
+    moisture = float(reported["moisture_mass_fraction"])
+    received, dried = fuel_element_fractions(physical), dry_element_fractions(physical)
+    up = frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]
+    down = frozen.b_free_per_s[-1] + frozen.b_hover_per_s[-1]
+    up_w, up_p = _split_mass(up, reported["undried_free_kg"][0], reported["dried_free_kg"][0], moisture)
+    down_w, down_p = _split_mass(down, reported["undried_free_kg"][-1], reported["dried_free_kg"][-1], moisture)
+    bed_w, bed_p = _split_mass(frozen.k_auf_per_s[0], reported["undried_bed_kg"][0], reported["dried_bed_kg"][0], moisture)
+    redirect_w = np.zeros(frozen.n_class)
+    redirect_p = np.zeros(frozen.n_class)
+    if frozen.hover_closure in {"B", "C"}:
+        for klass in range(frozen.n_class):
+            for cell in range(1, frozen.n_freeboard):
+                piece_w, piece_p = _split_mass(
+                    frozen.a_hover_per_s[cell, klass], reported["undried_free_kg"][cell, klass],
+                    reported["dried_free_kg"][cell, klass], moisture,
+                )
+                redirect_w[klass] += piece_w
+                redirect_p[klass] += piece_p
+            for cell in range(frozen.n_freeboard - 1):
+                piece_w, piece_p = _split_mass(
+                    frozen.b_hover_per_s[cell, klass], reported["undried_free_kg"][cell, klass],
+                    reported["dried_free_kg"][cell, klass], moisture,
+                )
+                redirect_w[klass] += piece_w
+                redirect_p[klass] += piece_p
+            piece_w, piece_p = _split_mass(
+                frozen.ejection_to_hover[klass] * frozen.k_auf_per_s[0],
+                reported["undried_bed_kg"][0, klass], reported["dried_bed_kg"][0, klass], moisture,
+            )
+            redirect_w[klass] += piece_w
+            redirect_p[klass] += piece_p
+    return {
+        "received": received, "dried": dried,
+        "bed_w": bed_w, "bed_p": bed_p, "up_w": up_w, "up_p": up_p,
+        "down_w": down_w, "down_p": down_p, "redirect_w": redirect_w, "redirect_p": redirect_p,
+    }
 
 
 def _mobile_ash(state, frozen, cell) -> np.ndarray:
@@ -95,35 +161,40 @@ def _combine(*parts) -> dict:
     return total
 
 
-def freeboard_closure(state, frozen, assembly, fractions) -> dict:
+def freeboard_closure(state, frozen, assembly, fuel) -> dict:
     """自由空间全部相的边界流。反应不另计。B、C 的改送是出流。
 
     F^ej,t 在抛出入流里计一次，在改送出流里再计一次。ADR 0040 第 5 项。
+    燃料的 W 与 P 分开记账。P 已释放水分，不用收到基组成。
     """
     inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
     share = _bed_ash_by_class(state.bed_char_kg, inert)
     thrown_char = frozen.k_auf_per_s[0] * state.bed_char_kg[0]
     thrown_ash = frozen.k_auf_per_s[0] * share[0]
+    received, dried = fuel["received"], fuel["dried"]
     gas_in = _gas(state.bed_gas_mol_s[0, 0] + state.bed_gas_mol_s[0, 1])
     side_in = _gas(frozen.secondary_feed_mol_s)
-    solids_in = _combine(_of("char", thrown_char), _of("ash", thrown_ash), _of("fuel", frozen.fuel_up_bed_kg_s[0], fractions))
+    solids_in = _combine(
+        _of("char", thrown_char), _of("ash", thrown_ash),
+        _fuel_packet(fuel["bed_w"], fuel["bed_p"], received, dried),
+    )
     gas_out = _gas(state.freeboard_gas_mol_s[0])
     up = frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]
     down = frozen.b_free_per_s[-1] + frozen.b_hover_per_s[-1]
     carried = _combine(
         _of("char", up * state.freeboard_char_free_kg[0]),
         _of("ash", up * _mobile_ash(state, frozen, 0)),
-        _of("fuel", frozen.fuel_up_free_kg_s[0], fractions),
+        _fuel_packet(fuel["up_w"], fuel["up_p"], received, dried),
     )
     returned = _combine(
         _of("char", down * state.freeboard_char_free_kg[-1]),
         _of("ash", down * _mobile_ash(state, frozen, -1)),
-        _of("fuel", frozen.fuel_down_free_kg_s[-1], fractions),
+        _fuel_packet(fuel["down_w"], fuel["down_p"], received, dried),
     )
     redirected = _combine(
         _of("char", assembly.redirect_char_kg_s),
         _of("ash", assembly.redirect_ash_kg_s),
-        _of("fuel", assembly.redirect_fuel_kg_s, fractions),
+        _fuel_packet(fuel["redirect_w"], fuel["redirect_p"], received, dried),
     )
     names = (
         ("床区最上一格气体", "入", gas_in),
@@ -157,33 +228,74 @@ def freeboard_closure(state, frozen, assembly, fractions) -> dict:
     }
 
 
+def _hold(reported, name, cell):
+    values = (reported or {}).get(name)
+    if values is None:
+        return None
+    return np.asarray(values[cell], dtype=float)
+
+
+def _fuel_hold(reported, cell, kind: str) -> np.ndarray:
+    """未干燥 W 加上已干燥 P 的实际干料质量。没有库存时这一项为 0。"""
+    undried = _hold(reported, f"undried_{kind}_kg", cell)
+    dried = _hold(reported, f"dried_{kind}_kg", cell)
+    width = 0 if undried is None else undried.size
+    if undried is None or dried is None:
+        return np.zeros(width)
+    moisture = float((reported or {}).get("moisture_mass_fraction") or 0.0)
+    return undried + (1.0 - moisture) * dried
+
+
+def _redirect_class(assembly, name: str, klass: int) -> float:
+    values = getattr(assembly, f"redirect_{name}_by_class_kg_s", None)
+    if values is None:
+        return 0.0
+    return float(values[klass])
+
+
 def stock_report(state, frozen, assembly, reported) -> dict:
-    """收敛存量，以及存量乘输运系数得到的回落和带出。"""
+    """收敛存量，以及存量乘输运系数得到的回落和带出。
+
+    B 的改送计入回落，C 的改送计入带出。顶格 a 与底格 b 已在普通边界流里，不再加一次。
+    """
     classes = []
     for klass in range(frozen.n_class):
         upward = float(frozen.a_free_per_s[0, klass] + frozen.a_hover_per_s[0, klass])
         downward = float(frozen.b_free_per_s[-1, klass] + frozen.b_hover_per_s[-1, klass])
         top = float(state.freeboard_char_free_kg[0, klass] + _mobile_ash(state, frozen, 0)[klass])
         bottom = float(state.freeboard_char_free_kg[-1, klass] + _mobile_ash(state, frozen, -1)[klass])
+        redirected = sum(_redirect_class(assembly, name, klass) for name in ("char", "ash", "fuel"))
+        returned = downward * bottom + float(frozen.fuel_down_free_kg_s[-1, klass])
+        carried = upward * top + float(frozen.fuel_up_free_kg_s[0, klass])
+        if frozen.hover_closure == "B":
+            returned += redirected
+        elif frozen.hover_closure == "C":
+            carried += redirected
         classes.append({
             "class": klass + 1,
             "reference_return_share": _listed(reported, "reference_return_share", klass),
             "reference_elutriation_share": _listed(reported, "reference_elutriation_share", klass),
-            "return_kg_s": downward * bottom + float(frozen.fuel_down_free_kg_s[-1, klass]),
-            "elutriation_kg_s": upward * top + float(frozen.fuel_up_free_kg_s[0, klass]),
+            "return_kg_s": returned,
+            "elutriation_kg_s": carried,
         })
     cells = []
     hover = []
     for cell in range(frozen.n_freeboard):
+        free_fuel = _fuel_hold(reported, cell, "free")
+        hover_fuel = _fuel_hold(reported, cell, "hover")
         holds = []
         for klass in range(frozen.n_class):
             free = float(state.freeboard_char_free_kg[cell, klass] + state.freeboard_ash_free_kg[cell, klass])
             held = float(state.freeboard_char_hover_kg[cell, klass] + state.freeboard_ash_hover_kg[cell, klass])
+            if free_fuel.size:
+                free += float(free_fuel[klass])
+            if hover_fuel.size:
+                held += float(hover_fuel[klass])
             holds.append((free + held, held))
         solid = float(sum(item[0] for item in holds))
         consumed = float(assembly.char_consumption_free_kg_s[cell].sum() + assembly.char_consumption_hover_kg_s[cell].sum())
         cells.append({"cell": cell, "solid_kg": solid, "char_consumption_kg_s": consumed})
-        for klass, (total, held) in enumerate(holds):
+        for klass, (_total, held) in enumerate(holds):
             hover.append({
                 "cell": cell, "class": klass + 1, "hover_kg": held, "cell_solid_kg": solid,
                 "hover_fraction": None if solid == 0.0 else held / solid,
@@ -220,13 +332,18 @@ def used_values(frozen, reported, measurements) -> dict:
     }
 
 
-def attach_converged(outcome, state, frozen, assembly, physical, reported) -> None:
-    """收敛之后把记账放进诊断。求解已经结束。"""
-    fractions = fuel_element_fractions(physical)
+def attach_converged(outcome, state, frozen, assembly, physical, reported, config, refs) -> None:
+    """收敛之后把记账、闭式比对和加密放进诊断。求解已经结束，这里不改选。"""
+    reported = reported or {}
+    fuel = fuel_parts(frozen, reported, physical) if "undried_free_kg" in reported else None
     outcome.diagnostics["stocks"] = stock_report(state, frozen, assembly, reported)
-    outcome.diagnostics["freeboard_closure"] = freeboard_closure(state, frozen, assembly, fractions)
+    if fuel is not None:
+        outcome.diagnostics["freeboard_closure"] = freeboard_closure(state, frozen, assembly, fuel)
     outcome.diagnostics["used"] = used_values(frozen, reported, outcome.measurements)
-    outcome.diagnostics["bed_gas_temperature_deviation_k"] = (reported or {}).get("bed_gas_temperature_deviation_k")
+    outcome.diagnostics["bed_gas_temperature_deviation_k"] = reported.get("bed_gas_temperature_deviation_k")
+    if "trajectory" in reported and "pyrolysis" in reported:
+        outcome.diagnostics["closed_form"] = closed_form_from_state(state, frozen, reported, config)
+        outcome.diagnostics["refinement"] = refinement_from_case(config, reported, state, frozen, refs)
 
 
 def _relative(left: float, right: float) -> float:
@@ -330,16 +447,48 @@ def closed_form_report(config: SolverConfig, rows: list) -> dict:
     return {"benchmark": fixed_closed_form(step, int(config.freeboard_ejection_samples)), "classes": table}
 
 
-def _books(samples: int, step_s: float):
-    diameter = 2.0e-4
-    rho_g, mu, rho_p, phi = 1.2, 2.0e-5, 1200.0, 0.8
+def _velocity(column):
+    if column.get("gas_m_s") is not None:
+        speed = float(column["gas_m_s"])
+        return lambda _cell, _height: speed
+    from hamel.freeboard.transport import ghost_bubble_velocity
+
+    edges, diameters = column["edges_m"], column["edge_diameter_m"]
+    flows = column["volume_flow_m3_s"]
+    bubble, width = float(column["bubble_m_s"]), float(column["bubble_diameter_m"])
+    return lambda cell, height: ghost_bubble_velocity(cell, height, edges, diameters, flows, bubble, width)
+
+
+def _books(samples: int, step_s: float, column, config: SolverConfig):
+    tuned = replace(config, freeboard_ejection_samples=int(samples), freeboard_max_step_s=float(step_s))
+    speeds, shares, direct = ejection_velocity_samples(float(column["bubble_m_s"]), int(samples))
+    rho = np.asarray(column["rho_g"], dtype=float)
+    mu = np.asarray(column["mu_g"], dtype=float)
+    return account_freeboard(
+        np.asarray(column["edges_m"], dtype=float), _velocity(column), rho, mu,
+        float(column["diameter_m"]), float(column["rho_p"]), float(column["phi_s"]),
+        speeds, shares, direct, tuned,
+    )
+
+
+def toy_trajectory() -> dict:
+    """玩具柱。气速取终端速度加 3 m/s，使系数存在。换直径或气速会改变 a、b。"""
+    diameter, rho_g, mu, rho_p, phi = 2.0e-4, 1.2, 2.0e-5, 1200.0, 0.8
     settling = terminal_settling_velocity(rho_g, mu, diameter, rho_p, phi)
-    edges = np.array([0.0, 0.25, 0.5])
-    def gas(_cell, _height, speed=settling + 3.0):
-        return speed
-    speeds, shares, direct = ejection_velocity_samples(1.0, samples)
-    config = replace(SolverConfig(), freeboard_ejection_samples=samples, freeboard_max_step_s=step_s)
-    return account_freeboard(edges, gas, np.full(2, rho_g), np.full(2, mu), diameter, rho_p, phi, speeds, shares, direct, config)
+    return {
+        "edges_m": [0.0, 0.25, 0.5], "gas_m_s": settling + 3.0, "bubble_m_s": 1.0,
+        "rho_g": [rho_g, rho_g], "mu_g": [mu, mu], "diameter_m": diameter,
+        "rho_p": rho_p, "phi_s": phi,
+    }
+
+
+def toy_particle() -> dict:
+    return {
+        "diameter_m": 2.0e-4, "temperature_k": 1100.0, "pressure_pa": 1.0e5,
+        "moisture_mass_fraction": 0.02, "feed_temperature_k": 298.15,
+        "gas": {"N2": 0.79, "O2": 0.21}, "relative_velocity_m_s": 0.2,
+        "ultimate_volatile_mass_fraction": 0.4,
+    }
 
 
 def _book_change(base, fine) -> float:
@@ -353,19 +502,34 @@ def _book_change(base, fine) -> float:
     return worst
 
 
-def refine_trajectory(config: SolverConfig) -> dict:
-    """样本数加倍且步长减半。门是 a、b 的相对变化 1e-4。ADR 0016、ADR 0028。"""
+def _coefficients(book) -> list:
+    return [None if cell.a_f is None else float(cell.a_f) for cell in book.cells]
+
+
+def refine_trajectory(config: SolverConfig, column: dict) -> dict:
+    """样本数加倍且步长减半。门是 a、b 的相对变化 1e-4。ADR 0016、ADR 0028。
+
+    column 是这一次运行的几何、气体和粒径。换这些输入会改变 a、b。
+    """
     step = float(config.freeboard_max_step_s)
     samples = int(config.freeboard_ejection_samples)
-    change = _book_change(_books(samples, step), _books(samples * 2, step / 2.0))
-    return {"samples": samples, "step_s": step, "relative_change": change, "gate": 1.0e-4, "met": change < 1.0e-4}
+    base = _books(samples, step, column, config)
+    fine = _books(samples * 2, step / 2.0, column, config)
+    change = _book_change(base, fine)
+    return {
+        "samples": samples, "step_s": step, "diameter_m": float(column["diameter_m"]),
+        "relative_change": change, "a_f": _coefficients(base), "gate": 1.0e-4, "met": change < 1.0e-4,
+    }
 
 
-def refine_pyrolysis(config: SolverConfig) -> dict:
-    """径向加倍、时间容差收到十分之一、活化能节点 16 增到 24。门 1e-3。ADR 0027。"""
-    material = lignite_particle_properties()
-    gas = {"N2": 0.79, "O2": 0.21}
-    args = (2.0e-4, 1100.0, 1.0e5, 0.02, 298.15, gas, 0.2, 0.4, material)
+def refine_pyrolysis(config: SolverConfig, particle: dict) -> dict:
+    """径向加倍、时间容差收到十分之一、活化能节点增到 24。门 1e-3。ADR 0027。"""
+    material = particle.get("material") or lignite_particle_properties()
+    args = (
+        float(particle["diameter_m"]), float(particle["temperature_k"]), float(particle["pressure_pa"]),
+        float(particle["moisture_mass_fraction"]), float(particle["feed_temperature_k"]), dict(particle["gas"]),
+        float(particle["relative_velocity_m_s"]), float(particle["ultimate_volatile_mass_fraction"]), material,
+    )
     base = particle_release_times(*args, config)
     variants = {
         "radial": replace(config, pyrolysis_radial_intervals=int(config.pyrolysis_radial_intervals) * 2),
@@ -381,7 +545,7 @@ def refine_pyrolysis(config: SolverConfig) -> dict:
             _relative(base.tau_pyr_s, refined.tau_pyr_s),
         )
         rows.append({"name": name, "relative_change": change, "gate": 1.0e-3, "met": change < 1.0e-3})
-    return {"diameter_m": 2.0e-4, "rows": rows}
+    return {"diameter_m": float(particle["diameter_m"]), "temperature_k": float(particle["temperature_k"]), "tau_pyr_s": float(base.tau_pyr_s), "rows": rows}
 
 
 def _temperature_change(base: dict, fine: dict) -> float:
@@ -444,13 +608,26 @@ def constructed_books() -> dict:
     )
     held_state = make_state(held)
     held_assembly = evaluate_residual(pack_state(held_state, held), held)
+    received = {"C": 0.5, "H": 0.06, "O": 0.2}
+    undried_hover = np.zeros((2, 2))
+    undried_hover[0, 1] = 1.0e-3
     reported = {
         "phi_s": 0.8, "n_0": 139.5, "cell_division": "2×0.15 m + 2×0.2875 m",
         "reference_return_share": [0.2, 0.8], "reference_elutriation_share": [0.1, 0.05],
-        "bed_gas_temperature_deviation_k": 0.0,
+        "bed_gas_temperature_deviation_k": 0.0, "moisture_mass_fraction": 0.0,
+        "undried_hover_kg": undried_hover, "dried_hover_kg": np.zeros((2, 2)),
+        "undried_free_kg": np.zeros((2, 2)), "dried_free_kg": np.zeros((2, 2)),
     }
     stocks = stock_report(held_state, held, held_assembly, reported)
-    stocks["note"] = "悬停占比来自闭合 A 的构造。B、C 不设悬停状态。"
+    stocks["note"] = "悬停占比来自闭合 A 的构造。B、C 不设悬停状态。悬停质量含未转化燃料。"
+    fuel = {
+        "received": received, "dried": dict(received),
+        "bed_w": frozen.fuel_up_bed_kg_s[0], "bed_p": np.zeros(2),
+        "up_w": frozen.fuel_up_free_kg_s[0], "up_p": np.zeros(2),
+        "down_w": frozen.fuel_down_free_kg_s[-1], "down_p": np.zeros(2),
+        "redirect_w": np.zeros(2) if assembly.redirect_fuel_by_class_kg_s is None else assembly.redirect_fuel_by_class_kg_s,
+        "redirect_p": np.zeros(2),
+    }
     measurements = {
         "T_FRB_K": 1100.0, "X_C": 50.0, "CO": 0.1, "CO2": 0.1, "H2": 0.1, "CH4": 0.01, "H2O": 0.1,
     }
@@ -458,7 +635,7 @@ def constructed_books() -> dict:
         "state": state, "frozen": frozen,
         "diagnostics": {
             "stocks": stocks,
-            "freeboard_closure": freeboard_closure(state, frozen, assembly, {"C": 0.5, "H": 0.06, "O": 0.2}),
+            "freeboard_closure": freeboard_closure(state, frozen, assembly, fuel),
             "used": used_values(frozen, reported, measurements),
             "bed_gas_temperature_deviation_k": 0.0,
         },
@@ -466,10 +643,71 @@ def constructed_books() -> dict:
     }
 
 
-def refinement_report(config: SolverConfig | None = None, particle=None) -> dict:
-    """玩具入口。逐根 δ 和床层子步由该次运行带入，这里不重算工况 1。"""
+def closed_form_from_state(state, frozen, reported, config: SolverConfig) -> dict:
+    """逐粒级适用性。气体取自由空间最下一格，初速取床面抛出分布的中位数。"""
+    flow = state.freeboard_gas_mol_s[-1]
+    total = float(np.sum(flow))
+    temperature = float(state.freeboard_temperature_k[-1])
+    pressure = float(frozen.freeboard_pressure_pa[-1])
+    fractions = {name: float(flow[index]) / total for index, name in enumerate(GAS_SPECIES)}
+    rho = density_kg_m3(temperature, pressure, fractions)
+    mu = mixture_viscosity_pa_s(fractions, temperature, pressure)
+    area = math.pi * (0.5 * float(frozen.bed_diameter_m)) ** 2
+    speed = volume_flow_m3_s(total, temperature, pressure) / area
+    height = float(frozen.n_freeboard) * float(frozen.freeboard_height_m)
+    bubble = float(reported["trajectory"]["bubble_m_s"])
+    phi = float(reported.get("phi_s") or reported["trajectory"]["phi_s"])
+    step, limit = float(config.freeboard_max_step_s), float(config.freeboard_time_limit_s)
+    rows = [
+        applicability_row(
+            float(diameter), rho, mu, float(frozen.rho_p_kg_m3), phi, speed, bubble, height, step, limit,
+        )
+        for diameter in frozen.diameter_m
+    ]
+    for row in rows:
+        row["rho_g"] = rho
+        row["gas_m_s"] = speed
+    return {"benchmark": fixed_closed_form(step, int(config.freeboard_ejection_samples)), "classes": rows}
+
+
+def refinement_from_case(config: SolverConfig, reported, state, frozen, refs) -> dict:
+    """用这一次运行保存的轨迹和热解输入做加密。粒级逐个算，取最大相对变化。"""
+    column = dict(reported["trajectory"])
+    diameters = [float(item) for item in np.asarray(column["diameter_m"], dtype=float)]
+    worst = 0.0
+    rows = []
+    for diameter in diameters:
+        one = dict(column)
+        one["diameter_m"] = diameter
+        result = refine_trajectory(config, one)
+        worst = max(worst, result["relative_change"])
+        rows.append({"diameter_m": diameter, "relative_change": result["relative_change"], "a_f": result["a_f"], "met": result["met"]})
+    pyrolysis = dict(reported["pyrolysis"])
+    pyro_rows = []
+    worst_pyro = 0.0
+    for diameter in [float(item) for item in np.asarray(pyrolysis.pop("diameter_m"), dtype=float)]:
+        particle = dict(pyrolysis)
+        particle["diameter_m"] = diameter
+        result = refine_pyrolysis(config, particle)
+        change = max(item["relative_change"] for item in result["rows"])
+        worst_pyro = max(worst_pyro, change)
+        pyro_rows.append({"diameter_m": diameter, "temperature_k": result["temperature_k"], "tau_pyr_s": result["tau_pyr_s"], "rows": result["rows"]})
+    report = {
+        "trajectory": {"rows": rows, "relative_change": worst, "gate": 1.0e-4, "met": worst < 1.0e-4},
+        "pyrolysis": {"rows": pyro_rows, "relative_change": worst_pyro, "gate": 1.0e-3, "met": worst_pyro < 1.0e-3},
+    }
+    if state is not None and frozen is not None and refs is not None:
+        report["particle"] = refine_particle(state, frozen, *refs)
+    return report
+
+
+def refinement_report(config: SolverConfig | None = None, trajectory=None, pyrolysis=None, particle=None) -> dict:
+    """加密入口。不传柱和颗粒时用玩具输入；传入的是这次运行自己的输入。"""
     config = config or SolverConfig()
-    report = {"trajectory": refine_trajectory(config), "pyrolysis": refine_pyrolysis(config)}
+    report = {
+        "trajectory": refine_trajectory(config, toy_trajectory() if trajectory is None else trajectory),
+        "pyrolysis": refine_pyrolysis(config, toy_particle() if pyrolysis is None else pyrolysis),
+    }
     if particle is not None:
         report["particle"] = refine_particle(*particle)
     return report

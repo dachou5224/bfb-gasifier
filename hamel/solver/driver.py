@@ -184,7 +184,10 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         outcome.reason = "外部平衡、非负或壁面散热未通过"
         return outcome
     from tools.run_prep import attach_converged
-    attach_converged(outcome, state, result.frozen, holder["assembly"], physical, result.reported)
+    attach_converged(
+        outcome, state, result.frozen, holder["assembly"], physical, result.reported,
+        config, (n_ref, m_ref, q_ref),
+    )
     return outcome
 
 

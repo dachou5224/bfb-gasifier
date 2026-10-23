@@ -51,6 +51,9 @@ class AssemblyResidual:
     redirect_ash_kg_s: float = 0.0
     redirect_fuel_kg_s: float = 0.0
     redirect_enthalpy_w: float = 0.0
+    redirect_char_by_class_kg_s: np.ndarray | None = None
+    redirect_ash_by_class_kg_s: np.ndarray | None = None
+    redirect_fuel_by_class_kg_s: np.ndarray | None = None
 
 def wall_area_m2(zone: str, balance_index: int, count: int, height_m: float, bed_diameter_m: float, freeboard_diameter_m: float) -> float:
     """侧壁面积。锥段是自由空间最下格。章程 v0.11 §1 例外；ADR 0014 X1；ADR 0029。
@@ -102,6 +105,7 @@ def evaluate_residual(unknown: np.ndarray, frozen: FrozenQuantities) -> Assembly
         context.migration_free, context.migration_hover,
         gas_gap, char_gap, ash_gap, energy_gap, context.element_gaps(),
         context.redirect_char, context.redirect_ash, context.redirect_fuel, context.redirect_enthalpy,
+        context._redirect_mass("char"), context._redirect_mass("ash"), context._redirect_mass("fuel"),
     )
 
 class _Context:

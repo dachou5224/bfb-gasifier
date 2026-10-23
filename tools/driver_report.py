@@ -85,9 +85,19 @@ def _document(records, title, toy) -> dict:
         "frozen": [{"id": item[0], "choice": item[1], "source": item[2]} for item in _FROZEN],
         "shared_input": _SHARED,
         "numerical": _numerical(), "runs": judged, "differences": _differences(judged, targets),
-        "closed_form": None if not toy else _toy_extra()["closed_form"],
-        "refinement": None if not toy else _toy_extra()["refinement"],
+        "closed_form": _recorded(records, "closed_form", toy, "closed_form"),
+        "refinement": _recorded(records, "refinement", toy, "refinement"),
     }
+
+
+def _recorded(records, key, toy: bool, extra: str):
+    for record in records:
+        value = (record.get("diagnostics") or {}).get(key)
+        if value:
+            return convert(value)
+    if not toy:
+        return None
+    return _toy_extra()[extra]
 
 
 def _toy_extra() -> dict:
@@ -97,7 +107,7 @@ def _toy_extra() -> dict:
         example = constructed_books()
         _TOY_EXTRA = {
             "closed_form": closed_form_report(config, toy_applicability_rows()),
-            "refinement": refinement_report(config, (example["state"], example["frozen"], 1.0, 1.0, 1.0)),
+            "refinement": refinement_report(config, particle=(example["state"], example["frozen"], 1.0, 1.0, 1.0)),
             "diagnostics": example["diagnostics"],
             "measurements": example["measurements"],
         }
@@ -354,10 +364,18 @@ def _refinement_lines(payload) -> list:
         lines.append(
             f"- 轨迹样本加倍、步长减半：a、b 相对变化 {_cell(trajectory['relative_change'])}，门 {trajectory['gate']}，{'满足' if trajectory['met'] else '未满足'}。"
         )
-        for row in refinement["pyrolysis"]["rows"]:
-            lines.append(
-                f"- 热解 {row['name']}：相对变化 {_cell(row['relative_change'])}，门 {row['gate']}，{'满足' if row['met'] else '未满足'}。玩具粒径 {_cell(refinement['pyrolysis']['diameter_m'])} m。"
-            )
+        pyrolysis = refinement["pyrolysis"]
+        if pyrolysis.get("diameter_m") is not None:
+            lines.append(f"- 热解粒径 {_cell(pyrolysis['diameter_m'])} m，温度 {_cell(pyrolysis.get('temperature_k'))} K。")
+        for row in pyrolysis.get("rows") or []:
+            if "name" in row:
+                lines.append(
+                    f"- 热解 {row['name']}：相对变化 {_cell(row['relative_change'])}，门 {row['gate']}，{'满足' if row['met'] else '未满足'}。"
+                )
+            else:
+                lines.append(
+                    f"- 热解粒径 {_cell(row.get('diameter_m'))} m：τ_pyr = {_cell(row.get('tau_pyr_s'))} s，温度 {_cell(row.get('temperature_k'))} K。"
+                )
         particle = refinement.get("particle")
         if particle:
             lines.append(

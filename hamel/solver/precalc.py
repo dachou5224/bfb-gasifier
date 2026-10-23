@@ -162,7 +162,7 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
     if previous is None:
         state = _initial_inventory(case, flow, profile.solids_mass, share, fractions, t_init, notes, iteration, consistency)
     try:
-        ejection, accounting, rho_free, mu_free, delta_notes = _segregate(case, flow, profile, rho_p, d_bar)
+        ejection, accounting, rho_free, mu_free, delta_notes, trajectory = _segregate(case, flow, profile, rho_p, d_bar)
     except FreeboardError as exc:
         raise PrecalcError(
             f"迭代 {iteration} 停止：{exc}；Geldart 记录（迭代号, d_sv, 类别, 式(8)距离）={record}；T_ad={t_ad}；T_init={t_init}"
@@ -187,7 +187,7 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
     k_exit = np.zeros_like(k_down)
     if previous_drain_kg_s:
         k_exit[-1] = float(previous_drain_kg_s) / masses[-1]
-    released = _release(case, state, flow, profile, transport, k_up, k_down, k_exit, hydro, notes, iteration, consistency)
+    released, pyrolysis = _release(case, state, flow, profile, transport, k_up, k_down, k_exit, hydro, notes, iteration, consistency)
     fuel_bed = released.undried_kg[case.n_free:] + (1.0 - float(case.physical.moisture_mass_fraction)) * released.dried_kg[case.n_free:]
     inert = masses - state.bed_char_kg.sum(axis=1) - fuel_bed.sum(axis=1)
     if np.any(inert < 0.0):
@@ -204,6 +204,16 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
     reported["phi_s"] = float(case.phi_s)
     reported["n_0"] = float(case.n_0)
     reported["cell_division"] = f"{case.n_bed}×{case.bed_cell_m:g} m + {case.n_free}×{case.free_cell_m:g} m"
+    free = case.n_free
+    reported["moisture_mass_fraction"] = float(pyrolysis["moisture_mass_fraction"])
+    reported["undried_free_kg"] = np.asarray(released.undried_free_kg, dtype=float)
+    reported["dried_free_kg"] = np.asarray(released.dried_free_kg, dtype=float)
+    reported["undried_hover_kg"] = np.asarray(released.undried_hover_kg, dtype=float)
+    reported["dried_hover_kg"] = np.asarray(released.dried_hover_kg, dtype=float)
+    reported["undried_bed_kg"] = np.asarray(released.undried_kg[free:], dtype=float)
+    reported["dried_bed_kg"] = np.asarray(released.dried_kg[free:], dtype=float)
+    reported["pyrolysis"] = pyrolysis
+    reported["trajectory"] = trajectory
     return PrecalcResult(
         frozen, state, t_ad, dict(equilibrium.fractions), group, d_bar, d_sv, residual,
         equilibrium.feed_enthalpy, equilibrium.product_enthalpy, ejection.mass_flow, _hover_pairs(hover),
@@ -553,7 +563,13 @@ def _segregate(case, flow, profile, rho_p, d_bar):
             _gate_delta(base, fine)
             delta_notes.append((klass, base.roots, fine.roots))
         books.append(base)
-    return _Ejection(mass, speeds, shares, direct), tuple(books), rho, mu, tuple(delta_notes)
+    column = {
+        "edges_m": edges, "volume_flow_m3_s": flows, "edge_diameter_m": diameters,
+        "rho_g": rho, "mu_g": mu, "bubble_m_s": float(profile.u_b[0]),
+        "bubble_diameter_m": float(profile.d_b[0]), "rho_p": float(rho_p),
+        "phi_s": float(case.phi_s), "diameter_m": np.asarray(case.diameters_m, dtype=float),
+    }
+    return _Ejection(mass, speeds, shares, direct), tuple(books), rho, mu, tuple(delta_notes), column
 def _fractions(flow) -> dict[str, float]:
     total = float(np.asarray(flow).sum())
     if total <= 0.0:
@@ -640,7 +656,16 @@ def _release(case, state, flow, profile, packed, k_up, k_down, k_exit, group, no
         yields, temperature, flow.pressure,
         transport=transport,
     )
-    return result
+    inputs = {
+        "diameter_m": np.asarray(case.diameters_m, dtype=float),
+        "temperature_k": temperature, "pressure_pa": float(flow.pressure),
+        "moisture_mass_fraction": float(case.physical.moisture_mass_fraction),
+        "feed_temperature_k": float(case.solid_temperature_k),
+        "gas": {name: float(value) for name, value in _bed_gas(flow).fractions.items()},
+        "relative_velocity_m_s": relative,
+        "ultimate_volatile_mass_fraction": float(case.physical.volatiles_mass_fraction_waf),
+    }
+    return result, inputs
 def _bounds(case):
     bed_top = case.n_bed * case.bed_cell_m
     free_dz, bed_dz = case.free_cell_m, case.bed_cell_m
