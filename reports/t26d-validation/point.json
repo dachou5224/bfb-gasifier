@@ -1,0 +1,284 @@
+{
+  "repeated_residual_norm": 0.0,
+  "residual_calls": 499,
+  "seconds": 62.56709025,
+  "direction": {
+    "merit": 12.111665516003988,
+    "slope": -12.111665516003923,
+    "rows": [
+      {
+        "h": 0.1,
+        "status": "reject",
+        "reason": "m < 0（下标 0）",
+        "merit": null,
+        "relative": null
+      },
+      {
+        "h": 0.01,
+        "status": "reject",
+        "reason": "m < 0（下标 0）",
+        "merit": null,
+        "relative": null
+      },
+      {
+        "h": 0.001,
+        "status": "reject",
+        "reason": "m < 0（下标 45）",
+        "merit": null,
+        "relative": null
+      },
+      {
+        "h": 0.0001,
+        "status": "reject",
+        "reason": "m < 0（下标 52）",
+        "merit": null,
+        "relative": null
+      },
+      {
+        "h": 1e-05,
+        "status": "reject",
+        "reason": "m < 0（下标 44）",
+        "merit": null,
+        "relative": null
+      },
+      {
+        "h": 1e-06,
+        "status": "ok",
+        "reason": "",
+        "merit": 12.111659857881383,
+        "relative": 0.015291112191925343
+      },
+      {
+        "h": 1e-07,
+        "status": "ok",
+        "reason": "",
+        "merit": 12.111664339240109,
+        "relative": 0.015291981767377326
+      },
+      {
+        "h": 1e-08,
+        "status": "ok",
+        "reason": "",
+        "merit": 12.111665395232206,
+        "relative": 0.015292083433221339
+      },
+      {
+        "h": 1e-09,
+        "status": "ok",
+        "reason": "",
+        "merit": 12.111665503897074,
+        "relative": 0.015293219742353753
+      },
+      {
+        "h": 1e-10,
+        "status": "ok",
+        "reason": "",
+        "merit": 12.111665514793,
+        "relative": 0.01528615594385
+      },
+      {
+        "h": 1e-11,
+        "status": "ok",
+        "reason": "",
+        "merit": 12.111665515882887,
+        "relative": 0.015714950998491226
+      },
+      {
+        "h": 1e-12,
+        "status": "ok",
+        "reason": "",
+        "merit": 12.111665515991879,
+        "relative": 0.028741471008969063
+      }
+    ]
+  },
+  "small_step": {
+    "ok": [
+      1e-08,
+      1e-09,
+      1e-10,
+      1e-11,
+      1e-12
+    ],
+    "decreased": [
+      1e-08,
+      1e-09,
+      1e-10,
+      1e-11,
+      1e-12
+    ],
+    "descends": true
+  },
+  "step_norm": 9445.572510137492,
+  "saved_step_norm": 10084.332942879551,
+  "hover": [
+    {
+      "name": "freeboard[b=7,geo=0].char.hover.k3",
+      "x": 1.4121449173199925e-11,
+      "scale": 3.9629153924566705,
+      "step": 2.104259904205788e-19,
+      "old_step": 5.905204106057689e-08,
+      "column_norm": 71322325.17125902,
+      "saved_column_norm": 17051.63459339087,
+      "relative_to_saved": 4181.726575603696,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.460416543317352e-06,
+        "10000.0": 0.00014895952187225631
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "largest": [
+        {
+          "name": "freeboard[b=7,geo=0].ash.hover.k3",
+          "value": 52528166.82244281
+        },
+        {
+          "name": "freeboard[b=7,geo=0].ash.free.k1",
+          "value": -48036332.0520976
+        },
+        {
+          "name": "freeboard[b=7,geo=0].ash.free.k2",
+          "value": -4491832.7093789335
+        },
+        {
+          "name": "bed[b=3,geo=4].gas_outflow.suspension.Ar",
+          "value": 0.0
+        },
+        {
+          "name": "bed[b=3,geo=4].gas_outflow.suspension.H2S",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "name": "freeboard[b=7,geo=0].ash.hover.k3",
+      "x": 3.6899820335038793e-06,
+      "scale": 3.9629153924566705,
+      "step": 5.498501708364307e-14,
+      "old_step": 5.905204106057689e-08,
+      "column_norm": 545.897864530352,
+      "saved_column_norm": 550.265942384243,
+      "relative_to_saved": 0.007938121570895035,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 9.846588493155043e-07,
+        "10000.0": 7.44937986632492e-05
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "largest": [
+        {
+          "name": "freeboard[b=7,geo=0].ash.hover.k3",
+          "value": -402.0482026767387
+        },
+        {
+          "name": "freeboard[b=7,geo=0].ash.free.k1",
+          "value": 367.6679169781569
+        },
+        {
+          "name": "freeboard[b=7,geo=0].ash.free.k2",
+          "value": 34.38029358583711
+        },
+        {
+          "name": "freeboard[b=7,geo=0].gas_outflow.gas.CO",
+          "value": 0.12316737921371121
+        },
+        {
+          "name": "freeboard[b=7,geo=0].gas_outflow.gas.CO2",
+          "value": -0.06486478782361431
+        }
+      ]
+    },
+    {
+      "name": "freeboard[b=6,geo=1].char.hover.k3",
+      "x": 8.774153352782172e-08,
+      "scale": 3.9629153924566705,
+      "step": 1.30745073449346e-15,
+      "old_step": 5.905204106057689e-08,
+      "column_norm": 2.2850058925276255,
+      "saved_column_norm": 1.3684704168115207,
+      "relative_to_saved": 0.6712781843087807,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 0.008943131024261775,
+        "10000.0": 0.008985995347287048
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "largest": [
+        {
+          "name": "freeboard[b=6,geo=1].ash.hover.k3",
+          "value": 1.681389418850613
+        },
+        {
+          "name": "freeboard[b=6,geo=1].ash.free.k1",
+          "value": -1.5376089851616603
+        },
+        {
+          "name": "freeboard[b=6,geo=1].ash.free.k2",
+          "value": -0.14378043368895277
+        },
+        {
+          "name": "freeboard[b=6,geo=1].gas_outflow.gas.H2",
+          "value": 0.06368632075391079
+        },
+        {
+          "name": "freeboard[b=6,geo=1].gas_outflow.gas.H2O",
+          "value": -0.058379127357751553
+        }
+      ]
+    },
+    {
+      "name": "freeboard[b=6,geo=1].ash.hover.k3",
+      "x": 4.101861631429591e-06,
+      "scale": 3.9629153924566705,
+      "step": 6.112250136479126e-14,
+      "old_step": 5.905204106057689e-08,
+      "column_norm": 0.17118650680351427,
+      "saved_column_norm": 0.17152965264693965,
+      "relative_to_saved": 0.004130708306567929,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 0.0005391635450017175,
+        "10000.0": 0.000516915731092472
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "largest": [
+        {
+          "name": "freeboard[b=6,geo=1].gas_outflow.gas.CO",
+          "value": 0.12351452245702521
+        },
+        {
+          "name": "freeboard[b=6,geo=1].ash.hover.k3",
+          "value": -0.07272581970941634
+        },
+        {
+          "name": "freeboard[b=6,geo=1].ash.free.k1",
+          "value": 0.06650681934671346
+        },
+        {
+          "name": "freeboard[b=6,geo=1].gas_outflow.gas.CO2",
+          "value": -0.06493594379174487
+        },
+        {
+          "name": "freeboard[b=6,geo=1].gas_outflow.gas.H2O",
+          "value": 0.006357365126464533
+        }
+      ]
+    }
+  ]
+}
