@@ -1,0 +1,20 @@
+{
+  "name": "S10",
+  "pid": 28597,
+  "started_unix": 1792728920.7505548,
+  "timeout_s": 90000.0,
+  "adiabatic": false,
+  "args": [
+    "/Users/liuzhen/AI-projects/bfb-gasifier/.venv/bin/python",
+    "-m",
+    "hamel.solver.campaign",
+    "S10",
+    "/Users/liuzhen/AI-projects/bfb-T26b/reports/t26b-vtt1/cases/S10.json",
+    "0"
+  ],
+  "case": "/Users/liuzhen/AI-projects/bfb-T26b/reports/t26b-vtt1/cases/S10.json",
+  "parallel": 4,
+  "elapsed_s": 29356.33377313614,
+  "returncode": 0,
+  "watched_status": "DAMPING_FAILED"
+}

@@ -1,0 +1,20 @@
+{
+  "name": "S15",
+  "pid": 46836,
+  "started_unix": 1792758277.091862,
+  "timeout_s": 90000.0,
+  "adiabatic": false,
+  "args": [
+    "/Users/liuzhen/AI-projects/bfb-gasifier/.venv/bin/python",
+    "-m",
+    "hamel.solver.campaign",
+    "S15",
+    "/Users/liuzhen/AI-projects/bfb-T26b/reports/t26b-vtt1/cases/S15.json",
+    "0"
+  ],
+  "case": "/Users/liuzhen/AI-projects/bfb-T26b/reports/t26b-vtt1/cases/S15.json",
+  "parallel": 4,
+  "elapsed_s": 2123.740515232086,
+  "returncode": 0,
+  "watched_status": "DAMPING_FAILED"
+}
