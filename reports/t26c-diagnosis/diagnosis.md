@@ -35,20 +35,72 @@ g(h) < g(0) 的步长：无。相对差小于 1e-02 的步长：无。
 
 ## 8. 差分步长
 
-每一列是与该残差分量同下标的未知量。残差与未知量按同一变量名表对齐，这里不展开该方程的其余依赖列。
+列是这 62 个未知量：10 个最大残差方程按装配结构所依赖的列的并集。冻结系数恒为 0 的输运项不在方程里。保存雅可比恰好为 0 不从这组列里删掉。
 
-| 分量 | 1× 与保存列的相对差 | 1× | 10²× | 10⁴× |
-|---|---|---|---|---|
-| bed[b=7,geo=0].char.bed.k6 | 0.000000e+00 | 0.000000e+00 | 2.991605e-09 | 3.016018e-09 |
-| freeboard[b=7,geo=0].char.free.k6 | 0.000000e+00 | 0.000000e+00 | 2.767563e-10 | 2.783748e-10 |
-| bed[b=7,geo=0].char.bed.k3 | 0.000000e+00 | 0.000000e+00 | 2.995745e-09 | 3.009540e-09 |
-| freeboard[b=7,geo=0].char.hover.k3 | 0.000000e+00 | 0.000000e+00 | 9.899976e-01 | 9.999000e-01 |
-| bed[b=7,geo=0].char.bed.k5 | 0.000000e+00 | 0.000000e+00 | 2.939094e-09 | 3.014124e-09 |
-| freeboard[b=7,geo=0].char.free.k5 | 0.000000e+00 | 0.000000e+00 | 2.496172e-10 | 2.516281e-10 |
-| bed[b=7,geo=0].char.bed.k4 | 0.000000e+00 | 0.000000e+00 | 2.991605e-09 | 3.012366e-09 |
-| bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 2.991620e-09 | 3.166999e-09 |
-| freeboard[b=7,geo=0].char.free.k4 | 0.000000e+00 | 0.000000e+00 | 1.766957e-10 | 1.777294e-10 |
-| freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 6.023425e-11 | 6.042971e-11 |
+| 列 | 关联的最大残差方程 | 1× 与保存列的相对差 | 1× | 10²× | 10⁴× |
+|---|---|---|---|---|---|
+| freeboard[b=6,geo=1].char.free.k4 | freeboard[b=7,geo=0].char.free.k4 | 0.000000e+00 | 0.000000e+00 | 1.357356e-10 | 1.363814e-10 |
+| freeboard[b=6,geo=1].char.free.k5 | freeboard[b=7,geo=0].char.free.k5 | 0.000000e+00 | 0.000000e+00 | 5.407983e-12 | 5.719000e-12 |
+| freeboard[b=6,geo=1].char.free.k6 | freeboard[b=7,geo=0].char.free.k6 | 0.000000e+00 | 0.000000e+00 | 6.602591e-11 | 6.627055e-11 |
+| freeboard[b=7,geo=0].gas_outflow.gas.CO | freeboard[b=7,geo=0].char.free.k6、freeboard[b=7,geo=0].char.hover.k3、freeboard[b=7,geo=0].char.free.k5、freeboard[b=7,geo=0].char.free.k4、freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 1.283007e-08 | 1.291992e-08 |
+| freeboard[b=7,geo=0].gas_outflow.gas.CO2 | freeboard[b=7,geo=0].char.free.k6、freeboard[b=7,geo=0].char.hover.k3、freeboard[b=7,geo=0].char.free.k5、freeboard[b=7,geo=0].char.free.k4、freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 4.670129e-09 | 4.687555e-09 |
+| freeboard[b=7,geo=0].gas_outflow.gas.H2 | freeboard[b=7,geo=0].char.free.k6、freeboard[b=7,geo=0].char.hover.k3、freeboard[b=7,geo=0].char.free.k5、freeboard[b=7,geo=0].char.free.k4、freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 3.423594e-08 | 3.426148e-08 |
+| freeboard[b=7,geo=0].gas_outflow.gas.H2O | freeboard[b=7,geo=0].char.free.k6、freeboard[b=7,geo=0].char.hover.k3、freeboard[b=7,geo=0].char.free.k5、freeboard[b=7,geo=0].char.free.k4、freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 4.245391e-09 | 4.270120e-09 |
+| freeboard[b=7,geo=0].gas_outflow.gas.CH4 | freeboard[b=7,geo=0].char.free.k6、freeboard[b=7,geo=0].char.hover.k3、freeboard[b=7,geo=0].char.free.k5、freeboard[b=7,geo=0].char.free.k4、freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 1.425432e-08 | 1.425795e-08 |
+| freeboard[b=7,geo=0].gas_outflow.gas.C2H4 | freeboard[b=7,geo=0].char.free.k6、freeboard[b=7,geo=0].char.hover.k3、freeboard[b=7,geo=0].char.free.k5、freeboard[b=7,geo=0].char.free.k4、freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 3.631289e-09 | 3.704261e-09 |
+| freeboard[b=7,geo=0].gas_outflow.gas.N2 | freeboard[b=7,geo=0].char.free.k6、freeboard[b=7,geo=0].char.hover.k3、freeboard[b=7,geo=0].char.free.k5、freeboard[b=7,geo=0].char.free.k4、freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 2.281202e-09 | 1.682480e-09 |
+| freeboard[b=7,geo=0].gas_outflow.gas.O2 | freeboard[b=7,geo=0].char.free.k6、freeboard[b=7,geo=0].char.hover.k3、freeboard[b=7,geo=0].char.free.k5、freeboard[b=7,geo=0].char.free.k4、freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 7.377555e-06 | 3.543733e-04 |
+| freeboard[b=7,geo=0].gas_outflow.gas.NH3 | freeboard[b=7,geo=0].char.free.k6、freeboard[b=7,geo=0].char.hover.k3、freeboard[b=7,geo=0].char.free.k5、freeboard[b=7,geo=0].char.free.k4、freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 2.339390e-08 | 2.288682e-08 |
+| freeboard[b=7,geo=0].gas_outflow.gas.H2S | freeboard[b=7,geo=0].char.free.k6、freeboard[b=7,geo=0].char.hover.k3、freeboard[b=7,geo=0].char.free.k5、freeboard[b=7,geo=0].char.free.k4、freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 1.149733e-07 | 1.157531e-07 |
+| freeboard[b=7,geo=0].gas_outflow.gas.Ar | freeboard[b=7,geo=0].char.free.k6、freeboard[b=7,geo=0].char.hover.k3、freeboard[b=7,geo=0].char.free.k5、freeboard[b=7,geo=0].char.free.k4、freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 2.009229e-08 | 1.910953e-08 |
+| freeboard[b=7,geo=0].gas_outflow.gas.C6H6 | freeboard[b=7,geo=0].char.free.k6、freeboard[b=7,geo=0].char.hover.k3、freeboard[b=7,geo=0].char.free.k5、freeboard[b=7,geo=0].char.free.k4、freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 8.992844e-09 | 9.119501e-09 |
+| freeboard[b=7,geo=0].gas_outflow.gas.C10H8 | freeboard[b=7,geo=0].char.free.k6、freeboard[b=7,geo=0].char.hover.k3、freeboard[b=7,geo=0].char.free.k5、freeboard[b=7,geo=0].char.free.k4、freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 3.589804e-10 | 1.117273e-09 |
+| freeboard[b=7,geo=0].temperature | freeboard[b=7,geo=0].char.free.k6、freeboard[b=7,geo=0].char.hover.k3、freeboard[b=7,geo=0].char.free.k5、freeboard[b=7,geo=0].char.free.k4、freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 1.144844e-07 | 1.439490e-05 |
+| freeboard[b=7,geo=0].char.free.k1 | freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 6.023425e-11 | 6.042971e-11 |
+| freeboard[b=7,geo=0].ash.free.k1 | freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 1.066689e-10 | 1.079739e-10 |
+| freeboard[b=7,geo=0].char.free.k2 | freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 1.335810e-10 | 1.346099e-10 |
+| freeboard[b=7,geo=0].ash.free.k2 | freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 9.461894e-10 | 9.553412e-08 |
+| freeboard[b=7,geo=0].char.hover.k3 | freeboard[b=7,geo=0].char.hover.k3 | 0.000000e+00 | 0.000000e+00 | 9.899976e-01 | 9.999000e-01 |
+| freeboard[b=7,geo=0].ash.hover.k3 | freeboard[b=7,geo=0].char.hover.k3 | 0.000000e+00 | 0.000000e+00 | 7.858755e-01 | 7.937342e+01 |
+| freeboard[b=7,geo=0].char.free.k4 | freeboard[b=7,geo=0].char.hover.k3、freeboard[b=7,geo=0].char.free.k4 | 0.000000e+00 | 0.000000e+00 | 1.766957e-10 | 1.777294e-10 |
+| freeboard[b=7,geo=0].ash.free.k4 | freeboard[b=7,geo=0].char.hover.k3、freeboard[b=7,geo=0].char.free.k4 | 0.000000e+00 | 0.000000e+00 | 1.013076e-09 | 4.879345e-08 |
+| freeboard[b=7,geo=0].char.free.k5 | freeboard[b=7,geo=0].char.free.k5、freeboard[b=7,geo=0].char.free.k4 | 0.000000e+00 | 0.000000e+00 | 2.496172e-10 | 2.516281e-10 |
+| freeboard[b=7,geo=0].ash.free.k5 | freeboard[b=7,geo=0].char.free.k5、freeboard[b=7,geo=0].char.free.k4 | 0.000000e+00 | 0.000000e+00 | 4.867595e-10 | 3.038235e-08 |
+| freeboard[b=7,geo=0].char.free.k6 | freeboard[b=7,geo=0].char.free.k6、freeboard[b=7,geo=0].char.free.k5 | 0.000000e+00 | 0.000000e+00 | 2.767563e-10 | 2.783748e-10 |
+| freeboard[b=7,geo=0].ash.free.k6 | freeboard[b=7,geo=0].char.free.k6、freeboard[b=7,geo=0].char.free.k5 | 0.000000e+00 | 0.000000e+00 | 1.768710e-10 | 1.334035e-08 |
+| freeboard[b=7,geo=0].char.free.k7 | freeboard[b=7,geo=0].char.free.k6 | 0.000000e+00 | 0.000000e+00 | 4.507174e-11 | 4.565211e-11 |
+| freeboard[b=7,geo=0].ash.free.k7 | freeboard[b=7,geo=0].char.free.k6 | 0.000000e+00 | 0.000000e+00 | 4.079475e-10 | 6.462744e-09 |
+| bed[b=0,geo=7].char.bed.k1 | freeboard[b=7,geo=0].char.free.k1 | 0.000000e+00 | 0.000000e+00 | 1.198886e-09 | 1.938026e-09 |
+| bed[b=0,geo=7].char.bed.k3 | freeboard[b=7,geo=0].char.hover.k3 | 0.000000e+00 | 0.000000e+00 | 1.198813e-09 | 1.408977e-09 |
+| bed[b=0,geo=7].char.bed.k4 | freeboard[b=7,geo=0].char.free.k4 | 0.000000e+00 | 0.000000e+00 | 1.198835e-09 | 1.585447e-09 |
+| bed[b=0,geo=7].char.bed.k5 | freeboard[b=7,geo=0].char.free.k5 | 0.000000e+00 | 0.000000e+00 | 1.198833e-09 | 1.570144e-09 |
+| bed[b=0,geo=7].char.bed.k6 | freeboard[b=7,geo=0].char.free.k6 | 0.000000e+00 | 0.000000e+00 | 1.198823e-09 | 1.494072e-09 |
+| bed[b=6,geo=1].char.bed.k1 | bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 4.120779e-09 | 4.177873e-09 |
+| bed[b=6,geo=1].char.bed.k3 | bed[b=7,geo=0].char.bed.k3 | 0.000000e+00 | 0.000000e+00 | 4.120774e-09 | 4.119988e-09 |
+| bed[b=6,geo=1].char.bed.k4 | bed[b=7,geo=0].char.bed.k4 | 0.000000e+00 | 0.000000e+00 | 9.930038e-10 | 1.009886e-09 |
+| bed[b=6,geo=1].char.bed.k5 | bed[b=7,geo=0].char.bed.k5 | 0.000000e+00 | 0.000000e+00 | 1.004194e-09 | 1.012412e-09 |
+| bed[b=6,geo=1].char.bed.k6 | bed[b=7,geo=0].char.bed.k6 | 0.000000e+00 | 0.000000e+00 | 4.120774e-09 | 4.121952e-09 |
+| bed[b=7,geo=0].gas_outflow.suspension.CO | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 7.127555e-08 | 7.148091e-08 |
+| bed[b=7,geo=0].gas_outflow.suspension.CO2 | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 1.296380e-08 | 1.314031e-08 |
+| bed[b=7,geo=0].gas_outflow.suspension.H2 | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 1.575035e-08 | 2.342366e-08 |
+| bed[b=7,geo=0].gas_outflow.suspension.H2O | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 1.043269e-08 | 1.483323e-08 |
+| bed[b=7,geo=0].gas_outflow.suspension.CH4 | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 1.106859e-07 | 1.129309e-07 |
+| bed[b=7,geo=0].gas_outflow.suspension.C2H4 | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 2.966059e-08 | 2.996760e-08 |
+| bed[b=7,geo=0].gas_outflow.suspension.N2 | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 9.672727e-09 | 1.353815e-08 |
+| bed[b=7,geo=0].gas_outflow.suspension.O2 | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 5.867413e-06 | 5.922548e-04 |
+| bed[b=7,geo=0].gas_outflow.suspension.NH3 | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 1.312799e-07 | 1.419589e-07 |
+| bed[b=7,geo=0].gas_outflow.suspension.H2S | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 4.351468e-10 | 4.393950e-08 |
+| bed[b=7,geo=0].gas_outflow.suspension.Ar | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 1.195933e-07 | 1.228697e-07 |
+| bed[b=7,geo=0].gas_outflow.suspension.C6H6 | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 4.889369e-10 | 2.312792e-09 |
+| bed[b=7,geo=0].gas_outflow.suspension.C10H8 | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 1.257138e-08 | 1.282471e-08 |
+| bed[b=7,geo=0].temperature | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 1.981996e-07 | 2.034457e-05 |
+| bed[b=7,geo=0].char.bed.k1 | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 2.991620e-09 | 3.166999e-09 |
+| bed[b=7,geo=0].char.bed.k2 | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 2.995746e-09 | 3.012654e-09 |
+| bed[b=7,geo=0].char.bed.k3 | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 2.995745e-09 | 3.009540e-09 |
+| bed[b=7,geo=0].char.bed.k4 | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 2.991605e-09 | 3.012366e-09 |
+| bed[b=7,geo=0].char.bed.k5 | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 2.939094e-09 | 3.014124e-09 |
+| bed[b=7,geo=0].char.bed.k6 | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 2.991605e-09 | 3.016018e-09 |
+| bed[b=7,geo=0].char.bed.k7 | bed[b=7,geo=0].char.bed.k6、bed[b=7,geo=0].char.bed.k3、bed[b=7,geo=0].char.bed.k5、bed[b=7,geo=0].char.bed.k4、bed[b=7,geo=0].char.bed.k1 | 0.000000e+00 | 0.000000e+00 | 2.939094e-09 | 3.017495e-09 |
 
 ## 9. 不光滑点
 

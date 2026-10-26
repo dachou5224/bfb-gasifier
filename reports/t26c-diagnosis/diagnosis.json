@@ -109,13 +109,16 @@
   },
   "columns": [
     {
-      "index": 496,
-      "name": "bed[b=7,geo=0].char.bed.k6",
+      "index": 188,
+      "name": "freeboard[b=6,geo=1].char.free.k4",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k4"
+      ],
       "saved_relative": 0.0,
       "relative": {
         "1.0": 0.0,
-        "100.0": 2.9916051056148266e-09,
-        "10000.0": 3.016017752884075e-09
+        "100.0": 1.3573560295983755e-10,
+        "10000.0": 1.363814488317917e-10
       },
       "status": {
         "1.0": "ok",
@@ -129,13 +132,16 @@
       }
     },
     {
-      "index": 222,
-      "name": "freeboard[b=7,geo=0].char.free.k6",
+      "index": 190,
+      "name": "freeboard[b=6,geo=1].char.free.k5",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k5"
+      ],
       "saved_relative": 0.0,
       "relative": {
         "1.0": 0.0,
-        "100.0": 2.767562595966529e-10,
-        "10000.0": 2.783747954312157e-10
+        "100.0": 5.407983373006539e-12,
+        "10000.0": 5.7190000232069545e-12
       },
       "status": {
         "1.0": "ok",
@@ -149,13 +155,486 @@
       }
     },
     {
-      "index": 493,
-      "name": "bed[b=7,geo=0].char.bed.k3",
+      "index": 192,
+      "name": "freeboard[b=6,geo=1].char.free.k6",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6"
+      ],
       "saved_relative": 0.0,
       "relative": {
         "1.0": 0.0,
-        "100.0": 2.9957453707468783e-09,
-        "10000.0": 3.0095404355703575e-09
+        "100.0": 6.60259083294102e-11,
+        "10000.0": 6.627054761801833e-11
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 196,
+      "name": "freeboard[b=7,geo=0].gas_outflow.gas.CO",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6",
+        "freeboard[b=7,geo=0].char.hover.k3",
+        "freeboard[b=7,geo=0].char.free.k5",
+        "freeboard[b=7,geo=0].char.free.k4",
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.2830073807289096e-08,
+        "10000.0": 1.2919917360555189e-08
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 197,
+      "name": "freeboard[b=7,geo=0].gas_outflow.gas.CO2",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6",
+        "freeboard[b=7,geo=0].char.hover.k3",
+        "freeboard[b=7,geo=0].char.free.k5",
+        "freeboard[b=7,geo=0].char.free.k4",
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 4.67012935306767e-09,
+        "10000.0": 4.687555428927224e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 198,
+      "name": "freeboard[b=7,geo=0].gas_outflow.gas.H2",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6",
+        "freeboard[b=7,geo=0].char.hover.k3",
+        "freeboard[b=7,geo=0].char.free.k5",
+        "freeboard[b=7,geo=0].char.free.k4",
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 3.4235940514381765e-08,
+        "10000.0": 3.426148237687337e-08
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 199,
+      "name": "freeboard[b=7,geo=0].gas_outflow.gas.H2O",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6",
+        "freeboard[b=7,geo=0].char.hover.k3",
+        "freeboard[b=7,geo=0].char.free.k5",
+        "freeboard[b=7,geo=0].char.free.k4",
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 4.245391224702136e-09,
+        "10000.0": 4.270119706241761e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 200,
+      "name": "freeboard[b=7,geo=0].gas_outflow.gas.CH4",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6",
+        "freeboard[b=7,geo=0].char.hover.k3",
+        "freeboard[b=7,geo=0].char.free.k5",
+        "freeboard[b=7,geo=0].char.free.k4",
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.4254316053160494e-08,
+        "10000.0": 1.4257954156955613e-08
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 201,
+      "name": "freeboard[b=7,geo=0].gas_outflow.gas.C2H4",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6",
+        "freeboard[b=7,geo=0].char.hover.k3",
+        "freeboard[b=7,geo=0].char.free.k5",
+        "freeboard[b=7,geo=0].char.free.k4",
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 3.631289031844113e-09,
+        "10000.0": 3.704260585629346e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 202,
+      "name": "freeboard[b=7,geo=0].gas_outflow.gas.N2",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6",
+        "freeboard[b=7,geo=0].char.hover.k3",
+        "freeboard[b=7,geo=0].char.free.k5",
+        "freeboard[b=7,geo=0].char.free.k4",
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 2.2812022635684142e-09,
+        "10000.0": 1.682480391727871e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 203,
+      "name": "freeboard[b=7,geo=0].gas_outflow.gas.O2",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6",
+        "freeboard[b=7,geo=0].char.hover.k3",
+        "freeboard[b=7,geo=0].char.free.k5",
+        "freeboard[b=7,geo=0].char.free.k4",
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 7.377555319191383e-06,
+        "10000.0": 0.00035437327208840146
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 204,
+      "name": "freeboard[b=7,geo=0].gas_outflow.gas.NH3",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6",
+        "freeboard[b=7,geo=0].char.hover.k3",
+        "freeboard[b=7,geo=0].char.free.k5",
+        "freeboard[b=7,geo=0].char.free.k4",
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 2.339389835167524e-08,
+        "10000.0": 2.288682104775465e-08
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 205,
+      "name": "freeboard[b=7,geo=0].gas_outflow.gas.H2S",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6",
+        "freeboard[b=7,geo=0].char.hover.k3",
+        "freeboard[b=7,geo=0].char.free.k5",
+        "freeboard[b=7,geo=0].char.free.k4",
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.149732592051902e-07,
+        "10000.0": 1.1575305359168319e-07
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 206,
+      "name": "freeboard[b=7,geo=0].gas_outflow.gas.Ar",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6",
+        "freeboard[b=7,geo=0].char.hover.k3",
+        "freeboard[b=7,geo=0].char.free.k5",
+        "freeboard[b=7,geo=0].char.free.k4",
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 2.009229264457372e-08,
+        "10000.0": 1.9109534011879628e-08
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 207,
+      "name": "freeboard[b=7,geo=0].gas_outflow.gas.C6H6",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6",
+        "freeboard[b=7,geo=0].char.hover.k3",
+        "freeboard[b=7,geo=0].char.free.k5",
+        "freeboard[b=7,geo=0].char.free.k4",
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 8.992844205017684e-09,
+        "10000.0": 9.11950058858192e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 208,
+      "name": "freeboard[b=7,geo=0].gas_outflow.gas.C10H8",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6",
+        "freeboard[b=7,geo=0].char.hover.k3",
+        "freeboard[b=7,geo=0].char.free.k5",
+        "freeboard[b=7,geo=0].char.free.k4",
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 3.589804477894409e-10,
+        "10000.0": 1.1172729652867776e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 209,
+      "name": "freeboard[b=7,geo=0].temperature",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6",
+        "freeboard[b=7,geo=0].char.hover.k3",
+        "freeboard[b=7,geo=0].char.free.k5",
+        "freeboard[b=7,geo=0].char.free.k4",
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.1448443476682129e-07,
+        "10000.0": 1.4394895554756216e-05
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 210,
+      "name": "freeboard[b=7,geo=0].char.free.k1",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 6.023425242226864e-11,
+        "10000.0": 6.042971120011407e-11
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 211,
+      "name": "freeboard[b=7,geo=0].ash.free.k1",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.0666892891547293e-10,
+        "10000.0": 1.079738526466493e-10
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 212,
+      "name": "freeboard[b=7,geo=0].char.free.k2",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.3358095402894074e-10,
+        "10000.0": 1.3460987005909676e-10
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 213,
+      "name": "freeboard[b=7,geo=0].ash.free.k2",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 9.461894224514876e-10,
+        "10000.0": 9.553412285322663e-08
       },
       "status": {
         "1.0": "ok",
@@ -171,6 +650,9 @@
     {
       "index": 216,
       "name": "freeboard[b=7,geo=0].char.hover.k3",
+      "equations": [
+        "freeboard[b=7,geo=0].char.hover.k3"
+      ],
       "saved_relative": 0.0,
       "relative": {
         "1.0": 0.0,
@@ -189,73 +671,16 @@
       }
     },
     {
-      "index": 495,
-      "name": "bed[b=7,geo=0].char.bed.k5",
+      "index": 217,
+      "name": "freeboard[b=7,geo=0].ash.hover.k3",
+      "equations": [
+        "freeboard[b=7,geo=0].char.hover.k3"
+      ],
       "saved_relative": 0.0,
       "relative": {
         "1.0": 0.0,
-        "100.0": 2.9390941035965165e-09,
-        "10000.0": 3.0141239192884522e-09
-      },
-      "status": {
-        "1.0": "ok",
-        "100.0": "ok",
-        "10000.0": "ok"
-      },
-      "reason": {
-        "1.0": "",
-        "100.0": "",
-        "10000.0": ""
-      }
-    },
-    {
-      "index": 220,
-      "name": "freeboard[b=7,geo=0].char.free.k5",
-      "saved_relative": 0.0,
-      "relative": {
-        "1.0": 0.0,
-        "100.0": 2.496171898578105e-10,
-        "10000.0": 2.51628116247906e-10
-      },
-      "status": {
-        "1.0": "ok",
-        "100.0": "ok",
-        "10000.0": "ok"
-      },
-      "reason": {
-        "1.0": "",
-        "100.0": "",
-        "10000.0": ""
-      }
-    },
-    {
-      "index": 494,
-      "name": "bed[b=7,geo=0].char.bed.k4",
-      "saved_relative": 0.0,
-      "relative": {
-        "1.0": 0.0,
-        "100.0": 2.9916047440803967e-09,
-        "10000.0": 3.012366203359296e-09
-      },
-      "status": {
-        "1.0": "ok",
-        "100.0": "ok",
-        "10000.0": "ok"
-      },
-      "reason": {
-        "1.0": "",
-        "100.0": "",
-        "10000.0": ""
-      }
-    },
-    {
-      "index": 491,
-      "name": "bed[b=7,geo=0].char.bed.k1",
-      "saved_relative": 0.0,
-      "relative": {
-        "1.0": 0.0,
-        "100.0": 2.99162044061427e-09,
-        "10000.0": 3.1669987750931756e-09
+        "100.0": 0.7858754896735665,
+        "10000.0": 79.37342445703123
       },
       "status": {
         "1.0": "ok",
@@ -271,6 +696,10 @@
     {
       "index": 218,
       "name": "freeboard[b=7,geo=0].char.free.k4",
+      "equations": [
+        "freeboard[b=7,geo=0].char.hover.k3",
+        "freeboard[b=7,geo=0].char.free.k4"
+      ],
       "saved_relative": 0.0,
       "relative": {
         "1.0": 0.0,
@@ -289,13 +718,956 @@
       }
     },
     {
-      "index": 210,
-      "name": "freeboard[b=7,geo=0].char.free.k1",
+      "index": 219,
+      "name": "freeboard[b=7,geo=0].ash.free.k4",
+      "equations": [
+        "freeboard[b=7,geo=0].char.hover.k3",
+        "freeboard[b=7,geo=0].char.free.k4"
+      ],
       "saved_relative": 0.0,
       "relative": {
         "1.0": 0.0,
-        "100.0": 6.023425242226864e-11,
-        "10000.0": 6.042971120011407e-11
+        "100.0": 1.0130763006767876e-09,
+        "10000.0": 4.879344878347662e-08
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 220,
+      "name": "freeboard[b=7,geo=0].char.free.k5",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k5",
+        "freeboard[b=7,geo=0].char.free.k4"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 2.496171898578105e-10,
+        "10000.0": 2.51628116247906e-10
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 221,
+      "name": "freeboard[b=7,geo=0].ash.free.k5",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k5",
+        "freeboard[b=7,geo=0].char.free.k4"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 4.867594735765094e-10,
+        "10000.0": 3.038234936087364e-08
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 222,
+      "name": "freeboard[b=7,geo=0].char.free.k6",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6",
+        "freeboard[b=7,geo=0].char.free.k5"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 2.767562595966529e-10,
+        "10000.0": 2.783747954312157e-10
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 223,
+      "name": "freeboard[b=7,geo=0].ash.free.k6",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6",
+        "freeboard[b=7,geo=0].char.free.k5"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.7687100670759664e-10,
+        "10000.0": 1.3340346819031831e-08
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 224,
+      "name": "freeboard[b=7,geo=0].char.free.k7",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 4.5071736830136607e-11,
+        "10000.0": 4.5652113095715644e-11
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 225,
+      "name": "freeboard[b=7,geo=0].ash.free.k7",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 4.079474627261485e-10,
+        "10000.0": 6.462743690686478e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 253,
+      "name": "bed[b=0,geo=7].char.bed.k1",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.1988856972857432e-09,
+        "10000.0": 1.9380261991593345e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 255,
+      "name": "bed[b=0,geo=7].char.bed.k3",
+      "equations": [
+        "freeboard[b=7,geo=0].char.hover.k3"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.1988131122075934e-09,
+        "10000.0": 1.4089773811882395e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 256,
+      "name": "bed[b=0,geo=7].char.bed.k4",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k4"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.198834744322192e-09,
+        "10000.0": 1.5854469258846996e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 257,
+      "name": "bed[b=0,geo=7].char.bed.k5",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k5"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.198832793567777e-09,
+        "10000.0": 1.5701439892477385e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 258,
+      "name": "bed[b=0,geo=7].char.bed.k6",
+      "equations": [
+        "freeboard[b=7,geo=0].char.free.k6"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.1988232151076503e-09,
+        "10000.0": 1.4940722414044357e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 457,
+      "name": "bed[b=6,geo=1].char.bed.k1",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 4.120779249784606e-09,
+        "10000.0": 4.177873120419187e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 459,
+      "name": "bed[b=6,geo=1].char.bed.k3",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k3"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 4.120773521424486e-09,
+        "10000.0": 4.119987597903455e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 460,
+      "name": "bed[b=6,geo=1].char.bed.k4",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k4"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 9.930037520066088e-10,
+        "10000.0": 1.0098858618626433e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 461,
+      "name": "bed[b=6,geo=1].char.bed.k5",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k5"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.0041943668166701e-09,
+        "10000.0": 1.0124119984967014e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 462,
+      "name": "bed[b=6,geo=1].char.bed.k6",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 4.120773751292486e-09,
+        "10000.0": 4.121951931968543e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 464,
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 7.127554591029745e-08,
+        "10000.0": 7.148091115822255e-08
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 465,
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.CO2",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.2963795247407809e-08,
+        "10000.0": 1.3140308758552944e-08
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 466,
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.57503544453542e-08,
+        "10000.0": 2.3423658935295463e-08
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 467,
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.0432691095325406e-08,
+        "10000.0": 1.48332280841453e-08
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 468,
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.CH4",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.1068591207043323e-07,
+        "10000.0": 1.1293085387608887e-07
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 469,
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.C2H4",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 2.9660586887030902e-08,
+        "10000.0": 2.9967599271095246e-08
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 470,
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.N2",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 9.672727234999486e-09,
+        "10000.0": 1.3538145551777986e-08
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 471,
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 5.867412635199831e-06,
+        "10000.0": 0.0005922548246389931
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 472,
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.NH3",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.3127991218391642e-07,
+        "10000.0": 1.4195890847369488e-07
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 473,
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.H2S",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 4.3514681099309665e-10,
+        "10000.0": 4.393949997415534e-08
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 474,
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.Ar",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.1959325501227994e-07,
+        "10000.0": 1.228697160249893e-07
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 475,
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.C6H6",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 4.889368683874109e-10,
+        "10000.0": 2.31279186095152e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 476,
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.C10H8",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.2571377122637425e-08,
+        "10000.0": 1.2824713403309216e-08
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 490,
+      "name": "bed[b=7,geo=0].temperature",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 1.981996017742867e-07,
+        "10000.0": 2.0344574976931003e-05
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 491,
+      "name": "bed[b=7,geo=0].char.bed.k1",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 2.99162044061427e-09,
+        "10000.0": 3.1669987750931756e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 492,
+      "name": "bed[b=7,geo=0].char.bed.k2",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 2.995745678384112e-09,
+        "10000.0": 3.0126541353148053e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 493,
+      "name": "bed[b=7,geo=0].char.bed.k3",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 2.9957453707468783e-09,
+        "10000.0": 3.0095404355703575e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 494,
+      "name": "bed[b=7,geo=0].char.bed.k4",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 2.9916047440803967e-09,
+        "10000.0": 3.012366203359296e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 495,
+      "name": "bed[b=7,geo=0].char.bed.k5",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 2.9390941035965165e-09,
+        "10000.0": 3.0141239192884522e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 496,
+      "name": "bed[b=7,geo=0].char.bed.k6",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 2.9916051056148266e-09,
+        "10000.0": 3.016017752884075e-09
+      },
+      "status": {
+        "1.0": "ok",
+        "100.0": "ok",
+        "10000.0": "ok"
+      },
+      "reason": {
+        "1.0": "",
+        "100.0": "",
+        "10000.0": ""
+      }
+    },
+    {
+      "index": 497,
+      "name": "bed[b=7,geo=0].char.bed.k7",
+      "equations": [
+        "bed[b=7,geo=0].char.bed.k6",
+        "bed[b=7,geo=0].char.bed.k3",
+        "bed[b=7,geo=0].char.bed.k5",
+        "bed[b=7,geo=0].char.bed.k4",
+        "bed[b=7,geo=0].char.bed.k1"
+      ],
+      "saved_relative": 0.0,
+      "relative": {
+        "1.0": 0.0,
+        "100.0": 2.9390944477354663e-09,
+        "10000.0": 3.017495400822701e-09
       },
       "status": {
         "1.0": "ok",

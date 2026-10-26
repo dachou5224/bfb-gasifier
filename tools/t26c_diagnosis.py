@@ -10,12 +10,13 @@ from pathlib import Path
 import numpy as np
 
 from hamel.kinetics.common import KineticsInputError
-from hamel.properties.data import PropertyError
+from hamel.properties.data import GAS_SPECIES, PropertyError
 from hamel.solver.driver import _feasible, _infeasible_clause
 from hamel.solver.frozen import AssemblyError, FreeboardDomainError
 from hamel.solver.gates import ResidualBlocks
 from hamel.solver.newton import _SQRT_EPS, _at, normalized_merit
 from hamel.solver.residual import evaluate_residual
+from hamel.solver.vector import unknown_slots
 
 _CAUGHT = (AssemblyError, FreeboardDomainError, KineticsInputError, PropertyError)
 _AGREE = 1.0e-2
@@ -146,12 +147,87 @@ def _noise(frozen, blocks, x, residual, matrix, scales) -> dict:
     }
 
 
+def dependent_columns(frozen, slots, row: int) -> set[int]:
+    """焦炭残差按装配结构列出依赖列。冻结系数恒为 0 的输运项不进入方程。"""
+    slot = slots[row]
+    found: set[int] = set()
+    table = {
+        (item.zone, item.balance_index, item.kind, item.phase, item.species, item.size_class): item.index
+        for item in slots
+    }
+
+    def add(zone, balance, kind, phase="", species="", size_class=-1) -> None:
+        index = table.get((zone, balance, kind, phase, species, size_class))
+        if index is not None:
+            found.add(index)
+
+    if slot.kind == "char" and slot.zone == "bed":
+        _bed_char_columns(frozen, slot, add)
+    elif slot.kind == "char":
+        _freeboard_char_columns(frozen, slot, add)
+    else:
+        found.add(row)
+    return found
+
+
+def _bed_char_columns(frozen, slot, add) -> None:
+    cell, klass = slot.balance_index, slot.size_class
+    for item in range(frozen.n_class):
+        add("bed", cell, "char", "bed", "", item)
+    for species in GAS_SPECIES:
+        add("bed", cell, "gas_outflow", "suspension", species, -1)
+    add("bed", cell, "temperature")
+    if cell > 0 and float(frozen.m_dot_ab_kg_s[cell - 1]) != 0.0:
+        add("bed", cell - 1, "char", "bed", "", klass)
+    below = cell + 1
+    if below < frozen.n_bed and float(frozen.k_auf_per_s[below]) != 0.0:
+        add("bed", below, "char", "bed", "", klass)
+    if cell == 0 and float(frozen.b_free_per_s[-1, klass] + frozen.b_hover_per_s[-1, klass]) != 0.0:
+        add("freeboard", frozen.n_freeboard - 1, "char", "free", "", klass)
+
+
+def _freeboard_char_columns(frozen, slot, add) -> None:
+    cell, klass = slot.balance_index, slot.size_class
+    hover = slot.phase == "hover"
+    phase = "hover" if hover else "free"
+    add("freeboard", cell, "char", phase, "", klass)
+    add("freeboard", cell, "ash", phase, "", klass)
+    for species in GAS_SPECIES:
+        add("freeboard", cell, "gas_outflow", "gas", species, -1)
+    add("freeboard", cell, "temperature")
+    larger = klass + 1
+    if larger < frozen.n_class:
+        weight = frozen.theta[cell, klass] if hover else 1.0 - frozen.theta[cell, klass]
+        if float(weight) != 0.0:
+            for state in ("free", "hover"):
+                add("freeboard", cell, "char", state, "", larger)
+                add("freeboard", cell, "ash", state, "", larger)
+    below = cell + 1
+    if below < frozen.n_freeboard:
+        coeff = frozen.a_hover_per_s if hover else frozen.a_free_per_s
+        if float(coeff[below, klass]) != 0.0:
+            add("freeboard", below, "char", "free", "", klass)
+    if cell > 0:
+        coeff = frozen.b_hover_per_s if hover else frozen.b_free_per_s
+        if float(coeff[cell - 1, klass]) != 0.0:
+            add("freeboard", cell - 1, "char", "free", "", klass)
+    if cell == frozen.n_freeboard - 1 and float(frozen.k_auf_per_s[0]) != 0.0:
+        share = frozen.ejection_to_hover if hover else frozen.ejection_to_free
+        if float(share[klass]) != 0.0:
+            add("bed", 0, "char", "bed", "", klass)
+
+
 def _columns(frozen, blocks, x, residual, matrix, scales, names, record) -> list:
     iteration = _failed_iteration(record)
     chosen = [item["index"] for item in iteration["largest"]]
+    slots = unknown_slots(frozen)
+    groups: dict[int, list[int]] = {}
+    for row in chosen:
+        for column in dependent_columns(frozen, slots, row):
+            groups.setdefault(column, []).append(row)
     nominal = _steps(x, scales)
     rows = []
-    for index in chosen:
+    for index in sorted(groups):
         computed = {}
         for factor in _MULTIPLIERS:
             step = nominal[index] * factor
@@ -176,6 +252,7 @@ def _columns(frozen, blocks, x, residual, matrix, scales, names, record) -> list
             relatives[str(factor)] = 0.0 if denom == 0.0 else float(np.linalg.norm(column - base) / denom)
         rows.append({
             "index": int(index), "name": names[index] if index < len(names) else str(index),
+            "equations": [names[item] if item < len(names) else str(item) for item in groups[index]],
             "saved_relative": saved_relative,
             "relative": relatives,
             "status": {str(factor): computed[factor]["status"] for factor in _MULTIPLIERS},
@@ -317,15 +394,18 @@ def _markdown(record, body) -> str:
         lines.append(f"加密评价的返回说明：{noise['reason']}。")
     lines.extend(["", "同一份冻结量、同一容差下重算 F(x)，与失败时保存的 F 之差的归一范数 = "
                   f"{_num(body['repeated_residual_norm'])}。", "", "## 8. 差分步长", ""])
-    lines.append("每一列是与该残差分量同下标的未知量。残差与未知量按同一变量名表对齐，这里不展开该方程的其余依赖列。")
+    lines.append(
+        f"列是这 {len(body['columns'])} 个未知量：10 个最大残差方程按装配结构所依赖的列的并集。"
+        "冻结系数恒为 0 的输运项不在方程里。保存雅可比恰好为 0 不从这组列里删掉。"
+    )
     lines.append("")
-    lines.append("| 分量 | 1× 与保存列的相对差 | 1× | 10²× | 10⁴× |")
-    lines.append("|---|---|---|---|---|")
+    lines.append("| 列 | 关联的最大残差方程 | 1× 与保存列的相对差 | 1× | 10²× | 10⁴× |")
+    lines.append("|---|---|---|---|---|---|")
     for row in body["columns"]:
         relative = row["relative"]
         lines.append(
-            f"| {row['name']} | {_num(row['saved_relative'])} | {_num(relative.get('1.0'))} | "
-            f"{_num(relative.get('100.0'))} | {_num(relative.get('10000.0'))} |"
+            f"| {row['name']} | {'、'.join(row['equations'])} | {_num(row['saved_relative'])} | "
+            f"{_num(relative.get('1.0'))} | {_num(relative.get('100.0'))} | {_num(relative.get('10000.0'))} |"
         )
     char = body["switches"]["char"]
     bounds = body["switches"]["bounds"]
