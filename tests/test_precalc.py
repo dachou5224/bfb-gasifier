@@ -363,3 +363,30 @@ def test_density_search_recovers_the_requested_bed_mass():
     checked = minimum_fluidization_velocity(0.46, conditions.nu_g, PHI_S, conditions.d_p, density, conditions.rho_g)
     found = bed_profile(edges, velocities, checked, 0.02, 40, 0.0, 4, replace(conditions, rho_p=density), SEARCH)
     assert found.solids_mass.sum() == pytest.approx(target, rel=1.0e-6)
+
+
+def test_hover_closure_bc_allows_a_cell_with_neither_state():
+    """实现修正：ADR 0038。A 的存在性检查逐位不变；B、C 允许自由与悬停都不存在。"""
+    from dataclasses import replace
+
+    from hamel.pyrolysis.particle import PyrolysisError
+
+    present = _transport(True)
+    default = _run(np.array([2.0]), np.array([3.0]), present)
+    explicit = _run(np.array([2.0]), np.array([3.0]), replace(present, closure="A"))
+    assert np.array_equal(default.char_kg_s, explicit.char_kg_s)
+    assert np.array_equal(default.undried_kg, explicit.undried_kg)
+    assert np.array_equal(default.dried_kg, explicit.dried_kg)
+    assert np.array_equal(default.water_kg_s, explicit.water_kg_s)
+    neither = replace(present, hover=np.zeros_like(present.hover))
+    with pytest.raises(PyrolysisError, match="自由状态不存在的格子必须设有悬停状态"):
+        _run(np.array([2.0]), np.array([3.0]), replace(neither, closure="A"))
+    quiet = replace(neither, b_free_per_s=np.zeros_like(neither.b_free_per_s))
+    for closure in ("B", "C"):
+        solved = _run(np.array([2.0]), np.array([3.0]), replace(quiet, closure=closure))
+        assert solved.char_hover_kg_s.sum() == 0.0
+        assert solved.ash_hover_kg_s.sum() == 0.0
+    with pytest.raises(PyrolysisError, match="B 或 C 不设悬停状态"):
+        _run(np.array([2.0]), np.array([3.0]), replace(present, closure="B"))
+    with pytest.raises(PyrolysisError, match="B 或 C 不设悬停状态"):
+        _run(np.array([2.0]), np.array([3.0]), replace(present, closure="C"))
