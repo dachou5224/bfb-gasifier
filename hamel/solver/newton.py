@@ -1,11 +1,13 @@
 """内层阻尼牛顿。解 J·Δx = −F，不显式求逆。
 Source: Hamel Eq.2.9, S. 20
 解释性选择：ADR 0011 第 5 条。求解手段：ADR 0002；ADR 0017 第 6–8 项；ADR 0022。
+journal 只追加迭代和试探记录，不参与接受判定。
 """
 from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 
@@ -33,13 +35,13 @@ class NewtonResult:
     merit: float | None
 
 
-def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, deadline=None) -> NewtonResult:
+def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, deadline=None, journal=None) -> NewtonResult:
     """Wirsum 第 4、5 步。merit_of 是归一残差的欧氏范数。
     雅可比每次在当前点用前向差分重算。不按块合并列；合并不改变各列的值。
     """
     x = np.asarray(x0, dtype=float).copy()
     scales = np.asarray(scales, dtype=float)
-    residual, status = _at(x, evaluate, feasible)
+    residual, status, _reason = _at(x, evaluate, feasible)
     if status == "domain":
         return NewtonResult("DOMAIN_STOP", "初值落在自由空间有效域外", x, residual, 0, None)
     if status != "ok":
@@ -48,17 +50,25 @@ def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, d
     if converged(residual):
         return NewtonResult("CONVERGED", "", x, residual, 0, merit)
     limit = int(config.damping_index_limit)
+    explain = None if journal is None else journal.get("explain")
     for iteration in range(1, int(config.nu_max) + 1):
         _clock(deadline)
+        trials = [] if journal is not None else None
+        matrix = None
+        delta = None
         try:
             matrix = _jacobian(x, residual, evaluate, scales, feasible)
             delta = np.linalg.solve(matrix, -residual)
-            accepted = _damp(x, delta, merit, evaluate, feasible, merit_of, limit, deadline)
+            accepted = _damp(x, delta, merit, evaluate, feasible, merit_of, limit, deadline, trials, explain)
         except FreeboardDomainError as exc:
+            _note(journal, iteration, merit, residual, delta, trials, scales)
             return NewtonResult("DOMAIN_STOP", str(exc), x, residual, iteration, merit)
         except np.linalg.LinAlgError:
+            _note(journal, iteration, merit, residual, delta, trials, scales)
             return NewtonResult("NOT_CONVERGED", "雅可比不能求解", x, residual, iteration, merit)
+        _note(journal, iteration, merit, residual, delta, trials, scales)
         if accepted is None:
+            _dump(journal, x, residual, matrix, delta, scales)
             return NewtonResult("DAMPING_FAILED", "没有使归一残差严格下降的可行步", x, residual, iteration, merit)
         x, residual, merit = accepted
         if converged(residual):
@@ -68,11 +78,7 @@ def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, d
 
 def normalized_merit(residual, blocks) -> float:
     """欧氏范数取在各块除以 ADR 0012 参考流之后。求解手段：ADR 0017 第 7 项。"""
-    scaled = np.asarray(residual, dtype=float).copy()
-    _divide(scaled, blocks.gas, blocks.n_dot_ref)
-    _divide(scaled, blocks.solid, blocks.m_dot_ref)
-    _divide(scaled, blocks.energy, blocks.q_dot_ref)
-    return float(np.linalg.norm(scaled))
+    return float(np.linalg.norm(_normalize(residual, blocks)))
 
 
 def _jacobian(x, residual, evaluate, scales, feasible):
@@ -83,7 +89,7 @@ def _jacobian(x, residual, evaluate, scales, feasible):
             raise np.linalg.LinAlgError("差分步长不是正数")
         trial = x.copy()
         trial[index] += step
-        values, status = _at(trial, evaluate, feasible)
+        values, status, _reason = _at(trial, evaluate, feasible)
         if status == "domain":
             raise FreeboardDomainError("差分点落在自由空间有效域外")
         if status != "ok":
@@ -92,32 +98,136 @@ def _jacobian(x, residual, evaluate, scales, feasible):
     return columns
 
 
-def _damp(x, delta, merit, evaluate, feasible, merit_of, limit, deadline):
+def _damp(x, delta, merit, evaluate, feasible, merit_of, limit, deadline, trials=None, explain=None):
     for index in range(limit + 1):
         _clock(deadline)
-        values, status = _at(x + delta / (2.0 ** index), evaluate, feasible)
+        point = x + delta / (2.0 ** index)
+        values, status, reason = _at(point, evaluate, feasible, explain)
+        trial_merit = merit_of(values) if status == "ok" else None
+        if trials is not None:
+            trials.append({
+                "i": index, "step": float(2.0 ** (-index)), "status": status, "reason": reason,
+                "merit": None if trial_merit is None else float(trial_merit), "accepted": False,
+            })
         if status == "domain":
             raise FreeboardDomainError("试探点落在自由空间有效域外")
         if status != "ok":
             continue
-        trial_merit = merit_of(values)
         if trial_merit < merit:
-            return x + delta / (2.0 ** index), values, trial_merit
+            if trials is not None:
+                trials[-1]["accepted"] = True
+            return point, values, trial_merit
     return None
 
 
-def _at(x, evaluate, feasible):
-    if not np.isfinite(x).all() or not feasible(x):
-        return None, "reject"
+def _at(x, evaluate, feasible, explain=None):
+    if not np.isfinite(x).all():
+        return None, "reject", "x 非有限"
+    if not feasible(x):
+        reason = "feasible 不满足"
+        if explain is not None:
+            try:
+                reason = explain(x)
+            except Exception:
+                reason = "feasible 不满足"
+        return None, "reject", reason
     try:
         values = np.asarray(evaluate(x), dtype=float)
     except FreeboardDomainError:
-        return None, "domain"
-    except _SHRINK:
-        return None, "reject"
-    if values.shape != x.shape or not np.isfinite(values).all():
-        return None, "reject"
-    return values, "ok"
+        return None, "domain", "试探点落在自由空间有效域外"
+    except _SHRINK as exc:
+        return None, "reject", f"{type(exc).__name__}: {exc}"
+    if values.shape != x.shape:
+        return None, "reject", "残差形状与未知量不一致"
+    if not np.isfinite(values).all():
+        return None, "reject", "残差非有限"
+    return values, "ok", ""
+
+
+def _normalize(residual, blocks):
+    scaled = np.asarray(residual, dtype=float).copy()
+    if blocks is None:
+        return scaled
+    _divide(scaled, blocks.gas, blocks.n_dot_ref)
+    _divide(scaled, blocks.solid, blocks.m_dot_ref)
+    _divide(scaled, blocks.energy, blocks.q_dot_ref)
+    return scaled
+
+
+def _note(journal, iteration, merit, residual, delta, trials, scales) -> None:
+    if journal is None:
+        return
+    blocks = journal.get("blocks")
+    scaled = _normalize(residual, blocks)
+    names = journal.get("names") or []
+    labels = _block_labels(blocks)
+    order = np.argsort(-np.abs(scaled))[:10]
+    largest = [{
+        "index": int(item), "block": labels.get(int(item), ""),
+        "name": names[int(item)] if int(item) < len(names) else str(int(item)),
+        "value": float(scaled[item]),
+    } for item in order]
+    step = {"norm": None, "max": None}
+    if delta is not None:
+        scaled_step = np.asarray(delta, dtype=float) / np.asarray(scales, dtype=float)
+        index = int(np.argmax(np.abs(scaled_step)))
+        step = {
+            "norm": float(np.linalg.norm(scaled_step)),
+            "max": {
+                "index": index, "block": labels.get(index, ""),
+                "name": names[index] if index < len(names) else str(index),
+                "value": float(scaled_step[index]), "raw": float(delta[index]),
+            },
+        }
+    journal.setdefault("iterations", []).append({
+        "iteration": iteration, "merit": float(merit),
+        "blocks": {
+            "gas": _block_norm(scaled, None if blocks is None else blocks.gas),
+            "solid": _block_norm(scaled, None if blocks is None else blocks.solid),
+            "energy": _block_norm(scaled, None if blocks is None else blocks.energy),
+            "bottom": journal.get("bottom_norm"),
+        },
+        "largest": largest, "step": step, "trials": [] if trials is None else trials,
+    })
+
+
+def _block_labels(blocks) -> dict:
+    labels = {}
+    if blocks is None:
+        return labels
+    for title, index in (("气体", blocks.gas), ("固体", blocks.solid), ("能量", blocks.energy)):
+        for item in np.asarray(index, dtype=int).tolist():
+            labels[int(item)] = title
+    return labels
+
+
+def _block_norm(scaled, index) -> float:
+    if index is None:
+        return 0.0
+    chosen = np.asarray(index, dtype=int)
+    if chosen.size == 0:
+        return 0.0
+    return float(np.linalg.norm(scaled[chosen]))
+
+
+def _dump(journal, x, residual, matrix, delta, scales) -> None:
+    if journal is None or not journal.get("failure_path") or matrix is None or delta is None:
+        return
+    path = Path(journal["failure_path"])
+    path.parent.mkdir(parents=True, exist_ok=True)
+    blocks = journal.get("blocks")
+    payload = {"x": np.asarray(x), "F": np.asarray(residual), "J": np.asarray(matrix), "dx": np.asarray(delta), "scales": np.asarray(scales)}
+    if blocks is not None:
+        payload.update(
+            gas=np.asarray(blocks.gas, dtype=int), solid=np.asarray(blocks.solid, dtype=int),
+            energy=np.asarray(blocks.energy, dtype=int),
+            n_dot_ref=np.array(blocks.n_dot_ref), m_dot_ref=np.array(blocks.m_dot_ref), q_dot_ref=np.array(blocks.q_dot_ref),
+        )
+    names = journal.get("names")
+    if names is not None:
+        payload["names"] = np.asarray(names)
+    np.savez(path, **payload)
+    journal["failure_npz"] = str(path)
 
 
 def _divide(scaled, index, reference) -> None:

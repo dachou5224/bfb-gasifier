@@ -3,7 +3,9 @@
 """
 from __future__ import annotations
 
+import pickle
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import numpy as np
 
@@ -45,7 +47,7 @@ class SolveResult:
     x: np.ndarray | None = None
 
 
-def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, deadline=None) -> SolveResult:
+def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, deadline=None, journal=None) -> SolveResult:
     """refresh(x, round, consistency) 给出本轮起点。x 为 None 时是第一次。
     (a) 比较相邻两轮结束时的监测量。(b) 用最终单元解重算预计算，再查内层门。
     """
@@ -61,19 +63,25 @@ def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, 
         except PrecalcError as exc:
             return SolveResult("DOMAIN_STOP", str(exc), round_index, iterations, diagnostics=diagnostics, x=x)
         blocks, scales, feasible, refs = prepare(opened)
+        mark = 0 if journal is None else len(journal.setdefault("iterations", []))
         try:
             inner = damped_newton(
                 opened.x, lambda trial, opened=opened: evaluate(trial, opened), scales,
                 lambda residual, blocks=blocks: inner_met(residual, blocks, config.residual_tolerance),
                 feasible, lambda residual, blocks=blocks: normalized_merit(residual, blocks),
-                config, deadline,
+                config, deadline, journal,
             )
         except SolveTimeout:
             raise
         except PrecalcError as exc:
             return SolveResult("DOMAIN_STOP", str(exc), round_index, iterations, diagnostics=diagnostics, x=x)
         iterations += inner.iterations
-        diagnostics["rounds"].append({"round": round_index, "inner": inner.status, "reason": inner.reason, "info": opened.info})
+        row = {"round": round_index, "inner": inner.status, "reason": inner.reason, "info": opened.info}
+        if journal is not None:
+            row["newton"] = journal["iterations"][mark:]
+            if journal.get("failure_npz"):
+                diagnostics["failure_npz"] = journal["failure_npz"]
+        diagnostics["rounds"].append(row)
         if inner.status != "CONVERGED":
             return SolveResult(inner.status, inner.reason, round_index, iterations, diagnostics=diagnostics, x=inner.x)
         try:
@@ -99,7 +107,7 @@ def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, 
     return SolveResult("NOT_CONVERGED", "外层超过 outer_round_limit", int(config.outer_round_limit), iterations, diagnostics=diagnostics, x=x)
 
 
-def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=None, config: SolverConfig | None = None) -> SolveResult:
+def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=None, config: SolverConfig | None = None, artifact_dir=None) -> SolveResult:
     """第 1 关入口。绝热对照传 adiabatic=True：k_W = 0，初值不扣散热。
 
     config 是 SolverConfig 副本。缺省时用工况装配的默认配置。
@@ -109,6 +117,11 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
     physical = assembled.physical
     n_ref, m_ref, q_ref = _references(physical)
     holder = {"state": None, "reaction": None, "drain": 0.0, "fuel_return": 0.0, "records": [], "redirect": (0.0, 0.0, 0.0, 0.0)}
+    journal = {"iterations": []}
+    if artifact_dir is not None:
+        folder = Path(artifact_dir)
+        folder.mkdir(parents=True, exist_ok=True)
+        journal["failure_path"] = str(folder / "failure.npz")
 
     def _precalc(iteration, consistency):
         bed_return, ash_out, fuel_out = redirect_feedback(config.hover_closure, holder["redirect"])
@@ -134,6 +147,12 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         frozen = holder["records"][-1].frozen
         blocks = _blocks(frozen, n_ref, m_ref, q_ref)
         m_tot = float(frozen.geometric_mass_kg.sum())
+        slots = unknown_slots(frozen)
+        journal["blocks"] = blocks
+        journal["names"] = [slot.name for slot in slots]
+        journal["explain"] = lambda trial, frozen=frozen: _infeasible_clause(trial, frozen)
+        bottom = opened.info.get("bottom_residual_kg_s")
+        journal["bottom_norm"] = None if bottom is None else abs(float(bottom)) / m_ref
         return blocks, _scales(frozen, n_ref, m_tot), lambda trial, frozen=frozen: _feasible(trial, frozen), (n_ref, m_ref, q_ref, m_tot)
 
     def monitor_from(opened, values):
@@ -156,7 +175,12 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         holder["state"] = state
         return _Checked(residual.values, _blocks(result.frozen, n_ref, m_ref, q_ref), _info(result))
 
-    outcome = solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, deadline)
+    outcome = solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, deadline, journal)
+    if artifact_dir is not None and outcome.status == "DAMPING_FAILED" and holder["records"]:
+        frozen_path = Path(artifact_dir) / "frozen.pkl"
+        with frozen_path.open("wb") as handle:
+            pickle.dump(holder["records"][-1].frozen, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        outcome.diagnostics["frozen_path"] = str(frozen_path)
     outcome.diagnostics["geldart"] = [item.geldart_record for item in holder["records"]]
     outcome.diagnostics["adiabatic"] = adiabatic
     if outcome.status != "CONVERGED":
@@ -241,6 +265,37 @@ def _feasible(values, frozen) -> bool:
         np.concatenate([state.bed_temperature_k, state.freeboard_temperature_k]),
         inert,
     )
+
+
+def _infeasible_clause(values, frozen) -> str:
+    """与 arrays_allowed 同一组条件，按 ADR 0017 第 7 项的顺序报告第一条。"""
+    state = unpack_state(values, frozen)
+    inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
+    groups = (
+        ("Ṅ < 0", state.bed_gas_mol_s), ("Ṅ < 0", state.freeboard_gas_mol_s),
+        ("m < 0", state.bed_char_kg), ("m < 0", state.freeboard_char_free_kg),
+        ("m < 0", state.freeboard_char_hover_kg), ("m < 0", state.freeboard_ash_free_kg),
+        ("m < 0", state.freeboard_ash_hover_kg), ("m_inert < 0", inert),
+    )
+    for label, array in groups:
+        hit = _bound_hit(array, label)
+        if hit:
+            return hit
+    temperature = np.concatenate([state.bed_temperature_k, state.freeboard_temperature_k])
+    if not np.isfinite(temperature).all():
+        return "T 非有限"
+    if np.any(temperature <= 0.0):
+        return f"T ≤ 0（下标 {int(np.flatnonzero(temperature <= 0.0)[0])}）"
+    return "feasible 不满足"
+
+
+def _bound_hit(array, label):
+    flat = np.asarray(array, dtype=float).ravel()
+    if flat.size == 0 or (np.isfinite(flat).all() and np.all(flat >= 0.0)):
+        return None
+    if not np.isfinite(flat).all():
+        return f"{label} 的量非有限"
+    return f"{label}（下标 {int(np.flatnonzero(flat < 0.0)[0])}）"
 
 
 def _monitor(state, frozen) -> OuterMonitor:

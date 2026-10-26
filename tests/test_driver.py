@@ -259,6 +259,80 @@ def _toy(config):
     )
 
 
+def test_newton_journal_does_not_change_the_accepted_step(tmp_path):
+    """记录只追加。有无 journal 时 x 与残差逐位相同，失败点写出 npz。"""
+    plain = _linear()
+    config = SolverConfig()
+    target = np.array([1.0, 2.0, 3.0])
+    blocks = ResidualBlocks(np.array([0]), np.array([1]), np.array([2]), 10.0, 10.0, 10.0)
+    journal = {"iterations": [], "blocks": blocks, "names": ["gas", "solid", "energy"], "bottom_norm": 0.0}
+    traced = damped_newton(
+        np.array([0.2, 0.2, 0.2]), lambda trial: np.asarray(trial, dtype=float) - target, np.ones(3),
+        lambda residual: inner_met(residual, blocks, config.residual_tolerance),
+        lambda trial: bool(np.all(trial > 0.0)),
+        lambda residual: normalized_merit(residual, blocks), config, journal=journal,
+    )
+    assert traced.status == plain.status == "CONVERGED"
+    assert np.array_equal(traced.x, plain.x)
+    assert np.array_equal(traced.residual, plain.residual)
+    assert journal["iterations"][0]["trials"][0]["accepted"] is True
+    assert journal["iterations"][0]["blocks"]["bottom"] == 0.0
+
+    start = np.array([1.0, 1.0])
+    fail_blocks = ResidualBlocks(np.array([0, 1]), np.array([], dtype=int), np.array([], dtype=int), 1.0, 1.0, 1.0)
+
+    def feasible(trial):
+        delta = np.asarray(trial, dtype=float) - start
+        changed = np.flatnonzero(np.abs(delta) > 0.0)
+        return bool(changed.size == 0 or (changed.size == 1 and abs(float(delta[changed[0]])) < 1.0e-6))
+
+    def evaluate(trial):
+        return np.asarray(trial, dtype=float) - np.array([0.2, 0.2])
+
+    silent = damped_newton(
+        start, evaluate, np.ones(2), lambda residual: inner_met(residual, fail_blocks, config.residual_tolerance),
+        feasible, lambda residual: normalized_merit(residual, fail_blocks), config,
+    )
+    failure = {"iterations": [], "blocks": fail_blocks, "names": ["n0", "n1"], "failure_path": str(tmp_path / "failure.npz"),
+               "explain": lambda trial: "可行条件：不能同时改两个分量"}
+    logged = damped_newton(
+        start, evaluate, np.ones(2), lambda residual: inner_met(residual, fail_blocks, config.residual_tolerance),
+        feasible, lambda residual: normalized_merit(residual, fail_blocks), config, journal=failure,
+    )
+    assert silent.status == logged.status == "DAMPING_FAILED"
+    assert np.array_equal(silent.x, logged.x)
+    assert np.array_equal(silent.residual, logged.residual)
+    trials = failure["iterations"][-1]["trials"]
+    assert len(trials) == config.damping_index_limit + 1
+    assert all(item["status"] == "reject" and item["reason"] == "可行条件：不能同时改两个分量" for item in trials)
+    saved = np.load(tmp_path / "failure.npz")
+    assert np.array_equal(saved["x"], logged.x)
+    assert np.array_equal(saved["F"], logged.residual)
+    assert saved["J"].shape == (2, 2) and saved["dx"].shape == (2,)
+
+
+def test_shrink_exception_is_named_in_the_trial_record():
+    config = SolverConfig()
+    blocks = ResidualBlocks(np.array([0]), np.array([], dtype=int), np.array([], dtype=int), 1.0, 1.0, 1.0)
+    journal = {"iterations": [], "blocks": blocks, "names": ["x"]}
+
+    def evaluate(trial):
+        value = float(trial[0])
+        if value > 2.0:
+            raise KineticsInputError("速率式超出原文适用范围")
+        return np.array([value * value - 1.0])
+
+    result = damped_newton(
+        np.array([0.1]), evaluate, np.ones(1),
+        lambda residual: inner_met(residual, blocks, config.residual_tolerance),
+        lambda trial: bool(np.all(np.isfinite(trial))),
+        lambda residual: normalized_merit(residual, blocks), config, journal=journal,
+    )
+    assert result.status == "CONVERGED"
+    reasons = [item["reason"] for row in journal["iterations"] for item in row["trials"]]
+    assert any(reason.startswith("KineticsInputError:") for reason in reasons)
+
+
 def test_wall_clock_kill_is_recorded_as_timeout():
     assert _process([sys.executable, "-c", "import time; time.sleep(30)"], 0.2) is None
 

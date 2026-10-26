@@ -169,7 +169,11 @@ def _release_states(
         _same(name, getattr(transport, name), (n_free, classes))
     _same("ejection_to_free", transport.ejection_to_free, (classes,))
     _same("ejection_to_hover", transport.ejection_to_hover, (classes,))
-    if np.any(transport.free_absent & ~transport.hover):
+    # 实现修正：ADR 0038。A 仍要求自由状态缺席时设有悬停；B、C 不设悬停，两种状态都可以不存在。
+    if transport.closure in {"B", "C"}:
+        if np.any(transport.hover):
+            raise PyrolysisError("B 或 C 不设悬停状态")
+    elif np.any(transport.free_absent & ~transport.hover):
         raise PyrolysisError("自由状态不存在的格子必须设有悬停状态")
     if np.any(np.abs(transport.ejection_to_free + transport.ejection_to_hover - 1.0) > 1.0e-12):
         raise PyrolysisError("抛出进入自由与悬停的份额之和必须为 1")
