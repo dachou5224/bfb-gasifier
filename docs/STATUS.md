@@ -1,6 +1,6 @@
 # 项目状态（STATUS）
 
-唯一交接文档，原地更新。最后更新：2026-10-23（T26a 完成；T26b 可派发）
+唯一交接文档，原地更新。最后更新：2026-10-26（T26b 首次运行全部未收敛；T26c 诊断任务卡待审查）
 
 ## 当前阶段
 
@@ -47,6 +47,7 @@
 | T25d | 敏感性运行的参数接口与必报诊断量 | cursor（新会话，worktree `../bfb-T25d`）；审查 codex | 完成（PR #106，2026-10-22 复审通过）；全自由空间质量与元素闭合、数值积分与闭式比对两项诊断转 T26 | 任务卡 `docs/tasks/T25d-sensitivity-diagnostics.md`（2026-10-22 复审通过，已批准，PR #105）。S3–S5、S9–S16 已接线。`particle_emissivity_case`、`serio_pair`、`interphase_diffusivity`、`hover_closure` 只选择已批准的固定对，不新增可调物理参数，见 ADR 0039（已批准）。B 的改送回落进入下一轮床层总流，C 的改送灰和燃料进入排灰出口。燃料释放的 W/P 缺口单独列出；全自由空间质量与元素闭合、以及数值积分与常气速闭式比对，都因没有对应中间量记为未计算。玩具报告 `reports/toy/` 不是第 1 关结果。 |
 | T26a | 首次运行前的修正与报告补全（M2 审计后续） | cursor（新会话，worktree `../bfb-T26a`）；审查 codex | 完成（PR #108，2026-10-23 复审通过） | 任务卡 `docs/tasks/T26a-run-prep.md`。未跑工况 1，属 T26b。审查已改：加密与闭式入口接收本次运行的输入；两边都没有的自由状态系数跳过比较，只有一边缺失记未满足，不抛异常。真实报告逐粒级写出热解三种加密；“构造状态”只出现在玩具报告。燃料 W/P 分开记账；B 的改送计入回落、C 计入带出。悬停与格内存量含未转化燃料。ADR 0020 与 ADR 0030 的 F26–F28 仍只核对。默认 pytest 3 分 48 秒，339 passed。slow 仍是 `test_case1_campaign_stops_at_the_wall_clock`、`test_case1_first_iteration_finishes`、`test_case1_smoke_agrees_with_t27_scenarios_b_and_c`。玩具报告 `reports/toy/` 不是第 1 关结果 |
 | T26b | 第 1 关首次完整运行与报告 | cursor（新会话）；审查 codex | 可派发（T26a 已完成；2026-10-23 核对 docs/adr/ 无 proposed ADR） | 任务卡 `docs/tasks/T26b-first-run.md`（2026-10-23 复审通过，已批准，PR #107）；先跑基准与 S1 并提交中间报告 |
+| T26c | 首次运行阻尼失败的诊断与 S13、S14 的实现修正 | cursor（新会话，worktree `../bfb-T26c`）；审查 codex | 待派发（任务卡待审查） | 任务卡 `docs/tasks/T26c-damping-diagnosis.md`；T26b 基准、S1–S12、S15、S16 为 DAMPING_FAILED，S13、S14 为 DOMAIN_STOP（`release.py` 的存在性检查未按 ADR 0038 区分闭合）。本卡只修 S13、S14 的检查并做诊断，不改算法与参数 |
 | T29 | 已裁定的第 1 关输入写入工况文件 | cursor（新会话）；审查总司令 | 完成 | PR #83（2026-10-18 总司令审查通过）。任务卡 `docs/tasks/T29-vtt1-case-data.md`。ADR 0014、0019 已写明的数已写入 `data/cases/vtt_pressurized.json`。`<0,1 mm` 代表粒径与床料质量分数两处 ADR 未给出可录入的数，保持 missing，见缺口文件 T29 节 |
 
 ## 执行顺序与分工（2026-10-13 起）
