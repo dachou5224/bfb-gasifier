@@ -1,0 +1,20 @@
+{
+  "name": "S8",
+  "pid": 25067,
+  "started_unix": 1792728054.1856499,
+  "timeout_s": 90000.0,
+  "adiabatic": false,
+  "args": [
+    "/Users/liuzhen/AI-projects/bfb-gasifier/.venv/bin/python",
+    "-m",
+    "hamel.solver.campaign",
+    "S8",
+    "/Users/liuzhen/AI-projects/bfb-T26b/reports/t26b-vtt1/cases/S8.json",
+    "0"
+  ],
+  "case": "/Users/liuzhen/AI-projects/bfb-T26b/reports/t26b-vtt1/cases/S8.json",
+  "parallel": 4,
+  "elapsed_s": 29165.65202307701,
+  "returncode": 0,
+  "watched_status": "DAMPING_FAILED"
+}

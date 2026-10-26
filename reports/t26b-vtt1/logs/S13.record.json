@@ -1,0 +1,1 @@
+{"name": "S13", "change": "悬停样本计为床面回落", "source": "ADR 0026 第 6 项；ADR 0038", "status": "DOMAIN_STOP", "reason": "迭代 1 停止：自由状态不存在的格子必须设有悬停状态", "rounds": 1, "iterations": 0, "ratios": {}, "balance": null, "nonnegative": null, "measurements": null, "diagnostics": {"rounds": [], "geldart": [], "adiabatic": false}, "wall_clock_s": 590.3802208900452}

@@ -1,6 +1,6 @@
 # 项目状态（STATUS）
 
-唯一交接文档，原地更新。最后更新：2026-10-23（T26b 基准与 S1 结束；未满足 §2.1，未刷新指标日期）
+唯一交接文档，原地更新。最后更新：2026-10-26（T26b 完整报告已交；未满足 §2.1，未刷新指标日期）
 
 ## 当前阶段
 
@@ -46,7 +46,7 @@
 | T25c | 求解驱动与运行框架 | cursor（新会话，worktree `../bfb-T25c`）；审查 codex | 部分完成（PR #104，2026-10-22 复审通过）；S3–S5、S9–S16 与六项诊断量转 T25d | 任务卡 `docs/tasks/T25c-driver.md`。驱动在 `hamel/solver/`；字段与 `wall_timeout_s` = 90 000 s 见 ADR 0037（已批准）。依据：PR #100 工况 1 一轮预计算约 530 s，该冒烟墙钟上限 900 s，外层上限 100 轮，取 100×900 s。S1、S2、S6、S7、S8 已接线。S3–S5、S9–S16 记 NOT_APPLIED：ε_P、Fuller 扩散、ε_mf/φ_S、悬停归宿、Serio 第二对、cell 加倍都不在 T25a/T25b 的现有参数上，本卡不改接口、不加开关。玩具报告 `reports/toy/driver_report.md` 与 `.json`，不是第 1 关结果，slow 测试未跑。气泡相总流、d_b/D、与 KURKELA 表 5 的气速对照、自由空间闭合、数值积分与闭式比对、悬停焦炭消耗占比不在 T25b 公开结果上，报告中留空 |
 | T25d | 敏感性运行的参数接口与必报诊断量 | cursor（新会话，worktree `../bfb-T25d`）；审查 codex | 完成（PR #106，2026-10-22 复审通过）；全自由空间质量与元素闭合、数值积分与闭式比对两项诊断转 T26 | 任务卡 `docs/tasks/T25d-sensitivity-diagnostics.md`（2026-10-22 复审通过，已批准，PR #105）。S3–S5、S9–S16 已接线。`particle_emissivity_case`、`serio_pair`、`interphase_diffusivity`、`hover_closure` 只选择已批准的固定对，不新增可调物理参数，见 ADR 0039（已批准）。B 的改送回落进入下一轮床层总流，C 的改送灰和燃料进入排灰出口。燃料释放的 W/P 缺口单独列出；全自由空间质量与元素闭合、以及数值积分与常气速闭式比对，都因没有对应中间量记为未计算。玩具报告 `reports/toy/` 不是第 1 关结果。 |
 | T26a | 首次运行前的修正与报告补全（M2 审计后续） | cursor（新会话，worktree `../bfb-T26a`）；审查 codex | 完成（PR #108，2026-10-23 复审通过） | 任务卡 `docs/tasks/T26a-run-prep.md`。未跑工况 1，属 T26b。审查已改：加密与闭式入口接收本次运行的输入；两边都没有的自由状态系数跳过比较，只有一边缺失记未满足，不抛异常。真实报告逐粒级写出热解三种加密；“构造状态”只出现在玩具报告。燃料 W/P 分开记账；B 的改送计入回落、C 计入带出。悬停与格内存量含未转化燃料。ADR 0020 与 ADR 0030 的 F26–F28 仍只核对。默认 pytest 3 分 48 秒，339 passed。slow 仍是 `test_case1_campaign_stops_at_the_wall_clock`、`test_case1_first_iteration_finishes`、`test_case1_smoke_agrees_with_t27_scenarios_b_and_c`。玩具报告 `reports/toy/` 不是第 1 关结果 |
-| T26b | 第 1 关首次完整运行与报告 | cursor（新会话，worktree `../bfb-T26b`）；审查 codex | 进行中（基准与 S1 已结束） | 任务卡 `docs/tasks/T26b-first-run.md`。2026-10-23 基准与 S1 各自独立进程，均为 DAMPING_FAILED（没有使归一残差严格下降的可行步；退出码 0，不是未捕获异常）。基准：外层 1 轮、内层 12 次、墙钟 2803 s，T_ad = 971.520 K，k_W = 12.02 W/(m²·K)，ρ_P = 1216 kg/m³，床层子步 n = 64。S1：外层 1 轮、内层 8 次、墙钟 1962 s，k_W = 0，T_ad = T_init = 1095.709 K，ρ_P = 1265 kg/m³。未满足 CHARTER §2.1，不刷新工况指标日期，不做数值加密。中间报告 `reports/t26b-vtt1/intermediate/`。日志 `reports/t26b-vtt1/logs/`。S2–S16 尚未开始 |
+| T26b | 第 1 关首次完整运行与报告 | cursor（新会话，worktree `../bfb-T26b`）；审查 codex | 已提交（待 codex 审查） | 任务卡 `docs/tasks/T26b-first-run.md`。2026-10-23 跑完基准与 S1–S16。基准与 S1 各一进程；S2–S16 并行数 4；单次墙钟上限 90 000 s。无 ERROR，stderr 皆空，退出码 0。基准与 S1–S12、S15、S16 为 DAMPING_FAILED（没有使归一残差严格下降的可行步，均停在外层第 1 轮）。S13、S14 为 DOMAIN_STOP（迭代 1：自由状态不存在的格子必须设有悬停状态）。基准未收敛，未做数值加密。无一运行满足 CHARTER §2.1，不刷新工况指标日期。完整报告 `reports/t26b-vtt1/driver_report.md` 与 `driver_report.json`。中间报告 `reports/t26b-vtt1/intermediate/`。日志 `reports/t26b-vtt1/logs/` |
 | T29 | 已裁定的第 1 关输入写入工况文件 | cursor（新会话）；审查总司令 | 完成 | PR #83（2026-10-18 总司令审查通过）。任务卡 `docs/tasks/T29-vtt1-case-data.md`。ADR 0014、0019 已写明的数已写入 `data/cases/vtt_pressurized.json`。`<0,1 mm` 代表粒径与床料质量分数两处 ADR 未给出可录入的数，保持 missing，见缺口文件 T29 节 |
 
 ## 执行顺序与分工（2026-10-13 起）
@@ -90,7 +90,7 @@ T19（PR #78）、T20（PR #77）、T21（PR #86）已合并。T22 代码已交�
 |---|---|---|---|---|---|---|---|---|---|---|
 | VTT 加压 1（第 1 关） | DAMPING_FAILED | — | — | — | — | — | — | — | 否 | — |
 
-2026-10-23 基准与 S1 未满足 CHARTER §2.1。按 ADR 0022 B 只把收敛状态记在上表，验收量与更新日期保持“—”，这次运行不计入指标变化。
+2026-10-23 基准与 S1–S16 均未满足 CHARTER §2.1（基准为 DAMPING_FAILED）。按 ADR 0022 B 只把基准收敛状态记在上表，验收量与更新日期保持“—”，这些运行不计入指标变化。
 | WSV400 A（后备） | — | — | — | — | — | — | — | — | 否 | 2026-10-13 |
 
 ## 已决定（目标所有者）

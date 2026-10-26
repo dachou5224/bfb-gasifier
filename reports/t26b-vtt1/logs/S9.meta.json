@@ -1,0 +1,20 @@
+{
+  "name": "S9",
+  "pid": 25068,
+  "started_unix": 1792728054.193124,
+  "timeout_s": 90000.0,
+  "adiabatic": false,
+  "args": [
+    "/Users/liuzhen/AI-projects/bfb-gasifier/.venv/bin/python",
+    "-m",
+    "hamel.solver.campaign",
+    "S9",
+    "/Users/liuzhen/AI-projects/bfb-T26b/reports/t26b-vtt1/cases/S9.json",
+    "0"
+  ],
+  "case": "/Users/liuzhen/AI-projects/bfb-T26b/reports/t26b-vtt1/cases/S9.json",
+  "parallel": 4,
+  "elapsed_s": 2363.58713889122,
+  "returncode": 0,
+  "watched_status": "DAMPING_FAILED"
+}
