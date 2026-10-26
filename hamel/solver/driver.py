@@ -69,7 +69,7 @@ def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, 
                 opened.x, lambda trial, opened=opened: evaluate(trial, opened), scales,
                 lambda residual, blocks=blocks: inner_met(residual, blocks, config.residual_tolerance),
                 feasible, lambda residual, blocks=blocks: normalized_merit(residual, blocks),
-                config, deadline, journal,
+                config, deadline, journal, blocks,
             )
         except SolveTimeout:
             raise

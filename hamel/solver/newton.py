@@ -1,6 +1,7 @@
 """内层阻尼牛顿。解 J·Δx = −F，不显式求逆。
+求牛顿步时解 (R·J·C)·y = −R·F，Δx = C·y。求解手段：ADR 0041。
 Source: Hamel Eq.2.9, S. 20
-解释性选择：ADR 0011 第 5 条。求解手段：ADR 0002；ADR 0017 第 6–8 项；ADR 0022。
+解释性选择：ADR 0011 第 5 条。求解手段：ADR 0002；ADR 0017 第 6–8 项；ADR 0022；ADR 0041。
 journal 只追加迭代和试探记录，不参与接受判定。
 """
 from __future__ import annotations
@@ -35,9 +36,10 @@ class NewtonResult:
     merit: float | None
 
 
-def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, deadline=None, journal=None) -> NewtonResult:
+def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, deadline=None, journal=None, blocks=None) -> NewtonResult:
     """Wirsum 第 4、5 步。merit_of 是归一残差的欧氏范数。
     雅可比每次在当前点用前向差分重算。不按块合并列；合并不改变各列的值。
+    线性求解使用 ADR 0012 的行缩放和 ADR 0041 的列缩放。求解手段：ADR 0041。
     """
     x = np.asarray(x0, dtype=float).copy()
     scales = np.asarray(scales, dtype=float)
@@ -58,7 +60,7 @@ def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, d
         delta = None
         try:
             matrix = _jacobian(x, residual, evaluate, scales, feasible)
-            delta = np.linalg.solve(matrix, -residual)
+            delta = _newton_step(matrix, residual, x, scales, blocks)
             accepted = _damp(x, delta, merit, evaluate, feasible, merit_of, limit, deadline, trials, explain)
         except FreeboardDomainError as exc:
             _note(journal, iteration, merit, residual, delta, trials, scales)
@@ -81,10 +83,19 @@ def normalized_merit(residual, blocks) -> float:
     return float(np.linalg.norm(_normalize(residual, blocks)))
 
 
+def _difference_basis(value, scale) -> float:
+    """x ≠ 0 时 |x|，x = 0 时 s。求解手段：ADR 0041。"""
+    magnitude = abs(float(value))
+    if magnitude != 0.0:
+        return magnitude
+    return float(scale)
+
+
 def _jacobian(x, residual, evaluate, scales, feasible):
+    """前向差分。步长是 √ε 乘 _difference_basis。求解手段：ADR 0041。"""
     columns = np.empty((x.size, x.size))
     for index in range(x.size):
-        step = _SQRT_EPS * max(abs(float(x[index])), float(scales[index]))
+        step = _SQRT_EPS * _difference_basis(x[index], scales[index])
         if not np.isfinite(step) or step == 0.0:
             raise np.linalg.LinAlgError("差分步长不是正数")
         trial = x.copy()
@@ -96,6 +107,38 @@ def _jacobian(x, residual, evaluate, scales, feasible):
             raise np.linalg.LinAlgError("差分点不可评价")
         columns[:, index] = (values - residual) / step
     return columns
+
+
+def _newton_step(matrix, residual, x, scales, blocks):
+    """解 (R·J·C)·y = −R·F，Δx = C·y。不显式求逆。求解手段：ADR 0041。"""
+    column = np.array([_difference_basis(x[index], scales[index]) for index in range(x.size)])
+    if not np.isfinite(column).all() or np.any(column <= 0.0):
+        raise np.linalg.LinAlgError("列缩放不是正数")
+    scaled = np.asarray(matrix, dtype=float) * column
+    rhs = -np.asarray(residual, dtype=float)
+    row = _row_weights(residual.size, blocks)
+    if row is not None:
+        scaled = scaled * row[:, None]
+        rhs = rhs * row
+    return column * np.linalg.solve(scaled, rhs)
+
+
+def _row_weights(size, blocks):
+    """R 的对角元，与归一残差同一组参考流。无分块时不缩放。"""
+    if blocks is None:
+        return None
+    weights = np.ones(size, dtype=float)
+    _fill_row(weights, blocks.gas, blocks.n_dot_ref)
+    _fill_row(weights, blocks.solid, blocks.m_dot_ref)
+    _fill_row(weights, blocks.energy, blocks.q_dot_ref)
+    return weights
+
+
+def _fill_row(weights, index, reference) -> None:
+    if not np.isfinite(reference) or float(reference) <= 0.0:
+        raise np.linalg.LinAlgError("行缩放的参考流不是正数")
+    if np.size(index):
+        weights[np.asarray(index, dtype=int)] = 1.0 / float(reference)
 
 
 def _damp(x, delta, merit, evaluate, feasible, merit_of, limit, deadline, trials=None, explain=None):
