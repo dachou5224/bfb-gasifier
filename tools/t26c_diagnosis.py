@@ -1,14 +1,11 @@
 """T26c 失败点上的五项诊断。只重算指定比较，不改牛顿步、容差或冻结量。"""
 from __future__ import annotations
-
 import json
 import math
 import pickle
 from dataclasses import replace
 from pathlib import Path
-
 import numpy as np
-
 from hamel.kinetics.common import KineticsInputError
 from hamel.properties.data import GAS_SPECIES, PropertyError
 from hamel.solver.driver import _feasible, _infeasible_clause
@@ -17,14 +14,11 @@ from hamel.solver.gates import ResidualBlocks
 from hamel.solver.newton import _SQRT_EPS, _at, normalized_merit
 from hamel.solver.residual import evaluate_residual
 from hamel.solver.vector import unknown_slots
-
 _CAUGHT = (AssemblyError, FreeboardDomainError, KineticsInputError, PropertyError)
 _AGREE = 1.0e-2
 _H = tuple(10.0 ** (-power) for power in range(1, 13))
 _MULTIPLIERS = (1.0, 1.0e2, 1.0e4)
 _ROOT = Path(__file__).resolve().parents[1]
-
-
 def segment_root(start: float, end: float):
     """start + h·(end − start) = 0 在 (0, 1] 上的 h。start 为 0 时返回 0。"""
     if start == 0.0:
@@ -36,8 +30,6 @@ def segment_root(start: float, end: float):
     if 0.0 < step <= 1.0:
         return float(step)
     return None
-
-
 def diagnose(record_path, destination) -> dict:
     record = json.loads(Path(record_path).read_text(encoding="utf-8"))
     folder = _resolve(record["diagnostics"]["failure_npz"]).parent
@@ -77,26 +69,19 @@ def diagnose(record_path, destination) -> dict:
     (destination / "diagnosis.json").write_text(json.dumps(body, ensure_ascii=False, indent=2), encoding="utf-8")
     (destination / "diagnosis.md").write_text(_markdown(record, body), encoding="utf-8")
     return body
-
-
 def _evaluate(frozen, values):
     try:
         return evaluate_residual(np.asarray(values, dtype=float), frozen).values
     except _CAUGHT:
         return None
-
-
 def _probe(frozen, point):
     def evaluate(trial):
         return evaluate_residual(np.asarray(trial, dtype=float), frozen).values
-
     try:
         values, status, reason = _at(np.asarray(point, dtype=float), evaluate, lambda trial: _feasible(trial, frozen), lambda trial: _infeasible_clause(trial, frozen))
     except _CAUGHT as exc:
         return None, "reject", f"{type(exc).__name__}: {exc}"
     return values, status, reason
-
-
 def _direction(frozen, blocks, x, residual, matrix, delta) -> dict:
     predicted = matrix @ delta
     merit0 = normalized_merit(residual, blocks)
@@ -117,8 +102,6 @@ def _direction(frozen, blocks, x, residual, matrix, delta) -> dict:
             row["relative"] = None if norm == 0.0 else float(np.linalg.norm(predicted - quotient) / norm)
         rows.append(row)
     return {"merit": merit0, "slope": slope, "rows": rows}
-
-
 def _noise(frozen, blocks, x, residual, matrix, scales) -> dict:
     tight = replace(
         frozen,
@@ -131,22 +114,13 @@ def _noise(frozen, blocks, x, residual, matrix, scales) -> dict:
     steps = _steps(x, scales)
     column_norms = [normalized_merit(matrix[:, index] * steps[index], blocks) for index in range(x.size)]
     finite = [item for item in column_norms if math.isfinite(item)]
-    return {
-        "status": status,
-        "reason": reason,
-        "norm": None if status != "ok" else normalized_merit(values - residual, blocks),
-        "tolerances": {
-            "particle_tolerance_w": tight.particle_tolerance_w,
-            "coupling_tolerance_k": tight.coupling_tolerance_k,
-            "particle_max_iterations": tight.particle_max_iterations,
-            "coupling_max_iterations": tight.coupling_max_iterations,
-        },
-        "column_norm_min": None if not finite else float(min(finite)),
-        "column_norm_median": None if not finite else float(np.median(finite)),
-        "column_norm_max": None if not finite else float(max(finite)),
-    }
-
-
+    lo = med = hi = None
+    if finite:
+        lo, med, hi = float(min(finite)), float(np.median(finite)), float(max(finite))
+    return {"status": status, "reason": reason, "norm": None if status != "ok" else normalized_merit(values - residual, blocks),
+            "tolerances": {"particle_tolerance_w": tight.particle_tolerance_w, "coupling_tolerance_k": tight.coupling_tolerance_k,
+                           "particle_max_iterations": tight.particle_max_iterations, "coupling_max_iterations": tight.coupling_max_iterations},
+            "column_norm_min": lo, "column_norm_median": med, "column_norm_max": hi}
 def dependent_columns(frozen, slots, row: int) -> set[int]:
     """焦炭残差按装配结构列出依赖列。冻结系数恒为 0 的输运项不进入方程。"""
     slot = slots[row]
@@ -155,12 +129,10 @@ def dependent_columns(frozen, slots, row: int) -> set[int]:
         (item.zone, item.balance_index, item.kind, item.phase, item.species, item.size_class): item.index
         for item in slots
     }
-
     def add(zone, balance, kind, phase="", species="", size_class=-1) -> None:
         index = table.get((zone, balance, kind, phase, species, size_class))
         if index is not None:
             found.add(index)
-
     if slot.kind == "char" and slot.zone == "bed":
         _bed_char_columns(frozen, slot, add)
     elif slot.kind == "char":
@@ -168,8 +140,6 @@ def dependent_columns(frozen, slots, row: int) -> set[int]:
     else:
         found.add(row)
     return found
-
-
 def _bed_char_columns(frozen, slot, add) -> None:
     cell, klass = slot.balance_index, slot.size_class
     for item in range(frozen.n_class):
@@ -184,8 +154,6 @@ def _bed_char_columns(frozen, slot, add) -> None:
         add("bed", below, "char", "bed", "", klass)
     if cell == 0 and float(frozen.b_free_per_s[-1, klass] + frozen.b_hover_per_s[-1, klass]) != 0.0:
         add("freeboard", frozen.n_freeboard - 1, "char", "free", "", klass)
-
-
 def _freeboard_char_columns(frozen, slot, add) -> None:
     cell, klass = slot.balance_index, slot.size_class
     hover = slot.phase == "hover"
@@ -215,8 +183,6 @@ def _freeboard_char_columns(frozen, slot, add) -> None:
         share = frozen.ejection_to_hover if hover else frozen.ejection_to_free
         if float(share[klass]) != 0.0:
             add("bed", 0, "char", "bed", "", klass)
-
-
 def _columns(frozen, blocks, x, residual, matrix, scales, names, record) -> list:
     iteration = _failed_iteration(record)
     chosen = [item["index"] for item in iteration["largest"]]
@@ -259,8 +225,6 @@ def _columns(frozen, blocks, x, residual, matrix, scales, names, record) -> list
             "reason": {str(factor): computed[factor]["reason"] for factor in _MULTIPLIERS},
         })
     return rows
-
-
 def _switches(frozen, x, delta) -> dict:
     end = np.asarray(x, dtype=float) + np.asarray(delta, dtype=float)
     state0 = _safe_unpack(x, frozen)
@@ -285,8 +249,6 @@ def _switches(frozen, x, delta) -> dict:
         "x_feasible": feasible0, "x_clause": clause0, "x_plus_dx_feasible": feasible1, "x_plus_dx_clause": clause1,
         "char": char_rows, "bounds": bounds,
     }
-
-
 def _trials(record) -> dict:
     iteration = _failed_iteration(record)
     counts = {}
@@ -299,26 +261,14 @@ def _trials(record) -> dict:
             key = trial["reason"] or trial["status"]
         counts[key] = counts.get(key, 0) + 1
     return {"iteration": iteration["iteration"], "merit": iteration["merit"], "ok": ok, "counts": counts, "n": len(iteration["trials"])}
-
-
 def _precomputed(record, frozen) -> dict:
     info = next(item["info"] for item in record["diagnostics"]["rounds"] if item["inner"] == "DAMPING_FAILED")
     sensitivity = info.get("sensitivity") or {}
     pyrolysis = sensitivity.get("pyrolysis") or {}
-    return {
-        "hover": _pairs(frozen.hover),
-        "free_absent": _pairs(frozen.free_absent),
-        "theta_one": _pairs(np.asarray(frozen.theta) == 1.0),
-        "yield_notes": info.get("yield_notes"),
-        "pyrolysis_temperature_k": pyrolysis.get("temperature_k"),
-        "pyrolysis_pressure_pa": pyrolysis.get("pressure_pa"),
-        "geldart": info.get("geldart"),
-        "hydro_group": info.get("hydro_group"),
-        "geldart_record": info.get("geldart_record"),
-        "bottom_residual_kg_s": info.get("bottom_residual_kg_s"),
-    }
-
-
+    return {"hover": _pairs(frozen.hover), "free_absent": _pairs(frozen.free_absent), "theta_one": _pairs(np.asarray(frozen.theta) == 1.0),
+            "yield_notes": info.get("yield_notes"), "pyrolysis_temperature_k": pyrolysis.get("temperature_k"), "pyrolysis_pressure_pa": pyrolysis.get("pressure_pa"),
+            "geldart": info.get("geldart"), "hydro_group": info.get("hydro_group"), "geldart_record": info.get("geldart_record"),
+            "bottom_residual_kg_s": info.get("bottom_residual_kg_s")}
 def _hypotheses(direction, noise, switches, trials, record) -> list:
     iteration = _failed_iteration(record)
     merit = float(iteration["merit"])
@@ -326,11 +276,9 @@ def _hypotheses(direction, noise, switches, trials, record) -> list:
     share = 0.0 if merit == 0.0 else (float(largest["value"]) ** 2) / (merit ** 2)
     noise_norm = noise["norm"]
     typical = noise["column_norm_median"]
-    if noise_norm is None or typical is None:
-        noise_verdict = "不能区分"
-    elif noise_norm >= typical:
+    if noise_norm is not None and typical is not None and noise_norm >= typical:
         noise_verdict = "支持"
-    elif noise_norm < 0.1 * typical:
+    elif noise_norm is not None and typical is not None and noise_norm < 0.1 * typical:
         noise_verdict = "排除"
     else:
         noise_verdict = "不能区分"
@@ -339,22 +287,16 @@ def _hypotheses(direction, noise, switches, trials, record) -> list:
     smooth = "支持" if char_hit or bound_hit or switches["x_feasible"] is False else "排除"
     reasons = trials["counts"]
     feasible_reject = all(_feasible_reason(key) for key in reasons) and trials["ok"] == 0 and trials["n"] > 0
-    if trials["ok"] > 0:
-        feasible_verdict = "排除"
-    elif feasible_reject:
-        feasible_verdict = "支持"
-    else:
-        feasible_verdict = "不能区分"
+    feasible_verdict = "排除" if trials["ok"] > 0 else "支持" if feasible_reject else "不能区分"
+    fell = [row["h"] for row in direction["rows"] if row["merit"] is not None and row["merit"] < direction["merit"]]
+    agreed = [row["h"] for row in direction["rows"] if row["relative"] is not None and row["relative"] < _AGREE]
     return [
         {"id": "noise", "verdict": noise_verdict, "noise": noise_norm, "typical": typical},
         {"id": "nonsmooth", "verdict": smooth, "char": len(switches["char"]), "bounds": len(switches["bounds"])},
         {"id": "feasible", "verdict": feasible_verdict, "ok": trials["ok"], "n": trials["n"]},
         {"id": "dominant", "verdict": "支持" if share > 0.5 else "排除", "share": share, "name": largest["name"], "block": largest["block"]},
-        {"id": "direction", "slope": direction["slope"], "decreased": [row["h"] for row in direction["rows"] if row["merit"] is not None and row["merit"] < direction["merit"]],
-         "agreed": [row["h"] for row in direction["rows"] if row["relative"] is not None and row["relative"] < _AGREE]},
+        {"id": "direction", "slope": direction["slope"], "decreased": fell, "agreed": agreed},
     ]
-
-
 def _markdown(record, body) -> str:
     direction = body["direction"]
     lines = [
@@ -455,8 +397,6 @@ def _markdown(record, body) -> str:
     lines.append("比较规则：噪声归一值不低于列差分增量的中位数则记为支持，低于该中位数的十分之一则记为排除，介于两者之间记为不能区分。")
     lines.append("")
     return "\n".join(lines)
-
-
 def _switch_table(title, rows) -> list:
     if not rows:
         return [f"{title}：无。", ""]
@@ -465,8 +405,6 @@ def _switch_table(title, rows) -> list:
         lines.append(f"| {item['where']} | {_num(item['h'])} | {item['at_0']:.6e} | {item['at_1']:.6e} |")
     lines.append("")
     return lines
-
-
 def _char_switches(zone, start, end, mask) -> list:
     rows = []
     for cell in range(start.shape[0]):
@@ -478,8 +416,6 @@ def _char_switches(zone, start, end, mask) -> list:
             if left <= 0.0 or right <= 0.0 or root not in (None, 0.0):
                 rows.append({"where": f"{zone} 衡算格 {cell} k={klass + 1}", "h": None if root in (None, 0.0) and left != 0.0 else root, "at_0": left, "at_1": right})
     return rows
-
-
 def _sign_switches(zone, start, end, label) -> list:
     rows = []
     array0, array1 = np.asarray(start, dtype=float), np.asarray(end, dtype=float)
@@ -489,8 +425,6 @@ def _sign_switches(zone, start, end, label) -> list:
         if float(left) < 0.0 or float(right) < 0.0 or crossed:
             rows.append({"where": f"{label} {zone} 平坦下标 {index}", "h": root if crossed else None, "at_0": float(left), "at_1": float(right)})
     return rows
-
-
 def _temperature_switches(state0, state1) -> list:
     rows = []
     for zone, left, right in (
@@ -502,8 +436,6 @@ def _temperature_switches(state0, state1) -> list:
             if float(start) <= 0.0 or float(end) <= 0.0 or root not in (None, 0.0):
                 rows.append({"where": f"T ≤ 0 {zone} 格 {index}", "h": root, "at_0": float(start), "at_1": float(end)})
     return rows
-
-
 def _inert_switches(frozen, state0, state1) -> list:
     rows = []
     fuel = np.asarray(frozen.fuel_bed_kg, dtype=float).sum(axis=1)
@@ -515,8 +447,6 @@ def _inert_switches(frozen, state0, state1) -> list:
         if float(start) < 0.0 or float(end) < 0.0 or root not in (None, 0.0):
             rows.append({"where": f"m_inert < 0 床区衡算格 {index}", "h": root if root not in (None, 0.0) else None, "at_0": float(start), "at_1": float(end)})
     return rows
-
-
 def _endpoint_feasible(values, frozen):
     try:
         ok = _feasible(values, frozen)
@@ -525,67 +455,46 @@ def _endpoint_feasible(values, frozen):
     if ok:
         return True, ""
     return False, _infeasible_clause(values, frozen)
-
-
 def _safe_unpack(values, frozen):
     from hamel.solver.vector import unpack_state
     try:
         return unpack_state(np.asarray(values, dtype=float), frozen)
     except AssemblyError:
         return None
-
-
 def _failed_iteration(record) -> dict:
     for item in reversed(record["diagnostics"]["rounds"]):
         newton = item.get("newton") or []
         if newton and item["inner"] == "DAMPING_FAILED":
             return newton[-1]
     raise KeyError("运行记录里没有阻尼失败的迭代")
-
-
 def _steps(x, scales) -> np.ndarray:
     return np.array([_SQRT_EPS * max(abs(float(x[index])), float(scales[index])) for index in range(x.size)])
-
-
 def _scale_into(scaled, blocks) -> None:
     from hamel.solver.newton import _divide
     _divide(scaled, blocks.gas, blocks.n_dot_ref)
     _divide(scaled, blocks.solid, blocks.m_dot_ref)
     _divide(scaled, blocks.energy, blocks.q_dot_ref)
-
-
 def _resolve(path) -> Path:
     candidate = Path(path)
     if not candidate.is_absolute():
         candidate = _ROOT / candidate
     return candidate
-
-
 def _relative(path) -> str:
     try:
         return str(Path(path).resolve().relative_to(_ROOT))
     except ValueError:
         return str(path)
-
-
 def _pairs(mask) -> list:
     array = np.asarray(mask, dtype=bool)
     return [[int(cell), int(klass)] for cell, klass in zip(*np.nonzero(array))]
-
-
 def _pairs_text(pairs) -> str:
     if not pairs:
         return "无"
     return "、".join(f"({cell}, k={klass + 1})" for cell, klass in pairs)
-
-
 def _feasible_reason(reason: str) -> bool:
     return reason.startswith(("Ṅ < 0", "m < 0", "m_inert < 0", "T ≤ 0", "T 非有限", "x 非有限", "feasible 不满足", "可行条件"))
-
-
 def _direction_sentence(direction, decreased, agreed) -> str:
-    slope = direction["slope"]
-    merit = direction["merit"]
+    slope, merit = direction["slope"], direction["merit"]
     if slope is not None and slope < 0 and _num(slope) == _num(-merit):
         linear = "线性化斜率是负的，与 −g(0) 相同到表中的位数，所以 Δx 是线性模型的下降方向。"
     elif slope is not None and slope < 0:
@@ -595,14 +504,10 @@ def _direction_sentence(direction, decreased, agreed) -> str:
     observed = "测得的 g(h) 在全部可行 h 上都没有低于 g(0)。" if not decreased else "有可行 h 使 g(h) 低于 g(0)。"
     match = "差分与 J 在所测的 h 上都没有达到相对差 1e-2。" if not agreed else "有 h 使差分与 J 的相对差小于 1e-2。"
     return linear + observed + match
-
-
 def _num(value) -> str:
     if value is None:
         return "—"
     return f"{float(value):.6e}"
-
-
 def _list(values) -> str:
     if not values:
         return "无"
