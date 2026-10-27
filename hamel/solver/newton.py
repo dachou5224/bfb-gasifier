@@ -1,8 +1,8 @@
-"""内层阻尼牛顿。残差仍在物理未知量 x 上评价。不显式求逆。
-正值气体流量、焦炭与灰存量以 y = ln x 迭代，试探点为 y + Δy/2ⁱ。
-求牛顿步时解 (R·J·C)·z = −R·F，Δy = C·z。求解手段：ADR 0042。
+"""内层阻尼牛顿。残差在物理未知量 x 上评价。不显式求逆。
+差分步长 √ε·max(|x|, s)。求牛顿步时解 (R·J·C)·z = −R·F，Δx = C·z。
+求解手段：ADR 0043。
 Source: Hamel Eq.2.9, S. 20
-解释性选择：ADR 0011 第 5 条。求解手段：ADR 0002；ADR 0017 第 6–8 项；ADR 0022；ADR 0042。
+解释性选择：ADR 0011 第 5 条。求解手段：ADR 0002；ADR 0017 第 6–8 项；ADR 0022；ADR 0043。
 journal 只追加迭代和试探记录，不参与接受判定。
 """
 from __future__ import annotations
@@ -19,9 +19,6 @@ from hamel.solver.frozen import FreeboardDomainError, TrialNotEvaluable
 
 _EPS = float(np.finfo(float).eps)
 _SQRT_EPS = math.sqrt(_EPS)
-_LOG_KINDS = ("gas_outflow", "char", "ash")
-_GROWTH = 100.0
-_GROWTH_LIMIT = 4
 _SHRINK = (TrialNotEvaluable, KineticsInputError, PropertyError)
 
 
@@ -41,10 +38,10 @@ class NewtonResult:
     merit: float | None
 
 
-def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, deadline=None, journal=None, blocks=None, kinds=None) -> NewtonResult:
+def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, deadline=None, journal=None, blocks=None) -> NewtonResult:
     """Wirsum 第 4、5 步。merit_of 是归一残差的欧氏范数。
     雅可比每次在当前点用前向差分重算。不按块合并列；合并不改变各列的值。
-    正值流量与存量在 y = ln x 上差分。求解手段：ADR 0042。
+    求解手段：ADR 0043。
     """
     x = np.asarray(x0, dtype=float).copy()
     scales = np.asarray(scales, dtype=float)
@@ -58,30 +55,24 @@ def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, d
         return NewtonResult("CONVERGED", "", x, residual, 0, merit)
     limit = int(config.damping_index_limit)
     explain = None if journal is None else journal.get("explain")
-    names = None if journal is None else journal.get("names")
     for iteration in range(1, int(config.nu_max) + 1):
         _clock(deadline)
         trials = [] if journal is not None else None
         matrix = None
         delta = None
-        unresolved = []
-        log_mask = _log_mask(x, kinds)
         try:
-            matrix = _jacobian(
-                x, residual, evaluate, scales, feasible, blocks=blocks, log_mask=log_mask,
-                names=names, unresolved=unresolved,
-            )
-            delta = _newton_step(matrix, residual, x, scales, blocks, log_mask)
-            accepted = _damp(x, delta, merit, evaluate, feasible, merit_of, limit, deadline, trials, explain, log_mask)
+            matrix = _jacobian(x, residual, evaluate, scales, feasible, blocks=blocks)
+            delta = _newton_step(matrix, residual, x, scales, blocks)
+            accepted = _damp(x, delta, merit, evaluate, feasible, merit_of, limit, deadline, trials, explain)
         except FreeboardDomainError as exc:
-            _note(journal, iteration, merit, residual, delta, trials, scales, unresolved)
+            _note(journal, iteration, merit, residual, delta, trials, scales)
             return NewtonResult("DOMAIN_STOP", str(exc), x, residual, iteration, merit)
         except np.linalg.LinAlgError:
-            _note(journal, iteration, merit, residual, delta, trials, scales, unresolved)
+            _note(journal, iteration, merit, residual, delta, trials, scales)
             return NewtonResult("NOT_CONVERGED", "雅可比不能求解", x, residual, iteration, merit)
-        _note(journal, iteration, merit, residual, delta, trials, scales, unresolved)
+        _note(journal, iteration, merit, residual, delta, trials, scales)
         if accepted is None:
-            _dump(journal, x, residual, matrix, delta, scales, log_mask)
+            _dump(journal, x, residual, matrix, delta, scales)
             return NewtonResult("DAMPING_FAILED", "没有使归一残差严格下降的可行步", x, residual, iteration, merit)
         x, residual, merit = accepted
         if converged(residual):
@@ -95,99 +86,36 @@ def normalized_merit(residual, blocks) -> float:
 
 
 def _difference_basis(value, scale) -> float:
-    """x ≠ 0 时 |x|，x = 0 时 s。求解手段：ADR 0041。"""
-    magnitude = abs(float(value))
-    if magnitude != 0.0:
-        return magnitude
-    return float(scale)
+    """max(|x|, s)。求解手段：ADR 0043。"""
+    return max(abs(float(value)), float(scale))
 
 
-def _log_mask(x, kinds):
-    """当前值为正的气体流量、焦炭与灰取对数。恰为 0 的保持线性。求解手段：ADR 0042。"""
-    mask = np.zeros(np.size(x), dtype=bool)
-    if kinds is None:
-        return mask
-    for index, kind in enumerate(kinds):
-        if kind in _LOG_KINDS and float(x[index]) > 0.0:
-            mask[index] = True
-    return mask
+def _column_scale(x, scales):
+    """C 的对角元 max(|x|, s)。求解手段：ADR 0043。"""
+    return np.array([_difference_basis(x[index], scales[index]) for index in range(np.size(x))])
 
 
-def _opening_step(value, scale, logarithmic):
-    """线性起始按 ADR 0041，对数起始 √ε。上限是旧步长或 1。求解手段：ADR 0042。"""
-    if logarithmic:
-        return _SQRT_EPS, 1.0
-    span = max(abs(float(value)), float(scale))
-    return _SQRT_EPS * _difference_basis(value, scale), _SQRT_EPS * span
-
-
-def _advance(x, delta, factor, log_mask):
-    """沿 Δy 走 factor 倍。对数还原越界时不把 0 当试探点。求解手段：ADR 0042。"""
-    point = np.array(x, dtype=float, copy=True)
-    step = np.asarray(delta, dtype=float) * factor
-    keep = ~log_mask
-    point[keep] += step[keep]
-    with np.errstate(over="ignore", under="ignore"):
-        point[log_mask] = np.exp(np.log(x[log_mask]) + step[log_mask])
-    return point
-
-
-def _column_scale(x, scales, log_mask):
-    """线性变量 max(|x|, s·[x=0])，对数变量 1。求解手段：ADR 0042。"""
-    column = np.empty(x.size)
-    for index in range(x.size):
-        if log_mask is not None and log_mask[index]:
-            column[index] = 1.0
-        else:
-            column[index] = _difference_basis(x[index], scales[index])
-    return column
-
-
-def _jacobian(x, residual, evaluate, scales, feasible, *, blocks=None, log_mask=None, names=None, unresolved=None, steps_out=None):
-    """前向差分。不可分辨的列步长乘 10²，最多 4 次，且不超过上限。求解手段：ADR 0042。"""
+def _jacobian(x, residual, evaluate, scales, feasible, *, blocks=None):
+    """前向差分。步长 √ε·max(|x|, s)。求解手段：ADR 0043。"""
     columns = np.empty((x.size, x.size))
-    level = float(np.linalg.norm(_normalize(residual, blocks)))
-    ceiling = _EPS * level
     for index in range(x.size):
-        logarithmic = log_mask is not None and bool(log_mask[index])
-        step, cap = _opening_step(x[index], scales[index], logarithmic)
-        if not np.isfinite(step) or step <= 0.0 or not np.isfinite(cap) or cap <= 0.0:
+        step = _SQRT_EPS * _difference_basis(x[index], scales[index])
+        if not np.isfinite(step) or step <= 0.0:
             raise np.linalg.LinAlgError("差分步长不是正数")
-        chosen = None
-        for attempt in range(_GROWTH_LIMIT + 1):
-            trial = x.copy()
-            if logarithmic:
-                trial[index] = math.exp(math.log(float(x[index])) + step)
-            else:
-                trial[index] += step
-            values, status, _reason = _at(trial, evaluate, feasible)
-            if status == "domain":
-                raise FreeboardDomainError("差分点落在自由空间有效域外")
-            if status != "ok":
-                raise np.linalg.LinAlgError("差分点不可评价")
-            chosen = values - residual
-            if float(np.linalg.norm(_normalize(chosen, blocks))) > ceiling or step >= cap or attempt == _GROWTH_LIMIT:
-                break
-            step = min(step * _GROWTH, cap)
-        columns[:, index] = chosen / step
-        if steps_out is not None:
-            steps_out[index] = step
-        if float(np.linalg.norm(_normalize(chosen, blocks))) <= ceiling:
-            _remember(unresolved, names, index, x[index], step)
+        trial = x.copy()
+        trial[index] += step
+        values, status, _reason = _at(trial, evaluate, feasible)
+        if status == "domain":
+            raise FreeboardDomainError("差分点落在自由空间有效域外")
+        if status != "ok":
+            raise np.linalg.LinAlgError("差分点不可评价")
+        columns[:, index] = (values - residual) / step
     return columns
 
 
-def _remember(unresolved, names, index, value, step) -> None:
-    """到上限仍不可分辨的列。求解手段：ADR 0042。"""
-    if unresolved is None:
-        return
-    label = str(index) if names is None or index >= len(names) else names[index]
-    unresolved.append({"index": int(index), "name": label, "x": float(value), "step": float(step)})
-
-
-def _newton_step(matrix, residual, x, scales, blocks, log_mask=None):
-    """解 (R·J·C)·z = −R·F，Δy = C·z。不显式求逆。求解手段：ADR 0042。"""
-    column = _column_scale(x, scales, log_mask)
+def _newton_step(matrix, residual, x, scales, blocks):
+    """解 (R·J·C)·z = −R·F，Δx = C·z。不显式求逆。求解手段：ADR 0043。"""
+    column = _column_scale(x, scales)
     if not np.isfinite(column).all() or np.any(column <= 0.0):
         raise np.linalg.LinAlgError("列缩放不是正数")
     scaled = np.asarray(matrix, dtype=float) * column
@@ -217,20 +145,11 @@ def _fill_row(weights, index, reference) -> None:
         weights[np.asarray(index, dtype=int)] = 1.0 / float(reference)
 
 
-def _damp(x, delta, merit, evaluate, feasible, merit_of, limit, deadline, trials=None, explain=None, log_mask=None):
-    active = log_mask is not None and bool(np.any(log_mask))
+def _damp(x, delta, merit, evaluate, feasible, merit_of, limit, deadline, trials=None, explain=None):
     for index in range(limit + 1):
         _clock(deadline)
-        if active:
-            point = _advance(x, delta, 1.0 / (2.0 ** index), log_mask)
-            outside = not np.isfinite(point[log_mask]).all() or bool(np.any(point[log_mask] <= 0.0))
-        else:
-            point = x + delta / (2.0 ** index)
-            outside = False
-        if outside:
-            values, status, reason = None, "reject", "对数坐标还原越界"
-        else:
-            values, status, reason = _at(point, evaluate, feasible, explain)
+        point = x + delta / (2.0 ** index)
+        values, status, reason = _at(point, evaluate, feasible, explain)
         trial_merit = merit_of(values) if status == "ok" else None
         if trials is not None:
             trials.append({
@@ -282,7 +201,7 @@ def _normalize(residual, blocks):
     return scaled
 
 
-def _note(journal, iteration, merit, residual, delta, trials, scales, unresolved=None) -> None:
+def _note(journal, iteration, merit, residual, delta, trials, scales) -> None:
     if journal is None:
         return
     blocks = journal.get("blocks")
@@ -316,7 +235,6 @@ def _note(journal, iteration, merit, residual, delta, trials, scales, unresolved
             "bottom": journal.get("bottom_norm"),
         },
         "largest": largest, "step": step, "trials": [] if trials is None else trials,
-        "unresolved": [] if unresolved is None else unresolved,
     })
 
 
@@ -339,15 +257,13 @@ def _block_norm(scaled, index) -> float:
     return float(np.linalg.norm(scaled[chosen]))
 
 
-def _dump(journal, x, residual, matrix, delta, scales, log_mask=None) -> None:
+def _dump(journal, x, residual, matrix, delta, scales) -> None:
     if journal is None or not journal.get("failure_path") or matrix is None or delta is None:
         return
     path = Path(journal["failure_path"])
     path.parent.mkdir(parents=True, exist_ok=True)
     blocks = journal.get("blocks")
     payload = {"x": np.asarray(x), "F": np.asarray(residual), "J": np.asarray(matrix), "dx": np.asarray(delta), "scales": np.asarray(scales)}
-    if log_mask is not None:
-        payload["log_mask"] = np.asarray(log_mask, dtype=bool)
     if blocks is not None:
         payload.update(
             gas=np.asarray(blocks.gas, dtype=int), solid=np.asarray(blocks.solid, dtype=int),
