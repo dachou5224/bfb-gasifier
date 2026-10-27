@@ -122,12 +122,13 @@ def _opening_step(value, scale, logarithmic):
 
 
 def _advance(x, delta, factor, log_mask):
-    """沿 Δy 走 factor 倍。对数分量还原为 exp(y)。求解手段：ADR 0042。"""
+    """沿 Δy 走 factor 倍。对数还原越界时不把 0 当试探点。求解手段：ADR 0042。"""
     point = np.array(x, dtype=float, copy=True)
     step = np.asarray(delta, dtype=float) * factor
     keep = ~log_mask
     point[keep] += step[keep]
-    point[log_mask] = np.exp(np.log(x[log_mask]) + step[log_mask])
+    with np.errstate(over="ignore", under="ignore"):
+        point[log_mask] = np.exp(np.log(x[log_mask]) + step[log_mask])
     return point
 
 
@@ -222,9 +223,14 @@ def _damp(x, delta, merit, evaluate, feasible, merit_of, limit, deadline, trials
         _clock(deadline)
         if active:
             point = _advance(x, delta, 1.0 / (2.0 ** index), log_mask)
+            outside = not np.isfinite(point[log_mask]).all() or bool(np.any(point[log_mask] <= 0.0))
         else:
             point = x + delta / (2.0 ** index)
-        values, status, reason = _at(point, evaluate, feasible, explain)
+            outside = False
+        if outside:
+            values, status, reason = None, "reject", "对数坐标还原越界"
+        else:
+            values, status, reason = _at(point, evaluate, feasible, explain)
         trial_merit = merit_of(values) if status == "ok" else None
         if trials is not None:
             trials.append({

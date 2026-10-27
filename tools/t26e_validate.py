@@ -97,6 +97,7 @@ def point() -> None:
     _OUT.mkdir(parents=True, exist_ok=True)
     (_OUT / "point.json").write_text(json.dumps(body, ensure_ascii=False, indent=2), encoding="utf-8")
     _write()
+    print(json.dumps({"step_norm": body["step_norm"], "unresolved": len(unresolved), "seconds": body["seconds"]}, ensure_ascii=False), flush=True)
 def initial() -> None:
     assembled = assemble_case(_CASE, "1")
     n_ref, m_ref, q_ref = _references(assembled.physical)
@@ -113,34 +114,25 @@ def initial() -> None:
     )
     singular = np.linalg.svd(matrix, compute_uv=False)
     smallest, largest = float(singular[-1]), float(singular[0])
-    body = {
-        "unknowns": int(x.size), "log_count": int(mask.sum()),
-        "zero_kept_linear": int(sum(kind in _LOG and float(x[index]) == 0.0 for index, kind in enumerate(kinds))),
-        "singular_min": smallest, "singular_max": largest,
-        "condition": None if smallest == 0.0 else largest / smallest,
-        "enlarged": enlarged, "unresolved": unresolved, "residual_calls": calls["n"],
-        "seconds": time.perf_counter() - started, "merit": normalized_merit(residual, blocks),
-    }
+    body = {"unknowns": int(x.size), "log_count": int(mask.sum()),
+            "zero_kept_linear": int(sum(kind in _LOG and float(x[index]) == 0.0 for index, kind in enumerate(kinds))),
+            "singular_min": smallest, "singular_max": largest, "condition": None if smallest == 0.0 else largest / smallest,
+            "enlarged": enlarged, "unresolved": unresolved, "residual_calls": calls["n"],
+            "seconds": time.perf_counter() - started, "merit": normalized_merit(residual, blocks)}
     _OUT.mkdir(parents=True, exist_ok=True)
     (_OUT / "initial.json").write_text(json.dumps(body, ensure_ascii=False, indent=2), encoding="utf-8")
     _write()
-    print(json.dumps({"singular_min": smallest, "condition": body["condition"], "enlarged": len(enlarged),
-                      "unresolved": len(unresolved), "seconds": body["seconds"]}, ensure_ascii=False), flush=True)
+    print(json.dumps({"singular_min": smallest, "condition": body["condition"], "enlarged": len(enlarged), "unresolved": len(unresolved), "seconds": body["seconds"]}, ensure_ascii=False), flush=True)
 def _execute_round() -> dict:
     config = replace(config_for("baseline"), outer_round_limit=1)
     folder = _OUT / "round1"
     folder.mkdir(parents=True, exist_ok=True)
-    started = time.perf_counter()
-    end = time.monotonic() + config.wall_timeout_s
+    started, end = time.perf_counter(), time.monotonic() + config.wall_timeout_s
     try:
         result = solve_case(_CASE, adiabatic=False, deadline=lambda: time.monotonic() >= end, config=config, artifact_dir=folder)
     except SolveTimeout:
         result = SolveResult("TIMEOUT", "运行超过墙钟上限")
-    record = convert({
-        "name": "baseline", "change": "不改冻结项", "status": result.status, "reason": result.reason,
-        "rounds": result.rounds, "iterations": result.iterations, "diagnostics": result.diagnostics,
-        "wall_clock_s": time.perf_counter() - started, "outer_round_limit": 1,
-    })
+    record = convert({"name": "baseline", "change": "不改冻结项", "status": result.status, "reason": result.reason, "rounds": result.rounds, "iterations": result.iterations, "diagnostics": result.diagnostics, "wall_clock_s": time.perf_counter() - started, "outer_round_limit": 1})
     rounds = (record.get("diagnostics") or {}).get("rounds") or []
     record["inner_status"] = rounds[0].get("inner") if rounds else None
     return record
@@ -162,7 +154,7 @@ def _spawn(command, timeout, folder) -> None:
     if command == "solve-round":
         (folder / "record.json").write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
         _write()
-    kept = {key: record[key] for key in ("status", "inner_status", "reason", "drop", "max_h", "singular_min", "condition", "iterations") if key in record}
+    kept = {key: record[key] for key in ("status", "inner_status", "reason", "drop", "max_h", "singular_min", "condition", "iterations", "step_norm", "unresolved") if key in record}
     kept["wall_clock_s"] = record.get("wall_clock_s", time.perf_counter() - started)
     print(json.dumps(kept, ensure_ascii=False), flush=True)
 def _read(name):
@@ -173,15 +165,14 @@ def _write() -> None:
     lines = ["# T26e 验证", "", "求解手段：ADR 0042。失败点取 `reports/t26c-diagnosis/baseline/`。探针为 y + h·Δy，F 在 x = exp(y) 处评价。"]
     if point_body:
         direction = point_body["direction"]
-        fell = [row["h"] for row in direction["rows"] if row["merit"] is not None and row["merit"] < direction["merit"]]
-        lines += [
-            "", f"重算 F 与保存 F 的归一差 = {_num(point_body['repeated_residual_norm'])}。雅可比残差评价 {point_body['residual_calls']} 次，连同方向探针用时 {point_body['seconds']:.1f} s。对数变量 {point_body['log_count']} 个。Δy 范数 {_num(point_body['step_norm'])}，保存的 x 空间步范数 {_num(point_body['saved_step_norm'])}。被放大 {len(point_body['enlarged'])} 列，到上限仍不可分辨 {len(point_body['unresolved'])} 列。",
-            "", "## 失败点方向", "",
-            f"g(0) = {_num(direction['merit'])}。g'(0) = {_num(direction['slope'])}。可行的最大 h = {_num(direction['max_h'])}。该步 g = {_num(direction['max_h_merit'])}，下降量 g(0)−g(h) = {_num(direction['drop'])}。",
-            "", "| h | 状态 | g(h) | ‖JΔy − [F(y+hΔy)−F]/h‖ / ‖JΔy‖ | 原因 |", "|---|---|---|---|---|",
-        ]
-        lines += [f"| {row['h']:.0e} | {row['status']} | {_num(row['merit'])} | {_num(row['relative'])} | {row['reason']} |" for row in direction["rows"]]
-        lines += ["", f"g(h) < g(0) 的步长：{_list(fell)}。"]
+        lines += ["", f"重算 F 与保存 F 的归一差 = {_num(point_body['repeated_residual_norm'])}。雅可比残差评价 {point_body['residual_calls']} 次，连同方向探针用时 {point_body['seconds']:.1f} s。对数变量 {point_body['log_count']} 个。Δy 范数 {_num(point_body['step_norm'])}，保存的 x 空间步范数 {_num(point_body['saved_step_norm'])}。被放大 {len(point_body['enlarged'])} 列，到上限仍不可分辨 {len(point_body['unresolved'])} 列。", "", "## 失败点方向", ""]
+        if direction is None:
+            lines.append("未形成牛顿步，无方向探针。")
+        else:
+            fell = [row["h"] for row in direction["rows"] if row["merit"] is not None and row["merit"] < direction["merit"]]
+            lines += [f"g(0) = {_num(direction['merit'])}。g'(0) = {_num(direction['slope'])}。可行的最大 h = {_num(direction['max_h'])}。该步 g = {_num(direction['max_h_merit'])}，下降量 g(0)−g(h) = {_num(direction['drop'])}。", "", "| h | 状态 | g(h) | ‖JΔy − [F(y+hΔy)−F]/h‖ / ‖JΔy‖ | 原因 |", "|---|---|---|---|---|"]
+            lines += [f"| {row['h']:.0e} | {row['status']} | {_num(row['merit'])} | {_num(row['relative'])} | {row['reason']} |" for row in direction["rows"]]
+            lines += ["", f"g(h) < g(0) 的步长：{_list(fell)}。"]
     lines += ["", "## 初值点"]
     if initial_body:
         lines += [

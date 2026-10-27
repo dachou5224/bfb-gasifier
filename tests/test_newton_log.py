@@ -127,6 +127,42 @@ def test_log_iteration_reaches_the_same_root_as_the_linear_iteration():
     assert inner_met(logged.residual, blocks, config.residual_tolerance)
 
 
+def test_underflowing_log_step_is_rejected_and_the_accepted_point_stays_positive():
+    """极大负步长使 exp 下溢为 0 时记为坐标域不可评价，接受的对数分量仍严格为正。"""
+    from hamel.solver.newton import _damp
+
+    x = np.array([1.0])
+    mask = np.array([True])
+    seen = []
+
+    def evaluate(trial):
+        seen.append(float(trial[0]))
+        assert float(trial[0]) > 0.0
+        return np.array([float(trial[0])])
+
+    def feasible(trial):
+        return bool(np.all(trial >= 0.0))
+
+    downward = []
+    accepted = _damp(
+        x, np.array([-1000.0]), 1.0, evaluate, feasible, lambda values: float(np.linalg.norm(values)),
+        30, None, downward, None, mask,
+    )
+    assert downward[0]["status"] == "reject"
+    assert downward[0]["reason"] == "对数坐标还原越界"
+    assert downward[0]["accepted"] is False
+    assert accepted is not None
+    assert accepted[0][0] > 0.0
+    assert all(value > 0.0 for value in seen)
+    upward = []
+    overflow = _damp(
+        x, np.array([1000.0]), 1.0, evaluate, feasible, lambda values: float(np.linalg.norm(values)),
+        30, None, upward, None, mask,
+    )
+    assert upward[0]["reason"] == "对数坐标还原越界"
+    assert overflow is None
+
+
 def test_linear_trace_below_machine_epsilon_uses_a_larger_step():
     """线性痕量变量在 √ε·|x| 上不可分辨，放大后列非零，且不超过旧步长。"""
     value = 1.0e-20
