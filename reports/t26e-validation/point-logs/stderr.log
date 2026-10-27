@@ -1,0 +1,13 @@
+残差评价 50
+残差评价 100
+残差评价 150
+残差评价 200
+残差评价 250
+残差评价 300
+残差评价 350
+残差评价 400
+残差评价 450
+残差评价 500
+残差评价 550
+/Users/liuzhen/AI-projects/bfb-T26e/hamel/solver/newton.py:130: RuntimeWarning: overflow encountered in exp
+  point[log_mask] = np.exp(np.log(x[log_mask]) + step[log_mask])

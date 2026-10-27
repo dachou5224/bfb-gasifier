@@ -1,0 +1,489 @@
+{
+  "repeated_residual_norm": 0.0,
+  "residual_calls": 562,
+  "seconds": 68.51290166700001,
+  "direction": {
+    "merit": 12.111665516003988,
+    "slope": -12.111665516003816,
+    "rows": [
+      {
+        "h": 0.1,
+        "status": "reject",
+        "reason": "x 非有限",
+        "merit": null,
+        "relative": null
+      },
+      {
+        "h": 0.01,
+        "status": "reject",
+        "reason": "x 非有限",
+        "merit": null,
+        "relative": null
+      },
+      {
+        "h": 0.001,
+        "status": "reject",
+        "reason": "x 非有限",
+        "merit": null,
+        "relative": null
+      },
+      {
+        "h": 0.0001,
+        "status": "domain",
+        "reason": "试探点落在自由空间有效域外",
+        "merit": null,
+        "relative": null
+      },
+      {
+        "h": 1e-05,
+        "status": "ok",
+        "reason": "",
+        "merit": 12.111521258122707,
+        "relative": 4.229326039302985
+      },
+      {
+        "h": 1e-06,
+        "status": "ok",
+        "reason": "",
+        "merit": 12.111653120746618,
+        "relative": 0.11448332048293751
+      },
+      {
+        "h": 1e-07,
+        "status": "ok",
+        "reason": "",
+        "merit": 12.1116643020092,
+        "relative": 0.01093855798135662
+      },
+      {
+        "h": 1e-08,
+        "status": "ok",
+        "reason": "",
+        "merit": 12.111665394856313,
+        "relative": 0.0041461467678937354
+      },
+      {
+        "h": 1e-09,
+        "status": "ok",
+        "reason": "",
+        "merit": 12.11166550389174,
+        "relative": 0.004263048208491644
+      },
+      {
+        "h": 1e-10,
+        "status": "ok",
+        "reason": "",
+        "merit": 12.111665514792788,
+        "relative": 0.004297247598471654
+      },
+      {
+        "h": 1e-11,
+        "status": "ok",
+        "reason": "",
+        "merit": 12.111665515882871,
+        "relative": 0.004110715375381556
+      },
+      {
+        "h": 1e-12,
+        "status": "ok",
+        "reason": "",
+        "merit": 12.111665515991879,
+        "relative": 0.0315656812630217
+      }
+    ],
+    "max_h": 1e-05,
+    "max_h_merit": 12.111521258122707,
+    "drop": 0.0001442578812813622
+  },
+  "step_norm": 6371225.441727436,
+  "saved_step_norm": 10084.332942879551,
+  "log_count": 458,
+  "unresolved": [],
+  "enlarged": [
+    {
+      "name": "freeboard[b=0,geo=7].gas_outflow.gas.C6H6",
+      "x": 7.32864146238746e-10,
+      "start": 1.4901161193847656e-08,
+      "step": 0.00014901161193847656,
+      "cap": 1.0
+    },
+    {
+      "name": "freeboard[b=0,geo=7].gas_outflow.gas.C10H8",
+      "x": 1.047157429007475e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "freeboard[b=1,geo=6].gas_outflow.gas.C6H6",
+      "x": 9.476250379099342e-10,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "freeboard[b=1,geo=6].gas_outflow.gas.C10H8",
+      "x": 1.3541875370511762e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "freeboard[b=2,geo=5].gas_outflow.gas.C6H6",
+      "x": 1.2263085661709252e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "freeboard[b=2,geo=5].gas_outflow.gas.C10H8",
+      "x": 1.75260380880211e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "freeboard[b=3,geo=4].gas_outflow.gas.C6H6",
+      "x": 1.5881302499861621e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "freeboard[b=3,geo=4].gas_outflow.gas.C10H8",
+      "x": 2.269877460419155e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "freeboard[b=4,geo=3].gas_outflow.gas.C6H6",
+      "x": 2.0580980560395128e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "freeboard[b=4,geo=3].gas_outflow.gas.C10H8",
+      "x": 2.941760805215165e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "freeboard[b=5,geo=2].gas_outflow.gas.C6H6",
+      "x": 2.668749255953167e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "freeboard[b=5,geo=2].gas_outflow.gas.C10H8",
+      "x": 3.814770329227855e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "freeboard[b=6,geo=1].gas_outflow.gas.C6H6",
+      "x": 3.4620143659704206e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "freeboard[b=6,geo=1].gas_outflow.gas.C10H8",
+      "x": 4.948851448493532e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "freeboard[b=7,geo=0].gas_outflow.gas.C6H6",
+      "x": 4.454921417756929e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "freeboard[b=7,geo=0].gas_outflow.gas.C10H8",
+      "x": 6.36852643824956e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=0,geo=7].gas_outflow.suspension.O2",
+      "x": 1.6425400595145585e-23,
+      "start": 1.4901161193847656e-08,
+      "step": 0.00014901161193847656,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=0,geo=7].gas_outflow.suspension.C6H6",
+      "x": 3.644375185795403e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=0,geo=7].gas_outflow.suspension.C10H8",
+      "x": 5.2098983320448874e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=0,geo=7].gas_outflow.bubble.C6H6",
+      "x": 1.925854166434637e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=0,geo=7].gas_outflow.bubble.C10H8",
+      "x": 2.7531135503644315e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=1,geo=6].gas_outflow.suspension.O2",
+      "x": 1.6425396584160936e-23,
+      "start": 1.4901161193847656e-08,
+      "step": 0.00014901161193847656,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=1,geo=6].gas_outflow.suspension.C6H6",
+      "x": 3.4637666385174506e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=1,geo=6].gas_outflow.suspension.C10H8",
+      "x": 4.9516936801163534e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=1,geo=6].gas_outflow.bubble.C6H6",
+      "x": 1.8561708214717141e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=1,geo=6].gas_outflow.bubble.C10H8",
+      "x": 2.653491665606057e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=2,geo=5].gas_outflow.suspension.O2",
+      "x": 1.642539439458686e-23,
+      "start": 1.4901161193847656e-08,
+      "step": 0.00014901161193847656,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=2,geo=5].gas_outflow.suspension.C6H6",
+      "x": 3.3227192252321073e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=2,geo=5].gas_outflow.suspension.C10H8",
+      "x": 4.7500470853568746e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=2,geo=5].gas_outflow.bubble.C6H6",
+      "x": 1.7777304923090672e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=2,geo=5].gas_outflow.bubble.C10H8",
+      "x": 2.5413504723104047e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=3,geo=4].gas_outflow.suspension.O2",
+      "x": 1.6425393622803752e-23,
+      "start": 1.4901161193847656e-08,
+      "step": 0.00014901161193847656,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=3,geo=4].gas_outflow.suspension.C6H6",
+      "x": 3.1512963119945355e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=3,geo=4].gas_outflow.suspension.C10H8",
+      "x": 4.504974555218234e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=3,geo=4].gas_outflow.bubble.C6H6",
+      "x": 1.6682681238443241e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=3,geo=4].gas_outflow.bubble.C10H8",
+      "x": 2.384859025342188e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=4,geo=3].gas_outflow.suspension.O2",
+      "x": 1.642539416170734e-23,
+      "start": 1.4901161193847656e-08,
+      "step": 0.00014901161193847656,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=4,geo=3].gas_outflow.suspension.C6H6",
+      "x": 2.8967567293545807e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=4,geo=3].gas_outflow.suspension.C10H8",
+      "x": 4.14107535977465e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=4,geo=3].gas_outflow.bubble.C6H6",
+      "x": 1.5083586212569504e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=4,geo=3].gas_outflow.bubble.C10H8",
+      "x": 2.156246490610787e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=5,geo=2].gas_outflow.suspension.O2",
+      "x": 1.6425396264193305e-23,
+      "start": 1.4901161193847656e-08,
+      "step": 0.00014901161193847656,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=5,geo=2].gas_outflow.suspension.C6H6",
+      "x": 2.5085265009726403e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=5,geo=2].gas_outflow.suspension.C10H8",
+      "x": 3.5860470786340885e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=5,geo=2].gas_outflow.bubble.C6H6",
+      "x": 1.278260873428563e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=5,geo=2].gas_outflow.bubble.C10H8",
+      "x": 1.8272902470999793e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=6,geo=1].gas_outflow.suspension.O2",
+      "x": 1.6425400764258888e-23,
+      "start": 1.4901161193847656e-08,
+      "step": 0.00014901161193847656,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=6,geo=1].gas_outflow.suspension.C6H6",
+      "x": 1.930669886006598e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=6,geo=1].gas_outflow.suspension.C10H8",
+      "x": 2.7599219068990837e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=6,geo=1].gas_outflow.bubble.C6H6",
+      "x": 9.57078312318742e-10,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=6,geo=1].gas_outflow.bubble.C10H8",
+      "x": 1.3681157882582408e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.C6H6",
+      "x": 1.1032831330821374e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.C10H8",
+      "x": 1.5770592280856512e-09,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=7,geo=0].gas_outflow.bubble.C6H6",
+      "x": 5.266742127190545e-10,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    },
+    {
+      "name": "bed[b=7,geo=0].gas_outflow.bubble.C10H8",
+      "x": 7.527941816377754e-10,
+      "start": 1.4901161193847656e-08,
+      "step": 1.4901161193847656e-06,
+      "cap": 1.0
+    }
+  ]
+}
