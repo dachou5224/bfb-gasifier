@@ -69,7 +69,7 @@ def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, 
                 opened.x, lambda trial, opened=opened: evaluate(trial, opened), scales,
                 lambda residual, blocks=blocks: inner_met(residual, blocks, config.residual_tolerance),
                 feasible, lambda residual, blocks=blocks: normalized_merit(residual, blocks),
-                config, deadline, journal, blocks,
+                config, deadline, journal, blocks, None if journal is None else journal.get("kinds"),
             )
         except SolveTimeout:
             raise
@@ -150,6 +150,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         slots = unknown_slots(frozen)
         journal["blocks"] = blocks
         journal["names"] = [slot.name for slot in slots]
+        journal["kinds"] = [slot.kind for slot in slots]
         journal["explain"] = lambda trial, frozen=frozen: _infeasible_clause(trial, frozen)
         bottom = opened.info.get("bottom_residual_kg_s")
         journal["bottom_norm"] = None if bottom is None else abs(float(bottom)) / m_ref
