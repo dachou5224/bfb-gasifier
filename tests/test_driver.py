@@ -342,7 +342,7 @@ def test_case1_campaign_stops_at_the_wall_clock(tmp_path):
     """第 1 关全套运行。默认集不跑。每次运行到 wall_timeout_s 记 TIMEOUT。"""
     records = run_campaign(_CASE, tmp_path)
     assert [item["name"] for item in records] == [item.name for item in run_specs()]
-    assert all(item["status"] in {"CONVERGED", "NOT_CONVERGED", "DAMPING_FAILED", "TIMEOUT", "DOMAIN_STOP", "NOT_APPLIED", "ERROR"} for item in records)
+    assert all(item["status"] in {"CONVERGED", "NOT_CONVERGED", "DAMPING_FAILED", "JACOBIAN_MISMATCH", "TIMEOUT", "DOMAIN_STOP", "NOT_APPLIED", "ERROR"} for item in records)
 
 
 def _field(doc, name):
