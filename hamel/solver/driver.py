@@ -64,13 +64,15 @@ def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, 
             return SolveResult("DOMAIN_STOP", str(exc), round_index, iterations, diagnostics=diagnostics, x=x)
         blocks, scales, feasible, refs = prepare(opened)
         mark = 0 if journal is None else len(journal.setdefault("iterations", []))
+        # 核对绑定首次实际构造的雅可比，不绑定外层轮号：0 次内层迭代不消耗这次核对。ADR 0046 第 5 项。
         layout = None if journal is None else journal.get("jacobian_layout")
+        verify = layout is not None and not journal.get("jacobian_verified")
         try:
             inner = damped_newton(
                 opened.x, lambda trial, opened=opened: evaluate(trial, opened), scales,
                 lambda residual, blocks=blocks: inner_met(residual, blocks, config.residual_tolerance),
                 feasible, lambda residual, blocks=blocks: normalized_merit(residual, blocks),
-                config, deadline, journal, blocks, layout, round_index == 1,
+                config, deadline, journal, blocks, layout, verify,
             )
         except SolveTimeout:
             raise

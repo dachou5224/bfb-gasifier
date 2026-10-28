@@ -49,8 +49,8 @@ class NewtonResult:
 
 def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, deadline=None, journal=None, blocks=None, jacobian_layout=None, verify_jacobian=False) -> NewtonResult:
     """Wirsum 第 4、5 步。merit_of 是归一残差的欧氏范数。
-    雅可比每次在当前点用前向差分重算。不按块合并列；合并不改变各列的值。
-    求解手段：ADR 0043。
+    雅可比每次在当前点用前向差分重算。给定布局时按 ADR 0046 分组；合并不改变各列的值。
+    求解手段：ADR 0043；ADR 0046。
     """
     x = np.asarray(x0, dtype=float).copy()
     scales = np.asarray(scales, dtype=float)
@@ -80,6 +80,8 @@ def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, d
                     found = np.nonzero(matrix != _jacobian(x, residual, evaluate, scales, feasible))
                     if found[0].size:
                         raise JacobianMismatchError(*found)
+                    if journal is not None:
+                        journal["jacobian_verified"] = True
             delta = _newton_step(matrix, residual, x, scales, blocks)
             accepted = _damp(x, delta, merit, evaluate, feasible, merit_of, limit, deadline, trials, explain)
         except JacobianMismatchError as exc:
@@ -119,9 +121,7 @@ def _column_scale(x, scales):
 
 
 def _jacobian(x, residual, evaluate, scales, feasible, *, blocks=None, columns=None):
-    """前向差分。步长 √ε·max(|x|, s)。求解手段：ADR 0043。
-    columns 给定时只算这些列，供 ADR 0046 的逐列退回与非相邻列使用。
-    """
+    """前向差分。步长 √ε·max(|x|, s)；columns 给定时只算这些列。求解手段：ADR 0043。"""
     chosen = range(x.size) if columns is None else columns
     matrix = np.zeros((x.size, x.size))
     for index in chosen:
@@ -140,9 +140,7 @@ def _jacobian(x, residual, evaluate, scales, feasible, *, blocks=None, columns=N
 
 
 def _grouped_jacobian(x, residual, evaluate, scales, feasible, layout):
-    """节点序号模 3 相同、节点内序号相同的列同时扰动；每行只取邻域内被扰动的那一列。
-    非相邻耦合列单独逐列差分；组内试探点不可行或超域时该组退回逐列。求解手段：ADR 0046。
-    """
+    """节点序号模 3 相同、节点内序号相同的列同时扰动，每行只取邻域内被扰动的那一列；非相邻列单独逐列，组内不可行或超域时退回逐列。求解手段：ADR 0046。"""
     nodes, within, separate = layout
     matrix = np.zeros((x.size, x.size))
     rows, groups = {}, {}
