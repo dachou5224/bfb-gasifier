@@ -56,7 +56,7 @@ def _cell(value):
     return f"{value:.4g}"
 
 
-def main(old_path: str, new_path: str, old_roots_path: str, old_doubling_path: str) -> None:
+def main(old_path: str, new_path: str, old_roots_path: str, old_doubling_path: str, old_timing: str | None = None, new_timing: str | None = None) -> None:
     old = json.loads(Path(old_path).read_text(encoding="utf-8"))
     new = json.loads(Path(new_path).read_text(encoding="utf-8"))
     old_roots = json.loads(Path(old_roots_path).read_text(encoding="utf-8"))
@@ -109,6 +109,12 @@ def main(old_path: str, new_path: str, old_roots_path: str, old_doubling_path: s
         "只报告，不作通过门（ADR 0047）。旧值取 `origin/main`（8257fb7）的连续 u_gb(h) + 数值积分；",
         "新值取本卡的分支 `task/T26h-cellwise-trajectories`（逐格常系数解析解）。两边同一工况、同一轮次、",
         "同一 `SolverConfig`（除 `freeboard_max_step_s` 已按 ADR 0047 第 5 项删除）。",
+        "",
+        "生成方式：两边的预计算由 `tools/t26h_reference.py` 在各自的工作树里各跑一次，结果存为",
+        "`precalc_old.json`、`precalc_new.json`；旧实现的稳定根与样本加倍值在同一保存列上调用改动前的",
+        "`stable_equilibria`、`account_freeboard` 得到（`old_roots.json`、`old_doubling.json`）；",
+        "阶段耗时由 `tools/t26h_timing.py` 在各自的工作树里各跑一次（`timing_old.json`、`timing_new.json`）。",
+        "汇总脚本 `tools/t26h_report.py` 写出 `report.md` 与 `report.json`。",
         "",
         "## 预计算耗时",
         "",
@@ -168,6 +174,7 @@ def main(old_path: str, new_path: str, old_roots_path: str, old_doubling_path: s
             "",
         ]
     lines += [
+        "",
         "## 样本数加倍（48 → 96）",
         "",
         "| 粒级 | 旧最大相对变化 | 新最大相对变化 | 自由状态存在性变化 | 捕获份额 48 | 捕获份额 96 |",
@@ -184,6 +191,40 @@ def main(old_path: str, new_path: str, old_roots_path: str, old_doubling_path: s
         "量级与上表相同（最大一项来自粒级 6 的 5·10⁻¹），因此不是本卡引入的差异；抛出初速分布的离散",
         "使少数样本的归宿在 48/96 之间翻转。捕获份额与 h* 不变。",
         "",
+    ]
+    if old_timing is not None and new_timing is not None:
+        before = json.loads(Path(old_timing).read_text(encoding="utf-8"))
+        after = json.loads(Path(new_timing).read_text(encoding="utf-8"))
+        lines += [
+            "## 耗时分解（第一次外层预计算）",
+            "",
+            "把 `hamel/solver/precalc.py` 的各阶段函数包一层计时（`tools/t26h_timing.py`），两次运行在同一台机器上先后各跑一次。",
+            "上一节与本节是两次独立的运行，绝对数值相差约一成，属机器负载差异；比值稳定。",
+            "",
+            "| 阶段 | 旧 s | 旧占比 | 新 s | 新占比 |",
+            "|---|---|---|---|---|",
+        ]
+        for name in ("trajectory", "bed", "pyrolysis", "startup", "other"):
+            left = before["phases"][name]
+            right = after["phases"][name]
+            lines.append(
+                f"| {name} | {left:.1f} | {left / before['total_s'] * 100:.1f} % | "
+                f"{right:.1f} | {right / after['total_s'] * 100:.1f} % |"
+            )
+        lines += [
+            f"| 合计 | {before['total_s']:.1f} | 100 % | {after['total_s']:.1f} | 100 % |",
+            "",
+            f"轨迹（`_segregate`）由 {before['phases']['trajectory']:.1f} s 降到 {after['phases']['trajectory']:.1f} s"
+            f"（约 {before['phases']['trajectory'] / max(after['phases']['trajectory'], 1.0e-9):.0f} 倍），"
+            "与 S. 49 的“快一个因子 50”同一方向。",
+            f"预计算总时间只降到 {after['total_s'] / before['total_s']:.2f} 倍，因为余下部分几乎全是床区几何积分"
+            f"（`_adaptive_bed` + `_exchange_diffusivity`）：{before['phases']['bed']:.1f} s → {after['phases']['bed']:.1f} s，"
+            "它由 ADR 0035 第 5 项、ADR 0036 第 2 项的整床子步加密决定，本卡不涉及。",
+            "热解（`_release`，含释放时间与两状态释放分布）与启动项（绝热平衡、流动、初值）在两次运行之间只差机器噪声。",
+            "若要继续缩短预计算，下一步是床层子步与 ρ_P 反求，不是轨迹。",
+            "",
+        ]
+    lines += [
         "## 备注",
         "",
         "- 旧实现的 `freeboard_max_step_s` 已删除，新的步长不存在，因此不再有步长加密检查（ADR 0047 第 5 项）。",
@@ -195,4 +236,4 @@ def main(old_path: str, new_path: str, old_roots_path: str, old_doubling_path: s
 
 
 if __name__ == "__main__":
-    main(*(sys.argv[1:5]))
+    main(*(sys.argv[1:7]))

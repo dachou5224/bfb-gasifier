@@ -98,11 +98,13 @@ C &= \frac{18\,\mu_g\,u_g}{\rho_P\,d_P^{2}} \;-\;(+)\;\frac{3}{4}\cdot z\cdot\fr
 \end{aligned}
 $$
 
-括号外：$A = -\tfrac34 z\rho_g/(\rho_P d_P)$，$B$ 的 $z$ 项取 $-\tfrac32$，$C$ 的 $z$ 项取 $-\tfrac34$。括号内：$A = +\tfrac34$、$B$ 的 $z$ 项取 $+\tfrac32$、$C$ 的 $z$ 项取 $+\tfrac34$，其余不变。
+括号外：$A = -\tfrac34 z\rho_g/(\rho_P d_P)$，$B$ 的 $z$ 项取 $+\tfrac32$，$C$ 的 $z$ 项取 $-\tfrac34$。括号内：$A = +\tfrac34$、$B$ 的 $z$ 项取 $-\tfrac32$、$C$ 的 $z$ 项取 $+\tfrac34$，其余不变。
 
-## 符号约定（S. 46，式 3.91 之后）
+核对（把式 (3.82) 的阻力按 $u_r = u_P-u_g$ 展开）：颗粒快于气体时 $-q\,(u_P-u_g)|u_P-u_g| = -q\,u_P^2 + 2q\,u_g\,u_P - q\,u_g^2$，其中 $q = \tfrac34 z\rho_g/(\rho_P d_P)$，故 $A = -q$、$B$ 的 $z$ 项为 $+2q = +\tfrac32 z\rho_g/(\rho_P d_P)$、$C$ 的 $z$ 项为 $-q = -\tfrac34$；括号内（颗粒慢于气体）三项依次换号。与式 (3.89)–(3.91) 的括号位置一致。
 
-❓ **Q1 出处**：PDF 33 左半页／S. 46。
+## 符号约定（PDF 33 右半页／S. 47，式 3.91 之后、式 3.92 之前）
+
+❓ **Q1 出处**：PDF 33 右半页／S. 47。该段横跨 S. 46 与 S. 47 的接排：式 (3.89)–(3.91) 在 S. 46 左栏，段落在 S. 47 上、式 (3.92) 之前。
 ❓ **Q2 变量与单位**：不涉及新量。
 ❓ **Q3 德文原句**：„Bewegt sich ein Partikel langsamer als das ihn umgebende Gas oder fällt ein Partikel entgegen dem Gasstrom, so sind zur Berechnung der Koeffizienten $A$, $B$ und $C$ die in Klammern stehenden Vorzeichen gültig. Ist die Partikelgeschwindigkeit größer als die Gasgeschwindigkeit gelten entsprechend die nicht in Klammern stehenden Vorzeichen.“
 ❓ **Q4 上游依赖**：式 (3.89)–(3.91)。

@@ -90,7 +90,7 @@
  "doubling": [
   {
    "diameter_m": 5.06e-05,
-   "relative_change": 0.00039319206378567265,
+   "relative_change": 0.0003931920636846344,
    "existence_changed": false,
    "capture_base": 0.0,
    "capture_fine": 0.0,
@@ -99,7 +99,7 @@
   },
   {
    "diameter_m": 0.0001527,
-   "relative_change": 0.0003272866770331264,
+   "relative_change": 0.0003272866770927659,
    "existence_changed": false,
    "capture_base": 0.0,
    "capture_fine": 0.0,
@@ -117,7 +117,7 @@
   },
   {
    "diameter_m": 0.0005928,
-   "relative_change": 0.04191482770348245,
+   "relative_change": 0.041914827703755056,
    "existence_changed": false,
    "capture_base": 0.0,
    "capture_fine": 0.0,
@@ -126,7 +126,7 @@
   },
   {
    "diameter_m": 0.0008385,
-   "relative_change": 0.03874984241061286,
+   "relative_change": 0.038749842409858196,
    "existence_changed": false,
    "capture_base": 0.0,
    "capture_fine": 0.0,
@@ -135,7 +135,7 @@
   },
   {
    "diameter_m": 0.0013863,
-   "relative_change": 0.502635033952641,
+   "relative_change": 0.5026350339512801,
    "existence_changed": false,
    "capture_base": 0.0,
    "capture_fine": 0.0,
@@ -144,7 +144,7 @@
   },
   {
    "diameter_m": 0.0024885,
-   "relative_change": 0.04514223171988566,
+   "relative_change": 0.045142231722436435,
    "existence_changed": false,
    "capture_base": 0.0,
    "capture_fine": 0.0,

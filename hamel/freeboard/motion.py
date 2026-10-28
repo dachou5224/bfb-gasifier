@@ -264,32 +264,30 @@ def cell_height_at_velocity(a: float, b: float, c: float, initial_velocity_m_s: 
     return height
 
 
-def _boundary_time(a: float, b: float, c: float, initial_velocity_m_s: float, initial_height_m: float, target_height_m: float, horizon_s: float | None, time_limit_s: float) -> float | None:
-    """对单调段上的 h(τ) 二分求根，绝对容差 1e-12 m。求解手段：ADR 0047 第 2 项。"""
+def _boundary_time(a: float, b: float, c: float, initial_velocity_m_s: float, initial_height_m: float, target_height_m: float, window_s: float) -> float | None:
+    """在剩余期限 [0, window_s] 内对单调段上的 h(τ) 二分求根，绝对容差 1e-12 m。
 
-    def reached(tau: float) -> bool:
+    段内 u 不穿过 ū_g、也不变号，h(τ) 单调，故端点判定即可；期限内没有到达就返回
+    None——不在期限之后接受事件。求解手段：ADR 0047 第 2 项。
+    """
+    window = _positive("window_s", window_s)
+    sign = 1.0 if target_height_m >= initial_height_m else -1.0
+
+    def offset(tau: float) -> tuple[float, float]:
         _velocity, height = cell_state(tau, a, b, c, initial_velocity_m_s, initial_height_m)
-        return (height - target_height_m) * (target_height_m - initial_height_m) >= 0.0
+        return (height - target_height_m) * sign, height
 
-    if reached(0.0):
+    if offset(0.0)[0] >= 0.0:
         return 0.0
-    high = horizon_s
-    if high is not None:
-        if not reached(high):
-            return None
-    else:
-        high = 1.0e-6
-        while not reached(high):
-            high *= 2.0
-            if high > time_limit_s:
-                return None
-    low = 0.0
+    if offset(window)[0] < 0.0:
+        return None
+    low, high = 0.0, window
     for _ in range(200):
         middle = 0.5 * (low + high)
-        _velocity, height = cell_state(middle, a, b, c, initial_velocity_m_s, initial_height_m)
+        value, height = offset(middle)
         if abs(height - target_height_m) <= 1.0e-12 or middle <= low or middle >= high:
             return middle
-        if (height - target_height_m) * (target_height_m - initial_height_m) >= 0.0:
+        if value >= 0.0:
             high = middle
         else:
             low = middle
@@ -297,25 +295,26 @@ def _boundary_time(a: float, b: float, c: float, initial_velocity_m_s: float, in
 
 
 def advance_cell(height_m: float, velocity_m_s: float, left_m: float, right_m: float, a: float, b: float, c: float, gas_velocity_m_s: float, time_left_s: float) -> tuple[str, float, float, float]:
-    """格内推进到最早事件：到达格界、穿过 u_g 或转向。
+    """格内推进到最早事件：到达格界、穿过 u_g 或转向，全部限于剩余期限。
 
-    返回（事件，τ，h，u）。事件为 upper / lower / gas / zero；停在原地时返回 stalled。
-    求解手段：ADR 0047 第 2 项。
+    返回（事件，τ，h，u）。事件为 upper / lower / gas / zero；期限内没有事件时返回
+    limit，调用方按时间上限报错，不改判归宿。求解手段：ADR 0047 第 2 项。
     Source: Hamel Eq.3.88, S. 46
     """
     height = _finite("height_m", height_m)
     velocity = _finite("velocity_m_s", velocity_m_s)
     gas = _finite("gas_velocity_m_s", gas_velocity_m_s)
-    times = []
+    limit = _positive("time_left_s", time_left_s)
+    events = []
     if velocity > gas:
         tau = time_to_velocity(a, b, c, velocity, gas)
-        if tau is not None and tau > 0.0:
-            times.append((tau, "gas"))
+        if tau is not None and 0.0 < tau <= limit:
+            events.append((tau, "gas"))
     if velocity != 0.0:
         tau = time_to_velocity(a, b, c, velocity, 0.0)
-        if tau is not None and tau > 0.0:
-            times.append((tau, "zero"))
-    horizon = min(times)[0] if times else None
+        if tau is not None and 0.0 < tau <= limit:
+            events.append((tau, "zero"))
+    horizon = min(events)[0] if events else None
     if velocity != 0.0:
         direction = 1.0 if velocity > 0.0 else -1.0
     elif c != 0.0:
@@ -327,12 +326,13 @@ def advance_cell(height_m: float, velocity_m_s: float, left_m: float, right_m: f
     if direction < 0.0 and height <= left_m:
         return "lower", 0.0, height, velocity
     target = right_m if direction > 0.0 else left_m
-    tau = _boundary_time(a, b, c, velocity, height, target, horizon, time_left_s)
-    if tau is not None and (horizon is None or tau <= horizon):
+    window = limit if horizon is None else min(limit, horizon)
+    tau = _boundary_time(a, b, c, velocity, height, target, window)
+    if tau is not None:
         new_velocity, new_height = cell_state(tau, a, b, c, velocity, height)
         return ("upper" if direction > 0.0 else "lower"), tau, new_height, new_velocity
     if horizon is None:
         return "limit", 0.0, height, velocity
-    kind = min(times)[1]
+    kind = min(events)[1]
     new_velocity, new_height = cell_state(horizon, a, b, c, velocity, height)
     return kind, horizon, new_height, (0.0 if kind == "zero" else gas)

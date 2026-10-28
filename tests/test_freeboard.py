@@ -245,6 +245,37 @@ def test_fast_gas_carries_the_particle_out_and_slow_gas_returns_it():
     assert fate.velocity_m_s < 0.0
 
 
+def test_boundary_event_inside_the_time_limit_is_not_missed():
+    """没有速度事件时，格界求根也必须受剩余期限约束，但期限内的真实事件不能漏。"""
+    terminal = terminal_settling_velocity(RHO_G, MU, 2.0e-4, RHO_P, PHI)
+    edges = np.array([0.0, 0.75])
+    rho, mu = np.array([RHO_G]), np.array([MU])
+
+    def gas(_cell, _height, terminal=terminal):
+        return terminal + 1.0
+
+    fate = trace_until_fate(
+        0.0, 1.0, edges, gas, rho, mu, 2.0e-4, RHO_P, PHI, _config(freeboard_time_limit_s=1.0)
+    )
+    assert fate.fate == "elutriate"
+    assert fate.time_s == pytest.approx(0.75, rel=1e-6)
+    assert fate.height_m == pytest.approx(0.75, abs=1e-12)
+
+
+def test_event_beyond_the_time_limit_is_not_accepted():
+    """期限之后的格界事件不构成归宿；到时只报错，不改判为带出。"""
+    edges = np.array([0.0, 0.01])
+    rho, mu = np.array([RHO_G]), np.array([MU])
+
+    def gas(_cell, _height):
+        return 1.0
+
+    with pytest.raises(FreeboardError, match="积分时间达到上限"):
+        trace_until_fate(
+            0.0, 2.0, edges, gas, rho, mu, 2.0e-4, RHO_P, PHI, _config(freeboard_time_limit_s=1.0e-6)
+        )
+
+
 def test_time_limit_is_an_error_not_a_fate():
     edges = np.array([0.0, 0.5, 1.0])
     rho = np.full(2, RHO_G)
