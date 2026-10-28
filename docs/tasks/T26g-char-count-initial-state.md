@@ -16,7 +16,7 @@ M3 审计与 T26f 预检表明，第 1 关内层不收敛的主因是 m_C → 0 
 
 ## 执行要求（给 cursor）
 
-- **新会话、新 worktree**：`git worktree add ../bfb-T26g -b task/T26g-char-count-initial-state origin/main`。
+- **新会话、新 worktree**：`git worktree add ../bfb-worktrees/T26g -b task/T26g-char-count-initial-state origin/main`。
 - **开工前必读**：`docs/CHARTER.md`（§5、§6.2、§7）、本卡、ADR 0044、ADR 0045、ADR 0017 第 9、10、19 项、ADR 0026 第 3–5 项、ADR 0031、ADR 0035 第 4 项、ADR 0043、ADR 0012，`hamel/kinetics/heterogeneous.py`、`hamel/solver/residual.py`、`precalc.py`、`driver.py`，以及 `reports/t26f-precheck/`。
 - 会话结束时工作树干净，开 PR，同一 PR 内更新 STATUS 的 T26g 一行。
 
