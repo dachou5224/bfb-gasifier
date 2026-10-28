@@ -12,12 +12,12 @@ from hamel.cases.config import SolverConfig
 from hamel.solver.campaign import _process, config_for
 from hamel.solver.driver import SolveResult, _blocks, _feasible, _references, _scales, solve_case
 from hamel.solver.gates import ResidualBlocks
-from hamel.solver.newton import SolveTimeout, _advance, _jacobian, _log_mask, _newton_step, _opening_step, normalized_merit
+from hamel.solver.newton import SolveTimeout, normalized_merit
 from hamel.solver.precalc import precalculate
 from hamel.solver.residual import evaluate_residual
 from hamel.solver.vector import pack_state, unknown_slots
 from tools.driver_report import convert
-from tools.t26c_diagnosis import _H, _list, _num, _probe, _scale_into
+from tools.t26c_diagnosis import _list, _num
 _ROOT = Path(__file__).resolve().parents[1]
 _OUT = _ROOT / "reports" / "t26e-validation"
 _CASE = _ROOT / "data" / "cases" / "vtt_pressurized.json"
@@ -34,43 +34,12 @@ def _names(frozen):
     slots = unknown_slots(frozen)
     return [slot.name for slot in slots], [slot.kind for slot in slots]
 def _column(x, residual, evaluate, scales, feasible, blocks, names, kinds):
-    mask = _log_mask(x, kinds)
-    unresolved, steps = [], np.zeros(x.size)
-    matrix = _jacobian(
-        x, residual, evaluate, scales, feasible, blocks=blocks, log_mask=mask,
-        names=names, unresolved=unresolved, steps_out=steps,
-    )
-    try:
-        delta = _newton_step(matrix, residual, x, scales, blocks, mask)
-    except np.linalg.LinAlgError:
-        delta = None
-    enlarged = []
-    for index, step in enumerate(steps):
-        start, cap = _opening_step(x[index], scales[index], bool(mask[index]))
-        if step > start:
-            enlarged.append({"name": names[index], "x": float(x[index]), "start": start, "step": float(step), "cap": cap})
-    return mask, matrix, delta, unresolved, enlarged
+    """对数变量与逐列放大已撤回。测试替换本函数，不再调用求解器。"""
+    del x, residual, evaluate, scales, feasible, blocks, names, kinds
+    raise RuntimeError("对数变量与逐列放大步长已由 ADR 0043 撤回")
 def _direction(frozen, blocks, x, residual, matrix, delta, mask):
-    predicted = matrix @ delta
-    merit = normalized_merit(residual, blocks)
-    scaled_f, scaled_step = residual.astype(float).copy(), predicted.astype(float).copy()
-    _scale_into(scaled_f, blocks)
-    _scale_into(scaled_step, blocks)
-    denom = float(np.linalg.norm(scaled_f))
-    slope = None if denom == 0.0 else float(np.dot(scaled_f, scaled_step) / denom)
-    rows = []
-    for step in _H:
-        values, status, reason = _probe(frozen, _advance(x, delta, step, mask))
-        row = {"h": step, "status": status, "reason": reason, "merit": None, "relative": None}
-        if status == "ok":
-            row["merit"] = normalized_merit(values, blocks)
-            norm = float(np.linalg.norm(predicted))
-            row["relative"] = None if norm == 0.0 else float(np.linalg.norm(predicted - (values - residual) / step) / norm)
-        rows.append(row)
-    feasible = [row for row in rows if row["merit"] is not None]
-    largest = max(feasible, key=lambda row: row["h"]) if feasible else None
-    return {"merit": merit, "slope": slope, "rows": rows, "max_h": None if largest is None else largest["h"],
-            "max_h_merit": None if largest is None else largest["merit"], "drop": None if largest is None else merit - largest["merit"]}
+    del frozen, blocks, x, residual, matrix, delta, mask
+    raise RuntimeError("对数变量与逐列放大步长已由 ADR 0043 撤回")
 def point() -> None:
     with np.load(_FAILURE / "failure.npz", allow_pickle=True) as saved:
         payload = {key: np.array(saved[key]) for key in saved.files}

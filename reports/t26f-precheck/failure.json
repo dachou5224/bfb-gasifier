@@ -1,0 +1,1711 @@
+{
+  "label": "failure",
+  "scope": "子系统收敛只说明在给定状态下找到满足既有门的固相近似根；不收敛或停止不能证明有效域内无正解。",
+  "unknowns": 498,
+  "block_ratios": {
+    "gas": 0.09871626067711761,
+    "solid": 5.311858148175874,
+    "energy": 1.0319273599743237
+  },
+  "solid_ratio": 5.311858148175874,
+  "min_char": {
+    "m_c_kg": 1.4121449173199925e-11,
+    "rows": [
+      {
+        "zone": "freeboard",
+        "balance_index": 7,
+        "geometric_index": 0,
+        "k": 3,
+        "state": "hover",
+        "m_c_kg": 1.4121449173199925e-11,
+        "m_a_kg": 3.6899820335038793e-06,
+        "ash_over_char": 261303.354085417,
+        "ash_rule": "该状态的灰未知量"
+      }
+    ]
+  },
+  "min_positive_char": {
+    "m_c_kg": 1.4121449173199925e-11,
+    "rows": [
+      {
+        "zone": "freeboard",
+        "balance_index": 7,
+        "geometric_index": 0,
+        "k": 3,
+        "state": "hover",
+        "m_c_kg": 1.4121449173199925e-11,
+        "m_a_kg": 3.6899820335038793e-06,
+        "ash_over_char": 261303.354085417,
+        "ash_rule": "该状态的灰未知量"
+      }
+    ]
+  },
+  "inventories": [
+    {
+      "zone": "bed",
+      "balance_index": 0,
+      "geometric_index": 7,
+      "k": 1,
+      "state": "bed",
+      "m_c_kg": 0.052741305513852026,
+      "m_a_kg": 0.005223422759383089,
+      "ash_over_char": 0.09903855637421041,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 0,
+      "geometric_index": 7,
+      "k": 2,
+      "state": "bed",
+      "m_c_kg": 0.03910131452669995,
+      "m_a_kg": 0.003872537743058306,
+      "ash_over_char": 0.09903855637421041,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 0,
+      "geometric_index": 7,
+      "k": 3,
+      "state": "bed",
+      "m_c_kg": 0.10139061897365731,
+      "m_a_kg": 0.01004158053303865,
+      "ash_over_char": 0.09903855637421043,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 0,
+      "geometric_index": 7,
+      "k": 4,
+      "state": "bed",
+      "m_c_kg": 0.05319572423187447,
+      "m_a_kg": 0.005268427733205451,
+      "ash_over_char": 0.09903855637421043,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 0,
+      "geometric_index": 7,
+      "k": 5,
+      "state": "bed",
+      "m_c_kg": 0.0650170335528479,
+      "m_a_kg": 0.006439193142807657,
+      "ash_over_char": 0.09903855637421043,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 0,
+      "geometric_index": 7,
+      "k": 6,
+      "state": "bed",
+      "m_c_kg": 0.11321144886112203,
+      "m_a_kg": 0.011212298460238275,
+      "ash_over_char": 0.09903855637421043,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 0,
+      "geometric_index": 7,
+      "k": 7,
+      "state": "bed",
+      "m_c_kg": 0.030007819435083502,
+      "m_a_kg": 0.0029719311167886444,
+      "ash_over_char": 0.09903855637421041,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 1,
+      "geometric_index": 6,
+      "k": 1,
+      "state": "bed",
+      "m_c_kg": 0.05253287105273389,
+      "m_a_kg": 0.005240012127563121,
+      "ash_over_char": 0.09974730150010377,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 1,
+      "geometric_index": 6,
+      "k": 2,
+      "state": "bed",
+      "m_c_kg": 0.038946785432794236,
+      "m_a_kg": 0.003884836749024777,
+      "ash_over_char": 0.0997473015001038,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 1,
+      "geometric_index": 6,
+      "k": 3,
+      "state": "bed",
+      "m_c_kg": 0.1009899213922546,
+      "m_a_kg": 0.010073472137585,
+      "ash_over_char": 0.09974730150010379,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 1,
+      "geometric_index": 6,
+      "k": 4,
+      "state": "bed",
+      "m_c_kg": 0.05298558319737281,
+      "m_a_kg": 0.005285168942347179,
+      "ash_over_char": 0.0997473015001038,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 1,
+      "geometric_index": 6,
+      "k": 5,
+      "state": "bed",
+      "m_c_kg": 0.0647601811045638,
+      "m_a_kg": 0.00645965330983825,
+      "ash_over_char": 0.09974730150010379,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 1,
+      "geometric_index": 6,
+      "k": 6,
+      "state": "bed",
+      "m_c_kg": 0.11276421277982884,
+      "m_a_kg": 0.011247925930571443,
+      "ash_over_char": 0.09974730150010377,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 1,
+      "geometric_index": 6,
+      "k": 7,
+      "state": "bed",
+      "m_c_kg": 0.029889287325774273,
+      "m_a_kg": 0.002981375754507237,
+      "ash_over_char": 0.09974730150010379,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 2,
+      "geometric_index": 5,
+      "k": 1,
+      "state": "bed",
+      "m_c_kg": 0.052316749102630115,
+      "m_a_kg": 0.005186690924453214,
+      "ash_over_char": 0.09914016091249188,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 2,
+      "geometric_index": 5,
+      "k": 2,
+      "state": "bed",
+      "m_c_kg": 0.03878655697317053,
+      "m_a_kg": 0.0038453054995616597,
+      "ash_over_char": 0.09914016091249186,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 2,
+      "geometric_index": 5,
+      "k": 3,
+      "state": "bed",
+      "m_c_kg": 0.10057444521145148,
+      "m_a_kg": 0.009970966681947897,
+      "ash_over_char": 0.09914016091249186,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 2,
+      "geometric_index": 5,
+      "k": 4,
+      "state": "bed",
+      "m_c_kg": 0.05276765593551628,
+      "m_a_kg": 0.00523139390042209,
+      "ash_over_char": 0.09914016091249186,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 2,
+      "geometric_index": 5,
+      "k": 5,
+      "state": "bed",
+      "m_c_kg": 0.06449381695149752,
+      "m_a_kg": 0.006393927390432259,
+      "ash_over_char": 0.09914016091249186,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 2,
+      "geometric_index": 5,
+      "k": 6,
+      "state": "bed",
+      "m_c_kg": 0.11230041060646316,
+      "m_a_kg": 0.011133480778063667,
+      "ash_over_char": 0.09914016091249188,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 2,
+      "geometric_index": 5,
+      "k": 7,
+      "state": "bed",
+      "m_c_kg": 0.029766359762002297,
+      "m_a_kg": 0.002951041696584031,
+      "ash_over_char": 0.09914016091249188,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 3,
+      "geometric_index": 4,
+      "k": 1,
+      "state": "bed",
+      "m_c_kg": 0.05209252232670327,
+      "m_a_kg": 0.005081967014737638,
+      "ash_over_char": 0.09755655490946652,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 3,
+      "geometric_index": 4,
+      "k": 2,
+      "state": "bed",
+      "m_c_kg": 0.03862031977064902,
+      "m_a_kg": 0.0037676653463264765,
+      "ash_over_char": 0.09755655490946652,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 3,
+      "geometric_index": 4,
+      "k": 3,
+      "state": "bed",
+      "m_c_kg": 0.10014338822144021,
+      "m_a_kg": 0.009769643951844955,
+      "ash_over_char": 0.09755655490946652,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 3,
+      "geometric_index": 4,
+      "k": 4,
+      "state": "bed",
+      "m_c_kg": 0.05254153313324264,
+      "m_a_kg": 0.00512577096214074,
+      "ash_over_char": 0.09755655490946652,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 3,
+      "geometric_index": 4,
+      "k": 5,
+      "state": "bed",
+      "m_c_kg": 0.06421743911346409,
+      "m_a_kg": 0.006264832125017983,
+      "ash_over_char": 0.09755655490946653,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 3,
+      "geometric_index": 4,
+      "k": 6,
+      "state": "bed",
+      "m_c_kg": 0.11181916959715113,
+      "m_a_kg": 0.010908692958735425,
+      "ash_over_char": 0.09755655490946653,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 3,
+      "geometric_index": 4,
+      "k": 7,
+      "state": "bed",
+      "m_c_kg": 0.02963880699855453,
+      "m_a_kg": 0.002891459902405566,
+      "ash_over_char": 0.09755655490946653,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 4,
+      "geometric_index": 3,
+      "k": 1,
+      "state": "bed",
+      "m_c_kg": 0.05185974200962261,
+      "m_a_kg": 0.004929229699416401,
+      "ash_over_char": 0.09504925224081869,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 4,
+      "geometric_index": 3,
+      "k": 2,
+      "state": "bed",
+      "m_c_kg": 0.03844774116139777,
+      "m_a_kg": 0.0036544290477394034,
+      "ash_over_char": 0.09504925224081867,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 4,
+      "geometric_index": 3,
+      "k": 3,
+      "state": "bed",
+      "m_c_kg": 0.0996958878186185,
+      "m_a_kg": 0.009476019588644233,
+      "ash_over_char": 0.09504925224081869,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 4,
+      "geometric_index": 3,
+      "k": 4,
+      "state": "bed",
+      "m_c_kg": 0.052306769675707625,
+      "m_a_kg": 0.004971719344808739,
+      "ash_over_char": 0.09504925224081867,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 4,
+      "geometric_index": 3,
+      "k": 5,
+      "state": "bed",
+      "m_c_kg": 0.06393050245872871,
+      "m_a_kg": 0.006076546454081984,
+      "ash_over_char": 0.09504925224081869,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 4,
+      "geometric_index": 3,
+      "k": 6,
+      "state": "bed",
+      "m_c_kg": 0.11131954139811642,
+      "m_a_kg": 0.010580839169681824,
+      "ash_over_char": 0.09504925224081867,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 4,
+      "geometric_index": 3,
+      "k": 7,
+      "state": "bed",
+      "m_c_kg": 0.029506378687025298,
+      "m_a_kg": 0.0028045592305361838,
+      "ash_over_char": 0.09504925224081869,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 5,
+      "geometric_index": 2,
+      "k": 1,
+      "state": "bed",
+      "m_c_kg": 0.05161792497218779,
+      "m_a_kg": 0.0047224835479999635,
+      "ash_over_char": 0.0914892171768718,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 5,
+      "geometric_index": 2,
+      "k": 2,
+      "state": "bed",
+      "m_c_kg": 0.03826846291539245,
+      "m_a_kg": 0.0035011517146914055,
+      "ash_over_char": 0.09148921717687182,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 5,
+      "geometric_index": 2,
+      "k": 3,
+      "state": "bed",
+      "m_c_kg": 0.09923101509787093,
+      "m_a_kg": 0.00907856789097056,
+      "ash_over_char": 0.09148921717687183,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 5,
+      "geometric_index": 2,
+      "k": 4,
+      "state": "bed",
+      "m_c_kg": 0.052062883002875746,
+      "m_a_kg": 0.004763192409904168,
+      "ash_over_char": 0.09148921717687183,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 5,
+      "geometric_index": 2,
+      "k": 5,
+      "state": "bed",
+      "m_c_kg": 0.06363241648163488,
+      "m_a_kg": 0.005821679970977451,
+      "ash_over_char": 0.0914892171768718,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 5,
+      "geometric_index": 2,
+      "k": 6,
+      "state": "bed",
+      "m_c_kg": 0.11080049834300314,
+      "m_a_kg": 0.010137050856208639,
+      "ash_over_char": 0.0914892171768718,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 5,
+      "geometric_index": 2,
+      "k": 7,
+      "state": "bed",
+      "m_c_kg": 0.02936880309342772,
+      "m_a_kg": 0.0026869288044393935,
+      "ash_over_char": 0.09148921717687182,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 6,
+      "geometric_index": 1,
+      "k": 1,
+      "state": "bed",
+      "m_c_kg": 0.051366550128804284,
+      "m_a_kg": 0.00444820038859871,
+      "ash_over_char": 0.08659721895756319,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 6,
+      "geometric_index": 1,
+      "k": 2,
+      "state": "bed",
+      "m_c_kg": 0.03808209868429019,
+      "m_a_kg": 0.003297803838127006,
+      "ash_over_char": 0.08659721895756317,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 6,
+      "geometric_index": 1,
+      "k": 3,
+      "state": "bed",
+      "m_c_kg": 0.09874776823413901,
+      "m_a_kg": 0.008551282107342437,
+      "ash_over_char": 0.08659721895756317,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 6,
+      "geometric_index": 1,
+      "k": 4,
+      "state": "bed",
+      "m_c_kg": 0.05180935057922702,
+      "m_a_kg": 0.004486545676158475,
+      "ash_over_char": 0.08659721895756319,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 6,
+      "geometric_index": 1,
+      "k": 5,
+      "state": "bed",
+      "m_c_kg": 0.06332254207174069,
+      "m_a_kg": 0.005483556040736035,
+      "ash_over_char": 0.08659721895756317,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 6,
+      "geometric_index": 1,
+      "k": 6,
+      "state": "bed",
+      "m_c_kg": 0.11026092793589448,
+      "m_a_kg": 0.00954828971892875,
+      "ash_over_char": 0.08659721895756319,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 6,
+      "geometric_index": 1,
+      "k": 7,
+      "state": "bed",
+      "m_c_kg": 0.029225785764678387,
+      "m_a_kg": 0.0025308717690706874,
+      "ash_over_char": 0.08659721895756319,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 7,
+      "geometric_index": 0,
+      "k": 1,
+      "state": "bed",
+      "m_c_kg": 0.05110600765089324,
+      "m_a_kg": 0.004082787169494407,
+      "ash_over_char": 0.07988859543449484,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 7,
+      "geometric_index": 0,
+      "k": 2,
+      "state": "bed",
+      "m_c_kg": 0.03788893768377455,
+      "m_a_kg": 0.0030268940140618507,
+      "ash_over_char": 0.07988859543449484,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 7,
+      "geometric_index": 0,
+      "k": 3,
+      "state": "bed",
+      "m_c_kg": 0.09824689714242787,
+      "m_a_kg": 0.007848806618505847,
+      "ash_over_char": 0.07988859543449484,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 7,
+      "geometric_index": 0,
+      "k": 4,
+      "state": "bed",
+      "m_c_kg": 0.05154656783515091,
+      "m_a_kg": 0.004117982903819115,
+      "ash_over_char": 0.07988859543449484,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 7,
+      "geometric_index": 0,
+      "k": 5,
+      "state": "bed",
+      "m_c_kg": 0.06300136224254523,
+      "m_a_kg": 0.005033090340016753,
+      "ash_over_char": 0.07988859543449482,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 7,
+      "geometric_index": 0,
+      "k": 6,
+      "state": "bed",
+      "m_c_kg": 0.10970167146391994,
+      "m_a_kg": 0.008763912450068967,
+      "ash_over_char": 0.07988859543449484,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "bed",
+      "balance_index": 7,
+      "geometric_index": 0,
+      "k": 7,
+      "state": "bed",
+      "m_c_kg": 0.029077549966454733,
+      "m_a_kg": 0.002322964625496411,
+      "ash_over_char": 0.07988859543449484,
+      "ash_rule": "床区灰按该格焦炭质量比例分到粒级"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 0,
+      "geometric_index": 7,
+      "k": 1,
+      "state": "free",
+      "m_c_kg": 3.960732007345444e-06,
+      "m_a_kg": 5.39845080373743e-07,
+      "ash_over_char": 0.13629932027023386,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 0,
+      "geometric_index": 7,
+      "k": 2,
+      "state": "free",
+      "m_c_kg": 3.96211219077685e-06,
+      "m_a_kg": 4.847306878081518e-07,
+      "ash_over_char": 0.1223414846597544,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 0,
+      "geometric_index": 7,
+      "k": 3,
+      "state": "free",
+      "m_c_kg": 3.962911058227228e-06,
+      "m_a_kg": 4.201334490193309e-07,
+      "ash_over_char": 0.10601637100764853,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 0,
+      "geometric_index": 7,
+      "k": 4,
+      "state": "free",
+      "m_c_kg": 3.962911010124679e-06,
+      "m_a_kg": 4.201334439178464e-07,
+      "ash_over_char": 0.10601637100718758,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 0,
+      "geometric_index": 7,
+      "k": 5,
+      "state": "free",
+      "m_c_kg": 3.962911008002369e-06,
+      "m_a_kg": 4.201334436927449e-07,
+      "ash_over_char": 0.10601637100716184,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 0,
+      "geometric_index": 7,
+      "k": 6,
+      "state": "free",
+      "m_c_kg": 3.962911003142934e-06,
+      "m_a_kg": 4.201334431773986e-07,
+      "ash_over_char": 0.10601637100711979,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 0,
+      "geometric_index": 7,
+      "k": 7,
+      "state": "free",
+      "m_c_kg": 3.9629110016584675e-06,
+      "m_a_kg": 4.2013344301995513e-07,
+      "ash_over_char": 0.10601637100710322,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 1,
+      "geometric_index": 6,
+      "k": 1,
+      "state": "free",
+      "m_c_kg": 3.961020251382921e-06,
+      "m_a_kg": 5.35168370227339e-07,
+      "ash_over_char": 0.13510871852788287,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 1,
+      "geometric_index": 6,
+      "k": 2,
+      "state": "free",
+      "m_c_kg": 3.962223884407803e-06,
+      "m_a_kg": 4.807245575676007e-07,
+      "ash_over_char": 0.12132695465780077,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 1,
+      "geometric_index": 6,
+      "k": 3,
+      "state": "free",
+      "m_c_kg": 3.962911187858464e-06,
+      "m_a_kg": 4.2013346276719263e-07,
+      "ash_over_char": 0.10601637100886696,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 1,
+      "geometric_index": 6,
+      "k": 4,
+      "state": "free",
+      "m_c_kg": 3.962911029932606e-06,
+      "m_a_kg": 4.201334460185577e-07,
+      "ash_over_char": 0.106016371007376,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 1,
+      "geometric_index": 6,
+      "k": 5,
+      "state": "free",
+      "m_c_kg": 3.962911023266232e-06,
+      "m_a_kg": 4.2013344531151743e-07,
+      "ash_over_char": 0.10601637100730144,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 1,
+      "geometric_index": 6,
+      "k": 6,
+      "state": "free",
+      "m_c_kg": 3.962911008528956e-06,
+      "m_a_kg": 4.201334437485883e-07,
+      "ash_over_char": 0.10601637100716603,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 1,
+      "geometric_index": 6,
+      "k": 7,
+      "state": "free",
+      "m_c_kg": 3.962911004054398e-06,
+      "m_a_kg": 4.2013344327402896e-07,
+      "ash_over_char": 0.10601637100711987,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 2,
+      "geometric_index": 5,
+      "k": 1,
+      "state": "free",
+      "m_c_kg": 3.961293363395033e-06,
+      "m_a_kg": 5.29912278504299e-07,
+      "ash_over_char": 0.13377254090823934,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 2,
+      "geometric_index": 5,
+      "k": 2,
+      "state": "free",
+      "m_c_kg": 3.962326576438762e-06,
+      "m_a_kg": 4.7642207442073384e-07,
+      "ash_over_char": 0.12023796252779594,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 2,
+      "geometric_index": 5,
+      "k": 3,
+      "state": "free",
+      "m_c_kg": 3.96291135286792e-06,
+      "m_a_kg": 4.201334802668938e-07,
+      "ash_over_char": 0.10601637101038036,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 2,
+      "geometric_index": 5,
+      "k": 4,
+      "state": "free",
+      "m_c_kg": 3.962911050818388e-06,
+      "m_a_kg": 4.2013344823357527e-07,
+      "ash_over_char": 0.10601637100757352,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 2,
+      "geometric_index": 5,
+      "k": 5,
+      "state": "free",
+      "m_c_kg": 3.962911038935304e-06,
+      "m_a_kg": 4.201334469732606e-07,
+      "ash_over_char": 0.10601637100744402,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 2,
+      "geometric_index": 5,
+      "k": 6,
+      "state": "free",
+      "m_c_kg": 3.962911013960676e-06,
+      "m_a_kg": 4.201334443246251e-07,
+      "ash_over_char": 0.10601637100721285,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 2,
+      "geometric_index": 5,
+      "k": 7,
+      "state": "free",
+      "m_c_kg": 3.962911006450816e-06,
+      "m_a_kg": 4.201334435281561e-07,
+      "ash_over_char": 0.10601637100713694,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 3,
+      "geometric_index": 4,
+      "k": 1,
+      "state": "free",
+      "m_c_kg": 3.961548305055429e-06,
+      "m_a_kg": 5.240885126867023e-07,
+      "ash_over_char": 0.13229385894850762,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 3,
+      "geometric_index": 4,
+      "k": 2,
+      "state": "free",
+      "m_c_kg": 3.962419409710653e-06,
+      "m_a_kg": 4.718931277309299e-07,
+      "ash_over_char": 0.11909217044880892,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 3,
+      "geometric_index": 4,
+      "k": 3,
+      "state": "free",
+      "m_c_kg": 3.9629115917796794e-06,
+      "m_a_kg": 4.2013350560384164e-07,
+      "ash_over_char": 0.10601637101249753,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 3,
+      "geometric_index": 4,
+      "k": 4,
+      "state": "free",
+      "m_c_kg": 3.962911073489374e-06,
+      "m_a_kg": 4.2013345063793626e-07,
+      "ash_over_char": 0.10601637100779189,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 3,
+      "geometric_index": 4,
+      "k": 5,
+      "state": "free",
+      "m_c_kg": 3.962911055326567e-06,
+      "m_a_kg": 4.20133448711609e-07,
+      "ash_over_char": 0.10601637100759696,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 3,
+      "geometric_index": 4,
+      "k": 6,
+      "state": "free",
+      "m_c_kg": 3.962911019501336e-06,
+      "m_a_kg": 4.2013344491221583e-07,
+      "ash_over_char": 0.10601637100726082,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 3,
+      "geometric_index": 4,
+      "k": 7,
+      "state": "free",
+      "m_c_kg": 3.962911008863909e-06,
+      "m_a_kg": 4.201334437840543e-07,
+      "ash_over_char": 0.10601637100715479,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 4,
+      "geometric_index": 3,
+      "k": 1,
+      "state": "free",
+      "m_c_kg": 3.961782245072696e-06,
+      "m_a_kg": 5.177376013119101e-07,
+      "ash_over_char": 0.1306830030741404,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 4,
+      "geometric_index": 3,
+      "k": 2,
+      "state": "free",
+      "m_c_kg": 3.962501871547586e-06,
+      "m_a_kg": 4.672241766149199e-07,
+      "ash_over_char": 0.11791140843863926,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 4,
+      "geometric_index": 3,
+      "k": 3,
+      "state": "free",
+      "m_c_kg": 3.962912019914169e-06,
+      "m_a_kg": 4.201335510073454e-07,
+      "ash_over_char": 0.10601637101609056,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 4,
+      "geometric_index": 3,
+      "k": 4,
+      "state": "free",
+      "m_c_kg": 3.962911099037415e-06,
+      "m_a_kg": 4.201334533474284e-07,
+      "ash_over_char": 0.10601637100803957,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 4,
+      "geometric_index": 3,
+      "k": 5,
+      "state": "free",
+      "m_c_kg": 3.962911072872998e-06,
+      "m_a_kg": 4.2013345057246585e-07,
+      "ash_over_char": 0.10601637100776047,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 4,
+      "geometric_index": 3,
+      "k": 6,
+      "state": "free",
+      "m_c_kg": 3.962911025230456e-06,
+      "m_a_kg": 4.201334455197968e-07,
+      "ash_over_char": 0.1060163710073114,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 4,
+      "geometric_index": 3,
+      "k": 7,
+      "state": "free",
+      "m_c_kg": 3.962911011313071e-06,
+      "m_a_kg": 4.201334440437778e-07,
+      "ash_over_char": 0.10601637100717302,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 5,
+      "geometric_index": 2,
+      "k": 1,
+      "state": "free",
+      "m_c_kg": 3.961992824449566e-06,
+      "m_a_kg": 5.109316691287997e-07,
+      "ash_over_char": 0.1289582520129331,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 5,
+      "geometric_index": 2,
+      "k": 2,
+      "state": "free",
+      "m_c_kg": 3.96257384187881e-06,
+      "m_a_kg": 4.6251224178296545e-07,
+      "ash_over_char": 0.1167201572106655,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 5,
+      "geometric_index": 2,
+      "k": 3,
+      "state": "free",
+      "m_c_kg": 3.962913242519992e-06,
+      "m_a_kg": 4.2013368065984216e-07,
+      "ash_over_char": 0.10601637102524146,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 5,
+      "geometric_index": 2,
+      "k": 4,
+      "state": "free",
+      "m_c_kg": 3.962911129305723e-06,
+      "m_a_kg": 4.201334565579989e-07,
+      "ash_over_char": 0.10601637100845197,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 5,
+      "geometric_index": 2,
+      "k": 5,
+      "state": "free",
+      "m_c_kg": 3.962911090165598e-06,
+      "m_a_kg": 4.201334605376565e-07,
+      "ash_over_char": 0.10601637305976006,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 5,
+      "geometric_index": 2,
+      "k": 6,
+      "state": "free",
+      "m_c_kg": 3.962156769463402e-06,
+      "m_a_kg": 4.2076055794910944e-07,
+      "ash_over_char": 0.10619482832984758,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 5,
+      "geometric_index": 2,
+      "k": 7,
+      "state": "free",
+      "m_c_kg": 3.962453076739102e-06,
+      "m_a_kg": 4.204262811391294e-07,
+      "ash_over_char": 0.10610252613644044,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 6,
+      "geometric_index": 1,
+      "k": 1,
+      "state": "free",
+      "m_c_kg": 3.962178028512939e-06,
+      "m_a_kg": 5.038168812036878e-07,
+      "ash_over_char": 0.12715654813541463,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 6,
+      "geometric_index": 1,
+      "k": 2,
+      "state": "free",
+      "m_c_kg": 3.962634722716935e-06,
+      "m_a_kg": 4.579759934906288e-07,
+      "ash_over_char": 0.11557360835333892,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 6,
+      "geometric_index": 1,
+      "k": 3,
+      "state": "hover",
+      "m_c_kg": 8.774153352782172e-08,
+      "m_a_kg": 4.101861631429591e-06,
+      "ash_over_char": 46.749372463714046,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 6,
+      "geometric_index": 1,
+      "k": 4,
+      "state": "free",
+      "m_c_kg": 3.952625509174173e-06,
+      "m_a_kg": 4.280448659617635e-07,
+      "ash_over_char": 0.1082938074877717,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 6,
+      "geometric_index": 1,
+      "k": 5,
+      "state": "free",
+      "m_c_kg": 3.951570887524334e-06,
+      "m_a_kg": 4.302133143952116e-07,
+      "ash_over_char": 0.10887146571340922,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 6,
+      "geometric_index": 1,
+      "k": 6,
+      "state": "free",
+      "m_c_kg": 3.941531119694365e-06,
+      "m_a_kg": 4.379090263510751e-07,
+      "ash_over_char": 0.1111012479802599,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 6,
+      "geometric_index": 1,
+      "k": 7,
+      "state": "free",
+      "m_c_kg": 3.955682722368877e-06,
+      "m_a_kg": 4.2475508054500106e-07,
+      "ash_over_char": 0.10737845028446436,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 7,
+      "geometric_index": 0,
+      "k": 1,
+      "state": "free",
+      "m_c_kg": 3.962342450273741e-06,
+      "m_a_kg": 4.827720801669221e-07,
+      "ash_over_char": 0.1218400696622195,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 7,
+      "geometric_index": 0,
+      "k": 2,
+      "state": "free",
+      "m_c_kg": 3.962719114006669e-06,
+      "m_a_kg": 4.4812556416873143e-07,
+      "ash_over_char": 0.11308537175516226,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 7,
+      "geometric_index": 0,
+      "k": 3,
+      "state": "free",
+      "m_c_kg": 3.962847493456986e-06,
+      "m_a_kg": 4.345611694519311e-07,
+      "ash_over_char": 0.10965881734521207,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 7,
+      "geometric_index": 0,
+      "k": 3,
+      "state": "hover",
+      "m_c_kg": 1.4121449173199925e-11,
+      "m_a_kg": 3.6899820335038793e-06,
+      "ash_over_char": 261303.354085417,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 7,
+      "geometric_index": 0,
+      "k": 4,
+      "state": "free",
+      "m_c_kg": 3.886646811461862e-06,
+      "m_a_kg": 4.787962705510084e-07,
+      "ash_over_char": 0.12319006428343857,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 7,
+      "geometric_index": 0,
+      "k": 5,
+      "state": "free",
+      "m_c_kg": 3.901098140731649e-06,
+      "m_a_kg": 4.7507971188785094e-07,
+      "ash_over_char": 0.12178102030490061,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 7,
+      "geometric_index": 0,
+      "k": 6,
+      "state": "free",
+      "m_c_kg": 3.8661520840352185e-06,
+      "m_a_kg": 5.005800391832166e-07,
+      "ash_over_char": 0.12947758606038753,
+      "ash_rule": "该状态的灰未知量"
+    },
+    {
+      "zone": "freeboard",
+      "balance_index": 7,
+      "geometric_index": 0,
+      "k": 7,
+      "state": "free",
+      "m_c_kg": 3.9331228242654655e-06,
+      "m_a_kg": 4.39178066469344e-07,
+      "ash_over_char": 0.11166141666358033,
+      "ash_rule": "该状态的灰未知量"
+    }
+  ],
+  "volumes": [
+    {
+      "solid_kg": 3.086264227028714e-05,
+      "solid_m3": 2.5382951651141173e-08,
+      "limit_m3": 0.007620816554215865,
+      "ratio": 3.3307390973870415e-06,
+      "balance_index": 0,
+      "geometric_index": 7
+    },
+    {
+      "solid_kg": 3.0854359558346204e-05,
+      "solid_m3": 2.5376139542349713e-08,
+      "limit_m3": 0.007620816554215865,
+      "ratio": 3.329845215643137e-06,
+      "balance_index": 1,
+      "geometric_index": 6
+    },
+    {
+      "solid_kg": 3.0845177019118446e-05,
+      "solid_m3": 2.5368587371436684e-08,
+      "limit_m3": 0.007620816554215865,
+      "ratio": 3.328854223292212e-06,
+      "balance_index": 2,
+      "geometric_index": 5
+    },
+    {
+      "solid_kg": 3.083517239779424e-05,
+      "solid_m3": 2.5360359079862156e-08,
+      "limit_m3": 0.007620816554215865,
+      "ratio": 3.3277745107028864e-06,
+      "balance_index": 3,
+      "geometric_index": 4
+    },
+    {
+      "solid_kg": 3.082446946740604e-05,
+      "solid_m3": 2.5351556464642433e-08,
+      "limit_m3": 0.007620816554215865,
+      "ratio": 3.3266194356322427e-06,
+      "balance_index": 4,
+      "geometric_index": 3
+    },
+    {
+      "solid_kg": 3.0812943322277695e-05,
+      "solid_m3": 2.5342076797219453e-08,
+      "limit_m3": 0.007620816554215865,
+      "ratio": 3.3253755180867225e-06,
+      "balance_index": 5,
+      "geometric_index": 2
+    },
+    {
+      "solid_kg": 3.0598541316896405e-05,
+      "solid_m3": 2.5165742065771637e-08,
+      "limit_m3": 0.007620816554215865,
+      "ratio": 3.302236956727406e-06,
+      "balance_index": 6,
+      "geometric_index": 1
+    },
+    {
+      "solid_kg": 3.4424017975063645e-05,
+      "solid_m3": 2.8312001812634353e-08,
+      "limit_m3": 0.004978933482087698,
+      "ratio": 5.686358718084933e-06,
+      "balance_index": 7,
+      "geometric_index": 0
+    }
+  ],
+  "volume_over_limit": [],
+  "interface": {
+    "m_dot_ab_0_kg_s": 0.47702078060788794,
+    "m_dot_auf_0_kg_s": 0.2651899310597288,
+    "faces": [
+      {
+        "face": "床区 0/1",
+        "upper_balance_index": 0,
+        "lower_balance_index": 1,
+        "up_kg_s": 0.7421680844448588,
+        "down_kg_s": 0.47702078060788794,
+        "net_up_kg_s": 0.2651473038369709,
+        "char_up_kg_s": [
+          0.07783916991153166,
+          0.05770835265729244,
+          0.14963910201505798,
+          0.07850996396564283,
+          0.09595665798352304,
+          0.16708534185573348,
+          0.044287648248847344
+        ],
+        "char_down_kg_s": [
+          0.050030312889566615,
+          0.037091440591101095,
+          0.09617896906223967,
+          0.05046137371417149,
+          0.0616750476710537,
+          0.1073921882293093,
+          0.028465366582109783
+        ]
+      },
+      {
+        "face": "床区 1/2",
+        "upper_balance_index": 1,
+        "lower_balance_index": 2,
+        "up_kg_s": 0.7402234733468714,
+        "down_kg_s": 0.4750761695099006,
+        "net_up_kg_s": 0.2651473038369708,
+        "char_up_kg_s": [
+          0.07763521785082847,
+          0.05755714664893584,
+          0.14924702123406042,
+          0.07830433913229175,
+          0.09570532601784401,
+          0.16664771782870494,
+          0.044171663270128655
+        ],
+        "char_down_kg_s": [
+          0.049826360705151354,
+          0.036940234569181225,
+          0.09578688828608176,
+          0.05025574897505456,
+          0.0614237158256173,
+          0.10695456440901661,
+          0.02834938166655625
+        ]
+      },
+      {
+        "face": "床区 2/3",
+        "upper_balance_index": 2,
+        "lower_balance_index": 3,
+        "up_kg_s": 0.7382065511465162,
+        "down_kg_s": 0.4730592473095453,
+        "net_up_kg_s": 0.26514730383697094,
+        "char_up_kg_s": [
+          0.07742368170386978,
+          0.05740031796639692,
+          0.14884036072926582,
+          0.07809103410330008,
+          0.0954446116964046,
+          0.166193753126117,
+          0.04405134281551575
+        ],
+        "char_down_kg_s": [
+          0.04961482450045937,
+          0.036783405892171155,
+          0.09538022782356655,
+          0.05004244402505594,
+          0.06116300160654353,
+          0.10650059988702713,
+          0.028229061265105132
+        ]
+      },
+      {
+        "face": "床区 3/4",
+        "upper_balance_index": 3,
+        "lower_balance_index": 4,
+        "up_kg_s": 0.7361133545144735,
+        "down_kg_s": 0.4709660506775025,
+        "net_up_kg_s": 0.26514730383697094,
+        "char_up_kg_s": [
+          0.07720414577596663,
+          0.057237558428856264,
+          0.14841832138279568,
+          0.07786964058486702,
+          0.09517401437204723,
+          0.16572257725885425,
+          0.04392645765671739
+        ],
+        "char_down_kg_s": [
+          0.04939528854675031,
+          0.03662064637367507,
+          0.0949581885519792,
+          0.04982105058243219,
+          0.0608924043809816,
+          0.1060294241977597,
+          0.02810417615590424
+        ]
+      },
+      {
+        "face": "床区 4/5",
+        "upper_balance_index": 4,
+        "lower_balance_index": 5,
+        "up_kg_s": 0.7339396186536962,
+        "down_kg_s": 0.4687923148167251,
+        "net_up_kg_s": 0.26514730383697105,
+        "char_up_kg_s": [
+          0.07697616279545959,
+          0.05706853642207547,
+          0.14798004330178077,
+          0.07763971449432851,
+          0.09489299023155225,
+          0.1652332441272012,
+          0.0437967579914453
+        ],
+        "char_down_kg_s": [
+          0.04916730553765774,
+          0.036451624394206676,
+          0.09451991057565497,
+          0.049591124573203846,
+          0.060611380345491385,
+          0.10554009125648096,
+          0.02797447653992605
+        ]
+      },
+      {
+        "face": "床区 5/6",
+        "upper_balance_index": 5,
+        "lower_balance_index": 6,
+        "up_kg_s": 0.7316807475368716,
+        "down_kg_s": 0.46653344369990046,
+        "net_up_kg_s": 0.26514730383697116,
+        "char_up_kg_s": [
+          0.07673925079197266,
+          0.056892894583933484,
+          0.14752459981574362,
+          0.07740077419057703,
+          0.09460094993032511,
+          0.16472472806156888,
+          0.043661972582629556
+        ],
+        "char_down_kg_s": [
+          0.048930393453408466,
+          0.036275982583884155,
+          0.0940644672201775,
+          0.04935218436273979,
+          0.06031934016168148,
+          0.10503157540094911,
+          0.02783969118075516
+        ]
+      },
+      {
+        "face": "床区 6/7",
+        "upper_balance_index": 6,
+        "lower_balance_index": 7,
+        "up_kg_s": 0.7293317805021963,
+        "down_kg_s": 0.4641844766652252,
+        "net_up_kg_s": 0.26514730383697105,
+        "char_up_kg_s": [
+          0.07649288961518955,
+          0.05671024721163298,
+          0.1470509907462761,
+          0.07715229783532432,
+          0.09429725523749365,
+          0.164195918084882,
+          0.04352180735889091
+        ],
+        "char_down_kg_s": [
+          0.04868403205697064,
+          0.03609333522484432,
+          0.09359085829611347,
+          0.04910370811598503,
+          0.06001564559853102,
+          0.10450276564811171,
+          0.027699526004567977
+        ]
+      },
+      {
+        "face": "床面",
+        "upper_balance_index": null,
+        "lower_balance_index": 0,
+        "up_kg_s": 0.2651899310597288,
+        "down_kg_s": null,
+        "net_up_kg_s": null,
+        "char_up_kg_s": [
+          0.027813327564416474,
+          0.020620226566912536,
+          0.0534687275940225,
+          0.028052966999440338,
+          0.03428697932016626,
+          0.059702487083668626,
+          0.015824737429425893
+        ],
+        "char_down_kg_s": [
+          0.0,
+          0.0,
+          0.0,
+          6.762665431201895e-06,
+          8.995983816487269e-06,
+          1.0531234621243272e-05,
+          1.1624449717606946e-05
+        ],
+        "char_net_up_kg_s": 0.23973153822446608
+      }
+    ],
+    "surface_by_class": [
+      {
+        "k": 1,
+        "char_up_kg_s": 0.027813327564416474,
+        "return_char_kg_s": 0.0,
+        "char_net_up_kg_s": 0.027813327564416474,
+        "ejection_to_free_kg_s": 0.027813327564416474,
+        "ejection_to_hover_kg_s": 0.0
+      },
+      {
+        "k": 2,
+        "char_up_kg_s": 0.020620226566912536,
+        "return_char_kg_s": 0.0,
+        "char_net_up_kg_s": 0.020620226566912536,
+        "ejection_to_free_kg_s": 0.020620226566912536,
+        "ejection_to_hover_kg_s": 0.0
+      },
+      {
+        "k": 3,
+        "char_up_kg_s": 0.0534687275940225,
+        "return_char_kg_s": 0.0,
+        "char_net_up_kg_s": 0.0534687275940225,
+        "ejection_to_free_kg_s": 0.014481113723381086,
+        "ejection_to_hover_kg_s": 0.03898761387064141
+      },
+      {
+        "k": 4,
+        "char_up_kg_s": 0.028052966999440338,
+        "return_char_kg_s": 6.762665431201895e-06,
+        "char_net_up_kg_s": 0.028046204334009138,
+        "ejection_to_free_kg_s": 0.028052966999440338,
+        "ejection_to_hover_kg_s": 0.0
+      },
+      {
+        "k": 5,
+        "char_up_kg_s": 0.03428697932016626,
+        "return_char_kg_s": 8.995983816487269e-06,
+        "char_net_up_kg_s": 0.03427798333634977,
+        "ejection_to_free_kg_s": 0.03428697932016626,
+        "ejection_to_hover_kg_s": 0.0
+      },
+      {
+        "k": 6,
+        "char_up_kg_s": 0.059702487083668626,
+        "return_char_kg_s": 1.0531234621243272e-05,
+        "char_net_up_kg_s": 0.059691955849047386,
+        "ejection_to_free_kg_s": 0.059702487083668626,
+        "ejection_to_hover_kg_s": 0.0
+      },
+      {
+        "k": 7,
+        "char_up_kg_s": 0.015824737429425893,
+        "return_char_kg_s": 1.1624449717606946e-05,
+        "char_net_up_kg_s": 0.015813112979708284,
+        "ejection_to_free_kg_s": 0.015824737429425893,
+        "ejection_to_hover_kg_s": 0.0
+      }
+    ],
+    "ejection_to_free_kg_s": 0.2007818386874112,
+    "ejection_to_hover_kg_s": 0.03898761387064141,
+    "return_char_kg_s": 3.791433358653938e-05
+  },
+  "hover": [
+    {
+      "inflow_kg_s": 1.7685575955147247e-05,
+      "generation_kg_s": 1.595028969581348e-05,
+      "migration_in_kg_s": 4.72194641492908e-10,
+      "specific_consumption_per_s": 0.03361634672675873,
+      "specific_migration_per_s": 0.0031434340150835894,
+      "frozen_rate_estimate_kg": 0.0009150309704463283,
+      "source_kg_s": 3.3636337845602224e-05,
+      "balance_index": 6,
+      "geometric_index": 1,
+      "k": 3,
+      "name": "freeboard[b=6,geo=1].char.hover.k3",
+      "m_c_kg": 8.774153352782172e-08,
+      "m_a_kg": 4.101861631429591e-06,
+      "consumption_kg_s": 2.949549813408781e-09,
+      "migration_kg_s": 2.75809721026952e-10,
+      "residual_kg_s": 3.3633112486067784e-05
+    },
+    {
+      "inflow_kg_s": 0.03898761387064141,
+      "generation_kg_s": 4.6178529537050545e-05,
+      "migration_in_kg_s": 4.702458984382705e-10,
+      "specific_consumption_per_s": 183.8343169966373,
+      "specific_migration_per_s": 17.190179821857374,
+      "frozen_rate_estimate_kg": 0.00019417430954033442,
+      "source_kg_s": 0.03903379287042436,
+      "balance_index": 7,
+      "geometric_index": 0,
+      "k": 3,
+      "name": "freeboard[b=7,geo=0].char.hover.k3",
+      "m_c_kg": 1.4121449173199925e-11,
+      "m_a_kg": 3.6899820335038793e-06,
+      "consumption_kg_s": 2.596006963757937e-09,
+      "migration_kg_s": 2.427502506325258e-10,
+      "residual_kg_s": 0.03903379003166715
+    }
+  ],
+  "status": "DAMPING_FAILED",
+  "reason": "没有使归一残差严格下降的可行步",
+  "iterations": 1,
+  "merit": 12.02182935449238,
+  "residual_calls": 171,
+  "assembly_error": null,
+  "subsystem_solid_ratio": 5.311858148175874,
+  "largest_solid": [
+    {
+      "name": "bed[b=7,geo=0].char.bed.k6",
+      "kg_s": -0.06103590605161487
+    },
+    {
+      "name": "freeboard[b=7,geo=0].char.free.k6",
+      "kg_s": 0.05972275052434833
+    },
+    {
+      "name": "bed[b=7,geo=0].char.bed.k3",
+      "kg_s": -0.05462704033742451
+    },
+    {
+      "name": "freeboard[b=7,geo=0].char.hover.k3",
+      "kg_s": 0.03903379003166715
+    },
+    {
+      "name": "bed[b=7,geo=0].char.bed.k5",
+      "kg_s": -0.035032460910371176
+    },
+    {
+      "name": "freeboard[b=7,geo=0].char.free.k5",
+      "kg_s": 0.03429894629319549
+    },
+    {
+      "name": "bed[b=7,geo=0].char.bed.k4",
+      "kg_s": -0.028648624921101828
+    },
+    {
+      "name": "bed[b=7,geo=0].char.bed.k1",
+      "kg_s": -0.028632109694712964
+    }
+  ],
+  "wall_clock_s": 21.58315425
+}
