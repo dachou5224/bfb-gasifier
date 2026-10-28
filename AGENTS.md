@@ -20,6 +20,7 @@
 - 会话结束时工作树必须干净（已 commit）。不直接 push main。
 - 不新建 handoff 文件；交接只更新 `docs/STATUS.md`。
 - 旧代码与旧文档在 tag `archive-2026-10-12`（分支 `archive/2026-10-12-snapshot`）中，只作查阅与迁移来源，不得整块恢复到主线。
+- 任务的 git worktree 统一建在 `../bfb-worktrees/<任务号>`（即 `AI-projects/bfb-worktrees/` 下），不再建在 `AI-projects/` 根目录。任务卡中写成 `git worktree add ../bfb-worktrees/T26g -b task/... origin/main`。任务 PR 合并后，由总司令用 `git worktree remove` 删除该工作树（只删干净且已并入 main 的），本地任务分支一并删除。
 
 ## 技术博客写作
 

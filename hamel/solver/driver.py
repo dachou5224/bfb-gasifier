@@ -25,7 +25,7 @@ from hamel.solver.gates import (
 from hamel.solver.newton import SolveTimeout, damped_newton, normalized_merit
 from hamel.solver.precalc import PrecalcError, precalculate
 from hamel.solver.residual import evaluate_residual, wall_area_m2
-from hamel.solver.vector import pack_state, unknown_slots, unpack_state
+from hamel.solver.vector import jacobian_layout, pack_state, unknown_slots, unpack_state
 
 # ADR 0029。不是新的阈值。
 _AMBIENT_K = 298.15
@@ -64,12 +64,15 @@ def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, 
             return SolveResult("DOMAIN_STOP", str(exc), round_index, iterations, diagnostics=diagnostics, x=x)
         blocks, scales, feasible, refs = prepare(opened)
         mark = 0 if journal is None else len(journal.setdefault("iterations", []))
+        # 核对绑定首次实际构造的雅可比，不绑定外层轮号：0 次内层迭代不消耗这次核对。ADR 0046 第 5 项。
+        layout = None if journal is None else journal.get("jacobian_layout")
+        verify = layout is not None and not journal.get("jacobian_verified")
         try:
             inner = damped_newton(
                 opened.x, lambda trial, opened=opened: evaluate(trial, opened), scales,
                 lambda residual, blocks=blocks: inner_met(residual, blocks, config.residual_tolerance),
                 feasible, lambda residual, blocks=blocks: normalized_merit(residual, blocks),
-                config, deadline, journal, blocks,
+                config, deadline, journal, blocks, layout, verify,
             )
         except SolveTimeout:
             raise
@@ -149,6 +152,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         m_tot = float(frozen.geometric_mass_kg.sum())
         slots = unknown_slots(frozen)
         journal["blocks"] = blocks
+        journal["jacobian_layout"] = jacobian_layout(slots, frozen)
         journal["names"] = [slot.name for slot in slots]
         journal["explain"] = lambda trial, frozen=frozen: _infeasible_clause(trial, frozen)
         bottom = opened.info.get("bottom_residual_kg_s")

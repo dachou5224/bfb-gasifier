@@ -26,6 +26,15 @@ class SolveTimeout(TimeoutError):
     """墙钟到点。状态记 TIMEOUT，不换策略。求解器参数：ADR 0037。"""
 
 
+class JacobianMismatchError(RuntimeError):
+    """分组雅可比与逐列差分不逐位相同。求解手段：ADR 0046 第 5 项。"""
+
+    def __init__(self, rows, columns):
+        self.rows, self.columns = rows, columns
+        pairs = ", ".join(f"({int(row)}, {int(column)})" for row, column in list(zip(rows, columns))[:8])
+        super().__init__(f"分组雅可比与逐列差分不一致，共 {len(rows)} 处：{pairs}")
+
+
 @dataclass
 class NewtonResult:
     """成功只看调用方传入的内层门。ν_max 与阻尼失败都不是成功。"""
@@ -38,10 +47,10 @@ class NewtonResult:
     merit: float | None
 
 
-def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, deadline=None, journal=None, blocks=None) -> NewtonResult:
+def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, deadline=None, journal=None, blocks=None, jacobian_layout=None, verify_jacobian=False) -> NewtonResult:
     """Wirsum 第 4、5 步。merit_of 是归一残差的欧氏范数。
-    雅可比每次在当前点用前向差分重算。不按块合并列；合并不改变各列的值。
-    求解手段：ADR 0043。
+    雅可比每次在当前点用前向差分重算。给定布局时按 ADR 0046 分组；合并不改变各列的值。
+    求解手段：ADR 0043；ADR 0046。
     """
     x = np.asarray(x0, dtype=float).copy()
     scales = np.asarray(scales, dtype=float)
@@ -61,9 +70,25 @@ def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, d
         matrix = None
         delta = None
         try:
-            matrix = _jacobian(x, residual, evaluate, scales, feasible, blocks=blocks)
+            if jacobian_layout is None:
+                matrix = _jacobian(x, residual, evaluate, scales, feasible, blocks=blocks)
+            else:
+                matrix, stats = _grouped_jacobian(x, residual, evaluate, scales, feasible, jacobian_layout)
+                if journal is not None:
+                    journal.setdefault("jacobian", []).append(stats)
+                if verify_jacobian and iteration == 1:
+                    found = np.nonzero(matrix != _jacobian(x, residual, evaluate, scales, feasible))
+                    if found[0].size:
+                        raise JacobianMismatchError(*found)
+                    if journal is not None:
+                        journal["jacobian_verified"] = True
             delta = _newton_step(matrix, residual, x, scales, blocks)
             accepted = _damp(x, delta, merit, evaluate, feasible, merit_of, limit, deadline, trials, explain)
+        except JacobianMismatchError as exc:
+            if journal is not None:
+                journal["jacobian_mismatch"] = {"rows": [int(item) for item in exc.rows], "columns": [int(item) for item in exc.columns]}
+            _note(journal, iteration, merit, residual, delta, trials, scales)
+            return NewtonResult("JACOBIAN_MISMATCH", str(exc), x, residual, iteration, merit)
         except FreeboardDomainError as exc:
             _note(journal, iteration, merit, residual, delta, trials, scales)
             return NewtonResult("DOMAIN_STOP", str(exc), x, residual, iteration, merit)
@@ -95,10 +120,11 @@ def _column_scale(x, scales):
     return np.array([_difference_basis(x[index], scales[index]) for index in range(np.size(x))])
 
 
-def _jacobian(x, residual, evaluate, scales, feasible, *, blocks=None):
-    """前向差分。步长 √ε·max(|x|, s)。求解手段：ADR 0043。"""
-    columns = np.empty((x.size, x.size))
-    for index in range(x.size):
+def _jacobian(x, residual, evaluate, scales, feasible, *, blocks=None, columns=None):
+    """前向差分。步长 √ε·max(|x|, s)；columns 给定时只算这些列。求解手段：ADR 0043。"""
+    chosen = range(x.size) if columns is None else columns
+    matrix = np.zeros((x.size, x.size))
+    for index in chosen:
         step = _SQRT_EPS * _difference_basis(x[index], scales[index])
         if not np.isfinite(step) or step <= 0.0:
             raise np.linalg.LinAlgError("差分步长不是正数")
@@ -109,8 +135,40 @@ def _jacobian(x, residual, evaluate, scales, feasible, *, blocks=None):
             raise FreeboardDomainError("差分点落在自由空间有效域外")
         if status != "ok":
             raise np.linalg.LinAlgError("差分点不可评价")
-        columns[:, index] = (values - residual) / step
-    return columns
+        matrix[:, index] = (values - residual) / step
+    return matrix
+
+
+def _grouped_jacobian(x, residual, evaluate, scales, feasible, layout):
+    """节点序号模 3 相同、节点内序号相同的列同时扰动，每行只取邻域内被扰动的那一列；非相邻列单独逐列，组内不可行或超域时退回逐列。求解手段：ADR 0046。"""
+    nodes, within, separate = layout
+    matrix = np.zeros((x.size, x.size))
+    rows, groups = {}, {}
+    for row in range(x.size):
+        rows.setdefault(int(nodes[row]), []).append(row)
+    for column in range(x.size):
+        if not separate[column]:
+            groups.setdefault((int(nodes[column]) % 3, int(within[column])), []).append(column)
+    fallbacks = 0
+    for columns in groups.values():
+        steps = {column: _SQRT_EPS * _difference_basis(x[column], scales[column]) for column in columns}
+        if not all(np.isfinite(step) and step > 0.0 for step in steps.values()):
+            raise np.linalg.LinAlgError("差分步长不是正数")
+        trial = x.copy()
+        for column, step in steps.items():
+            trial[column] += step
+        values, status, _reason = _at(trial, evaluate, feasible)
+        if status != "ok":
+            fallbacks += 1
+            matrix[:, columns] = _jacobian(x, residual, evaluate, scales, feasible, columns=columns)[:, columns]
+            continue
+        for column in columns:
+            node = int(nodes[column])
+            chosen = [row for item in (node - 1, node, node + 1) for row in rows.get(item, ())]
+            matrix[chosen, column] = (values[chosen] - residual[chosen]) / steps[column]
+    separate = np.flatnonzero(separate)
+    matrix[:, separate] = _jacobian(x, residual, evaluate, scales, feasible, columns=separate)[:, separate]
+    return matrix, {"fallbacks": fallbacks, "groups": len(groups), "separate": int(separate.size)}
 
 
 def _newton_step(matrix, residual, x, scales, blocks):

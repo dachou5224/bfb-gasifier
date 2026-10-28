@@ -73,6 +73,21 @@ def unknown_slots(frozen: FrozenQuantities) -> tuple[UnknownSlot, ...]:
     _append_zone(slots, frozen, "bed", frozen.n_bed)
     return tuple(slots)
 
+def jacobian_layout(slots: tuple[UnknownSlot, ...], frozen: FrozenQuantities) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """节点链：床区各格自下而上，接自由空间各格自下而上；非相邻列按 ADR 0038 的 B 判定。求解手段：ADR 0046。"""
+    nodes = np.zeros(len(slots), dtype=int)
+    within = np.zeros(len(slots), dtype=int)
+    separate = np.zeros(len(slots), dtype=bool)
+    seen: dict[int, int] = {}
+    for slot in slots:
+        node = frozen.n_bed - 1 - slot.balance_index if slot.zone == "bed" else frozen.n_bed + frozen.n_freeboard - 1 - slot.balance_index
+        nodes[slot.index] = node
+        within[slot.index] = seen.get(node, 0)
+        seen[node] = within[slot.index] + 1
+        separate[slot.index] = slot.zone == "freeboard" and frozen.hover_closure == "B" and abs(node - frozen.n_bed + 1) > 1
+    return nodes, within, separate
+
+
 def pack_state(state: ReactorState, frozen: FrozenQuantities) -> np.ndarray:
     """按变量名表把状态收成未知向量。
     Source: Hamel Eq.2.4, S. 16
