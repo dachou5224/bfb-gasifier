@@ -19,13 +19,12 @@ from pathlib import Path
 
 import numpy as np
 
-from hamel.cases.config import SolverConfig
+from hamel.freeboard.accounting import stable_equilibria
 from hamel.freeboard.motion import terminal_settling_velocity
 from hamel.freeboard.transport import ghost_bubble_velocity
-from hamel.solver.precalc import precalculate
 
 _ROOT = Path(__file__).resolve().parents[1]
-_CASE = _ROOT / "data" / "cases" / "vtt_pressurized.json"
+_RECORD = _ROOT / "reports" / "t26c-diagnosis" / "baseline" / "record.json"
 _OUT = _ROOT / "reports" / "research-hover-density"
 G = 9.81
 
@@ -51,30 +50,28 @@ def conversion_state(mode: str, x: float, d0: float, rho0: float, f_c0: float, r
     raise ValueError(mode)
 
 
-def _velocity_profile(column):
+def _profile(column):
     edges = np.asarray(column["edges_m"], dtype=float)
     diameters = np.asarray(column["edge_diameter_m"], dtype=float)
     flows = np.asarray(column["volume_flow_m3_s"], dtype=float)
 
-    def velocity(height):
+    def gas(cell, height):
+        return ghost_bubble_velocity(cell, height, edges, diameters, flows, column["bubble_m_s"], column["bubble_diameter_m"])
+
+    def at(height):
         cell = int(min(max(np.searchsorted(edges, height, side="right") - 1, 0), edges.size - 2))
-        return ghost_bubble_velocity(cell, height, edges, diameters, flows, column["bubble_m_s"], column["bubble_diameter_m"]), cell
-    return edges, velocity
+        return gas(cell, height), cell
+    return edges, gas, at
 
 
-def stable_root(edges, velocity, rho_g, mu_g, diameter, rho_p, phi_s, samples=4000):
-    """自下而上第一个 u_g − v_t 由正变负的点（稳定平衡）。没有则返回 None。"""
-    heights = np.linspace(edges[0], edges[-1], samples)
-    previous = None
-    for height in heights:
-        gas, cell = velocity(float(height))
-        settle = terminal_settling_velocity(float(rho_g[cell]), float(mu_g[cell]), diameter, rho_p, phi_s)
-        residual = gas - settle
-        if previous is not None and previous[1] > 0.0 >= residual:
-            h0, r0 = previous
-            return h0 + (height - h0) * r0 / (r0 - residual)
-        previous = (float(height), residual)
-    return None
+def roots(edges, gas, rho_g, mu_g, diameter, rho_p, phi_s) -> list:
+    """按格枚举全部稳定根（含界面根），用项目的 stable_equilibria。"""
+    found = stable_equilibria(edges, gas, rho_g, mu_g, diameter, rho_p, phi_s)
+    return sorted(float(item.height_m) for item in found)
+
+
+def _cell_of(edges, height):
+    return int(min(max(np.searchsorted(edges, height, side="right") - 1, 0), edges.size - 2))
 
 
 def reh_point(velocity, diameter, rho_p, rho_g, mu_g):
@@ -84,66 +81,105 @@ def reh_point(velocity, diameter, rho_p, rho_g, mu_g):
     return {"Re": re, "Ar": ar, "Y": 0.75 * re**2 / ar}
 
 
+def _fate_after_loss(edges, at, rho_g, mu_g, diameter, rho_p, phi_s, previous, current_roots):
+    """原分支消失后颗粒的去向：在原高度上比较 u_g 与 v_t，向下落到下一个根或床面，向上升到下一个根或出口。"""
+    gas, cell = at(previous)
+    settle = terminal_settling_velocity(float(rho_g[cell]), float(mu_g[cell]), diameter, rho_p, phi_s)
+    if settle > gas:
+        lower = [h for h in current_roots if h < previous]
+        return ("下落到下方平衡点", max(lower)) if lower else ("落回床面", None)
+    upper = [h for h in current_roots if h > previous]
+    return ("上升到上方平衡点", min(upper)) if upper else ("被带出自由空间", None)
+
+
+def track_branch(edges, at, gas, rho_g, mu_g, d0, rho0, phi_s, start, mode, f_c0, rho_ash, grid, jump=0.005, min_dx=1e-6):
+    """沿同一条平衡分支跟踪。
+
+    相邻两点的最近根相差超过 jump 时，把 X 步长减半重算；步长已小于 min_dx 仍跳动（或无根）才判为分支消失。
+    这样平衡点连续快速移动时不会被误判为换分支。
+    """
+    home = _cell_of(edges, start)
+    state = {"previous": start, "exit_x": None, "exit_kind": None, "loss": None}
+    track = []
+
+    def evaluate(x):
+        diameter, rho_p = conversion_state(mode, float(x), d0, rho0, f_c0, rho_ash or 2000.0)
+        return diameter, rho_p, roots(edges, gas, rho_g, mu_g, diameter, rho_p, phi_s)
+
+    def advance(x_from, x_to):
+        diameter, rho_p, present = evaluate(x_to)
+        previous = state["previous"]
+        nearest = min(present, key=lambda h: abs(h - previous)) if present else None
+        if nearest is None or abs(nearest - previous) > jump:
+            if x_to - x_from > min_dx:
+                middle = 0.5 * (x_from + x_to)
+                return advance(x_from, middle) and advance(middle, x_to)
+            state["loss"] = {"X": float(x_to), "from_m": previous,
+                             "to": _fate_after_loss(edges, at, rho_g, mu_g, diameter, rho_p, phi_s, previous, present)}
+            if state["exit_x"] is None:
+                state["exit_x"], state["exit_kind"] = float(x_to), "分支消失：" + state["loss"]["to"][0]
+            return False
+        if state["exit_x"] is None and _cell_of(edges, nearest) != home:
+            state["exit_x"] = float(x_to)
+            state["exit_kind"] = "平衡点上移出原悬停格" if nearest > start else "平衡点下移出原悬停格"
+        state["previous"] = nearest
+        return True
+
+    x_prev = float(grid[0])
+    for x in grid:
+        try:
+            if x > x_prev and not advance(x_prev, float(x)):
+                break
+            diameter, rho_p, present = evaluate(x)
+        except ValueError as exc:
+            state["exit_kind"] = f"无解：{exc}"
+            break
+        here = state["previous"]
+        u_here, cell_here = at(here)
+        settle = terminal_settling_velocity(float(rho_g[cell_here]), float(mu_g[cell_here]), diameter, rho_p, phi_s)
+        reh = reh_point(u_here, diameter, rho_p, float(rho_g[cell_here]), float(mu_g[cell_here]))
+        track.append({"X": float(x), "d_m": diameter, "rho_p": rho_p, "v_t_m_s": settle, "h_star_m": here, "roots_m": present, **reh})
+        x_prev = float(x)
+    return {"start_m": start, "home_cell": home, "exit_X": state["exit_x"], "exit": state["exit_kind"],
+            "branch_lost": state["loss"], "track": track}
+
+
 def study(column, klass=2, f_c0_values=(0.9, 0.5, 0.1), rho_ash_values=(1500.0, 2000.0, 2500.0), alpha=7.0e-4):
-    edges, velocity = _velocity_profile(column)
+    edges, gas, at = _profile(column)
     rho_g = np.asarray(column["rho_g"], dtype=float)
     mu_g = np.asarray(column["mu_g"], dtype=float)
     rho0 = float(column["rho_p"])
     phi_s = float(column["phi_s"])
     d0 = float(np.asarray(column["diameter_m"])[klass])
-    h0 = stable_root(edges, velocity, rho_g, mu_g, d0, rho0, phi_s)
-    home = None if h0 is None else int(min(np.searchsorted(edges, h0, side="right") - 1, edges.size - 2))
-    profile = [{"h_m": float(h), "u_g_m_s": float(velocity(float(h))[0])} for h in np.linspace(edges[0], edges[2], 25)]
-    cases = []
+    starts = roots(edges, gas, rho_g, mu_g, d0, rho0, phi_s)
     grid = np.linspace(0.0, 0.99, 100)
-    for f_c0 in f_c0_values:
-        for mode in ("SP", "SD", "AR"):
-            for rho_ash in (rho_ash_values if mode == "AR" else (None,)):
-                track = []
-                exit_x = None
-                exit_kind = None
-                for x in grid:
-                    try:
-                        diameter, rho_p = conversion_state(mode, float(x), d0, rho0, f_c0, rho_ash or 2000.0)
-                    except ValueError as exc:
-                        exit_kind = f"无解：{exc}"
-                        break
-                    root = stable_root(edges, velocity, rho_g, mu_g, diameter, rho_p, phi_s)
-                    cell_gas = velocity(root if root is not None else edges[0])
-                    settle = terminal_settling_velocity(float(rho_g[cell_gas[1]]), float(mu_g[cell_gas[1]]), diameter, rho_p, phi_s)
-                    reh = reh_point(cell_gas[0], diameter, rho_p, float(rho_g[cell_gas[1]]), float(mu_g[cell_gas[1]]))
-                    track.append({"X": float(x), "d_m": diameter, "rho_p": rho_p, "v_t_m_s": settle, "h_star_m": root, **reh})
-                    if exit_x is None and home is not None:
-                        if root is None:
-                            surface_gas = velocity(float(edges[0]))[0]
-                            exit_kind = "落回床面" if settle >= surface_gas else "无平衡点，被带出"
-                            exit_x = float(x)
-                        elif root >= edges[home + 1]:
-                            exit_kind = "平衡点上移出原悬停格"
-                            exit_x = float(x)
-                        elif root < edges[home]:
-                            exit_kind = "平衡点下移出原悬停格"
-                            exit_x = float(x)
-                residence = None if exit_x is None else -math.log(max(1.0 - exit_x, 1e-12)) / alpha
-                cases.append({
-                    "mode": mode, "f_c0": f_c0, "rho_ash": rho_ash, "exit_X": exit_x, "exit": exit_kind,
-                    "residence_s_at_alpha": residence, "track": track,
-                })
-    return {"d0_m": d0, "rho0": rho0, "phi_s": phi_s, "h_star0_m": h0, "home_cell": home, "edges_m": [float(e) for e in edges],
-            "alpha_per_s": alpha, "profile": profile, "cases": cases}
+    cases = []
+    for start in starts:
+        for f_c0 in f_c0_values:
+            for mode in ("SP", "SD", "AR"):
+                for rho_ash in (rho_ash_values if mode == "AR" else (None,)):
+                    branch = track_branch(edges, at, gas, rho_g, mu_g, d0, rho0, phi_s, start, mode, f_c0, rho_ash, grid)
+                    x = branch["exit_X"]
+                    branch.update(mode=mode, f_c0=f_c0, rho_ash=rho_ash,
+                                  residence_s_at_alpha=None if x is None else -math.log(max(1.0 - x, 1e-12)) / alpha)
+                    cases.append(branch)
+    return {"d0_m": d0, "rho0": rho0, "phi_s": phi_s, "initial_roots_m": starts, "edges_m": [float(e) for e in edges],
+            "alpha_per_s": alpha, "cases": cases}
 
 
 def main():
-    prepared = precalculate(_CASE, "1", None, adiabatic=False, iteration=1, solver=SolverConfig())
-    column = prepared.reported["trajectory"]
+    with _RECORD.open(encoding="utf-8") as handle:
+        record = json.load(handle)
+    column = record["diagnostics"]["rounds"][0]["info"]["sensitivity"]["trajectory"]
     result = study(column)
-    _OUT.mkdir(parents=True, exist_ok=True)
     for case in result["cases"]:
         case["track"] = case["track"][::3]
+    _OUT.mkdir(parents=True, exist_ok=True)
     (_OUT / "drift.json").write_text(json.dumps(result, ensure_ascii=False, separators=(",", ":"), default=float), encoding="utf-8")
-    sys.stdout.write(json.dumps({k: result[k] for k in ("d0_m", "rho0", "h_star0_m", "home_cell")}, default=float) + "\n")
+    sys.stdout.write(json.dumps({k: result[k] for k in ("d0_m", "rho0", "initial_roots_m")}, default=float) + "\n")
     for case in result["cases"]:
-        sys.stdout.write(f"{case['mode']} f_C0={case['f_c0']} ρ_A={case['rho_ash']}: {case['exit']} at X={case['exit_X']}, t≈{case['residence_s_at_alpha']}\n")
+        lost = case["branch_lost"]
+        sys.stdout.write(f"起点 {case['start_m']:.6f} {case['mode']} f_C0={case['f_c0']} ρ_A={case['rho_ash']}: {case['exit']} at X={case['exit_X']}, t≈{case['residence_s_at_alpha']}, 分支消失={None if lost is None else (lost['X'], lost['to'])}\n")
 
 
 if __name__ == "__main__":
