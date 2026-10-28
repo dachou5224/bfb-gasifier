@@ -31,17 +31,22 @@ _SCOPE = "子系统收敛只说明在给定状态下找到满足既有门的固�
 
 
 def _hover_terms(m_c, consumption, migration, residual, generation, migration_in) -> dict:
-    """由现有悬停焦炭行的各项作除法。m_C ≤ 0 时不计算比速率。"""
+    """由现有悬停焦炭行的各项作除法。m_C ≤ 0 时不计算比速率。
+
+    ``frozen_rate_estimate_kg`` 把当前比消耗、比迁移速率冻结后作一次除法，只是局部估算。
+    现行闭合下比速率随 m_C、m_A 变化，这个数不是原非线性平衡的稳态根，
+    不能据此判断实际稳态存量或有效域。
+    """
     inflow = float(residual - generation + consumption + migration - migration_in)
     source = inflow + float(generation) + float(migration_in)
     specific = None if m_c <= 0.0 else float(consumption) / float(m_c)
     specific_migration = None if m_c <= 0.0 else float(migration) / float(m_c)
     removal = None if specific is None else specific + specific_migration
-    steady = None if removal in (None, 0.0) else source / removal
+    estimate = None if removal in (None, 0.0) else source / removal
     return {
         "inflow_kg_s": inflow, "generation_kg_s": float(generation), "migration_in_kg_s": float(migration_in),
         "specific_consumption_per_s": specific, "specific_migration_per_s": specific_migration,
-        "steady_kg": steady, "source_kg_s": source,
+        "frozen_rate_estimate_kg": estimate, "source_kg_s": source,
     }
 
 
@@ -203,40 +208,56 @@ def _volumes(state, frozen) -> list:
 
 
 def _interface(state, frozen) -> dict:
-    """床顶格衡算下标为 0。Ṁ_ab,0 是第 1 轮冻结的向下流。"""
-    mass = float(frozen.geometric_mass_kg[0])
-    auf = float(frozen.k_auf_per_s[0] * mass)
-    downward = float(frozen.m_dot_ab_kg_s[0])
-    char = np.asarray(state.bed_char_kg[0], dtype=float)
-    char_up = frozen.k_auf_per_s[0] * char
-    char_down = None if mass == 0.0 else downward * char / mass
-    fuel = float(frozen.fuel_bed_kg[0].sum())
-    inert = mass - float(char.sum()) - fuel
+    """床区各界面与床面的上、下行流。衡算下标 0 是床顶格。
+
+    格 i 与其下方格 i + 1 之间：上行取下方格的 Ṁ_auf[i+1] = K_auf[i+1]·M[i+1]，
+    下行取上方格的 Ṁ_ab[i]（ADR 0009 第 2 项；与 ``solid_mass_flow_residual`` 的入流下标一致）。
+    床面：上行取床顶格的 Ṁ_auf[0]（床面抛出），下行取自由空间最下格的回落。
+    另列第 1 轮冻结的 Ṁ_ab,0。焦炭按各源格的焦炭质量比例分。
+    """
+    mass = np.asarray(frozen.geometric_mass_kg, dtype=float)
+    k_auf = np.asarray(frozen.k_auf_per_s, dtype=float)
+    m_ab = np.asarray(frozen.m_dot_ab_kg_s, dtype=float)
+    char = np.asarray(state.bed_char_kg, dtype=float)
     bottom = frozen.n_freeboard - 1
     returning = (frozen.b_free_per_s[bottom] + frozen.b_hover_per_s[bottom]) * state.freeboard_char_free_kg[bottom]
+    rows = []
+    for upper in range(frozen.n_bed - 1):
+        lower = upper + 1
+        up = float(k_auf[lower] * mass[lower])
+        down = float(m_ab[upper])
+        char_up = k_auf[lower] * char[lower]
+        char_down = None if mass[upper] == 0.0 else m_ab[upper] * char[upper] / mass[upper]
+        rows.append({
+            "face": f"床区 {upper}/{lower}", "upper_balance_index": upper, "lower_balance_index": lower,
+            "up_kg_s": up, "down_kg_s": down, "net_up_kg_s": up - down,
+            "char_up_kg_s": [float(item) for item in char_up],
+            "char_down_kg_s": None if char_down is None else [float(item) for item in char_down],
+        })
+    surface_up = float(k_auf[0] * mass[0])
+    char_surface_up = k_auf[0] * char[0]
+    rows.append({
+        "face": "床面", "upper_balance_index": None, "lower_balance_index": 0,
+        "up_kg_s": surface_up, "down_kg_s": None, "net_up_kg_s": None,
+        "char_up_kg_s": [float(item) for item in char_surface_up],
+        "char_down_kg_s": [float(item) for item in returning],
+        "char_net_up_kg_s": float(char_surface_up.sum() - returning.sum()),
+    })
     classes = []
     for klass in range(frozen.n_class):
-        down = None if char_down is None else float(char_down[klass])
-        up = float(char_up[klass])
+        up = float(char_surface_up[klass])
         classes.append({
-            "k": int(klass + 1), "char_up_kg_s": up, "char_down_kg_s": down,
-            "char_net_kg_s": None if down is None else up - down,
+            "k": int(klass + 1), "char_up_kg_s": up, "return_char_kg_s": float(returning[klass]),
+            "char_net_up_kg_s": up - float(returning[klass]),
             "ejection_to_free_kg_s": up * float(frozen.ejection_to_free[klass]),
             "ejection_to_hover_kg_s": up * float(frozen.ejection_to_hover[klass]),
-            "return_char_kg_s": float(returning[klass]),
         })
     return {
-        "bed_balance_index": 0, "m_dot_auf_0_kg_s": auf, "m_dot_ab_0_kg_s": downward,
-        "net_kg_s": auf - downward, "char_up_kg_s": float(char_up.sum()),
-        "char_down_kg_s": None if char_down is None else float(char_down.sum()),
-        "char_net_kg_s": None if char_down is None else float(char_up.sum() - char_down.sum()),
-        "inert_kg": inert, "fuel_kg": fuel,
-        "inert_up_kg_s": float(frozen.k_auf_per_s[0] * inert),
-        "inert_down_kg_s": None if mass == 0.0 else float(downward * inert / mass),
-        "return_char_kg_s": float(returning.sum()),
+        "m_dot_ab_0_kg_s": float(m_ab[0]), "m_dot_auf_0_kg_s": surface_up,
+        "faces": rows, "surface_by_class": classes,
         "ejection_to_free_kg_s": float(sum(row["ejection_to_free_kg_s"] for row in classes)),
         "ejection_to_hover_kg_s": float(sum(row["ejection_to_hover_kg_s"] for row in classes)),
-        "by_class": classes,
+        "return_char_kg_s": float(returning.sum()),
     }
 
 
@@ -331,7 +352,7 @@ def write_report(records: dict) -> None:
         lines += [f"## {title}", ""]
         lines.extend(_state_lines(records.get(label)))
     _OUT.mkdir(parents=True, exist_ok=True)
-    (_OUT / "precheck.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (_OUT / "precheck.md").write_text("\n".join(lines).rstrip("\n") + "\n", encoding="utf-8")
     (_OUT / "precheck.json").write_text(json.dumps({"scope": _SCOPE, "states": records}, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
@@ -359,20 +380,27 @@ def _state_lines(body) -> list:
     face = body.get("interface")
     if face:
         lines += [
-            "", "床顶格（衡算下标 0）的冻结整体流：",
-            f"Ṁ_auf,0 = {_fmt(face['m_dot_auf_0_kg_s'])} kg/s，Ṁ_ab,0 = {_fmt(face['m_dot_ab_0_kg_s'])} kg/s，净通量 Ṁ_auf,0 − Ṁ_ab,0 = {_fmt(face['net_kg_s'])} kg/s。",
-            f"该格焦炭上行 {_fmt(face['char_up_kg_s'])} kg/s，下行 {_fmt(face['char_down_kg_s'])} kg/s，净 {_fmt(face['char_net_kg_s'])} kg/s。",
-            f"焦炭抛向自由状态 {_fmt(face['ejection_to_free_kg_s'])} kg/s，抛向悬停状态 {_fmt(face['ejection_to_hover_kg_s'])} kg/s。",
-            f"自由空间最下格回到床顶的焦炭 {_fmt(face['return_char_kg_s'])} kg/s。",
-            "", "| k | 焦炭上行 | 焦炭下行 | 净通量 | 抛向自由 | 抛向悬停 | 回落 |", "|---|---|---|---|---|---|---|",
+            "", "床区界面的冻结整体流。格 i/i+1 之间上行取下方格的 Ṁ_auf[i+1]，下行取上方格的 Ṁ_ab[i]；衡算下标 0 是床顶格。",
+            f"第 1 轮冻结的 Ṁ_ab,0 = {_fmt(face['m_dot_ab_0_kg_s'])} kg/s（床顶格向下进入格 1 的流）。",
+            "", "| 界面 | 上行 kg/s | 下行 kg/s | 净上行 kg/s |", "|---|---|---|---|",
         ]
         lines += [
-            f"| {row['k']} | {_fmt(row['char_up_kg_s'])} | {_fmt(row['char_down_kg_s'])} | {_fmt(row['char_net_kg_s'])} | {_fmt(row['ejection_to_free_kg_s'])} | {_fmt(row['ejection_to_hover_kg_s'])} | {_fmt(row['return_char_kg_s'])} |"
-            for row in face["by_class"]
+            f"| {row['face']} | {_fmt(row['up_kg_s'])} | {_fmt(row['down_kg_s'])} | {_fmt(row['net_up_kg_s'])} |"
+            for row in face["faces"]
+        ]
+        lines += [
+            "", "床面：上行为床顶格的抛出 Ṁ_auf,0，下行为自由空间最下格的焦炭回落；床面不以 Ṁ_ab,0 代替回落。",
+            f"焦炭抛向自由状态 {_fmt(face['ejection_to_free_kg_s'])} kg/s，抛向悬停状态 {_fmt(face['ejection_to_hover_kg_s'])} kg/s，回落 {_fmt(face['return_char_kg_s'])} kg/s。",
+            "", "| k | 床面焦炭上行 | 回落 | 净上行 | 抛向自由 | 抛向悬停 |", "|---|---|---|---|---|---|",
+        ]
+        lines += [
+            f"| {row['k']} | {_fmt(row['char_up_kg_s'])} | {_fmt(row['return_char_kg_s'])} | {_fmt(row['char_net_up_kg_s'])} | {_fmt(row['ejection_to_free_kg_s'])} | {_fmt(row['ejection_to_hover_kg_s'])} |"
+            for row in face["surface_by_class"]
         ]
     hover = body.get("hover") or []
     focus = [row for row in hover if row["k"] == 3]
-    lines += ["", f"悬停状态 {len(hover)} 个，其中 k = 3 的 {len(focus)} 个。比消耗速率 = 消耗 / m_C。稳态存量 = (入流 + 冻结生成 + θ·更大粒级迁入) / (比消耗速率 + 比迁移速率)，m_C ≤ 0 或分母为 0 时不计算。"]
+    lines += ["", f"悬停状态 {len(hover)} 个，其中 k = 3 的 {len(focus)} 个。比消耗速率 = 消耗 / m_C。冻结比速率估算 = (入流 + 冻结生成 + θ·更大粒级迁入) / (比消耗速率 + 比迁移速率)，m_C ≤ 0 或分母为 0 时不计算。",
+              "这只是把当前比速率冻结后的局部估算：现行闭合下比速率随 m_C、m_A 变化，该估算不满足原非线性平衡，不是稳态存量，不能据此判断实际稳态存量或有效域。"]
     if focus:
         lines += ["", _hover_table(focus)]
     if hover and len(hover) != len(focus):
@@ -395,9 +423,9 @@ def _inventory_table(rows) -> str:
 
 
 def _hover_table(rows) -> str:
-    lines = ["| 衡算下标 | k | m_C kg | 比消耗 1/s | 入流 kg/s | 稳态存量 kg | 残差 kg/s |", "|---|---|---|---|---|---|---|"]
+    lines = ["| 衡算下标 | k | m_C kg | 比消耗 1/s | 入流 kg/s | 冻结比速率估算 kg | 残差 kg/s |", "|---|---|---|---|---|---|---|"]
     lines += [
-        f"| {row['balance_index']} | {row['k']} | {_fmt(row['m_c_kg'])} | {_fmt(row['specific_consumption_per_s'])} | {_fmt(row['inflow_kg_s'])} | {_fmt(row['steady_kg'])} | {_fmt(row['residual_kg_s'])} |"
+        f"| {row['balance_index']} | {row['k']} | {_fmt(row['m_c_kg'])} | {_fmt(row['specific_consumption_per_s'])} | {_fmt(row['inflow_kg_s'])} | {_fmt(row['frozen_rate_estimate_kg'])} | {_fmt(row['residual_kg_s'])} |"
         for row in rows
     ]
     return "\n".join(lines)
