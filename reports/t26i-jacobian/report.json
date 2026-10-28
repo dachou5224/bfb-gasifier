@@ -1,0 +1,26 @@
+{
+  "initial": {
+    "unknowns": 498,
+    "groups": 102,
+    "separate": 0,
+    "fallbacks": 0,
+    "grouped_calls": 102,
+    "column_calls": 498,
+    "grouped_seconds": 12.887465209,
+    "column_seconds": 61.158008458,
+    "bitwise_equal": true,
+    "max_abs_difference": 0.0
+  },
+  "S13": {
+    "unknowns": 494,
+    "groups": 102,
+    "separate": 194,
+    "fallbacks": 0,
+    "grouped_calls": 296,
+    "column_calls": 494,
+    "grouped_seconds": 36.03208645800001,
+    "column_seconds": 61.07265925,
+    "bitwise_equal": true,
+    "max_abs_difference": 0.0
+  }
+}
