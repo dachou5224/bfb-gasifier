@@ -1,16 +1,20 @@
-"""自由空间单颗粒的阻力、运动方程与数值积分。"""
+"""自由空间单颗粒的阻力、运动方程与逐格常系数解析推进。"""
 
 from __future__ import annotations
 
 import math
+
 import numpy as np
 
-from hamel.cases.config import SolverConfig
 from hamel.freeboard._common import G, FreeboardError, _finite, _positive
 
 # 式 (3.86) 取 Re_∞ → ∞。解释性选择：ADR 0016 第 8 条。
 _Z_PREFACTOR = 73.69
 _Z_EXPONENT = 5.0784
+# |Δ| 不超过这个倍数乘 B² 时按 Δ = 0 的极限处理。求解手段：ADR 0047 第 2 项。
+_NEAR_ZERO_DELTA = 1.0e-10
+# 格内高度平均的高斯－勒让德节点与权重。解释性选择：ADR 0047 第 1 项。
+_QUAD_X, _QUAD_W = np.polynomial.legendre.leggauss(16)
 
 
 def drag_limit_z(phi_s: float) -> float:
@@ -124,252 +128,211 @@ def discriminant(a: float, b: float, c: float) -> float:
     return 4.0 * _finite("a", a) * _finite("c", c) - _finite("b", b) ** 2
 
 
-def closed_form_state(
-    time_s: float,
-    a: float,
-    b: float,
-    c: float,
-    initial_velocity_m_s: float,
-    initial_height_m: float,
-    initial_time_s: float = 0.0,
-) -> tuple[float, float]:
-    """常系数且 Δ > 0 时的 u_P(t)、h_P(t)。只作测试基准，不用于求解。
+def cell_mean_velocity(gas_velocity, cell: int, left: float, right: float) -> float:
+    """ū_g,i = 该格内 u_gb(h) 沿高度的平均值。
 
+    解释性选择：ADR 0047 第 1 项。原文只写逐格应用，未说明格内取哪个值。
+    Source: Hamel Eq.3.74, S. 43
+    """
+    left = _finite("cell_left_m", left)
+    right = _finite("cell_right_m", right)
+    if right <= left:
+        raise FreeboardError("格边界必须严格递增")
+    middle = 0.5 * (left + right)
+    half = 0.5 * (right - left)
+    total = sum(weight * float(gas_velocity(cell, middle + half * node)) for node, weight in zip(_QUAD_X, _QUAD_W))
+    return float(0.5 * total)
+
+
+def cell_coefficients(cell_gas_velocity: float, velocity: float, rho_g: float, mu_g: float, diameter_m: float, rho_p: float, phi_s: float) -> tuple[float, float, float]:
+    """按颗粒是否快于该格气速选括号内外的符号。
+
+    求解手段：ADR 0047 第 2 项。
+    Source: Hamel Eq.3.89, S. 46
+    """
+    gas = _finite("cell_gas_velocity_m_s", cell_gas_velocity)
+    return motion_coefficients(gas, bool(_finite("velocity", velocity) > gas), rho_g, mu_g, diameter_m, rho_p, phi_s)
+
+
+def _is_near_zero_delta(a: float, b: float, c: float) -> bool:
+    return abs(discriminant(a, b, c)) <= _NEAR_ZERO_DELTA * b * b
+
+
+def cell_state(time_s: float, a: float, b: float, c: float, initial_velocity_m_s: float, initial_height_m: float) -> tuple[float, float]:
+    """格内常系数下 u_P(τ)、h_P(τ) 的三种闭式。
+
+    Δ > 0 用式 (3.93)–(3.95)；Δ < 0 与 Δ = 0 用自推的闭式（印刷式 3.98、3.99、3.103 有误）。
+    求解手段：ADR 0047 第 2 项。
     Source: Hamel Eq.3.93, S. 47
-    Source: Hamel Eq.3.94, S. 48
     Source: Hamel Eq.3.95, S. 48
     """
-    time = _finite("time_s", time_s)
+    tau = _finite("time_s", time_s)
     coefficient_a = _finite("a", a)
     coefficient_b = _finite("b", b)
-    _finite("c", c)
-    initial_velocity = _finite("initial_velocity_m_s", initial_velocity_m_s)
-    initial_height = _finite("initial_height_m", initial_height_m)
-    initial_time = _finite("initial_time_s", initial_time_s)
+    coefficient_c = _finite("c", c)
+    u0 = _finite("initial_velocity_m_s", initial_velocity_m_s)
+    h0 = _finite("initial_height_m", initial_height_m)
     if coefficient_a == 0.0:
-        raise FreeboardError("A = 0 时式 (3.93) 没有定义")
-    delta = discriminant(coefficient_a, coefficient_b, c)
-    if delta <= 0.0:
-        raise FreeboardError("式 (3.93) 只用于 Δ > 0")
-    root = math.sqrt(delta)
-    argument = (2.0 * coefficient_a * initial_velocity + coefficient_b) / root
-    omega = 2.0 / root * math.atan(argument)
-    elapsed = time - initial_time
-    phase = 0.5 * omega * root + 0.5 * elapsed * root
-    velocity = root / (2.0 * coefficient_a) * math.tan(phase) - coefficient_b / (2.0 * coefficient_a)
-    cosine_now = math.cos(-0.5 * omega * root - 0.5 * elapsed * root)
-    cosine_start = math.cos(0.5 * omega * root)
-    if cosine_now <= 0.0 or cosine_start <= 0.0:
-        raise FreeboardError("式 (3.95) 的余弦不是正数，这个时刻不在印刷式的实数域内")
-    height = (
-        initial_height
-        - math.log(cosine_now) / coefficient_a
-        - coefficient_b / (2.0 * coefficient_a) * elapsed
-        + math.log(cosine_start) / coefficient_a
-    )
+        raise FreeboardError("A = 0 时闭式没有定义")
+    if _is_near_zero_delta(coefficient_a, coefficient_b, coefficient_c):
+        rest = -coefficient_b / (2.0 * coefficient_a)
+        drift = u0 - rest
+        factor = 1.0 - coefficient_a * drift * tau
+        if factor == 0.0:
+            raise FreeboardError("Δ = 0 的闭式在这一点没有定义")
+        return rest + drift / factor, h0 + rest * tau - math.log(abs(factor)) / coefficient_a
+    delta = discriminant(coefficient_a, coefficient_b, coefficient_c)
+    if delta > 0.0:
+        root = math.sqrt(delta)
+        theta = math.atan((2.0 * coefficient_a * u0 + coefficient_b) / root)
+        angle = theta + 0.5 * root * tau
+        cosine = math.cos(angle)
+        if cosine <= 0.0:
+            raise FreeboardError("式 (3.95) 的余弦不是正数，这个时刻不在实数域内")
+        velocity = (root * math.tan(angle) - coefficient_b) / (2.0 * coefficient_a)
+        height = h0 - math.log(cosine / math.cos(theta)) / coefficient_a - coefficient_b * tau / (2.0 * coefficient_a)
+        return velocity, height
+    rate = math.sqrt(-delta)
+    psi = 2.0 * coefficient_a * u0 + coefficient_b
+    ratio = (psi + rate) / (psi - rate)
+    factor = ratio * math.exp(-rate * tau)
+    if factor == 1.0:
+        raise FreeboardError("Δ < 0 的闭式在这一点没有定义")
+    velocity = (rate * (factor + 1.0) / (factor - 1.0) - coefficient_b) / (2.0 * coefficient_a)
+    # 把 E₀ − e^{sτ} 拆成 −e^{sτ}(1 − E₀e^{−sτ})，避免大 τ 时指数溢出（同一式）。
+    height = h0 + (
+        -(rate + coefficient_b) * tau
+        - 2.0 * math.log(abs(1.0 - ratio * math.exp(-rate * tau)))
+        + 2.0 * math.log(abs(ratio - 1.0))
+    ) / (2.0 * coefficient_a)
     return velocity, height
 
 
-def _forcing(velocity: float, gas: float, stokes: float, quadratic: float, weight: float) -> float:
-    """u′ = −Stokes·u + f。f 含气体拖曳、二次阻力和重力。"""
-    relative = velocity - gas
-    return stokes * gas - quadratic * relative * abs(relative) - weight
+def time_to_velocity(a: float, b: float, c: float, initial_velocity_m_s: float, target_velocity_m_s: float) -> float | None:
+    """格内速度由 u₀ 到 u 的解析时刻 τ(u) = ∫du/Q。同一分支内单调，无解时返回 None。
 
-
-def _advance(velocity: float, forcing_0: float, forcing_1: float, stokes: float, step_s: float) -> float:
-    """线性阻力按梯形外力精确积分。外力在步内线性，步长趋于 0 时回到式 (3.82)。"""
-    product = stokes * step_s
-    if product < 1.0e-6:
-        slope = -stokes * velocity + forcing_0
-        average = 0.5 * (forcing_0 + forcing_1)
-        return velocity + step_s * (-stokes * velocity + average) - 0.5 * stokes * slope * step_s * step_s
-    decay = math.exp(-product)
-    integral = forcing_0 * (1.0 - decay) / stokes + (forcing_1 - forcing_0) * (
-        1.0 / stokes - (1.0 - decay) / (stokes * stokes * step_s)
-    )
-    return decay * velocity + integral
-
-
-def _step_velocity(
-    height: float,
-    velocity: float,
-    step_s: float,
-    gas_at,
-    stokes: float,
-    quadratic: float,
-    weight: float,
-) -> tuple[float, float]:
-    """预测－校正。气速和二次项都取步两端，线性项仍精确积分。"""
-    gas_0 = float(gas_at(height))
-    forcing_0 = _forcing(velocity, gas_0, stokes, quadratic, weight)
-    predicted = _advance(velocity, forcing_0, forcing_0, stokes, step_s)
-    gas_1 = float(gas_at(height + 0.5 * (velocity + predicted) * step_s))
-    forcing_1 = _forcing(predicted, gas_1, stokes, quadratic, weight)
-    updated = _advance(velocity, forcing_0, forcing_1, stokes, step_s)
-    return height + 0.5 * (velocity + updated) * step_s, updated
-
-
-def integrate_motion(
-    height_0: float,
-    velocity_0: float,
-    duration_s: float,
-    gas_velocity_m_s: float,
-    rho_g: float,
-    mu_g: float,
-    diameter_m: float,
-    rho_p: float,
-    phi_s: float,
-    step_s: float,
-) -> tuple[float, float]:
-    """给定常数气速，把式 (3.82) 积分到指定时刻。气速不随高度变化。
-
-    Source: Hamel Eq.3.82, S. 44
-    """
-    height = _finite("height_0", height_0)
-    velocity = _finite("velocity_0", velocity_0)
-    duration = _positive("duration_s", duration_s)
-    gas = _finite("gas_velocity_m_s", gas_velocity_m_s)
-    step = _positive("step_s", step_s)
-    diameter = _positive("diameter_m", diameter_m)
-    density_p = _positive("rho_p", rho_p)
-    stokes, quadratic, weight = drag_groups(rho_g, mu_g, diameter, density_p, phi_s)
-    elapsed = 0.0
-    while elapsed < duration:
-        piece = min(step, duration - elapsed)
-        height, velocity = _step_velocity(height, velocity, piece, lambda _height: gas, stokes, quadratic, weight)
-        elapsed += piece
-    return height, velocity
-
-
-
-def integrate_freeboard(
-    height_0: float,
-    velocity_0: float,
-    edges_m,
-    gas_velocity,
-    rho_g,
-    mu_g,
-    diameter_m: float,
-    rho_p: float,
-    phi_s: float,
-    config: SolverConfig,
-) -> tuple[str, float, float, float]:
-    """沿各格当地气速积分式 (3.82)，直到回到床面或飞出顶部。
-
-    返回归宿、飞行时间、高度和速度。归宿只有回落和带出。
-    时间上限到了仍未离开，就报错，不改判。
-    Source: Hamel Eq.3.82, S. 44
+    求解手段：ADR 0047 第 2 项。
     Source: Hamel Eq.3.88, S. 46
     """
-    edges = np.asarray(edges_m, dtype=float)
-    densities = np.asarray(rho_g, dtype=float)
-    viscosities = np.asarray(mu_g, dtype=float)
-    cell_count = edges.size - 1
-    if densities.shape != (cell_count,) or viscosities.shape != (cell_count,):
-        raise FreeboardError("气体密度和粘度必须每个格一个数")
-    if cell_count < 1 or np.any(np.diff(edges) <= 0.0):
-        raise FreeboardError("自由空间边界必须严格递增")
-    height = _finite("height_0", height_0)
-    velocity = _finite("velocity_0", velocity_0)
-    if not edges[0] <= height <= edges[-1]:
-        raise FreeboardError("起步高度不在自由空间内")
-    step_cap = _positive("freeboard_max_step_s", config.freeboard_max_step_s)
-    time_limit = _positive("freeboard_time_limit_s", config.freeboard_time_limit_s)
-    diameter = _positive("diameter_m", diameter_m)
-    density_p = _positive("rho_p", rho_p)
-    groups = [
-        drag_groups(float(densities[index]), float(viscosities[index]), diameter, density_p, phi_s)
-        for index in range(cell_count)
-    ]
-    cell = int(np.searchsorted(edges, height, side="right") - 1)
-    cell = min(max(cell, 0), cell_count - 1)
-    elapsed = 0.0
+    coefficient_a = _finite("a", a)
+    coefficient_b = _finite("b", b)
+    coefficient_c = _finite("c", c)
+    u0 = _finite("initial_velocity_m_s", initial_velocity_m_s)
+    target = _finite("target_velocity_m_s", target_velocity_m_s)
+    if target == u0:
+        return 0.0
+    if coefficient_a == 0.0:
+        return None
+    if _is_near_zero_delta(coefficient_a, coefficient_b, coefficient_c):
+        rest = -coefficient_b / (2.0 * coefficient_a)
+        drift = u0 - rest
+        wanted = target - rest
+        if drift == 0.0 or wanted == 0.0:
+            return None
+        tau = (wanted - drift) / (coefficient_a * drift * wanted)
+        return tau if tau > 0.0 else None
+    delta = discriminant(coefficient_a, coefficient_b, coefficient_c)
+    if delta > 0.0:
+        root = math.sqrt(delta)
+        theta = math.atan((2.0 * coefficient_a * u0 + coefficient_b) / root)
+        wanted = math.atan((2.0 * coefficient_a * target + coefficient_b) / root)
+        if wanted <= theta:
+            return None
+        return 2.0 * (wanted - theta) / root
+    rate = math.sqrt(-delta)
+    psi0 = 2.0 * coefficient_a * u0 + coefficient_b
+    psi = 2.0 * coefficient_a * target + coefficient_b
+    if psi0 == rate or psi == rate or psi0 == -rate or psi == -rate:
+        return None
+    ratio = ((psi0 + rate) / (psi0 - rate)) / ((psi + rate) / (psi - rate))
+    if ratio <= 0.0:
+        return None
+    tau = math.log(ratio) / rate
+    return tau if tau > 0.0 else None
 
-    def local_acceleration(index: int, height_now: float, velocity_now: float) -> float:
-        gas_now = float(gas_velocity(index, height_now))
-        stokes_now, quadratic_now, weight_now = groups[index]
-        relative = velocity_now - gas_now
-        return -stokes_now * relative - quadratic_now * relative * abs(relative) - weight_now
 
-    def resolve_face(cell_now: int) -> tuple[int, str | None]:
-        """速度为零时用加速度判断是否正在离开。进入哪一格，就用那一格的物性。"""
-        if height <= float(edges[0]):
-            accel = local_acceleration(0, height, velocity)
-            if velocity < 0.0 or (velocity == 0.0 and accel < 0.0):
-                return 0, "return"
-            return 0, None
-        if height >= float(edges[-1]):
-            last = cell_count - 1
-            accel = local_acceleration(last, height, velocity)
-            if velocity > 0.0 or (velocity == 0.0 and accel > 0.0):
-                return last, "elutriate"
-            return last, None
-        face = None
-        for index in range(1, cell_count):
-            if height == float(edges[index]):
-                face = index
-                break
-        if face is None:
-            return cell_now, None
-        lower = face - 1
-        upper = face
-        if velocity > 0.0:
-            return upper, None
-        if velocity < 0.0:
-            return lower, None
-        accel_upper = local_acceleration(upper, height, 0.0)
-        accel_lower = local_acceleration(lower, height, 0.0)
-        leaves_upper = accel_upper < 0.0
-        leaves_lower = accel_lower > 0.0
-        if leaves_upper and leaves_lower:
-            raise FreeboardError("格面两侧的加速度都指向对面，不能确定进入哪一格")
-        if leaves_upper or (accel_upper == 0.0 and accel_lower < 0.0):
-            return lower, None
-        return upper, None
+def cell_height_at_velocity(a: float, b: float, c: float, initial_velocity_m_s: float, initial_height_m: float, target_velocity_m_s: float) -> float | None:
+    """闭式 h(u)：速度到 target 时的高度。无解返回 None。
 
-    stalled = 0
-    while elapsed < time_limit:
-        cell, fate = resolve_face(cell)
-        if fate == "return":
-            return fate, elapsed, float(edges[0]), velocity
-        if fate == "elutriate":
-            return fate, elapsed, float(edges[-1]), velocity
-        step = min(step_cap, time_limit - elapsed)
-        stokes, quadratic, weight = groups[cell]
+    求解手段：ADR 0047 第 2、3 项。
+    Source: Hamel Eq.3.88, S. 46
+    """
+    tau = time_to_velocity(a, b, c, initial_velocity_m_s, target_velocity_m_s)
+    if tau is None:
+        return None
+    _velocity, height = cell_state(tau, a, b, c, initial_velocity_m_s, initial_height_m)
+    return height
 
-        def gas_at(height_now, index=cell):
-            return gas_velocity(index, height_now)
 
-        height_1, velocity_1 = _step_velocity(height, velocity, step, gas_at, stokes, quadratic, weight)
-        shrinks = 0
-        while velocity * velocity_1 < 0.0 and step > step_cap * 1.0e-4 and shrinks < 16:
-            step *= 0.5
-            height_1, velocity_1 = _step_velocity(height, velocity, step, gas_at, stokes, quadratic, weight)
-            shrinks += 1
-        low = float(edges[cell])
-        high = float(edges[cell + 1])
-        boundary = None
-        fraction = None
-        if height_1 > high and height_1 != height:
-            fraction = (high - height) / (height_1 - height)
-            boundary = high if 0.0 < fraction < 1.0 else None
-        elif height_1 < low and height_1 != height:
-            fraction = (low - height) / (height_1 - height)
-            boundary = low if 0.0 < fraction < 1.0 else None
-        if fraction is not None and fraction <= 0.0:
-            stalled += 1
-            if stalled > 2:
-                raise FreeboardError("粒子停在格边界上，这一步没有进入相邻格")
-            continue
-        stalled = 0
-        if boundary is None:
-            height, velocity = height_1, velocity_1
-            elapsed += step
+def _boundary_time(a: float, b: float, c: float, initial_velocity_m_s: float, initial_height_m: float, target_height_m: float, horizon_s: float | None, time_limit_s: float) -> float | None:
+    """对单调段上的 h(τ) 二分求根，绝对容差 1e-12 m。求解手段：ADR 0047 第 2 项。"""
+
+    def reached(tau: float) -> bool:
+        _velocity, height = cell_state(tau, a, b, c, initial_velocity_m_s, initial_height_m)
+        return (height - target_height_m) * (target_height_m - initial_height_m) >= 0.0
+
+    if reached(0.0):
+        return 0.0
+    high = horizon_s
+    if high is not None:
+        if not reached(high):
+            return None
+    else:
+        high = 1.0e-6
+        while not reached(high):
+            high *= 2.0
+            if high > time_limit_s:
+                return None
+    low = 0.0
+    for _ in range(200):
+        middle = 0.5 * (low + high)
+        _velocity, height = cell_state(middle, a, b, c, initial_velocity_m_s, initial_height_m)
+        if abs(height - target_height_m) <= 1.0e-12 or middle <= low or middle >= high:
+            return middle
+        if (height - target_height_m) * (target_height_m - initial_height_m) >= 0.0:
+            high = middle
         else:
-            used = fraction * step
-            height, velocity = _step_velocity(height, velocity, used, gas_at, stokes, quadratic, weight)
-            elapsed += used
-            height = boundary
-        if not math.isfinite(height) or not math.isfinite(velocity):
-            raise FreeboardError("轨迹出现非有限的高度或速度")
-    raise FreeboardError(f"积分时间达到上限 {time_limit} s，归宿仍未确定")
+            low = middle
+    return 0.5 * (low + high)
+
+
+def advance_cell(height_m: float, velocity_m_s: float, left_m: float, right_m: float, a: float, b: float, c: float, gas_velocity_m_s: float, time_left_s: float) -> tuple[str, float, float, float]:
+    """格内推进到最早事件：到达格界、穿过 u_g 或转向。
+
+    返回（事件，τ，h，u）。事件为 upper / lower / gas / zero；停在原地时返回 stalled。
+    求解手段：ADR 0047 第 2 项。
+    Source: Hamel Eq.3.88, S. 46
+    """
+    height = _finite("height_m", height_m)
+    velocity = _finite("velocity_m_s", velocity_m_s)
+    gas = _finite("gas_velocity_m_s", gas_velocity_m_s)
+    times = []
+    if velocity > gas:
+        tau = time_to_velocity(a, b, c, velocity, gas)
+        if tau is not None and tau > 0.0:
+            times.append((tau, "gas"))
+    if velocity != 0.0:
+        tau = time_to_velocity(a, b, c, velocity, 0.0)
+        if tau is not None and tau > 0.0:
+            times.append((tau, "zero"))
+    horizon = min(times)[0] if times else None
+    if velocity != 0.0:
+        direction = 1.0 if velocity > 0.0 else -1.0
+    elif c != 0.0:
+        direction = 1.0 if c > 0.0 else -1.0
+    else:
+        return "limit", 0.0, height, velocity
+    if direction > 0.0 and height >= right_m:
+        return "upper", 0.0, height, velocity
+    if direction < 0.0 and height <= left_m:
+        return "lower", 0.0, height, velocity
+    target = right_m if direction > 0.0 else left_m
+    tau = _boundary_time(a, b, c, velocity, height, target, horizon, time_left_s)
+    if tau is not None and (horizon is None or tau <= horizon):
+        new_velocity, new_height = cell_state(tau, a, b, c, velocity, height)
+        return ("upper" if direction > 0.0 else "lower"), tau, new_height, new_velocity
+    if horizon is None:
+        return "limit", 0.0, height, velocity
+    kind = min(times)[1]
+    new_velocity, new_height = cell_state(horizon, a, b, c, velocity, height)
+    return kind, horizon, new_height, (0.0 if kind == "zero" else gas)

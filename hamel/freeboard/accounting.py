@@ -1,34 +1,35 @@
 """自由空间参考轨迹的归宿、记账与输运系数。
 
 模型边界选择：ADR 0026（目标所有者 2026-10-19）。
-邻域只用来确定归宿。解释性选择：ADR 0034。
-积分步与格边界处理同 integrate_freeboard，这里另记停留和穿越。
+格内常系数解析推进与界面稳定点：ADR 0047（目标所有者 2026-10-28；第 1 项为解释性选择，第 2、3 项为求解手段）。
+格内根搜索、势能井、逐根 δ_h 与数值积分已按 ADR 0047 第 5 项撤销。
 """
 
 from __future__ import annotations
 
-import bisect
-import math
 from dataclasses import dataclass
 
 import numpy as np
 
 from hamel.cases.config import SolverConfig
 from hamel.freeboard._common import FreeboardError, _finite, _positive
-from hamel.freeboard.motion import _step_velocity, drag_groups, terminal_settling_velocity
+from hamel.freeboard.motion import (
+    advance_cell,
+    cell_height_at_velocity,
+    cell_mean_velocity,
+    drag_groups,
+    motion_coefficients,
+    terminal_settling_velocity,
+)
 
-# 界面上 |u_g − v_t| 不超过这个值，就认为根在界面上。解释性选择：ADR 0034。
-_FACE_RESIDUAL_M_S = 1.0e-8
-# 与界面根相距不超过这个值的内部根并入界面根。解释性选择：ADR 0034。
-_FACE_MATCH_M = 1.0e-6
-# 不变区域势能的取样间距。解释性选择：ADR 0034。
-_WELL_SPACING_M = 1.0e-4
 _FREE_ABSENT = "自由状态不存在"
+# |ū_g − v_t| 不超过这个倍数乘 v_t 时就认为该格中性。求解手段：ADR 0047 第 3 项。
+_NEUTRAL = 1.0e-12
 
 
 @dataclass(frozen=True)
 class StableEquilibrium:
-    """一个稳定平衡和它的捕获区。"""
+    """一个稳定界面和它的捕获区：R* 为相邻两格之并。"""
 
     height_m: float
     cells: tuple[int, ...]
@@ -101,32 +102,6 @@ def _edges_and_gas(edges_m, rho_g, mu_g) -> tuple[np.ndarray, np.ndarray, np.nda
     return edges, densities, viscosities
 
 
-def _slope(gas_velocity, cell: int, height: float, left: float, right: float, side: str) -> float:
-    """side 为 down / up 时用单侧差商，为 center 时在格内取中心差商。"""
-    width = right - left
-    dh = min(1.0e-4, width * 0.25)
-    if side == "down":
-        sample = max(left, height - dh)
-        return (float(gas_velocity(cell, height)) - float(gas_velocity(cell, sample))) / (height - sample)
-    if side == "up":
-        sample = min(right, height + dh)
-        return (float(gas_velocity(cell, sample)) - float(gas_velocity(cell, height))) / (sample - height)
-    if height - left < dh:
-        return _slope(gas_velocity, cell, height, left, right, "up")
-    if right - height < dh:
-        return _slope(gas_velocity, cell, height, left, right, "down")
-    return (float(gas_velocity(cell, height + dh)) - float(gas_velocity(cell, height - dh))) / (2.0 * dh)
-
-
-def _append_root(found: list[tuple[float, tuple[int, ...]]], height: float, cells: tuple[int, ...]) -> None:
-    for index, (kept_height, kept_cells) in enumerate(found):
-        if abs(height - kept_height) <= _FACE_MATCH_M:
-            if len(cells) > len(kept_cells):
-                found[index] = (height, cells)
-            return
-    found.append((height, cells))
-
-
 def stable_equilibria(
     edges_m,
     gas_velocity,
@@ -136,9 +111,10 @@ def stable_equilibria(
     rho_p: float,
     phi_s: float,
 ) -> tuple[StableEquilibrium, ...]:
-    """u_g(h) = v_t 且 du_g/dh < 0 的根。界面根的捕获区是相邻两格。
+    """稳定点只在界面：下格 ū_g > v_t、上格 ū_g < v_t；R* 为两格之并。
 
-    v_t 用该格的气体密度和粘度。解释性选择：ADR 0026 第 2 项；界面判据见 ADR 0034。
+    格内气速为常数时格内没有平衡点。v_t 用各自格的气体物性。
+    求解手段：ADR 0047 第 1、3 项（细化 ADR 0026 第 2 项）。
     Source: Hamel Eq.3.82, S. 44
     """
     edges, densities, viscosities = _edges_and_gas(edges_m, rho_g, mu_g)
@@ -149,182 +125,22 @@ def stable_equilibria(
         terminal_settling_velocity(float(densities[index]), float(viscosities[index]), diameter, density_p, phi_s)
         for index in range(count)
     ]
-    found: list[tuple[float, tuple[int, ...]]] = []
+    speeds = [
+        cell_mean_velocity(gas_velocity, index, float(edges[index]), float(edges[index + 1]))
+        for index in range(count)
+    ]
+    for index in range(count):
+        if abs(speeds[index] - settling[index]) <= _NEUTRAL * settling[index]:
+            raise FreeboardError(
+                f"格 {index} 中性（ū_g={speeds[index]:.6g} m/s，v_t={settling[index]:.6g} m/s），不能判定悬停"
+            )
+    found = []
     for face in range(1, count):
-        height = float(edges[face])
         lower, upper = face - 1, face
-        residual_lower = float(gas_velocity(lower, height)) - settling[lower]
-        residual_upper = float(gas_velocity(upper, height)) - settling[upper]
-        if abs(residual_lower) > _FACE_RESIDUAL_M_S or abs(residual_upper) > _FACE_RESIDUAL_M_S:
-            continue
-        slope_lower = _slope(gas_velocity, lower, height, float(edges[lower]), height, "down")
-        slope_upper = _slope(gas_velocity, upper, height, height, float(edges[upper + 1]), "up")
-        if slope_lower < 0.0 and slope_upper < 0.0:
-            _append_root(found, height, (lower, upper))
-        elif not (slope_lower > 0.0 and slope_upper > 0.0):
-            raise FreeboardError("界面两侧的气速斜率符号不一致，不能判定这个根稳不稳定")
-    samples = 32
-    for cell in range(count):
-        left = float(edges[cell])
-        right = float(edges[cell + 1])
-        previous_h = left
-        previous_r = float(gas_velocity(cell, left)) - settling[cell]
-        for step in range(1, samples + 1):
-            height = left + (right - left) * step / samples
-            residual = float(gas_velocity(cell, height)) - settling[cell]
-            bracket = previous_r * residual < 0.0
-            exact = abs(residual) <= _FACE_RESIDUAL_M_S and left < height < right
-            if bracket or exact:
-                lo, hi = previous_h, height
-                r_lo = previous_r
-                root = height
-                if bracket:
-                    for _ in range(60):
-                        mid = 0.5 * (lo + hi)
-                        r_mid = float(gas_velocity(cell, mid)) - settling[cell]
-                        if r_lo * r_mid <= 0.0:
-                            hi = mid
-                        else:
-                            lo = mid
-                            r_lo = r_mid
-                    root = 0.5 * (lo + hi)
-                if left < root < right and _slope(gas_velocity, cell, root, left, right, "center") < 0.0:
-                    _append_root(found, root, (cell,))
-            previous_h, previous_r = height, residual
-    equilibria = []
-    for height, cells in sorted(found, key=lambda item: item[0]):
-        outer_left = float(edges[cells[0]])
-        outer_right = float(edges[cells[-1] + 1])
-        half = 0.5 * min(height - outer_left, outer_right - height)
-        if half <= 0.0:
-            raise FreeboardError("稳定平衡到捕获区外边界的距离不是正数")
-        equilibria.append(StableEquilibrium(height, cells, half))
-    return tuple(equilibria)
-
-
-def _neighbourhoods(equilibria, config: SolverConfig, scale: float = 1.0):
-    """逐根 δ_h,eff = scale·min(δ_h, w)，并检查 δ_u·步长 < δ_h,eff。求解手段：ADR 0036。"""
-    delta_h = _positive("freeboard_delta_h_m", config.freeboard_delta_h_m)
-    delta_u = _positive("freeboard_delta_u_m_s", config.freeboard_delta_u_m_s)
-    step = _positive("freeboard_max_step_s", config.freeboard_max_step_s)
-    pairs = tuple((scale * min(delta_h, item.half_width_m), scale * delta_u) for item in equilibria)
-    for height, speed in pairs:
-        if speed * step >= height:
-            raise FreeboardError("δ_u 与步长的乘积必须小于该根的 δ_h,eff，否则一步可能跨过邻域")
-    return pairs
-
-
-def _rest_acceleration(gas: float, stokes: float, quadratic: float, weight: float) -> float:
-    """速度为零时的加速度。u_g = v_t 时为零。"""
-    return stokes * gas + quadratic * gas * abs(gas) - weight
-
-
-@dataclass(frozen=True)
-class _Well:
-    """一个稳定根的势能阱。E < level 的状态离不开这个根自己的捕获区。"""
-
-    heights: tuple[float, ...]
-    phi_upper: tuple[float, ...]
-    level: float
-
-
-def _potential_density(gas_velocity, groups, edges, star: float, height: float) -> float:
-    """离开 h* 时势能的线密度。恢复段上为正。"""
-    index = int(np.searchsorted(edges, height, side="right") - 1)
-    index = min(max(index, 0), len(groups) - 1)
-    stokes, quadratic, weight = groups[index]
-    accel = _rest_acceleration(float(gas_velocity(index, height)), stokes, quadratic, weight)
-    if height >= star:
-        return -accel
-    return accel
-
-
-def _build_well(item: StableEquilibrium, edges, gas_velocity, groups) -> _Well:
-    """沿捕获区把 −∫ a(z, 0) dz 积到恢复力消失或外边界之前。
-
-    每块用两端和中点的最大、最小作势能上、下界。解释性选择：ADR 0034。
-    """
-    left = float(edges[item.cells[0]])
-    right = float(edges[item.cells[-1] + 1])
-    star = item.height_m
-    spacing = min(_WELL_SPACING_M, item.half_width_m / 4.0)
-
-    def density(height: float) -> float:
-        return _potential_density(gas_velocity, groups, edges, star, height)
-
-    def walk(step: float, limit: float, cap: float | None) -> tuple[list[float], list[float], list[float]]:
-        heights = [star]
-        upper = [0.0]
-        lower = [0.0]
-        height = star
-        while True:
-            nxt = height + step
-            if step > 0.0 and nxt >= limit:
-                break
-            if step < 0.0 and nxt <= limit:
-                break
-            mid = 0.5 * (height + nxt)
-            samples = (max(density(height), 0.0), density(mid), density(nxt))
-            if min(samples[1], samples[2]) <= 0.0:
-                break
-            width = abs(nxt - height)
-            heights.append(nxt)
-            upper.append(upper[-1] + max(samples) * width)
-            lower.append(lower[-1] + min(samples) * width)
-            height = nxt
-            if cap is not None and lower[-1] >= cap:
-                break
-        return heights, upper, lower
-
-    # 势垒由较近的外边界决定。另一侧积到同一势能即可，不必走到远处边界。
-    if star - left <= right - star:
-        left_h, left_up, left_lo = walk(-spacing, left, None)
-        right_h, right_up, right_lo = walk(spacing, right, left_lo[-1])
-    else:
-        right_h, right_up, right_lo = walk(spacing, right, None)
-        left_h, left_up, left_lo = walk(-spacing, left, right_lo[-1])
-    if len(right_h) < 2 or len(left_h) < 2:
-        raise FreeboardError("稳定根附近没有正宽度的不变区域")
-    level = min(left_lo[-1], right_lo[-1])
-    if level <= 0.0:
-        raise FreeboardError("稳定根的不变区域势能为零")
-    heights = list(reversed(left_h[1:])) + right_h
-    phi_upper = list(reversed(left_up[1:])) + right_up
-    return _Well(tuple(heights), tuple(phi_upper), level)
-
-
-def _in_well(well: _Well, height: float, velocity: float) -> bool:
-    if not well.heights[0] < height < well.heights[-1]:
-        return False
-    index = bisect.bisect_right(well.heights, height) - 1
-    span = well.heights[index + 1] - well.heights[index]
-    fraction = (height - well.heights[index]) / span
-    phi = well.phi_upper[index] + fraction * (well.phi_upper[index + 1] - well.phi_upper[index])
-    return 0.5 * velocity * velocity + phi < well.level
-
-
-def _accepted_equilibrium(
-    height: float,
-    velocity: float,
-    equilibria: tuple[StableEquilibrium, ...],
-    wells: tuple[_Well, ...],
-    neighbourhoods,
-    cell: int,
-) -> int | None:
-    """邻域只框住候选根。能量低于该根自己的势垒，才确定不会离开它的捕获区。"""
-    found = None
-    for index, item in enumerate(equilibria):
-        if cell not in item.cells:
-            continue
-        tol_h, tol_u = neighbourhoods[index]
-        if abs(height - item.height_m) > tol_h or abs(velocity) > tol_u:
-            continue
-        if not _in_well(wells[index], height, velocity):
-            continue
-        if found is not None:
-            raise FreeboardError("同一状态落在两个稳定根的不变区域里")
-        found = index
-    return found
+        if speeds[lower] > settling[lower] and speeds[upper] < settling[upper]:
+            half = 0.5 * min(float(edges[face] - edges[lower]), float(edges[upper + 1] - edges[face]))
+            found.append(StableEquilibrium(float(edges[face]), (lower, upper), float(half)))
+    return tuple(found)
 
 
 def _classify(
@@ -413,24 +229,30 @@ def trace_until_fate(
     rho_p: float,
     phi_s: float,
     config: SolverConfig,
-    equilibria: tuple[StableEquilibrium, ...],
+    equilibria: tuple[StableEquilibrium, ...] | None = None,
     scale: float = 1.0,
 ) -> TrajectoryFate:
-    """把式 (3.82) 积到回落、带出，或进入某个稳定根自己的不变区域。
+    """逐格常系数解析推进到回落、带出，或穿过稳定界面时判为捕获。
 
-    邻域只用来选定候选根。能量低于该根的势垒才停止，因此不会把还能穿出捕获区的状态记成捕获。
-    捕获时刻是最后一次进入这个根自己的捕获区的时刻。时间上限到了仍未确定归宿就报错，不改判。
-    解释性选择：ADR 0026 第 2 项，ADR 0034。
-    Source: Hamel Eq.3.82, S. 44
+    格内气速取 u_gb(h) 的高度平均。穿过稳定界面时 |u_P| ≤ δ_u，且按闭式 h(u)
+    求得的越界距离 ≤ δ_h，即判为捕获；捕获时刻按最后一次进入 R* 记账。
+    解释性选择：ADR 0026 第 2 项、ADR 0047 第 1 项；求解手段：ADR 0047 第 2、3 项。
+    Source: Hamel Eq.3.88, S. 46
+    Source: Hamel Eq.3.93, S. 47
     """
     edges, densities, viscosities = _edges_and_gas(edges_m, rho_g, mu_g)
     count = edges.size - 1
+    bounds = tuple(float(edge) for edge in edges)
     height = _finite("height_0", height_0)
     velocity = _finite("velocity_0", velocity_0)
-    if not float(edges[0]) <= height <= float(edges[-1]):
+    if not bounds[0] <= height <= bounds[-1]:
         raise FreeboardError("起步高度不在自由空间内")
-    neighbourhoods = _neighbourhoods(equilibria, config, scale)
-    step_cap = _positive("freeboard_max_step_s", config.freeboard_max_step_s)
+    speeds = tuple(cell_mean_velocity(gas_velocity, index, bounds[index], bounds[index + 1]) for index in range(count))
+    if equilibria is None:
+        equilibria = stable_equilibria(edges_m, gas_velocity, rho_g, mu_g, diameter_m, rho_p, phi_s)
+    interfaces = {item.cells[1]: item for item in equilibria}
+    delta_h = scale * _positive("freeboard_delta_h_m", config.freeboard_delta_h_m)
+    delta_u = scale * _positive("freeboard_delta_u_m_s", config.freeboard_delta_u_m_s)
     time_limit = _positive("freeboard_time_limit_s", config.freeboard_time_limit_s)
     diameter = _positive("diameter_m", diameter_m)
     density_p = _positive("rho_p", rho_p)
@@ -438,10 +260,31 @@ def trace_until_fate(
         drag_groups(float(densities[index]), float(viscosities[index]), diameter, density_p, phi_s)
         for index in range(count)
     )
-    bounds = tuple(float(edge) for edge in edges)
-    wells = tuple(_build_well(item, edges, gas_velocity, groups) for item in equilibria)
-    cell = int(np.searchsorted(edges, height, side="right") - 1)
-    cell = min(max(cell, 0), count - 1)
+
+    def acceleration(index: int, velocity_now: float) -> float:
+        stokes, quadratic, weight = groups[index]
+        relative = velocity_now - speeds[index]
+        return -stokes * relative - quadratic * relative * abs(relative) - weight
+
+    def coefficients(index: int, velocity_now: float) -> tuple[float, float, float]:
+        return motion_coefficients(
+            speeds[index], bool(velocity_now > speeds[index]), float(densities[index]), float(viscosities[index]),
+            diameter, density_p, phi_s,
+        )
+
+    def crossing_captures(face: int, velocity_now: float) -> StableEquilibrium | None:
+        """穿过稳定界面时的捕获判据：速度与按闭式 h(u) 算的越界距离。"""
+        item = interfaces.get(face)
+        if item is None or abs(velocity_now) > delta_u:
+            return None
+        entered = item.cells[1] if velocity_now > 0.0 else item.cells[0]
+        a, b, c = coefficients(entered, velocity_now)
+        turn = cell_height_at_velocity(a, b, c, velocity_now, bounds[face], 0.0)
+        if turn is None or abs(turn - bounds[face]) > delta_h:
+            return None
+        return item
+
+    cell = min(max(int(np.searchsorted(edges, height, side="right") - 1), 0), count - 1)
     start_cell = cell
     elapsed = 0.0
     open_time = 0.0
@@ -449,47 +292,8 @@ def trace_until_fate(
     segments: list[tuple[int, float, float, float]] = []
     crossings: list[tuple[float, int, int | None, str]] = []
     pending = 0.0
-
-    def local_acceleration(index: int, height_now: float, velocity_now: float) -> float:
-        gas_now = float(gas_velocity(index, height_now))
-        stokes_now, quadratic_now, weight_now = groups[index]
-        relative = velocity_now - gas_now
-        return -stokes_now * relative - quadratic_now * relative * abs(relative) - weight_now
-
-    def resolve_face(cell_now: int) -> tuple[int, str | None]:
-        if height <= bounds[0]:
-            accel = local_acceleration(0, height, velocity)
-            if velocity < 0.0 or (velocity == 0.0 and accel < 0.0):
-                return 0, "return"
-            return 0, None
-        if height >= bounds[-1]:
-            last = count - 1
-            accel = local_acceleration(last, height, velocity)
-            if velocity > 0.0 or (velocity == 0.0 and accel > 0.0):
-                return last, "elutriate"
-            return last, None
-        face = None
-        for index in range(1, count):
-            if height == bounds[index]:
-                face = index
-                break
-        if face is None:
-            return cell_now, None
-        lower = face - 1
-        upper = face
-        if velocity > 0.0:
-            return upper, None
-        if velocity < 0.0:
-            return lower, None
-        accel_upper = local_acceleration(upper, height, 0.0)
-        accel_lower = local_acceleration(lower, height, 0.0)
-        leaves_upper = accel_upper < 0.0
-        leaves_lower = accel_lower > 0.0
-        if leaves_upper and leaves_lower:
-            raise FreeboardError("格面两侧的加速度都指向对面，不能确定进入哪一格")
-        if leaves_upper or (accel_upper == 0.0 and accel_lower < 0.0):
-            return lower, None
-        return upper, None
+    outcome = None
+    chosen = None
 
     def close(end: float) -> None:
         nonlocal open_time, pending
@@ -498,75 +302,53 @@ def trace_until_fate(
             open_time = end
         pending = 0.0
 
-    stalled = 0
-    outcome = None
-    chosen = None
     while elapsed < time_limit:
-        resolved, domain = resolve_face(cell)
-        if resolved != cell:
+        if height <= bounds[0] and (velocity < 0.0 or (velocity == 0.0 and acceleration(0, 0.0) < 0.0)):
             close(elapsed)
-            direction = "up" if resolved > cell else "down"
-            crossings.append((elapsed, cell, resolved, direction))
-            cell = resolved
-            open_time = elapsed
-        if domain is not None:
-            close(elapsed)
-            crossings.append((elapsed, cell, None, "down" if domain == "return" else "up"))
-            outcome = domain
+            crossings.append((elapsed, cell, None, "down"))
+            outcome = "return"
             break
-        chosen = _accepted_equilibrium(height, velocity, equilibria, wells, neighbourhoods, cell)
-        if chosen is not None:
+        if height >= bounds[-1] and (velocity > 0.0 or (velocity == 0.0 and acceleration(count - 1, 0.0) > 0.0)):
             close(elapsed)
+            crossings.append((elapsed, cell, None, "up"))
+            outcome = "elutriate"
+            break
+        a, b, c = coefficients(cell, velocity)
+        kind, tau, height_1, velocity_1 = advance_cell(
+            height, velocity, bounds[cell], bounds[cell + 1], a, b, c, speeds[cell], time_limit - elapsed,
+        )
+        if kind == "limit":
+            break
+        # 段内 u 不穿过 ū_g 与 0，故 ∫|u_g−u_P|dτ = |ū_g·τ − Δh|，按段解析。
+        pending += abs(speeds[cell] * tau - (height_1 - height))
+        if kind == "zero" or velocity * velocity_1 < 0.0:
+            reversals += 1
+        elapsed += tau
+        height, velocity = height_1, velocity_1
+        close(elapsed)
+        if kind in ("gas", "zero"):
+            continue
+        step = 1 if kind == "upper" else -1
+        face = cell + 1 if step > 0 else cell
+        target = cell + step
+        captured = crossing_captures(face, velocity)
+        if target < 0:
+            crossings.append((elapsed, cell, None, "down"))
+            outcome = "return"
+            break
+        if target >= count:
+            crossings.append((elapsed, cell, None, "up"))
+            outcome = "elutriate"
+            break
+        crossings.append((elapsed, cell, target, "up" if step > 0 else "down"))
+        cell = target
+        if captured is not None:
+            chosen = captured
             outcome = "capture"
             break
-        step = min(step_cap, time_limit - elapsed)
-        stokes, quadratic, weight = groups[cell]
-
-        def gas_at(height_now, index=cell):
-            return gas_velocity(index, height_now)
-
-        velocity_before = velocity
-        height_before = height
-        height_1, velocity_1 = _step_velocity(height, velocity, step, gas_at, stokes, quadratic, weight)
-        shrinks = 0
-        while velocity * velocity_1 < 0.0 and step > step_cap * 1.0e-4 and shrinks < 16:
-            step *= 0.5
-            height_1, velocity_1 = _step_velocity(height, velocity, step, gas_at, stokes, quadratic, weight)
-            shrinks += 1
-        low = bounds[cell]
-        high = bounds[cell + 1]
-        boundary = None
-        fraction = None
-        if height_1 > high and height_1 != height:
-            fraction = (high - height) / (height_1 - height)
-            boundary = high if 0.0 < fraction < 1.0 else None
-        elif height_1 < low and height_1 != height:
-            fraction = (low - height) / (height_1 - height)
-            boundary = low if 0.0 < fraction < 1.0 else None
-        if fraction is not None and fraction <= 0.0:
-            stalled += 1
-            if stalled > 2:
-                raise FreeboardError("粒子停在格边界上，这一步没有进入相邻格")
-            continue
-        stalled = 0
-        if boundary is None:
-            height, velocity = height_1, velocity_1
-            elapsed += step
-            used = step
-        else:
-            used = fraction * step
-            height, velocity = _step_velocity(height, velocity, used, gas_at, stokes, quadratic, weight)
-            elapsed += used
-            height = boundary
-        pending += 0.5 * (abs(float(gas_at(height_before)) - velocity_before) + abs(float(gas_at(height)) - velocity)) * used
-        if velocity_before * velocity < 0.0:
-            reversals += 1
-        if not math.isfinite(height) or not math.isfinite(velocity):
-            raise FreeboardError("轨迹出现非有限的高度或速度")
     if outcome is None:
         raise FreeboardError(f"积分时间达到上限 {time_limit} s，归宿仍未确定")
-    # 捕获区只取最终这个根自己的格子，不与其他稳定根合并。
-    capture_cells = frozenset(equilibria[chosen].cells) if chosen is not None else frozenset()
+    capture_cells = frozenset(chosen.cells) if chosen is not None else frozenset()
     return _classify(count, outcome, elapsed, height, velocity, reversals, start_cell, segments, crossings, capture_cells)
 
 
@@ -611,17 +393,16 @@ def account_freeboard(
     """
     edges, densities, viscosities = _edges_and_gas(edges_m, rho_g, mu_g)
     count = edges.size - 1
-    speeds = np.asarray(ejection_speeds, dtype=float)
+    speeds_in = np.asarray(ejection_speeds, dtype=float)
     shares = np.asarray(ejection_shares, dtype=float)
-    if speeds.ndim != 1 or speeds.shape != shares.shape:
+    if speeds_in.ndim != 1 or speeds_in.shape != shares.shape:
         raise FreeboardError("抛出样本的速度和份额必须是同样长的一维数组")
-    if speeds.size and (np.any(speeds <= 0.0) or np.any(shares < 0.0)):
+    if speeds_in.size and (np.any(speeds_in <= 0.0) or np.any(shares < 0.0)):
         raise FreeboardError("抛出样本的初速必须为正，份额不能为负")
     direct = _finite("direct_return_share", direct_return_share)
     if direct < 0.0 or abs(float(shares.sum()) + direct - 1.0) > 1.0e-8:
         raise FreeboardError("抛出份额与直接回落之和必须为 1，直接回落不能为负")
     equilibria = stable_equilibria(edges, gas_velocity, densities, viscosities, diameter_m, rho_p, phi_s)
-    neighbourhoods = _neighbourhoods(equilibria, config, scale)
     capture = tuple(sorted({cell for item in equilibria for cell in item.cells}))
     capture_set = frozenset(capture)
     bed_surface = float(edges[0])
@@ -642,14 +423,15 @@ def account_freeboard(
             scale,
         )
 
-    bed = [(follow(bed_surface, float(speeds[index])), float(shares[index])) for index in range(speeds.size)]
+    bed = [(follow(bed_surface, float(speeds_in[index])), float(shares[index])) for index in range(speeds_in.size)]
     local = []
     for cell in range(count):
         midpoint = 0.5 * (float(edges[cell]) + float(edges[cell + 1]))
         settling = terminal_settling_velocity(
             float(densities[cell]), float(viscosities[cell]), diameter_m, rho_p, phi_s
         )
-        local.append(follow(midpoint, float(gas_velocity(cell, midpoint)) - settling))
+        mean = cell_mean_velocity(gas_velocity, cell, float(edges[cell]), float(edges[cell + 1]))
+        local.append(follow(midpoint, mean - settling))
     ejection_free = 0.0
     ejection_hover = 0.0
     hover_inflow = [0.0] * count
@@ -720,8 +502,5 @@ def account_freeboard(
         local_return,
         local_elutriation,
         tuple(cells),
-        tuple(
-            (item.cells, item.height_m, item.height_m - float(edges[item.cells[0]]), float(edges[item.cells[-1] + 1]) - item.height_m, item.half_width_m, eff, speed)
-            for item, (eff, speed) in zip(equilibria, neighbourhoods)
-        ),
+        tuple((item.cells, item.height_m, item.half_width_m) for item in equilibria),
     )

@@ -224,13 +224,13 @@ def _numerical() -> dict:
     config = SolverConfig()
     names = (
         "pyrolysis_radial_intervals", "pyrolysis_time_rtol", "freeboard_ejection_samples",
-        "freeboard_max_step_s", "freeboard_delta_h_m", "freeboard_delta_u_m_s",
+        "freeboard_delta_h_m", "freeboard_delta_u_m_s",
         "particle_tolerance_w", "particle_max_iterations", "coupling_tolerance_k",
         "coupling_max_iterations", "bed_integration_intervals_per_cell",
         "bed_integration_max_intervals_per_cell",
     )
     noted = {name: getattr(config, name) for name in names}
-    noted["note"] = "逐根 δ 与床层子步 n 来自该次运行的预计算。玩具工况没有这些量。"
+    noted["note"] = "床层子步 n 来自该次运行的预计算。逐根 δ_h 已按 ADR 0047 第 5 项撤销。玩具工况没有这些量。"
     return noted
 
 
@@ -342,7 +342,7 @@ def _closure_and_form(payload) -> list:
         return lines
     benchmark = form["benchmark"]
     lines += [
-        f"固定构造基准：Δ = {_cell(benchmark['delta'])}，步长 {_cell(benchmark['step_s'])} s，样本数设置 {benchmark['samples']}。",
+        f"固定构造基准：Δ = {_cell(benchmark['delta'])}，样本数设置 {benchmark['samples']}；参考值由高精度 RK4 给出（ADR 0047）。",
         f"最大相对偏差 {_cell(benchmark['max_relative'])}（速度 {_cell(benchmark['velocity_relative'])}，高度 {_cell(benchmark['height_relative'])}）。",
         "",
         "| 粒径 m | 分支 | Δ | 较快支 Δ | 较慢支 Δ | 状态 | 截止 | 速度相对偏差 | 高度相对偏差 |",
@@ -371,7 +371,7 @@ def _refinement_lines(payload) -> list:
         trajectory = refinement["trajectory"]
         existence = "系数存在性有变化。" if trajectory.get("existence_changed") else ""
         lines.append(
-            f"- 轨迹样本加倍、步长减半：a、b 相对变化 {_cell(trajectory['relative_change'])}，门 {trajectory['gate']}，{existence}{_met(trajectory['met'])}。"
+            f"- 轨迹样本加倍：a、b 相对变化 {_cell(trajectory['relative_change'])}，门 {trajectory['gate']}，{existence}{_met(trajectory['met'])}。"
         )
         pyrolysis = refinement["pyrolysis"]
         if "met" in pyrolysis:
@@ -398,11 +398,11 @@ def _refinement_lines(payload) -> list:
             )
     for run in payload["runs"]:
         info = ((run.get("diagnostics") or {}).get("final") or {})
-        if "bed_intervals" not in info and "substep_history" not in info and "delta_notes" not in info:
+        if "bed_intervals" not in info and "substep_history" not in info:
             continue
-        lines.append(f"- {run['name']} 的 ADR 0036：床层子步 n = {info.get('bed_intervals')}，加倍记录 {info.get('substep_history')}，逐根 δ {info.get('delta_notes')}。")
+        lines.append(f"- {run['name']} 的 ADR 0036：床层子步 n = {info.get('bed_intervals')}，加倍记录 {info.get('substep_history')}。")
     if not any("ADR 0036" in line for line in lines):
-        lines.append("- ADR 0036 的逐根 δ 与床层子步：这次运行没有这两项记录。")
+        lines.append("- ADR 0036 的床层子步：这次运行没有这项记录。")
     return lines
 
 

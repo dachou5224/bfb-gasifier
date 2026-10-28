@@ -64,7 +64,6 @@ class PrecalcResult:
     slip_ratios: tuple
     bed_intervals: int
     substep_history: tuple
-    delta_notes: tuple
     reported: dict
 def require_geldart_b(surface_volume_diameter_m: float, rho_s_kg_m3: float, rho_f_kg_m3: float) -> str:
     """收敛后的真实类别必须是 B。求解手段：ADR 0035。"""
@@ -162,7 +161,7 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
     if previous is None:
         state = _initial_inventory(case, flow, profile.solids_mass, share, fractions, t_init, notes, iteration, consistency)
     try:
-        ejection, accounting, rho_free, mu_free, delta_notes, trajectory = _segregate(case, flow, profile, rho_p, d_bar)
+        ejection, accounting, rho_free, mu_free, trajectory = _segregate(case, flow, profile, rho_p, d_bar)
     except FreeboardError as exc:
         raise PrecalcError(
             f"迭代 {iteration} 停止：{exc}；Geldart 记录（迭代号, d_sv, 类别, 式(8)距离）={record}；T_ad={t_ad}；T_init={t_init}"
@@ -217,7 +216,7 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
     return PrecalcResult(
         frozen, state, t_ad, dict(equilibrium.fractions), group, d_bar, d_sv, residual,
         equilibrium.feed_enthalpy, equilibrium.product_enthalpy, ejection.mass_flow, _hover_pairs(hover),
-        gas_out / case.fuel_kg_s, t_init, hydro, record, tuple(notes), ratios, intervals, substeps, delta_notes,
+        gas_out / case.fuel_kg_s, t_init, hydro, record, tuple(notes), ratios, intervals, substeps,
         reported,
     )
 @dataclass
@@ -553,23 +552,16 @@ def _segregate(case, flow, profile, rho_p, d_bar):
     area = np.pi * (0.5 * case.bed_diameter_m) ** 2
     mass = ejection_mass_flow(float(profile.epsilon_b[0]), float(profile.u_b[0]), float(profile.d_b[0]), rho_p, float(profile.epsilon_d[0]), d_bar, area)
     books = []
-    delta_notes = []
-    configured = float(case.solver.freeboard_delta_h_m)
     for klass, diameter in enumerate(case.diameters_m):
         args = (edges, velocity, rho, mu, float(diameter), rho_p, case.phi_s, speeds, shares, direct, case.solver)
-        base = account_freeboard(*args)
-        if any(row[5] < configured for row in base.roots):
-            fine = account_freeboard(*args, 0.5)
-            _gate_delta(base, fine)
-            delta_notes.append((klass, base.roots, fine.roots))
-        books.append(base)
+        books.append(account_freeboard(*args))
     column = {
         "edges_m": edges, "volume_flow_m3_s": flows, "edge_diameter_m": diameters,
         "rho_g": rho, "mu_g": mu, "bubble_m_s": float(profile.u_b[0]),
         "bubble_diameter_m": float(profile.d_b[0]), "rho_p": float(rho_p),
         "phi_s": float(case.phi_s), "diameter_m": np.asarray(case.diameters_m, dtype=float),
     }
-    return _Ejection(mass, speeds, shares, direct), tuple(books), rho, mu, tuple(delta_notes), column
+    return _Ejection(mass, speeds, shares, direct), tuple(books), rho, mu, column
 def _fractions(flow) -> dict[str, float]:
     total = float(np.asarray(flow).sum())
     if total <= 0.0:
@@ -895,22 +887,6 @@ def _adaptive_bed(case, flow, gas, d_bar, group="B"):
         if rho_rel < 1.0e-6 and max(masses) < 1.0e-6:
             return rho, profile, conditions, n, tuple(history)
     raise PrecalcError(f"床层子步到上限 {limit} 仍未过门：{tuple(history)}")
-def _gate_delta(base, fine):
-    """加密组与基准组的系数、停留和滑移。求解手段：ADR 0036。"""
-    worst = 0.0
-    for left, right in zip(base.cells, fine.cells):
-        if left.free_state != right.free_state:
-            raise PrecalcError("δ 加密改变了自由状态是否存在")
-        for name in ("a_f", "a_t", "b_f", "b_t", "m_hat", "mean_slip_m_s"):
-            first, second = getattr(left, name), getattr(right, name)
-            if first is None and second is None:
-                continue
-            if first is None or second is None:
-                raise PrecalcError("δ 加密改变了自由状态是否存在")
-            den = max(abs(first), abs(second))
-            worst = max(worst, 0.0 if den == 0.0 else abs(first - second) / den)
-    if worst >= 1.0e-4:
-        raise PrecalcError(f"δ 加密相对变化 {worst} 超过 1e-4")
 def _seed_freeboard(case, state, masses, temperature, hover, absent, notes, iteration, consistency) -> None:
     """每个存在的状态焦炭取 1e-6·M_tot，灰按 w_A,0/(1−w_A,0)。ADR 0017 第 9 项。"""
     yields = _yield_at(case, temperature, None, None, notes, iteration, consistency)

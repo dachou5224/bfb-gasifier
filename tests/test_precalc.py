@@ -133,29 +133,30 @@ def test_hover_drying_stays_in_the_hover_state():
     assert instant.char_hover_kg_s[0, 0] == pytest.approx(waf * yields.x_char * 0.5)
 
 
-def test_hover_exists_when_theta_is_zero():
-    """捕获区决定悬停。θ = 0 只表示当地轨迹不是起步即被捕获。"""
-    edges = np.array([0.0, 1.0, 1.25, 2.5])
-    rho = np.full(3, 0.4)
-    mu = np.full(3, 1.5e-5)
-    diameter, density, phi = 1.0e-3, 1500.0, 0.8
-    settling = terminal_settling_velocity(0.4, 1.5e-5, diameter, density, phi)
+def test_hover_is_set_where_the_capture_region_is():
+    """捕获区决定悬停。θ 与自由状态是否存在分开（ADR 0026 第 3 项、ADR 0047 第 3 项）。"""
+    edges = np.array([0.0, 0.5, 1.0, 1.5])
+    rho = np.full(3, 1.2)
+    mu = np.full(3, 2.0e-5)
+    diameter, density, phi = 2.0e-4, 1200.0, 0.8
 
-    def gas(_cell, height, settling=settling):
-        return settling + 8.0 * (1.01 - float(height))
+    def gas(cell, _height):
+        return (1.0, 1.0, 0.2)[cell]
 
     book = account_freeboard(
         edges, gas, rho, mu, diameter, density, phi, np.array([0.1]), np.array([1.0]), 0.0,
-        SolverConfig(freeboard_delta_h_m=1.0e-3, freeboard_max_step_s=1.0e-3, freeboard_time_limit_s=20.0),
+        SolverConfig(freeboard_time_limit_s=20.0),
     )
-    assert book.capture_cells == (1,)
-    assert all(cell.theta == 0 and cell.free_state == "存在" for cell in book.cells)
-    assert all(cell.mean_slip_m_s is not None and cell.mean_slip_m_s > 0.0 for cell in book.cells)
+    assert book.capture_cells == (1, 2)
+    assert book.cells[0].theta == 0 and book.cells[0].free_state == "存在"
+    assert book.cells[1].theta == 1 and book.cells[2].theta == 1
+    assert book.cells[0].mean_slip_m_s > 0.0
     _packed, theta, hover, absent = pack_transport((book,))
-    assert absent.sum() == 0
-    assert theta.sum() == 0.0
-    assert hover[1, 0]
-    assert not hover[0, 0] and not hover[2, 0]
+    # 衡算下标从自由空间顶部起算：0 是顶格，2 是最下格。
+    assert absent[0, 0] and absent[1, 0] and not absent[2, 0]
+    assert theta.sum() == 2.0
+    assert hover[0, 0] and hover[1, 0]
+    assert not hover[2, 0]
 
 
 def test_return_uses_the_freeboard_inventory_and_the_drain_enters_the_residual():

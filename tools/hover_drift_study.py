@@ -19,7 +19,6 @@ from pathlib import Path
 
 import numpy as np
 
-from hamel.freeboard.accounting import stable_equilibria
 from hamel.freeboard.motion import terminal_settling_velocity
 from hamel.freeboard.transport import ghost_bubble_velocity
 
@@ -65,9 +64,39 @@ def _profile(column):
 
 
 def roots(edges, gas, rho_g, mu_g, diameter, rho_p, phi_s) -> list:
-    """按格枚举全部稳定根（含界面根），用项目的 stable_equilibria。"""
-    found = stable_equilibria(edges, gas, rho_g, mu_g, diameter, rho_p, phi_s)
-    return sorted(float(item.height_m) for item in found)
+    """连续剖面 u_gb(h) 上的稳定根（du_g/dh < 0）。研究脚本自己的根搜索。
+
+    ADR 0047 已把模型的悬停判定改为格界面（那里的 stable_equilibria 随之改写）；
+    本脚本研究的是连续剖面，故在这里保留自己的二分，不调用模型。
+    """
+    count = len(edges) - 1
+    settling = [terminal_settling_velocity(float(rho_g[i]), float(mu_g[i]), diameter, rho_p, phi_s) for i in range(count)]
+    found = []
+    for face in range(1, count):
+        height = float(edges[face])
+        if (float(gas(face - 1, height)) - settling[face - 1]) * (float(gas(face, height)) - settling[face]) < 0.0:
+            found.append(height)
+    for cell in range(count):
+        left, right = float(edges[cell]), float(edges[cell + 1])
+        previous_h = left
+        previous_r = float(gas(cell, left)) - settling[cell]
+        for step in range(1, 33):
+            height = left + (right - left) * step / 32.0
+            residual = float(gas(cell, height)) - settling[cell]
+            if previous_r * residual < 0.0:
+                lo, hi, r_lo = previous_h, height, previous_r
+                for _ in range(60):
+                    middle = 0.5 * (lo + hi)
+                    r_mid = float(gas(cell, middle)) - settling[cell]
+                    if r_lo * r_mid <= 0.0:
+                        hi = middle
+                    else:
+                        lo, r_lo = middle, r_mid
+                root = 0.5 * (lo + hi)
+                if left < root < right:
+                    found.append(root)
+            previous_h, previous_r = height, residual
+    return sorted(found)
 
 
 def _cell_of(edges, height):
