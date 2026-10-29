@@ -116,21 +116,20 @@ def test_hover_drying_stays_in_the_hover_state():
     """ADR 0032。悬停中干燥得到的 P 不回到自由状态。"""
     yields = _yields()
     transport = FuelTransport(
-        1, np.array([[True]]), np.array([[False]]), np.array([[0.5]]), np.zeros((1, 1)),
-        np.zeros((1, 1)), np.zeros((1, 1)), np.array([0.0]), np.array([1.0]),
+        1, np.array([[True]]), np.array([[False]]), np.zeros((1, 1)),
+        np.zeros((1, 1)), np.array([[1.0]]), np.zeros((1, 1)),
     )
     result = _run_cells(np.array([1.0]), np.array([1.0]), transport, feed=1.0, up=1.0)
-    assert result.undried_free_kg[0, 0] == pytest.approx(0.0)
-    assert result.undried_hover_kg[0, 0] == pytest.approx(0.5)
-    assert result.dried_free_kg[0, 0] == pytest.approx(0.0)
-    assert result.dried_hover_kg[0, 0] == pytest.approx(0.75)
-    assert result.char_free_kg_s[0, 0] == pytest.approx(0.0)
+    # 床区 W = 0,5；自由状态 (1/tau + c↑)·W_f = 0,5；悬停 (1/tau)·W_h = c↑·W_f。
+    assert result.undried_free_kg[0, 0] == pytest.approx(0.25)
+    assert result.undried_hover_kg[0, 0] == pytest.approx(0.25)
+    assert result.char_free_kg_s[0, 0] > 0.0
+    assert result.char_hover_kg_s[0, 0] > 0.0
+    # 悬停状态没有出流，转化留在悬停。
     assert result.fuel_up_kg_s[0, 0] == pytest.approx(0.0)
-    waf = (1.0 - _MOISTURE) * (1.0 - _ASH)
-    assert result.char_hover_kg_s[0, 0] == pytest.approx(waf * yields.x_char * 0.75)
     instant = _run_cells(np.array([1.0]), np.array([0.0]), transport, feed=1.0, up=1.0)
-    assert instant.char_free_kg_s[0, 0] == pytest.approx(0.0)
-    assert instant.char_hover_kg_s[0, 0] == pytest.approx(waf * yields.x_char * 0.5)
+    waf = (1.0 - _MOISTURE) * (1.0 - _ASH)
+    assert instant.char_hover_kg_s[0, 0] == pytest.approx(waf * yields.x_char * 0.25)
 
 
 def test_hover_is_set_where_the_capture_region_is():
@@ -148,13 +147,15 @@ def test_hover_is_set_where_the_capture_region_is():
         SolverConfig(freeboard_time_limit_s=20.0),
     )
     assert book.capture_cells == (1, 2)
-    assert book.cells[0].theta == 0 and book.cells[0].free_state == "存在"
-    assert book.cells[1].theta == 1 and book.cells[2].theta == 1
+    assert book.cells[0].theta_up == 0.0 and book.cells[0].free_state == "存在"
+    # 格 1 的中点以上归 R*_1（↑），格 2 的中点以下归 R*_1（↓）。
+    assert book.cells[1].theta_up == 1.0 and book.cells[2].theta_down == 1.0
     assert book.cells[0].mean_slip_m_s > 0.0
-    _packed, theta, hover, absent = pack_transport((book,))
+    assert book.cells[1].c_up > 0.0
+    assert book.cells[1].hover_slip_m_s is not None
+    _packed, hover, absent = pack_transport((book,))
     # 衡算下标从自由空间顶部起算：0 是顶格，2 是最下格。
-    assert absent[0, 0] and absent[1, 0] and not absent[2, 0]
-    assert theta.sum() == 2.0
+    assert absent[0, 0] and not absent[1, 0] and not absent[2, 0]
     assert hover[0, 0] and hover[1, 0]
     assert not hover[2, 0]
 
@@ -203,17 +204,14 @@ def _yields():
 
 
 def _transport(bottom_absent: bool) -> FuelTransport:
+    """两格自由空间：格 0 在上、格 1 在下。转入系数按 ADR 0048 第 2 项。解释性选择，测试用。"""
     hover = np.array([[False], [True]])
     absent = np.array([[False], [bottom_absent]])
-    if bottom_absent:
-        hover[1, 0] = True
     a_free = np.array([[0.4], [0.0 if bottom_absent else 0.2]])
-    a_hover = np.array([[0.0], [0.0 if bottom_absent else 0.3]])
-    b_free = np.array([[0.2], [0.0]])
-    b_hover = np.array([[0.0], [0.0]])
-    to_free = np.array([0.0 if bottom_absent else 0.25])
-    to_hover = np.array([1.0 if bottom_absent else 0.75])
-    return FuelTransport(1, hover, absent, a_free, a_hover, b_free, b_hover, to_free, to_hover)
+    b_free = np.array([[0.0], [0.0]])
+    c_up = np.array([[0.0], [0.3]])
+    c_down = np.zeros((2, 1))
+    return FuelTransport(1, hover, absent, a_free, b_free, c_up, c_down)
 
 
 def _run_cells(tau_dry, tau_pyr, transport, feed=0.01, up=0.5):
@@ -379,12 +377,17 @@ def test_hover_closure_bc_allows_a_cell_with_neither_state():
     assert np.array_equal(default.undried_kg, explicit.undried_kg)
     assert np.array_equal(default.dried_kg, explicit.dried_kg)
     assert np.array_equal(default.water_kg_s, explicit.water_kg_s)
-    neither = replace(present, hover=np.zeros_like(present.hover))
+    # 顶格既没有自由状态也没有悬停状态，且没有流入。床面抛出在 ADR 0048 起只进自由状态，
+    # 故这种情形只出现在上方格。
+    neither = replace(
+        present, hover=np.zeros_like(present.hover), free_absent=np.array([[True], [False]]),
+        a_free_per_s=np.array([[0.4], [0.0]]), b_free_per_s=np.zeros((2, 1)),
+        c_up_per_s=np.zeros((2, 1)), c_down_per_s=np.zeros((2, 1)),
+    )
     with pytest.raises(PyrolysisError, match="自由状态不存在的格子必须设有悬停状态"):
         _run(np.array([2.0]), np.array([3.0]), replace(neither, closure="A"))
-    quiet = replace(neither, b_free_per_s=np.zeros_like(neither.b_free_per_s))
     for closure in ("B", "C"):
-        solved = _run(np.array([2.0]), np.array([3.0]), replace(quiet, closure=closure))
+        solved = _run(np.array([2.0]), np.array([3.0]), replace(neither, closure=closure))
         assert solved.char_hover_kg_s.sum() == 0.0
         assert solved.ash_hover_kg_s.sum() == 0.0
     with pytest.raises(PyrolysisError, match="B 或 C 不设悬停状态"):

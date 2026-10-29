@@ -2,11 +2,13 @@
 
 模型边界选择：ADR 0026（目标所有者 2026-10-19）。
 格内常系数解析推进与界面稳定点：ADR 0047（目标所有者 2026-10-28；第 1 项为解释性选择，第 2、3 项为求解手段）。
-格内根搜索、势能井、逐根 δ_h 与数值积分已按 ADR 0047 第 5 项撤销。
+粒级内取样、半格捕获区与源格→目标格：ADR 0048（解释性选择）。
+捕获区取整格、进入即在格界，只是 ADR 0048 兼容测试用的旧规则，不是生产取样。
 """
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 import numpy as np
@@ -14,6 +16,7 @@ import numpy as np
 from hamel.cases.config import SolverConfig
 from hamel.freeboard._common import FreeboardError, _finite, _positive
 from hamel.freeboard.motion import (
+    _boundary_time,
     advance_cell,
     cell_height_at_velocity,
     cell_mean_velocity,
@@ -25,11 +28,18 @@ from hamel.freeboard.motion import (
 _FREE_ABSENT = "自由状态不存在"
 # |ū_g − v_t| 不超过这个倍数乘 v_t 时就认为该格中性。求解手段：ADR 0047 第 3 项。
 _NEUTRAL = 1.0e-12
+# 粒级内取样：ADR 0048 第 1 项。粒径在 ln d 上等分，球形度取截断正态的等概率分位中点。
+SAMPLE_DIAMETERS = 8
+SAMPLE_SPHERICITY = 8
+SPHERICITY_SIGMA = 0.1
+SPHERICITY_BOUNDS = (0.3, 1.0)
+SPHERICITY_MEAN = 0.8
+DEFAULT_REGION = "half"
 
 
 @dataclass(frozen=True)
 class StableEquilibrium:
-    """一个稳定界面和它的捕获区：R* 为相邻两格之并。"""
+    """一个稳定界面和它的捕获区：R* 为界面两侧各半格。"""
 
     height_m: float
     cells: tuple[int, ...]
@@ -38,7 +48,7 @@ class StableEquilibrium:
 
 @dataclass(frozen=True)
 class TrajectoryFate:
-    """一条轨迹的归宿，以及捕获时刻之前的停留和穿出。"""
+    """一条轨迹的归宿，以及进入捕获区之前的停留和穿出。"""
 
     fate: str
     time_s: float
@@ -47,33 +57,36 @@ class TrajectoryFate:
     velocity_reversals: int
     capture_time_s: float | None
     captured_at_start: bool
+    entry_cell: int | None
     entered_cell: int | None
+    entry_kind: str | None
+    entry_count: int
     residence_s: tuple[float, ...]
-    # 捕获前 ∫|u_g−u_P|dt，与停留时间同一段。解释性选择：ADR 0035。
+    # 进入捕获区前 ∫|u_g−u_P|dt，与停留时间同一段。解释性选择：ADR 0035。
     slip_m: tuple[float, ...]
     upward_free: tuple[float, ...]
-    upward_hover: tuple[float, ...]
     downward_free: tuple[float, ...]
-    downward_hover: tuple[float, ...]
 
 
 @dataclass(frozen=True)
 class CellTransport:
     """一格一个粒级。自由状态不存在时，四个系数和 m̂ 都是 None。"""
 
-    theta: int
+    theta_up: float
+    theta_down: float
     free_state: str
     a_f: float | None
-    a_t: float | None
     b_f: float | None
-    b_t: float | None
+    c_up: float | None
+    c_down: float | None
     m_hat: float | None
     mean_slip_m_s: float | None = None
+    hover_slip_m_s: float | None = None
 
 
 @dataclass(frozen=True)
 class ReferenceAccounting:
-    """一个粒级的参考记账。份额对单位抛出，当地轨迹的悬停入流按每格权重 1。"""
+    """一个粒级的参考记账。份额对单位抛出，当地轨迹按每格权重 1。"""
 
     stable_heights_m: tuple[float, ...]
     capture_cells: tuple[int, ...]
@@ -82,8 +95,6 @@ class ReferenceAccounting:
     capture_share: float
     ejection_free: float
     ejection_hover: float
-    hover_inflow: tuple[float, ...]
-    local_hover_inflow: tuple[float, ...]
     local_return: float
     local_elutriation: float
     cells: tuple[CellTransport, ...]
@@ -111,10 +122,10 @@ def stable_equilibria(
     rho_p: float,
     phi_s: float,
 ) -> tuple[StableEquilibrium, ...]:
-    """稳定点只在界面：下格 ū_g > v_t、上格 ū_g < v_t；R* 为两格之并。
+    """稳定点只在界面：下格 ū_g > v_t、上格 ū_g < v_t；R* 为界面两侧各半格。
 
     格内气速为常数时格内没有平衡点。v_t 用各自格的气体物性。
-    求解手段：ADR 0047 第 1、3 项（细化 ADR 0026 第 2 项）。
+    求解手段：ADR 0047 第 1、3 项；捕获区取半格：解释性选择，ADR 0048 第 2 项。
     Source: Hamel Eq.3.82, S. 44
     """
     edges, densities, viscosities = _edges_and_gas(edges_m, rho_g, mu_g)
@@ -143,6 +154,73 @@ def stable_equilibria(
     return tuple(found)
 
 
+def _normal_cdf(value: float) -> float:
+    return 0.5 * (1.0 + math.erf(value / math.sqrt(2.0)))
+
+
+def _normal_density(value: float) -> float:
+    return math.exp(-0.5 * value * value) / math.sqrt(2.0 * math.pi)
+
+
+def _truncated_mass(location: float, sigma: float = SPHERICITY_SIGMA) -> float:
+    low, high = SPHERICITY_BOUNDS
+    return _normal_cdf((high - location) / sigma) - _normal_cdf((low - location) / sigma)
+
+
+def _truncated_mean(location: float, sigma: float = SPHERICITY_SIGMA) -> float:
+    low, high = SPHERICITY_BOUNDS
+    alpha, beta = (low - location) / sigma, (high - location) / sigma
+    mass = _truncated_mass(location, sigma)
+    return location + sigma * (_normal_density(alpha) - _normal_density(beta)) / mass
+
+
+def sphericity_points(count: int = SAMPLE_SPHERICITY, sigma: float = SPHERICITY_SIGMA) -> tuple[float, ...]:
+    """[0,3; 1,0] 截断正态的等概率分位中点，位置参数取使截断后均值为 0,8。解释性选择：ADR 0048 第 1 项。
+
+    φ_S 的范围与平均值取自 S. 45（原文只给范围与平均值）。
+    Source: Hamel Eq.3.86, S. 45
+    """
+    low, high = SPHERICITY_BOUNDS
+    lower, upper = low, high
+    for _ in range(200):
+        middle = 0.5 * (lower + upper)
+        if _truncated_mean(middle, sigma) < SPHERICITY_MEAN:
+            lower = middle
+        else:
+            upper = middle
+    location = 0.5 * (lower + upper)
+    mass, floor = _truncated_mass(location, sigma), _normal_cdf((low - location) / sigma)
+    points = []
+    for index in range(int(count)):
+        target = (index + 0.5) / int(count)
+        lower, upper = low, high
+        for _ in range(80):
+            middle = 0.5 * (lower + upper)
+            if (_normal_cdf((middle - location) / sigma) - floor) / mass < target:
+                lower = middle
+            else:
+                upper = middle
+        points.append(0.5 * (lower + upper))
+    return tuple(points)
+
+
+def within_class_samples(lower_m, upper_m, diameters: int = SAMPLE_DIAMETERS, sphericities: int = SAMPLE_SPHERICITY, sigma: float = SPHERICITY_SIGMA) -> tuple[tuple[float, float, float], ...]:
+    """粒级内 N_d × N_φ 个取样点与权重。质量在 ln d 上均匀。解释性选择：ADR 0048 第 1 项。
+
+    取样细化使类别分得更细，见 S. 49；这些样本喂给式 (3.88) 的轨迹。
+    Source: Hamel Eq.3.88, S. 46
+    """
+    low, high = _positive("lower_m", lower_m), _positive("upper_m", upper_m)
+    if high <= low:
+        raise FreeboardError("粒级上边界必须高于下边界")
+    count_d = int(diameters)
+    step = (math.log(high) - math.log(low)) / count_d
+    points = [math.exp(math.log(low) + (index + 0.5) * step) for index in range(count_d)]
+    phi = sphericity_points(int(sphericities), float(sigma))
+    weight = 1.0 / (count_d * len(phi))
+    return tuple((diameter, value, weight) for diameter in points for value in phi)
+
+
 def _classify(
     count: int,
     fate: str,
@@ -153,35 +231,42 @@ def _classify(
     start_cell: int,
     segments: list[tuple[int, float, float, float]],
     crossings: list[tuple[float, int, int | None, str]],
+    midpoints: list[tuple[float, int, str]],
     capture_cells: frozenset[int],
+    region: str,
 ) -> TrajectoryFate:
     entry_index = None
-    entered = start_cell if start_cell in capture_cells else None
-    capture_time = 0.0 if entered is not None else None
-    for index, (time, from_cell, to_cell, _direction) in enumerate(crossings):
-        enters = to_cell is not None and to_cell in capture_cells and from_cell not in capture_cells
-        leaves = from_cell in capture_cells and (to_cell is None or to_cell not in capture_cells)
-        if enters:
-            entry_index = index
-            entered = to_cell
-            capture_time = time
-        elif leaves:
-            entered = None
-            capture_time = None
+    source = None
+    entered = None
+    capture_time = None
+    kind = None
+    if region == "cell":
+        source = start_cell if start_cell in capture_cells else None
+        entered = start_cell if start_cell in capture_cells else None
+        capture_time = 0.0 if entered is not None else None
+        kind = "up" if entered is not None else None
+        for index, (time, from_cell, to_cell, direction) in enumerate(crossings):
+            enters = to_cell is not None and to_cell in capture_cells and from_cell not in capture_cells
+            leaves = from_cell in capture_cells and (to_cell is None or to_cell not in capture_cells)
+            if enters:
+                entry_index = index
+                source, entered, capture_time, kind = from_cell, to_cell, time, direction
+            elif leaves:
+                source, entered, capture_time, kind = None, None, None, None
+    elif midpoints:
+        # 半格捕获区：进入 R* 即越过格中点；取最后一次进入。
+        capture_time, source, kind = midpoints[-1]
+        entered = source if kind == "up" else source - 1
     captured = fate == "capture"
-    if captured and (capture_time is None or entered is None):
-        raise FreeboardError("判定为捕获，但轨迹没有进入捕获区")
+    if captured and (capture_time is None or entered is None or entered < 0):
+        raise FreeboardError("判定为捕获，但轨迹没有确定的来源格")
     if not captured:
-        capture_time = None
-        entered = None
-        entry_index = None
-    at_start = captured and entry_index is None
+        capture_time, source, entered, kind, entry_index = None, None, None, None, None
+    at_start = captured and entry_index is None and capture_time == 0.0
     residence = [0.0] * count
     slip = [0.0] * count
     upward_free = [0.0] * count
-    upward_hover = [0.0] * count
     downward_free = [0.0] * count
-    downward_hover = [0.0] * count
     for cell, start, end, piece in segments:
         if capture_time is None or end <= capture_time:
             kept = end - start
@@ -191,15 +276,13 @@ def _classify(
             continue
         residence[cell] += kept
         slip[cell] += piece * kept / (end - start)
-    for index, (time, from_cell, _to_cell, direction) in enumerate(crossings):
-        hover = captured and entry_index is not None and index == entry_index
-        free = (not captured) or (capture_time is not None and time < capture_time)
-        if not hover and not free:
+    for time, from_cell, _to_cell, direction in crossings:
+        if captured and capture_time is not None and time >= capture_time:
             continue
         if direction == "up":
-            (upward_hover if hover else upward_free)[from_cell] += 1.0
+            upward_free[from_cell] += 1.0
         else:
-            (downward_hover if hover else downward_free)[from_cell] += 1.0
+            downward_free[from_cell] += 1.0
     return TrajectoryFate(
         fate,
         elapsed,
@@ -208,13 +291,14 @@ def _classify(
         reversals,
         capture_time if captured else None,
         at_start,
+        source if captured else None,
         entered if captured else None,
+        kind if captured else None,
+        len(midpoints) if region == "half" else len(crossings),
         tuple(residence),
         tuple(slip),
         tuple(upward_free),
-        tuple(upward_hover),
         tuple(downward_free),
-        tuple(downward_hover),
     )
 
 
@@ -231,12 +315,14 @@ def trace_until_fate(
     config: SolverConfig,
     equilibria: tuple[StableEquilibrium, ...] | None = None,
     scale: float = 1.0,
+    region: str = DEFAULT_REGION,
 ) -> TrajectoryFate:
     """逐格常系数解析推进到回落、带出，或穿过稳定界面时判为捕获。
 
     格内气速取 u_gb(h) 的高度平均。穿过稳定界面时 |u_P| ≤ δ_u，且按闭式 h(u)
-    求得的越界距离 ≤ δ_h，即判为捕获；捕获时刻按最后一次进入 R* 记账。
-    解释性选择：ADR 0026 第 2 项、ADR 0047 第 1 项；求解手段：ADR 0047 第 2、3 项。
+    求得的越界距离 ≤ δ_h，即判为捕获；进入捕获区的时刻按最后一次越过格中点记账，
+    只有捕获区之前的穿出才计入自由状态。解释性选择：ADR 0026 第 2 项、ADR 0047 第 1 项、
+    ADR 0048 第 2 项；求解手段：ADR 0047 第 2、3 项。
     Source: Hamel Eq.3.88, S. 46
     Source: Hamel Eq.3.93, S. 47
     """
@@ -291,9 +377,14 @@ def trace_until_fate(
     reversals = 0
     segments: list[tuple[int, float, float, float]] = []
     crossings: list[tuple[float, int, int | None, str]] = []
+    midpoints: list[tuple[float, int, str]] = []
     pending = 0.0
     outcome = None
     chosen = None
+    span = bounds[-1] - bounds[0]
+    for index in range(count):
+        if abs(height - 0.5 * (bounds[index] + bounds[index + 1])) <= 1.0e-12 * span:
+            midpoints.append((0.0, index, "up" if velocity > 0.0 else "down"))
 
     def close(end: float) -> None:
         nonlocal open_time, pending
@@ -323,6 +414,11 @@ def trace_until_fate(
         pending += abs(speeds[cell] * tau - (height_1 - height))
         if kind == "zero" or velocity * velocity_1 < 0.0:
             reversals += 1
+        middle = 0.5 * (bounds[cell] + bounds[cell + 1])
+        if tau > 0.0 and (height - middle) * (height_1 - middle) < 0.0:
+            reached = _boundary_time(a, b, c, velocity, height, middle, tau)
+            if reached is not None:
+                midpoints.append((elapsed + reached, cell, "up" if height_1 > height else "down"))
         elapsed += tau
         height, velocity = height_1, velocity_1
         close(elapsed)
@@ -349,25 +445,23 @@ def trace_until_fate(
     if outcome is None:
         raise FreeboardError(f"积分时间达到上限 {time_limit} s，归宿仍未确定")
     capture_cells = frozenset(chosen.cells) if chosen is not None else frozenset()
-    return _classify(count, outcome, elapsed, height, velocity, reversals, start_cell, segments, crossings, capture_cells)
+    return _classify(count, outcome, elapsed, height, velocity, reversals, start_cell, segments, crossings, midpoints, capture_cells, region)
 
 
-def _sum_ledgers(ledgers: list[tuple[TrajectoryFate, float]], count: int):
+def _sum_ledgers(ledgers, count: int, weight: float):
+    """把若干条轨迹的停留、滑移与自由状态穿出按（样本权重 × 轨迹权重）加总。"""
     residence = [0.0] * count
     slip = [0.0] * count
     upward_free = [0.0] * count
-    upward_hover = [0.0] * count
     downward_free = [0.0] * count
-    downward_hover = [0.0] * count
-    for ledger, weight in ledgers:
+    for ledger, share in ledgers:
+        scale = weight * share
         for cell in range(count):
-            residence[cell] += weight * ledger.residence_s[cell]
-            slip[cell] += weight * ledger.slip_m[cell]
-            upward_free[cell] += weight * ledger.upward_free[cell]
-            upward_hover[cell] += weight * ledger.upward_hover[cell]
-            downward_free[cell] += weight * ledger.downward_free[cell]
-            downward_hover[cell] += weight * ledger.downward_hover[cell]
-    return residence, slip, upward_free, upward_hover, downward_free, downward_hover
+            residence[cell] += scale * ledger.residence_s[cell]
+            slip[cell] += scale * ledger.slip_m[cell]
+            upward_free[cell] += scale * ledger.upward_free[cell]
+            downward_free[cell] += scale * ledger.downward_free[cell]
+    return residence, slip, upward_free, downward_free
 
 
 def account_freeboard(
@@ -383,11 +477,13 @@ def account_freeboard(
     direct_return_share: float,
     config: SolverConfig,
     scale: float = 1.0,
+    samples=None,
+    region: str = DEFAULT_REGION,
 ) -> ReferenceAccounting:
-    """由床面样本和各格当地轨迹得到 a^f、a^t、b^f、b^t、抛出拆分和 θ。
+    """由床面样本和各格当地轨迹得到 a^f、b^f、c↑、c↓、θ↑、θ↓ 与抛出拆分。
 
-    床面样本在该格有自由段时用床面样本，否则用全部当地轨迹在该格的自由段。
-    m̂ = 0 时自由状态不存在，不给系数。解释性选择：ADR 0016 第 9、10 条，ADR 0026 第 3 项。
+    每个粒级按 ADR 0048 第 1 项的取样点分别做参考轨迹，按权重汇总；m̂ = 0 时自由状态不存在。
+    解释性选择：ADR 0016 第 9、10 条，ADR 0026 第 2、3 项，ADR 0048 第 1、2 项。
     Source: Hamel Eq.2.6, S. 17
     Source: Hamel Eq.3.82, S. 44
     """
@@ -402,105 +498,107 @@ def account_freeboard(
     direct = _finite("direct_return_share", direct_return_share)
     if direct < 0.0 or abs(float(shares.sum()) + direct - 1.0) > 1.0e-8:
         raise FreeboardError("抛出份额与直接回落之和必须为 1，直接回落不能为负")
-    equilibria = stable_equilibria(edges, gas_velocity, densities, viscosities, diameter_m, rho_p, phi_s)
-    capture = tuple(sorted({cell for item in equilibria for cell in item.cells}))
-    capture_set = frozenset(capture)
+    if region not in {"half", "cell"}:
+        raise FreeboardError(f"不能识别的捕获区规则 {region}")
+    entries = ((float(diameter_m), float(phi_s), 1.0),) if samples is None else tuple(samples)
+    if not entries:
+        raise FreeboardError("粒级内取样不能为空")
     bed_surface = float(edges[0])
+    names = ("res", "slip", "up", "down", "c_up", "c_down", "slip_t", "w_t")
+    totals = {name: [0.0] * count for name in names}
+    local_totals = {name: [0.0] * count for name in names}
+    theta_up, theta_down = [0.0] * count, [0.0] * count
+    returned, elutriated, captured = direct, 0.0, 0.0
+    local_return, local_elutriation = 0.0, 0.0
+    first: tuple[StableEquilibrium, ...] = ()
+    for index, (diameter, phi, weight) in enumerate(entries):
+        equilibria = stable_equilibria(edges, gas_velocity, densities, viscosities, diameter, rho_p, phi)
+        if index == 0:
+            first = equilibria
+        capture_set = frozenset(cell for item in equilibria for cell in item.cells)
 
-    def follow(height: float, speed: float) -> TrajectoryFate:
-        return trace_until_fate(
-            height,
-            speed,
-            edges,
-            gas_velocity,
-            densities,
-            viscosities,
-            diameter_m,
-            rho_p,
-            phi_s,
-            config,
-            equilibria,
-            scale,
-        )
+        def follow(height: float, speed: float, diameter=diameter, phi=phi, equilibria=equilibria) -> TrajectoryFate:
+            return trace_until_fate(
+                height, speed, edges, gas_velocity, densities, viscosities, diameter, rho_p, phi,
+                config, equilibria, scale, region,
+            )
 
-    bed = [(follow(bed_surface, float(speeds_in[index])), float(shares[index])) for index in range(speeds_in.size)]
-    local = []
-    for cell in range(count):
-        midpoint = 0.5 * (float(edges[cell]) + float(edges[cell + 1]))
-        settling = terminal_settling_velocity(
-            float(densities[cell]), float(viscosities[cell]), diameter_m, rho_p, phi_s
-        )
-        mean = cell_mean_velocity(gas_velocity, cell, float(edges[cell]), float(edges[cell + 1]))
-        local.append(follow(midpoint, mean - settling))
-    ejection_free = 0.0
-    ejection_hover = 0.0
-    hover_inflow = [0.0] * count
-    returned = direct
-    elutriated = 0.0
-    for ledger, weight in bed:
-        if ledger.fate == "return":
-            returned += weight
-            ejection_free += weight
-        elif ledger.fate == "elutriate":
-            elutriated += weight
-            ejection_free += weight
-        elif ledger.captured_at_start:
-            if ledger.entered_cell != 0 or 0 not in capture_set:
-                raise FreeboardError("床面样本起步即捕获时，应进入最下一格的悬停状态")
-            ejection_hover += weight
-            hover_inflow[0] += weight
-        else:
-            ejection_free += weight
-            if ledger.entered_cell is None:
-                raise FreeboardError("捕获轨迹没有进入的格子")
-            hover_inflow[ledger.entered_cell] += weight
-    local_hover = [0.0] * count
-    local_return = 0.0
-    local_elutriation = 0.0
-    for cell, ledger in enumerate(local):
-        if ledger.fate == "return":
-            local_return += 1.0
-        elif ledger.fate == "elutriate":
-            local_elutriation += 1.0
-        else:
-            if ledger.entered_cell is None:
-                raise FreeboardError("当地轨迹捕获后没有进入的格子")
-            local_hover[ledger.entered_cell] += 1.0
-    bed_residence, bed_slip, bed_up_f, bed_up_t, bed_down_f, bed_down_t = _sum_ledgers(bed, count)
-    local_weighted = [(ledger, 1.0) for ledger in local]
-    loc_residence, loc_slip, loc_up_f, loc_up_t, loc_down_f, loc_down_t = _sum_ledgers(local_weighted, count)
+        bed = [(follow(bed_surface, float(speeds_in[i])), float(shares[i])) for i in range(speeds_in.size)]
+        local, settling = [], []
+        for cell in range(count):
+            terminal = terminal_settling_velocity(float(densities[cell]), float(viscosities[cell]), diameter, rho_p, phi)
+            settling.append(terminal)
+            middle = 0.5 * (edges[cell] + edges[cell + 1])
+            local.append(follow(middle, cell_mean_velocity(gas_velocity, cell, edges[cell], edges[cell + 1]) - terminal))
+        touched = [False] * count
+        for ledger, share in bed:
+            mass = weight * share
+            if ledger.fate == "return":
+                returned += mass
+            elif ledger.fate == "elutriate":
+                elutriated += mass
+            else:
+                captured += mass
+                if ledger.entered_cell is None:
+                    raise FreeboardError("捕获轨迹没有进入的格子")
+                key = "c_down" if ledger.entry_kind == "down" else "c_up"
+                totals[key][ledger.entry_cell] += mass
+                touched[ledger.entry_cell] = True
+        for cell, ledger in enumerate(local):
+            if ledger.fate == "return":
+                local_return += weight
+            elif ledger.fate == "elutriate":
+                local_elutriation += weight
+            entered = ledger.captured_at_start if region == "cell" else ledger.entry_count == 1
+            if ledger.fate != "capture" or not entered:
+                continue
+            if ledger.entry_kind == "up" and ledger.entered_cell == cell:
+                theta_up[cell] += weight
+                touched[cell] = True
+            elif ledger.entry_kind == "down" and ledger.entered_cell == cell - 1:
+                theta_down[cell] += weight
+                touched[cell] = True
+        for cell in range(count):
+            if touched[cell]:
+                totals["w_t"][cell] += weight
+                totals["slip_t"][cell] += weight * settling[cell]
+        bed_sum = dict(zip(("res", "slip", "up", "down"), _sum_ledgers(bed, count, weight)))
+        for name, values in bed_sum.items():
+            for cell in range(count):
+                totals[name][cell] += values[cell]
+        local_sum = dict(zip(("res", "slip", "up", "down"), _sum_ledgers([(ledger, 1.0) for ledger in local], count, weight)))
+        for name, values in local_sum.items():
+            for cell in range(count):
+                local_totals[name][cell] += values[cell]
     cells = []
     for cell in range(count):
-        theta = 1 if local[cell].captured_at_start else 0
-        use_bed = bed_residence[cell] > 0.0 or bed_up_f[cell] + bed_up_t[cell] + bed_down_f[cell] + bed_down_t[cell] > 0.0
-        if use_bed:
-            mass, moved, up_f, up_t, down_f, down_t = (
-                bed_residence[cell], bed_slip[cell], bed_up_f[cell], bed_up_t[cell], bed_down_f[cell], bed_down_t[cell],
-            )
-        else:
-            mass, moved, up_f, up_t, down_f, down_t = (
-                loc_residence[cell], loc_slip[cell], loc_up_f[cell], loc_up_t[cell], loc_down_f[cell], loc_down_t[cell],
-            )
-        outflow = up_f + up_t + down_f + down_t
+        bed_mass, local_mass = totals["res"][cell], local_totals["res"][cell]
+        use_bed = bed_mass > 0.0 or totals["up"][cell] + totals["down"][cell] > 0.0
+        source = totals if use_bed else local_totals
+        mass = source["res"][cell]
+        outflow = source["up"][cell] + source["down"][cell]
         if mass == 0.0:
             if outflow != 0.0:
                 raise FreeboardError("自由段有穿出通量但停留时间为 0")
-            cells.append(CellTransport(theta, _FREE_ABSENT, None, None, None, None, None))
+            cells.append(CellTransport(theta_up[cell], theta_down[cell], _FREE_ABSENT, None, None, None, None, None))
             continue
-        cells.append(CellTransport(theta, "存在", up_f / mass, up_t / mass, down_f / mass, down_t / mass, mass, moved / mass))
-    captured = sum(hover_inflow)
+        hover = None if totals["w_t"][cell] == 0.0 else totals["slip_t"][cell] / totals["w_t"][cell]
+        cells.append(CellTransport(
+            theta_up[cell], theta_down[cell], "存在",
+            source["up"][cell] / mass, source["down"][cell] / mass,
+            totals["c_up"][cell] / mass, totals["c_down"][cell] / mass,
+            mass, source["slip"][cell] / mass, hover,
+        ))
     return ReferenceAccounting(
-        tuple(item.height_m for item in equilibria),
-        capture,
+        tuple(item.height_m for item in first),
+        tuple(sorted({cell for item in first for cell in item.cells})),
         returned,
         elutriated,
         captured,
-        ejection_free,
-        ejection_hover,
-        tuple(hover_inflow),
-        tuple(local_hover),
+        float(shares.sum()),
+        0.0,
         local_return,
         local_elutriation,
         tuple(cells),
-        tuple((item.cells, item.height_m, item.half_width_m) for item in equilibria),
+        tuple((item.cells, item.height_m, item.half_width_m) for item in first),
     )

@@ -239,7 +239,7 @@ class _Context:
         return bed, free.suspension_mol_s, gap
     def chars(self):
         frozen, state = self.frozen, self.state
-        returning = (frozen.b_free_per_s[-1] + frozen.b_hover_per_s[-1]) * state.freeboard_char_free_kg[-1]
+        returning = frozen.b_free_per_s[-1] * state.freeboard_char_free_kg[-1]
         upward = frozen.k_auf_per_s[:, None] * state.bed_char_kg
         downward = frozen.m_dot_ab_kg_s[:, None] * state.bed_char_kg / frozen.geometric_mass_kg[:, None]
         leaving = np.zeros_like(state.bed_char_kg)
@@ -257,14 +257,24 @@ class _Context:
         hover_residual = np.zeros_like(state.freeboard_char_hover_kg)
         for cell in range(frozen.n_freeboard):
             for klass in range(frozen.n_class):
-                inflow_free, inflow_hover = self._char_inflow(cell, klass, returning_unused=None)
+                inflow_free, inflow_hover = self._char_inflow(cell, klass)
                 mig_in = self.migration_free[cell, klass + 1] + self.migration_hover[cell, klass + 1] if klass + 1 < frozen.n_class else 0.0
+                # θ↓ 由上方相邻格的迁移入流分到本格的悬停状态。解释性选择：ADR 0048 第 2 项。
+                dropped = 0.0
+                if klass + 1 < frozen.n_class and cell > 0:
+                    dropped = float(frozen.theta_down[cell - 1, klass]) * (
+                        self.migration_free[cell - 1, klass + 1] + self.migration_hover[cell - 1, klass + 1]
+                    )
+                up, down = float(frozen.theta_up[cell, klass]), float(frozen.theta_down[cell, klass])
                 if not frozen.free_absent[cell, klass]:
-                    outflow = (frozen.a_free_per_s[cell, klass] + frozen.a_hover_per_s[cell, klass] + frozen.b_free_per_s[cell, klass] + frozen.b_hover_per_s[cell, klass]) * state.freeboard_char_free_kg[cell, klass]
-                    free_residual[cell, klass] = inflow_free + frozen.char_gen_free_kg_s[cell, klass] - outflow - self.consumption_free[cell, klass] - self.migration_free[cell, klass] + (1.0 - frozen.theta[cell, klass]) * mig_in
+                    outflow = self._free_outflow(cell, klass) * state.freeboard_char_free_kg[cell, klass]
+                    free_residual[cell, klass] = inflow_free + frozen.char_gen_free_kg_s[cell, klass] - outflow - self.consumption_free[cell, klass] - self.migration_free[cell, klass] + (1.0 - up - down) * mig_in
                 if frozen.hover[cell, klass]:
-                    hover_residual[cell, klass] = inflow_hover + frozen.char_gen_hover_kg_s[cell, klass] - self.consumption_hover[cell, klass] - self.migration_hover[cell, klass] + frozen.theta[cell, klass] * mig_in
-        elutriation = (frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]) * state.freeboard_char_free_kg[0]
+                    hover_residual[cell, klass] = (
+                        inflow_hover + frozen.char_gen_hover_kg_s[cell, klass] - self.consumption_hover[cell, klass]
+                        - self.migration_hover[cell, klass] + up * mig_in + dropped
+                    )
+        elutriation = frozen.a_free_per_s[0] * state.freeboard_char_free_kg[0]
         if frozen.hover_closure == "C":
             elutriation = elutriation + redirected
         char_sum = bed.residual_kg_s.sum() + free_residual.sum() + hover_residual.sum()
@@ -280,12 +290,12 @@ class _Context:
         for cell in range(frozen.n_freeboard):
             for klass in range(frozen.n_class):
                 if not frozen.free_absent[cell, klass]:
-                    outflow = (frozen.a_free_per_s[cell, klass] + frozen.a_hover_per_s[cell, klass] + frozen.b_free_per_s[cell, klass] + frozen.b_hover_per_s[cell, klass]) * state.freeboard_ash_free_kg[cell, klass]
+                    outflow = self._free_outflow(cell, klass) * state.freeboard_ash_free_kg[cell, klass]
                     free_residual[cell, klass] = entering_free[cell, klass] - outflow - self.ash_migration_free[cell, klass] - self.ash_release_free[cell, klass]
                 if frozen.hover[cell, klass]:
                     hover_residual[cell, klass] = entering_hover[cell, klass] - self.ash_migration_hover[cell, klass] - self.ash_release_hover[cell, klass]
-        returning = (frozen.b_free_per_s[-1] + frozen.b_hover_per_s[-1]) * state.freeboard_ash_free_kg[-1]
-        elutriation = (frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]) * state.freeboard_ash_free_kg[0]
+        returning = frozen.b_free_per_s[-1] * state.freeboard_ash_free_kg[-1]
+        elutriation = frozen.a_free_per_s[0] * state.freeboard_ash_free_kg[0]
         held = entering_hover - self.ash_migration_hover - self.ash_release_hover
         redirected = np.zeros(frozen.n_class) if frozen.hover_closure == "A" else held.sum(axis=0)
         if frozen.hover_closure == "B":
@@ -331,18 +341,23 @@ class _Context:
                 self._deposit_migration(entering_free, entering_hover, cell, klass - 1, self.ash_migration_free[cell, klass], self.ash_migration_hover[cell, klass])
         ejection = frozen.k_auf_per_s[0] * self._bed_ash_share[0]
         for klass in range(frozen.n_class):
-            self._deposit(entering_free, entering_hover, frozen.n_freeboard - 1, klass, False, ejection[klass] * frozen.ejection_to_free[klass])
-            self._deposit(entering_free, entering_hover, frozen.n_freeboard - 1, klass, True, ejection[klass] * frozen.ejection_to_hover[klass])
+            self._deposit(entering_free, entering_hover, frozen.n_freeboard - 1, klass, False, ejection[klass])
         for cell in range(frozen.n_freeboard - 1):
             mobile = state.freeboard_ash_free_kg[cell + 1]
             for klass in range(frozen.n_class):
                 self._deposit(entering_free, entering_hover, cell, klass, False, frozen.a_free_per_s[cell + 1, klass] * mobile[klass])
-                self._deposit(entering_free, entering_hover, cell, klass, True, frozen.a_hover_per_s[cell + 1, klass] * mobile[klass])
+        for cell in range(1, frozen.n_freeboard):
+            mobile = state.freeboard_ash_free_kg[cell - 1]
+            for klass in range(frozen.n_class):
+                self._deposit(entering_free, entering_hover, cell, klass, True, frozen.c_down_per_s[cell - 1, klass] * mobile[klass])
+        for cell in range(frozen.n_freeboard):
+            mobile = state.freeboard_ash_free_kg[cell]
+            for klass in range(frozen.n_class):
+                self._deposit(entering_free, entering_hover, cell, klass, True, frozen.c_up_per_s[cell, klass] * mobile[klass])
         for cell in range(1, frozen.n_freeboard):
             mobile = state.freeboard_ash_free_kg[cell - 1]
             for klass in range(frozen.n_class):
                 self._deposit(entering_free, entering_hover, cell, klass, False, frozen.b_free_per_s[cell - 1, klass] * mobile[klass])
-                self._deposit(entering_free, entering_hover, cell, klass, True, frozen.b_hover_per_s[cell - 1, klass] * mobile[klass])
         return entering_free, entering_hover, ejection
     def _char_rate(self, m_char, m_ash, klass, temperature, pressure, velocity, y, c, fractions, mu, rho):
         diameter = float(self.frozen.diameter_m[klass])
@@ -402,21 +417,27 @@ class _Context:
             _, c_b, _, _, _ = _phase_point(state.bed_gas_mol_s[cell, 1], state.bed_temperature_k[cell], frozen.bed_pressure_pa[cell])
             exchange[cell] = frozen.k_bd_per_s[cell] * frozen.v_bubble_exchange_m3[cell] * (c_s - c_b)
         return exchange
-    def _char_inflow(self, cell, klass, returning_unused):
+    def _free_outflow(self, cell: int, klass: int) -> float:
+        """自由状态经格顶、格底与格内转入离开的系数之和。解释性选择：ADR 0048 第 2 项。"""
+        frozen = self.frozen
+        return float(
+            frozen.a_free_per_s[cell, klass] + frozen.b_free_per_s[cell, klass]
+            + frozen.c_up_per_s[cell, klass] + frozen.c_down_per_s[cell, klass]
+        )
+
+    def _char_inflow(self, cell, klass):
         frozen, state = self.frozen, self.state
         free_in = hover_in = 0.0
         if cell == frozen.n_freeboard - 1:
-            thrown = frozen.k_auf_per_s[0] * state.bed_char_kg[0, klass]
-            free_in += thrown * frozen.ejection_to_free[klass]
-            hover_in += thrown * frozen.ejection_to_hover[klass]
+            free_in += frozen.k_auf_per_s[0] * state.bed_char_kg[0, klass]
         if cell + 1 < frozen.n_freeboard:
             below = state.freeboard_char_free_kg[cell + 1, klass]
             free_in += frozen.a_free_per_s[cell + 1, klass] * below
-            hover_in += frozen.a_hover_per_s[cell + 1, klass] * below
         if cell > 0:
             above = state.freeboard_char_free_kg[cell - 1, klass]
             free_in += frozen.b_free_per_s[cell - 1, klass] * above
-            hover_in += frozen.b_hover_per_s[cell - 1, klass] * above
+            hover_in += frozen.c_down_per_s[cell - 1, klass] * above
+        hover_in += frozen.c_up_per_s[cell, klass] * state.freeboard_char_free_kg[cell, klass]
         self._reject_missing_destination(cell, klass, free_in, hover_in)
         return free_in, hover_in
     def _reject_missing_destination(self, cell, klass, free_in, hover_in) -> None:
@@ -438,9 +459,12 @@ class _Context:
         self._deposit(entering_free, entering_hover, cell, 0, bool(self.frozen.free_absent[cell, 0]), amount)
     def _deposit_migration(self, entering_free, entering_hover, cell, klass, from_free, from_hover) -> None:
         total = from_free + from_hover
-        theta = self.frozen.theta[cell, klass]
-        self._deposit(entering_free, entering_hover, cell, klass, False, (1.0 - theta) * total)
-        self._deposit(entering_free, entering_hover, cell, klass, True, theta * total)
+        up = float(self.frozen.theta_up[cell, klass])
+        down = float(self.frozen.theta_down[cell, klass])
+        self._deposit(entering_free, entering_hover, cell, klass, False, (1.0 - up - down) * total)
+        self._deposit(entering_free, entering_hover, cell, klass, True, up * total)
+        if down != 0.0:
+            self._deposit(entering_free, entering_hover, cell + 1, klass, True, down * total)
     def _ash_inflow_to_smallest_hover(self) -> None:
         """与灰方程同一份入流。热解生成与燃尽释放都算流入。"""
         frozen = self.frozen
@@ -524,8 +548,8 @@ class _Context:
         external = np.zeros(frozen.n_freeboard)
         for cell in range(frozen.n_freeboard):
             temperature = float(state.freeboard_temperature_k[cell])
-            coefficient_up = frozen.a_free_per_s[cell] + frozen.a_hover_per_s[cell]
-            coefficient_down = frozen.b_free_per_s[cell] + frozen.b_hover_per_s[cell]
+            coefficient_up = frozen.a_free_per_s[cell]
+            coefficient_down = frozen.b_free_per_s[cell] + frozen.c_down_per_s[cell]
             char_up = float((coefficient_up * state.freeboard_char_free_kg[cell]).sum())
             ash_up = float((coefficient_up * state.freeboard_ash_free_kg[cell]).sum())
             upward[cell] = _stream_enthalpy(state.freeboard_gas_mol_s[cell], char_up, ash_up, float(frozen.fuel_up_free_kg_s[cell].sum()), temperature, frozen)

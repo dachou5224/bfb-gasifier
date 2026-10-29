@@ -12,6 +12,7 @@ import numpy as np
 
 from hamel.solver.frozen import AssemblyError, FreeboardDomainError, TrialNotEvaluable
 from hamel.solver.residual import evaluate_residual
+from hamel.solver.sensitivity import diameter_at, section_volume_m3
 from hamel.solver.vector import ReactorState, pack_state, unknown_slots, unpack_state
 
 _SQRT_EPS = math.sqrt(float(np.finfo(float).eps))
@@ -105,14 +106,73 @@ def interface_flows(frozen, state: ReactorState) -> dict:
     }
 
 
+def solve_prelaunch(state: ReactorState, frozen, m_dot_ref: float, gate: float = 1.0e-6) -> dict:
+    """固定床区焦炭，只解自由空间的焦炭块与灰块。求解手段：ADR 0049 第 3 步。
+
+    回代只检查自由空间的焦炭行与灰行；床区固相行此时尚未求解，只记录残差。
+    """
+    slots = unknown_slots(frozen)
+    char_slots = tuple(slot for slot in slots if slot.kind == "char" and slot.zone == "freeboard")
+    ash_slots = tuple(slot for slot in slots if slot.kind == "ash")
+    rows = [slot.index for slot in slots if slot.zone == "freeboard" and slot.kind in ("char", "ash")]
+    bed = [slot.index for slot in slots if slot.zone == "bed" and slot.kind in ("char", "ash")]
+    x = np.asarray(pack_state(state, frozen), dtype=float)
+    scale = float(np.sum(frozen.geometric_mass_kg))
+    x = _solve_block(x, _values(x, frozen, "预启动焦炭块"), char_slots, scale, m_dot_ref, frozen, "自由空间焦炭块")
+    _require_bed_ash(x, frozen)
+    x = _solve_block(x, _values(x, frozen, "预启动灰块"), ash_slots, scale, m_dot_ref, frozen, "自由空间灰块")
+    checked = _values(x, frozen, "预启动回代")
+    residual = float(np.max(np.abs(checked[rows])) / m_dot_ref) if rows else 0.0
+    bed_residual = float(np.max(np.abs(checked[bed])) / m_dot_ref) if bed else 0.0
+    solved = unpack_state(x, frozen)
+    if residual > gate:
+        largest = max(((abs(checked[slot.index]), slot.name) for slot in slots if slot.zone == "freeboard" and slot.kind in ("char", "ash")))
+        raise InitialStateError(
+            f"预启动回代不满足自由空间固相门：{residual:.3e} > {gate:.1e}，最大项 {largest[1]} = {largest[0]:.3e} kg/s"
+        )
+    return {
+        "state": solved,
+        "freeboard_residual": residual,
+        "bed_residual": bed_residual,
+        "char_free_kg": np.asarray(solved.freeboard_char_free_kg, dtype=float).tolist(),
+        "char_hover_kg": np.asarray(solved.freeboard_char_hover_kg, dtype=float).tolist(),
+        "ash_free_kg": np.asarray(solved.freeboard_ash_free_kg, dtype=float).tolist(),
+        "ash_hover_kg": np.asarray(solved.freeboard_ash_hover_kg, dtype=float).tolist(),
+        "volume_ratio": _volume_ratio(solved, frozen),
+    }
+
+
+def _volume_ratio(state, frozen) -> list:
+    """每格自由空间固体体积与 (1−ε_mf)·V 之比。只报告，不截断。"""
+    ratios = []
+    for cell in range(frozen.n_freeboard):
+        solid = float(
+            state.freeboard_char_free_kg[cell].sum() + state.freeboard_char_hover_kg[cell].sum()
+            + state.freeboard_ash_free_kg[cell].sum() + state.freeboard_ash_hover_kg[cell].sum()
+        )
+        height = frozen.freeboard_height_m
+        geometric = frozen.n_freeboard - 1 - cell
+        z0 = geometric * height
+        d0 = diameter_at(z0, frozen.bed_diameter_m, frozen.freeboard_diameter_m)
+        d1 = diameter_at(z0 + height, frozen.bed_diameter_m, frozen.freeboard_diameter_m)
+        volume = math.pi * (0.5 * d0) ** 2 * height if d0 == d1 else section_volume_m3(z0, z0 + height, frozen.bed_diameter_m, frozen.freeboard_diameter_m)
+        ratios.append(solid / frozen.rho_p_kg_m3 / (volume * (1.0 - frozen.epsilon_mf)))
+    return ratios
+
+
 def construct(initial, precalc, m_dot_ref: float, *, max_loops: int = 5, tolerance: float = 1.0e-2, gate: float = 1.0e-6, records=None):
-    """用 ADR 0045 的起点反复“解固相块 → 重做预计算”，直到相邻两次的界面流与回落的相对变化 < tolerance。
+    """ADR 0049 的预启动（先解自由空间块）之后，按 ADR 0045 反复“解固相块 → 重做预计算”。
 
     相对变化以 ADR 0012 的固定参考尺度 m_dot_ref 作分母。做满 max_loops 次时以最后一次的固相为初值。
     records 给出时，每次循环与有效域拒绝都写进该列表，便于报告保留未完成的一步。
+    求解手段：ADR 0045、ADR 0049。
     """
     log = [] if records is None else records
     result = initial
+    started = _prelaunch(initial, precalc, m_dot_ref, gate, log)
+    if started is None:
+        return initial, log, "停止：预启动阶段未完成"
+    result = started
     previous = interface_flows(result.frozen, result.state)
     reached = False
     for index in range(1, int(max_loops) + 1):
@@ -151,6 +211,20 @@ def construct(initial, precalc, m_dot_ref: float, *, max_loops: int = 5, toleran
             break
     note = "" if reached else f"交替 {int(max_loops)} 次后相对变化仍未全部小于 {tolerance:g}"
     return result, log, note
+
+
+def _prelaunch(initial, precalc, m_dot_ref, gate, log):
+    """ADR 0049 第 3、4 步：解自由空间块，再用这一状态重做预计算（回馈已解固相）。"""
+    stage = solve_prelaunch(initial.state, initial.frozen, m_dot_ref, gate)
+    record = {name: value for name, value in stage.items() if name != "state"}
+    record.update({"stage": "预启动（ADR 0049 第 3 步）", "loops": None})
+    before = interface_flows(initial.frozen, initial.state)
+    result = precalc(stage["state"])
+    after = interface_flows(result.frozen, result.state)
+    record["interface_before"] = {name: np.asarray(value, dtype=float).tolist() for name, value in before.items()}
+    record["interface_after"] = {name: np.asarray(value, dtype=float).tolist() for name, value in after.items()}
+    log.append(record)
+    return result
 
 
 def _char_ash_derivative(x, base, char_slots, ash_slots, scale, frozen) -> float:

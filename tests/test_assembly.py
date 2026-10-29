@@ -166,17 +166,20 @@ def test_pack_unpack_round_trip():
 def test_free_state_absent_is_omitted():
     hover = np.zeros((2, 2), dtype=bool)
     absent = np.zeros((2, 2), dtype=bool)
-    hover[-1, 1] = True
-    absent[-1, 1] = True
+    # 顶格：粒级 2 只有悬停状态（床面抛出只进自由状态，故最下层不能缺自由状态）。
+    hover[0, 1] = True
+    absent[0, 1] = True
+    # ADR 0048 起床面抛出只进自由状态，故自由状态不存在的格子只能在最下层以上没有抛入时出现。
+    theta_up = np.array([[0.0, 1.0], [0.0, 0.0]])
     frozen = make_frozen(
-        hover=hover, free_absent=absent, theta=np.array([[0.0, 0.0], [0.0, 1.0]]),
-        ejection_to_free=np.array([1.0, 0.0]), ejection_to_hover=np.array([0.0, 1.0]),
-        a_free_per_s=_zeros((2, 2)), a_hover_per_s=_zeros((2, 2)),
-        b_free_per_s=_zeros((2, 2)), b_hover_per_s=_zeros((2, 2)),
+        hover=hover, free_absent=absent, theta_up=theta_up,
+        a_free_per_s=_zeros((2, 2)), b_free_per_s=_zeros((2, 2)),
+        c_up_per_s=_zeros((2, 2)), c_down_per_s=_zeros((2, 2)),
+        k_auf_per_s=_zeros(2),
     )
     slots = unknown_slots(frozen)
-    assert not any(slot.balance_index == 1 and slot.size_class == 1 and slot.phase == "free" for slot in slots)
-    assert any(slot.balance_index == 1 and slot.size_class == 1 and slot.phase == "hover" and slot.kind == "char" for slot in slots)
+    assert not any(slot.balance_index == 0 and slot.size_class == 1 and slot.phase == "free" for slot in slots)
+    assert any(slot.balance_index == 0 and slot.size_class == 1 and slot.phase == "hover" and slot.kind == "char" for slot in slots)
     state = make_state(frozen)
     result = _evaluate(frozen, state)
     assert result.char_gap_kg_s == pytest.approx(0.0, abs=1.0e-9)
@@ -345,7 +348,7 @@ def test_two_ash_ratios_and_two_states_sum_to_equation_2_6():
 def test_hover_without_reaction_and_captured_fines_stop():
     hover = np.zeros((2, 1), dtype=bool)
     hover[-1, 0] = True
-    frozen = make_frozen(n_class=1, hover=hover, ejection_to_free=np.array([0.0]), ejection_to_hover=np.array([1.0]))
+    frozen = make_frozen(n_class=1, hover=hover, c_up_per_s=np.array([[0.0], [0.05]]))
     state = make_state(frozen, char=0.002, ash=1.0e-4)
     state.bed_gas_mol_s[:] = 0.0
     state.freeboard_gas_mol_s[:] = 0.0
@@ -355,11 +358,10 @@ def test_hover_without_reaction_and_captured_fines_stop():
         _evaluate(frozen, state)
 
     captured = make_frozen(
-        n_class=1, hover=hover,
-        ejection_to_free=np.array([0.0]), ejection_to_hover=np.array([1.0]),
+        n_class=1, hover=hover, c_up_per_s=np.array([[0.0], [0.05]]),
         k_auf_per_s=np.array([0.05, 0.05]),
     )
-    flowing = make_state(captured, char=0.02, ash=0.0)
+    flowing = make_state(captured, char=0.02, ash=1.0e-4)
     with pytest.raises(FreeboardDomainError, match="最小粒级"):
         _evaluate(captured, flowing)
 

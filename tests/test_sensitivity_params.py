@@ -120,24 +120,23 @@ def _closure_frozen(closure: str):
     hover = np.zeros((n_free, n_class), dtype=bool)
     if closure == "A":
         hover[:, 1] = True
-    theta = np.zeros((n_free, n_class))
-    theta[:, 1] = 1.0
-    a_hover = np.zeros((n_free, n_class))
-    b_hover = np.zeros((n_free, n_class))
-    a_hover[1, 1] = 0.2
-    b_hover[0, 1] = 0.15
+    theta_up = np.zeros((n_free, n_class))
+    theta_down = np.zeros((n_free, n_class))
+    theta_up[:, 1] = 1.0
+    # 格 1 的格内向上转入（本格悬停），格 0 的格内向下转入（下方格 1 的悬停）。ADR 0048 第 2 项。
+    c_up = np.zeros((n_free, n_class))
+    c_down = np.zeros((n_free, n_class))
+    c_up[1, 1] = 0.2
+    c_down[0, 1] = 0.15
     fuel_up = np.zeros((n_free, n_class))
     fuel_down = np.zeros((n_free, n_class))
     fuel_up[1, 1] = 1.0e-4
     fuel_down[0, 1] = 2.0e-4
-    ejection_to_free = np.ones(n_class)
-    ejection_to_hover = np.zeros(n_class)
-    ejection_to_free[1] = 0.75
-    ejection_to_hover[1] = 0.25
     return make_frozen(
         n_bed=1, n_free=n_free, n_class=n_class, hover=hover, hover_closure=closure,
-        a_hover_per_s=a_hover, b_hover_per_s=b_hover, theta=theta,
-        ejection_to_free=ejection_to_free, ejection_to_hover=ejection_to_hover,
+        theta_up=theta_up, theta_down=theta_down, theta=theta_up + theta_down,
+        c_up_per_s=c_up, c_down_per_s=c_down,
+        ejection_to_free=np.ones(n_class), ejection_to_hover=np.zeros(n_class),
         fuel_up_free_kg_s=fuel_up, fuel_down_free_kg_s=fuel_down,
         fuel_up_bed_kg_s=np.full((1, n_class), 1.0e-4),
         char_gen_hover_kg_s=np.zeros((n_free, n_class)), ash_gen_hover_kg_s=np.zeros((n_free, n_class)),
@@ -163,9 +162,14 @@ def test_redirect_ledger_cancels_item_by_item_and_the_gaps_stay_closed():
         counted = {}
         for item in moved:
             counted[item["kind"]] = counted.get(item["kind"], 0.0) + item["char"]
-        assert counted["a_t"] == pytest.approx(float((frozen.a_hover_per_s[1] * state.freeboard_char_free_kg[1]).sum()))
-        outflow = (frozen.a_free_per_s + frozen.a_hover_per_s + frozen.b_free_per_s + frozen.b_hover_per_s) * state.freeboard_char_free_kg
-        assert float(outflow[1].sum()) == pytest.approx(float(((frozen.a_free_per_s[1] + frozen.a_hover_per_s[1] + frozen.b_free_per_s[1] + frozen.b_hover_per_s[1]) * state.freeboard_char_free_kg[1]).sum()))
+        expected = float((frozen.c_up_per_s[1] * state.freeboard_char_free_kg[1]).sum()) + float(
+            (frozen.c_down_per_s[0] * state.freeboard_char_free_kg[0]).sum()
+        )
+        assert counted["c"] == pytest.approx(expected)
+        outflow = (frozen.a_free_per_s + frozen.b_free_per_s + frozen.c_up_per_s + frozen.c_down_per_s) * state.freeboard_char_free_kg
+        assert float(outflow[1].sum()) == pytest.approx(
+            float(((frozen.a_free_per_s[1] + frozen.b_free_per_s[1] + frozen.c_up_per_s[1] + frozen.c_down_per_s[1]) * state.freeboard_char_free_kg[1]).sum())
+        )
         result = evaluate_residual(pack_state(state, frozen), frozen)
         assert abs(result.char_gap_kg_s) <= 1.0e-8
         assert abs(result.ash_gap_kg_s) <= 1.0e-8

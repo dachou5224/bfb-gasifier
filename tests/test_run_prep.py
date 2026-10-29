@@ -110,11 +110,11 @@ def _as_received(frozen, assembly, fractions):
 def test_freeboard_closure_counts_reaction_and_redirect_once():
     fractions = {"C": 0.5, "H": 0.05, "O": 0.3}
     for closure in ("B", "C"):
-        hover = np.zeros((2, 2))
-        hover[1, 0] = 0.4
+        # 进入悬停状态的流由格内转入系数给出。ADR 0048 第 2 项。
+        c_up = np.zeros((2, 2))
+        c_up[1, 0] = 0.4
         frozen = make_frozen(
-            hover_closure=closure, a_hover_per_s=hover,
-            ejection_to_free=np.array([0.75, 0.75]), ejection_to_hover=np.array([0.25, 0.25]),
+            hover_closure=closure, c_up_per_s=c_up,
             fuel_up_bed_kg_s=np.full((2, 2), 1.0e-4), fuel_up_free_kg_s=np.full((2, 2), 2.0e-5),
             fuel_down_free_kg_s=np.full((2, 2), 1.0e-5),
         )
@@ -124,8 +124,8 @@ def test_freeboard_closure_counts_reaction_and_redirect_once():
         assert reaction > 0.0
         book = freeboard_closure(state, frozen, assembly, _as_received(frozen, assembly, fractions))
         assert book["reaction_char_kg_s"] == pytest.approx(reaction)
-        assert book["ejection_hover_char_kg_s"] > 0.0
-        assert book["redirect_char_kg_s"] + 1.0e-15 >= book["ejection_hover_char_kg_s"]
+        assert book["hover_inflow_char_kg_s"] > 0.0
+        assert book["redirect_char_kg_s"] + 1.0e-15 >= book["hover_inflow_char_kg_s"]
         carbon_in, carbon_out = _hand_carbon(state, frozen, assembly, fractions)
         assert book["totals"]["C"]["in"] == pytest.approx(carbon_in)
         assert book["totals"]["C"]["out"] == pytest.approx(carbon_out)
@@ -256,10 +256,10 @@ def test_dried_fuel_keeps_its_own_composition():
 def test_redirect_is_added_to_the_actual_return_or_elutriation():
     from tools.run_prep import stock_report
 
-    hover = np.zeros((2, 2))
-    hover[1, 0] = 0.4
+    c_up = np.zeros((2, 2))
+    c_up[1, 0] = 0.4
     shared = dict(
-        a_hover_per_s=hover, ejection_to_free=np.array([0.75, 0.75]), ejection_to_hover=np.array([0.25, 0.25]),
+        c_up_per_s=c_up,
         fuel_up_bed_kg_s=np.full((2, 2), 1.0e-4), fuel_up_free_kg_s=np.full((2, 2), 2.0e-5),
         fuel_down_free_kg_s=np.full((2, 2), 1.0e-5),
     )
@@ -274,8 +274,8 @@ def test_redirect_is_added_to_the_actual_return_or_elutriation():
         from tools.run_prep import _mobile_ash
 
         klass = 0
-        upward = float(frozen.a_free_per_s[0, klass] + frozen.a_hover_per_s[0, klass])
-        downward = float(frozen.b_free_per_s[-1, klass] + frozen.b_hover_per_s[-1, klass])
+        upward = float(frozen.a_free_per_s[0, klass])
+        downward = float(frozen.b_free_per_s[-1, klass])
         top = float(state.freeboard_char_free_kg[0, klass] + _mobile_ash(state, frozen, 0)[klass])
         bottom = float(state.freeboard_char_free_kg[-1, klass] + _mobile_ash(state, frozen, -1)[klass])
         ordinary_return = downward * bottom + float(frozen.fuel_down_free_kg_s[-1, klass])
@@ -387,10 +387,11 @@ def test_missing_free_state_stays_in_the_refinement():
     }
     config = replace(SolverConfig(), freeboard_ejection_samples=4)
     result = refine_trajectory(config, column)
-    assert result["a_f"] == [0.0, None, None]
+    # 半格捕获区下最上一格的自由状态不存在（ADR 0048 第 2 项），其余格有自由状态。
+    assert result["a_f"][-1] is None
     assert result["existence_changed"] is False
-    absent = SimpleNamespace(a_f=None, a_t=None, b_f=None, b_t=None)
-    present = SimpleNamespace(a_f=0.2, a_t=None, b_f=None, b_t=None)
+    absent = SimpleNamespace(a_f=None, b_f=None, c_up=None, c_down=None)
+    present = SimpleNamespace(a_f=0.2, b_f=None, c_up=None, c_down=None)
     same, unchanged = _book_change(SimpleNamespace(cells=[absent]), SimpleNamespace(cells=[absent]))
     gap, changed = _book_change(SimpleNamespace(cells=[absent]), SimpleNamespace(cells=[present]))
     assert same == 0.0 and unchanged is False

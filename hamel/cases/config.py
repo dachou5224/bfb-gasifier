@@ -91,6 +91,8 @@ class SolverConfig:
     interphase_diffusivity: str = "hamel_5_20"
     hover_closure: str = "A"
     serio_pair: str = "first"
+    # 敏感性 S17：自由空间轨迹的格内气速。ADR 0048 第 3 项。
+    freeboard_gas_velocity: str = "ghost_bubble"
 
 
 # 已批准的 ε_P 与 Serio 对。不是新的可调物理参数。ADR 0017 第 17 项；表 5.4，S. 97。

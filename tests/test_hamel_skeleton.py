@@ -107,6 +107,7 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
         "interphase_diffusivity",
         "hover_closure",
         "serio_pair",
+        "freeboard_gas_velocity",
     }
     assert solver.pyrolysis_radial_intervals == 24
     assert solver.pyrolysis_time_rtol == 1.0e-6
@@ -136,6 +137,7 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
     assert solver.interphase_diffusivity == "hamel_5_20"
     assert solver.hover_closure == "A"
     assert solver.serio_pair == "first"
+    assert solver.freeboard_gas_velocity == "ghost_bubble"
     with pytest.raises(TypeError):
         PhysicalConfig()
     with pytest.raises(TypeError):
