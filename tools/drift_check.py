@@ -12,7 +12,7 @@
   未提交改动计入，避免超限代码只留在工作树里。目标所有者在派发前书面批准、
   并且批准记在 ``docs/STATUS.md`` 的任务卡除外：同一行要有任务号、
   「净增代码上限 N 行」和「派发前批准」，当前分支名含该任务号，净增不超过 N。
-- ``hamel/`` 非测试 Python 的当前总行数超过 10000（CHARTER v0.13 §6.2）。
+- ``hamel/`` 非测试 Python 的当前总行数超过 11000（CHARTER v0.14 §6.2）。
 - 新增配置字段没有出处。字段只从 ``hamel/**/config.py`` 读取：模块级字面量字典
   ``PHYSICAL`` / ``PHYSICAL_CONFIG``、``SOLVER`` / ``SOLVER_CONFIG``，以及类
   ``PhysicalConfig``、``SolverConfig`` 的公开字段。求解器字段必须在正式 ADR
@@ -45,8 +45,8 @@ NET_CODE_LIMIT = 800
 _NET_APPROVAL = re.compile(
     r"(T\d+[a-z]?)\D{0,40}净增代码上限\s*(\d+)\s*行[^|\n]{0,80}派发前批准"
 )
-# CHARTER v0.13 §6.2：第 1 关通过前，hamel/ 代码总量上限 10000 行（不含测试）。
-HAMEL_LINE_LIMIT = 10000
+# CHARTER v0.14 §6.2：第 1 关通过前，hamel/ 代码总量上限 11000 行（不含测试）。
+HAMEL_LINE_LIMIT = 11000
 # CHARTER §6.2：物理参数配置不超过 30 项。求解器参数单独成组，不计入此项。
 PHYSICAL_FIELD_LIMIT = 30
 # CHARTER §9：连续 2 周没有任何工况指标变化。
