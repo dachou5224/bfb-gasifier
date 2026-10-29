@@ -481,26 +481,129 @@ def test_pyrolysis_ash_into_smallest_hover_stops():
         _evaluate(frozen, state)
 
 
-def test_large_class_ash_redirected_into_captured_fines_stops():
-    hover = np.zeros((2, 2), dtype=bool)
-    absent = np.zeros((2, 2), dtype=bool)
-    hover[-1, 0] = True
-    absent[-1, 0] = True
-    theta = np.zeros((2, 2))
-    theta[-1, 0] = 1.0
-    ash_gen = np.zeros((2, 2))
-    ash_gen[-1, 1] = 0.001
+def test_large_class_ash_transports_without_char():
+    """ADR 0044 第 4 项：取消 m_C = 0 的切换，k > 1 的灰按同一线性式迁移与释放，不向 k = 1 改记。"""
     frozen = make_frozen(
-        hover=hover, free_absent=absent, theta=theta,
-        ejection_to_free=np.array([0.0, 1.0]), ejection_to_hover=np.array([1.0, 0.0]),
-        k_auf_per_s=np.zeros(2), ash_gen_free_kg_s=ash_gen,
-        a_free_per_s=np.zeros((2, 2)), a_hover_per_s=np.zeros((2, 2)),
-        b_free_per_s=np.zeros((2, 2)), b_hover_per_s=np.zeros((2, 2)),
+        k_auf_per_s=np.zeros(2), m_dot_ab_kg_s=np.zeros(2),
+        a_free_per_s=np.array([[0.0, 0.0], [0.2, 0.2]]), b_free_per_s=_zeros((2, 2)),
     )
-    state = make_state(frozen, char=0.002, ash=0.0)
-    state.freeboard_char_free_kg[-1, 1] = 0.0
-    with pytest.raises(FreeboardDomainError, match="最小粒级"):
-        _evaluate(frozen, state)
+    cell = frozen.n_freeboard - 1
+    particle = frozen.rho_p_kg_m3 * math.pi * frozen.diameter_m**3 / 6.0
+    q_two = particle[0] / (particle[1] - particle[0])
+    probe = make_state(frozen, char=0.01, ash=0.0)
+    probe.freeboard_char_free_kg[:] = 0.0
+    probe.freeboard_char_free_kg[cell, 1] = 0.002
+    probe.freeboard_ash_free_kg[cell, 1] = 0.0005
+    alpha = _evaluate(frozen, probe).char_consumption_free_kg_s[cell, 1] / 0.002
+    state = make_state(frozen, char=0.01, ash=0.0)
+    state.freeboard_char_free_kg[:] = 0.0
+    state.freeboard_ash_free_kg[:] = 0.0
+    state.freeboard_ash_free_kg[cell, 1] = 0.004
+    result = _evaluate(frozen, state)
+    slot = next(
+        item for item in result.slots
+        if item.kind == "ash" and item.balance_index == cell and item.size_class == 1
+    )
+    expected = -0.2 * 0.004 - alpha * 0.004 * q_two - alpha * 0.004
+    assert result.values[slot.index] == pytest.approx(expected, rel=1.0e-12)
+    doubled = make_state(frozen, char=0.01, ash=0.0)
+    doubled.freeboard_char_free_kg[:] = 0.0
+    doubled.freeboard_ash_free_kg[:] = 0.0
+    doubled.freeboard_ash_free_kg[cell, 1] = 0.008
+    again = _evaluate(frozen, doubled)
+    assert again.values[slot.index] == pytest.approx(2.0 * expected, rel=1.0e-12)
+
+
+def test_char_and_ash_sinks_are_linear_in_the_inventories():
+    """ADR 0044 第 3、5 项：消耗 α_s·M_C、迁移与灰释放都对存量线性，M_C = 0 处连续。"""
+    frozen = make_frozen(
+        k_auf_per_s=np.zeros(2), m_dot_ab_kg_s=np.zeros(2),
+        a_free_per_s=_zeros((2, 2)), b_free_per_s=_zeros((2, 2)),
+    )
+    cell = frozen.n_freeboard - 1
+    state = make_state(frozen, char=0.0, ash=0.0)
+    state.bed_char_kg[:] = 0.01
+    state.freeboard_char_free_kg[cell, 1] = 0.002
+    state.freeboard_ash_free_kg[cell, 1] = 0.0005
+    base = _evaluate(frozen, state)
+    alpha = base.char_consumption_free_kg_s[cell, 1] / 0.002
+    particle = frozen.rho_p_kg_m3 * math.pi * frozen.diameter_m**3 / 6.0
+    step = particle[0] / (particle[1] - particle[0])
+    assert base.char_migration_free_kg_s[cell, 1] == pytest.approx(alpha * 0.002 * step, rel=1.0e-12)
+    rows = {
+        (item.size_class, item.kind): item.index
+        for item in base.slots
+        if item.balance_index == cell and item.zone == "freeboard"
+    }
+    # k = 2 的灰行：−α·M_A·q_2 − α·M_A；同一份流进入 k = 1 的灰行。
+    assert base.values[rows[(1, "ash")]] == pytest.approx(-alpha * 0.0005 * (1.0 + step), rel=1.0e-12)
+    assert base.values[rows[(0, "ash")]] == pytest.approx(alpha * 0.0005 * (1.0 + step), rel=1.0e-12)
+    doubled = make_state(frozen, char=0.0, ash=0.0)
+    doubled.bed_char_kg[:] = 0.01
+    doubled.freeboard_char_free_kg[cell, 1] = 0.004
+    doubled.freeboard_ash_free_kg[cell, 1] = 0.001
+    twice = _evaluate(frozen, doubled)
+    assert twice.char_consumption_free_kg_s[cell, 1] == pytest.approx(2.0 * base.char_consumption_free_kg_s[cell, 1])
+    assert twice.values[rows[(1, "ash")]] == pytest.approx(2.0 * base.values[rows[(1, "ash")]])
+    # 只有灰、没有焦炭：焦炭的消耗与迁移为 0；灰按同一线性式迁移与释放，不切换。
+    ash_only = make_state(frozen, char=0.0, ash=0.0)
+    ash_only.bed_char_kg[:] = 0.01
+    ash_only.freeboard_ash_free_kg[cell, 1] = 0.001
+    only = _evaluate(frozen, ash_only)
+    assert only.char_consumption_free_kg_s[cell, 1] == 0.0
+    assert only.char_migration_free_kg_s[cell, 1] == 0.0
+    assert only.values[rows[(1, "ash")]] == pytest.approx(-alpha * 0.001 * (1.0 + step), rel=1.0e-12)
+    assert only.values[rows[(0, "ash")]] == pytest.approx(alpha * 0.001 * (1.0 + step), rel=1.0e-12)
+
+
+def test_free_and_hover_states_have_different_unit_char_rates():
+    """ADR 0044 第 2 项：两个状态的 u_r 不同，α_s 一般不同。"""
+    hover = np.ones((2, 2), dtype=bool)
+    frozen = make_frozen(
+        hover=hover, k_auf_per_s=np.zeros(2), m_dot_ab_kg_s=np.zeros(2),
+        a_free_per_s=_zeros((2, 2)), a_hover_per_s=_zeros((2, 2)),
+        b_free_per_s=_zeros((2, 2)), b_hover_per_s=_zeros((2, 2)),
+    )
+    state = make_state(frozen, char=0.0, ash=0.0)
+    state.bed_char_kg[:] = 0.01
+    cell = frozen.n_freeboard - 1
+    state.freeboard_char_free_kg[cell, 1] = 0.002
+    state.freeboard_char_hover_kg[cell, 1] = 0.002
+    result = _evaluate(frozen, state)
+    free_rate = result.char_consumption_free_kg_s[cell, 1] / 0.002
+    hover_rate = result.char_consumption_hover_kg_s[cell, 1] / 0.002
+    assert free_rate > 0.0 and hover_rate > 0.0
+    assert free_rate != pytest.approx(hover_rate, rel=1.0e-6)
+
+
+def test_single_cell_steady_state_with_migration_and_ash():
+    """无输运时 k = 2 的稳态 m_C = G/(α_s(1+q_2))，m_A 由灰行给出。"""
+    cell = 1
+    inflow = 4.0e-5
+    generation = np.zeros((2, 2))
+    generation[cell, 1] = inflow
+    frozen = make_frozen(
+        k_auf_per_s=np.zeros(2), m_dot_ab_kg_s=np.zeros(2),
+        a_free_per_s=_zeros((2, 2)), b_free_per_s=_zeros((2, 2)),
+        char_gen_free_kg_s=generation,
+    )
+    probe = make_state(frozen, char=0.0, ash=0.0)
+    probe.bed_char_kg[:] = 0.01
+    probe.freeboard_char_free_kg[cell, 1] = 1.0
+    probe.freeboard_ash_free_kg[cell, 1] = 0.0
+    probed = _evaluate(frozen, probe)
+    alpha = probed.char_consumption_free_kg_s[cell, 1]
+    particle = frozen.rho_p_kg_m3 * math.pi * frozen.diameter_m**3 / 6.0
+    q_two = particle[0] / (particle[1] - particle[0])
+    steady = make_state(frozen, char=0.0, ash=0.0)
+    steady.bed_char_kg[:] = 0.01
+    steady.freeboard_char_free_kg[cell, 1] = inflow / (alpha * (1.0 + q_two))
+    result = _evaluate(frozen, steady)
+    slot = next(
+        item for item in result.slots
+        if item.kind == "char" and item.balance_index == cell and item.size_class == 1 and item.phase == "free"
+    )
+    assert result.values[slot.index] == pytest.approx(0.0, abs=1.0e-12)
 
 
 def test_element_weights_are_available_for_the_closure():

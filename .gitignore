@@ -54,3 +54,4 @@ refs/vtt161/pages
 *.ckpt
 *.h5
 *.keras
+.scratch/

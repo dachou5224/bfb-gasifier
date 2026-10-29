@@ -16,7 +16,8 @@ M4 独立审计后，目标所有者 2026-10-29 决定：悬停闭合维持 A；
 
 ## 执行要求（给 cursor）
 
-- **新会话、新 worktree**：`git worktree add ../bfb-worktrees/T26j -b task/T26j-within-class-trajectories origin/main`。
+- **新会话，在主仓库目录 `bfb-gasifier/` 内工作，不建 worktree**：先确认工作树干净，再 `git fetch origin && git switch -c task/T26j-within-class-trajectories origin/main`。
+- **不在仓库目录以外创建或写入任何文件**（包括 `../`、`/tmp`、家目录）：临时脚本、日志与中间输出放在 `reports/t26j-validation/` 或仓库内已忽略的 `.scratch/`，提交前删除不应提交的临时文件。
 - **开工前必读**：`docs/CHARTER.md`（§5、§6.2、§7）、`AGENTS.md`、本卡、ADR 0048（逐条实现）、ADR 0016 第 9、10 条、ADR 0023、ADR 0026 第 2、3 项、ADR 0028、ADR 0035 第 4 项、ADR 0046、ADR 0047，`hamel/freeboard/accounting.py`、`motion.py`、`hamel/solver/precalc.py`、`frozen.py`、`residual.py`、`campaign.py`，以及 `reports/t26h-trajectories/`。
 - 会话结束时工作树干净，开 PR，同一 PR 内更新 STATUS 的 T26j 一行。
 
