@@ -146,7 +146,6 @@ def test_r1_hand_calculation_and_zero_oxygen():
     count = mass / (density_char * math.pi * diameter**3 / 6.0)
     rate = r1_combustion_rate(
         mass,
-        0.0,
         density_char,
         diameter,
         diameter,
@@ -164,7 +163,6 @@ def test_r1_hand_calculation_and_zero_oxygen():
     assert rate.extent_mol_s == pytest.approx(per_particle * count)
     zero = r1_combustion_rate(
         mass,
-        0.0,
         density_char,
         diameter,
         diameter,
@@ -217,7 +215,6 @@ def test_particle_temperature_satisfies_energy_balance():
     )
     rate = r1_combustion_rate(
         0.01,
-        0.0,
         700.0,
         diameter,
         diameter,
@@ -248,11 +245,11 @@ def test_r2_and_r4_hand_calculation():
     count = mass / (density * math.pi * diameter**3 / 6.0)
     area = math.pi * diameter**2
     k_r2 = 3.42 * temperature * math.exp(-15_600.0 / temperature)
-    rate_r2 = r2_steam_gasification_rate(mass, 0.0, density, diameter, concentration, temperature)
+    rate_r2 = r2_steam_gasification_rate(mass, density, diameter, concentration, temperature)
     assert rate_r2.specific == pytest.approx(area * k_r2 * concentration)
     assert rate_r2.extent_mol_s == pytest.approx(rate_r2.specific * count)
     k_r4 = 3.42e-3 * temperature * math.exp(-15_600.0 / temperature)
-    rate_r4 = r4_hydrogasification_rate(mass, 0.0, density, diameter, concentration, temperature)
+    rate_r4 = r4_hydrogasification_rate(mass, density, diameter, concentration, temperature)
     assert rate_r4.specific == pytest.approx(area * k_r4 * concentration)
     assert rate_r4.extent_mol_s == pytest.approx(rate_r4.specific * count)
 
@@ -281,24 +278,25 @@ def test_r3_hand_calculation_scales_with_mass_not_diameter():
     assert "rho_p_kg_m3" not in inspect.signature(r3_boudouard_rate).parameters
 
 
-def test_surface_rates_count_char_plus_ash_at_the_same_density():
-    # ADR 0017 第 19 项：N = (m_C + m_A) / (ρ_P · π d³ / 6)。
-    # 焦炭与灰各 0.01 kg、ρ_P 不变时，cell 速率是只计焦炭的两倍；单颗粒比速率不变。
+def test_surface_rates_count_char_only():
+    # ADR 0044 第 1 项：R1、R2、R4 的反应颗粒数 N = m_C / (ρ_P · π d³ / 6)，与灰无关。
     diameter = 1.0e-3
     density = 800.0
     temperature = 1100.0
-    char_only = r2_steam_gasification_rate(0.01, 0.0, density, diameter, 1.0, temperature)
-    with_ash = r2_steam_gasification_rate(0.01, 0.01, density, diameter, 1.0, temperature)
-    assert with_ash.specific == pytest.approx(char_only.specific)
-    assert with_ash.extent_mol_s == pytest.approx(2.0 * char_only.extent_mol_s)
-    char_only_r4 = r4_hydrogasification_rate(0.01, 0.0, density, diameter, 1.0, temperature)
-    with_ash_r4 = r4_hydrogasification_rate(0.01, 0.01, density, diameter, 1.0, temperature)
-    assert with_ash_r4.extent_mol_s == pytest.approx(2.0 * char_only_r4.extent_mol_s)
+    mass = 0.01
+    count = mass / (density * math.pi * diameter**3 / 6.0)
+    r2 = r2_steam_gasification_rate(mass, density, diameter, 1.0, temperature)
+    assert r2.extent_mol_s == pytest.approx(r2.specific * count, rel=1.0e-12)
+    r4 = r4_hydrogasification_rate(mass, density, diameter, 1.0, temperature)
+    assert r4.extent_mol_s == pytest.approx(r4.specific * count, rel=1.0e-12)
     shared = (diameter, diameter, 1000.0, 1000.0, 1000.0, 1000.0, 1.0, 1.0e5, 0.2, 4.0e-5, 0.3)
-    char_only_r1 = r1_combustion_rate(0.01, 0.0, density, *shared)
-    with_ash_r1 = r1_combustion_rate(0.01, 0.01, density, *shared)
-    assert with_ash_r1.specific == pytest.approx(char_only_r1.specific)
-    assert with_ash_r1.extent_mol_s == pytest.approx(2.0 * char_only_r1.extent_mol_s)
+    r1 = r1_combustion_rate(mass, density, *shared)
+    assert r1.extent_mol_s == pytest.approx(r1.specific * count, rel=1.0e-12)
+    # 灰不再是 R1、R2、R4 的入参，也不改变单颗粒速率与粒级速率。
+    for function in (r1_combustion_rate, r2_steam_gasification_rate, r4_hydrogasification_rate):
+        assert "m_ash_kg" not in inspect.signature(function).parameters, function.__name__
+    doubled = r2_steam_gasification_rate(2.0 * mass, density, diameter, 1.0, temperature)
+    assert doubled.extent_mol_s == pytest.approx(2.0 * r2.extent_mol_s, rel=1.0e-12)
 
 
 def test_r5_hand_calculation_for_both_phases():
