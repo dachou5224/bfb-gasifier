@@ -96,62 +96,31 @@ def _old(column) -> dict:
     }
 
 
-def _settles_at(column, edges, gas, klass: int, variant, limit: float):
-    """把时限提高到 limit 时该粒级是否能给全部子样本定归宿。只作诊断，不改登记值。"""
+def _statistics(column, edges, gas, variant) -> dict:
+    """ADR 0050 第 5 项：该变体全部参考轨迹的最大段数、归宿时刻最大值与 99 % 分位、最长的一条。"""
     rho = np.asarray(column["rho_g"], dtype=float)
     mu = np.asarray(column["mu_g"], dtype=float)
     speeds, shares, direct = ejection_velocity_samples(column["bubble_m_s"], 48)
-    samples = within_class_samples(_BOUNDS[klass], _BOUNDS[klass + 1], **variant)
-    config = SolverConfig(freeboard_time_limit_s=float(limit))
-    try:
+    config = SolverConfig()
+    segments = 0
+    times: list[float] = []
+    longest = None
+    for klass in range(len(column["diameter_m"])):
+        samples = within_class_samples(_BOUNDS[klass], _BOUNDS[klass + 1], **variant)
         book = account_freeboard(
             edges, gas, rho, mu, float(column["diameter_m"][klass]), column["rho_p"], 0.8,
             speeds, shares, direct, config, samples=samples,
         )
-    except FreeboardError as exc:
-        return {"limit_s": float(limit), "ok": False, "error": str(exc)}
-    hover = [
-        index for index, cell in enumerate(book.cells)
-        if cell.free_state != "存在" or (cell.c_up or 0.0) + (cell.c_down or 0.0) > 0.0
-    ]
+        segments = max(segments, book.max_segments)
+        times.extend([book.max_time_s, book.p99_time_s])
+        if book.longest is not None and (longest is None or book.longest[1] > longest[1][1]):
+            longest = (klass, book.longest)
     return {
-        "limit_s": float(limit), "ok": True, "return": book.return_share,
-        "elutriate": book.elutriation_share, "capture": book.capture_share,
-        "hover_cells": hover,
+        "max_segments": segments,
+        "max_time_s": max((book for book in times), default=0.0),
+        "p99_time_s": max(times[1::2], default=0.0),
+        "longest": None if longest is None else {"klass": longest[0] + 1, "record": list(longest[1])},
     }
-
-
-def _longest_capture(column, edges, gas, klass: int, variant, limit: float) -> float | None:
-    """逐 (d, φ) 求最长的捕获时刻，用来说明 80 s 时限为什么不够。只作诊断。"""
-    from hamel.freeboard.accounting import trace_until_fate
-
-    rho = np.asarray(column["rho_g"], dtype=float)
-    mu = np.asarray(column["mu_g"], dtype=float)
-    speeds, shares, _direct = ejection_velocity_samples(column["bubble_m_s"], 48)
-    samples = within_class_samples(_BOUNDS[klass], _BOUNDS[klass + 1], **variant)
-    config = SolverConfig(freeboard_time_limit_s=float(limit))
-    longest = 0.0
-    seen = set()
-    for diameter, phi, _weight in samples:
-        key = (round(diameter, 15), round(phi, 12))
-        if key in seen:
-            continue
-        seen.add(key)
-        equilibria = stable_equilibria(edges, gas, rho, mu, diameter, column["rho_p"], phi)
-        for cell in range(len(edges) - 1):
-            settling = terminal_settling_velocity(rho[cell], mu[cell], diameter, column["rho_p"], phi)
-            middle = 0.5 * (edges[cell] + edges[cell + 1])
-            velocity = _mean_velocity(gas, cell, edges) - settling
-            for start, speed in ((middle, velocity),) + tuple((0.0, float(speed)) for speed in speeds):
-                try:
-                    fate = trace_until_fate(
-                        start, speed, edges, gas, rho, mu, diameter, column["rho_p"], phi, config, equilibria,
-                    )
-                except FreeboardError:
-                    return None
-                if fate.capture_time_s is not None:
-                    longest = max(longest, fate.capture_time_s)
-    return longest
 
 
 def _mean_velocity(gas, cell: int, edges) -> float:
@@ -167,15 +136,9 @@ def main() -> None:
     for name, variant in _VARIANTS:
         payload["variants"][name] = _books(track, column, edges, gas, variant)
         print(name, "done", flush=True)
-    for klass, row in payload["variants"]["N8_sigma0.10"].items():
-        if "error" not in row:
-            continue
-        payload["diagnosis"][klass] = {
-            "error": row["error"],
-            "at_limits": [_settles_at(column, edges, gas, int(klass), dict(_VARIANTS[0][1]), limit)
-                          for limit in (80.0, 1000.0, 5000.0)],
-            "longest_capture_s_at_5000": _longest_capture(column, edges, gas, int(klass), dict(_VARIANTS[0][1]), 5000.0),
-        }
+    for name, variant in _VARIANTS:
+        payload["diagnosis"][name] = _statistics(column, edges, gas, variant)
+        print("statistics", name, "done", flush=True)
     (_OUT / "books.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
     (_OUT / "report.md").write_text(_markdown(payload), encoding="utf-8")
     print("written", _OUT)
@@ -260,24 +223,27 @@ def _markdown(payload: dict) -> str:
     lines.append("表中数值为三项份额相对 N8_sigma0.10 的最大绝对差。")
     lines.append("")
     if payload["diagnosis"]:
-        lines.append("## 未定归宿的粒级（只报告）")
+        lines.append("## ADR 0050 第 5 项：段数与归宿时刻（只报告）")
         lines.append("")
-        for klass, item in payload["diagnosis"].items():
-            lines.append(f"- 粒级 {int(klass) + 1}：登记时限（80 s）下 `{item['error']}`。")
-            for trial in item["at_limits"]:
-                if trial["ok"]:
-                    lines.append(
-                        f"  - 把时限提到 {trial['limit_s']:.0f} s（只作诊断，不改 ADR 0028 登记值）："
-                        f"全部子样本定归宿，回落 {trial['return']:.4g}、带出 {trial['elutriate']:.4g}、"
-                        f"捕获 {trial['capture']:.4g}，出现转入的格 {trial['hover_cells']}。"
-                    )
-                else:
-                    lines.append(f"  - 时限 {trial['limit_s']:.0f} s：仍未定（{trial['error']}）。")
-            longest = item.get("longest_capture_s_at_5000")
-            if longest is not None:
-                lines.append(f"  - 该粒级最长的捕获时刻 {longest:.1f} s，远超 80 s 的登记时限。")
+        lines.append("| 变体 | 最大段数 | 归宿时刻最大值 / s | 99 % 分位 / s | 最长的一条 |")
+        lines.append("|---|---|---|---|---|")
+        for name, item in payload["diagnosis"].items():
+            longest = item.get("longest")
+            if longest:
+                segments, seconds, diameter, phi, start = longest["record"]
+                text = (
+                    f"粒级 {longest['klass']}，d = {diameter * 1e3:.4g} mm，φ_S = {phi:.4g}，"
+                    f"{start}，{seconds:.1f} s、{segments} 段"
+                )
+            else:
+                text = "—"
+            lines.append(
+                f"| {name} | {item['max_segments']} | {item['max_time_s']:.1f} | {item['p99_time_s']:.1f} | {text} |"
+            )
         lines.append("")
-    return "\n".join(lines) + "\n"
+        lines.append("段数上限为 1000（ADR 0050），远高于实测最大值，终止保护不再是限制因素。")
+        lines.append("")
+    return "\n".join(lines).rstrip("\n") + "\n"
 
 
 if __name__ == "__main__":

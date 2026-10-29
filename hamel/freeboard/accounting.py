@@ -61,6 +61,8 @@ class TrajectoryFate:
     entered_cell: int | None
     entry_kind: str | None
     entry_count: int
+    # 本条的解析段数（advance_cell 调用次数）。求解器参数：ADR 0050。
+    segments: int
     residence_s: tuple[float, ...]
     # 进入捕获区前 ∫|u_g−u_P|dt，与停留时间同一段。解释性选择：ADR 0035。
     slip_m: tuple[float, ...]
@@ -99,6 +101,11 @@ class ReferenceAccounting:
     local_elutriation: float
     cells: tuple[CellTransport, ...]
     roots: tuple = ()
+    # ADR 0050 第 5 项：全部参考轨迹的段数与归宿时刻统计。只报告。
+    max_segments: int = 0
+    max_time_s: float = 0.0
+    p99_time_s: float = 0.0
+    longest: tuple | None = None
 
 
 def _edges_and_gas(edges_m, rho_g, mu_g) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -234,6 +241,8 @@ def _classify(
     midpoints: list[tuple[float, int, str]],
     capture_cells: frozenset[int],
     region: str,
+    segments_used: int = 0,
+    captured_face: tuple[int, ...] | None = None,
 ) -> TrajectoryFate:
     entry_index = None
     source = None
@@ -257,6 +266,10 @@ def _classify(
         # 半格捕获区：进入 R* 即越过格中点；取最后一次进入。
         capture_time, source, kind = midpoints[-1]
         entered = source if kind == "up" else source - 1
+    elif fate == "capture" and captured_face is not None:
+        # 起点本来就在 R* 内且此后没有离开：进入时刻为 0，悬停格取该界面的下方格。
+        capture_time, source, kind = 0.0, captured_face[0], "up"
+        entered = captured_face[0]
     captured = fate == "capture"
     if captured and (capture_time is None or entered is None or entered < 0):
         raise FreeboardError("判定为捕获，但轨迹没有确定的来源格")
@@ -295,6 +308,7 @@ def _classify(
         entered if captured else None,
         kind if captured else None,
         len(midpoints) if region == "half" else len(crossings),
+        int(segments_used),
         tuple(residence),
         tuple(slip),
         tuple(upward_free),
@@ -339,7 +353,10 @@ def trace_until_fate(
     interfaces = {item.cells[1]: item for item in equilibria}
     delta_h = scale * _positive("freeboard_delta_h_m", config.freeboard_delta_h_m)
     delta_u = scale * _positive("freeboard_delta_u_m_s", config.freeboard_delta_u_m_s)
-    time_limit = _positive("freeboard_time_limit_s", config.freeboard_time_limit_s)
+    # 解析段数保护代替物理时间截止。求解器参数：ADR 0050。
+    max_segments = int(config.freeboard_max_segments)
+    if max_segments < 1:
+        raise FreeboardError("freeboard_max_segments 必须是不小于 1 的整数")
     diameter = _positive("diameter_m", diameter_m)
     density_p = _positive("rho_p", rho_p)
     groups = tuple(
@@ -375,6 +392,7 @@ def trace_until_fate(
     elapsed = 0.0
     open_time = 0.0
     reversals = 0
+    segments_used = 0
     segments: list[tuple[int, float, float, float]] = []
     crossings: list[tuple[float, int, int | None, str]] = []
     midpoints: list[tuple[float, int, str]] = []
@@ -393,7 +411,7 @@ def trace_until_fate(
             open_time = end
         pending = 0.0
 
-    while elapsed < time_limit:
+    while segments_used < max_segments:
         if height <= bounds[0] and (velocity < 0.0 or (velocity == 0.0 and acceleration(0, 0.0) < 0.0)):
             close(elapsed)
             crossings.append((elapsed, cell, None, "down"))
@@ -406,8 +424,9 @@ def trace_until_fate(
             break
         a, b, c = coefficients(cell, velocity)
         kind, tau, height_1, velocity_1 = advance_cell(
-            height, velocity, bounds[cell], bounds[cell + 1], a, b, c, speeds[cell], time_limit - elapsed,
+            height, velocity, bounds[cell], bounds[cell + 1], a, b, c, speeds[cell],
         )
+        segments_used += 1
         if kind == "limit":
             break
         # 段内 u 不穿过 ū_g 与 0，故 ∫|u_g−u_P|dτ = |ū_g·τ − Δh|，按段解析。
@@ -443,9 +462,16 @@ def trace_until_fate(
             outcome = "capture"
             break
     if outcome is None:
-        raise FreeboardError(f"积分时间达到上限 {time_limit} s，归宿仍未确定")
+        # 段数保护：报告粒径、球形度、起点、所在格、已走段数与已用物理时间。求解器参数：ADR 0050。
+        raise FreeboardError(
+            f"参考轨迹达到段数上限 {max_segments}（d={diameter:.4g} m，φ_S={phi_s:.4g}，"
+            f"起点 h0={height_0:.4g} m、u0={velocity_0:.4g} m/s，当前格 {cell}，已用 {elapsed:.4g} s）"
+        )
     capture_cells = frozenset(chosen.cells) if chosen is not None else frozenset()
-    return _classify(count, outcome, elapsed, height, velocity, reversals, start_cell, segments, crossings, midpoints, capture_cells, region)
+    return _classify(
+        count, outcome, elapsed, height, velocity, reversals, start_cell, segments, crossings, midpoints,
+        capture_cells, region, segments_used, None if chosen is None else chosen.cells,
+    )
 
 
 def _sum_ledgers(ledgers, count: int, weight: float):
@@ -510,6 +536,7 @@ def account_freeboard(
     theta_up, theta_down = [0.0] * count, [0.0] * count
     returned, elutriated, captured = direct, 0.0, 0.0
     local_return, local_elutriation = 0.0, 0.0
+    statistics: list[tuple[int, float, float, float, str]] = []
     first: tuple[StableEquilibrium, ...] = ()
     for index, (diameter, phi, weight) in enumerate(entries):
         equilibria = stable_equilibria(edges, gas_velocity, densities, viscosities, diameter, rho_p, phi)
@@ -570,6 +597,9 @@ def account_freeboard(
         for name, values in local_sum.items():
             for cell in range(count):
                 local_totals[name][cell] += values[cell]
+        # ADR 0050 第 5 项：记录段数与归宿时刻，只报告。
+        for ledger, start in [(item, "床面抛出") for item, _share in bed] + [(item, f"格 {cell} 中点") for cell, item in enumerate(local)]:
+            statistics.append((ledger.segments, ledger.time_s, diameter, phi, start))
     cells = []
     for cell in range(count):
         bed_mass, local_mass = totals["res"][cell], local_totals["res"][cell]
@@ -601,4 +631,8 @@ def account_freeboard(
         local_elutriation,
         tuple(cells),
         tuple((item.cells, item.height_m, item.half_width_m) for item in first),
+        max((item[0] for item in statistics), default=0),
+        max((item[1] for item in statistics), default=0.0),
+        float(np.percentile([item[1] for item in statistics], 99)) if statistics else 0.0,
+        max(statistics, key=lambda item: item[1]) if statistics else None,
     )

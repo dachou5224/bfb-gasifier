@@ -176,7 +176,7 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
     k_up = upflow / masses
     reaction = np.zeros(case.n_bed) if reaction_solid_kg_s is None else _column("reaction_solid_kg_s", reaction_solid_kg_s)
     returned = freeboard_return_kg_s(
-        transport[2]["b_f"][-1], transport[2]["b_t"][-1], state.freeboard_char_free_kg[-1],
+        transport[2]["b_f"][-1], state.freeboard_char_free_kg[-1],
         state.freeboard_ash_free_kg[-1], previous_fuel_return_kg_s,
     ) + float(redirected_return_kg_s)
     down, residual = bed_downflow(upflow, case.fuel_kg_s, reaction, returned, previous_drain_kg_s)
@@ -587,6 +587,14 @@ def _segregate(case, flow, profile, rho_p, d_bar):
         "rho_g": rho, "mu_g": mu, "bubble_m_s": float(profile.u_b[0]),
         "bubble_diameter_m": float(profile.d_b[0]), "rho_p": float(rho_p),
         "phi_s": float(case.phi_s), "diameter_m": np.asarray(case.diameters_m, dtype=float),
+        # ADR 0050 第 5 项：段数与归宿时刻统计，只报告。
+        "max_segments": max((book.max_segments for book in books), default=0),
+        "max_time_s": max((book.max_time_s for book in books), default=0.0),
+        "p99_time_s": max((book.p99_time_s for book in books), default=0.0),
+        "longest": max(
+            ((klass, book.longest) for klass, book in enumerate(books) if book.longest is not None),
+            key=lambda item: item[1][1], default=None,
+        ),
     }
     return _Ejection(mass, speeds, shares, direct), tuple(books), rho, mu, column
 def _fractions(flow) -> dict[str, float]:
@@ -618,11 +626,14 @@ def _transport(books):
                 arrays["c_up"][balance, klass] = item.c_up
                 arrays["c_down"][balance, klass] = item.c_down
     return (hover, absent, arrays, theta_up, theta_down, hover_slip), hover, absent
-def freeboard_return_kg_s(b_free_bottom, b_hover_bottom, char_free_kg, ash_free_kg, fuel_return_kg_s: float = 0.0) -> float:
-    """床面回落 = 最下自由格 (b^f+b^t) 乘上一轮可输运存量，再加未转化燃料回落。
+def freeboard_return_kg_s(b_free_bottom, char_free_kg, ash_free_kg, fuel_return_kg_s: float = 0.0) -> float:
+    """床面回落 = 最下自由格 b^f 乘上一轮可输运存量，再加未转化燃料回落。
+
+    半格捕获区下床面抛出只进自由状态、悬停状态没有出流（ADR 0048 第 2 项），
+    最下格的格内向下转入 c↓ 不存在（中点以下没有捕获区），故回落系数只有 b^f。
     直接回落不进入自由空间，无反应参考份额不参与递推。ADR 0016 第 10 条；ADR 0032。
     """
-    coeff = np.asarray(b_free_bottom, dtype=float) + np.asarray(b_hover_bottom, dtype=float)
+    coeff = np.asarray(b_free_bottom, dtype=float)
     mobile = np.asarray(char_free_kg, dtype=float) + np.asarray(ash_free_kg, dtype=float)
     if coeff.shape != mobile.shape:
         raise PrecalcError("回落系数与自由空间存量的粒级不一致")
@@ -701,7 +712,7 @@ def _drain(case, state, released, inert, masses, books, redirected_ash_out_kg_s:
     ash_in = case.fuel_kg_s * float(case.physical.ash_mass_fraction_wf) * (1.0 - moisture)
     top_free = np.asarray(state.freeboard_ash_free_kg[0], dtype=float)
     coeff = np.array([
-        (0.0 if book.cells[-1].a_f is None else book.cells[-1].a_f) + (0.0 if book.cells[-1].a_t is None else book.cells[-1].a_t)
+        0.0 if book.cells[-1].a_f is None else book.cells[-1].a_f
         for book in books
     ])
     # cells[-1] 是自由空间顶（edges 从床面向上，最后一格是顶）。衡算下标 0 是顶。

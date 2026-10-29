@@ -424,3 +424,54 @@ def test_campaign_rows_are_wired_and_overlay_changes_the_copy(tmp_path):
     assert wide.free_cell_m == pytest.approx(0.14375)
     assert interface_balance_index(wide.secondary_height_m, wide.n_bed * wide.bed_cell_m, wide.n_free, wide.free_cell_m) == 13
 
+
+
+def test_redirect_fuel_uses_the_same_coefficient_as_the_reported_flow():
+    """S13/S14 反推燃料存量时用 a^f + b^f + c↓，与 release._state_flows() 的出流系数一致。
+
+    格内转入 c↑ 不是出流，若把它也算进分母会低估改送的燃料质量与焓（PR #133 审查 P2）。
+    """
+    from hamel.properties import ash_specific_heat_j_per_kg_k, char_specific_enthalpy_j_per_kg
+    from hamel.solver.sensitivity import redirect_ledger
+
+    n_free, n_class = 2, 2
+    a_free = np.full((n_free, n_class), 0.3)
+    b_free = np.full((n_free, n_class), 0.1)
+    c_down = np.zeros((n_free, n_class))
+    c_up = np.zeros((n_free, n_class))
+    c_up[0, 0] = 0.6
+    inventory = 4.0
+    # 与 release._state_flows() 同一组系数：fuel_up = a^f·库存，fuel_down = (b^f + c↓)·库存。
+    fuel_up = a_free * inventory
+    fuel_down = (b_free + c_down) * inventory
+    frozen = _closure_frozen("B")
+    frozen = replace(
+        frozen, a_free_per_s=a_free, b_free_per_s=b_free, c_up_per_s=c_up, c_down_per_s=c_down,
+        fuel_up_free_kg_s=fuel_up, fuel_down_free_kg_s=fuel_down,
+    )
+    state = make_state(frozen, char=2.0e-3, ash=1.0e-4)
+    state.freeboard_char_hover_kg[:] = 0.0
+    state.freeboard_ash_hover_kg[:] = 0.0
+    zeros = np.zeros_like(state.freeboard_char_free_kg)
+    inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
+    share = _bed_ash_by_class(state.bed_char_kg, inert)
+    items = redirect_ledger(frozen, state, zeros, zeros, zeros, zeros, share, zeros, zeros)
+    assert items
+    klass = 0
+    cell = 0
+    piece = next(
+        item for item in items if item["kind"] == "c" and item["klass"] == klass and item["undo"] == ("free", cell)
+    )
+    # c↑ 改送的燃料 = c↑·库存（库存由 a^f + b^f + c↓ 反求，不能把 c↑ 算进分母）。
+    assert piece["fuel"] == pytest.approx(c_up[cell, klass] * inventory)
+    temperature = float(state.freeboard_temperature_k[cell])
+    enthalpy = (
+        piece["char"] * char_specific_enthalpy_j_per_kg(temperature)
+        + piece["ash"] * ash_specific_heat_j_per_kg_k() * (temperature - 298.15)
+        + piece["fuel"] * (frozen.fuel_formation_j_per_kg + frozen.fuel_heat_capacity_j_per_kg_k * (temperature - 298.15))
+    )
+    assert piece["enthalpy"] == pytest.approx(enthalpy, rel=1.0e-12)
+    # 分母若混入 c↑，燃料会被低估这一比例。
+    total_with_c_up = float(a_free[cell, klass] + b_free[cell, klass] + c_up[cell, klass] + c_down[cell, klass])
+    wrong = float(c_up[cell, klass]) * float(fuel_up[cell, klass] + fuel_down[cell, klass]) / total_with_c_up
+    assert abs(piece["fuel"] - wrong) > 1.0e-3 * abs(piece["fuel"])

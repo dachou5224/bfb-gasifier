@@ -106,10 +106,11 @@ def interface_flows(frozen, state: ReactorState) -> dict:
     }
 
 
-def solve_prelaunch(state: ReactorState, frozen, m_dot_ref: float, gate: float = 1.0e-6) -> dict:
+def solve_prelaunch(state: ReactorState, frozen, m_dot_ref: float, gate: float = 1.0e-6, records: list | None = None) -> dict:
     """固定床区焦炭，只解自由空间的焦炭块与灰块。求解手段：ADR 0049 第 3 步。
 
     回代只检查自由空间的焦炭行与灰行；床区固相行此时尚未求解，只记录残差。
+    records 给出时，每个子块解完就追加一条记录，便于灰块失败时仍能报告第 3 步的存量与体积比。
     """
     slots = unknown_slots(frozen)
     char_slots = tuple(slot for slot in slots if slot.kind == "char" and slot.zone == "freeboard")
@@ -119,6 +120,8 @@ def solve_prelaunch(state: ReactorState, frozen, m_dot_ref: float, gate: float =
     x = np.asarray(pack_state(state, frozen), dtype=float)
     scale = float(np.sum(frozen.geometric_mass_kg))
     x = _solve_block(x, _values(x, frozen, "预启动焦炭块"), char_slots, scale, m_dot_ref, frozen, "自由空间焦炭块")
+    if records is not None:
+        records.append({"stage": "预启动自由空间焦炭块（ADR 0049 第 3 步）", **_snapshot(unpack_state(x, frozen), frozen)})
     _require_bed_ash(x, frozen)
     x = _solve_block(x, _values(x, frozen, "预启动灰块"), ash_slots, scale, m_dot_ref, frozen, "自由空间灰块")
     checked = _values(x, frozen, "预启动回代")
@@ -130,15 +133,24 @@ def solve_prelaunch(state: ReactorState, frozen, m_dot_ref: float, gate: float =
         raise InitialStateError(
             f"预启动回代不满足自由空间固相门：{residual:.3e} > {gate:.1e}，最大项 {largest[1]} = {largest[0]:.3e} kg/s"
         )
+    if records is not None:
+        records.append({"stage": "预启动自由空间灰块（ADR 0049 第 3 步）", **_snapshot(solved, frozen)})
     return {
         "state": solved,
         "freeboard_residual": residual,
         "bed_residual": bed_residual,
-        "char_free_kg": np.asarray(solved.freeboard_char_free_kg, dtype=float).tolist(),
-        "char_hover_kg": np.asarray(solved.freeboard_char_hover_kg, dtype=float).tolist(),
-        "ash_free_kg": np.asarray(solved.freeboard_ash_free_kg, dtype=float).tolist(),
-        "ash_hover_kg": np.asarray(solved.freeboard_ash_hover_kg, dtype=float).tolist(),
-        "volume_ratio": _volume_ratio(solved, frozen),
+        **_snapshot(solved, frozen),
+    }
+
+
+def _snapshot(state, frozen) -> dict:
+    """自由空间各格、各状态的存量与体积比。ADR 0049 报告要求。"""
+    return {
+        "char_free_kg": np.asarray(state.freeboard_char_free_kg, dtype=float).tolist(),
+        "char_hover_kg": np.asarray(state.freeboard_char_hover_kg, dtype=float).tolist(),
+        "ash_free_kg": np.asarray(state.freeboard_ash_free_kg, dtype=float).tolist(),
+        "ash_hover_kg": np.asarray(state.freeboard_ash_hover_kg, dtype=float).tolist(),
+        "volume_ratio": _volume_ratio(state, frozen),
     }
 
 
@@ -215,7 +227,11 @@ def construct(initial, precalc, m_dot_ref: float, *, max_loops: int = 5, toleran
 
 def _prelaunch(initial, precalc, m_dot_ref, gate, log):
     """ADR 0049 第 3、4 步：解自由空间块，再用这一状态重做预计算（回馈已解固相）。"""
-    stage = solve_prelaunch(initial.state, initial.frozen, m_dot_ref, gate)
+    stages: list = []
+    try:
+        stage = solve_prelaunch(initial.state, initial.frozen, m_dot_ref, gate, stages)
+    finally:
+        log.extend(stages)
     record = {name: value for name, value in stage.items() if name != "state"}
     record.update({"stage": "预启动（ADR 0049 第 3 步）", "loops": None})
     before = interface_flows(initial.frozen, initial.state)

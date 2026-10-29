@@ -623,3 +623,51 @@ def test_public_equation_docstrings_cite_the_source():
         FrozenQuantities.n_bed.fget, FrozenQuantities.n_class.fget,
     ):
         assert "Source: Hamel Eq." in (function.__doc__ or ""), function.__name__
+
+
+def test_theta_down_migration_carries_source_enthalpy_between_cells():
+    """θ↓ 的焦炭与灰迁移流在两格能量方程中按源格温度分别扣除与接收。ADR 0048 第 2 项。
+
+    只改变非零 θ↓，让源格与目标格的自由空间温度不同：源格（top，1150 K）应减少
+    E = m_C·h_C(T_src) + m_A·h_A(T_src)，下方目标格应在同一 E 上增加，且两格之差为零。
+    全炉求和会互相抵消，不能替代这里的逐格核对。
+    """
+    from hamel.properties import ash_specific_heat_j_per_kg_k, char_specific_enthalpy_j_per_kg
+
+    hover = np.zeros((2, 3), dtype=bool)
+    hover[:, 1] = True
+    base = make_frozen(n_class=3, hover=hover, theta_up=_zeros((2, 3)), theta_down=_zeros((2, 3)))
+    theta_down = _zeros((2, 3))
+    theta_down[0, 1] = 1.0
+    moved = make_frozen(n_class=3, hover=hover, theta_up=_zeros((2, 3)), theta_down=theta_down)
+    state = make_state(base, char=2.0e-3, ash=1.0e-4)
+    state.freeboard_temperature_k[:] = [1150.0, 1050.0]
+    before = _evaluate(base, state)
+    after = _evaluate(moved, state)
+
+    def slot(kind, phase, balance, klass, result):
+        for item in result.slots:
+            if (item.kind, item.zone, item.balance_index, item.size_class) == (kind, "freeboard", balance, klass):
+                if phase is not None and item.phase != phase:
+                    continue
+                return float(result.values[item.index])
+        raise AssertionError((kind, phase, balance, klass))
+
+    char_mass = slot("char", "hover", 1, 1, after) - slot("char", "hover", 1, 1, before)
+    ash_mass = slot("ash", "hover", 1, 1, after) - slot("ash", "hover", 1, 1, before)
+    assert char_mass > 0.0 and ash_mass > 0.0
+    source_k = 1150.0
+    expected = char_mass * char_specific_enthalpy_j_per_kg(source_k) + ash_mass * ash_specific_heat_j_per_kg_k() * (
+        source_k - 298.15
+    )
+    source_delta = slot("temperature", None, 0, -1, after) - slot("temperature", None, 0, -1, before)
+    target_delta = slot("temperature", None, 1, -1, after) - slot("temperature", None, 1, -1, before)
+    assert source_delta == pytest.approx(-expected, rel=1.0e-10)
+    assert target_delta == pytest.approx(expected, rel=1.0e-10)
+    assert source_delta + target_delta == pytest.approx(0.0, abs=1.0e-9)
+
+    # 若误用目标格温度（1050 K）计焓，源格扣除量会差出这一项。
+    wrong = char_mass * char_specific_enthalpy_j_per_kg(1050.0) + ash_mass * ash_specific_heat_j_per_kg_k() * (
+        1050.0 - 298.15
+    )
+    assert abs(source_delta + wrong) > 1.0e-3 * abs(expected)

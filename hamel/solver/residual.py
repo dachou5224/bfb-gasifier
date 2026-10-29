@@ -511,6 +511,24 @@ class _Context:
             bed_ext[0] += self.redirect_enthalpy
             return 0.0
         return self.redirect_enthalpy
+    def _theta_down_migration(self, cell: int) -> tuple[float, float]:
+        """本格向下转入的焦炭与灰迁移流（kg/s），按源格温度计焓。
+
+        θ↓_k 分到下方相邻格悬停状态的份额乘该格的迁移入流（粒级 k+1 → k）。
+        解释性选择：ADR 0048 第 2 项。
+        """
+        frozen = self.frozen
+        if cell + 1 >= frozen.n_class:
+            return 0.0, 0.0
+        char = ash = 0.0
+        for klass in range(frozen.n_class - 1):
+            share = float(frozen.theta_down[cell, klass])
+            if share == 0.0:
+                continue
+            char += share * float(self.migration_free[cell, klass + 1] + self.migration_hover[cell, klass + 1])
+            ash += share * float(self.ash_migration_free[cell, klass + 1] + self.ash_migration_hover[cell, klass + 1])
+        return char, ash
+
     def _wall(self, zone: str) -> np.ndarray:
         frozen, state = self.frozen, self.state
         count = frozen.n_bed if zone == "bed" else frozen.n_freeboard
@@ -555,6 +573,10 @@ class _Context:
             upward[cell] = _stream_enthalpy(state.freeboard_gas_mol_s[cell], char_up, ash_up, float(frozen.fuel_up_free_kg_s[cell].sum()), temperature, frozen)
             char_down = float((coefficient_down * state.freeboard_char_free_kg[cell]).sum())
             ash_down = float((coefficient_down * state.freeboard_ash_free_kg[cell]).sum())
+            # θ↓ 的焦炭与灰迁移流：源格（本格）进入下方相邻格的悬停状态。ADR 0048 第 2 项。
+            theta_char, theta_ash = self._theta_down_migration(cell)
+            char_down += theta_char
+            ash_down += theta_ash
             downward[cell] = _stream_enthalpy(np.zeros(len(GAS_SPECIES)), char_down, ash_down, float(frozen.fuel_down_free_kg_s[cell].sum()), temperature, frozen)
         external[frozen.secondary_balance_index] += _gas_enthalpy(frozen.secondary_feed_mol_s, frozen.secondary_temperature_k)
         return upward, downward, external

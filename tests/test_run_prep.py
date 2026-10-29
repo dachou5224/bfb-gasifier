@@ -19,8 +19,9 @@ from hamel.solver.vector import pack_state
 from tests.test_assembly import make_frozen, make_state
 from tools.driver_report import write_report
 from tools.run_prep import (
-    _book_change, _fuel_packet, applicability_row, closed_form_from_state, freeboard_closure, fuel_parts,
-    refine_particle, refine_trajectory, refinement_from_case, toy_particle, toy_trajectory,
+    _CLOSED_FORM_WINDOW_S, _book_change, _fuel_packet, applicability_row, closed_form_from_state,
+    freeboard_closure, fuel_parts, refine_particle, refine_trajectory, refinement_from_case, toy_particle,
+    toy_trajectory,
 )
 
 _CASE = Path(__file__).resolve().parents[1] / "data" / "cases" / "vtt_pressurized.json"
@@ -142,8 +143,8 @@ def test_freeboard_closure_counts_reaction_and_redirect_once():
 
 def test_closed_form_marks_nonpositive_delta_and_compares_the_other():
     config = SolverConfig()
-    positive = applicability_row(8.0e-3, 1.1, 1.8e-5, 900.0, 0.8, 1.5, 1.0, 0.4, config.freeboard_time_limit_s)
-    negative = applicability_row(1.5e-4, 1.2, 2.0e-5, 2000.0, 1.0, 0.5, 1.0, 0.5, config.freeboard_time_limit_s)
+    positive = applicability_row(8.0e-3, 1.1, 1.8e-5, 900.0, 0.8, 1.5, 1.0, 0.4, _CLOSED_FORM_WINDOW_S)
+    negative = applicability_row(1.5e-4, 1.2, 2.0e-5, 2000.0, 1.0, 0.5, 1.0, 0.5, _CLOSED_FORM_WINDOW_S)
     assert positive["delta"] > 0.0 and positive["status"] == "compared"
     assert positive["max_height_relative"] is not None
     assert negative["delta"] <= 0.0 and negative["status"] == "N/A"
@@ -339,7 +340,7 @@ def test_refinement_uses_the_supplied_case_and_the_report_prints_it(tmp_path):
     state = make_state(frozen)
     state.freeboard_temperature_k = np.array([500.0, 1500.0])
     reported = {"phi_s": 0.8, "trajectory": {"bubble_m_s": 1.0, "phi_s": 0.8}}
-    short = replace(config, freeboard_time_limit_s=0.05)
+    short = replace(config, freeboard_max_segments=2)
     formed = closed_form_from_state(state, frozen, reported, short)
     flow = state.freeboard_gas_mol_s[-1]
     total = float(np.sum(flow))

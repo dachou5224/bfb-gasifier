@@ -227,6 +227,9 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         outcome.diagnostics["frozen_path"] = str(frozen_path)
     outcome.diagnostics["geldart"] = [item.geldart_record for item in holder["records"]]
     outcome.diagnostics["adiabatic"] = adiabatic
+    if holder["records"]:
+        # ADR 0050 第 5 项：本次预计算的最大段数、归宿时刻最大值与 99 % 分位、最长的 (粒级, d, φ_S, 起点)。
+        outcome.diagnostics["trajectory"] = holder["records"][-1].reported.get("trajectory")
     if outcome.status != "CONVERGED":
         return outcome
     result = holder["final"]

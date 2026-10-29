@@ -144,7 +144,7 @@ def test_hover_is_set_where_the_capture_region_is():
 
     book = account_freeboard(
         edges, gas, rho, mu, diameter, density, phi, np.array([0.1]), np.array([1.0]), 0.0,
-        SolverConfig(freeboard_time_limit_s=20.0),
+        SolverConfig(),
     )
     assert book.capture_cells == (1, 2)
     assert book.cells[0].theta_up == 0.0 and book.cells[0].free_state == "存在"
@@ -161,10 +161,13 @@ def test_hover_is_set_where_the_capture_region_is():
 
 
 def test_return_uses_the_freeboard_inventory_and_the_drain_enters_the_residual():
-    """ADR 0016 第 10 条。同一床顶、不同自由存量，回落不同；排灰进入底格残差。"""
+    """ADR 0016 第 10 条。同一床顶、不同自由存量，回落不同；排灰进入底格残差。
+
+    半格捕获区下回落系数只有最下自由格的 b^f（ADR 0048 第 2 项）。
+    """
     coeff = np.array([0.25, 0.25])
-    empty = freeboard_return_kg_s(coeff, np.zeros(2), np.zeros(2), np.zeros(2))
-    filled = freeboard_return_kg_s(coeff, np.zeros(2), np.array([1.0, 1.0]), np.array([0.5, 0.5]), 0.1)
+    empty = freeboard_return_kg_s(coeff, np.zeros(2), np.zeros(2))
+    filled = freeboard_return_kg_s(coeff, np.array([1.0, 1.0]), np.array([0.5, 0.5]), 0.1)
     assert empty == 0.0
     assert filled == pytest.approx(0.85)
     up = np.array([1.0, 1.0, 1.0])
@@ -394,3 +397,42 @@ def test_hover_closure_bc_allows_a_cell_with_neither_state():
         _run(np.array([2.0]), np.array([3.0]), replace(present, closure="B"))
     with pytest.raises(PyrolysisError, match="B 或 C 不设悬停状态"):
         _run(np.array([2.0]), np.array([3.0]), replace(present, closure="C"))
+
+
+_CASE1_WALK = r"""
+import json
+from hamel.solver.precalc import precalculate
+result = precalculate("data/cases/vtt_pressurized.json", "1", None, adiabatic=False, iteration=1)
+frozen = result.frozen
+print(json.dumps({
+    "geldart": result.geldart,
+    "drain_ash_kg_s": float(frozen.drain_ash_kg_s),
+    "drain_char_kg_s": [float(value) for value in frozen.drain_char_kg_s],
+    "max_segments": int(result.reported["trajectory"]["max_segments"]),
+    "max_time_s": float(result.reported["trajectory"]["max_time_s"]),
+    "p99_time_s": float(result.reported["trajectory"]["p99_time_s"]),
+    "return_share": [float(value) for value in result.reported["reference_return_share"]],
+    "elutriation_share": [float(value) for value in result.reported["reference_elutriation_share"]],
+}))
+"""
+
+
+@pytest.mark.slow
+def test_precalculation_completes_after_successful_trajectory_accounting():
+    """轨迹记账成功后 _precalculate() 走到底：回落助手、排灰、冻结量与 ADR 0050 报告。
+
+    旧实现在 freeboard_return_kg_s() 处读已删除的 b_t 键，抛 KeyError（PR #133 审查 P1）；
+    ADR 0050 又取消了 80 s 的失败作用，本用例正是这两条都要走完的路径。
+    """
+    completed = _run_bounded(_CASE1_WALK, 900)
+    assert completed.returncode == 0, completed.stderr
+    payload = json.loads(completed.stdout.strip().splitlines()[-1])
+    assert payload["geldart"] == "B"
+    assert payload["drain_ash_kg_s"] >= 0.0
+    assert len(payload["drain_char_kg_s"]) == 7
+    # ADR 0050 第 5 项：段数与归宿时刻统计。总司令复核的工况 1 上限是 21 段。
+    assert 1 <= payload["max_segments"] <= 1000
+    assert 0.0 <= payload["p99_time_s"] <= payload["max_time_s"]
+    # 半格捕获区：粒级 1、2 带出为主，粒级 5–7 全部回落。
+    assert payload["elutriation_share"][0] > 0.9 and payload["elutriation_share"][1] > 0.9
+    assert payload["return_share"][4:] == pytest.approx([1.0, 1.0, 1.0])

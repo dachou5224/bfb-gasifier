@@ -107,6 +107,20 @@ def _item(kind, klass, char, ash, fuel, temperature, frozen, undo):
     }
 
 
+def _free_fuel_per_coefficient(frozen, cell: int, klass: int) -> float:
+    """自由状态的燃料存量（未干燥 + 已干燥当量），按单位输运系数计。
+
+    冻结的 W/P 出流由 ``release._state_flows()` 给出：
+    ``fuel_up = a^f·库存``、``fuel_down = (b^f + c↓)·库存``（c↑ 是格内转入，不计在出流里）。
+    因此用同一组系数反求库存，不能把 c↑ 也算进分母。
+    """
+    total = float(frozen.a_free_per_s[cell, klass] + frozen.b_free_per_s[cell, klass] + frozen.c_down_per_s[cell, klass])
+    if total == 0.0:
+        return 0.0
+    mobile = float(frozen.fuel_up_free_kg_s[cell, klass] + frozen.fuel_down_free_kg_s[cell, klass])
+    return mobile / total
+
+
 def redirect_ledger(
     frozen, state, migration_free, migration_hover, ash_migration_free, ash_migration_hover,
     bed_ash_share, ash_release_free, ash_release_hover,
@@ -125,9 +139,8 @@ def redirect_ledger(
         for cell in range(n_free):
             char_free = float(state.freeboard_char_free_kg[cell, klass])
             ash_free = float(state.freeboard_ash_free_kg[cell, klass])
-            total = float(frozen.a_free_per_s[cell, klass] + frozen.b_free_per_s[cell, klass] + frozen.c_up_per_s[cell, klass] + frozen.c_down_per_s[cell, klass])
-            mobile = float(frozen.fuel_up_free_kg_s[cell, klass] + frozen.fuel_down_free_kg_s[cell, klass])
-            unit = 0.0 if total == 0.0 else mobile / total
+            unit = _free_fuel_per_coefficient(frozen, cell, klass)
+            # c↑ 是格内自由→悬停，c↓ 是转到下方相邻格的悬停。解释性选择：ADR 0048 第 2 项。
             for coeff, below in ((float(frozen.c_up_per_s[cell, klass]), False), (float(frozen.c_down_per_s[cell, klass]), True)):
                 if coeff == 0.0:
                     continue

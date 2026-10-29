@@ -28,6 +28,8 @@ _BENCHMARK = {
     "gas_m_s": 0.0, "initial_m_s": 2.0, "height_m": 0.3, "duration_s": 0.02,
 }
 _ACCEPTANCE = ("T_FRB_K", "X_C", "CO", "CO2", "H2", "CH4", "H2O")
+# 闭式与 RK4 比对的时长，只作诊断；轨迹推进的终止保护是 ADR 0050 的段数上限。
+_CLOSED_FORM_WINDOW_S = 80.0
 _T_FRB = "Σ T_i·Δh_i / Σ Δh_i，自由空间全部 cell，含锥段。解释性选择：ADR 0040 第 1 项。"
 _X_C = "出口气体（含焦油蒸气）中的碳 / 燃料碳。分子不计带出焦炭与排灰。解释性选择：ADR 0040 第 1 项。"
 
@@ -376,7 +378,10 @@ def fixed_closed_form(samples: int) -> dict:
 
 
 def applicability_row(diameter_m, rho_g, mu_g, rho_p, phi_s, gas_m_s, bubble_m_s, height_m, time_limit_s) -> dict:
-    """一个粒级。Δ ≤ 0 记 N/A。Δ > 0 时在常系数下与高精度 RK4 比到时间上限。"""
+    """一个粒级。Δ ≤ 0 记 N/A。Δ > 0 时在常系数下与高精度 RK4 比到 time_limit_s。
+
+    time_limit_s 只是这项诊断比对的时长，不是轨迹推进的终止保护（后者是 ADR 0050 的段数上限）。
+    """
     sample_speeds, _shares, direct = ejection_velocity_samples(float(bubble_m_s), 1)
     initial = float(sample_speeds[0])
     branches = {}
@@ -418,7 +423,7 @@ def toy_applicability_rows() -> list:
 
 
 def closed_form_report(config: SolverConfig, rows: list) -> dict:
-    limit = float(config.freeboard_time_limit_s)
+    limit = _CLOSED_FORM_WINDOW_S
     table = [
         applicability_row(*item, limit) if not isinstance(item, dict) else item
         for item in rows
@@ -644,7 +649,7 @@ def closed_form_from_state(state, frozen, reported, config: SolverConfig) -> dic
     height = float(frozen.n_freeboard) * float(frozen.freeboard_height_m)
     bubble = float(reported["trajectory"]["bubble_m_s"])
     phi = float(reported.get("phi_s") or reported["trajectory"]["phi_s"])
-    limit = float(config.freeboard_time_limit_s)
+    limit = _CLOSED_FORM_WINDOW_S
     rows = [
         applicability_row(
             float(diameter), rho, mu, float(frozen.rho_p_kg_m3), phi, speed, bubble, height, limit,

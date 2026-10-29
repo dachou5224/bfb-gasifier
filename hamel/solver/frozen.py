@@ -223,6 +223,9 @@ class FrozenQuantities:
         held = self.theta_up + self.theta_down
         if np.any((self.theta_up < 0.0) | (self.theta_down < 0.0) | (held > 1.0 + 1.0e-12)):
             raise AssemblyError("θ↑、θ↓ 必须非负，且两者之和不超过 1")
+        if np.any(self.theta_down[-1] != 0.0):
+            # 最下一格的中点以下没有捕获区。解释性选择：ADR 0048 第 2 项。
+            raise AssemblyError("自由空间最下一格的中点以下没有捕获区，θ↓ 必须为 0")
         if np.any(self.free_absent & (held == 0.0)):
             raise AssemblyError("自由状态不存在时必须有悬停份额")
         if self.hover_closure == "A" and np.any(~self.hover & (held != 0.0)):
