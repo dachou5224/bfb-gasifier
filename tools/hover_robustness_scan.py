@@ -3,7 +3,8 @@
 在工况 1 初值点第 1 轮保存的自由空间剖面（reports/research-cellwise-trajectory/cellwise.json 的 column）上，
 按 ADR 0047 的逐格常气速判定界面夹住（下格 ū_g > v_t > 上格 ū_g），
 扫描 ρ_P、球形度、格内气速取法、d_b,WS（鬼泡衰减长度）与二次风入口所在界面，
-给出各粒级被夹住的质量份额（粒级内按 ADR 0023 质量在 ln d 上均匀；球形度按 ADR 0048 的截断正态）与夹住界面。
+给出各粒级被夹住的质量份额（粒级内按 ADR 0023 质量在 ln d 上均匀；球形度为研究假设：[0,3; 1,0] 截断正态、
+截断后均值 0,8，即 ADR 0048 提议中的取法，尚未批准）与夹住界面；另给单一代表粒径、单一 φ_S 时的全部夹住界面。
 """
 from __future__ import annotations
 
@@ -77,12 +78,22 @@ def trapped_share(column, u_cell, edges, rho_p, phis, klass, n_d=24):
     return hit / total, {k: v / total for k, v in sorted(where.items())}
 
 
+def representative_traps(column, u_cell, edges, rho_p, phi, klass):
+    """单一代表粒径（ADR 0023）、单一 φ_S 时被夹住的全部界面。"""
+    d = float(np.asarray(column["diameter_m"])[klass])
+    rho, mu = column["rho_g"], column["mu_g"]
+    return [round(float(edges[i + 1]), 4) for i in range(len(u_cell) - 1)
+            if u_cell[i] > terminal_settling_velocity(rho[i], mu[i], d, rho_p, phi)
+            and u_cell[i + 1] < terminal_settling_velocity(rho[i + 1], mu[i + 1], d, rho_p, phi)]
+
+
 def scan():
     column = json.loads(_COLUMN.read_text(encoding="utf-8"))["column"]
     rho0 = float(column["rho_p"])
     cases = [("基准（高度平均，φ 截断正态 σ 0,1）", {})]
     for f in (0.75, 0.9, 0.98, 1.02, 1.1, 1.13):
         cases.append((f"ρ_P × {f}", {"rho": f}))
+    cases.append(("φ_S 单一 0,78（代表值扰动）", {"sigma": None, "phi": 0.78}))
     for s in (None, 0.05, 0.15):
         cases.append(("φ_S 单一 0,8" if s is None else f"φ σ = {s}", {"sigma": s}))
     for r in ("mid", "lower", "upper"):
@@ -94,13 +105,15 @@ def scan():
     rows = []
     for name, opt in cases:
         edges, u_cell = cell_velocity(column, opt.get("rule", "mean"), opt.get("decay", 1.0), opt.get("sa", 0))
-        phis = phi_nodes(opt.get("sigma", 0.1))
+        phis = phi_nodes(opt.get("sigma", 0.1)) if "phi" not in opt else np.array([opt["phi"]])
         rho_p = rho0 * opt.get("rho", 1.0)
         per = []
         for k in range(len(BOUNDS_MM)):
             share, where = trapped_share(column, u_cell, edges, rho_p, phis, k)
             per.append({"k": k + 1, "share": share, "interfaces": where})
-        rows.append({"case": name, "u_cell": [float(x) for x in u_cell], "classes": per})
+        rep_phi = opt.get("phi", 0.8)
+        rep = representative_traps(column, u_cell, edges, rho_p, rep_phi, 2)
+        rows.append({"case": name, "u_cell": [float(x) for x in u_cell], "classes": per, "class3_representative_traps": rep})
     return rows
 
 
@@ -109,13 +122,15 @@ def write(rows):
     (_OUT / "scan.json").write_text(json.dumps(rows, ensure_ascii=False, indent=1), encoding="utf-8")
     lines = ["# 悬停稳健性扫描（研究，只报告）", "",
              "剖面：工况 1 初值点第 1 轮（`reports/research-cellwise-trajectory/cellwise.json`）。判据：ADR 0047 的逐格界面夹住。",
-             "份额：粒级内质量在 ln d 上均匀（ADR 0023，每级 24 点）× 球形度（ADR 0048 截断正态，8 点），被夹住的质量份额。",
+             "份额：粒级内质量在 ln d 上均匀（ADR 0023，每级 24 点）× 球形度（**研究假设**：[0,3; 1,0] 截断正态、截断后均值 0,8、σ 0,1，8 点；即 ADR 0048 提议中的取法，尚未批准），满足夹住条件的潜在质量份额。",
+             "只计夹住条件，不积分起始速度与真实捕获轨迹，不是模型悬停存量或捕获通量的验证；各扰动是冻结剖面上的单因素研究。",
              "二次风入口移动只把体积流台阶移到相邻界面，是近似。初值点剖面受第 1 轮冻结量扭曲，数值只说明敏感性。", "",
-             "| 情形 | 粒级 1 | 2 | 3 | 4 | 5 | 6 | 7 | 夹住界面（m） |", "|---|---|---|---|---|---|---|---|---|"]
+             "| 情形 | 粒级 1 | 2 | 3 | 4 | 5 | 6 | 7 | 夹住界面（m） | 粒级 3 单一代表值的夹住界面（m） |", "|---|---|---|---|---|---|---|---|---|---|"]
     for row in rows:
         shares = " | ".join(f"{c['share']:.2f}" for c in row["classes"])
         where = sorted({k for c in row["classes"] for k in c["interfaces"]})
-        lines.append(f"| {row['case']} | {shares} | {', '.join(str(w) for w in where) or '—'} |")
+        rep = ", ".join(str(w) for w in row["class3_representative_traps"]) or "无"
+        lines.append(f"| {row['case']} | {shares} | {', '.join(str(w) for w in where) or '—'} | {rep} |")
     (_OUT / "scan.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 

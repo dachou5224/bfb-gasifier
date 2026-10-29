@@ -59,6 +59,9 @@
     "share": 0.0,
     "interfaces": {}
    }
+  ],
+  "class3_representative_traps": [
+   0.2875
   ]
  },
  {
@@ -121,6 +124,9 @@
     "share": 0.0,
     "interfaces": {}
    }
+  ],
+  "class3_representative_traps": [
+   1.15
   ]
  },
  {
@@ -181,6 +187,9 @@
     "share": 0.0,
     "interfaces": {}
    }
+  ],
+  "class3_representative_traps": [
+   0.575
   ]
  },
  {
@@ -243,6 +252,9 @@
     "share": 0.0,
     "interfaces": {}
    }
+  ],
+  "class3_representative_traps": [
+   0.575
   ]
  },
  {
@@ -304,6 +316,9 @@
     "share": 0.0,
     "interfaces": {}
    }
+  ],
+  "class3_representative_traps": [
+   0.2875
   ]
  },
  {
@@ -366,6 +381,9 @@
     "share": 0.0,
     "interfaces": {}
    }
+  ],
+  "class3_representative_traps": [
+   0.2875
   ]
  },
  {
@@ -429,6 +447,68 @@
     "share": 0.0,
     "interfaces": {}
    }
+  ],
+  "class3_representative_traps": []
+ },
+ {
+  "case": "φ_S 单一 0,78（代表值扰动）",
+  "u_cell": [
+   1.2250636839168811,
+   1.1234224582075942,
+   1.0385032831515286,
+   0.969334181698362,
+   0.9129939665151636,
+   0.8671032468122576,
+   0.8297239406097014,
+   0.7992774245988409
+  ],
+  "classes": [
+   {
+    "k": 1,
+    "share": 0.0,
+    "interfaces": {}
+   },
+   {
+    "k": 2,
+    "share": 0.0,
+    "interfaces": {}
+   },
+   {
+    "k": 3,
+    "share": 0.5416666666666666,
+    "interfaces": {
+     "0.2875": 0.125,
+     "0.575": 0.08333333333333333,
+     "0.8625": 0.125,
+     "1.15": 0.041666666666666664,
+     "1.4375": 0.08333333333333333,
+     "1.725": 0.041666666666666664,
+     "2.0125": 0.041666666666666664
+    }
+   },
+   {
+    "k": 4,
+    "share": 0.0,
+    "interfaces": {}
+   },
+   {
+    "k": 5,
+    "share": 0.0,
+    "interfaces": {}
+   },
+   {
+    "k": 6,
+    "share": 0.0,
+    "interfaces": {}
+   },
+   {
+    "k": 7,
+    "share": 0.0,
+    "interfaces": {}
+   }
+  ],
+  "class3_representative_traps": [
+   0.575
   ]
  },
  {
@@ -486,6 +566,9 @@
     "share": 0.0,
     "interfaces": {}
    }
+  ],
+  "class3_representative_traps": [
+   0.2875
   ]
  },
  {
@@ -544,6 +627,9 @@
     "share": 0.0,
     "interfaces": {}
    }
+  ],
+  "class3_representative_traps": [
+   0.2875
   ]
  },
  {
@@ -608,6 +694,9 @@
     "share": 0.0,
     "interfaces": {}
    }
+  ],
+  "class3_representative_traps": [
+   0.2875
   ]
  },
  {
@@ -670,6 +759,9 @@
     "share": 0.0,
     "interfaces": {}
    }
+  ],
+  "class3_representative_traps": [
+   0.2875
   ]
  },
  {
@@ -732,6 +824,9 @@
     "share": 0.0,
     "interfaces": {}
    }
+  ],
+  "class3_representative_traps": [
+   0.575
   ]
  },
  {
@@ -793,7 +888,8 @@
     "share": 0.0,
     "interfaces": {}
    }
-  ]
+  ],
+  "class3_representative_traps": []
  },
  {
   "case": "d_b,WS × 0.5（衰减长度）",
@@ -857,6 +953,9 @@
     "share": 0.0,
     "interfaces": {}
    }
+  ],
+  "class3_representative_traps": [
+   0.2875
   ]
  },
  {
@@ -917,6 +1016,9 @@
     "share": 0.0,
     "interfaces": {}
    }
+  ],
+  "class3_representative_traps": [
+   0.8625
   ]
  },
  {
@@ -979,6 +1081,9 @@
     "share": 0.0,
     "interfaces": {}
    }
+  ],
+  "class3_representative_traps": [
+   0.2875
   ]
  },
  {
@@ -1041,6 +1146,9 @@
     "share": 0.0,
     "interfaces": {}
    }
+  ],
+  "class3_representative_traps": [
+   0.2875
   ]
  }
 ]
