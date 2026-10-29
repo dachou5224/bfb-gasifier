@@ -1,4 +1,4 @@
-"""自由空间抛出、气速与轨迹。期望值按冻结稿和 ADR 手算。"""
+"""自由空间抛出、气速、逐格解析轨迹与事件。期望值按冻结稿和 ADR 手算。"""
 
 from __future__ import annotations
 
@@ -11,22 +11,26 @@ from dataclasses import replace
 from hamel.cases.config import SolverConfig
 from hamel.freeboard import (
     FreeboardError,
+    advance_cell,
     approach_factor,
-    closed_form_state,
+    cell_height_at_velocity,
+    cell_mean_velocity,
+    cell_state,
     coalescence_weight,
+    discriminant,
     drag_coefficient,
     drag_limit_z,
     ejection_flux,
     ejection_mass_flow,
     ejection_velocity_samples,
     ghost_bubble_velocity,
-    integrate_freeboard,
-    integrate_motion,
     motion_coefficients,
     pair_coalescence_probability,
     particle_acceleration,
     spacing_ratio,
     terminal_settling_velocity,
+    time_to_velocity,
+    trace_until_fate,
 )
 
 G = 9.81
@@ -42,6 +46,35 @@ def _hand_z(phi_s: float) -> float:
 
 def _config(**changes) -> SolverConfig:
     return replace(SolverConfig(), **changes)
+
+
+def _cellwise(*speeds: float):
+    def gas(cell, _height):
+        return float(speeds[cell])
+
+    return gas
+
+
+def _relative(left: float, right: float) -> float:
+    scale = max(abs(left), abs(right))
+    if scale == 0.0:
+        return 0.0
+    return abs(left - right) / scale
+
+
+def _rk4(a: float, b: float, c: float, u0: float, h0: float, duration: float, steps: int = 200000):
+    """常系数参考积分。只作闭式的对照，不进入求解。求解手段：ADR 0047。"""
+    step = duration / steps
+    velocity, height = u0, h0
+    f = lambda value: a * value * value + b * value + c
+    for _ in range(steps):
+        k1 = f(velocity)
+        k2 = f(velocity + 0.5 * step * k1)
+        k3 = f(velocity + 0.5 * step * k2)
+        k4 = f(velocity + step * k3)
+        height += step * (velocity + 2.0 * (velocity + 0.5 * step * k1) + 2.0 * (velocity + 0.5 * step * k2) + velocity + step * k3) / 6.0
+        velocity += step * (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0
+    return velocity, height
 
 
 def test_spacing_and_approach_by_hand():
@@ -114,139 +147,162 @@ def test_polynomial_matches_acceleration_on_both_sides():
         polynomial = a * particle**2 + b * particle + c
         direct = particle_acceleration(particle, gas, RHO_G, MU, diameter, RHO_P, PHI)
         assert polynomial == pytest.approx(direct)
+    # 两支在 u_P = u_g 处给出同一个加速度 −(ρ_P−ρ_g)g/ρ_P，逐格分界连续。
+    slower = motion_coefficients(gas, False, RHO_G, MU, diameter, RHO_P, PHI)
+    faster = motion_coefficients(gas, True, RHO_G, MU, diameter, RHO_P, PHI)
+    at_gas = lambda coefficient: coefficient[0] * gas**2 + coefficient[1] * gas + coefficient[2]
+    assert at_gas(slower) == pytest.approx(at_gas(faster))
+    assert at_gas(slower) == pytest.approx(-(RHO_P - RHO_G) * G / RHO_P)
 
 
-def test_numerical_integral_matches_closed_form_when_delta_positive():
-    # 大颗粒、静气、向上的初速：这一支的 Δ > 0，短时间内速度保持为正。
-    diameter = 8.0e-3
-    rho_g = 1.1
-    mu = 1.8e-5
-    rho_p = 900.0
-    gas = 0.0
-    initial = 2.0
-    a, b, c = motion_coefficients(gas, True, rho_g, mu, diameter, rho_p, PHI)
-    assert a * initial**2 + b * initial + c == pytest.approx(
-        particle_acceleration(initial, gas, rho_g, mu, diameter, rho_p, PHI)
-    )
-    delta = 4.0 * a * c - b**2
-    assert delta > 0.0
-    duration = 0.02
-    analytic_u, analytic_h = closed_form_state(duration, a, b, c, initial, 0.3)
-    numeric_h, numeric_u = integrate_motion(
-        0.3, initial, duration, gas, rho_g, mu, diameter, rho_p, PHI, 1.0e-5
-    )
-    assert numeric_u == pytest.approx(analytic_u, rel=1e-4, abs=1e-6)
-    assert numeric_h == pytest.approx(analytic_h, rel=1e-4, abs=1e-6)
-    assert numeric_u > gas
+def test_cell_mean_velocity_is_the_height_average():
+    def gas(_cell, height):
+        return 1.5 + 0.8 * float(height)
+
+    left, right = 0.2, 0.6
+    assert cell_mean_velocity(gas, 0, left, right) == pytest.approx(1.5 + 0.8 * 0.5 * (left + right))
 
 
+def test_three_closed_forms_match_rk4_within_1e_8():
+    """Δ > 0、Δ < 0、Δ = 0 三种闭式对同一逐格常系数的高精度 RK4。"""
+    cases = [
+        (-2.0, -30.0, -150.0, 6.0, 0.02),
+        (-2.0, -40.0, 50.0, 0.5, 0.2),
+        (2.0, -40.0, -10.0, -0.5, 0.2),
+    ]
+    for a, b, c, u0, duration in cases:
+        closed_u, closed_h = cell_state(duration, a, b, c, u0, 0.0)
+        numeric_u, numeric_h = _rk4(a, b, c, u0, 0.0, duration)
+        assert _relative(closed_u, numeric_u) < 1e-8
+        assert _relative(closed_h, numeric_h) < 1e-8
+    limit = cell_state(0.1, 2.0, 0.0, 0.0, 3.0, 0.0)
+    numeric = _rk4(2.0, 0.0, 0.0, 3.0, 0.0, 0.1)
+    assert _relative(limit[0], numeric[0]) < 1e-8
+    assert _relative(limit[1], numeric[1]) < 1e-8
 
-def _column():
-    edges = np.array([0.0, 0.5, 1.0])
-    rho = np.full(2, RHO_G)
-    mu = np.full(2, MU)
-    return edges, rho, mu
+
+def test_near_zero_discriminant_uses_the_limit():
+    a, b, c, u0, duration = 2.0, 40.0, 200.0 + 1.0e-12, -20.0, 0.05
+    assert abs(discriminant(a, b, c)) <= 1.0e-10 * b * b
+    closed_u, closed_h = cell_state(duration, a, b, c, u0, 0.0)
+    numeric_u, numeric_h = _rk4(a, b, c, u0, 0.0, duration)
+    assert _relative(closed_u, numeric_u) < 1e-6
+    assert _relative(closed_h, numeric_h) < 1e-6
+
+
+def test_velocity_crossing_times_are_analytic():
+    a, b, c = motion_coefficients(1.2, True, RHO_G, MU, 2.0e-4, RHO_P, PHI)
+    u0 = 2.0
+    target = 0.3
+    tau = time_to_velocity(a, b, c, u0, target)
+    assert tau is not None and tau > 0.0
+    assert cell_state(tau, a, b, c, u0, 0.0)[0] == pytest.approx(target, rel=1e-10)
+    assert time_to_velocity(a, b, c, u0, 1.0e4) is None
+
+    a, b, c = motion_coefficients(1.0, False, RHO_G, MU, 2.0e-4, RHO_P, PHI)
+    tau = time_to_velocity(a, b, c, -0.5, 0.0)
+    assert tau is not None and tau > 0.0
+    assert cell_state(tau, a, b, c, -0.5, 0.0)[0] == pytest.approx(0.0, abs=1e-12)
+
+
+def test_advance_cell_reports_the_earliest_event():
+    a, b, c = motion_coefficients(1.2, True, RHO_G, MU, 2.0e-4, RHO_P, PHI)
+    kind, tau, height, velocity = advance_cell(0.2, 2.0, 0.0, 1.0, a, b, c, 1.2, 80.0)
+    assert kind == "gas"
+    assert velocity == pytest.approx(1.2)
+    assert 0.0 < height < 1.0 and tau > 0.0
+
+    # Δ > 0、A > 0：负速度向上加速，穿过 0 的时刻早于到达格界。
+    kind, tau, height, velocity = advance_cell(0.5, -0.5, 0.0, 1.0, 2.0, -40.0, 50.0, 10.0, 80.0)
+    assert kind == "zero"
+    assert velocity == 0.0 and tau > 0.0
+    assert height < 0.5
+
+
+def test_cell_boundary_root_is_within_1e_12_m():
+    kind, _tau, height, _velocity = advance_cell(0.1, 0.5, 0.0, 1.0, -2.0, -40.0, 50.0, 1.2, 80.0)
+    assert kind == "upper"
+    assert abs(height - 1.0) <= 1.0e-12
 
 
 def test_fast_gas_carries_the_particle_out_and_slow_gas_returns_it():
-    edges, rho, mu = _column()
+    edges = np.array([0.0, 0.5, 1.0])
+    rho = np.full(2, RHO_G)
+    mu = np.full(2, MU)
     diameter = 2.0e-4
     terminal = terminal_settling_velocity(RHO_G, MU, diameter, RHO_P, PHI)
 
-    def fast(_cell, _height, terminal=terminal):
-        return terminal + 3.0
+    fast = _cellwise(terminal + 3.0, terminal + 3.0)
+    fate = trace_until_fate(0.0, 1.0, edges, fast, rho, mu, diameter, RHO_P, PHI, SolverConfig())
+    assert fate.fate == "elutriate"
+    assert fate.height_m == pytest.approx(1.0)
+    assert fate.velocity_m_s > 0.0
 
-    fate, _time, height, velocity = integrate_freeboard(
-        0.0, 1.0, edges, fast, rho, mu, diameter, RHO_P, PHI, SolverConfig()
+    slow = _cellwise(0.2 * terminal, 0.2 * terminal)
+    fate = trace_until_fate(0.2, 0.3, edges, slow, rho, mu, diameter, RHO_P, PHI, SolverConfig())
+    assert fate.fate == "return"
+    assert fate.height_m == pytest.approx(0.0)
+    assert fate.velocity_m_s < 0.0
+
+
+def test_boundary_event_inside_the_time_limit_is_not_missed():
+    """没有速度事件时，格界求根也必须受剩余期限约束，但期限内的真实事件不能漏。"""
+    terminal = terminal_settling_velocity(RHO_G, MU, 2.0e-4, RHO_P, PHI)
+    edges = np.array([0.0, 0.75])
+    rho, mu = np.array([RHO_G]), np.array([MU])
+
+    def gas(_cell, _height, terminal=terminal):
+        return terminal + 1.0
+
+    fate = trace_until_fate(
+        0.0, 1.0, edges, gas, rho, mu, 2.0e-4, RHO_P, PHI, _config(freeboard_time_limit_s=1.0)
     )
-    assert fate == "elutriate"
-    assert height == pytest.approx(1.0)
-    assert velocity > 0.0
-
-    def slow(_cell, _height, terminal=terminal):
-        return 0.2 * terminal
-
-    fate, _time, height, velocity = integrate_freeboard(
-        0.2, 0.3, edges, slow, rho, mu, diameter, RHO_P, PHI, SolverConfig()
-    )
-    assert fate == "return"
-    assert height == pytest.approx(0.0)
-    assert velocity < 0.0
+    assert fate.fate == "elutriate"
+    assert fate.time_s == pytest.approx(0.75, rel=1e-6)
+    assert fate.height_m == pytest.approx(0.75, abs=1e-12)
 
 
-def test_time_limit_is_an_error_not_a_fate():
-    edges, rho, mu = _column()
+def test_event_beyond_the_time_limit_is_not_accepted():
+    """期限之后的格界事件不构成归宿；到时只报错，不改判为带出。"""
+    edges = np.array([0.0, 0.01])
+    rho, mu = np.array([RHO_G]), np.array([MU])
 
     def gas(_cell, _height):
-        return 0.0
+        return 1.0
 
     with pytest.raises(FreeboardError, match="积分时间达到上限"):
-        integrate_freeboard(
-            0.4,
-            0.0,
-            edges,
-            gas,
-            rho,
-            mu,
-            2.0e-4,
-            RHO_P,
-            PHI,
-            _config(freeboard_time_limit_s=1.0e-3),
+        trace_until_fate(
+            0.0, 2.0, edges, gas, rho, mu, 2.0e-4, RHO_P, PHI, _config(freeboard_time_limit_s=1.0e-6)
         )
 
 
-def _relative(left: float, right: float) -> float:
-    scale = max(abs(left), abs(right))
-    if scale == 0.0:
-        return 0.0
-    return abs(left - right) / scale
-
-
-def test_step_halving_changes_the_state_by_less_than_1e_4():
-    edges, rho, mu = _column()
-    diameter = 2.0e-4
-    terminal = terminal_settling_velocity(RHO_G, MU, diameter, RHO_P, PHI)
-    base_step = SolverConfig().freeboard_max_step_s
-
-    def gas(_cell, _height, terminal=terminal):
-        return terminal + 3.0
-
-    base = integrate_freeboard(0.0, 2.0, edges, gas, rho, mu, diameter, RHO_P, PHI, SolverConfig())
-    fine = integrate_freeboard(
-        0.0,
-        2.0,
-        edges,
-        gas,
-        rho,
-        mu,
-        diameter,
-        RHO_P,
-        PHI,
-        _config(freeboard_max_step_s=0.5 * base_step),
-    )
-    assert base[0] == fine[0] == "elutriate"
-    assert _relative(base[1], fine[1]) < 1.0e-4
-    assert _relative(base[3], fine[3]) < 1.0e-4
+def test_time_limit_is_an_error_not_a_fate():
+    edges = np.array([0.0, 0.5, 1.0])
+    rho = np.full(2, RHO_G)
+    mu = np.full(2, MU)
+    still = _cellwise(0.0, 0.0)
+    with pytest.raises(FreeboardError, match="积分时间达到上限"):
+        trace_until_fate(
+            0.4, 0.0, edges, still, rho, mu, 2.0e-4, RHO_P, PHI, _config(freeboard_time_limit_s=1.0e-3)
+        )
 
 
 def test_doubling_ejection_samples_changes_the_mean_flight_time_by_less_than_1e_4():
-    edges, rho, mu = _column()
+    edges = np.array([0.0, 0.5, 1.0])
+    rho = np.full(2, RHO_G)
+    mu = np.full(2, MU)
     diameter = 2.0e-4
     terminal = terminal_settling_velocity(RHO_G, MU, diameter, RHO_P, PHI)
+    gas = _cellwise(terminal + 3.0, terminal + 3.0)
     count = SolverConfig().freeboard_ejection_samples
-
-    def gas(_cell, _height, terminal=terminal):
-        return terminal + 3.0
 
     def mean_time(sample_count: int) -> float:
         speeds, shares, _direct = ejection_velocity_samples(1.1, sample_count)
         total = 0.0
         weight = 0.0
         for speed, share in zip(speeds, shares):
-            _fate, time, _height, _velocity = integrate_freeboard(
-                0.0, float(speed), edges, gas, rho, mu, diameter, RHO_P, PHI, SolverConfig()
-            )
-            total += float(share) * time
+            fate = trace_until_fate(0.0, float(speed), edges, gas, rho, mu, diameter, RHO_P, PHI, SolverConfig())
+            total += float(share) * fate.time_s
             weight += float(share)
         return total / weight
 
@@ -259,71 +315,26 @@ def test_stationary_boundary_uses_acceleration_and_not_every_zero_speed_leaves()
     mu = np.array([MU])
     diameter = 2.0e-4
     terminal = terminal_settling_velocity(RHO_G, MU, diameter, RHO_P, PHI)
+    still = _cellwise(0.0)
+    lifting = _cellwise(terminal + 3.0)
+    balanced = _cellwise(terminal)
 
-    def still(_cell, _height):
-        return 0.0
-
-    def lifting(_cell, _height, terminal=terminal):
-        return terminal + 3.0
-
-    def balanced(_cell, _height, terminal=terminal):
-        return terminal
-
-    fate, time, height, velocity = integrate_freeboard(
-        0.0, 0.0, edges, still, rho, mu, diameter, RHO_P, PHI, _config(freeboard_time_limit_s=1.0e-6)
-    )
-    assert (fate, time, height, velocity) == ("return", 0.0, 0.0, 0.0)
-    fate, time, height, velocity = integrate_freeboard(
-        1.0, 0.0, edges, lifting, rho, mu, diameter, RHO_P, PHI, SolverConfig()
-    )
-    assert (fate, time, height, velocity) == ("elutriate", 0.0, 1.0, 0.0)
-    fate, time, height, _velocity = integrate_freeboard(
-        0.0, 0.0, edges, lifting, rho, mu, diameter, RHO_P, PHI, SolverConfig()
-    )
-    assert fate == "elutriate"
-    assert time > 0.0
-    assert height == pytest.approx(1.0)
-    fate, time, height, velocity = integrate_freeboard(
-        1.0, 0.0, edges, still, rho, mu, diameter, RHO_P, PHI, SolverConfig()
-    )
-    assert fate == "return"
-    assert time > 0.0
-    assert height == pytest.approx(0.0)
-    assert velocity < 0.0
-    with pytest.raises(FreeboardError, match="积分时间达到上限"):
-        integrate_freeboard(
-            0.0,
-            0.0,
-            edges,
-            balanced,
-            rho,
-            mu,
-            diameter,
-            RHO_P,
-            PHI,
-            _config(freeboard_time_limit_s=1.0e-3),
-        )
-
-    split = np.array([0.0, 0.5, 1.0])
-    split_rho = np.full(2, RHO_G)
-    split_mu = np.full(2, MU)
-
-    def upper_lifts(cell, _height, terminal=terminal):
-        return terminal + 3.0 if cell == 1 else 0.0
-
-    fate, time, height, _velocity = integrate_freeboard(
-        0.5, 0.0, split, upper_lifts, split_rho, split_mu, diameter, RHO_P, PHI, SolverConfig()
-    )
-    assert fate == "elutriate"
-    assert time > 0.0
-    assert height == pytest.approx(1.0)
-
-    def both_point_across(cell, _height, terminal=terminal):
-        return 0.0 if cell == 1 else terminal + 3.0
-
-    with pytest.raises(FreeboardError, match="格面两侧"):
-        integrate_freeboard(
-            0.5, 0.0, split, both_point_across, split_rho, split_mu, diameter, RHO_P, PHI, SolverConfig()
+    fate = trace_until_fate(0.0, 0.0, edges, still, rho, mu, diameter, RHO_P, PHI, _config(freeboard_time_limit_s=1.0e-6))
+    assert (fate.fate, fate.time_s, fate.height_m, fate.velocity_m_s) == ("return", 0.0, 0.0, 0.0)
+    fate = trace_until_fate(1.0, 0.0, edges, lifting, rho, mu, diameter, RHO_P, PHI, SolverConfig())
+    assert (fate.fate, fate.time_s, fate.height_m, fate.velocity_m_s) == ("elutriate", 0.0, 1.0, 0.0)
+    fate = trace_until_fate(0.0, 0.0, edges, lifting, rho, mu, diameter, RHO_P, PHI, SolverConfig())
+    assert fate.fate == "elutriate"
+    assert fate.time_s > 0.0
+    assert fate.height_m == pytest.approx(1.0)
+    fate = trace_until_fate(1.0, 0.0, edges, still, rho, mu, diameter, RHO_P, PHI, SolverConfig())
+    assert fate.fate == "return"
+    assert fate.time_s > 0.0
+    assert fate.height_m == pytest.approx(0.0)
+    assert fate.velocity_m_s < 0.0
+    with pytest.raises(FreeboardError, match="中性"):
+        trace_until_fate(
+            0.0, 0.0, edges, balanced, rho, mu, diameter, RHO_P, PHI, _config(freeboard_time_limit_s=1.0e-3)
         )
 
 

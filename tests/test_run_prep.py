@@ -142,8 +142,8 @@ def test_freeboard_closure_counts_reaction_and_redirect_once():
 
 def test_closed_form_marks_nonpositive_delta_and_compares_the_other():
     config = SolverConfig()
-    positive = applicability_row(8.0e-3, 1.1, 1.8e-5, 900.0, 0.8, 1.5, 1.0, 0.4, config.freeboard_max_step_s, 0.05)
-    negative = applicability_row(1.5e-4, 1.2, 2.0e-5, 2000.0, 1.0, 0.5, 1.0, 0.5, config.freeboard_max_step_s, 0.05)
+    positive = applicability_row(8.0e-3, 1.1, 1.8e-5, 900.0, 0.8, 1.5, 1.0, 0.4, config.freeboard_time_limit_s)
+    negative = applicability_row(1.5e-4, 1.2, 2.0e-5, 2000.0, 1.0, 0.5, 1.0, 0.5, config.freeboard_time_limit_s)
     assert positive["delta"] > 0.0 and positive["status"] == "compared"
     assert positive["max_height_relative"] is not None
     assert negative["delta"] <= 0.0 and negative["status"] == "N/A"
@@ -339,7 +339,7 @@ def test_refinement_uses_the_supplied_case_and_the_report_prints_it(tmp_path):
     state = make_state(frozen)
     state.freeboard_temperature_k = np.array([500.0, 1500.0])
     reported = {"phi_s": 0.8, "trajectory": {"bubble_m_s": 1.0, "phi_s": 0.8}}
-    short = replace(config, freeboard_max_step_s=0.01, freeboard_time_limit_s=0.05)
+    short = replace(config, freeboard_time_limit_s=0.05)
     formed = closed_form_from_state(state, frozen, reported, short)
     flow = state.freeboard_gas_mol_s[-1]
     total = float(np.sum(flow))
@@ -378,22 +378,16 @@ def test_refinement_uses_the_supplied_case_and_the_report_prints_it(tmp_path):
 def test_missing_free_state_stays_in_the_refinement():
     from dataclasses import replace
 
-    from hamel.freeboard import terminal_settling_velocity
-    from tests.test_freeboard_accounting import (
-        _NODE_DIAMETER, _NODE_DENSITY, _NODE_GAS, _NODE_MU, _NODE_PHI, _column, _linear_gas,
-    )
+    from tests.test_freeboard_accounting import _DENSITY, _DIAMETER, _GAS, _MU, _PHI, _column, _cellwise
 
-    settling = terminal_settling_velocity(_NODE_GAS, _NODE_MU, _NODE_DIAMETER, _NODE_DENSITY, _NODE_PHI)
-    edges, rho, mu = _column(1, 1.0, _NODE_GAS, _NODE_MU)
+    edges, rho, mu = _column(3, 1.5, _GAS, _MU)
     column = {
-        "edges_m": edges, "gas": _linear_gas(settling, 1.5, 0.6), "rho_g": rho, "mu_g": mu,
-        "diameter_m": _NODE_DIAMETER, "rho_p": _NODE_DENSITY, "phi_s": _NODE_PHI, "bubble_m_s": 0.05,
+        "edges_m": edges, "gas": _cellwise(1.0, 1.0, 0.2), "rho_g": rho, "mu_g": mu,
+        "diameter_m": _DIAMETER, "rho_p": _DENSITY, "phi_s": _PHI, "bubble_m_s": 0.05,
     }
-    config = replace(
-        SolverConfig(), freeboard_ejection_samples=4, freeboard_delta_h_m=0.02, freeboard_delta_u_m_s=0.01,
-    )
+    config = replace(SolverConfig(), freeboard_ejection_samples=4)
     result = refine_trajectory(config, column)
-    assert result["a_f"] == [None]
+    assert result["a_f"] == [0.0, None, None]
     assert result["existence_changed"] is False
     absent = SimpleNamespace(a_f=None, a_t=None, b_f=None, b_t=None)
     present = SimpleNamespace(a_f=0.2, a_t=None, b_f=None, b_t=None)

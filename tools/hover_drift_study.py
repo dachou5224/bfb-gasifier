@@ -19,7 +19,6 @@ from pathlib import Path
 
 import numpy as np
 
-from hamel.freeboard.accounting import stable_equilibria
 from hamel.freeboard.motion import terminal_settling_velocity
 from hamel.freeboard.transport import ghost_bubble_velocity
 
@@ -64,10 +63,87 @@ def _profile(column):
     return edges, gas, at
 
 
+# 连续剖面 u_gb(h) 的根判据。与 ADR 0034 登记的数值相同。
+# 模型自 ADR 0047 起只用「格内常气速的界面稳定点」，不再提供连续剖面的根搜索；
+# 本脚本研究的是连续剖面，故把 ADR 0034 的判据留在这里，不改模型的判据。
+_FACE_RESIDUAL_M_S = 1.0e-8
+_FACE_MATCH_M = 1.0e-6
+
+
+def _slope(gas, cell, height, left, right, side) -> float:
+    """连续剖面的差商。side 为 down / up 时单侧，center 时在格内取中心差商。"""
+    width = right - left
+    dh = min(1.0e-4, width * 0.25)
+    if side == "down":
+        sample = max(left, height - dh)
+        return (float(gas(cell, height)) - float(gas(cell, sample))) / (height - sample)
+    if side == "up":
+        sample = min(right, height + dh)
+        return (float(gas(cell, sample)) - float(gas(cell, height))) / (sample - height)
+    if height - left < dh:
+        return _slope(gas, cell, height, left, right, "up")
+    if right - height < dh:
+        return _slope(gas, cell, height, left, right, "down")
+    return (float(gas(cell, height + dh)) - float(gas(cell, height - dh))) / (2.0 * dh)
+
+
+def _append_root(found: list, height: float) -> None:
+    for index, kept in enumerate(found):
+        if abs(height - kept) <= _FACE_MATCH_M:
+            return
+    found.append(height)
+
+
 def roots(edges, gas, rho_g, mu_g, diameter, rho_p, phi_s) -> list:
-    """按格枚举全部稳定根（含界面根），用项目的 stable_equilibria。"""
-    found = stable_equilibria(edges, gas, rho_g, mu_g, diameter, rho_p, phi_s)
-    return sorted(float(item.height_m) for item in found)
+    """连续剖面 u_gb(h) = v_t 且 du_g/dh < 0 的根。
+
+    界面根要求两侧残差都 ≤ 1·10⁻⁸ m/s，且两侧指向各自格内的差商都 < 0——只差一侧或
+    两侧都 > 0 的跃变（例如二次风入口下侧 u_g < v_t、上侧 > v_t）是排斥的，不是稳定根。
+    格内根每格 32 等分、二分 60 次，只保留中心差商 < 0 的根。
+    依据：ADR 0034（连续剖面的原始定义）。
+    """
+    count = len(edges) - 1
+    settling = [terminal_settling_velocity(float(rho_g[i]), float(mu_g[i]), diameter, rho_p, phi_s) for i in range(count)]
+    found: list = []
+    for face in range(1, count):
+        height = float(edges[face])
+        lower, upper = face - 1, face
+        if abs(float(gas(lower, height)) - settling[lower]) > _FACE_RESIDUAL_M_S:
+            continue
+        if abs(float(gas(upper, height)) - settling[upper]) > _FACE_RESIDUAL_M_S:
+            continue
+        slope_lower = _slope(gas, lower, height, float(edges[lower]), height, "down")
+        slope_upper = _slope(gas, upper, height, height, float(edges[upper + 1]), "up")
+        if slope_lower < 0.0 and slope_upper < 0.0:
+            _append_root(found, height)
+        elif not (slope_lower > 0.0 and slope_upper > 0.0):
+            raise ValueError("界面两侧的气速斜率符号不一致，不能判定这个根稳不稳定")
+    samples = 32
+    for cell in range(count):
+        left, right = float(edges[cell]), float(edges[cell + 1])
+        previous_h = left
+        previous_r = float(gas(cell, left)) - settling[cell]
+        for step in range(1, samples + 1):
+            height = left + (right - left) * step / samples
+            residual = float(gas(cell, height)) - settling[cell]
+            bracket = previous_r * residual < 0.0
+            exact = abs(residual) <= _FACE_RESIDUAL_M_S and left < height < right
+            if bracket or exact:
+                lo, hi, r_lo = previous_h, height, previous_r
+                root = height
+                if bracket:
+                    for _ in range(60):
+                        middle = 0.5 * (lo + hi)
+                        r_mid = float(gas(cell, middle)) - settling[cell]
+                        if r_lo * r_mid <= 0.0:
+                            hi = middle
+                        else:
+                            lo, r_lo = middle, r_mid
+                    root = 0.5 * (lo + hi)
+                if left < root < right and _slope(gas, cell, root, left, right, "center") < 0.0:
+                    _append_root(found, root)
+            previous_h, previous_r = height, residual
+    return sorted(found)
 
 
 def _cell_of(edges, height):

@@ -11,8 +11,8 @@ import numpy as np
 
 from hamel.cases.config import SolverConfig
 from hamel.freeboard import (
-    FreeboardError, account_freeboard, closed_form_state, discriminant, ejection_velocity_samples,
-    integrate_motion, motion_coefficients, terminal_settling_velocity,
+    FreeboardError, account_freeboard, cell_state, discriminant, ejection_velocity_samples,
+    motion_coefficients, terminal_settling_velocity,
 )
 from hamel.properties.data import GAS_SPECIES, atomic_weight, atoms, molar_mass_kg_mol
 from hamel.properties.thermo import density_kg_m3, volume_flow_m3_s
@@ -353,29 +353,44 @@ def _relative(left: float, right: float) -> float:
     return abs(left - right) / scale
 
 
-def fixed_closed_form(step_s: float, samples: int) -> dict:
-    """常气速、Δ > 0 的固定构造。步长用这次运行的值。样本数不改变这一条轨迹。"""
+def _rk4(a, b, c, u0, h0, duration_s, steps=20000):
+    """常系数的参考积分。只用于与闭式比对，不进入求解。求解手段：ADR 0047 的测试。"""
+    step = float(duration_s) / steps
+    velocity, height = float(u0), float(h0)
+    f = lambda value: a * value * value + b * value + c
+    for _ in range(steps):
+        k1 = f(velocity)
+        k2 = f(velocity + 0.5 * step * k1)
+        k3 = f(velocity + 0.5 * step * k2)
+        k4 = f(velocity + step * k3)
+        l1 = velocity
+        l2 = velocity + 0.5 * step * k1
+        l3 = velocity + 0.5 * step * k2
+        l4 = velocity + step * k3
+        velocity += step * (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0
+        height += step * (l1 + 2.0 * l2 + 2.0 * l3 + l4) / 6.0
+    return velocity, height
+
+
+def fixed_closed_form(samples: int) -> dict:
+    """常气速、Δ > 0 的固定构造，与高精度 RK4 比。样本数不改变这一条轨迹。"""
     item = _BENCHMARK
-    gas = item["gas_m_s"]
-    coefficient = motion_coefficients(gas, True, item["rho_g"], item["mu_g"], item["diameter_m"], item["rho_p"], item["phi_s"])
+    coefficient = motion_coefficients(item["gas_m_s"], True, item["rho_g"], item["mu_g"], item["diameter_m"], item["rho_p"], item["phi_s"])
     delta = discriminant(*coefficient)
-    analytic_u, analytic_h = closed_form_state(item["duration_s"], *coefficient, item["initial_m_s"], item["height_m"])
-    numeric_h, numeric_u = integrate_motion(
-        item["height_m"], item["initial_m_s"], item["duration_s"], gas, item["rho_g"], item["mu_g"],
-        item["diameter_m"], item["rho_p"], item["phi_s"], step_s,
-    )
+    analytic_u, analytic_h = cell_state(item["duration_s"], *coefficient, item["initial_m_s"], item["height_m"])
+    numeric_u, numeric_h = _rk4(*coefficient, item["initial_m_s"], item["height_m"], item["duration_s"], 200000)
     velocity = _relative(numeric_u, analytic_u)
     height = _relative(numeric_h, analytic_h)
     return {
-        "delta": delta, "step_s": float(step_s), "samples": int(samples),
+        "delta": delta, "samples": int(samples),
         "velocity_relative": velocity, "height_relative": height, "max_relative": max(velocity, height),
     }
 
 
-def applicability_row(diameter_m, rho_g, mu_g, rho_p, phi_s, gas_m_s, bubble_m_s, height_m, step_s, time_limit_s) -> dict:
-    """一个粒级。Δ ≤ 0 记 N/A。Δ > 0 时比到分支、实数域、出口、床面或时间上限。"""
-    speeds, _shares, direct = ejection_velocity_samples(float(bubble_m_s), 1)
-    initial = float(speeds[0])
+def applicability_row(diameter_m, rho_g, mu_g, rho_p, phi_s, gas_m_s, bubble_m_s, height_m, time_limit_s) -> dict:
+    """一个粒级。Δ ≤ 0 记 N/A。Δ > 0 时在常系数下与高精度 RK4 比到时间上限。"""
+    sample_speeds, _shares, direct = ejection_velocity_samples(float(bubble_m_s), 1)
+    initial = float(sample_speeds[0])
     branches = {}
     for name, faster in (("faster", True), ("slower", False)):
         coefficient = motion_coefficients(gas_m_s, faster, rho_g, mu_g, diameter_m, rho_p, phi_s)
@@ -391,41 +406,18 @@ def applicability_row(diameter_m, rho_g, mu_g, rho_p, phi_s, gas_m_s, bubble_m_s
     }
     if delta <= 0.0 or gas_m_s == 0.0 or height_m <= 0.0:
         if delta > 0.0 and (gas_m_s == 0.0 or height_m <= 0.0):
-            row["status"] = "N/A"
             row["stopped"] = "scale"
         return row
-    height = 0.0
-    velocity = initial
-    elapsed = 0.0
-    worst_u = 0.0
-    worst_h = 0.0
-    stopped = "time_limit"
-    while elapsed < time_limit_s:
-        piece = min(float(step_s), time_limit_s - elapsed)
-        new_h, new_u = integrate_motion(height, velocity, piece, gas_m_s, rho_g, mu_g, diameter_m, rho_p, phi_s, piece)
-        elapsed += piece
-        crossed = (initial - gas_m_s) * (new_u - gas_m_s) <= 0.0
-        try:
-            closed_u, closed_h = closed_form_state(elapsed, *coefficient, initial, 0.0)
-        except FreeboardError:
-            stopped = "real_domain"
-            break
-        if not crossed:
-            worst_u = max(worst_u, abs(new_u - closed_u) / abs(gas_m_s))
-            worst_h = max(worst_h, abs(new_h - closed_h) / height_m)
-            height, velocity = new_h, new_u
-        if crossed:
-            stopped = "branch_change"
-            break
-        if height >= height_m:
-            stopped = "exit"
-            break
-        if height <= 0.0:
-            stopped = "bed"
-            break
-    row["stopped"] = stopped
-    row["max_velocity_relative"] = worst_u
-    row["max_height_relative"] = worst_h
+    duration = float(time_limit_s)
+    try:
+        closed_u, closed_h = cell_state(duration, *coefficient, initial, 0.0)
+    except FreeboardError:
+        row["stopped"] = "real_domain"
+        return row
+    numeric_u, numeric_h = _rk4(*coefficient, initial, 0.0, duration)
+    row["stopped"] = "branch_change" if (initial - gas_m_s) * (numeric_u - gas_m_s) <= 0.0 else "time_limit"
+    row["max_velocity_relative"] = abs(numeric_u - closed_u) / abs(gas_m_s)
+    row["max_height_relative"] = abs(numeric_h - closed_h) / height_m
     return row
 
 
@@ -438,13 +430,12 @@ def toy_applicability_rows() -> list:
 
 
 def closed_form_report(config: SolverConfig, rows: list) -> dict:
-    step = float(config.freeboard_max_step_s)
     limit = float(config.freeboard_time_limit_s)
     table = [
-        applicability_row(*item, step, limit) if not isinstance(item, dict) else item
+        applicability_row(*item, limit) if not isinstance(item, dict) else item
         for item in rows
     ]
-    return {"benchmark": fixed_closed_form(step, int(config.freeboard_ejection_samples)), "classes": table}
+    return {"benchmark": fixed_closed_form(int(config.freeboard_ejection_samples)), "classes": table}
 
 
 def _velocity(column):
@@ -462,8 +453,8 @@ def _velocity(column):
     return lambda cell, height: ghost_bubble_velocity(cell, height, edges, diameters, flows, bubble, width)
 
 
-def _books(samples: int, step_s: float, column, config: SolverConfig):
-    tuned = replace(config, freeboard_ejection_samples=int(samples), freeboard_max_step_s=float(step_s))
+def _books(samples: int, column, config: SolverConfig):
+    tuned = replace(config, freeboard_ejection_samples=int(samples))
     speeds, shares, direct = ejection_velocity_samples(float(column["bubble_m_s"]), int(samples))
     rho = np.asarray(column["rho_g"], dtype=float)
     mu = np.asarray(column["mu_g"], dtype=float)
@@ -515,17 +506,16 @@ def _coefficients(book) -> list:
 
 
 def refine_trajectory(config: SolverConfig, column: dict) -> dict:
-    """样本数加倍且步长减半。门是 a、b 的相对变化 1e-4。ADR 0016、ADR 0028。
+    """样本数加倍。门是 a、b 的相对变化 1e-4。ADR 0016、ADR 0047。
 
     column 是这一次运行的几何、气体和粒径。换这些输入会改变 a、b。
     """
-    step = float(config.freeboard_max_step_s)
     samples = int(config.freeboard_ejection_samples)
-    base = _books(samples, step, column, config)
-    fine = _books(samples * 2, step / 2.0, column, config)
+    base = _books(samples, column, config)
+    fine = _books(samples * 2, column, config)
     change, existence_changed = _book_change(base, fine)
     return {
-        "samples": samples, "step_s": step, "diameter_m": float(column["diameter_m"]),
+        "samples": samples, "diameter_m": float(column["diameter_m"]),
         "relative_change": change, "a_f": _coefficients(base), "existence_changed": existence_changed,
         "gate": 1.0e-4, "met": (not existence_changed) and change < 1.0e-4,
     }
@@ -666,17 +656,17 @@ def closed_form_from_state(state, frozen, reported, config: SolverConfig) -> dic
     height = float(frozen.n_freeboard) * float(frozen.freeboard_height_m)
     bubble = float(reported["trajectory"]["bubble_m_s"])
     phi = float(reported.get("phi_s") or reported["trajectory"]["phi_s"])
-    step, limit = float(config.freeboard_max_step_s), float(config.freeboard_time_limit_s)
+    limit = float(config.freeboard_time_limit_s)
     rows = [
         applicability_row(
-            float(diameter), rho, mu, float(frozen.rho_p_kg_m3), phi, speed, bubble, height, step, limit,
+            float(diameter), rho, mu, float(frozen.rho_p_kg_m3), phi, speed, bubble, height, limit,
         )
         for diameter in frozen.diameter_m
     ]
     for row in rows:
         row["rho_g"] = rho
         row["gas_m_s"] = speed
-    return {"benchmark": fixed_closed_form(step, int(config.freeboard_ejection_samples)), "classes": rows}
+    return {"benchmark": fixed_closed_form(int(config.freeboard_ejection_samples)), "classes": rows}
 
 
 def refinement_from_case(config: SolverConfig, reported, state, frozen, refs) -> dict:

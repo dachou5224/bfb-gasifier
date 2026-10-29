@@ -452,7 +452,7 @@ def _info(result) -> dict:
     names = (
         "t_ad_k", "t_init_k", "y_ad", "geldart", "d_bar_m", "d_sv_m", "bottom_residual_kg_s", "f0_a_kg_s",
         "hover_balance", "release_to_gas", "hydro_group", "geldart_record",
-        "yield_notes", "slip_ratios", "bed_intervals", "substep_history", "delta_notes",
+        "yield_notes", "slip_ratios", "bed_intervals", "substep_history",
     )
     copied = (
         "rho_p_kg_m3", "k_w_w_m2_k", "drain_ash_kg_s", "drain_char_kg_s", "ejection_to_free",
