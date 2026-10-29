@@ -18,7 +18,7 @@ from hamel.cases.config import SolverConfig
 from hamel.properties.data import GAS_SPECIES
 from hamel.solver.campaign import _process, config_for
 from hamel.solver.driver import SolveResult, _references, solve_case
-from hamel.solver.initial import DomainRejected, InitialStateError, NegativeStock, construct
+from hamel.solver.initial import DomainRejected, InitialStateError, NegativeStock, construct, interface_flows
 from hamel.solver.newton import SolveTimeout
 from hamel.solver.precalc import precalculate
 from hamel.solver.sensitivity import section_volume_m3
@@ -28,13 +28,6 @@ _ROOT = Path(__file__).resolve().parents[1]
 _OUT = _ROOT / "reports" / "t26g-validation"
 _CASE = _ROOT / "data" / "cases" / "vtt_pressurized.json"
 _TOLERANCE = 1.0e-2
-
-
-def _relative(path) -> str:
-    try:
-        return str(Path(path).resolve().relative_to(_ROOT))
-    except ValueError:
-        return str(path)
 
 
 def _num(value):
@@ -114,7 +107,8 @@ def initial() -> None:
     _n, m_ref, _q = _references(assemble_case(_CASE, "1").physical)
     started = time.perf_counter()
     first = precalculate(_CASE, "1", None, adiabatic=False, iteration=1)
-    body = {"tar": _tar(first.state), "t_init_k": float(first.t_init_k), "t_ad_k": float(first.t_ad_k)}
+    body = {"tar": _tar(first.state), "t_init_k": float(first.t_init_k), "t_ad_k": float(first.t_ad_k),
+            "start": {name: value.tolist() for name, value in interface_flows(first.frozen, first.state).items()}}
     loops: list = []
     try:
         result, loops, note = construct(
@@ -167,7 +161,7 @@ def _spawn(command: str, timeout: float, folder: Path) -> None:
         log = folder / "stderr.log"
         log.write_text(completed.stderr or "", encoding="utf-8")
         record = {"status": "ERROR", "reason": f"子进程退出码 {completed.returncode}", "inner_status": None,
-                  "stderr_log": _relative(log)}
+                  "stderr_log": str(log)}
     else:
         record = json.loads(completed.stdout)
         if completed.stderr:
@@ -199,7 +193,8 @@ def _write() -> None:
         lines += ["", f"T_ad = {_num(body['t_ad_k'])} K，T_init = {_num(body['t_init_k'])} K。"
                        f"构造状态 {body['status']}，墙钟 {body['seconds']:.1f} s。"]
         if body.get("reason"):
-            lines += ["", f"停止原因：{body['reason']}", f"停止阶段：{body.get('phase') or '—'}。"]
+            lines += ["", f"停止原因：{body['reason']}", f"停止阶段：{body.get('phase') or '—'}。",
+                      "起点的冻结量（床上行、床下行、自由空间回落）见 `initial.json` 的 `start`。"]
         if body.get("negative"):
             lines += [
                 "", f"焦炭块（或灰块）的解出现负存量，共 {len(body['negative'])} 项；条件数 "
