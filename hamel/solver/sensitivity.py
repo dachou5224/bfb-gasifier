@@ -133,7 +133,7 @@ def redirect_ledger(
         for cell in range(1, n_free):
             coeff = float(frozen.a_hover_per_s[cell, klass])
             total = coeff + float(frozen.a_free_per_s[cell, klass])
-            mobile = _mobile_ash(state, frozen, cell)
+            mobile = state.freeboard_ash_free_kg[cell]
             item = _item(
                 "a_t", klass, coeff * float(state.freeboard_char_free_kg[cell, klass]),
                 coeff * float(mobile[klass]),
@@ -145,7 +145,7 @@ def redirect_ledger(
         for cell in range(n_free - 1):
             coeff = float(frozen.b_hover_per_s[cell, klass])
             total = coeff + float(frozen.b_free_per_s[cell, klass])
-            mobile = _mobile_ash(state, frozen, cell)
+            mobile = state.freeboard_ash_free_kg[cell]
             item = _item(
                 "b_t", klass, coeff * float(state.freeboard_char_free_kg[cell, klass]),
                 coeff * float(mobile[klass]),
@@ -184,15 +184,6 @@ def redirect_ledger(
         if item:
             items.append(item)
     return tuple(items)
-
-
-def _mobile_ash(state, frozen, cell) -> np.ndarray:
-    ash = np.array(state.freeboard_ash_free_kg[cell], dtype=float, copy=True)
-    char = state.freeboard_char_free_kg[cell]
-    for klass in range(1, frozen.n_class):
-        if char[klass] <= 0.0:
-            ash[klass] = 0.0
-    return ash
 
 
 def redirect_feedback(closure: str, redirect) -> tuple[float, float, float]:

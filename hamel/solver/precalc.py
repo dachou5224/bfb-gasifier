@@ -24,7 +24,7 @@ from hamel.properties.thermo import (
 )
 from hamel.properties.transport import fuller_binary_diffusivity_m2_s, fuller_volume, interphase_diffusivity_m2_s, mixture_viscosity_pa_s
 from hamel.pyrolysis.particle import PyrolysisError, lignite_particle_properties, particle_release_times
-from hamel.pyrolysis.release import FuelTransport, release_distribution
+from hamel.pyrolysis.release import FuelTransport, feed_cell_index, release_distribution
 from hamel.pyrolysis.yields import PYROLYSIS_GAS_SPECIES, lignite_yields, path_yields
 from hamel.solver.frozen import AssemblyError, FrozenQuantities
 from hamel.solver.residual import wall_area_m2
@@ -38,7 +38,6 @@ AMBIENT_K = 298.15
 # 求解器参数：ADR 0020。模块常量，不进 SolverConfig。数值与 ADR 0020 相同。
 SEARCH = HydroSearch(1e-12, 1.0, 80, 1e-8, 2.0, 1.35, 36, 8000.0, 60, 1e-6)
 DISTRIBUTOR = "technical"
-SEED_CHAR = 1.0e-6
 class PrecalcError(ValueError):
     """预计算的有效域不成立。报告并停止，不截断。"""
 @dataclass
@@ -171,8 +170,6 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
         hover = np.zeros_like(hover)
         transport = (hover, *transport[1:])
     bed_u, free_u, hover_u, ratios = _slip(case, flow, profile, accounting, rho_p, hydro, gas, hover, rho_free, mu_free)
-    if previous is None:
-        _seed_freeboard(case, state, profile.solids_mass, t_init, hover, absent, notes, iteration, consistency)
     upflow = bed_upflow((1.0 - ejection.direct) * ejection.mass_flow, profile.internal_wake_upflow)
     masses = profile.solids_mass
     k_up = upflow / masses
@@ -523,7 +520,28 @@ def _initial_inventory(case, flow, masses, share, fractions, temperature, notes,
     state.bed_gas_mol_s[:, 0, :] = flow.bed_mol_s * share
     state.bed_gas_mol_s[:, 1, :] = flow.bed_mol_s * (1.0 - share)
     state.freeboard_gas_mol_s = flow.free_mol_s
+    # 焦油初值：燃料加入格及以上，按 T_init 下的热解产率另加苯与萘，不经反应。
+    # 自由空间存量取 0。求解手段：ADR 0045
+    bed_tar, free_tar = _initial_tar(case, yields)
+    state.bed_gas_mol_s[:, 0, :] += bed_tar * share
+    state.bed_gas_mol_s[:, 1, :] += bed_tar * (1.0 - share)
+    state.freeboard_gas_mol_s += free_tar
     return state
+
+
+def _initial_tar(case, yields) -> tuple[np.ndarray, np.ndarray]:
+    """燃料加入格及以上每格的苯与萘摩尔流。份额按燃料（waf）质量计。"""
+    bottoms, tops = _bounds(case)
+    cell = feed_cell_index(float(case.physical.fuel_feed_height), bottoms, tops)
+    waf = float(case.fuel_kg_s) * (1.0 - float(case.physical.moisture_mass_fraction)) * (
+        1.0 - float(case.physical.ash_mass_fraction_wf)
+    )
+    species = len(GAS_SPECIES)
+    index = {name: position for position, name in enumerate(GAS_SPECIES)}
+    rows = np.zeros((bottoms.size, species))
+    for name, per_kg in (("C6H6", yields.benzene_mol_per_kg), ("C10H8", yields.naphthalene_mol_per_kg)):
+        rows[: cell + 1, index[name]] = waf * float(per_kg)
+    return rows[case.n_free:], rows[: case.n_free]
 def _ash_fraction(case, x_char: float) -> float:
     """w_A,0 = x_A / (x_A + x_Koks,B·(1−x_w−x_A))。ADR 0017 第 9 项。"""
     moisture = float(case.physical.moisture_mass_fraction)
@@ -887,20 +905,6 @@ def _adaptive_bed(case, flow, gas, d_bar, group="B"):
         if rho_rel < 1.0e-6 and max(masses) < 1.0e-6:
             return rho, profile, conditions, n, tuple(history)
     raise PrecalcError(f"床层子步到上限 {limit} 仍未过门：{tuple(history)}")
-def _seed_freeboard(case, state, masses, temperature, hover, absent, notes, iteration, consistency) -> None:
-    """每个存在的状态焦炭取 1e-6·M_tot，灰按 w_A,0/(1−w_A,0)。ADR 0017 第 9 项。"""
-    yields = _yield_at(case, temperature, None, None, notes, iteration, consistency)
-    ash = _ash_fraction(case, yields.x_char)
-    seed = SEED_CHAR * float(np.sum(masses))
-    ash_seed = seed * ash / (1.0 - ash)
-    for cell in range(hover.shape[0]):
-        for klass in range(hover.shape[1]):
-            if not absent[cell, klass]:
-                state.freeboard_char_free_kg[cell, klass] = seed
-                state.freeboard_ash_free_kg[cell, klass] = ash_seed
-            if hover[cell, klass]:
-                state.freeboard_char_hover_kg[cell, klass] = seed
-                state.freeboard_ash_hover_kg[cell, klass] = ash_seed
 def _gas_release(released) -> float:
     gas = sum(float(np.sum(flow) * molar_mass_kg_mol(name)) for name, flow in released.gas_mol_s.items())
     tar = float(np.sum(released.benzene_mol_s) * molar_mass_kg_mol("C6H6") + np.sum(released.naphthalene_mol_s) * molar_mass_kg_mol("C10H8"))

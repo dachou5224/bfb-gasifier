@@ -146,12 +146,9 @@ def fuel_parts(frozen, reported, physical) -> dict:
 
 
 def _mobile_ash(state, frozen, cell) -> np.ndarray:
-    ash = np.array(state.freeboard_ash_free_kg[cell], dtype=float, copy=True)
-    char = state.freeboard_char_free_kg[cell]
-    for klass in range(1, frozen.n_class):
-        if char[klass] <= 0.0:
-            ash[klass] = 0.0
-    return ash
+    """自由空间的输运灰。ADR 0044 起灰不因 m_C = 0 停止输运。"""
+    del frozen
+    return np.array(state.freeboard_ash_free_kg[cell], dtype=float, copy=True)
 
 
 def _combine(*parts) -> dict:

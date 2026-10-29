@@ -72,10 +72,9 @@ def wall_area_m2(zone: str, balance_index: int, count: int, height_m: float, bed
 def evaluate_residual(unknown: np.ndarray, frozen: FrozenQuantities) -> AssemblyResidual:
     """返回式 (2.4)–(2.7)。调用方先解包。自由空间出口即体系出口。
     模型边界选择：ADR 0014 X2、X2a。模型边界选择：ADR 0026。
-    解释性选择：ADR 0031、ADR 0032。求解手段：ADR 0022。
-    k > 1 且该状态 m_C ≤ 0 时不形成 m_A/m_C：灰残差取 −m_A，进入该状态的灰流改记到同格
-    k = 1 的自由状态（自由状态不存在则记到悬停状态，随后由有效域停止）。灰未知量仍留在
-    向量里，方程个数不变。这是 ADR 0026 第 4 项第 3 点，不是按条件关掉输运项。
+    解释性选择：ADR 0031、ADR 0032、ADR 0044。求解手段：ADR 0022。
+    焦炭的消耗、粒级迁移、灰随迁移与灰随燃尽释放都按单位焦炭质量的消耗系数 α_s 乘存量写，
+    对存量线性，不再出现 m_A/m_C，也没有 m_C = 0 的切换（ADR 0044 第 3、4 项）。
     Source: Hamel Eq.2.4, S. 16
     Source: Hamel Eq.2.5, S. 16
     Source: Hamel Eq.2.6, S. 17
@@ -281,18 +280,12 @@ class _Context:
         for cell in range(frozen.n_freeboard):
             for klass in range(frozen.n_class):
                 if not frozen.free_absent[cell, klass]:
-                    if klass > 0 and state.freeboard_char_free_kg[cell, klass] <= 0.0:
-                        free_residual[cell, klass] = -state.freeboard_ash_free_kg[cell, klass]
-                    else:
-                        outflow = (frozen.a_free_per_s[cell, klass] + frozen.a_hover_per_s[cell, klass] + frozen.b_free_per_s[cell, klass] + frozen.b_hover_per_s[cell, klass]) * self._mobile_ash(cell)[klass]
-                        free_residual[cell, klass] = entering_free[cell, klass] - outflow - self.ash_migration_free[cell, klass] - self.ash_release_free[cell, klass]
+                    outflow = (frozen.a_free_per_s[cell, klass] + frozen.a_hover_per_s[cell, klass] + frozen.b_free_per_s[cell, klass] + frozen.b_hover_per_s[cell, klass]) * state.freeboard_ash_free_kg[cell, klass]
+                    free_residual[cell, klass] = entering_free[cell, klass] - outflow - self.ash_migration_free[cell, klass] - self.ash_release_free[cell, klass]
                 if frozen.hover[cell, klass]:
-                    if klass > 0 and state.freeboard_char_hover_kg[cell, klass] <= 0.0:
-                        hover_residual[cell, klass] = -state.freeboard_ash_hover_kg[cell, klass]
-                    else:
-                        hover_residual[cell, klass] = entering_hover[cell, klass] - self.ash_migration_hover[cell, klass] - self.ash_release_hover[cell, klass]
-        returning = (frozen.b_free_per_s[-1] + frozen.b_hover_per_s[-1]) * self._mobile_ash(-1)
-        elutriation = (frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]) * self._mobile_ash(0)
+                    hover_residual[cell, klass] = entering_hover[cell, klass] - self.ash_migration_hover[cell, klass] - self.ash_release_hover[cell, klass]
+        returning = (frozen.b_free_per_s[-1] + frozen.b_hover_per_s[-1]) * state.freeboard_ash_free_kg[-1]
+        elutriation = (frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]) * state.freeboard_ash_free_kg[0]
         held = entering_hover - self.ash_migration_hover - self.ash_release_hover
         redirected = np.zeros(frozen.n_class) if frozen.hover_closure == "A" else held.sum(axis=0)
         if frozen.hover_closure == "B":
@@ -322,8 +315,8 @@ class _Context:
         gap = float(bed.residual_w.sum() + free.residual_w.sum() - feeds + free_up[0] + bed_down[-1] + bed_out.sum() + wall_bed.sum() + wall_free.sum() + leaving_redirect)
         return bed.residual_w, free.residual_w, gap
     def _ash_entering(self):
-        """灰方程与最小粒级有效域共用的入流。含按状态的热解灰、全部粒级的燃尽释放，以及 m_C ≤ 0 时向 k = 1 的改记。"""
-        frozen = self.frozen
+        """灰方程与最小粒级有效域共用的入流。含按状态的热解灰与燃尽释放。"""
+        frozen, state = self.frozen, self.state
         entering_free = np.zeros_like(frozen.ash_gen_free_kg_s)
         entering_hover = np.zeros_like(frozen.ash_gen_hover_kg_s)
         for cell in range(frozen.n_freeboard):
@@ -341,39 +334,43 @@ class _Context:
             self._deposit(entering_free, entering_hover, frozen.n_freeboard - 1, klass, False, ejection[klass] * frozen.ejection_to_free[klass])
             self._deposit(entering_free, entering_hover, frozen.n_freeboard - 1, klass, True, ejection[klass] * frozen.ejection_to_hover[klass])
         for cell in range(frozen.n_freeboard - 1):
-            mobile = self._mobile_ash(cell + 1)
+            mobile = state.freeboard_ash_free_kg[cell + 1]
             for klass in range(frozen.n_class):
                 self._deposit(entering_free, entering_hover, cell, klass, False, frozen.a_free_per_s[cell + 1, klass] * mobile[klass])
                 self._deposit(entering_free, entering_hover, cell, klass, True, frozen.a_hover_per_s[cell + 1, klass] * mobile[klass])
         for cell in range(1, frozen.n_freeboard):
-            mobile = self._mobile_ash(cell - 1)
+            mobile = state.freeboard_ash_free_kg[cell - 1]
             for klass in range(frozen.n_class):
                 self._deposit(entering_free, entering_hover, cell, klass, False, frozen.b_free_per_s[cell - 1, klass] * mobile[klass])
                 self._deposit(entering_free, entering_hover, cell, klass, True, frozen.b_hover_per_s[cell - 1, klass] * mobile[klass])
         return entering_free, entering_hover, ejection
     def _char_rate(self, m_char, m_ash, klass, temperature, pressure, velocity, y, c, fractions, mu, rho):
-        # 有灰无焦炭时不能按 (m_C+m_A)/m_p 计颗粒数。空库存仍计算比速率，避免把 m=0 的悬停误判为无反应。
-        if m_char <= 0.0 and m_ash > 0.0:
-            return np.zeros(len(GAS_SPECIES)), 0.0, 0.0, 0.0, 0.0, True
         diameter = float(self.frozen.diameter_m[klass])
         particle_k = _particle_k(diameter, temperature, pressure, velocity, c, fractions, mu, rho, self.frozen)
         film = 0.5 * (temperature + particle_k)
         mu_film = mixture_viscosity_pa_s(fractions, film, pressure)
         rho_film = density_kg_m3(film, pressure, fractions)
         phi = mechanism_factor(diameter, particle_k)
-        r1 = r1_combustion_rate(m_char, m_ash, self.frozen.rho_p_kg_m3, diameter, diameter, particle_k, particle_k, particle_k, temperature, c[_INDEX["O2"]], pressure, velocity, mu_film, rho_film)
+        r1 = r1_combustion_rate(m_char, self.frozen.rho_p_kg_m3, diameter, diameter, particle_k, particle_k, particle_k, temperature, c[_INDEX["O2"]], pressure, velocity, mu_film, rho_film)
         # 式 (5.25)、(5.34) 的 T 不在 ADR 0022 C1 点名的式号里，调用方传入格子气温。R3 的合同同样取 cell 温度。
-        r2 = r2_steam_gasification_rate(m_char, m_ash, self.frozen.rho_p_kg_m3, diameter, c[_INDEX["H2O"]], temperature)
+        r2 = r2_steam_gasification_rate(m_char, self.frozen.rho_p_kg_m3, diameter, c[_INDEX["H2O"]], temperature)
         r3 = r3_boudouard_rate(m_char, self.molar, y[_INDEX["CO2"]] * pressure, y[_INDEX["CO"]] * pressure, temperature, gas_constant_j_mol_k())
-        r4 = r4_hydrogasification_rate(m_char, m_ash, self.frozen.rho_p_kg_m3, diameter, c[_INDEX["H2"]], temperature)
+        r4 = r4_hydrogasification_rate(m_char, self.frozen.rho_p_kg_m3, diameter, c[_INDEX["H2"]], temperature)
         gas = np.zeros(len(GAS_SPECIES))
         char_mass = _apply(gas, "R1", r1.extent_mol_s, self.molar, phi=phi)
         char_mass += _apply(gas, "R2", r2.extent_mol_s, self.molar)
         char_mass += _apply(gas, "R3", r3.extent_mol_s, self.molar)
         char_mass += _apply(gas, "R4", r4.extent_mol_s, self.molar)
         consumption = -char_mass
+        particle_mass = float(self.masses[klass])
         previous = 0.0 if klass == 0 else float(self.masses[klass - 1])
-        char_mig, ash_mig, ash_release = _split_shrink(consumption, m_char, m_ash, float(self.masses[klass]), previous)
+        # 单位焦炭质量的消耗系数 α_s（R1、R2、R4 按颗粒数，R3 按焦炭质量），各状态用本状态的输入。
+        # 消耗 = α_s·M_C，迁移与灰项都乘 α_s，对存量线性。解释性选择：ADR 0044
+        alpha = (r1.specific + r2.specific + r4.specific) * self.molar / particle_mass + r3.specific
+        step = 0.0 if particle_mass == previous else previous / (particle_mass - previous)
+        char_mig = alpha * m_char * step
+        ash_mig = alpha * m_ash * step
+        ash_release = alpha * m_ash
         silent = r1.specific == 0.0 and r2.specific == 0.0 and r3.specific == 0.0 and r4.specific == 0.0
         return gas, consumption, char_mig, ash_release, ash_mig, silent
     def _homogeneous(self, gas, phase, y, c, fractions, temperature, pressure, volume, ash, catalyst, serio, corella):
@@ -433,12 +430,6 @@ class _Context:
     def _deposit(self, entering_free, entering_hover, cell, klass, hover, amount) -> None:
         if amount == 0.0:
             return
-        frozen, state = self.frozen, self.state
-        if klass > 0 and not (hover and frozen.hover_closure != "A"):
-            char = state.freeboard_char_hover_kg if hover else state.freeboard_char_free_kg
-            if char[cell, klass] <= 0.0:
-                self._deposit(entering_free, entering_hover, cell, 0, frozen.free_absent[cell, 0], amount)
-                return
         if hover:
             entering_hover[cell, klass] += amount
         else:
@@ -450,16 +441,8 @@ class _Context:
         theta = self.frozen.theta[cell, klass]
         self._deposit(entering_free, entering_hover, cell, klass, False, (1.0 - theta) * total)
         self._deposit(entering_free, entering_hover, cell, klass, True, theta * total)
-    def _mobile_ash(self, cell: int) -> np.ndarray:
-        """k > 1 且 m_C ≤ 0 时这格灰不参与输运。k = 1 的纯灰仍按 a、b 走。"""
-        char = self.state.freeboard_char_free_kg[cell]
-        ash = self.state.freeboard_ash_free_kg[cell].copy()
-        for klass in range(1, self.frozen.n_class):
-            if char[klass] <= 0.0:
-                ash[klass] = 0.0
-        return ash
     def _ash_inflow_to_smallest_hover(self) -> None:
-        """与灰方程同一份入流。热解生成、燃尽释放和零焦炭改记都算流入。"""
+        """与灰方程同一份入流。热解生成与燃尽释放都算流入。"""
         frozen = self.frozen
         if not np.any(frozen.hover[:, 0]):
             return
@@ -544,10 +527,10 @@ class _Context:
             coefficient_up = frozen.a_free_per_s[cell] + frozen.a_hover_per_s[cell]
             coefficient_down = frozen.b_free_per_s[cell] + frozen.b_hover_per_s[cell]
             char_up = float((coefficient_up * state.freeboard_char_free_kg[cell]).sum())
-            ash_up = float((coefficient_up * self._mobile_ash(cell)).sum())
+            ash_up = float((coefficient_up * state.freeboard_ash_free_kg[cell]).sum())
             upward[cell] = _stream_enthalpy(state.freeboard_gas_mol_s[cell], char_up, ash_up, float(frozen.fuel_up_free_kg_s[cell].sum()), temperature, frozen)
             char_down = float((coefficient_down * state.freeboard_char_free_kg[cell]).sum())
-            ash_down = float((coefficient_down * self._mobile_ash(cell)).sum())
+            ash_down = float((coefficient_down * state.freeboard_ash_free_kg[cell]).sum())
             downward[cell] = _stream_enthalpy(np.zeros(len(GAS_SPECIES)), char_down, ash_down, float(frozen.fuel_down_free_kg_s[cell].sum()), temperature, frozen)
         external[frozen.secondary_balance_index] += _gas_enthalpy(frozen.secondary_feed_mol_s, frozen.secondary_temperature_k)
         return upward, downward, external
@@ -559,16 +542,6 @@ def _apply(gas, reaction, extent, molar, phi=None, tar=None) -> float:
             continue
         gas[_INDEX[name]] += coefficient * extent
     return stoich.get("C", 0.0) * extent * molar
-
-def _split_shrink(consumption, m_char, m_ash, particle_mass, previous_mass):
-    if previous_mass == 0.0:
-        char_migration = 0.0
-    else:
-        char_migration = consumption * previous_mass / (particle_mass - previous_mass)
-    if m_char > 0.0:
-        ratio = m_ash / m_char
-        return char_migration, char_migration * ratio, consumption * ratio
-    return char_migration, 0.0, 0.0
 
 def _bed_ash_by_class(char_kg, m_inert) -> np.ndarray:
     total = char_kg.sum(axis=1)
