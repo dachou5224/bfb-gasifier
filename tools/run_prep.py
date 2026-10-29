@@ -109,35 +109,24 @@ def fuel_parts(frozen, reported, physical) -> dict:
     """边界上的 W 与 P。P 的质量是 (1−水分) 乘当量库存，已不含水分。"""
     moisture = float(reported["moisture_mass_fraction"])
     received, dried = fuel_element_fractions(physical), dry_element_fractions(physical)
-    up = frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]
-    down = frozen.b_free_per_s[-1] + frozen.b_hover_per_s[-1]
+    up = frozen.a_free_per_s[0]
+    down = frozen.b_free_per_s[-1]
     up_w, up_p = _split_mass(up, reported["undried_free_kg"][0], reported["dried_free_kg"][0], moisture)
     down_w, down_p = _split_mass(down, reported["undried_free_kg"][-1], reported["dried_free_kg"][-1], moisture)
     bed_w, bed_p = _split_mass(frozen.k_auf_per_s[0], reported["undried_bed_kg"][0], reported["dried_bed_kg"][0], moisture)
     redirect_w = np.zeros(frozen.n_class)
     redirect_p = np.zeros(frozen.n_class)
     if frozen.hover_closure in {"B", "C"}:
+        # 进入悬停状态的流：c↑、c↓ 由自由状态转入。ADR 0048 第 2 项。
         for klass in range(frozen.n_class):
-            for cell in range(1, frozen.n_freeboard):
-                piece_w, piece_p = _split_mass(
-                    frozen.a_hover_per_s[cell, klass], reported["undried_free_kg"][cell, klass],
-                    reported["dried_free_kg"][cell, klass], moisture,
-                )
-                redirect_w[klass] += piece_w
-                redirect_p[klass] += piece_p
-            for cell in range(frozen.n_freeboard - 1):
-                piece_w, piece_p = _split_mass(
-                    frozen.b_hover_per_s[cell, klass], reported["undried_free_kg"][cell, klass],
-                    reported["dried_free_kg"][cell, klass], moisture,
-                )
-                redirect_w[klass] += piece_w
-                redirect_p[klass] += piece_p
-            piece_w, piece_p = _split_mass(
-                frozen.ejection_to_hover[klass] * frozen.k_auf_per_s[0],
-                reported["undried_bed_kg"][0, klass], reported["dried_bed_kg"][0, klass], moisture,
-            )
-            redirect_w[klass] += piece_w
-            redirect_p[klass] += piece_p
+            for cell in range(frozen.n_freeboard):
+                for coeff in (frozen.c_up_per_s[cell, klass], frozen.c_down_per_s[cell, klass]):
+                    piece_w, piece_p = _split_mass(
+                        coeff, reported["undried_free_kg"][cell, klass],
+                        reported["dried_free_kg"][cell, klass], moisture,
+                    )
+                    redirect_w[klass] += piece_w
+                    redirect_p[klass] += piece_p
     return {
         "received": received, "dried": dried,
         "bed_w": bed_w, "bed_p": bed_p, "up_w": up_w, "up_p": up_p,
@@ -176,8 +165,8 @@ def freeboard_closure(state, frozen, assembly, fuel) -> dict:
         _fuel_packet(fuel["bed_w"], fuel["bed_p"], received, dried),
     )
     gas_out = _gas(state.freeboard_gas_mol_s[0])
-    up = frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]
-    down = frozen.b_free_per_s[-1] + frozen.b_hover_per_s[-1]
+    up = frozen.a_free_per_s[0]
+    down = frozen.b_free_per_s[-1]
     carried = _combine(
         _of("char", up * state.freeboard_char_free_kg[0]),
         _of("ash", up * _mobile_ash(state, frozen, 0)),
@@ -215,12 +204,14 @@ def freeboard_closure(state, frozen, assembly, fuel) -> dict:
             "in": incoming[key], "out": outgoing[key], "difference": gap,
             "relative": None if incoming[key] == 0.0 else gap / incoming[key],
         }
-    hover_char = float(np.sum(thrown_char * frozen.ejection_to_hover))
+    hover_char = float(
+        np.sum((frozen.c_up_per_s + frozen.c_down_per_s) * state.freeboard_char_free_kg)
+    )
     return {
         "streams": streams,
         "totals": totals,
         "reaction_char_kg_s": float(np.sum(assembly.char_consumption_free_kg_s) + np.sum(assembly.char_consumption_hover_kg_s)),
-        "ejection_hover_char_kg_s": hover_char,
+        "hover_inflow_char_kg_s": hover_char,
         "redirect_char_kg_s": float(assembly.redirect_char_kg_s),
     }
 
@@ -487,7 +478,7 @@ def _book_change(base, fine) -> tuple[float, bool]:
     worst = 0.0
     changed = False
     for left, right in zip(base.cells, fine.cells):
-        for name in ("a_f", "a_t", "b_f", "b_t"):
+        for name in ("a_f", "b_f", "c_up", "c_down"):
             first, second = getattr(left, name), getattr(right, name)
             if first is None and second is None:
                 continue
