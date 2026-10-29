@@ -241,17 +241,17 @@ class DriftRepoTests(unittest.TestCase):
         self.assertEqual(signal_codes(report), ["net_lines"])
         self.assertIn("超过 800 行", drift_check.format_text(report))
 
-    def test_hamel_total_limit_is_exclusive_at_10000(self):
-        self.write("hamel/core.py", py_lines(10000))
+    def test_hamel_total_limit_is_exclusive_at_11000(self):
+        self.write("hamel/core.py", py_lines(11000))
         self.commit("bulk")
-        self.assertEqual(self.check().hamel_lines, 10000)
+        self.assertEqual(self.check().hamel_lines, 11000)
         self.assertEqual(signal_codes(self.check()), [])
         self.branch()
         self.write("hamel/extra.py", py_lines(1))
         self.commit("one")
         report = self.check()
         self.assertEqual(report.net_lines, 1)
-        self.assertEqual(report.hamel_lines, 10001)
+        self.assertEqual(report.hamel_lines, 11001)
         self.assertEqual(signal_codes(report), ["hamel_lines"])
 
     def test_untracked_hamel_code_counts(self):
