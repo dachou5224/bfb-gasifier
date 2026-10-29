@@ -1,5 +1,5 @@
 """外层对齐与工况求解。每轮重算预计算，内层从上一轮单元解出发。
-求解手段：ADR 0012；ADR 0017 第 10、14 项；ADR 0035 第 2 项。
+求解手段：ADR 0012；ADR 0017 第 10、14 项；ADR 0035 第 2 项；ADR 0045。
 """
 from __future__ import annotations
 
@@ -17,11 +17,12 @@ from hamel.properties import (
     enthalpy_j_mol, gas_constant_j_mol_k, molar_mass_kg_mol,
 )
 from hamel.properties.data import GAS_SPECIES, atomic_weight, atoms
-from hamel.solver.frozen import TrialNotEvaluable
+from hamel.solver.frozen import FreeboardDomainError, TrialNotEvaluable
 from hamel.solver.sensitivity import bubble_balance_ratio, redirect_feedback
 from hamel.solver.gates import (
     OuterMonitor, ResidualBlocks, arrays_allowed, balance_met, block_ratios, inner_met, outer_met,
 )
+from hamel.solver.initial import DomainRejected, InitialStateError, construct
 from hamel.solver.newton import SolveTimeout, damped_newton, normalized_merit
 from hamel.solver.precalc import PrecalcError, precalculate
 from hamel.solver.residual import evaluate_residual, wall_area_m2
@@ -126,21 +127,47 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         folder.mkdir(parents=True, exist_ok=True)
         journal["failure_path"] = str(folder / "failure.npz")
 
-    def _precalc(iteration, consistency):
+    def _precalc(iteration, consistency, state=None):
+        used = holder["state"] if state is None else state
         bed_return, ash_out, fuel_out = redirect_feedback(config.hover_closure, holder["redirect"])
-        return precalculate(
-            path, case_id, holder["state"], reaction_solid_kg_s=holder["reaction"],
+        result = precalculate(
+            path, case_id, used, reaction_solid_kg_s=holder["reaction"],
             previous_drain_kg_s=holder["drain"], previous_fuel_return_kg_s=holder["fuel_return"],
             adiabatic=adiabatic, iteration=iteration, consistency=consistency, solver=config,
             redirected_return_kg_s=bed_return, redirected_ash_out_kg_s=ash_out, redirected_fuel_out_kg_s=fuel_out,
         )
-
-    def refresh(x, iteration, consistency):
-        del x
-        result = _precalc(iteration, consistency)
         holder["drain"] = float(result.frozen.drain_ash_kg_s + result.frozen.drain_char_kg_s.sum())
         holder["fuel_return"] = float(result.frozen.fuel_down_free_kg_s[-1].sum())
         holder["records"].append(result)
+        return result
+
+    def _initial(iteration):
+        """初值：焦油另加、固相按块顺序线性求解，与预计算交替。求解手段：ADR 0045"""
+        first = _precalc(iteration, False)
+        loops: list = []
+        try:
+            result, loops, note = construct(
+                first, lambda state: _precalc(iteration, False, state), m_ref,
+                gate=float(config.residual_tolerance), records=loops,
+            )
+        except DomainRejected as exc:
+            holder["initial"] = {"loops": loops, "note": f"停止：{exc.phase}的有效域拒绝"}
+            raise PrecalcError(f"初值构造停止：{exc}") from exc
+        except FreeboardDomainError as exc:
+            holder["initial"] = {"loops": loops, "note": "停止：有效域拒绝"}
+            raise PrecalcError(f"初值构造停止：有效域拒绝：{exc}") from exc
+        except InitialStateError as exc:
+            holder["initial"] = {"loops": loops, "note": "停止"}
+            raise PrecalcError(f"初值构造停止：{exc}") from exc
+        holder["initial"] = {"loops": loops, "note": note}
+        return result
+
+    def refresh(x, iteration, consistency):
+        del x
+        if holder["state"] is None and not consistency:
+            result = _initial(iteration)
+        else:
+            result = _precalc(iteration, consistency)
         return _Opened(pack_state(result.state, result.frozen), _info(result))
 
     def evaluate(trial, opened):
@@ -180,6 +207,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         return _Checked(residual.values, _blocks(result.frozen, n_ref, m_ref, q_ref), _info(result))
 
     outcome = solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, deadline, journal)
+    outcome.diagnostics["initial"] = holder.get("initial")
     if artifact_dir is not None and outcome.status == "DAMPING_FAILED" and holder["records"]:
         frozen_path = Path(artifact_dir) / "frozen.pkl"
         with frozen_path.open("wb") as handle:

@@ -64,8 +64,7 @@ def secondary_air_balance_index(n_freeboard: int = CASE1_FREEBOARD_CELLS) -> int
 def unknown_slots(frozen: FrozenQuantities) -> tuple[UnknownSlot, ...]:
     """未知量顺序：自由空间自顶向下，然后床区自顶向下。
     每格先各相各组分出流，再温度，再各粒级的焦炭与（自由空间）灰。
-    k > 1 的灰仍占一个位置。m_C ≤ 0 时该灰没有独立自由度，残差改为 −m_A，
-    见装配模块说明。解释性选择：ADR 0026 第 4 项第 3 点。
+    自由空间的灰在各粒级都是独立未知量，与 m_C 是否为零无关。解释性选择：ADR 0044
     Source: Hamel Eq.2.1, S. 15
     """
     slots: list[UnknownSlot] = []
