@@ -625,7 +625,12 @@ def test_public_equation_docstrings_cite_the_source():
         assert "Source: Hamel Eq." in (function.__doc__ or ""), function.__name__
 
 
-def test_theta_down_migration_carries_source_enthalpy_between_cells():
+@pytest.mark.parametrize(
+    ("n_free", "n_class", "source"),
+    [(2, 3, 0), (4, 3, 2), (16, 3, 14)],
+    ids=["upper-cell", "next-to-bottom-more-cells-than-classes", "sixteen-cells"],
+)
+def test_theta_down_migration_carries_source_enthalpy_between_cells(n_free, n_class, source):
     """θ↓ 的焦炭与灰迁移流在两格能量方程中按源格温度分别扣除与接收。ADR 0048 第 2 项。
 
     只改变非零 θ↓，让源格与目标格的自由空间温度不同：源格（top，1150 K）应减少
@@ -634,14 +639,18 @@ def test_theta_down_migration_carries_source_enthalpy_between_cells():
     """
     from hamel.properties import ash_specific_heat_j_per_kg_k, char_specific_enthalpy_j_per_kg
 
-    hover = np.zeros((2, 3), dtype=bool)
-    hover[:, 1] = True
-    base = make_frozen(n_class=3, hover=hover, theta_up=_zeros((2, 3)), theta_down=_zeros((2, 3)))
-    theta_down = _zeros((2, 3))
-    theta_down[0, 1] = 1.0
-    moved = make_frozen(n_class=3, hover=hover, theta_up=_zeros((2, 3)), theta_down=theta_down)
+    shape = (n_free, n_class)
+    klass = n_class - 2
+    target = source + 1
+    hover = np.zeros(shape, dtype=bool)
+    hover[:, klass] = True
+    base = make_frozen(n_free=n_free, n_class=n_class, hover=hover, theta_up=_zeros(shape), theta_down=_zeros(shape))
+    theta_down = _zeros(shape)
+    theta_down[source, klass] = 1.0
+    moved = make_frozen(n_free=n_free, n_class=n_class, hover=hover, theta_up=_zeros(shape), theta_down=theta_down)
     state = make_state(base, char=2.0e-3, ash=1.0e-4)
-    state.freeboard_temperature_k[:] = [1150.0, 1050.0]
+    state.freeboard_temperature_k[:] = 1050.0
+    state.freeboard_temperature_k[source] = 1150.0
     before = _evaluate(base, state)
     after = _evaluate(moved, state)
 
@@ -653,15 +662,15 @@ def test_theta_down_migration_carries_source_enthalpy_between_cells():
                 return float(result.values[item.index])
         raise AssertionError((kind, phase, balance, klass))
 
-    char_mass = slot("char", "hover", 1, 1, after) - slot("char", "hover", 1, 1, before)
-    ash_mass = slot("ash", "hover", 1, 1, after) - slot("ash", "hover", 1, 1, before)
+    char_mass = slot("char", "hover", target, klass, after) - slot("char", "hover", target, klass, before)
+    ash_mass = slot("ash", "hover", target, klass, after) - slot("ash", "hover", target, klass, before)
     assert char_mass > 0.0 and ash_mass > 0.0
     source_k = 1150.0
     expected = char_mass * char_specific_enthalpy_j_per_kg(source_k) + ash_mass * ash_specific_heat_j_per_kg_k() * (
         source_k - 298.15
     )
-    source_delta = slot("temperature", None, 0, -1, after) - slot("temperature", None, 0, -1, before)
-    target_delta = slot("temperature", None, 1, -1, after) - slot("temperature", None, 1, -1, before)
+    source_delta = slot("temperature", None, source, -1, after) - slot("temperature", None, source, -1, before)
+    target_delta = slot("temperature", None, target, -1, after) - slot("temperature", None, target, -1, before)
     assert source_delta == pytest.approx(-expected, rel=1.0e-10)
     assert target_delta == pytest.approx(expected, rel=1.0e-10)
     assert source_delta + target_delta == pytest.approx(0.0, abs=1.0e-9)

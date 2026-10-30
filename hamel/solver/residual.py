@@ -518,7 +518,7 @@ class _Context:
         解释性选择：ADR 0048 第 2 项。
         """
         frozen = self.frozen
-        if cell + 1 >= frozen.n_class:
+        if cell + 1 >= frozen.n_freeboard:
             return 0.0, 0.0
         char = ash = 0.0
         for klass in range(frozen.n_class - 1):
