@@ -28,6 +28,7 @@ from hamel.freeboard import (
     pair_coalescence_probability,
     particle_acceleration,
     spacing_ratio,
+    stable_equilibria,
     terminal_settling_velocity,
     time_to_velocity,
     trace_until_fate,
@@ -207,20 +208,20 @@ def test_velocity_crossing_times_are_analytic():
 
 def test_advance_cell_reports_the_earliest_event():
     a, b, c = motion_coefficients(1.2, True, RHO_G, MU, 2.0e-4, RHO_P, PHI)
-    kind, tau, height, velocity = advance_cell(0.2, 2.0, 0.0, 1.0, a, b, c, 1.2, 80.0)
+    kind, tau, height, velocity = advance_cell(0.2, 2.0, 0.0, 1.0, a, b, c, 1.2)
     assert kind == "gas"
     assert velocity == pytest.approx(1.2)
     assert 0.0 < height < 1.0 and tau > 0.0
 
     # Δ > 0、A > 0：负速度向上加速，穿过 0 的时刻早于到达格界。
-    kind, tau, height, velocity = advance_cell(0.5, -0.5, 0.0, 1.0, 2.0, -40.0, 50.0, 10.0, 80.0)
+    kind, tau, height, velocity = advance_cell(0.5, -0.5, 0.0, 1.0, 2.0, -40.0, 50.0, 10.0)
     assert kind == "zero"
     assert velocity == 0.0 and tau > 0.0
     assert height < 0.5
 
 
 def test_cell_boundary_root_is_within_1e_12_m():
-    kind, _tau, height, _velocity = advance_cell(0.1, 0.5, 0.0, 1.0, -2.0, -40.0, 50.0, 1.2, 80.0)
+    kind, _tau, height, _velocity = advance_cell(0.1, 0.5, 0.0, 1.0, -2.0, -40.0, 50.0, 1.2)
     assert kind == "upper"
     assert abs(height - 1.0) <= 1.0e-12
 
@@ -245,8 +246,8 @@ def test_fast_gas_carries_the_particle_out_and_slow_gas_returns_it():
     assert fate.velocity_m_s < 0.0
 
 
-def test_boundary_event_inside_the_time_limit_is_not_missed():
-    """没有速度事件时，格界求根也必须受剩余期限约束，但期限内的真实事件不能漏。"""
+def test_boundary_event_is_reached_without_a_time_window():
+    """段界求根不再受物理时间期限约束：解析段必有界，由段数保护兜底。求解器参数：ADR 0050。"""
     terminal = terminal_settling_velocity(RHO_G, MU, 2.0e-4, RHO_P, PHI)
     edges = np.array([0.0, 0.75])
     rho, mu = np.array([RHO_G]), np.array([MU])
@@ -254,37 +255,53 @@ def test_boundary_event_inside_the_time_limit_is_not_missed():
     def gas(_cell, _height, terminal=terminal):
         return terminal + 1.0
 
-    fate = trace_until_fate(
-        0.0, 1.0, edges, gas, rho, mu, 2.0e-4, RHO_P, PHI, _config(freeboard_time_limit_s=1.0)
-    )
+    fate = trace_until_fate(0.0, 1.0, edges, gas, rho, mu, 2.0e-4, RHO_P, PHI, SolverConfig())
     assert fate.fate == "elutriate"
     assert fate.time_s == pytest.approx(0.75, rel=1e-6)
     assert fate.height_m == pytest.approx(0.75, abs=1e-12)
 
 
-def test_event_beyond_the_time_limit_is_not_accepted():
-    """期限之后的格界事件不构成归宿；到时只报错，不改判为带出。"""
-    edges = np.array([0.0, 0.01])
+def test_segment_guard_reports_and_does_not_turn_into_a_fate():
+    """段数达到上限即失败，报粒径、球形度、起点、所在格与已用物理时间。ADR 0050 第 2 项。"""
+    edges = np.array([0.0, 0.5, 1.0, 1.5])
+    rho, mu = np.full(3, RHO_G), np.full(3, MU)
+
+    def gas(cell, _height):
+        return (1.0, 1.0, 0.2)[cell]
+
+    equilibria = stable_equilibria(edges, gas, rho, mu, 2.0e-4, RHO_P, PHI)
+    assert equilibria
+    with pytest.raises(FreeboardError, match="段数上限") as caught:
+        trace_until_fate(
+            0.2, 2.0, edges, gas, rho, mu, 2.0e-4, RHO_P, PHI, _config(freeboard_max_segments=3), equilibria
+        )
+    message = str(caught.value)
+    assert "d=" in message and "φ_S=" in message and "h0=" in message and "当前格" in message and "已用" in message
+    # 上限放宽后同一条轨迹正常定归宿，说明上限只防未覆盖的往复情形。
+    fate = trace_until_fate(
+        0.2, 2.0, edges, gas, rho, mu, 2.0e-4, RHO_P, PHI, _config(freeboard_max_segments=1000), equilibria
+    )
+    assert fate.fate == "capture"
+    assert fate.segments > 3
+
+
+def test_slow_crossing_far_beyond_80_s_still_settles_and_is_counted():
+    """|ū_g − v_t| 很小但不中性的格：穿越时间远超 80 s，轨迹正常定归宿，停留按解析时间计入。
+
+    ADR 0050 实现约束 (a)；旧实现会因 freeboard_time_limit_s 误判失败。
+    """
+    terminal = terminal_settling_velocity(RHO_G, MU, 2.0e-4, RHO_P, PHI)
+    edges = np.array([0.0, 1.0])
     rho, mu = np.array([RHO_G]), np.array([MU])
 
-    def gas(_cell, _height):
-        return 1.0
+    def gas(_cell, _height, terminal=terminal):
+        return terminal + 1.0e-6
 
-    with pytest.raises(FreeboardError, match="积分时间达到上限"):
-        trace_until_fate(
-            0.0, 2.0, edges, gas, rho, mu, 2.0e-4, RHO_P, PHI, _config(freeboard_time_limit_s=1.0e-6)
-        )
-
-
-def test_time_limit_is_an_error_not_a_fate():
-    edges = np.array([0.0, 0.5, 1.0])
-    rho = np.full(2, RHO_G)
-    mu = np.full(2, MU)
-    still = _cellwise(0.0, 0.0)
-    with pytest.raises(FreeboardError, match="积分时间达到上限"):
-        trace_until_fate(
-            0.4, 0.0, edges, still, rho, mu, 2.0e-4, RHO_P, PHI, _config(freeboard_time_limit_s=1.0e-3)
-        )
+    fate = trace_until_fate(0.0, 0.0, edges, gas, rho, mu, 2.0e-4, RHO_P, PHI, SolverConfig())
+    assert fate.fate == "elutriate"
+    assert fate.time_s > 80.0
+    assert sum(fate.residence_s) == pytest.approx(fate.time_s)
+    assert fate.segments >= 1
 
 
 def test_doubling_ejection_samples_changes_the_mean_flight_time_by_less_than_1e_4():
@@ -319,7 +336,7 @@ def test_stationary_boundary_uses_acceleration_and_not_every_zero_speed_leaves()
     lifting = _cellwise(terminal + 3.0)
     balanced = _cellwise(terminal)
 
-    fate = trace_until_fate(0.0, 0.0, edges, still, rho, mu, diameter, RHO_P, PHI, _config(freeboard_time_limit_s=1.0e-6))
+    fate = trace_until_fate(0.0, 0.0, edges, still, rho, mu, diameter, RHO_P, PHI, SolverConfig())
     assert (fate.fate, fate.time_s, fate.height_m, fate.velocity_m_s) == ("return", 0.0, 0.0, 0.0)
     fate = trace_until_fate(1.0, 0.0, edges, lifting, rho, mu, diameter, RHO_P, PHI, SolverConfig())
     assert (fate.fate, fate.time_s, fate.height_m, fate.velocity_m_s) == ("elutriate", 0.0, 1.0, 0.0)
@@ -333,9 +350,7 @@ def test_stationary_boundary_uses_acceleration_and_not_every_zero_speed_leaves()
     assert fate.height_m == pytest.approx(0.0)
     assert fate.velocity_m_s < 0.0
     with pytest.raises(FreeboardError, match="中性"):
-        trace_until_fate(
-            0.0, 0.0, edges, balanced, rho, mu, diameter, RHO_P, PHI, _config(freeboard_time_limit_s=1.0e-3)
-        )
+        trace_until_fate(0.0, 0.0, edges, balanced, rho, mu, diameter, RHO_P, PHI, SolverConfig())
 
 
 def test_ghost_bubble_uses_local_flow_and_area():

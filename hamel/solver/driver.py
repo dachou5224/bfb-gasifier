@@ -127,8 +127,20 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         folder.mkdir(parents=True, exist_ok=True)
         journal["failure_path"] = str(folder / "failure.npz")
 
+    def _feedback(state):
+        """从已解固相与它对应的冻结量更新床区反应汇与改送反馈。
+        求解手段：ADR 0049 第 4 步；PR #130 审查 P2。
+        """
+        if not holder["records"]:
+            return
+        reaction, redirect = solid_feedback(state, holder["records"][-1].frozen)
+        holder["reaction"] = reaction
+        holder["redirect"] = redirect
+
     def _precalc(iteration, consistency, state=None):
         used = holder["state"] if state is None else state
+        if state is not None:
+            _feedback(state)
         bed_return, ash_out, fuel_out = redirect_feedback(config.hover_closure, holder["redirect"])
         result = precalculate(
             path, case_id, used, reaction_solid_kg_s=holder["reaction"],
@@ -215,6 +227,9 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         outcome.diagnostics["frozen_path"] = str(frozen_path)
     outcome.diagnostics["geldart"] = [item.geldart_record for item in holder["records"]]
     outcome.diagnostics["adiabatic"] = adiabatic
+    if holder["records"]:
+        # ADR 0050 第 5 项：本次预计算的最大段数、归宿时刻最大值与 99 % 分位、最长的 (粒级, d, φ_S, 起点)。
+        outcome.diagnostics["trajectory"] = holder["records"][-1].reported.get("trajectory")
     if outcome.status != "CONVERGED":
         return outcome
     result = holder["final"]
@@ -258,6 +273,15 @@ class _Checked:
     residual: np.ndarray
     blocks: ResidualBlocks
     info: dict
+
+
+def solid_feedback(state, frozen):
+    """从已解固相与冻结量取床区反应汇与改送流，供下一次预计算回馈。
+
+    求解手段：ADR 0049 第 4 步；PR #130 审查 P2。
+    """
+    assembly = evaluate_residual(pack_state(state, frozen), frozen)
+    return -assembly.char_consumption_bed_kg_s.sum(axis=1), _redirect_tuple(assembly)
 
 
 def _references(physical):
@@ -485,6 +509,7 @@ def _info(result) -> dict:
     copied = (
         "rho_p_kg_m3", "k_w_w_m2_k", "drain_ash_kg_s", "drain_char_kg_s", "ejection_to_free",
         "ejection_to_hover", "a_free_per_s", "a_hover_per_s", "b_free_per_s", "b_hover_per_s",
+        "c_up_per_s", "c_down_per_s", "theta_up", "theta_down",
         "hover", "theta", "u_r_bed_m_s", "u_r_freeboard_m_s", "u_r_hover_m_s", "m_dot_ab_kg_s",
     )
     info = {name: getattr(result, name) for name in names}

@@ -105,6 +105,11 @@ class FrozenQuantities:
     hover_closure: str = "A"
     serio_frequency_per_s: float = 5.42e4
     serio_activation_j_mol: float = 100.5e3
+    # 半格捕获区的格内转入系数与当地生成份额。解释性选择：ADR 0048 第 2 项。
+    c_up_per_s: np.ndarray | None = None
+    c_down_per_s: np.ndarray | None = None
+    theta_up: np.ndarray | None = None
+    theta_down: np.ndarray | None = None
     def __post_init__(self) -> None:
         n_bed = len(np.asarray(self.bed_pressure_pa))
         n_free = len(np.asarray(self.freeboard_pressure_pa))
@@ -126,6 +131,15 @@ class FrozenQuantities:
         for shape, *names in groups:
             for name in names:
                 object.__setattr__(self, name, _array(name, getattr(self, name), shape))
+        for name in ("c_up_per_s", "c_down_per_s", "theta_down"):
+            value = getattr(self, name)
+            empty = np.zeros((n_free, n_class))
+            object.__setattr__(self, name, empty if value is None else _array(name, value, (n_free, n_class)))
+        if self.theta_up is None:
+            # 只给总量 θ 时按本格悬停状态解释，θ↓ 为 0。与半格捕获区之前的构造相容。
+            object.__setattr__(self, "theta_up", np.array(self.theta, dtype=float, copy=True))
+        else:
+            object.__setattr__(self, "theta_up", _array("theta_up", self.theta_up, (n_free, n_class)))
         object.__setattr__(self, "hover", _mask("hover", self.hover, (n_free, n_class)))
         object.__setattr__(self, "free_absent", _mask("free_absent", self.free_absent, (n_free, n_class)))
         self._check_scalars(n_free)
@@ -201,12 +215,21 @@ class FrozenQuantities:
             raise AssemblyError("自由状态不存在时不能向该状态给生成量")
         if np.any(self.char_gen_hover_kg_s[~self.hover] != 0.0) or np.any(self.ash_gen_hover_kg_s[~self.hover] != 0.0):
             raise AssemblyError("没有悬停状态时不能向悬停状态给生成量")
-        if np.any((self.theta != 0.0) & (self.theta != 1.0)):
-            raise AssemblyError("θ 只能是 0 或 1")
-        if np.any(self.free_absent & (self.theta != 1.0)):
-            raise AssemblyError("自由状态不存在时 θ 必须为 1")
-        if self.hover_closure == "A" and np.any(~self.hover & (self.theta != 0.0)):
-            raise AssemblyError("没有悬停状态时 θ 必须为 0")
+        if np.any((self.theta < 0.0) | (self.theta > 1.0)):
+            raise AssemblyError("θ 必须在 [0, 1] 内")
+        for name in ("c_up_per_s", "c_down_per_s"):
+            if np.any(getattr(self, name) < 0.0):
+                raise AssemblyError(f"{name} 不能为负")
+        held = self.theta_up + self.theta_down
+        if np.any((self.theta_up < 0.0) | (self.theta_down < 0.0) | (held > 1.0 + 1.0e-12)):
+            raise AssemblyError("θ↑、θ↓ 必须非负，且两者之和不超过 1")
+        if np.any(self.theta_down[-1] != 0.0):
+            # 最下一格的中点以下没有捕获区。解释性选择：ADR 0048 第 2 项。
+            raise AssemblyError("自由空间最下一格的中点以下没有捕获区，θ↓ 必须为 0")
+        if np.any(self.free_absent & (held == 0.0)):
+            raise AssemblyError("自由状态不存在时必须有悬停份额")
+        if self.hover_closure == "A" and np.any(~self.hover & (held != 0.0)):
+            raise AssemblyError("没有悬停状态时 θ↑、θ↓ 必须为 0")
         if np.any(np.abs(self.ejection_to_free + self.ejection_to_hover - 1.0) > 1.0e-12):
             raise AssemblyError("床面抛出进入自由与悬停的份额之和必须为 1")
         bottom = self.free_absent[-1]

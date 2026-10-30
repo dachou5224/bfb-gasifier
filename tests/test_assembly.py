@@ -166,17 +166,20 @@ def test_pack_unpack_round_trip():
 def test_free_state_absent_is_omitted():
     hover = np.zeros((2, 2), dtype=bool)
     absent = np.zeros((2, 2), dtype=bool)
-    hover[-1, 1] = True
-    absent[-1, 1] = True
+    # 顶格：粒级 2 只有悬停状态（床面抛出只进自由状态，故最下层不能缺自由状态）。
+    hover[0, 1] = True
+    absent[0, 1] = True
+    # ADR 0048 起床面抛出只进自由状态，故自由状态不存在的格子只能在最下层以上没有抛入时出现。
+    theta_up = np.array([[0.0, 1.0], [0.0, 0.0]])
     frozen = make_frozen(
-        hover=hover, free_absent=absent, theta=np.array([[0.0, 0.0], [0.0, 1.0]]),
-        ejection_to_free=np.array([1.0, 0.0]), ejection_to_hover=np.array([0.0, 1.0]),
-        a_free_per_s=_zeros((2, 2)), a_hover_per_s=_zeros((2, 2)),
-        b_free_per_s=_zeros((2, 2)), b_hover_per_s=_zeros((2, 2)),
+        hover=hover, free_absent=absent, theta_up=theta_up,
+        a_free_per_s=_zeros((2, 2)), b_free_per_s=_zeros((2, 2)),
+        c_up_per_s=_zeros((2, 2)), c_down_per_s=_zeros((2, 2)),
+        k_auf_per_s=_zeros(2),
     )
     slots = unknown_slots(frozen)
-    assert not any(slot.balance_index == 1 and slot.size_class == 1 and slot.phase == "free" for slot in slots)
-    assert any(slot.balance_index == 1 and slot.size_class == 1 and slot.phase == "hover" and slot.kind == "char" for slot in slots)
+    assert not any(slot.balance_index == 0 and slot.size_class == 1 and slot.phase == "free" for slot in slots)
+    assert any(slot.balance_index == 0 and slot.size_class == 1 and slot.phase == "hover" and slot.kind == "char" for slot in slots)
     state = make_state(frozen)
     result = _evaluate(frozen, state)
     assert result.char_gap_kg_s == pytest.approx(0.0, abs=1.0e-9)
@@ -345,7 +348,7 @@ def test_two_ash_ratios_and_two_states_sum_to_equation_2_6():
 def test_hover_without_reaction_and_captured_fines_stop():
     hover = np.zeros((2, 1), dtype=bool)
     hover[-1, 0] = True
-    frozen = make_frozen(n_class=1, hover=hover, ejection_to_free=np.array([0.0]), ejection_to_hover=np.array([1.0]))
+    frozen = make_frozen(n_class=1, hover=hover, c_up_per_s=np.array([[0.0], [0.05]]))
     state = make_state(frozen, char=0.002, ash=1.0e-4)
     state.bed_gas_mol_s[:] = 0.0
     state.freeboard_gas_mol_s[:] = 0.0
@@ -355,11 +358,10 @@ def test_hover_without_reaction_and_captured_fines_stop():
         _evaluate(frozen, state)
 
     captured = make_frozen(
-        n_class=1, hover=hover,
-        ejection_to_free=np.array([0.0]), ejection_to_hover=np.array([1.0]),
+        n_class=1, hover=hover, c_up_per_s=np.array([[0.0], [0.05]]),
         k_auf_per_s=np.array([0.05, 0.05]),
     )
-    flowing = make_state(captured, char=0.02, ash=0.0)
+    flowing = make_state(captured, char=0.02, ash=1.0e-4)
     with pytest.raises(FreeboardDomainError, match="最小粒级"):
         _evaluate(captured, flowing)
 
@@ -621,3 +623,60 @@ def test_public_equation_docstrings_cite_the_source():
         FrozenQuantities.n_bed.fget, FrozenQuantities.n_class.fget,
     ):
         assert "Source: Hamel Eq." in (function.__doc__ or ""), function.__name__
+
+
+@pytest.mark.parametrize(
+    ("n_free", "n_class", "source"),
+    [(2, 3, 0), (4, 3, 2), (16, 3, 14)],
+    ids=["upper-cell", "next-to-bottom-more-cells-than-classes", "sixteen-cells"],
+)
+def test_theta_down_migration_carries_source_enthalpy_between_cells(n_free, n_class, source):
+    """θ↓ 的焦炭与灰迁移流在两格能量方程中按源格温度分别扣除与接收。ADR 0048 第 2 项。
+
+    只改变非零 θ↓，让源格与目标格的自由空间温度不同：源格（top，1150 K）应减少
+    E = m_C·h_C(T_src) + m_A·h_A(T_src)，下方目标格应在同一 E 上增加，且两格之差为零。
+    全炉求和会互相抵消，不能替代这里的逐格核对。
+    """
+    from hamel.properties import ash_specific_heat_j_per_kg_k, char_specific_enthalpy_j_per_kg
+
+    shape = (n_free, n_class)
+    klass = n_class - 2
+    target = source + 1
+    hover = np.zeros(shape, dtype=bool)
+    hover[:, klass] = True
+    base = make_frozen(n_free=n_free, n_class=n_class, hover=hover, theta_up=_zeros(shape), theta_down=_zeros(shape))
+    theta_down = _zeros(shape)
+    theta_down[source, klass] = 1.0
+    moved = make_frozen(n_free=n_free, n_class=n_class, hover=hover, theta_up=_zeros(shape), theta_down=theta_down)
+    state = make_state(base, char=2.0e-3, ash=1.0e-4)
+    state.freeboard_temperature_k[:] = 1050.0
+    state.freeboard_temperature_k[source] = 1150.0
+    before = _evaluate(base, state)
+    after = _evaluate(moved, state)
+
+    def slot(kind, phase, balance, klass, result):
+        for item in result.slots:
+            if (item.kind, item.zone, item.balance_index, item.size_class) == (kind, "freeboard", balance, klass):
+                if phase is not None and item.phase != phase:
+                    continue
+                return float(result.values[item.index])
+        raise AssertionError((kind, phase, balance, klass))
+
+    char_mass = slot("char", "hover", target, klass, after) - slot("char", "hover", target, klass, before)
+    ash_mass = slot("ash", "hover", target, klass, after) - slot("ash", "hover", target, klass, before)
+    assert char_mass > 0.0 and ash_mass > 0.0
+    source_k = 1150.0
+    expected = char_mass * char_specific_enthalpy_j_per_kg(source_k) + ash_mass * ash_specific_heat_j_per_kg_k() * (
+        source_k - 298.15
+    )
+    source_delta = slot("temperature", None, source, -1, after) - slot("temperature", None, source, -1, before)
+    target_delta = slot("temperature", None, target, -1, after) - slot("temperature", None, target, -1, before)
+    assert source_delta == pytest.approx(-expected, rel=1.0e-10)
+    assert target_delta == pytest.approx(expected, rel=1.0e-10)
+    assert source_delta + target_delta == pytest.approx(0.0, abs=1.0e-9)
+
+    # 若误用目标格温度（1050 K）计焓，源格扣除量会差出这一项。
+    wrong = char_mass * char_specific_enthalpy_j_per_kg(1050.0) + ash_mass * ash_specific_heat_j_per_kg_k() * (
+        1050.0 - 298.15
+    )
+    assert abs(source_delta + wrong) > 1.0e-3 * abs(expected)

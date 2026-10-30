@@ -97,13 +97,6 @@ def solid_enthalpy_w(char_kg_s, ash_kg_s, fuel_kg_s, temperature_k, frozen) -> f
     )
 
 
-def _portion(flow, part, total) -> float:
-    total = float(total)
-    if total == 0.0:
-        return 0.0
-    return float(flow) * float(part) / total
-
-
 def _item(kind, klass, char, ash, fuel, temperature, frozen, undo):
     if char == 0.0 and ash == 0.0 and fuel == 0.0:
         return None
@@ -114,14 +107,27 @@ def _item(kind, klass, char, ash, fuel, temperature, frozen, undo):
     }
 
 
+def _free_fuel_per_coefficient(frozen, cell: int, klass: int) -> float:
+    """自由状态的燃料存量（未干燥 + 已干燥当量），按单位输运系数计。
+
+    冻结的 W/P 出流由 ``release._state_flows()` 给出：
+    ``fuel_up = a^f·库存``、``fuel_down = (b^f + c↓)·库存``（c↑ 是格内转入，不计在出流里）。
+    因此用同一组系数反求库存，不能把 c↑ 也算进分母。
+    """
+    total = float(frozen.a_free_per_s[cell, klass] + frozen.b_free_per_s[cell, klass] + frozen.c_down_per_s[cell, klass])
+    if total == 0.0:
+        return 0.0
+    mobile = float(frozen.fuel_up_free_kg_s[cell, klass] + frozen.fuel_down_free_kg_s[cell, klass])
+    return mobile / total
+
+
 def redirect_ledger(
     frozen, state, migration_free, migration_hover, ash_migration_free, ash_migration_hover,
     bed_ash_share, ash_release_free, ash_release_hover,
 ) -> tuple:
-    """进入悬停状态的四项流。A 返回空。
+    """进入悬停状态的流：c↑·m^f、c↓·m^f、θ↑·M^in、θ↓·M^in。A 返回空。
 
-    模型边界选择（敏感性）：ADR 0026 第 6 项、ADR 0038。
-    顶格 a^t 已经是带出，底格 b^t 已经回到床顶，这两股不改送。
+    模型边界选择（敏感性）：ADR 0026 第 6 项、ADR 0038；流的去向按 ADR 0048 第 2 项。
     """
     if frozen.hover_closure == "A":
         return ()
@@ -130,52 +136,37 @@ def redirect_ledger(
     n_free, n_class = frozen.n_freeboard, frozen.n_class
     items = []
     for klass in range(n_class):
-        for cell in range(1, n_free):
-            coeff = float(frozen.a_hover_per_s[cell, klass])
-            total = coeff + float(frozen.a_free_per_s[cell, klass])
-            mobile = state.freeboard_ash_free_kg[cell]
-            item = _item(
-                "a_t", klass, coeff * float(state.freeboard_char_free_kg[cell, klass]),
-                coeff * float(mobile[klass]),
-                _portion(frozen.fuel_up_free_kg_s[cell, klass], coeff, total),
-                state.freeboard_temperature_k[cell], frozen, ("free", cell - 1),
-            )
-            if item:
-                items.append(item)
-        for cell in range(n_free - 1):
-            coeff = float(frozen.b_hover_per_s[cell, klass])
-            total = coeff + float(frozen.b_free_per_s[cell, klass])
-            mobile = state.freeboard_ash_free_kg[cell]
-            item = _item(
-                "b_t", klass, coeff * float(state.freeboard_char_free_kg[cell, klass]),
-                coeff * float(mobile[klass]),
-                _portion(frozen.fuel_down_free_kg_s[cell, klass], coeff, total),
-                state.freeboard_temperature_k[cell], frozen, ("free", cell + 1),
-            )
-            if item:
-                items.append(item)
-        share = float(frozen.ejection_to_hover[klass])
-        thrown = float(frozen.k_auf_per_s[0]) * share
-        item = _item(
-            "ejection", klass, thrown * float(state.bed_char_kg[0, klass]),
-            thrown * float(bed_ash_share[0, klass]),
-            share * float(frozen.fuel_up_bed_kg_s[0, klass]),
-            state.bed_temperature_k[0], frozen, ("free", n_free - 1),
-        )
-        if item:
-            items.append(item)
         for cell in range(n_free):
-            if klass + 1 >= n_class:
-                break
-            theta = float(frozen.theta[cell, klass])
-            char_in = float(migration_free[cell, klass + 1] + migration_hover[cell, klass + 1])
-            ash_in = float(ash_migration_free[cell, klass + 1] + ash_migration_hover[cell, klass + 1])
-            item = _item(
-                "theta", klass, theta * char_in, theta * ash_in, 0.0,
-                state.freeboard_temperature_k[cell], frozen, ("free", cell),
-            )
-            if item:
-                items.append(item)
+            char_free = float(state.freeboard_char_free_kg[cell, klass])
+            ash_free = float(state.freeboard_ash_free_kg[cell, klass])
+            unit = _free_fuel_per_coefficient(frozen, cell, klass)
+            # c↑ 是格内自由→悬停，c↓ 是转到下方相邻格的悬停。解释性选择：ADR 0048 第 2 项。
+            for coeff, below in ((float(frozen.c_up_per_s[cell, klass]), False), (float(frozen.c_down_per_s[cell, klass]), True)):
+                if coeff == 0.0:
+                    continue
+                undo = cell + 1 if below else cell
+                if undo >= n_free:
+                    raise AssemblyError("格内向下转入落在自由空间之下")
+                item = _item(
+                    "c", klass, coeff * char_free, coeff * ash_free, coeff * unit,
+                    state.freeboard_temperature_k[cell], frozen, ("free", undo),
+                )
+                if item:
+                    items.append(item)
+            up = float(frozen.theta_up[cell, klass])
+            down = float(frozen.theta_down[cell, klass])
+            if (up or down) and klass + 1 < n_class:
+                char_in = float(migration_free[cell, klass + 1] + migration_hover[cell, klass + 1])
+                ash_in = float(ash_migration_free[cell, klass + 1] + ash_migration_hover[cell, klass + 1])
+                for share, undo in ((up, cell), (down, cell + 1)):
+                    if share == 0.0:
+                        continue
+                    item = _item(
+                        "theta", klass, share * char_in, share * ash_in, 0.0,
+                        state.freeboard_temperature_k[cell], frozen, ("free", undo),
+                    )
+                    if item:
+                        items.append(item)
     for cell in range(n_free):
         if not bool(frozen.free_absent[cell, 0]):
             continue

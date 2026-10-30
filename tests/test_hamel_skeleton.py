@@ -85,7 +85,7 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
         "pyrolysis_tail_delta_t_k",
         "pyrolysis_initial_shell_fraction",
         "freeboard_ejection_samples",
-        "freeboard_time_limit_s",
+        "freeboard_max_segments",
         "freeboard_delta_h_m",
         "freeboard_delta_u_m_s",
         "particle_tolerance_w",
@@ -107,6 +107,7 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
         "interphase_diffusivity",
         "hover_closure",
         "serio_pair",
+        "freeboard_gas_velocity",
     }
     assert solver.pyrolysis_radial_intervals == 24
     assert solver.pyrolysis_time_rtol == 1.0e-6
@@ -114,7 +115,7 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
     assert solver.pyrolysis_tail_delta_t_k == 0.02
     assert solver.pyrolysis_initial_shell_fraction == 1.0e-3
     assert solver.freeboard_ejection_samples == 48
-    assert solver.freeboard_time_limit_s == 80.0
+    assert solver.freeboard_max_segments == 1000
     assert solver.freeboard_delta_h_m == 1.0e-3
     assert solver.freeboard_delta_u_m_s == 1.0e-2
     assert solver.particle_tolerance_w == 1.0e-4
@@ -136,6 +137,7 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
     assert solver.interphase_diffusivity == "hamel_5_20"
     assert solver.hover_closure == "A"
     assert solver.serio_pair == "first"
+    assert solver.freeboard_gas_velocity == "ghost_bubble"
     with pytest.raises(TypeError):
         PhysicalConfig()
     with pytest.raises(TypeError):

@@ -96,8 +96,10 @@ def test_construct_stops_after_max_loops(monkeypatch):
         )
 
     monkeypatch.setattr(initial, "solve_solids", lambda *args, **kwargs: _stub(state))
+    monkeypatch.setattr(initial, "solve_prelaunch", lambda *args, **kwargs: _stage(state))
     result, records, note = construct(SimpleNamespace(frozen=frozen, state=state), precalc, 1.0e-3)
-    assert len(records) == 5 and calls["n"] == 5
+    # 1 条预启动记录（ADR 0049 第 3、4 步）加 5 次交替。
+    assert len(records) == 6 and calls["n"] == 6
     assert "交替 5 次" in note
     assert result.state is state
 
@@ -113,10 +115,20 @@ def test_construct_stops_when_flows_settle(monkeypatch):
         return SimpleNamespace(frozen=frozen, state=previous)
 
     monkeypatch.setattr(initial, "solve_solids", lambda *args, **kwargs: _stub(state))
+    monkeypatch.setattr(initial, "solve_prelaunch", lambda *args, **kwargs: _stage(state))
     result, records, note = construct(SimpleNamespace(frozen=frozen, state=state), precalc, 1.0e-3)
-    assert note == "" and calls["n"] == 1
-    assert all(value == 0.0 for value in records[0]["change"].values())
+    assert note == "" and calls["n"] == 2
+    assert all(value == 0.0 for value in records[-1]["change"].values())
     assert result.state is state
+
+
+def _stage(state) -> dict:
+    """预启动阶段的最小返回。ADR 0049 第 3 步。"""
+    return {
+        "state": state, "freeboard_residual": 0.0, "bed_residual": 0.0,
+        "char_free_kg": [], "char_hover_kg": [], "ash_free_kg": [], "ash_hover_kg": [],
+        "volume_ratio": [],
+    }
 
 
 @dataclass
@@ -155,3 +167,62 @@ def test_tar_is_not_added_below_the_feed_cell():
     assert free.sum() == pytest.approx(2 * 0.4)
     assert bed[0].sum() == pytest.approx(0.4)
     assert bed[-1].sum() == 0.0
+
+
+def test_prelaunch_solves_the_freeboard_and_gates_only_freeboard_rows():
+    """求解手段：ADR 0049 第 3 步。床区焦炭固定，只解自由空间；床区行只记录残差。"""
+    frozen = make_frozen(
+        char_gen_free_kg_s=np.full((2, 2), 1.0e-3),
+        ash_gen_free_kg_s=np.full((2, 2), 1.0e-5),
+    )
+    stage = initial.solve_prelaunch(make_state(frozen, char=2.0e-3, ash=1.0e-4), frozen, m_dot_ref=0.5)
+    assert stage["freeboard_residual"] <= 1.0e-6
+    assert np.all(np.asarray(stage["char_free_kg"]) >= 0.0)
+    assert np.all(np.asarray(stage["ash_free_kg"]) >= 0.0)
+    # 床区固相行此时尚未求解，不要求过门，只记录。
+    assert stage["bed_residual"] >= 0.0
+    assert len(stage["volume_ratio"]) == frozen.n_freeboard
+
+
+def test_prelaunch_stops_on_negative_freeboard_stock():
+    """ADR 0049 第 3 步照常按负存量停止。"""
+    frozen = make_frozen(char_gen_free_kg_s=-np.full((2, 2), 1.0e-3))
+    with pytest.raises(InitialStateError, match="负存量"):
+        initial.solve_prelaunch(make_state(frozen, char=2.0e-3), frozen, m_dot_ref=0.5)
+
+
+def test_solid_feedback_supplies_the_bed_sink_and_the_redirect():
+    """求解手段：ADR 0049 第 4 步；PR #130 审查 P2。数据流与驱动共用同一个函数。"""
+    from hamel.solver.driver import solid_feedback
+
+    frozen = make_frozen(char_gen_bed_kg_s=np.full((2, 2), 1.0e-3))
+    state = make_state(frozen, char=2.0e-3, ash=0.0)
+    reaction, redirect = solid_feedback(state, frozen)
+    assert reaction.shape == (frozen.n_bed,)
+    # 床区焦炭被消耗，递推的输入为负。
+    assert float(reaction.sum()) < 0.0
+    assert len(redirect) == 4
+    assert all(isinstance(value, float) for value in redirect)
+
+
+def test_construct_second_precalc_carries_the_bed_sink_without_resetting(monkeypatch):
+    """集成：第一次回调（预启动之后）已带非零床区反应汇，改送与排灰不被重置。"""
+    from hamel.solver.driver import solid_feedback
+
+    frozen = make_frozen(char_gen_bed_kg_s=np.full((2, 2), 1.0e-3))
+    state = make_state(frozen, char=2.0e-3, ash=0.0)
+    seen = []
+
+    def precalc(previous):
+        reaction, redirect = solid_feedback(previous, frozen)
+        seen.append({"reaction": reaction, "redirect": redirect, "state": previous})
+        return SimpleNamespace(frozen=frozen, state=previous)
+
+    monkeypatch.setattr(initial, "solve_solids", lambda *args, **kwargs: _stub(state))
+    monkeypatch.setattr(initial, "solve_prelaunch", lambda *args, **kwargs: _stage(state))
+    result, records, note = construct(SimpleNamespace(frozen=frozen, state=state), precalc, 1.0e-3)
+    assert len(seen) >= 2
+    assert float(seen[0]["reaction"].sum()) < 0.0
+    assert len(seen[0]["redirect"]) == 4
+    assert note == ""
+    assert result.state is state

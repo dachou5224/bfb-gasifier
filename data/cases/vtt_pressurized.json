@@ -694,6 +694,23 @@
         "formula": "d_k = ln(b/a)/(1/a − 1/b)，粒级 [a, b] 内累积质量对 ln d 线性；最细一档下限 d_min = 0,1 mm × 10^(−11,6/21,61) = 0,0291 mm（第一段对数斜率外推到 0 %）",
         "note": "粒级次序与 fuel_size_class_mass_fractions 相同：<0,1、0,1–0,25、0,25–0,5、0,5–0,71、0,71–1,0、1,0–2,0、2,0–3,15 mm。筛孔尺寸按球径计，不作形状修正。只写入工况 1。"
       },
+      "fuel_size_class_bounds": {
+        "value": [
+          2.91e-05,
+          0.0001,
+          0.00025,
+          0.0005,
+          0.00071,
+          0.001,
+          0.002,
+          0.00315
+        ],
+        "unit": "m",
+        "source": "解释性选择：ADR 0023；KURKELA_1992 Fig. 1, p. 4（data/digitized/kurkela1992_fig1.json）的筛孔序列",
+        "status": "derived",
+        "formula": "筛孔尺寸按球径计：<0,1、0,1–0,25、0,25–0,5、0,5–0,71、0,71–1,0、1,0–2,0、2,0–3,15 mm；最细一档下限取 ADR 0023 外推的 0,0291 mm",
+        "note": "ADR 0048 第 1 项粒级内取样用的边界 [a_k, b_k]，级序与 fuel_size_class_diameters 相同。只写入工况 1。"
+      },
       "heating_value": {
         "value": 21000000.0,
         "unit": "J/kg",

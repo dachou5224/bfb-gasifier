@@ -1,4 +1,4 @@
-"""ADR 0030 的基准与 S1–S16。不能通过现有接口表达的项记 NOT_APPLIED。"""
+"""ADR 0030 的基准与 S1–S17。不能通过现有接口表达的项记 NOT_APPLIED。"""
 from __future__ import annotations
 
 import json
@@ -35,6 +35,7 @@ _ROWS = (
     ("S14", "悬停样本计为出口带出", "ADR 0026 第 6 项；ADR 0038", True, ""),
     ("S15", "Serio 第二对参数", "ADR 0013 第 4 项", True, ""),
     ("S16", "cell 数加倍", "ADR 0013 第 7 项", True, ""),
+    ("S17", "颗粒轨迹的格内气速改用逐格表观气速", "ADR 0048 第 3 项", True, ""),
 )
 
 _BED_PAIRS = {"S9": (0.40, 0.6), "S10": (0.40, 0.9), "S11": (0.55, 0.6), "S12": (0.55, 0.9)}
@@ -50,7 +51,7 @@ class RunSpec:
 
 
 def run_specs() -> tuple:
-    order = ["baseline", *[f"S{index}" for index in range(1, 17)]]
+    order = ["baseline", *[f"S{index}" for index in range(1, 18)]]
     by_name = {row[0]: row for row in _ROWS}
     return tuple(RunSpec(*by_name[name]) for name in order)
 
@@ -75,14 +76,14 @@ def overlay(source, dest, spec: RunSpec) -> bool:
         _assign(doc, "bed_sphericity", sphericity)
     elif spec.name == "S16":
         _assign(doc, "cell_heights", [0.075] * 16 + [0.14375] * 16)
-    elif spec.name not in {"S3", "S4", "S5", "S13", "S14", "S15"}:
+    elif spec.name not in {"S3", "S4", "S5", "S13", "S14", "S15", "S17"}:
         raise ValueError(spec.name)
     Path(dest).write_text(json.dumps(doc), encoding="utf-8")
     return False
 
 
 def run_campaign(source, report_dir, *, timeout_s: float | None = None) -> list:
-    """依次跑基准和 S1–S16。超时记 TIMEOUT。未接线的项不假装跑过。"""
+    """依次跑基准和 S1–S17。超时记 TIMEOUT。未接线的项不假装跑过。"""
     timeout = float(SolverConfig().wall_timeout_s if timeout_s is None else timeout_s)
     records = []
     with tempfile.TemporaryDirectory() as directory:
@@ -170,6 +171,8 @@ def config_for(name: str) -> SolverConfig:
         return replace(base, hover_closure="C")
     if name == "S15":
         return replace(base, serio_pair="second")
+    if name == "S17":
+        return replace(base, freeboard_gas_velocity="superficial")
     return base
 
 

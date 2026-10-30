@@ -28,6 +28,8 @@ _BENCHMARK = {
     "gas_m_s": 0.0, "initial_m_s": 2.0, "height_m": 0.3, "duration_s": 0.02,
 }
 _ACCEPTANCE = ("T_FRB_K", "X_C", "CO", "CO2", "H2", "CH4", "H2O")
+# 闭式与 RK4 比对的时长，只作诊断；轨迹推进的终止保护是 ADR 0050 的段数上限。
+_CLOSED_FORM_WINDOW_S = 80.0
 _T_FRB = "Σ T_i·Δh_i / Σ Δh_i，自由空间全部 cell，含锥段。解释性选择：ADR 0040 第 1 项。"
 _X_C = "出口气体（含焦油蒸气）中的碳 / 燃料碳。分子不计带出焦炭与排灰。解释性选择：ADR 0040 第 1 项。"
 
@@ -109,35 +111,24 @@ def fuel_parts(frozen, reported, physical) -> dict:
     """边界上的 W 与 P。P 的质量是 (1−水分) 乘当量库存，已不含水分。"""
     moisture = float(reported["moisture_mass_fraction"])
     received, dried = fuel_element_fractions(physical), dry_element_fractions(physical)
-    up = frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]
-    down = frozen.b_free_per_s[-1] + frozen.b_hover_per_s[-1]
+    up = frozen.a_free_per_s[0]
+    down = frozen.b_free_per_s[-1]
     up_w, up_p = _split_mass(up, reported["undried_free_kg"][0], reported["dried_free_kg"][0], moisture)
     down_w, down_p = _split_mass(down, reported["undried_free_kg"][-1], reported["dried_free_kg"][-1], moisture)
     bed_w, bed_p = _split_mass(frozen.k_auf_per_s[0], reported["undried_bed_kg"][0], reported["dried_bed_kg"][0], moisture)
     redirect_w = np.zeros(frozen.n_class)
     redirect_p = np.zeros(frozen.n_class)
     if frozen.hover_closure in {"B", "C"}:
+        # 进入悬停状态的流：c↑、c↓ 由自由状态转入。ADR 0048 第 2 项。
         for klass in range(frozen.n_class):
-            for cell in range(1, frozen.n_freeboard):
-                piece_w, piece_p = _split_mass(
-                    frozen.a_hover_per_s[cell, klass], reported["undried_free_kg"][cell, klass],
-                    reported["dried_free_kg"][cell, klass], moisture,
-                )
-                redirect_w[klass] += piece_w
-                redirect_p[klass] += piece_p
-            for cell in range(frozen.n_freeboard - 1):
-                piece_w, piece_p = _split_mass(
-                    frozen.b_hover_per_s[cell, klass], reported["undried_free_kg"][cell, klass],
-                    reported["dried_free_kg"][cell, klass], moisture,
-                )
-                redirect_w[klass] += piece_w
-                redirect_p[klass] += piece_p
-            piece_w, piece_p = _split_mass(
-                frozen.ejection_to_hover[klass] * frozen.k_auf_per_s[0],
-                reported["undried_bed_kg"][0, klass], reported["dried_bed_kg"][0, klass], moisture,
-            )
-            redirect_w[klass] += piece_w
-            redirect_p[klass] += piece_p
+            for cell in range(frozen.n_freeboard):
+                for coeff in (frozen.c_up_per_s[cell, klass], frozen.c_down_per_s[cell, klass]):
+                    piece_w, piece_p = _split_mass(
+                        coeff, reported["undried_free_kg"][cell, klass],
+                        reported["dried_free_kg"][cell, klass], moisture,
+                    )
+                    redirect_w[klass] += piece_w
+                    redirect_p[klass] += piece_p
     return {
         "received": received, "dried": dried,
         "bed_w": bed_w, "bed_p": bed_p, "up_w": up_w, "up_p": up_p,
@@ -176,8 +167,8 @@ def freeboard_closure(state, frozen, assembly, fuel) -> dict:
         _fuel_packet(fuel["bed_w"], fuel["bed_p"], received, dried),
     )
     gas_out = _gas(state.freeboard_gas_mol_s[0])
-    up = frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]
-    down = frozen.b_free_per_s[-1] + frozen.b_hover_per_s[-1]
+    up = frozen.a_free_per_s[0]
+    down = frozen.b_free_per_s[-1]
     carried = _combine(
         _of("char", up * state.freeboard_char_free_kg[0]),
         _of("ash", up * _mobile_ash(state, frozen, 0)),
@@ -215,12 +206,14 @@ def freeboard_closure(state, frozen, assembly, fuel) -> dict:
             "in": incoming[key], "out": outgoing[key], "difference": gap,
             "relative": None if incoming[key] == 0.0 else gap / incoming[key],
         }
-    hover_char = float(np.sum(thrown_char * frozen.ejection_to_hover))
+    hover_char = float(
+        np.sum((frozen.c_up_per_s + frozen.c_down_per_s) * state.freeboard_char_free_kg)
+    )
     return {
         "streams": streams,
         "totals": totals,
         "reaction_char_kg_s": float(np.sum(assembly.char_consumption_free_kg_s) + np.sum(assembly.char_consumption_hover_kg_s)),
-        "ejection_hover_char_kg_s": hover_char,
+        "hover_inflow_char_kg_s": hover_char,
         "redirect_char_kg_s": float(assembly.redirect_char_kg_s),
     }
 
@@ -385,7 +378,10 @@ def fixed_closed_form(samples: int) -> dict:
 
 
 def applicability_row(diameter_m, rho_g, mu_g, rho_p, phi_s, gas_m_s, bubble_m_s, height_m, time_limit_s) -> dict:
-    """一个粒级。Δ ≤ 0 记 N/A。Δ > 0 时在常系数下与高精度 RK4 比到时间上限。"""
+    """一个粒级。Δ ≤ 0 记 N/A。Δ > 0 时在常系数下与高精度 RK4 比到 time_limit_s。
+
+    time_limit_s 只是这项诊断比对的时长，不是轨迹推进的终止保护（后者是 ADR 0050 的段数上限）。
+    """
     sample_speeds, _shares, direct = ejection_velocity_samples(float(bubble_m_s), 1)
     initial = float(sample_speeds[0])
     branches = {}
@@ -427,7 +423,7 @@ def toy_applicability_rows() -> list:
 
 
 def closed_form_report(config: SolverConfig, rows: list) -> dict:
-    limit = float(config.freeboard_time_limit_s)
+    limit = _CLOSED_FORM_WINDOW_S
     table = [
         applicability_row(*item, limit) if not isinstance(item, dict) else item
         for item in rows
@@ -487,7 +483,7 @@ def _book_change(base, fine) -> tuple[float, bool]:
     worst = 0.0
     changed = False
     for left, right in zip(base.cells, fine.cells):
-        for name in ("a_f", "a_t", "b_f", "b_t"):
+        for name in ("a_f", "b_f", "c_up", "c_down"):
             first, second = getattr(left, name), getattr(right, name)
             if first is None and second is None:
                 continue
@@ -653,7 +649,7 @@ def closed_form_from_state(state, frozen, reported, config: SolverConfig) -> dic
     height = float(frozen.n_freeboard) * float(frozen.freeboard_height_m)
     bubble = float(reported["trajectory"]["bubble_m_s"])
     phi = float(reported.get("phi_s") or reported["trajectory"]["phi_s"])
-    limit = float(config.freeboard_time_limit_s)
+    limit = _CLOSED_FORM_WINDOW_S
     rows = [
         applicability_row(
             float(diameter), rho, mu, float(frozen.rho_p_kg_m3), phi, speed, bubble, height, limit,
