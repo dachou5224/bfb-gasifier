@@ -60,8 +60,8 @@ class SolverConfig:
     pyrolysis_initial_shell_fraction: float = 1.0e-3
     # 正半轴等概率份数。见 ADR 0028。
     freeboard_ejection_samples: int = 48
-    # 只用于报错。到时仍未离开自由空间就失败。见 ADR 0028。
-    freeboard_time_limit_s: float = 80.0
+    # 解析段数保护，代替物理时间截止。求解器参数：ADR 0050。
+    freeboard_max_segments: int = 1000
     # 穿过稳定界面时的捕获判据。记账与它无关。见 ADR 0034、ADR 0047 第 3 项。
     freeboard_delta_h_m: float = 1.0e-3
     # 穿过稳定界面时的捕获判据。见 ADR 0034、ADR 0047 第 3 项。
@@ -91,6 +91,8 @@ class SolverConfig:
     interphase_diffusivity: str = "hamel_5_20"
     hover_closure: str = "A"
     serio_pair: str = "first"
+    # 敏感性 S17：自由空间轨迹的格内气速。ADR 0048 第 3 项。
+    freeboard_gas_velocity: str = "ghost_bubble"
 
 
 # 已批准的 ε_P 与 Serio 对。不是新的可调物理参数。ADR 0017 第 17 项；表 5.4，S. 97。

@@ -264,13 +264,11 @@ def cell_height_at_velocity(a: float, b: float, c: float, initial_velocity_m_s: 
     return height
 
 
-def _boundary_time(a: float, b: float, c: float, initial_velocity_m_s: float, initial_height_m: float, target_height_m: float, window_s: float) -> float | None:
-    """在剩余期限 [0, window_s] 内对单调段上的 h(τ) 二分求根，绝对容差 1e-12 m。
+def _boundary_time(a: float, b: float, c: float, initial_velocity_m_s: float, initial_height_m: float, target_height_m: float, window_s: float | None = None) -> float | None:
+    """在 [0, window_s]（None 为无期限）内对单调段上的 h(τ) 二分求根，绝对容差 1e-12 m。
 
-    段内 u 不穿过 ū_g、也不变号，h(τ) 单调，故端点判定即可；期限内没有到达就返回
-    None——不在期限之后接受事件。求解手段：ADR 0047 第 2 项。
+    段内 u 不穿过 ū_g、也不变号，h(τ) 单调，故端点判定即可。求解手段：ADR 0047 第 2 项。
     """
-    window = _positive("window_s", window_s)
     sign = 1.0 if target_height_m >= initial_height_m else -1.0
 
     def offset(tau: float) -> tuple[float, float]:
@@ -279,9 +277,21 @@ def _boundary_time(a: float, b: float, c: float, initial_velocity_m_s: float, in
 
     if offset(0.0)[0] >= 0.0:
         return 0.0
-    if offset(window)[0] < 0.0:
-        return None
-    low, high = 0.0, window
+    # 单调段上 h(τ) 单调无界，没有期限时用几何扩张找到跨越点的上界。
+    if window_s is None:
+        high = 1.0e-9
+        for _ in range(200):
+            if offset(high)[0] >= 0.0:
+                break
+            high *= 2.0
+        else:
+            return None
+        low = 0.5 * high
+    else:
+        window = _positive("window_s", window_s)
+        if offset(window)[0] < 0.0:
+            return None
+        low, high = 0.0, window
     for _ in range(200):
         middle = 0.5 * (low + high)
         value, height = offset(middle)
@@ -294,25 +304,25 @@ def _boundary_time(a: float, b: float, c: float, initial_velocity_m_s: float, in
     return 0.5 * (low + high)
 
 
-def advance_cell(height_m: float, velocity_m_s: float, left_m: float, right_m: float, a: float, b: float, c: float, gas_velocity_m_s: float, time_left_s: float) -> tuple[str, float, float, float]:
-    """格内推进到最早事件：到达格界、穿过 u_g 或转向，全部限于剩余期限。
+def advance_cell(height_m: float, velocity_m_s: float, left_m: float, right_m: float, a: float, b: float, c: float, gas_velocity_m_s: float) -> tuple[str, float, float, float]:
+    """格内推进到最早事件：到达格界、穿过 u_g 或转向。
 
-    返回（事件，τ，h，u）。事件为 upper / lower / gas / zero；期限内没有事件时返回
-    limit，调用方按时间上限报错，不改判归宿。求解手段：ADR 0047 第 2 项。
+    返回（事件，τ，h，u）。事件为 upper / lower / gas / zero。段内没有事件时返回
+    limit，由调用方的段数保护报告。段数保护代替物理时间截止：求解器参数 ADR 0050。
+    求解手段：ADR 0047 第 2 项。
     Source: Hamel Eq.3.88, S. 46
     """
     height = _finite("height_m", height_m)
     velocity = _finite("velocity_m_s", velocity_m_s)
     gas = _finite("gas_velocity_m_s", gas_velocity_m_s)
-    limit = _positive("time_left_s", time_left_s)
     events = []
     if velocity > gas:
         tau = time_to_velocity(a, b, c, velocity, gas)
-        if tau is not None and 0.0 < tau <= limit:
+        if tau is not None and tau > 0.0:
             events.append((tau, "gas"))
     if velocity != 0.0:
         tau = time_to_velocity(a, b, c, velocity, 0.0)
-        if tau is not None and 0.0 < tau <= limit:
+        if tau is not None and tau > 0.0:
             events.append((tau, "zero"))
     horizon = min(events)[0] if events else None
     if velocity != 0.0:
@@ -326,8 +336,7 @@ def advance_cell(height_m: float, velocity_m_s: float, left_m: float, right_m: f
     if direction < 0.0 and height <= left_m:
         return "lower", 0.0, height, velocity
     target = right_m if direction > 0.0 else left_m
-    window = limit if horizon is None else min(limit, horizon)
-    tau = _boundary_time(a, b, c, velocity, height, target, window)
+    tau = _boundary_time(a, b, c, velocity, height, target, horizon)
     if tau is not None:
         new_velocity, new_height = cell_state(tau, a, b, c, velocity, height)
         return ("upper" if direction > 0.0 else "lower"), tau, new_height, new_velocity

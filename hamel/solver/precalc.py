@@ -7,9 +7,9 @@ import numpy as np
 from hamel.cases.assemble import assemble_case, load_case_file, resolve_case_key
 from hamel.cases.config import approved_emissivity, approved_serio
 from hamel.freeboard import FreeboardError, terminal_settling_velocity
-from hamel.freeboard.accounting import account_freeboard
+from hamel.freeboard.accounting import account_freeboard, within_class_samples
 from hamel.freeboard.ejection import ejection_mass_flow, ejection_velocity_samples
-from hamel.freeboard.transport import ghost_bubble_velocity
+from hamel.freeboard.transport import ghost_bubble_velocity, superficial_velocity
 from hamel.hydrodynamics.bed import (
     BedConditions, HydroSearch, HydrodynamicsError, bed_profile, bed_upflow, geldart_group,
     local_bed_state, minimum_fluidization_velocity, particle_density_from_bed_mass,
@@ -165,17 +165,18 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
         raise PrecalcError(
             f"迭代 {iteration} 停止：{exc}；Geldart 记录（迭代号, d_sv, 类别, 式(8)距离）={record}；T_ad={t_ad}；T_init={t_init}"
         ) from exc
-    transport, theta, hover, absent = _transport(accounting)
+    packed, hover, absent = _transport(accounting)
     if case.solver.hover_closure != "A":
         hover = np.zeros_like(hover)
-        transport = (hover, *transport[1:])
-    bed_u, free_u, hover_u, ratios = _slip(case, flow, profile, accounting, rho_p, hydro, gas, hover, rho_free, mu_free)
+        packed = (hover, *packed[1:])
+    transport, theta = packed, packed[3] + packed[4]
+    bed_u, free_u, hover_u, ratios = _slip(case, flow, profile, accounting, rho_p, hydro, gas, hover, rho_free, mu_free, packed[5])
     upflow = bed_upflow((1.0 - ejection.direct) * ejection.mass_flow, profile.internal_wake_upflow)
     masses = profile.solids_mass
     k_up = upflow / masses
     reaction = np.zeros(case.n_bed) if reaction_solid_kg_s is None else _column("reaction_solid_kg_s", reaction_solid_kg_s)
     returned = freeboard_return_kg_s(
-        transport[2]["b_f"][-1], transport[2]["b_t"][-1], state.freeboard_char_free_kg[-1],
+        transport[2]["b_f"][-1], state.freeboard_char_free_kg[-1],
         state.freeboard_ash_free_kg[-1], previous_fuel_return_kg_s,
     ) + float(redirected_return_kg_s)
     down, residual = bed_downflow(upflow, case.fuel_kg_s, reaction, returned, previous_drain_kg_s)
@@ -222,6 +223,7 @@ class _Case:
     solver: object
     diameters_m: np.ndarray
     class_fraction: np.ndarray
+    size_class_bounds: np.ndarray
     bed_mass_kg: float
     heat_loss_w: float
     n_0: float
@@ -297,6 +299,7 @@ def _load(path, case_id: str, solver=None) -> _Case:
     return _Case(
         config.physical, used, np.asarray(_value(doc, key, "fuel_size_class_diameters"), dtype=float),
         np.asarray(_value(doc, key, "fuel_size_class_mass_fractions"), dtype=float),
+        np.asarray(_value(doc, key, "fuel_size_class_bounds"), dtype=float),
         float(_value(doc, key, "bed_mass")), float(_value(doc, key, "wall_heat_loss")),
         float(_value(doc, key, "distributor_orifice_count")), float(_value(doc, key, "distributor_outlet_height")),
         float(_value(doc, key, "solid_feed_temperature")), float(_value(doc, key, "nitrogen_purge_temperature")),
@@ -564,20 +567,34 @@ def _segregate(case, flow, profile, rho_p, d_bar):
     mu = np.array([
         mixture_viscosity_pa_s(_fractions(free_balance[cell]), float(temperature[cell]), flow.pressure) for cell in range(case.n_free)
     ])
+
     def velocity(cell, height, flows=flows, edges=edges, diameters=diameters):
+        if case.solver.freeboard_gas_velocity == "superficial":
+            # 敏感性 S17：格内取表观气速的高度平均。ADR 0048 第 3 项。
+            return superficial_velocity(cell, height, edges, diameters, flows)
         return ghost_bubble_velocity(cell, height, edges, diameters, flows, float(profile.u_b[0]), float(profile.d_b[0]))
+
     speeds, shares, direct = ejection_velocity_samples(float(profile.u_b[0]), case.solver.freeboard_ejection_samples)
     area = np.pi * (0.5 * case.bed_diameter_m) ** 2
     mass = ejection_mass_flow(float(profile.epsilon_b[0]), float(profile.u_b[0]), float(profile.d_b[0]), rho_p, float(profile.epsilon_d[0]), d_bar, area)
     books = []
     for klass, diameter in enumerate(case.diameters_m):
+        samples = within_class_samples(case.size_class_bounds[klass], case.size_class_bounds[klass + 1])
         args = (edges, velocity, rho, mu, float(diameter), rho_p, case.phi_s, speeds, shares, direct, case.solver)
-        books.append(account_freeboard(*args))
+        books.append(account_freeboard(*args, samples=samples))
     column = {
         "edges_m": edges, "volume_flow_m3_s": flows, "edge_diameter_m": diameters,
         "rho_g": rho, "mu_g": mu, "bubble_m_s": float(profile.u_b[0]),
         "bubble_diameter_m": float(profile.d_b[0]), "rho_p": float(rho_p),
         "phi_s": float(case.phi_s), "diameter_m": np.asarray(case.diameters_m, dtype=float),
+        # ADR 0050 第 5 项：段数与归宿时刻统计，只报告。
+        "max_segments": max((book.max_segments for book in books), default=0),
+        "max_time_s": max((book.max_time_s for book in books), default=0.0),
+        "p99_time_s": max((book.p99_time_s for book in books), default=0.0),
+        "longest": max(
+            ((klass, book.longest) for klass, book in enumerate(books) if book.longest is not None),
+            key=lambda item: item[1][1], default=None,
+        ),
     }
     return _Ejection(mass, speeds, shares, direct), tuple(books), rho, mu, column
 def _fractions(flow) -> dict[str, float]:
@@ -587,40 +604,36 @@ def _fractions(flow) -> dict[str, float]:
     return {name: float(flow[index] / total) for index, name in enumerate(GAS_SPECIES)}
 def _transport(books):
     n_free, n_class = len(books[0].cells), len(books)
-    theta = np.zeros((n_free, n_class))
+    arrays = {name: np.zeros((n_free, n_class)) for name in ("a_f", "b_f", "c_up", "c_down")}
+    theta_up, theta_down = np.zeros((n_free, n_class)), np.zeros((n_free, n_class))
     hover = np.zeros((n_free, n_class), dtype=bool)
     absent = np.zeros_like(hover)
-    arrays = {name: np.zeros((n_free, n_class)) for name in ("a_f", "a_t", "b_f", "b_t")}
-    to_free = np.zeros(n_class)
-    to_hover = np.zeros(n_class)
+    hover_slip = np.zeros((n_free, n_class))
     for klass, book in enumerate(books):
-        launched = book.ejection_free + book.ejection_hover
-        if launched <= 0.0:
-            to_free[klass], to_hover[klass] = 1.0, 0.0
-        else:
-            to_free[klass], to_hover[klass] = book.ejection_free / launched, book.ejection_hover / launched
         for cell, item in enumerate(book.cells):
             balance = n_free - 1 - cell
             missing = item.free_state == "自由状态不存在"
-            if missing and item.theta != 1:
-                raise PrecalcError(f"粒级 {klass} 格 {balance} 自由状态不存在但 θ 不是 1")
             absent[balance, klass] = missing
-            theta[balance, klass] = 1.0 if missing else float(item.theta)
-            # θ = 0 仍可能有稳定根。悬停由捕获区决定；θ = 1 时冻结量不允许没有悬停状态。
-            hover[balance, klass] = bool(missing or cell in book.capture_cells or item.theta == 1)
+            theta_up[balance, klass] = item.theta_up
+            theta_down[balance, klass] = item.theta_down
+            # 半格捕获区下悬停状态由格内转入与当地生成份额决定。解释性选择：ADR 0048 第 2 项。
+            hover[balance, klass] = bool(missing or item.theta_up + item.theta_down > 0.0 or (item.c_up or 0.0) + (item.c_down or 0.0) > 0.0)
+            if item.hover_slip_m_s is not None:
+                hover_slip[balance, klass] = item.hover_slip_m_s
             if not missing:
                 arrays["a_f"][balance, klass] = item.a_f
-                arrays["a_t"][balance, klass] = item.a_t
                 arrays["b_f"][balance, klass] = item.b_f
-                arrays["b_t"][balance, klass] = item.b_t
-        if absent[-1, klass]:
-            to_free[klass], to_hover[klass] = 0.0, 1.0
-    return (hover, absent, arrays, to_free, to_hover, theta), theta, hover, absent
-def freeboard_return_kg_s(b_free_bottom, b_hover_bottom, char_free_kg, ash_free_kg, fuel_return_kg_s: float = 0.0) -> float:
-    """床面回落 = 最下自由格 (b^f+b^t) 乘上一轮可输运存量，再加未转化燃料回落。
+                arrays["c_up"][balance, klass] = item.c_up
+                arrays["c_down"][balance, klass] = item.c_down
+    return (hover, absent, arrays, theta_up, theta_down, hover_slip), hover, absent
+def freeboard_return_kg_s(b_free_bottom, char_free_kg, ash_free_kg, fuel_return_kg_s: float = 0.0) -> float:
+    """床面回落 = 最下自由格 b^f 乘上一轮可输运存量，再加未转化燃料回落。
+
+    半格捕获区下床面抛出只进自由状态、悬停状态没有出流（ADR 0048 第 2 项），
+    最下格的格内向下转入 c↓ 不存在（中点以下没有捕获区），故回落系数只有 b^f。
     直接回落不进入自由空间，无反应参考份额不参与递推。ADR 0016 第 10 条；ADR 0032。
     """
-    coeff = np.asarray(b_free_bottom, dtype=float) + np.asarray(b_hover_bottom, dtype=float)
+    coeff = np.asarray(b_free_bottom, dtype=float)
     mobile = np.asarray(char_free_kg, dtype=float) + np.asarray(ash_free_kg, dtype=float)
     if coeff.shape != mobile.shape:
         raise PrecalcError("回落系数与自由空间存量的粒级不一致")
@@ -635,9 +648,9 @@ def bed_downflow(up, fuel_feed_kg_s, reaction, returned, drain_kg_s):
     reacted = np.zeros(upward.size) if reaction is None else _column("reaction", reaction)
     return downward_mass_flow(upward, added, np.zeros(upward.size), leaving, reacted, returned)
 def _release(case, state, flow, profile, packed, k_up, k_down, k_exit, group, notes, iteration, consistency):
-    hover, absent, arrays, to_free, to_hover, _theta = packed
+    hover, absent, arrays, theta_up, theta_down, hover_slip = packed
     transport = FuelTransport(
-        case.n_bed, hover, absent, arrays["a_f"], arrays["a_t"], arrays["b_f"], arrays["b_t"], to_free, to_hover,
+        case.n_bed, hover, absent, arrays["a_f"], arrays["b_f"], arrays["c_up"], arrays["c_down"],
         closure=case.solver.hover_closure,
     )
     temperature = float(np.average(flow.bed_temperature, weights=flow.bed_mol_s.sum(axis=1)))
@@ -699,7 +712,7 @@ def _drain(case, state, released, inert, masses, books, redirected_ash_out_kg_s:
     ash_in = case.fuel_kg_s * float(case.physical.ash_mass_fraction_wf) * (1.0 - moisture)
     top_free = np.asarray(state.freeboard_ash_free_kg[0], dtype=float)
     coeff = np.array([
-        (0.0 if book.cells[-1].a_f is None else book.cells[-1].a_f) + (0.0 if book.cells[-1].a_t is None else book.cells[-1].a_t)
+        0.0 if book.cells[-1].a_f is None else book.cells[-1].a_f
         for book in books
     ])
     # cells[-1] 是自由空间顶（edges 从床面向上，最后一格是顶）。衡算下标 0 是顶。
@@ -717,7 +730,7 @@ def _drain(case, state, released, inert, masses, books, redirected_ash_out_kg_s:
     char = total * np.asarray(state.bed_char_kg[-1], dtype=float) / float(masses[-1])
     return ash_in - ash_out, char
 def _frozen(case, state, flow, profile, share, coefficient, rho_p, k_up, down, packed, theta, hover, absent, released, drain_ash, drain_char, bed_u, free_u, hover_u):
-    hover_mask, absent_mask, arrays, to_free, to_hover, theta_used = packed
+    hover_mask, absent_mask, arrays, theta_up, theta_down, _hover_slip = packed
     bed, free = case.n_bed, case.n_free
     pyro_bed, pyro_free = _pyro_flows(released, bed, free)
     fuel_bed = released.undried_kg[free:] + (1.0 - float(case.physical.moisture_mass_fraction)) * released.dried_kg[free:]
@@ -747,8 +760,11 @@ def _frozen(case, state, flow, profile, share, coefficient, rho_p, k_up, down, p
         fuel_feed_kg_s=case.fuel_kg_s * case.class_fraction, fuel_formation_j_per_kg=formation,
         fuel_heat_capacity_j_per_kg_k=lignite_particle_properties().heat_capacity_j_kg_k,
         fuel_feed_temperature_k=case.solid_temperature_k, hover=hover_mask, free_absent=absent_mask,
-        a_free_per_s=arrays["a_f"], a_hover_per_s=arrays["a_t"], b_free_per_s=arrays["b_f"], b_hover_per_s=arrays["b_t"],
-        theta=theta_used, ejection_to_free=to_free, ejection_to_hover=to_hover,
+        a_free_per_s=arrays["a_f"], a_hover_per_s=np.zeros_like(arrays["a_f"]),
+        b_free_per_s=arrays["b_f"], b_hover_per_s=np.zeros_like(arrays["b_f"]),
+        theta=theta, c_up_per_s=arrays["c_up"], c_down_per_s=arrays["c_down"],
+        theta_up=theta_up, theta_down=theta_down,
+        ejection_to_free=np.ones(case.diameters_m.size), ejection_to_hover=np.zeros(case.diameters_m.size),
         u_r_bed_m_s=bed_u, u_r_freeboard_m_s=free_u, u_r_hover_m_s=hover_u,
         rho_p_kg_m3=rho_p, drain_char_kg_s=drain_char, drain_ash_kg_s=drain_ash, k_w_w_m2_k=coefficient,
         bed_height_m=case.bed_cell_m, freeboard_height_m=case.free_cell_m, bed_diameter_m=case.bed_diameter_m,
@@ -862,8 +878,8 @@ def _bed_slip(flow, profile, group):
             raise PrecalcError("ε_d 不在 (0, 1)，不能求 u_r")
         out[index] = dense / float(profile.epsilon_d[index])
     return out
-def _slip(case, flow, profile, books, rho_p, group, gas, hover, rho_free, mu_free):
-    """自由状态取轨迹加权滑移，悬停取 v_t。解释性选择：ADR 0035。"""
+def _slip(case, flow, profile, books, rho_p, group, gas, hover, rho_free, mu_free, hover_slip):
+    """自由状态取轨迹加权滑移，悬停取被捕获子样本的加权平均 v_t。解释性选择：ADR 0035、ADR 0048。"""
     bed = _bed_slip(flow, profile, group)
     free_u = np.zeros((case.n_free, len(books)))
     hover_u = np.zeros_like(free_u)
@@ -880,8 +896,8 @@ def _slip(case, flow, profile, books, rho_p, group, gas, hover, rho_free, mu_fre
                 free_u[balance, klass] = item.mean_slip_m_s
                 ratios.append(("free", balance, klass, float(item.mean_slip_m_s), terminal, float(item.mean_slip_m_s) / terminal))
             if hover[balance, klass]:
-                hover_u[balance, klass] = terminal
-                ratios.append(("hover", balance, klass, terminal, terminal, 1.0))
+                hover_u[balance, klass] = hover_slip[balance, klass] if hover_slip[balance, klass] > 0.0 else terminal
+                ratios.append(("hover", balance, klass, float(hover_u[balance, klass]), terminal, float(hover_u[balance, klass]) / terminal))
     return bed, free_u, hover_u, tuple(ratios)
 def _adaptive_bed(case, flow, gas, d_bar, group="B"):
     """求解器参数：ADR 0036。整床同一 n，加倍后重求 ρ_P 与 profile，采用较细的一组。"""
