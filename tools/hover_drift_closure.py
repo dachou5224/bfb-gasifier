@@ -15,7 +15,9 @@
 from __future__ import annotations
 
 import json
+import signal
 import sys
+import time
 from dataclasses import replace
 from pathlib import Path
 
@@ -28,6 +30,7 @@ import hamel.solver.residual as residual
 from hamel.cases.config import SolverConfig
 from hamel.freeboard.motion import terminal_settling_velocity
 from hamel.solver.driver import solve_case
+from hamel.solver.newton import SolveTimeout
 from hamel.solver.vector import pack_state, unknown_slots
 
 _ROOT = Path(__file__).resolve().parents[1]
@@ -39,6 +42,10 @@ _SLOPES = (1.0, 1.2, 1.4)
 
 
 class _Captured(Exception):
+    pass
+
+
+class _Timeout(Exception):
     pass
 
 
@@ -64,18 +71,33 @@ def _capture() -> dict:
         record["frozen"] = frozen
         raise _Captured()
 
+    def expire(signum, frame):
+        raise _Timeout()
+
+    config = replace(SolverConfig(), outer_round_limit=1)
+    limit = float(config.wall_timeout_s)
+    started = time.monotonic()
     precalc.account_freeboard = account
     guard = initial._require_bed_ash
     initial._require_bed_ash = stop
+    # CHARTER §7：驱动的期限只在牛顿内检查，预计算阶段另以进程信号兜底，到时同样记 TIMEOUT。
+    previous = signal.signal(signal.SIGALRM, expire)
+    signal.alarm(int(limit) + 1)
     try:
-        solve_case(str(_CASE), "1", deadline=lambda: False, config=replace(SolverConfig(), outer_round_limit=1))
+        solve_case(str(_CASE), "1", deadline=lambda: time.monotonic() - started >= limit, config=config)
     except _Captured:
         pass
+    except (_Timeout, SolveTimeout):
+        record["timeout_s"] = limit
     finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, previous)
         precalc.account_freeboard = original
         initial._require_bed_ash = guard
+    if "timeout_s" in record:
+        return record
     if "state" not in record:
-        raise RuntimeError("没有走到预启动焦炭块之后")
+        raise RuntimeError("求解在预启动焦炭块之前结束（非超时）")
     return record
 
 
@@ -110,16 +132,19 @@ def _lambda_at(state, frozen, temperature: float, name: str) -> float:
 
 
 def _drift(inflow, alpha, widths, slope):
-    """漂移闭合的两种离散。界面 j 的窗口 W_j = ln(ū_g,j / ū_g,j+1)，按几何格自下而上。
+    """漂移闭合的三种离散。界面 j 的窗口 W_j = ln(ū_g,j / ū_g,j+1)，按几何格自下而上，g_j = 3W_j/n。
 
     缩粒时 d ln d/dt = −α/3（m ∝ d³，焦炭密度恒定），d ln v_t/dt = −n·α/3。
-    精确链：入射点在窗口内按 ln v_t 均匀；一阶迎风：κ_j = n·α/(3 W_j)。
+    精确链：入射点在窗口内按 ln v_t 均匀；一阶迎风：κ_j = α/g_j；
+    上沿入射（ADR 0051 的出口因子，不含 ρ_k 映射）：κ_j = α/(e^{g_j} − 1)。
     最上一个稳定界面的出流进入上方格的自由状态。
     """
     exact = np.zeros(widths.size)
     upwind = np.zeros(widths.size)
+    top = np.zeros(widths.size)
     carried = 0.0
     flux = 0.0
+    passed = 0.0
     for j, width in enumerate(widths):
         g = 3.0 * width / slope
         kept = (1.0 - np.exp(-g)) / g
@@ -128,12 +153,19 @@ def _drift(inflow, alpha, widths, slope):
         kappa = slope * alpha / (3.0 * width)
         upwind[j] = (inflow[j] + flux) / (alpha + kappa)
         flux = kappa * upwind[j]
-    return exact, carried, upwind, flux
+        exit_rate = alpha / np.expm1(g)
+        top[j] = (inflow[j] + passed) / (alpha + exit_rate)
+        passed = exit_rate * top[j]
+    return exact, carried, upwind, flux, top, passed
 
 
 def main() -> None:
     _OUT.mkdir(parents=True, exist_ok=True)
     data = _capture()
+    if "timeout_s" in data:
+        (_OUT / "study.json").write_text(json.dumps({"status": "TIMEOUT", "limit_s": data["timeout_s"]}), encoding="utf-8")
+        print(f"TIMEOUT：{data['timeout_s']:.0f} s 内未走到预启动焦炭块之后")
+        return 1
     state, frozen = data["state"], data["frozen"]
     check = residual._Context.domain
     residual._Context.domain = lambda self: None  # 只作诊断：求系数时暂停有效域检查
@@ -172,11 +204,13 @@ def main() -> None:
 
     drift = []
     for slope in _SLOPES:
-        exact, out_exact, upwind, out_upwind = _drift(inflow, alpha, widths, slope)
+        exact, out_exact, upwind, out_upwind, top, out_top = _drift(inflow, alpha, widths, slope)
         drift.append({
             "n": slope,
             "exact_kg": exact.tolist(), "exact_out_kg_s": out_exact,
             "upwind_kg": upwind.tolist(), "upwind_out_kg_s": out_upwind,
+            "top_kg": top.tolist(), "top_out_kg_s": out_top,
+            "ratio_top": ((others + np.r_[top, np.zeros(solids.size - count)]) / capacity).tolist(),
             "ratio_exact": ((others + np.r_[exact, np.zeros(solids.size - count)]) / capacity).tolist(),
             "ratio_upwind": ((others + np.r_[upwind, np.zeros(solids.size - count)]) / capacity).tolist(),
         })
@@ -200,6 +234,7 @@ def main() -> None:
     for item in drift:
         print(item["n"], np.round(item["exact_kg"], 2), round(sum(item["exact_kg"]), 2), np.round(item["ratio_exact"], 3))
         print(item["n"], np.round(item["upwind_kg"], 2), round(sum(item["upwind_kg"]), 2), np.round(item["ratio_upwind"], 3))
+        print(item["n"], np.round(item["top_kg"], 2), round(sum(item["top_kg"]), 3), np.round(item["ratio_top"], 3))
 
 
 if __name__ == "__main__":
