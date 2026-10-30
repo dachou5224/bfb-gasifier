@@ -3,11 +3,12 @@
 """
 from __future__ import annotations
 from dataclasses import dataclass, replace
+import math
 import numpy as np
 from hamel.cases.assemble import assemble_case, load_case_file, resolve_case_key
 from hamel.cases.config import approved_emissivity, approved_serio
 from hamel.freeboard import FreeboardError, terminal_settling_velocity
-from hamel.freeboard.accounting import account_freeboard, within_class_samples
+from hamel.freeboard.accounting import ClassWindow, account_freeboard, within_class_samples
 from hamel.freeboard.ejection import ejection_mass_flow, ejection_velocity_samples
 from hamel.freeboard.transport import ghost_bubble_velocity, superficial_velocity
 from hamel.hydrodynamics.bed import (
@@ -132,7 +133,7 @@ def precalculate(path, case_id, previous: ReactorState | None, *, reaction_solid
         return _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver, redirected_return_kg_s, redirected_ash_out_kg_s, redirected_fuel_out_kg_s)
     except PrecalcError:
         raise
-    except (HydrodynamicsError, PyrolysisError, PropertyError, FreeboardError) as exc:
+    except (HydrodynamicsError, PyrolysisError, PropertyError, FreeboardError, AssemblyError) as exc:
         raise PrecalcError(f"迭代 {iteration} 停止：{exc}") from exc
 def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver=None, redirected_return_kg_s: float = 0.0, redirected_ash_out_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0) -> PrecalcResult:
     case = _load(path, case_id, solver)
@@ -167,8 +168,10 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
         ) from exc
     packed, hover, absent = _transport(accounting)
     if case.solver.hover_closure != "A":
+        # 闭合 B、C 不设悬停状态，也没有漂移。模型边界选择（敏感性）：ADR 0038。
         hover = np.zeros_like(hover)
-        packed = (hover, *packed[1:])
+        zeros = np.zeros_like(hover, dtype=float)
+        packed = (hover, absent, packed[2], packed[3], packed[4], packed[5], {name: zeros for name in packed[6]}, zeros)
     transport, theta = packed, packed[3] + packed[4]
     bed_u, free_u, hover_u, ratios = _slip(case, flow, profile, accounting, rho_p, hydro, gas, hover, rho_free, mu_free, packed[5])
     upflow = bed_upflow((1.0 - ejection.direct) * ejection.mass_flow, profile.internal_wake_upflow)
@@ -211,6 +214,7 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
     reported["dried_bed_kg"] = np.asarray(released.dried_kg[free:], dtype=float)
     reported["pyrolysis"] = pyrolysis
     reported["trajectory"] = trajectory
+    reported["hover_drift"] = _drift_report(accounting, case)
     return PrecalcResult(
         frozen, state, t_ad, dict(equilibrium.fractions), group, d_bar, d_sv, residual,
         equilibrium.feed_enthalpy, equilibrium.product_enthalpy, ejection.mass_flow, _hover_pairs(hover),
@@ -579,9 +583,11 @@ def _segregate(case, flow, profile, rho_p, d_bar):
     mass = ejection_mass_flow(float(profile.epsilon_b[0]), float(profile.u_b[0]), float(profile.d_b[0]), rho_p, float(profile.epsilon_d[0]), d_bar, area)
     books = []
     for klass, diameter in enumerate(case.diameters_m):
-        samples = within_class_samples(case.size_class_bounds[klass], case.size_class_bounds[klass + 1])
+        lower, upper = float(case.size_class_bounds[klass]), float(case.size_class_bounds[klass + 1])
+        samples = within_class_samples(lower, upper)
+        window = _class_window(case, klass, lower, upper)
         args = (edges, velocity, rho, mu, float(diameter), rho_p, case.phi_s, speeds, shares, direct, case.solver)
-        books.append(account_freeboard(*args, samples=samples))
+        books.append(account_freeboard(*args, samples=samples, class_window=window, first_class=klass == 0))
     column = {
         "edges_m": edges, "volume_flow_m3_s": flows, "edge_diameter_m": diameters,
         "rho_g": rho, "mu_g": mu, "bubble_m_s": float(profile.u_b[0]),
@@ -597,6 +603,39 @@ def _segregate(case, flow, profile, rho_p, d_bar):
         ),
     }
     return _Ejection(mass, speeds, shares, direct), tuple(books), rho, mu, column
+def _drift_report(books, case) -> dict:
+    """ADR 0051 第 2 项：逐（格，粒级）的 δ^h、δ^f、μ、ω_p 与逐 φ_p 的窗口与去向。只报告。"""
+    classes = []
+    for klass, book in enumerate(books):
+        lower, upper = float(case.size_class_bounds[klass]), float(case.size_class_bounds[klass + 1])
+        rows = []
+        for cell, item in enumerate(book.cells):
+            rows.append({
+                "cell": cell, "drift_hover": item.drift_hover, "drift_free": item.drift_free,
+                "migration_mu": item.migration_mu,
+                "windows": [
+                    {"phi": window.sphericity, "low_m": window.low_m, "high_m": window.high_m,
+                     "fate": window.fate, "length": window.length, "exit": window.exit_share,
+                     "weight": window.weight}
+                    for window in item.windows
+                ],
+            })
+        classes.append({
+            "class": klass + 1, "lower_m": lower, "upper_m": upper,
+            "rho_log": _class_window(case, klass, lower, upper).rho_log, "cells": rows,
+        })
+    return {"classes": classes}
+
+
+def _class_window(case, klass, lower, upper) -> ClassWindow:
+    """粒级边界与 ρ_k = ln(d_k/d_(k−1))/ln(b_k/a_k)；粒级 1 没有 d_0，取 ρ_1 = 1。ADR 0051 第 2 项。"""
+    flat = math.log(upper / lower)
+    if klass == 0:
+        return ClassWindow(lower, upper, 1.0)
+    ratio = math.log(float(case.diameters_m[klass]) / float(case.diameters_m[klass - 1]))
+    return ClassWindow(lower, upper, ratio / flat)
+
+
 def _fractions(flow) -> dict[str, float]:
     total = float(np.asarray(flow).sum())
     if total <= 0.0:
@@ -605,6 +644,8 @@ def _fractions(flow) -> dict[str, float]:
 def _transport(books):
     n_free, n_class = len(books[0].cells), len(books)
     arrays = {name: np.zeros((n_free, n_class)) for name in ("a_f", "b_f", "c_up", "c_down")}
+    drift = {name: np.zeros((n_free, n_class)) for name in ("drift_hover_per_s", "drift_free_per_s")}
+    migration_mu = np.zeros((n_free, n_class))
     theta_up, theta_down = np.zeros((n_free, n_class)), np.zeros((n_free, n_class))
     hover = np.zeros((n_free, n_class), dtype=bool)
     absent = np.zeros_like(hover)
@@ -616,6 +657,9 @@ def _transport(books):
             absent[balance, klass] = missing
             theta_up[balance, klass] = item.theta_up
             theta_down[balance, klass] = item.theta_down
+            drift["drift_hover_per_s"][balance, klass] = item.drift_hover
+            drift["drift_free_per_s"][balance, klass] = item.drift_free
+            migration_mu[balance, klass] = item.migration_mu
             # 半格捕获区下悬停状态由格内转入与当地生成份额决定。解释性选择：ADR 0048 第 2 项。
             hover[balance, klass] = bool(missing or item.theta_up + item.theta_down > 0.0 or (item.c_up or 0.0) + (item.c_down or 0.0) > 0.0)
             if item.hover_slip_m_s is not None:
@@ -625,7 +669,15 @@ def _transport(books):
                 arrays["b_f"][balance, klass] = item.b_f
                 arrays["c_up"][balance, klass] = item.c_up
                 arrays["c_down"][balance, klass] = item.c_down
-    return (hover, absent, arrays, theta_up, theta_down, hover_slip), hover, absent
+    # 漂移进入的悬停状态即使没有被捕获的子样本也须存在；链式向上传递。解释性选择：ADR 0051 第 2 项。
+    for balance in range(n_free - 2, -1, -1):
+        hover[balance] |= (drift["drift_hover_per_s"][balance + 1] > 0.0) & hover[balance + 1]
+    for name in drift:
+        drift[name][~hover] = 0.0
+    migration_mu[~hover] = 0.0
+    if np.any(drift["drift_free_per_s"][:-1][absent[1:]] > 0.0):
+        raise FreeboardError("漂移要进入的自由状态不存在，不能装配")
+    return (hover, absent, arrays, theta_up, theta_down, hover_slip, drift, migration_mu), hover, absent
 def freeboard_return_kg_s(b_free_bottom, char_free_kg, ash_free_kg, fuel_return_kg_s: float = 0.0) -> float:
     """床面回落 = 最下自由格 b^f 乘上一轮可输运存量，再加未转化燃料回落。
 
@@ -648,7 +700,7 @@ def bed_downflow(up, fuel_feed_kg_s, reaction, returned, drain_kg_s):
     reacted = np.zeros(upward.size) if reaction is None else _column("reaction", reaction)
     return downward_mass_flow(upward, added, np.zeros(upward.size), leaving, reacted, returned)
 def _release(case, state, flow, profile, packed, k_up, k_down, k_exit, group, notes, iteration, consistency):
-    hover, absent, arrays, theta_up, theta_down, hover_slip = packed
+    hover, absent, arrays, theta_up, theta_down, hover_slip, _drift, _mu = packed
     transport = FuelTransport(
         case.n_bed, hover, absent, arrays["a_f"], arrays["b_f"], arrays["c_up"], arrays["c_down"],
         closure=case.solver.hover_closure,
@@ -730,7 +782,7 @@ def _drain(case, state, released, inert, masses, books, redirected_ash_out_kg_s:
     char = total * np.asarray(state.bed_char_kg[-1], dtype=float) / float(masses[-1])
     return ash_in - ash_out, char
 def _frozen(case, state, flow, profile, share, coefficient, rho_p, k_up, down, packed, theta, hover, absent, released, drain_ash, drain_char, bed_u, free_u, hover_u):
-    hover_mask, absent_mask, arrays, theta_up, theta_down, _hover_slip = packed
+    hover_mask, absent_mask, arrays, theta_up, theta_down, _hover_slip, drift, migration_mu = packed
     bed, free = case.n_bed, case.n_free
     pyro_bed, pyro_free = _pyro_flows(released, bed, free)
     fuel_bed = released.undried_kg[free:] + (1.0 - float(case.physical.moisture_mass_fraction)) * released.dried_kg[free:]
@@ -764,6 +816,8 @@ def _frozen(case, state, flow, profile, share, coefficient, rho_p, k_up, down, p
         b_free_per_s=arrays["b_f"], b_hover_per_s=np.zeros_like(arrays["b_f"]),
         theta=theta, c_up_per_s=arrays["c_up"], c_down_per_s=arrays["c_down"],
         theta_up=theta_up, theta_down=theta_down,
+        drift_hover_per_s=drift["drift_hover_per_s"], drift_free_per_s=drift["drift_free_per_s"],
+        migration_mu_per_s=migration_mu,
         ejection_to_free=np.ones(case.diameters_m.size), ejection_to_hover=np.zeros(case.diameters_m.size),
         u_r_bed_m_s=bed_u, u_r_freeboard_m_s=free_u, u_r_hover_m_s=hover_u,
         rho_p_kg_m3=rho_p, drain_char_kg_s=drain_char, drain_ash_kg_s=drain_ash, k_w_w_m2_k=coefficient,

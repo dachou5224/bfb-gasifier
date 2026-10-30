@@ -157,6 +157,8 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         """初值：焦油另加、固相按块顺序线性求解，与预计算交替。求解手段：ADR 0045"""
         first = _precalc(iteration, False)
         loops: list = []
+        # 先挂上空列表：交替中途停止时，已完成的阶段仍写进报告（ADR 0049 第 3 步）。
+        holder["initial"] = {"loops": loops, "note": "停止"}
         try:
             result, loops, note = construct(
                 first, lambda state: _precalc(iteration, False, state), m_ref,
@@ -230,6 +232,8 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
     if holder["records"]:
         # ADR 0050 第 5 项：本次预计算的最大段数、归宿时刻最大值与 99 % 分位、最长的 (粒级, d, φ_S, 起点)。
         outcome.diagnostics["trajectory"] = holder["records"][-1].reported.get("trajectory")
+        # ADR 0051 第 2 项：第 1 次预计算的 δ、μ 与逐 φ_p 的去向，只报告。
+        outcome.diagnostics["hover_drift"] = holder["records"][0].reported.get("hover_drift")
     if outcome.status != "CONVERGED":
         return outcome
     result = holder["final"]

@@ -3,13 +3,14 @@
 模型边界选择：ADR 0026（目标所有者 2026-10-19）。
 格内常系数解析推进与界面稳定点：ADR 0047（目标所有者 2026-10-28；第 1 项为解释性选择，第 2、3 项为求解手段）。
 粒级内取样、半格捕获区与源格→目标格：ADR 0048（解释性选择）。
+悬停状态的粒级内漂移：解释性选择：ADR 0051 第 1、2 项。
 捕获区取整格、进入即在格界，只是 ADR 0048 兼容测试用的旧规则，不是生产取样。
 """
 
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import numpy as np
 
@@ -35,6 +36,36 @@ SPHERICITY_SIGMA = 0.1
 SPHERICITY_BOUNDS = (0.3, 1.0)
 SPHERICITY_MEAN = 0.8
 DEFAULT_REGION = "half"
+# 悬停状态的下沿去向。解释性选择：ADR 0051 第 2 项。
+DRIFT_MIGRATION = "粒级迁移"
+DRIFT_HOVER = "漂移-悬停"
+DRIFT_FREE = "漂移-自由"
+DRIFT_BURN = "本级燃尽"
+DRIFT_EMPTY = "空窗口"
+# v_t(d, φ) = ū_g 二分求根的 d 区间。s 与 q 都随 d 单调减小，v_t 随 d 单调增大。
+_ROOT_BOUNDS_M = (1.0e-7, 1.0e-2)
+
+
+@dataclass(frozen=True)
+class ClassWindow:
+    """粒级边界 [a_k, b_k] 与 ADR 0051 第 2 项的 ρ_k = ln(d_k/d_(k−1))/ln(b_k/a_k)。"""
+
+    lower_m: float
+    upper_m: float
+    rho_log: float
+
+
+@dataclass(frozen=True)
+class DriftWindow:
+    """一个（格，粒级，φ_p）的悬停窗口、下沿去向与出口因子。ADR 0051 第 2 项。"""
+
+    sphericity: float
+    low_m: float
+    high_m: float
+    fate: str
+    length: float
+    exit_share: float
+    weight: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -84,6 +115,11 @@ class CellTransport:
     m_hat: float | None
     mean_slip_m_s: float | None = None
     hover_slip_m_s: float | None = None
+    # 悬停状态的粒级内漂移：进入上方格悬停、自由状态的因子与粒级迁移因子。解释性选择：ADR 0051。
+    drift_hover: float = 0.0
+    drift_free: float = 0.0
+    migration_mu: float = 0.0
+    windows: tuple = ()
 
 
 @dataclass(frozen=True)
@@ -226,6 +262,114 @@ def within_class_samples(lower_m, upper_m, diameters: int = SAMPLE_DIAMETERS, sp
     phi = sphericity_points(int(sphericities), float(sigma))
     weight = 1.0 / (count_d * len(phi))
     return tuple((diameter, value, weight) for diameter in points for value in phi)
+
+
+def _settling_diameter(rho_g: float, mu_g: float, rho_p: float, phi_s: float, speed: float) -> float | None:
+    """v_t(d, φ_S) = ū_g 的根；v_t 随 d 单调，二分。ADR 0051 第 2 项。
+
+    根落在区间下界以外时返回 0（窗口下沿低于取样下界），落在上界以外时返回 None（无根，窗口为空）。
+    Source: Hamel Eq.3.85, S. 45
+    """
+    low, high = _ROOT_BOUNDS_M
+
+    def gap(diameter: float) -> float:
+        return terminal_settling_velocity(rho_g, mu_g, diameter, rho_p, phi_s) - float(speed)
+
+    if gap(low) >= 0.0:
+        return 0.0
+    if gap(high) <= 0.0:
+        return None
+    for _ in range(80):
+        middle = 0.5 * (low + high)
+        if middle <= low or middle >= high:
+            break
+        if gap(middle) < 0.0:
+            low = middle
+        else:
+            high = middle
+    return 0.5 * (low + high)
+
+
+def drift_windows(
+    edges_m,
+    gas_velocity,
+    rho_g,
+    mu_g,
+    rho_p: float,
+    sphericities,
+    class_window: ClassWindow,
+    first_class: bool = False,
+) -> tuple[tuple[DriftWindow, ...], ...]:
+    """逐（格，φ_p）的悬停窗口 [d′_lo, d′_hi]、下沿去向与出口因子。ADR 0051 第 2 项。
+
+    格 j 的窗口上沿由格 j 自己的物性与 ū_g,j 定义、下沿由格 j+1 的定义，故相邻界面的窗口
+    首尾相接；下沿为 a_k 时是粒级迁移（k = 1 留在本状态燃尽），其余按格 j+1 自己的窗口是否
+    非空判定去向。返回的每一项对应该格该 φ_p，空窗口也保留（fate = 空窗口）。
+    Source: Hamel Eq.5.11, S. 86
+    """
+    edges, densities, viscosities = _edges_and_gas(edges_m, rho_g, mu_g)
+    count = edges.size - 1
+    density_p = _positive("rho_p", rho_p)
+    speeds = [
+        cell_mean_velocity(gas_velocity, index, float(edges[index]), float(edges[index + 1]))
+        for index in range(count)
+    ]
+    lower, upper = _positive("class_lower_m", class_window.lower_m), _positive("class_upper_m", class_window.upper_m)
+    if upper <= lower:
+        raise FreeboardError("粒级上边界必须高于下边界")
+    table = []
+    for phi in sphericities:
+        facet = [
+            _settling_diameter(float(densities[index]), float(viscosities[index]), density_p, float(phi), speeds[index])
+            for index in range(count)
+        ]
+        row = []
+        for cell in range(count - 1):
+            top, bottom = facet[cell], facet[cell + 1]
+            if top is None or bottom is None or top <= bottom:
+                row.append(DriftWindow(float(phi), 0.0, 0.0, DRIFT_EMPTY, 0.0, 0.0))
+                continue
+            high, low = min(top, upper), max(bottom, lower)
+            if low >= high:
+                row.append(DriftWindow(float(phi), low, high, DRIFT_EMPTY, 0.0, 0.0))
+                continue
+            if bottom <= lower:
+                fate = DRIFT_BURN if first_class else DRIFT_MIGRATION
+            elif cell + 2 < count and facet[cell + 2] is not None and facet[cell + 2] < facet[cell + 1]:
+                fate = DRIFT_HOVER
+            else:
+                fate = DRIFT_FREE
+            length = class_window.rho_log * math.log(high / low)
+            share = 0.0 if length <= 0.0 else 1.0 / math.expm1(3.0 * length)
+            row.append(DriftWindow(float(phi), low, high, fate, length, share))
+        table.append(tuple(row))
+    # 转成按格优先：table[cell][p]。
+    return tuple(tuple(table[p][cell] for p in range(len(table))) for cell in range(count - 1))
+
+
+def _window_factors(table, captured: dict, cell: int, first_class: bool) -> dict:
+    """一格一个粒级的 ω_p、δ^h、δ^f、μ；没有给出粒级边界时全为 0。ADR 0051 第 2 项。"""
+    if not table or cell >= len(table):
+        return {"windows": (), "drift_hover": 0.0, "drift_free": 0.0, "migration_mu": 0.0}
+    total = float(sum(captured.values()))
+    open_count = sum(1 for item in table[cell] if item.fate != DRIFT_EMPTY)
+    share = 1.0 / open_count if total == 0.0 and open_count else 0.0
+    weighted = [
+        replace(item, weight=(captured.get(item.sphericity, 0.0) / total) if total > 0.0 else (share if item.fate != DRIFT_EMPTY else 0.0))
+        for item in table[cell]
+    ]
+    factors = {DRIFT_MIGRATION: 0.0, DRIFT_HOVER: 0.0, DRIFT_FREE: 0.0}
+    for item in weighted:
+        if item.fate in factors:
+            factors[item.fate] += item.weight * item.exit_share
+    if first_class:
+        factors[DRIFT_MIGRATION] = 0.0
+    return {
+        "windows": tuple(weighted),
+        "drift_hover": factors[DRIFT_HOVER],
+        "drift_free": factors[DRIFT_FREE],
+        "migration_mu": factors[DRIFT_MIGRATION],
+    }
 
 
 def _classify(
@@ -505,13 +649,18 @@ def account_freeboard(
     scale: float = 1.0,
     samples=None,
     region: str = DEFAULT_REGION,
+    class_window: ClassWindow | None = None,
+    first_class: bool = False,
 ) -> ReferenceAccounting:
     """由床面样本和各格当地轨迹得到 a^f、b^f、c↑、c↓、θ↑、θ↓ 与抛出拆分。
 
     每个粒级按 ADR 0048 第 1 项的取样点分别做参考轨迹，按权重汇总；m̂ = 0 时自由状态不存在。
+    给出粒级边界时同时按 ADR 0051 第 2 项求悬停窗口与 δ^h、δ^f、μ；不给时不计漂移（只用于界面测试）。
     解释性选择：ADR 0016 第 9、10 条，ADR 0026 第 2、3 项，ADR 0048 第 1、2 项。
+    解释性选择：ADR 0051 第 2 项。
     Source: Hamel Eq.2.6, S. 17
     Source: Hamel Eq.3.82, S. 44
+    Source: Hamel Eq.5.11, S. 86
     """
     edges, densities, viscosities = _edges_and_gas(edges_m, rho_g, mu_g)
     count = edges.size - 1
@@ -537,6 +686,12 @@ def account_freeboard(
     returned, elutriated, captured = direct, 0.0, 0.0
     local_return, local_elutriation = 0.0, 0.0
     statistics: list[tuple[int, float, float, float, str]] = []
+    # 捕获到的 φ_p 权重，用于 ADR 0051 第 2 项的 ω_p。
+    captured_phi: list[dict] = [{} for _ in range(count)]
+    facets = tuple(dict.fromkeys(float(phi) for _d, phi, _w in entries))
+    windows = () if class_window is None else drift_windows(
+        edges, gas_velocity, densities, viscosities, rho_p, facets, class_window, bool(first_class)
+    )
     first: tuple[StableEquilibrium, ...] = ()
     for index, (diameter, phi, weight) in enumerate(entries):
         equilibria = stable_equilibria(edges, gas_velocity, densities, viscosities, diameter, rho_p, phi)
@@ -571,6 +726,7 @@ def account_freeboard(
                 key = "c_down" if ledger.entry_kind == "down" else "c_up"
                 totals[key][ledger.entry_cell] += mass
                 touched[ledger.entry_cell] = True
+                captured_phi[ledger.entry_cell][float(phi)] = captured_phi[ledger.entry_cell].get(float(phi), 0.0) + mass
         for cell, ledger in enumerate(local):
             if ledger.fate == "return":
                 local_return += weight
@@ -589,6 +745,7 @@ def account_freeboard(
             if touched[cell]:
                 totals["w_t"][cell] += weight
                 totals["slip_t"][cell] += weight * settling[cell]
+                captured_phi[cell][float(phi)] = captured_phi[cell].get(float(phi), 0.0) + weight
         bed_sum = dict(zip(("res", "slip", "up", "down"), _sum_ledgers(bed, count, weight)))
         for name, values in bed_sum.items():
             for cell in range(count):
@@ -610,7 +767,7 @@ def account_freeboard(
         if mass == 0.0:
             if outflow != 0.0:
                 raise FreeboardError("自由段有穿出通量但停留时间为 0")
-            cells.append(CellTransport(theta_up[cell], theta_down[cell], _FREE_ABSENT, None, None, None, None, None))
+            cells.append(CellTransport(theta_up[cell], theta_down[cell], _FREE_ABSENT, None, None, None, None, None, **_window_factors(windows, captured_phi[cell], cell, first_class)))
             continue
         hover = None if totals["w_t"][cell] == 0.0 else totals["slip_t"][cell] / totals["w_t"][cell]
         cells.append(CellTransport(
@@ -618,6 +775,7 @@ def account_freeboard(
             source["up"][cell] / mass, source["down"][cell] / mass,
             totals["c_up"][cell] / mass, totals["c_down"][cell] / mass,
             mass, source["slip"][cell] / mass, hover,
+            **_window_factors(windows, captured_phi[cell], cell, first_class),
         ))
     return ReferenceAccounting(
         tuple(item.height_m for item in first),

@@ -125,6 +125,11 @@ class _Context:
         self.ash_release_hover = np.zeros((n_free, n_class))
         self.ash_migration_free = np.zeros((n_free, n_class))
         self.ash_migration_hover = np.zeros((n_free, n_class))
+        # 悬停状态的粒级内漂移：源格出流与转入上方格悬停状态的部分。解释性选择：ADR 0051 第 3 项。
+        self.char_drift = np.zeros((n_free, n_class))
+        self.ash_drift = np.zeros((n_free, n_class))
+        self.char_drift_hover = np.zeros((n_free, n_class))
+        self.ash_drift_hover = np.zeros((n_free, n_class))
         self.silent_hover = np.ones((n_free, n_class), dtype=bool)
         self._bed_ash_share = _bed_ash_by_class(state.bed_char_kg, m_inert)
         self.redirect_char = self.redirect_ash = self.redirect_fuel = self.redirect_enthalpy = 0.0
@@ -135,7 +140,7 @@ class _Context:
         for cell in range(frozen.n_bed):
             y, c, fractions, mu, rho = _phase_point(state.bed_gas_mol_s[cell, 0], state.bed_temperature_k[cell], frozen.bed_pressure_pa[cell])
             for klass in range(frozen.n_class):
-                gas, consumption, migration, _, _, _silent = self._char_rate(
+                gas, consumption, migration, _, _, _silent, _alpha = self._char_rate(
                     state.bed_char_kg[cell, klass], self._bed_ash_share[cell, klass], klass,
                     state.bed_temperature_k[cell], frozen.bed_pressure_pa[cell], frozen.u_r_bed_m_s[cell], y, c, fractions, mu, rho,
                 )
@@ -167,11 +172,14 @@ class _Context:
             return
         char = state.freeboard_char_hover_kg if hover else state.freeboard_char_free_kg
         ash_mass = state.freeboard_ash_hover_kg if hover else state.freeboard_ash_free_kg
-        gas, consumed, migrated, released, ash_migrated, silent = self._char_rate(
+        factor = None
+        if hover and frozen.migration_mu_per_s is not None:
+            factor = float(frozen.migration_mu_per_s[cell, klass])
+        gas, consumed, migrated, released, ash_migrated, silent, alpha = self._char_rate(
             char[cell, klass], ash_mass[cell, klass], klass, state.freeboard_temperature_k[cell],
             frozen.freeboard_pressure_pa[cell],
             frozen.u_r_hover_m_s[cell, klass] if hover else frozen.u_r_freeboard_m_s[cell, klass],
-            y, c, fractions, mu, rho,
+            y, c, fractions, mu, rho, migration_factor=factor,
         )
         self.reaction_free[cell] += gas
         if hover:
@@ -180,6 +188,12 @@ class _Context:
             self.ash_release_hover[cell, klass] = released
             self.ash_migration_hover[cell, klass] = ash_migrated
             self.silent_hover[cell, klass] = silent
+            # 漂移按源状态的 α_s 与存量计，δ^h 与 δ^f 分别记。解释性选择：ADR 0051 第 3 项。
+            up, down = float(frozen.drift_hover_per_s[cell, klass]), float(frozen.drift_free_per_s[cell, klass])
+            self.char_drift[cell, klass] = alpha * float(char[cell, klass]) * (up + down)
+            self.ash_drift[cell, klass] = alpha * float(ash_mass[cell, klass]) * (up + down)
+            self.char_drift_hover[cell, klass] = self.char_drift[cell, klass] * up / (up + down) if up + down else 0.0
+            self.ash_drift_hover[cell, klass] = self.ash_drift[cell, klass] * up / (up + down) if up + down else 0.0
         else:
             self.consumption_free[cell, klass] = consumed
             self.migration_free[cell, klass] = migrated
@@ -272,8 +286,15 @@ class _Context:
                 if frozen.hover[cell, klass]:
                     hover_residual[cell, klass] = (
                         inflow_hover + frozen.char_gen_hover_kg_s[cell, klass] - self.consumption_hover[cell, klass]
-                        - self.migration_hover[cell, klass] + up * mig_in + dropped
+                        - self.migration_hover[cell, klass] - self.char_drift[cell, klass] + up * mig_in + dropped
                     )
+        # 漂移进入上方相邻格的同粒级悬停或自由状态。解释性选择：ADR 0051 第 3 项。
+        for cell in range(1, frozen.n_freeboard):
+            for klass in range(frozen.n_class):
+                if not frozen.hover[cell, klass]:
+                    continue
+                hover_residual[cell - 1, klass] += self.char_drift_hover[cell, klass]
+                free_residual[cell - 1, klass] += self.char_drift[cell, klass] - self.char_drift_hover[cell, klass]
         elutriation = frozen.a_free_per_s[0] * state.freeboard_char_free_kg[0]
         if frozen.hover_closure == "C":
             elutriation = elutriation + redirected
@@ -293,7 +314,7 @@ class _Context:
                     outflow = self._free_outflow(cell, klass) * state.freeboard_ash_free_kg[cell, klass]
                     free_residual[cell, klass] = entering_free[cell, klass] - outflow - self.ash_migration_free[cell, klass] - self.ash_release_free[cell, klass]
                 if frozen.hover[cell, klass]:
-                    hover_residual[cell, klass] = entering_hover[cell, klass] - self.ash_migration_hover[cell, klass] - self.ash_release_hover[cell, klass]
+                    hover_residual[cell, klass] = entering_hover[cell, klass] - self.ash_migration_hover[cell, klass] - self.ash_release_hover[cell, klass] - self.ash_drift[cell, klass]
         returning = frozen.b_free_per_s[-1] * state.freeboard_ash_free_kg[-1]
         elutriation = frozen.a_free_per_s[0] * state.freeboard_ash_free_kg[0]
         held = entering_hover - self.ash_migration_hover - self.ash_release_hover
@@ -358,8 +379,15 @@ class _Context:
             mobile = state.freeboard_ash_free_kg[cell - 1]
             for klass in range(frozen.n_class):
                 self._deposit(entering_free, entering_hover, cell, klass, False, frozen.b_free_per_s[cell - 1, klass] * mobile[klass])
+        # 漂移的灰随焦炭进入上方相邻格的同粒级悬停或自由状态。解释性选择：ADR 0051 第 3 项。
+        for cell in range(1, frozen.n_freeboard):
+            for klass in range(frozen.n_class):
+                if not frozen.hover[cell, klass]:
+                    continue
+                self._deposit(entering_free, entering_hover, cell - 1, klass, True, self.ash_drift_hover[cell, klass])
+                self._deposit(entering_free, entering_hover, cell - 1, klass, False, self.ash_drift[cell, klass] - self.ash_drift_hover[cell, klass])
         return entering_free, entering_hover, ejection
-    def _char_rate(self, m_char, m_ash, klass, temperature, pressure, velocity, y, c, fractions, mu, rho):
+    def _char_rate(self, m_char, m_ash, klass, temperature, pressure, velocity, y, c, fractions, mu, rho, migration_factor=None):
         diameter = float(self.frozen.diameter_m[klass])
         particle_k = _particle_k(diameter, temperature, pressure, velocity, c, fractions, mu, rho, self.frozen)
         film = 0.5 * (temperature + particle_k)
@@ -383,11 +411,14 @@ class _Context:
         # 消耗 = α_s·M_C，迁移与灰项都乘 α_s，对存量线性。解释性选择：ADR 0044
         alpha = (r1.specific + r2.specific + r4.specific) * self.molar / particle_mass + r3.specific
         step = 0.0 if particle_mass == previous else previous / (particle_mass - previous)
+        # 悬停状态用 ADR 0051 的迁移因子 μ 取代 q_k（k = 1 时两者都是 0）。
+        if migration_factor is not None:
+            step = float(migration_factor)
         char_mig = alpha * m_char * step
         ash_mig = alpha * m_ash * step
         ash_release = alpha * m_ash
         silent = r1.specific == 0.0 and r2.specific == 0.0 and r3.specific == 0.0 and r4.specific == 0.0
-        return gas, consumption, char_mig, ash_release, ash_mig, silent
+        return gas, consumption, char_mig, ash_release, ash_mig, silent, alpha
     def _homogeneous(self, gas, phase, y, c, fractions, temperature, pressure, volume, ash, catalyst, serio, corella):
         r5_phase = "suspension" if phase == "suspension" else "bubble"
         water = None if r5_phase == "suspension" else c[_INDEX["H2O"]]
@@ -570,6 +601,9 @@ class _Context:
             coefficient_down = frozen.b_free_per_s[cell] + frozen.c_down_per_s[cell]
             char_up = float((coefficient_up * state.freeboard_char_free_kg[cell]).sum())
             ash_up = float((coefficient_up * state.freeboard_ash_free_kg[cell]).sum())
+            # 漂移流按源格温度计焓，是格 cell 到格 cell−1（上方）的相邻格传输。解释性选择：ADR 0051 第 3 项。
+            char_up += float(self.char_drift[cell].sum())
+            ash_up += float(self.ash_drift[cell].sum())
             upward[cell] = _stream_enthalpy(state.freeboard_gas_mol_s[cell], char_up, ash_up, float(frozen.fuel_up_free_kg_s[cell].sum()), temperature, frozen)
             char_down = float((coefficient_down * state.freeboard_char_free_kg[cell]).sum())
             ash_down = float((coefficient_down * state.freeboard_ash_free_kg[cell]).sum())
