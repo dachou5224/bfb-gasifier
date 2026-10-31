@@ -18,7 +18,7 @@ from hamel.cases.config import SolverConfig
 from hamel.properties.data import GAS_SPECIES
 from hamel.solver.campaign import _process, config_for
 from hamel.solver.driver import SolveResult, _references, solve_case
-from hamel.solver.initial import DomainRejected, InitialStateError, NegativeStock, construct, interface_flows
+from hamel.solver.initial import DomainRejected, InitialStateError, construct, interface_flows
 from hamel.solver.newton import SolveTimeout
 from hamel.solver.precalc import precalculate
 from hamel.solver.sensitivity import section_volume_m3
@@ -91,7 +91,9 @@ def _precalc_closure():
     """与驱动的第一次外层同一条预计算链：排灰与燃料回落逐次回馈。"""
     holder = {"drain": 0.0, "fuel": 0.0}
 
-    def precalc(state):
+    def precalc(state, drain=None):
+        if drain is not None:
+            holder["drain"] = float(drain[0] + np.sum(drain[1]))
         result = precalculate(
             _CASE, "1", state, previous_drain_kg_s=holder["drain"],
             previous_fuel_return_kg_s=holder["fuel"], adiabatic=False, iteration=1,
@@ -115,13 +117,10 @@ def initial() -> None:
             first, _precalc_closure(), m_ref, gate=float(SolverConfig().residual_tolerance),
             tolerance=_TOLERANCE, records=loops,
         )
-    except (DomainRejected, NegativeStock, InitialStateError) as exc:
+    except (DomainRejected, InitialStateError) as exc:
         body.update(status="STOPPED", reason=str(exc), loops=loops, note="初值构造未正常结束")
-        if isinstance(exc, (DomainRejected, NegativeStock)):
+        if isinstance(exc, DomainRejected):
             body.update(phase=exc.phase, rejected=_inventory(exc.state, first.frozen))
-        if isinstance(exc, NegativeStock):
-            body.update(condition=exc.condition, char_residual_before=exc.residual,
-                        negative=sorted(exc.items, key=lambda item: item["solved_kg"]))
     else:
         body.update(status="OK", loops=loops, note=note, final=_inventory(result.state, result.frozen))
     body["seconds"] = time.perf_counter() - started

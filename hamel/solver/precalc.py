@@ -41,6 +41,19 @@ SEARCH = HydroSearch(1e-12, 1.0, 80, 1e-8, 2.0, 1.35, 36, 8000.0, 60, 1e-6)
 DISTRIBUTOR = "technical"
 class PrecalcError(ValueError):
     """预计算的有效域不成立。报告并停止，不截断。"""
+@dataclass(frozen=True)
+class SolidContext:
+    """按当前状态重算排灰与床区向下流时的预计算输入。
+
+    求解手段：ADR 0052 第 1 项第 2 步。字段就是 ``_drain`` 与 ``bed_downflow`` 的既有输入；
+    初值构造据此调用同一函数，不复制公式。
+    """
+    case: object
+    released: object
+    books: tuple
+    redirected_return_kg_s: float = 0.0
+    redirected_ash_out_kg_s: float = 0.0
+    redirected_fuel_out_kg_s: float = 0.0
 @dataclass
 class PrecalcResult:
     """冻结量、第一次使用的状态，以及冒烟要列出的量。"""
@@ -65,6 +78,7 @@ class PrecalcResult:
     bed_intervals: int
     substep_history: tuple
     reported: dict
+    solid_context: SolidContext
 def require_geldart_b(surface_volume_diameter_m: float, rho_s_kg_m3: float, rho_f_kg_m3: float) -> str:
     """收敛后的真实类别必须是 B。求解手段：ADR 0035。"""
     group = geldart_group(surface_volume_diameter_m, rho_s_kg_m3, rho_f_kg_m3)
@@ -220,6 +234,7 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
         equilibrium.feed_enthalpy, equilibrium.product_enthalpy, ejection.mass_flow, _hover_pairs(hover),
         gas_out / case.fuel_kg_s, t_init, hydro, record, tuple(notes), ratios, intervals, substeps,
         reported,
+        SolidContext(case, released, accounting, float(redirected_return_kg_s), float(redirected_ash_out_kg_s), float(redirected_fuel_out_kg_s)),
     )
 @dataclass
 class _Case:
