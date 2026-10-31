@@ -255,8 +255,10 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
 def construct(initial, precalc, m_dot_ref: float, *, gate: float = 1.0e-6, tolerance: float = 1.0e-2, max_loops: int = 5, config=None, records=None):
     """第一次预计算之后，反复“固相牛顿 → 按 driver.solid_feedback 回馈并重做预计算”。
 
-    交替判据与次数沿用 ADR 0045 第 3 项第 5 步：相邻两次预计算的床区界面上下行流与自由空间
-    回落的相对变化都小于 tolerance，或做满 max_loops 次。求解手段：ADR 0052 第 1 项第 5 步。
+    precalc(state, drain) 接收解出的固相与它按同一状态重算的排灰（灰分量，各粒级焦炭），
+    后者作下一次预计算的 previous_drain_kg_s。交替判据与次数沿用 ADR 0045 第 3 项第 5 步：
+    相邻两次预计算的床区界面上下行流与自由空间回落的相对变化都小于 tolerance，或做满
+    max_loops 次。求解手段：ADR 0052 第 1 项第 5 步。
     """
     limits = SolverConfig() if config is None else config
     log = [] if records is None else records
@@ -281,7 +283,7 @@ def construct(initial, precalc, m_dot_ref: float, *, gate: float = 1.0e-6, toler
                 **(exc.diagnostics or {}),
             })
             raise
-        result = precalc(solved.state)
+        result = precalc(solved.state, (solved.drain_ash_kg_s, np.asarray(solved.drain_char_kg_s, dtype=float)))
         current = interface_flows(result.frozen, result.state)
         change = {name: float(np.max(np.abs(current[name] - previous[name])) / m_dot_ref) for name in current}
         log.append(_record(index, solved, result, current, change))

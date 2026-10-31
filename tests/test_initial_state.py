@@ -206,7 +206,11 @@ def test_domain_rejection_at_the_start_keeps_the_state_for_the_report():
 
 
 def _stub(result):
-    return SolidSolve(result, 1, (1.0, 1.0e-9), 1.0e-9, 0.0, np.zeros(1), np.zeros(2), np.zeros(2), 0.0, 1.0, np.zeros(2))
+    """一次固相牛顿的最小返回。排灰取非零值，供交替回调核对回馈。"""
+    return SolidSolve(
+        result, 1, (1.0, 1.0e-9), 1.0e-9, 1.5e-4, np.array([2.5e-4]),
+        np.zeros(2), np.zeros(2), 0.0, 1.0, np.zeros(2),
+    )
 
 
 def _opened(frozen, state):
@@ -219,7 +223,7 @@ def test_construct_stops_after_max_loops(monkeypatch):
     state = make_state(frozen)
     calls = {"n": 0}
 
-    def precalc(previous):
+    def precalc(previous, drain):
         calls["n"] += 1
         return _opened(replace(frozen, k_auf_per_s=frozen.k_auf_per_s + 1.0e-4 * calls["n"]), previous)
 
@@ -231,20 +235,23 @@ def test_construct_stops_after_max_loops(monkeypatch):
 
 
 def test_construct_stops_when_flows_settle(monkeypatch):
-    """相邻两次的界面流与回落相对变化小于 1·10⁻² 时停止。"""
+    """相邻两次的界面流与回落相对变化小于 1·10⁻² 时停止；收敛固相的排灰传给下一次预计算。"""
     frozen = make_frozen()
     state = make_state(frozen)
-    calls = {"n": 0}
+    seen = []
 
-    def precalc(previous):
-        calls["n"] += 1
+    def precalc(previous, drain):
+        seen.append(drain)
         return _opened(frozen, previous)
 
     monkeypatch.setattr(initial, "solve_solids", lambda *args, **kwargs: _stub(state))
     result, records, note = construct(_opened(frozen, state), precalc, 1.0e-3)
-    assert note == "" and calls["n"] == 1
+    assert note == "" and len(seen) == 1
     assert all(value == 0.0 for value in records[-1]["change"].values())
     assert records[-1]["iterations"] == 1
+    # ADR 0052 第 1 项第 5 步：排灰随收敛固相回馈，不用上一轮预计算的冻结值。
+    assert seen[0][0] == pytest.approx(1.5e-4)
+    assert np.array_equal(seen[0][1], np.array([2.5e-4]))
     assert result.state is state
 
 
@@ -256,7 +263,7 @@ def test_construct_second_precalc_carries_the_bed_sink_without_resetting(monkeyp
     state = make_state(frozen, char=2.0e-3, ash=0.0)
     seen = []
 
-    def precalc(previous):
+    def precalc(previous, drain):
         reaction, redirect = solid_feedback(previous, frozen)
         seen.append({"reaction": reaction, "redirect": redirect})
         return _opened(frozen, previous)

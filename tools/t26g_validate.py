@@ -91,7 +91,9 @@ def _precalc_closure():
     """与驱动的第一次外层同一条预计算链：排灰与燃料回落逐次回馈。"""
     holder = {"drain": 0.0, "fuel": 0.0}
 
-    def precalc(state):
+    def precalc(state, drain=None):
+        if drain is not None:
+            holder["drain"] = float(drain[0] + np.sum(drain[1]))
         result = precalculate(
             _CASE, "1", state, previous_drain_kg_s=holder["drain"],
             previous_fuel_return_kg_s=holder["fuel"], adiabatic=False, iteration=1,

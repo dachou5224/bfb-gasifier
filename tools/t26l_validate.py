@@ -9,6 +9,7 @@ reports/research-initial-solids/study.json 的 1073 K 诊断结果对照。
 from __future__ import annotations
 
 import json
+import signal
 import sys
 import time
 from dataclasses import replace
@@ -26,20 +27,34 @@ _OUT = _ROOT / "reports" / "t26l-validation"
 _RESEARCH = _ROOT / "reports" / "research-initial-solids" / "study.json"
 
 
+class _Timeout(BaseException):
+    """继承 BaseException：任何 except Exception 都不会吞掉全局期限（CHARTER §7）。"""
+
+
 def main(out: str | None = None) -> None:
     folder = Path(out) if out else _OUT
     folder.mkdir(parents=True, exist_ok=True)
     config = replace(SolverConfig(), outer_round_limit=1)
+    limit = float(config.wall_timeout_s)
     started = time.monotonic()
-    deadline = started + float(config.wall_timeout_s)
+
+    def expire(signum, frame):
+        raise _Timeout()
+
+    previous = signal.signal(signal.SIGALRM, expire)
+    signal.alarm(int(limit) + 1)
     try:
-        result = solve_case(
-            str(_CASE), "1", deadline=lambda: time.monotonic() >= deadline, config=config,
-            artifact_dir=str(folder),
-        )
-        status, outcome = result.status, result
-    except SolveTimeout:
-        status, outcome = "TIMEOUT", None
+        try:
+            result = solve_case(
+                str(_CASE), "1", deadline=lambda: time.monotonic() - started >= limit, config=config,
+                artifact_dir=str(folder),
+            )
+            status, outcome = result.status, result
+        except (SolveTimeout, _Timeout):
+            status, outcome = "TIMEOUT", None
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, previous)
     elapsed = time.monotonic() - started
     payload = {
         "elapsed_s": elapsed, "status": status, "outer_round_limit": 1,

@@ -137,10 +137,16 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         holder["reaction"] = reaction
         holder["redirect"] = redirect
 
-    def _precalc(iteration, consistency, state=None):
+    def _precalc(iteration, consistency, state=None, drain=None):
+        """一轮预计算。drain 给出时用收敛固相重算的排灰作 previous_drain_kg_s。
+
+        求解手段：ADR 0052 第 1 项第 5 步（回馈排灰；ADR 0049 第 4 步只回馈反应汇与改送）。
+        """
         used = holder["state"] if state is None else state
         if state is not None:
             _feedback(state)
+        if drain is not None:
+            holder["drain"] = float(drain[0] + np.sum(drain[1]))
         bed_return, ash_out, fuel_out = redirect_feedback(config.hover_closure, holder["redirect"])
         result = precalculate(
             path, case_id, used, reaction_solid_kg_s=holder["reaction"],
@@ -161,7 +167,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         holder["initial"] = {"loops": loops, "note": "停止"}
         try:
             result, loops, note = construct(
-                first, lambda state: _precalc(iteration, False, state), m_ref,
+                first, lambda state, drain: _precalc(iteration, False, state, drain), m_ref,
                 gate=float(config.residual_tolerance), config=config, records=loops,
             )
         except DomainRejected as exc:

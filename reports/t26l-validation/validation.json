@@ -1,5 +1,5 @@
 {
- "elapsed_s": 179.30835575,
+ "elapsed_s": 180.371184083,
  "status": "DOMAIN_STOP",
  "outer_round_limit": 1,
  "reason": "初值构造停止：初值构造的固相牛顿未收敛：DAMPING_FAILED（没有使归一残差严格下降的可行步），迭代 1，ν_max = 200",

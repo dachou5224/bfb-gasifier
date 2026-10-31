@@ -1,36 +1,32 @@
-"""悬停闭合的研究：闭合 A 在 T26j 预启动点上的悬停平衡、温度敏感性与漂移闭合的估算。只报告。
+"""悬停闭合的研究（历史工具，固定在 T26j/T26k 时期）：闭合 A 的悬停平衡、温度敏感性与漂移闭合估算。
 
-不改模型、不进入求解。做法：
-1. 运行到第一次预计算之后的固相牛顿之前（ADR 0052 取代了 ADR 0049 的预启动），
-   保存状态、冻结量与第 1 次预计算的自由空间气速剖面；
-2. 在该点上对粒级 3 的悬停焦炭行差分，得流入 I 与总出流系数 λ = α(1 + q_k)；
-   为求系数而暂停有效域检查（只作诊断，ADR 0026 第 5 项不变）；
-3. 自由空间温度整体改为 1123–1273 K，其它不变，重算 λ（温度敏感性）；
-4. 按 Hamel 的缩粒假定（S. 86，焦炭密度恒定，m ∝ d³）与 ADR 0047 的稳定点条件，
-   估算漂移闭合下的悬停存量与体积比（两种离散：精确链与一阶迎风格式）。
+**本工具不在当前模型上运行。** 它假定的两个前提都已撤销：
 
-结果写入 reports/research-hover-drift/。
+- 捕获点原在 ADR 0049 第 3 步的自由空间焦炭块解出之后（灰块之前）。ADR 0052 删除了整个
+  预启动，当前初值构造的第一次预计算之前只有 ADR 0045 第 3 项第 1 步的零存量；把零存量当作
+  该工具的 A 平衡对照点，会把 stock_a、ratio_a 与 others 算成零起点的量并写回
+  `reports/research-hover-drift/`，覆盖已有的非零研究数据。
+- 工具沿用 λ = α(1 + q_k) 求单位消耗速率的分母。ADR 0051 起悬停状态的粒级迁移改用 α_s·μ，
+  该关系在一般情形下不再成立。
+
+复现请 checkout T26k 合并前的提交（`cf5db31` 之前，ADR 0049 与 ADR 0044 仍在时）。
+若要在当前模型上重做这项研究，须另开研究卡，按 ADR 0051 的 μ 与 ADR 0052 的状态重写全部
+计算、标签与输出路径，不能只移动捕获钩子。
+
+以下历史代码保留作版本对照。
 """
 
 from __future__ import annotations
 
 import json
-import signal
 import sys
-import time
 from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
 
-import hamel.freeboard.accounting as accounting
-import hamel.solver.initial as initial
-import hamel.solver.precalc as precalc
 import hamel.solver.residual as residual
-from hamel.cases.config import SolverConfig
 from hamel.freeboard.motion import terminal_settling_velocity
-from hamel.solver.driver import solve_case
-from hamel.solver.newton import SolveTimeout
 from hamel.solver.vector import pack_state, unknown_slots
 
 _ROOT = Path(__file__).resolve().parents[1]
@@ -41,64 +37,18 @@ _TEMPERATURES = (1073.0, 1123.0, 1173.0, 1223.0, 1273.0)
 _SLOPES = (1.0, 1.2, 1.4)
 
 
-class _Captured(Exception):
-    pass
-
-
-class _Timeout(Exception):
-    pass
-
-
 def _capture() -> dict:
-    """运行到预启动焦炭块解出为止，返回状态、冻结量与气速剖面。"""
-    record: dict = {}
-    original = precalc.account_freeboard
+    """在当前模型上明确拒绝运行。见模块说明。
 
-    def account(edges, gas, rho, mu, diameter, rho_p, phi, *args, **kwargs):
-        bounds = np.asarray(edges, dtype=float)
-        record["edges_m"] = bounds
-        record["rho_g"] = np.asarray(rho, dtype=float)
-        record["mu_g"] = np.asarray(mu, dtype=float)
-        record["rho_p"] = float(rho_p)
-        record["u_g"] = np.array([
-            accounting.cell_mean_velocity(gas, index, bounds[index], bounds[index + 1])
-            for index in range(bounds.size - 1)
-        ])
-        return original(edges, gas, rho, mu, diameter, rho_p, phi, *args, **kwargs)
+    审查（PR #139 P2）指出：ADR 0052 删除预启动后，把捕获点挪到固相牛顿之前取到的是
+    ADR 0045 的零起点，不是本工具假设的“自由空间焦炭块已解出”的状态。
+    """
+    raise RuntimeError(
+        "hover_drift_closure 固定在 T26j/T26k 时期（ADR 0049 预启动、ADR 0044 迁移）；"
+        "ADR 0052 删除了预启动、ADR 0051 改用 α_s·μ，当前模型上不能运行。"
+        "复现请 checkout cf5db31 之前的提交；在当前模型上重做须另开研究卡并重写全部计算与输出。"
+    )
 
-    def stop(state, frozen, *args, **kwargs):
-        record["state"] = state
-        record["frozen"] = frozen
-        raise _Captured()
-
-    def expire(signum, frame):
-        raise _Timeout()
-
-    config = replace(SolverConfig(), outer_round_limit=1)
-    limit = float(config.wall_timeout_s)
-    started = time.monotonic()
-    precalc.account_freeboard = account
-    guard = initial.solve_solids
-    initial.solve_solids = stop
-    # CHARTER §7：驱动的期限只在牛顿内检查，预计算阶段另以进程信号兜底，到时同样记 TIMEOUT。
-    previous = signal.signal(signal.SIGALRM, expire)
-    signal.alarm(int(limit) + 1)
-    try:
-        solve_case(str(_CASE), "1", deadline=lambda: time.monotonic() - started >= limit, config=config)
-    except _Captured:
-        pass
-    except (_Timeout, SolveTimeout):
-        record["timeout_s"] = limit
-    finally:
-        signal.alarm(0)
-        signal.signal(signal.SIGALRM, previous)
-        precalc.account_freeboard = original
-        initial.solve_solids = guard
-    if "timeout_s" in record:
-        return record
-    if "state" not in record:
-        raise RuntimeError("求解在固相牛顿之前结束（非超时）")
-    return record
 
 
 def _hover_balance(state, frozen) -> list[dict]:
@@ -109,14 +59,14 @@ def _hover_balance(state, frozen) -> list[dict]:
         and slot.name.endswith(f".k{_CLASS + 1}")
     ]
     x = np.asarray(pack_state(state, frozen), dtype=float)
-    base = initial._values(x, frozen, "研究")
+    base = _values(x, frozen)
     rows = []
     for slot in slots:
         stock = float(x[slot.index])
         step = 1.0e-6 * max(stock, 1.0)
         trial = x.copy()
         trial[slot.index] += step
-        rate = -float(initial._values(trial, frozen, "研究")[slot.index] - base[slot.index]) / step
+        rate = -float(_values(trial, frozen)[slot.index] - base[slot.index]) / step
         rows.append({"name": slot.name, "stock_kg": stock, "lambda_per_s": rate, "inflow_kg_s": float(base[slot.index]) + rate * stock})
     return rows
 
@@ -125,10 +75,15 @@ def _lambda_at(state, frozen, temperature: float, name: str) -> float:
     hot = replace(state, freeboard_temperature_k=np.full(np.shape(state.freeboard_temperature_k), temperature))
     slot = next(item for item in unknown_slots(frozen) if item.name == name)
     x = np.asarray(pack_state(hot, frozen), dtype=float)
-    base = initial._values(x, frozen, "研究")[slot.index]
+    base = _values(x, frozen)[slot.index]
     trial = x.copy()
     trial[slot.index] += 1.0e-6
-    return -float(initial._values(trial, frozen, "研究")[slot.index] - base) / 1.0e-6
+    return -float(_values(trial, frozen)[slot.index] - base) / 1.0e-6
+
+
+def _values(x, frozen) -> np.ndarray:
+    """原残差在各变量上的值。历史代码读 ``initial._values``，该函数随 ADR 0052 删除。"""
+    return np.asarray(residual.evaluate_residual(np.asarray(x, dtype=float), frozen).values, dtype=float)
 
 
 def _drift(inflow, alpha, widths, slope):
@@ -160,12 +115,9 @@ def _drift(inflow, alpha, widths, slope):
 
 
 def main() -> None:
-    _OUT.mkdir(parents=True, exist_ok=True)
+    """历史入口。在当前模型上 `_capture()` 直接拒绝，见模块说明。"""
     data = _capture()
-    if "timeout_s" in data:
-        (_OUT / "study.json").write_text(json.dumps({"status": "TIMEOUT", "limit_s": data["timeout_s"]}), encoding="utf-8")
-        print(f"TIMEOUT：{data['timeout_s']:.0f} s 内未走到预启动焦炭块之后")
-        return 1
+    _OUT.mkdir(parents=True, exist_ok=True)
     state, frozen = data["state"], data["frozen"]
     check = residual._Context.domain
     residual._Context.domain = lambda self: None  # 只作诊断：求系数时暂停有效域检查
@@ -215,7 +167,7 @@ def main() -> None:
             "ratio_upwind": ((others + np.r_[upwind, np.zeros(solids.size - count)]) / capacity).tolist(),
         })
     payload = {
-        "case": "vtt_pressurized 工况 1，T26j 预启动焦炭块解出后（灰块之前）",
+        "case": "vtt_pressurized 工况 1，T26j 预启动焦炭块解出后（灰块之前）；历史工具，当前模型不适用",
         "hover_rows": rows,
         "q_k": float(q),
         "alpha_per_s": float(alpha),
