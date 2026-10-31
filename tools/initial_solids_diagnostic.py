@@ -41,8 +41,8 @@ class _Captured(Exception):
     pass
 
 
-class _Timeout(Exception):
-    pass
+class _Timeout(BaseException):
+    """继承 BaseException：任何 except Exception 都不会吞掉全局期限（CHARTER §7）。"""
 
 
 def _capture(context: dict) -> None:
@@ -133,6 +133,8 @@ def _newton(x, frozen, case, m_ref, recompute_down, limit=40):
             try:
                 if np.max(np.abs(values(trial)[rows])) < np.max(np.abs(r[rows])) * (1.0 - 1.0e-4 * damping):
                     break
+            except _Timeout:
+                raise
             except Exception:
                 pass
             damping *= 0.5
