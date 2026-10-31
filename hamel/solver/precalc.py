@@ -675,7 +675,8 @@ def _transport(books):
     for name in drift:
         drift[name][~hover] = 0.0
     migration_mu[~hover] = 0.0
-    if np.any(drift["drift_free_per_s"][:-1][absent[1:]] > 0.0):
+    # 目标检查按源 [1:] 对目标 [:-1]：衡算下标 0 为顶，漂移从 i 到 i−1。ADR 0051 第 3 项。
+    if np.any(drift["drift_free_per_s"][1:][absent[:-1]] > 0.0):
         raise FreeboardError("漂移要进入的自由状态不存在，不能装配")
     return (hover, absent, arrays, theta_up, theta_down, hover_slip, drift, migration_mu), hover, absent
 def freeboard_return_kg_s(b_free_bottom, char_free_kg, ash_free_kg, fuel_return_kg_s: float = 0.0) -> float:

@@ -25,8 +25,9 @@ from hamel.freeboard.accounting import (
 )
 from hamel.solver import evaluate_residual, pack_state, unknown_slots
 from hamel.solver import newton as newton_module
-from hamel.solver.frozen import FreeboardDomainError
+from hamel.solver.frozen import AssemblyError, FreeboardDomainError
 from hamel.solver.vector import jacobian_layout
+from hamel.freeboard import stable_equilibria, trace_until_fate
 from hamel.solver.sensitivity import solid_enthalpy_w
 from tests.test_assembly import make_frozen, make_state
 
@@ -186,6 +187,137 @@ def test_hand_computed_two_window_example():
     assert book.cells[0].drift_free == 0.0 and book.cells[1].drift_hover == 0.0
 
 
+# ω 归集的手算例：同一气速剖面上两个 φ 分别向上、向下被捕获，落在不同的界面。
+_OMEGA_SPEEDS = (1.2, 1.1, 0.5)
+_OMEGA_CLASS = ClassWindow(0.15e-3, 0.34e-3, 1.0)  # ρ_k = 1，故 L = ln(d′_hi/d′_lo)
+_OMEGA_SAMPLES = ((0.23e-3, 1.0, 0.5), (0.25e-3, 0.7, 0.5))
+
+
+def _diameter_at(speed: float, phi: float) -> float:
+    """v_t(d, φ) = speed 的根，测试内独立二分解，不复用模块的求根。"""
+    low, high = 5.0e-5, 2.0e-3
+    for _ in range(200):
+        middle = 0.5 * (low + high)
+        if terminal_settling_velocity(1.2, 2.0e-5, middle, _RHO_P, phi) < speed:
+            low = middle
+        else:
+            high = middle
+    return 0.5 * (low + high)
+
+
+def _hand_window(cell: int, phi: float, lower: float, upper: float):
+    """该格该 φ 的窗口 [d′_lo, d′_hi] 与出口因子，按 ADR 0051 第 2 项手算。"""
+    high = min(_diameter_at(_OMEGA_SPEEDS[cell], phi), upper)
+    low = max(_diameter_at(_OMEGA_SPEEDS[cell + 1], phi), lower)
+    length = math.log(high / low)
+    return low, high, length, 1.0 / math.expm1(3.0 * length)
+
+
+def _omega_book():
+    edges = _column(3, 0.5)
+    return account_freeboard(
+        edges, _cellwise(*_OMEGA_SPEEDS), np.full(3, 1.2), np.full(3, 2.0e-5), 0.245e-3, _RHO_P, 0.8,
+        np.array([]), np.array([]), 1.0, _config(), samples=_OMEGA_SAMPLES, class_window=_OMEGA_CLASS,
+    )
+
+
+def test_omega_is_collected_at_the_capture_target_cell():
+    """ω_p 归集到实际悬停目标格：向下进入时是源格下方相邻格，不按源格计。审查意见第 2 条。"""
+    edges = _column(3, 0.5)
+    rho, mu = np.full(3, 1.2), np.full(3, 2.0e-5)
+    gas = _cellwise(*_OMEGA_SPEEDS)
+    # 同一格中点起步：φ=1,0 的 0,21 mm 向下进入 R*_0（目标 0），φ=0,7 的 0,28 mm 向上（目标 1）。
+    for diameter, phi, kind, target in ((0.23e-3, 1.0, "down", 0), (0.25e-3, 0.7, "up", 1)):
+        terminal = terminal_settling_velocity(1.2, 2.0e-5, diameter, _RHO_P, phi)
+        equilibria = stable_equilibria(edges, gas, rho, mu, diameter, _RHO_P, phi)
+        middle = 0.5 * (edges[1] + edges[2])
+        traced = trace_until_fate(
+            middle, _OMEGA_SPEEDS[1] - terminal, edges, gas, rho, mu, diameter, _RHO_P, phi, _config(), equilibria,
+        )
+        assert traced.fate == "capture"
+        assert traced.entry_kind == kind and traced.entered_cell == target
+        assert traced.entry_cell == 1
+    book = _omega_book()
+    upper = {window.sphericity: window for window in book.cells[0].windows}
+    lower = {window.sphericity: window for window in book.cells[1].windows}
+    # 目标 0 只收到 φ=1,0，目标 1 只收到 φ=0,7；源格计数不改变这条归集。
+    assert upper[1.0].weight == pytest.approx(1.0) and upper[0.7].weight == 0.0
+    assert lower[0.7].weight == pytest.approx(1.0) and lower[1.0].weight == 0.0
+    # 权重不得落到空窗口上（旧写法把捕获写回源格时会落到这里）。
+    for cell in book.cells:
+        for window in cell.windows:
+            if window.weight > 0.0:
+                assert window.fate != DRIFT_EMPTY
+
+
+def test_omega_hand_computes_drift_factors_per_target_cell():
+    """两个 φ 各自的目标窗口不同：δ^h、δ^f、μ 由 ω 乘各自的出口因子手算。"""
+    book = _omega_book()
+    upper = {window.sphericity: window for window in book.cells[0].windows}
+    lower = {window.sphericity: window for window in book.cells[1].windows}
+    low, high, length, share = _hand_window(0, 1.0, _OMEGA_CLASS.lower_m, _OMEGA_CLASS.upper_m)
+    assert upper[1.0].low_m == pytest.approx(low, rel=1e-9)
+    assert upper[1.0].high_m == pytest.approx(high, rel=1e-9)
+    assert upper[1.0].length == pytest.approx(length, rel=1e-9)
+    assert upper[1.0].exit_share == pytest.approx(share, rel=1e-9)
+    assert book.cells[0].drift_hover == pytest.approx(share, rel=1e-9)
+    assert book.cells[0].drift_free == 0.0 and book.cells[0].migration_mu == 0.0
+    low, high, length, share = _hand_window(1, 0.7, _OMEGA_CLASS.lower_m, _OMEGA_CLASS.upper_m)
+    assert lower[0.7].low_m == pytest.approx(low, rel=1e-9)
+    assert lower[0.7].high_m == pytest.approx(high, rel=1e-9)
+    assert lower[0.7].length == pytest.approx(length, rel=1e-9)
+    assert lower[0.7].exit_share == pytest.approx(share, rel=1e-9)
+    assert book.cells[1].drift_free == pytest.approx(share, rel=1e-9)
+    assert book.cells[1].drift_hover == 0.0 and book.cells[1].migration_mu == 0.0
+
+
+def test_drift_target_check_uses_the_upward_neighbour():
+    """衡算下标 0 为顶，漂移从 i 到 i−1：源 [1:] 对目标 [:-1]。审查意见第 1 条的探针。"""
+    # 审查探针：3 格 2 粒级，只有 hover[2, 1]，drift_hover_per_s[2, 1] = 1，目标 hover[1, 1] 为假。
+    probe = np.zeros((3, 2), dtype=bool)
+    probe[2, 1] = True
+    drift = np.zeros((3, 2))
+    drift[2, 1] = 1.0
+    with pytest.raises(AssemblyError, match="进入悬停状态的漂移目标没有悬停状态"):
+        make_frozen(n_free=3, n_class=2, hover=probe, drift_hover_per_s=drift)
+    # 最下源格合法、目标存在时通过；目标上方那格没有悬停状态不影响。
+    valid = probe.copy()
+    valid[1, 1] = True
+    frozen = make_frozen(n_free=3, n_class=2, hover=valid, drift_hover_per_s=drift)
+    assert frozen.drift_hover_per_s[2, 1] == 1.0
+    assert not frozen.hover[0, 1]
+
+
+def test_drift_target_check_does_not_reject_a_legal_upward_step():
+    """源在衡算下标 1、目标 0：目标有悬停状态即为合法，不因下格没有悬停状态被拒。"""
+    hover = np.zeros((3, 2), dtype=bool)
+    hover[0, 0] = True
+    hover[1, 0] = True
+    drift = np.zeros((3, 2))
+    drift[1, 0] = 1.0
+    frozen = make_frozen(n_free=3, n_class=2, hover=hover, drift_hover_per_s=drift)
+    assert frozen.drift_hover_per_s[1, 0] == 1.0
+    assert not frozen.hover[2, 0]
+
+
+def test_drift_target_check_rejects_a_missing_free_state_and_top_source():
+    """漂移要进入的自由状态不存在时拒绝；最上一格不能作为源。"""
+    hover = np.ones((3, 2), dtype=bool)
+    absent = np.zeros((3, 2), dtype=bool)
+    absent[0, 0] = True
+    theta = np.zeros((3, 2))
+    theta[0, 0] = 1.0
+    drift_free = np.zeros((3, 2))
+    drift_free[1, 0] = 0.5
+    with pytest.raises(AssemblyError, match="进入自由状态的漂移目标没有自由状态"):
+        make_frozen(n_free=3, n_class=2, hover=hover, free_absent=absent, theta=theta, drift_free_per_s=drift_free)
+    # 最上一格（衡算下标 0）没有上方相邻格，那里不能有漂移。
+    top = np.zeros((3, 2))
+    top[0, 1] = 1.0
+    with pytest.raises(AssemblyError, match="最上一格没有上方相邻格"):
+        make_frozen(n_free=3, n_class=2, hover=hover, drift_hover_per_s=top)
+
+
 _DRIFT_HOVER = 0.3
 _DRIFT_FREE = 0.2
 # 冒烟格：粒级 2（k = 2）。粒级 1 的悬停状态收到灰流时按 ADR 0026 第 5 项报告并停止，另有测试。
@@ -235,19 +367,24 @@ def test_drift_moves_char_and_ash_between_the_two_cells_only():
 
 def test_first_class_drift_into_the_free_state_conserves_char_and_ash():
     """粒级 1 的漂移进入上方格的自由状态：焦炭与灰逐格扣除与接收，μ_j,1 = 0。"""
-    mask = np.ones((3, 2), dtype=bool)
-    mask[:, 0] = False
-    mask[2, 0] = True
-    still = _drift_frozen(drift=False, klass=0, hover=mask)
-    moving = _drift_frozen(drift=True, klass=0, hover=mask)
+    hover = np.zeros((3, 2), dtype=bool)
+    hover[2, 0] = True  # 目标格只有自由状态：k = 1 的悬停状态收灰时按 ADR 0026 第 5 项停止
+    still = make_frozen(n_free=3, n_class=2, hover=hover)
+    drift_free = np.zeros((3, 2))
+    drift_free[2, 0] = 0.5
+    moving = make_frozen(n_free=3, n_class=2, hover=hover, drift_free_per_s=drift_free)
     state = make_state(still)
     for kind in ("char", "ash"):
-        hover_before, hover_after = _solid_rows(still, state, kind, "hover", 0), _solid_rows(moving, state, kind, "hover", 0)
-        free_before, free_after = _solid_rows(still, state, kind, "free", 0), _solid_rows(moving, state, kind, "free", 0)
+        hover_before = _solid_rows(still, state, kind, "hover", 0)
+        hover_after = _solid_rows(moving, state, kind, "hover", 0)
+        free_before = _solid_rows(still, state, kind, "free", 0)
+        free_after = _solid_rows(moving, state, kind, "free", 0)
         moved = hover_before[2] - hover_after[2]
         assert moved > 0.0
-        assert free_after[1] - free_before[1] == pytest.approx(moved * _DRIFT_FREE / (_DRIFT_HOVER + _DRIFT_FREE), rel=1e-12)
-        assert moving.migration_mu_per_s[:, 0].tolist() == [0.0, 0.0, 0.0]
+        assert free_after[1] - free_before[1] == pytest.approx(moved, rel=1e-12)
+        assert free_after[2] == free_before[2] and hover_after.get(1, 0.0) == 0.0
+        assert moving.migration_mu_per_s is None
+        assert moving.hover[1, 0] == False
 
 
 def test_drift_into_the_first_class_hover_state_reports_the_domain_rule():

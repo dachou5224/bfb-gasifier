@@ -184,7 +184,12 @@ def _inner_lines(payload) -> list:
 
 
 def _fmt(values, digits: int = 4) -> str:
-    return "—" if values is None else ", ".join(f"{float(value):.{digits}g}" for value in values)
+    """标量（固相门、最小 m_C、床区焦炭）与序列都按同一写法输出。"""
+    if values is None:
+        return "—"
+    if np.isscalar(values) or not hasattr(values, "__len__"):
+        return f"{float(values):.{digits}g}"
+    return ", ".join(f"{float(value):.{digits}g}" for value in values)
 
 
 def _fmt_table(rows) -> str:

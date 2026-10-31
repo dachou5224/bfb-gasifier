@@ -726,12 +726,16 @@ def account_freeboard(
                 key = "c_down" if ledger.entry_kind == "down" else "c_up"
                 totals[key][ledger.entry_cell] += mass
                 touched[ledger.entry_cell] = True
-                captured_phi[ledger.entry_cell][float(phi)] = captured_phi[ledger.entry_cell].get(float(phi), 0.0) + mass
+                # ω_p 归集到实际悬停目标格（向下进入时是源格下方相邻格）。ADR 0051 第 2 项。
+                captured_phi[ledger.entered_cell][float(phi)] = captured_phi[ledger.entered_cell].get(float(phi), 0.0) + mass
         for cell, ledger in enumerate(local):
             if ledger.fate == "return":
                 local_return += weight
             elif ledger.fate == "elutriate":
                 local_elutriation += weight
+            if ledger.fate == "capture" and ledger.entered_cell is not None:
+                # 每条被捕获的当地轨迹按其目标悬停格计入一次，与 θ、滑移的源格记账分开。
+                captured_phi[ledger.entered_cell][float(phi)] = captured_phi[ledger.entered_cell].get(float(phi), 0.0) + weight
             entered = ledger.captured_at_start if region == "cell" else ledger.entry_count == 1
             if ledger.fate != "capture" or not entered:
                 continue
@@ -745,7 +749,6 @@ def account_freeboard(
             if touched[cell]:
                 totals["w_t"][cell] += weight
                 totals["slip_t"][cell] += weight * settling[cell]
-                captured_phi[cell][float(phi)] = captured_phi[cell].get(float(phi), 0.0) + weight
         bed_sum = dict(zip(("res", "slip", "up", "down"), _sum_ledgers(bed, count, weight)))
         for name, values in bed_sum.items():
             for cell in range(count):

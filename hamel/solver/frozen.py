@@ -239,13 +239,16 @@ class FrozenQuantities:
         for name in ("drift_hover_per_s", "drift_free_per_s"):
             if np.any(getattr(self, name) < 0.0):
                 raise AssemblyError(f"{name} 不能为负")
-        # 漂移只从悬停状态出发、只进入相邻的上方格。解释性选择：ADR 0051 第 2、3 项。
+        # 漂移只从悬停状态出发、只进入相邻的上方格（衡算下标 0 为顶，源 i 到目标 i−1）。
+        # 解释性选择：ADR 0051 第 2、3 项。
         if np.any(self.drift_hover_per_s[~self.hover] != 0.0) or np.any(self.drift_free_per_s[~self.hover] != 0.0):
             raise AssemblyError("没有悬停状态时不能有漂移流")
-        if np.any(self.drift_hover_per_s[:-1][~self.hover[1:]] > 0.0):
+        if np.any(self.drift_hover_per_s[1:][~self.hover[:-1]] > 0.0):
             raise AssemblyError("进入悬停状态的漂移目标没有悬停状态")
-        if np.any(self.drift_free_per_s[:-1][self.free_absent[1:]] > 0.0):
+        if np.any(self.drift_free_per_s[1:][self.free_absent[:-1]] > 0.0):
             raise AssemblyError("进入自由状态的漂移目标没有自由状态")
+        if np.any(self.drift_hover_per_s[0] != 0.0) or np.any(self.drift_free_per_s[0] != 0.0):
+            raise AssemblyError("最上一格没有上方相邻格，不能有漂移流")
         if self.migration_mu_per_s is not None:
             if np.any(self.migration_mu_per_s < 0.0):
                 raise AssemblyError("migration_mu_per_s 不能为负")
