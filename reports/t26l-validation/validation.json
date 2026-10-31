@@ -1,0 +1,674 @@
+{
+ "elapsed_s": 179.30835575,
+ "status": "DOMAIN_STOP",
+ "outer_round_limit": 1,
+ "reason": "初值构造停止：初值构造的固相牛顿未收敛：DAMPING_FAILED（没有使归一残差严格下降的可行步），迭代 1，ν_max = 200",
+ "rounds": 1,
+ "iterations": 0,
+ "initial": {
+  "loops": [
+   {
+    "loop": 1,
+    "stopped": true,
+    "reason": "没有使归一残差严格下降的可行步",
+    "frozen_down_kg_s": [
+     0.47697815338513,
+     0.47503354228714256,
+     0.47301662008678746,
+     0.4709234234547447,
+     0.4687496875939673,
+     0.46649081647714263,
+     0.4641418494424674,
+     0.0
+    ],
+    "drain_ash_kg_s": 0.0004923384622094112,
+    "drain_char_kg_s": [
+     0.0007148880935625325,
+     0.000530003241779119,
+     0.0013743107315900413,
+     0.000721050921955313,
+     0.0008812844601676047,
+     0.001534544269802333,
+     0.00040674667392350986
+    ],
+    "bed_char_kg": 3.583053105125558,
+    "bed_inert_kg": [
+     0.0450088573142414,
+     0.04516270139978376,
+     0.04470799576467673,
+     0.04380750303515096,
+     0.04249190945889531,
+     0.04071020980811031,
+     0.03834610885407446,
+     0.03519639324760014
+    ],
+    "status": "DAMPING_FAILED",
+    "iterations": 1,
+    "nu_max": 200,
+    "zero_stocks": 132,
+    "merit_history": [
+     12.420823129782482
+    ],
+    "journal": {
+     "iterations": [
+      {
+       "iteration": 1,
+       "merit": 12.420823129782482,
+       "blocks": {
+        "gas": 0.0,
+        "solid": 0.0,
+        "energy": 0.0,
+        "bottom": null
+       },
+       "largest": [
+        {
+         "index": 186,
+         "block": "",
+         "name": "bed[b=7,geo=0].char.bed.k6",
+         "value": -0.061472750417906806
+        },
+        {
+         "index": 128,
+         "block": "",
+         "name": "freeboard[b=7,geo=0].char.free.k6",
+         "value": 0.0597230517049398
+        },
+        {
+         "index": 183,
+         "block": "",
+         "name": "bed[b=7,geo=0].char.bed.k3",
+         "value": -0.055013749712913854
+        },
+        {
+         "index": 118,
+         "block": "",
+         "name": "freeboard[b=7,geo=0].char.free.k3",
+         "value": 0.05349203341557852
+        },
+        {
+         "index": 185,
+         "block": "",
+         "name": "bed[b=7,geo=0].char.bed.k5",
+         "value": -0.03528251270209843
+        },
+        {
+         "index": 126,
+         "block": "",
+         "name": "freeboard[b=7,geo=0].char.free.k5",
+         "value": 0.03429776875241533
+        },
+        {
+         "index": 184,
+         "block": "",
+         "name": "bed[b=7,geo=0].char.bed.k4",
+         "value": -0.028853426623109482
+        },
+        {
+         "index": 181,
+         "block": "",
+         "name": "bed[b=7,geo=0].char.bed.k1",
+         "value": -0.02881411292888634
+        },
+        {
+         "index": 122,
+         "block": "",
+         "name": "freeboard[b=7,geo=0].char.free.k4",
+         "value": 0.028064822635371498
+        },
+        {
+         "index": 114,
+         "block": "",
+         "name": "freeboard[b=7,geo=0].char.free.k1",
+         "value": 0.027815543142808794
+        }
+       ],
+       "step": {
+        "norm": 0.06958752181731968,
+        "max": {
+         "index": 137,
+         "block": "",
+         "name": "bed[b=0,geo=7].char.bed.k6",
+         "value": 0.0342518371335969,
+         "raw": 0.1357371325966501
+        }
+       },
+       "trials": [
+        {
+         "i": 0,
+         "step": 1.0,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 1,
+         "step": 0.5,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 2,
+         "step": 0.25,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 3,
+         "step": 0.125,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 4,
+         "step": 0.0625,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 5,
+         "step": 0.03125,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 6,
+         "step": 0.015625,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 7,
+         "step": 0.0078125,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 8,
+         "step": 0.00390625,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 9,
+         "step": 0.001953125,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 10,
+         "step": 0.0009765625,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 11,
+         "step": 0.00048828125,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 12,
+         "step": 0.000244140625,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 13,
+         "step": 0.0001220703125,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 14,
+         "step": 6.103515625e-05,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 15,
+         "step": 3.0517578125e-05,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 16,
+         "step": 1.52587890625e-05,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 17,
+         "step": 7.62939453125e-06,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 18,
+         "step": 3.814697265625e-06,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 19,
+         "step": 1.9073486328125e-06,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 20,
+         "step": 9.5367431640625e-07,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 21,
+         "step": 4.76837158203125e-07,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 22,
+         "step": 2.384185791015625e-07,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 23,
+         "step": 1.1920928955078125e-07,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 24,
+         "step": 5.960464477539063e-08,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 25,
+         "step": 2.9802322387695312e-08,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 26,
+         "step": 1.4901161193847656e-08,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 27,
+         "step": 7.450580596923828e-09,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 28,
+         "step": 3.725290298461914e-09,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 29,
+         "step": 1.862645149230957e-09,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        },
+        {
+         "i": 30,
+         "step": 9.313225746154785e-10,
+         "status": "reject",
+         "reason": "freeboard[b=0,geo=7].char.free.k1 < 0",
+         "merit": null,
+         "accepted": false
+        }
+       ]
+      }
+     ],
+     "names": [
+      "freeboard[b=0,geo=7].char.free.k1",
+      "freeboard[b=0,geo=7].ash.free.k1",
+      "freeboard[b=0,geo=7].char.free.k2",
+      "freeboard[b=0,geo=7].ash.free.k2",
+      "freeboard[b=0,geo=7].char.free.k3",
+      "freeboard[b=0,geo=7].ash.free.k3",
+      "freeboard[b=0,geo=7].char.hover.k3",
+      "freeboard[b=0,geo=7].ash.hover.k3",
+      "freeboard[b=0,geo=7].char.free.k4",
+      "freeboard[b=0,geo=7].ash.free.k4",
+      "freeboard[b=0,geo=7].char.free.k5",
+      "freeboard[b=0,geo=7].ash.free.k5",
+      "freeboard[b=0,geo=7].char.free.k6",
+      "freeboard[b=0,geo=7].ash.free.k6",
+      "freeboard[b=0,geo=7].char.free.k7",
+      "freeboard[b=0,geo=7].ash.free.k7",
+      "freeboard[b=1,geo=6].char.free.k1",
+      "freeboard[b=1,geo=6].ash.free.k1",
+      "freeboard[b=1,geo=6].char.free.k2",
+      "freeboard[b=1,geo=6].ash.free.k2",
+      "freeboard[b=1,geo=6].char.free.k3",
+      "freeboard[b=1,geo=6].ash.free.k3",
+      "freeboard[b=1,geo=6].char.hover.k3",
+      "freeboard[b=1,geo=6].ash.hover.k3",
+      "freeboard[b=1,geo=6].char.free.k4",
+      "freeboard[b=1,geo=6].ash.free.k4",
+      "freeboard[b=1,geo=6].char.free.k5",
+      "freeboard[b=1,geo=6].ash.free.k5",
+      "freeboard[b=1,geo=6].char.free.k6",
+      "freeboard[b=1,geo=6].ash.free.k6",
+      "freeboard[b=1,geo=6].char.free.k7",
+      "freeboard[b=1,geo=6].ash.free.k7",
+      "freeboard[b=2,geo=5].char.free.k1",
+      "freeboard[b=2,geo=5].ash.free.k1",
+      "freeboard[b=2,geo=5].char.free.k2",
+      "freeboard[b=2,geo=5].ash.free.k2",
+      "freeboard[b=2,geo=5].char.free.k3",
+      "freeboard[b=2,geo=5].ash.free.k3",
+      "freeboard[b=2,geo=5].char.hover.k3",
+      "freeboard[b=2,geo=5].ash.hover.k3",
+      "freeboard[b=2,geo=5].char.free.k4",
+      "freeboard[b=2,geo=5].ash.free.k4",
+      "freeboard[b=2,geo=5].char.free.k5",
+      "freeboard[b=2,geo=5].ash.free.k5",
+      "freeboard[b=2,geo=5].char.free.k6",
+      "freeboard[b=2,geo=5].ash.free.k6",
+      "freeboard[b=2,geo=5].char.free.k7",
+      "freeboard[b=2,geo=5].ash.free.k7",
+      "freeboard[b=3,geo=4].char.free.k1",
+      "freeboard[b=3,geo=4].ash.free.k1",
+      "freeboard[b=3,geo=4].char.free.k2",
+      "freeboard[b=3,geo=4].ash.free.k2",
+      "freeboard[b=3,geo=4].char.free.k3",
+      "freeboard[b=3,geo=4].ash.free.k3",
+      "freeboard[b=3,geo=4].char.hover.k3",
+      "freeboard[b=3,geo=4].ash.hover.k3",
+      "freeboard[b=3,geo=4].char.free.k4",
+      "freeboard[b=3,geo=4].ash.free.k4",
+      "freeboard[b=3,geo=4].char.free.k5",
+      "freeboard[b=3,geo=4].ash.free.k5",
+      "freeboard[b=3,geo=4].char.free.k6",
+      "freeboard[b=3,geo=4].ash.free.k6",
+      "freeboard[b=3,geo=4].char.free.k7",
+      "freeboard[b=3,geo=4].ash.free.k7",
+      "freeboard[b=4,geo=3].char.free.k1",
+      "freeboard[b=4,geo=3].ash.free.k1",
+      "freeboard[b=4,geo=3].char.free.k2",
+      "freeboard[b=4,geo=3].ash.free.k2",
+      "freeboard[b=4,geo=3].char.free.k3",
+      "freeboard[b=4,geo=3].ash.free.k3",
+      "freeboard[b=4,geo=3].char.hover.k3",
+      "freeboard[b=4,geo=3].ash.hover.k3",
+      "freeboard[b=4,geo=3].char.free.k4",
+      "freeboard[b=4,geo=3].ash.free.k4",
+      "freeboard[b=4,geo=3].char.free.k5",
+      "freeboard[b=4,geo=3].ash.free.k5",
+      "freeboard[b=4,geo=3].char.free.k6",
+      "freeboard[b=4,geo=3].ash.free.k6",
+      "freeboard[b=4,geo=3].char.free.k7",
+      "freeboard[b=4,geo=3].ash.free.k7",
+      "freeboard[b=5,geo=2].char.free.k1",
+      "freeboard[b=5,geo=2].ash.free.k1",
+      "freeboard[b=5,geo=2].char.free.k2",
+      "freeboard[b=5,geo=2].ash.free.k2",
+      "freeboard[b=5,geo=2].char.free.k3",
+      "freeboard[b=5,geo=2].ash.free.k3",
+      "freeboard[b=5,geo=2].char.hover.k3",
+      "freeboard[b=5,geo=2].ash.hover.k3",
+      "freeboard[b=5,geo=2].char.free.k4",
+      "freeboard[b=5,geo=2].ash.free.k4",
+      "freeboard[b=5,geo=2].char.free.k5",
+      "freeboard[b=5,geo=2].ash.free.k5",
+      "freeboard[b=5,geo=2].char.free.k6",
+      "freeboard[b=5,geo=2].ash.free.k6",
+      "freeboard[b=5,geo=2].char.free.k7",
+      "freeboard[b=5,geo=2].ash.free.k7",
+      "freeboard[b=6,geo=1].char.free.k1",
+      "freeboard[b=6,geo=1].ash.free.k1",
+      "freeboard[b=6,geo=1].char.free.k2",
+      "freeboard[b=6,geo=1].ash.free.k2",
+      "freeboard[b=6,geo=1].char.free.k3",
+      "freeboard[b=6,geo=1].ash.free.k3",
+      "freeboard[b=6,geo=1].char.hover.k3",
+      "freeboard[b=6,geo=1].ash.hover.k3",
+      "freeboard[b=6,geo=1].char.free.k4",
+      "freeboard[b=6,geo=1].ash.free.k4",
+      "freeboard[b=6,geo=1].char.hover.k4",
+      "freeboard[b=6,geo=1].ash.hover.k4",
+      "freeboard[b=6,geo=1].char.free.k5",
+      "freeboard[b=6,geo=1].ash.free.k5",
+      "freeboard[b=6,geo=1].char.free.k6",
+      "freeboard[b=6,geo=1].ash.free.k6",
+      "freeboard[b=6,geo=1].char.free.k7",
+      "freeboard[b=6,geo=1].ash.free.k7",
+      "freeboard[b=7,geo=0].char.free.k1",
+      "freeboard[b=7,geo=0].ash.free.k1",
+      "freeboard[b=7,geo=0].char.free.k2",
+      "freeboard[b=7,geo=0].ash.free.k2",
+      "freeboard[b=7,geo=0].char.free.k3",
+      "freeboard[b=7,geo=0].ash.free.k3",
+      "freeboard[b=7,geo=0].char.hover.k3",
+      "freeboard[b=7,geo=0].ash.hover.k3",
+      "freeboard[b=7,geo=0].char.free.k4",
+      "freeboard[b=7,geo=0].ash.free.k4",
+      "freeboard[b=7,geo=0].char.hover.k4",
+      "freeboard[b=7,geo=0].ash.hover.k4",
+      "freeboard[b=7,geo=0].char.free.k5",
+      "freeboard[b=7,geo=0].ash.free.k5",
+      "freeboard[b=7,geo=0].char.free.k6",
+      "freeboard[b=7,geo=0].ash.free.k6",
+      "freeboard[b=7,geo=0].char.free.k7",
+      "freeboard[b=7,geo=0].ash.free.k7",
+      "bed[b=0,geo=7].char.bed.k1",
+      "bed[b=0,geo=7].char.bed.k2",
+      "bed[b=0,geo=7].char.bed.k3",
+      "bed[b=0,geo=7].char.bed.k4",
+      "bed[b=0,geo=7].char.bed.k5",
+      "bed[b=0,geo=7].char.bed.k6",
+      "bed[b=0,geo=7].char.bed.k7",
+      "bed[b=1,geo=6].char.bed.k1",
+      "bed[b=1,geo=6].char.bed.k2",
+      "bed[b=1,geo=6].char.bed.k3",
+      "bed[b=1,geo=6].char.bed.k4",
+      "bed[b=1,geo=6].char.bed.k5",
+      "bed[b=1,geo=6].char.bed.k6",
+      "bed[b=1,geo=6].char.bed.k7",
+      "bed[b=2,geo=5].char.bed.k1",
+      "bed[b=2,geo=5].char.bed.k2",
+      "bed[b=2,geo=5].char.bed.k3",
+      "bed[b=2,geo=5].char.bed.k4",
+      "bed[b=2,geo=5].char.bed.k5",
+      "bed[b=2,geo=5].char.bed.k6",
+      "bed[b=2,geo=5].char.bed.k7",
+      "bed[b=3,geo=4].char.bed.k1",
+      "bed[b=3,geo=4].char.bed.k2",
+      "bed[b=3,geo=4].char.bed.k3",
+      "bed[b=3,geo=4].char.bed.k4",
+      "bed[b=3,geo=4].char.bed.k5",
+      "bed[b=3,geo=4].char.bed.k6",
+      "bed[b=3,geo=4].char.bed.k7",
+      "bed[b=4,geo=3].char.bed.k1",
+      "bed[b=4,geo=3].char.bed.k2",
+      "bed[b=4,geo=3].char.bed.k3",
+      "bed[b=4,geo=3].char.bed.k4",
+      "bed[b=4,geo=3].char.bed.k5",
+      "bed[b=4,geo=3].char.bed.k6",
+      "bed[b=4,geo=3].char.bed.k7",
+      "bed[b=5,geo=2].char.bed.k1",
+      "bed[b=5,geo=2].char.bed.k2",
+      "bed[b=5,geo=2].char.bed.k3",
+      "bed[b=5,geo=2].char.bed.k4",
+      "bed[b=5,geo=2].char.bed.k5",
+      "bed[b=5,geo=2].char.bed.k6",
+      "bed[b=5,geo=2].char.bed.k7",
+      "bed[b=6,geo=1].char.bed.k1",
+      "bed[b=6,geo=1].char.bed.k2",
+      "bed[b=6,geo=1].char.bed.k3",
+      "bed[b=6,geo=1].char.bed.k4",
+      "bed[b=6,geo=1].char.bed.k5",
+      "bed[b=6,geo=1].char.bed.k6",
+      "bed[b=6,geo=1].char.bed.k7",
+      "bed[b=7,geo=0].char.bed.k1",
+      "bed[b=7,geo=0].char.bed.k2",
+      "bed[b=7,geo=0].char.bed.k3",
+      "bed[b=7,geo=0].char.bed.k4",
+      "bed[b=7,geo=0].char.bed.k5",
+      "bed[b=7,geo=0].char.bed.k6",
+      "bed[b=7,geo=0].char.bed.k7"
+     ]
+    }
+   }
+  ],
+  "note": "停止"
+ },
+ "rounds_detail": [],
+ "research": {
+  "temperature_k": 1073.0,
+  "recompute_down": true,
+  "residual_history": [
+   5.410903634373805,
+   2.6286599630914655,
+   1.0938934344304276,
+   0.011648360461000196,
+   0.00017727914026290206,
+   1.1505616384640716e-08,
+   1.2653192753170547e-14
+  ],
+  "converged": true,
+  "bed_char_kg": 3.4557404531131484,
+  "bed_char_by_class_kg": [
+   0.012955643555253943,
+   0.010413012123410021,
+   0.038694398073246754,
+   0.3318525119839497,
+   0.8247889241462996,
+   1.7041860087913485,
+   0.5328499544396396
+  ],
+  "bed_inert_by_cell_kg": [
+   0.058031371570720226,
+   0.058555268102253456,
+   0.05866431962821869,
+   0.05853448995038033,
+   0.05824364066651139,
+   0.05781699359566335,
+   0.0572438057348696,
+   0.056455023494362835
+  ],
+  "minimum_solid_kg": 0.0,
+  "drain_ash_kg_s": 0.0001968737391210455,
+  "drain_char_kg_s": 0.0014628027322980605,
+  "elutriated_ash_kg_s": 0.00028959564250851045,
+  "ash_in_kg_s": 0.0004940915,
+  "bottom_ash_fraction": 0.1158835417178964,
+  "hover_char_kg": 0.9166286109582085,
+  "volume_ratio": [
+   0.001225575288397311,
+   0.009310829408947292,
+   0.012753396738834702,
+   0.013185486787164044,
+   0.017071028501704354,
+   0.01516211640519125,
+   0.018467178388097083,
+   0.06786233112531814
+  ],
+  "flows": {
+   "down": [
+    0.7482949506419069,
+    0.7461832450759922,
+    0.7439974207980669,
+    0.7417337230219669,
+    0.7393881564524705,
+    0.7369564824775962,
+    0.734434219652152,
+    0.0
+   ],
+   "frozen_down": [
+    0.48369005772593937,
+    0.48123446801179637,
+    0.4787078212292408,
+    0.47610624077130503,
+    0.47342555715915113,
+    0.47066127938602687,
+    0.4678085627903582,
+    0.0
+   ],
+   "up": [
+    0.26829639544523753,
+    0.751170078718606,
+    0.7491687627175475,
+    0.747094520749562,
+    0.7449434061221071,
+    0.7427111753906421,
+    0.7403932594043217,
+    0.7379847308510582
+   ],
+   "returned": 0.2655303057503625,
+   "consumption": 0.0008975311615911465,
+   "closure": 0.00770448044989246
+  }
+ },
+ "inner_status": null,
+ "criteria": {
+  "initial_normal_end": false,
+  "first_round_inner_converged": false
+ }
+}

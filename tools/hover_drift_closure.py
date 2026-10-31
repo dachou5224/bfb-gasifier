@@ -1,7 +1,7 @@
 """悬停闭合的研究：闭合 A 在 T26j 预启动点上的悬停平衡、温度敏感性与漂移闭合的估算。只报告。
 
 不改模型、不进入求解。做法：
-1. 按 T26j 的链路运行到 ADR 0049 第 3 步的预启动焦炭块解出为止（自由空间灰块之前），
+1. 运行到第一次预计算之后的固相牛顿之前（ADR 0052 取代了 ADR 0049 的预启动），
    保存状态、冻结量与第 1 次预计算的自由空间气速剖面；
 2. 在该点上对粒级 3 的悬停焦炭行差分，得流入 I 与总出流系数 λ = α(1 + q_k)；
    为求系数而暂停有效域检查（只作诊断，ADR 0026 第 5 项不变）；
@@ -66,8 +66,8 @@ def _capture() -> dict:
         ])
         return original(edges, gas, rho, mu, diameter, rho_p, phi, *args, **kwargs)
 
-    def stop(x, frozen):
-        record["state"] = initial.unpack_state(x, frozen)
+    def stop(state, frozen, *args, **kwargs):
+        record["state"] = state
         record["frozen"] = frozen
         raise _Captured()
 
@@ -78,8 +78,8 @@ def _capture() -> dict:
     limit = float(config.wall_timeout_s)
     started = time.monotonic()
     precalc.account_freeboard = account
-    guard = initial._require_bed_ash
-    initial._require_bed_ash = stop
+    guard = initial.solve_solids
+    initial.solve_solids = stop
     # CHARTER §7：驱动的期限只在牛顿内检查，预计算阶段另以进程信号兜底，到时同样记 TIMEOUT。
     previous = signal.signal(signal.SIGALRM, expire)
     signal.alarm(int(limit) + 1)
@@ -93,11 +93,11 @@ def _capture() -> dict:
         signal.alarm(0)
         signal.signal(signal.SIGALRM, previous)
         precalc.account_freeboard = original
-        initial._require_bed_ash = guard
+        initial.solve_solids = guard
     if "timeout_s" in record:
         return record
     if "state" not in record:
-        raise RuntimeError("求解在预启动焦炭块之前结束（非超时）")
+        raise RuntimeError("求解在固相牛顿之前结束（非超时）")
     return record
 
 

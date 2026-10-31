@@ -129,7 +129,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
 
     def _feedback(state):
         """从已解固相与它对应的冻结量更新床区反应汇与改送反馈。
-        求解手段：ADR 0049 第 4 步；PR #130 审查 P2。
+        求解手段：ADR 0052 第 1 项第 5 步；PR #130 审查 P2。
         """
         if not holder["records"]:
             return
@@ -154,15 +154,15 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         return result
 
     def _initial(iteration):
-        """初值：焦油另加、固相按块顺序线性求解，与预计算交替。求解手段：ADR 0045"""
+        """初值：焦油另加，固相、排灰与床区向下流按同一状态联立牛顿，再与预计算交替。求解手段：ADR 0052"""
         first = _precalc(iteration, False)
         loops: list = []
-        # 先挂上空列表：交替中途停止时，已完成的阶段仍写进报告（ADR 0049 第 3 步）。
+        # 先挂上空列表：交替中途停止时，已完成的记录仍写进报告。
         holder["initial"] = {"loops": loops, "note": "停止"}
         try:
             result, loops, note = construct(
                 first, lambda state: _precalc(iteration, False, state), m_ref,
-                gate=float(config.residual_tolerance), records=loops,
+                gate=float(config.residual_tolerance), config=config, records=loops,
             )
         except DomainRejected as exc:
             holder["initial"] = {"loops": loops, "note": f"停止：{exc.phase}的有效域拒绝"}
@@ -282,7 +282,7 @@ class _Checked:
 def solid_feedback(state, frozen):
     """从已解固相与冻结量取床区反应汇与改送流，供下一次预计算回馈。
 
-    求解手段：ADR 0049 第 4 步；PR #130 审查 P2。
+    求解手段：ADR 0052 第 1 项第 5 步；PR #130 审查 P2。
     """
     assembly = evaluate_residual(pack_state(state, frozen), frozen)
     return -assembly.char_consumption_bed_kg_s.sum(axis=1), _redirect_tuple(assembly)
