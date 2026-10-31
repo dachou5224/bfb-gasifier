@@ -110,6 +110,10 @@ class FrozenQuantities:
     c_down_per_s: np.ndarray | None = None
     theta_up: np.ndarray | None = None
     theta_down: np.ndarray | None = None
+    # 悬停状态的粒级内漂移与粒级迁移因子。解释性选择：ADR 0051 第 2 项。
+    drift_hover_per_s: np.ndarray | None = None
+    drift_free_per_s: np.ndarray | None = None
+    migration_mu_per_s: np.ndarray | None = None
     def __post_init__(self) -> None:
         n_bed = len(np.asarray(self.bed_pressure_pa))
         n_free = len(np.asarray(self.freeboard_pressure_pa))
@@ -135,6 +139,12 @@ class FrozenQuantities:
             value = getattr(self, name)
             empty = np.zeros((n_free, n_class))
             object.__setattr__(self, name, empty if value is None else _array(name, value, (n_free, n_class)))
+        for name in ("drift_hover_per_s", "drift_free_per_s"):
+            value = getattr(self, name)
+            empty = np.zeros((n_free, n_class))
+            object.__setattr__(self, name, empty if value is None else _array(name, value, (n_free, n_class)))
+        if self.migration_mu_per_s is not None:
+            object.__setattr__(self, "migration_mu_per_s", _array("migration_mu_per_s", self.migration_mu_per_s, (n_free, n_class)))
         if self.theta_up is None:
             # 只给总量 θ 时按本格悬停状态解释，θ↓ 为 0。与半格捕获区之前的构造相容。
             object.__setattr__(self, "theta_up", np.array(self.theta, dtype=float, copy=True))
@@ -226,6 +236,24 @@ class FrozenQuantities:
         if np.any(self.theta_down[-1] != 0.0):
             # 最下一格的中点以下没有捕获区。解释性选择：ADR 0048 第 2 项。
             raise AssemblyError("自由空间最下一格的中点以下没有捕获区，θ↓ 必须为 0")
+        for name in ("drift_hover_per_s", "drift_free_per_s"):
+            if np.any(getattr(self, name) < 0.0):
+                raise AssemblyError(f"{name} 不能为负")
+        # 漂移只从悬停状态出发、只进入相邻的上方格（衡算下标 0 为顶，源 i 到目标 i−1）。
+        # 解释性选择：ADR 0051 第 2、3 项。
+        if np.any(self.drift_hover_per_s[~self.hover] != 0.0) or np.any(self.drift_free_per_s[~self.hover] != 0.0):
+            raise AssemblyError("没有悬停状态时不能有漂移流")
+        if np.any(self.drift_hover_per_s[1:][~self.hover[:-1]] > 0.0):
+            raise AssemblyError("进入悬停状态的漂移目标没有悬停状态")
+        if np.any(self.drift_free_per_s[1:][self.free_absent[:-1]] > 0.0):
+            raise AssemblyError("进入自由状态的漂移目标没有自由状态")
+        if np.any(self.drift_hover_per_s[0] != 0.0) or np.any(self.drift_free_per_s[0] != 0.0):
+            raise AssemblyError("最上一格没有上方相邻格，不能有漂移流")
+        if self.migration_mu_per_s is not None:
+            if np.any(self.migration_mu_per_s < 0.0):
+                raise AssemblyError("migration_mu_per_s 不能为负")
+            if np.any(self.migration_mu_per_s[:, 0] != 0.0):
+                raise AssemblyError("粒级 1 的迁移因子恒为 0")
         if np.any(self.free_absent & (held == 0.0)):
             raise AssemblyError("自由状态不存在时必须有悬停份额")
         if self.hover_closure == "A" and np.any(~self.hover & (held != 0.0)):
