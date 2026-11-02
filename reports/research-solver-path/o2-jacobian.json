@@ -1,0 +1,329 @@
+{
+ "blocks_max": {
+  "gas": 0.10631598214783568,
+  "solid": 0.00015206640515337937,
+  "energy": 0.09716282445988948
+ },
+ "merit": 0.3147403304191254,
+ "linear_residual": 9.5217988214004e-14,
+ "line": [
+  {
+   "i": 0,
+   "error": "TrialNotEvaluable: 床区格 0 没有焦炭，不能按焦炭比例分配灰"
+  },
+  {
+   "i": 1,
+   "error": "TrialNotEvaluable: 床区格 0 没有焦炭，不能按焦炭比例分配灰"
+  },
+  {
+   "i": 2,
+   "error": "TrialNotEvaluable: 床区格 0 没有焦炭，不能按焦炭比例分配灰"
+  },
+  {
+   "i": 3,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 4,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 5,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 6,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 7,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 8,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 9,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 10,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 11,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 12,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 13,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 14,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 15,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 16,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 17,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 18,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 19,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 20,
+   "error": "PropertyError: O2 的摩尔分数为负"
+  },
+  {
+   "i": 21,
+   "merit": 0.3147470286789142,
+   "predicted": 0.3147401803392407,
+   "worst_row": "freeboard[b=6,geo=1].gas_outflow.gas.CO"
+  },
+  {
+   "i": 22,
+   "merit": 0.31474288376013365,
+   "predicted": 0.31474025537918304,
+   "worst_row": "freeboard[b=6,geo=1].gas_outflow.gas.CO"
+  },
+  {
+   "i": 23,
+   "merit": 0.3147414464686114,
+   "predicted": 0.3147402928991543,
+   "worst_row": "freeboard[b=6,geo=1].gas_outflow.gas.CO"
+  },
+  {
+   "i": 24,
+   "merit": 0.3147408509119125,
+   "predicted": 0.31474031165913985,
+   "worst_row": "freeboard[b=6,geo=1].gas_outflow.gas.CO"
+  },
+  {
+   "i": 25,
+   "merit": 0.31474058152009887,
+   "predicted": 0.31474032103913263,
+   "worst_row": "freeboard[b=6,geo=1].gas_outflow.gas.CO"
+  },
+  {
+   "i": 26,
+   "merit": 0.3147404537080044,
+   "predicted": 0.314740325729129,
+   "worst_row": "freeboard[b=6,geo=1].gas_outflow.gas.CO"
+  },
+  {
+   "i": 27,
+   "merit": 0.31474039150096195,
+   "predicted": 0.3147403280741272,
+   "worst_row": "freeboard[b=6,geo=1].gas_outflow.gas.CO"
+  },
+  {
+   "i": 28,
+   "merit": 0.3147403608197253,
+   "predicted": 0.31474032924662637,
+   "worst_row": "freeboard[b=6,geo=1].gas_outflow.gas.CO"
+  },
+  {
+   "i": 29,
+   "merit": 0.314740345584383,
+   "predicted": 0.3147403298328759,
+   "worst_row": "freeboard[b=6,geo=1].gas_outflow.gas.CO"
+  },
+  {
+   "i": 30,
+   "merit": 0.314740337993,
+   "predicted": 0.31474033012600067,
+   "worst_row": "freeboard[b=6,geo=1].gas_outflow.gas.CO"
+  }
+ ],
+ "groups": {
+  "CO": {
+   "max_gap": 1.8452230088079197e-07,
+   "row": "bed[b=1,geo=6].temperature",
+   "actual": 0.006799002436795615,
+   "predicted": 0.006798817914494734
+  },
+  "CO2": {
+   "max_gap": 9.643716729519636e-08,
+   "row": "bed[b=2,geo=5].temperature",
+   "actual": -0.009633033810539142,
+   "predicted": -0.009633130247706437
+  },
+  "H2": {
+   "max_gap": 9.724520146038237e-08,
+   "row": "bed[b=1,geo=6].temperature",
+   "actual": -0.0007558825769113616,
+   "predicted": -0.000755979822112822
+  },
+  "H2O": {
+   "max_gap": 1.0539428252050523e-07,
+   "row": "bed[b=1,geo=6].temperature",
+   "actual": -0.002108247030155346,
+   "predicted": -0.0021083524244378663
+  },
+  "CH4": {
+   "max_gap": 1.1203606477318555e-07,
+   "row": "bed[b=2,geo=5].temperature",
+   "actual": -6.151005178190679e-05,
+   "predicted": -6.162208784667998e-05
+  },
+  "C2H4": {
+   "max_gap": 1.7143782763327403e-07,
+   "row": "bed[b=1,geo=6].temperature",
+   "actual": 1.7133719159305515e-07,
+   "predicted": -1.0063604021888669e-10
+  },
+  "N2": {
+   "max_gap": 1.7188452164830238e-07,
+   "row": "bed[b=1,geo=6].temperature",
+   "actual": 1.7133719159305515e-07,
+   "predicted": -5.473300552472502e-10
+  },
+  "O2": {
+   "max_gap": 161.472774539456,
+   "row": "freeboard[b=6,geo=1].gas_outflow.gas.CO",
+   "actual": -161.4727756055868,
+   "predicted": -1.0661308138275602e-06
+  },
+  "NH3": {
+   "max_gap": 7.520437596620882e-08,
+   "row": "bed[b=3,geo=4].temperature",
+   "actual": 1.3307188547060616e-05,
+   "predicted": 1.3382392923026825e-05
+  },
+  "H2S": {
+   "max_gap": 1.142821140103404e-07,
+   "row": "bed[b=1,geo=6].temperature",
+   "actual": -1.0280231495583308e-06,
+   "predicted": -1.1423052635686712e-06
+  },
+  "C6H6": {
+   "max_gap": 5.665676865970791e-08,
+   "row": "bed[b=2,geo=5].temperature",
+   "actual": -0.00020617575388364302,
+   "predicted": -0.00020623241065230273
+  },
+  "C10H8": {
+   "max_gap": 7.18478138903608e-08,
+   "row": "bed[b=1,geo=6].temperature",
+   "actual": -0.00035855162960706676,
+   "predicted": -0.0003586234774209571
+  },
+  "temperature": {
+   "max_gap": 1.5642324027939636e-06,
+   "row": "bed[b=6,geo=1].temperature",
+   "actual": 0.04213610776633415,
+   "predicted": 0.042134543533931354
+  },
+  "solid": {
+   "max_gap": 1.3260322179950434e-06,
+   "row": "bed[b=5,geo=2].char.bed.k6",
+   "actual": 0.03511450783558474,
+   "predicted": 0.03511318180336675
+  }
+ },
+ "o2_column": {
+  "name": "freeboard[b=6,geo=1].gas_outflow.gas.O2",
+  "x": 6.578909154132035e-21,
+  "scale": 1.196678424288042,
+  "adr0043_step": 1.783189809751573e-08,
+  "difference_quotients": [
+   {
+    "h": 1e-23,
+    "d_co_row": -2.8671736623797628e+16,
+    "d_o2_row": -1.434724598292636e+16
+   },
+   {
+    "h": 1e-21,
+    "d_co_row": -2.728015132152928e+16,
+    "d_o2_row": -1.3651453332513832e+16
+   },
+   {
+    "h": 1e-20,
+    "d_co_row": -2.0101791171606156e+16,
+    "d_o2_row": -1.0062273257553656e+16
+   },
+   {
+    "h": 1e-19,
+    "d_co_row": -8215868881131239.0,
+    "d_o2_row": -4119312112316614.5
+   },
+   {
+    "h": 1e-18,
+    "d_co_row": -2216187767551280.8,
+    "d_o2_row": -1119471555526718.6
+   },
+   {
+    "h": 1e-16,
+    "d_co_row": -106761472167293.81,
+    "d_o2_row": -64758407834730.33
+   },
+   {
+    "h": 1e-14,
+    "d_co_row": -4437700652945.037,
+    "d_o2_row": -13596522077555.807
+   },
+   {
+    "h": 1e-12,
+    "d_co_row": -178542926641.56018,
+    "d_o2_row": -11466943214388.824
+   },
+   {
+    "h": 1e-10,
+    "d_co_row": -7126209375.348711,
+    "d_o2_row": -11381234854231.107
+   },
+   {
+    "h": 1.783189809751573e-08,
+    "d_co_row": -188902164.89629647,
+    "d_o2_row": -11377765927552.371
+   }
+  ],
+  "o2_unknowns": {
+   "freeboard[b=0,geo=7].gas_outflow.gas.O2": 1.9080519481592818e-23,
+   "freeboard[b=1,geo=6].gas_outflow.gas.O2": 1.8870309590759255e-23,
+   "freeboard[b=2,geo=5].gas_outflow.gas.O2": 1.8509799383800408e-23,
+   "freeboard[b=3,geo=4].gas_outflow.gas.O2": 1.7875064454201602e-23,
+   "freeboard[b=4,geo=3].gas_outflow.gas.O2": 1.6938096777161718e-23,
+   "freeboard[b=5,geo=2].gas_outflow.gas.O2": 1.5420123823493098e-23,
+   "freeboard[b=6,geo=1].gas_outflow.gas.O2": 6.578909154132035e-21,
+   "freeboard[b=7,geo=0].gas_outflow.gas.O2": 1.1270559262397222e-23,
+   "bed[b=0,geo=7].gas_outflow.suspension.O2": 1.642539877586634e-23,
+   "bed[b=0,geo=7].gas_outflow.bubble.O2": 4.487148087817976e-24,
+   "bed[b=1,geo=6].gas_outflow.suspension.O2": 1.6425398977958018e-23,
+   "bed[b=1,geo=6].gas_outflow.bubble.O2": 4.50511950252041e-24,
+   "bed[b=2,geo=5].gas_outflow.suspension.O2": 1.6425399307981763e-23,
+   "bed[b=2,geo=5].gas_outflow.bubble.O2": 4.4948825413797626e-24,
+   "bed[b=3,geo=4].gas_outflow.suspension.O2": 1.6425399871043942e-23,
+   "bed[b=3,geo=4].gas_outflow.bubble.O2": 4.45065766165354e-24,
+   "bed[b=4,geo=3].gas_outflow.suspension.O2": 1.6425400820071492e-23,
+   "bed[b=4,geo=3].gas_outflow.bubble.O2": 4.3665025590909575e-24,
+   "bed[b=5,geo=2].gas_outflow.suspension.O2": 1.6425402381038388e-23,
+   "bed[b=5,geo=2].gas_outflow.bubble.O2": 4.2415486172227295e-24,
+   "bed[b=6,geo=1].gas_outflow.suspension.O2": 1.642540491906092e-23,
+   "bed[b=6,geo=1].gas_outflow.bubble.O2": 4.100531822477845e-24,
+   "bed[b=7,geo=0].gas_outflow.suspension.O2": 4.2727505841747294e-20,
+   "bed[b=7,geo=0].gas_outflow.bubble.O2": 1.433946725137082e-20
+  },
+  "jacobian_entries": {
+   "d_co_row": -188902164.89629647,
+   "d_o2_row": -11377765927552.371
+  }
+ }
+}
