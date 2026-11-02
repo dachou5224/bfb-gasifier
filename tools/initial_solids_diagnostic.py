@@ -102,7 +102,32 @@ def _consistent(x, frozen, case, recompute_down: bool):
     return replace(updated, m_dot_ab_kg_s=np.asarray(down, dtype=float)), info
 
 
-def _newton(x, frozen, case, m_ref, recompute_down, limit=40):
+def _admissible(point, frozen, case, rows, mode, values) -> bool:
+    """试探点的可行条件。strict：ADR 0052 初稿（存量、惰性物、排灰灰分量非负）；
+    relaxed：ADR 0052 修订（残差有限、最底床格灰分为正）。diagnostic：只要残差可算。"""
+    try:
+        result = values(point)
+    except _Timeout:
+        raise
+    except Exception:
+        return False
+    if not np.all(np.isfinite(result[rows])):
+        return False
+    if mode == "diagnostic":
+        return True
+    state = unpack_state(point, frozen)
+    inert = np.asarray(frozen.geometric_mass_kg) - np.asarray(state.bed_char_kg).sum(axis=1) - np.asarray(frozen.fuel_bed_kg).sum(axis=1)
+    if inert[-1] <= 0.0:
+        return False
+    if mode == "relaxed":
+        return True
+    drain_ash, _, _ = _a5(point, frozen, case)
+    return bool(np.all(point[rows] >= 0.0) and np.all(inert >= 0.0) and drain_ash >= 0.0)
+
+
+def _newton(x, frozen, case, m_ref, recompute_down, limit=40, mode="diagnostic"):
+    """mode = diagnostic：最大范数、回溯、不查可行（研究底稿第 2 节）；
+    strict / relaxed：ADR 0017 第 7 项的归一欧氏范数严格下降、i ≤ 30，可行条件见 _admissible。"""
     def values(point):
         current, _ = _consistent(point, frozen, case, recompute_down)
         return np.asarray(residual.evaluate_residual(point, current).values, dtype=float)
@@ -126,18 +151,29 @@ def _newton(x, frozen, case, m_ref, recompute_down, limit=40):
             jacobian[:, position] = (values(trial)[rows] - r[rows]) / steps[position]
         column = np.maximum(np.abs(x[rows]), scale)
         delta = column * np.linalg.solve(jacobian * (column / m_ref)[None, :], -r[rows] / m_ref)
-        damping = 1.0
-        for _ in range(30):
+        if mode == "diagnostic":
+            damping = 1.0
+            for _ in range(30):
+                trial = x.copy()
+                trial[rows] += damping * delta
+                try:
+                    if np.max(np.abs(values(trial)[rows])) < np.max(np.abs(r[rows])) * (1.0 - 1.0e-4 * damping):
+                        break
+                except _Timeout:
+                    raise
+                except Exception:
+                    pass
+                damping *= 0.5
+            x = trial
+            continue
+        euclid = float(np.linalg.norm(r[rows] / m_ref))
+        for power in range(31):
             trial = x.copy()
-            trial[rows] += damping * delta
-            try:
-                if np.max(np.abs(values(trial)[rows])) < np.max(np.abs(r[rows])) * (1.0 - 1.0e-4 * damping):
-                    break
-            except _Timeout:
-                raise
-            except Exception:
-                pass
-            damping *= 0.5
+            trial[rows] += 2.0 ** -power * delta
+            if _admissible(trial, frozen, case, rows, mode, values) and float(np.linalg.norm(values(trial)[rows] / m_ref)) < euclid:
+                break
+        else:
+            raise RuntimeError(f"阻尼失败：i 到 30 仍无可行且下降的试探点（第 {len(history)} 次迭代，归一欧氏范数 {euclid:.3e}）")
         x = trial
     return x, history
 
@@ -173,6 +209,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--temperatures", default="1073,1123,1173")
     parser.add_argument("--timeout-s", type=float, default=3600.0)
+    parser.add_argument("--modes", default="diagnostic", help="diagnostic,strict,relaxed（strict、relaxed 只跑重算组）")
     args = parser.parse_args()
     _OUT.mkdir(parents=True, exist_ok=True)
 
@@ -195,27 +232,33 @@ def main() -> int:
                 bed_temperature_k=np.full(np.shape(first.state.bed_temperature_k), temperature),
                 freeboard_temperature_k=np.full(np.shape(first.state.freeboard_temperature_k), temperature),
             )
-            result = function(hot)
-            for recompute_down in (False, True):
+            result = function(hot, None)  # 第一次预计算：没有上一轮排灰（与 driver 的初值构造调用一致）
+            combos = []
+            for mode in args.modes.split(","):
+                combos += [(mode, False), (mode, True)] if mode == "diagnostic" else [(mode, True)]
+            for mode, recompute_down in combos:
                 x = np.asarray(pack_state(result.state, result.frozen), dtype=float)
+                # strict、relaxed 按 ADR 0052 第 3 项：试探点的有效域拒绝按不可行缩步，故恢复有效域检查。
+                residual._Context.domain = check if mode != "diagnostic" else (lambda self: None)
                 try:
-                    x, history = _newton(x, result.frozen, context["case"], m_ref, recompute_down)
-                    runs.append(_summary(x, result.frozen, context["case"], recompute_down, temperature, history))
+                    x, history = _newton(x, result.frozen, context["case"], m_ref, recompute_down, mode=mode)
+                    runs.append({"mode": mode, **_summary(x, result.frozen, context["case"], recompute_down, temperature, history)})
                 except (_Timeout, KeyboardInterrupt):
                     raise
                 except Exception as exc:  # 只作诊断：记下失败，继续下一组
-                    runs.append({"temperature_k": temperature, "recompute_down": recompute_down, "converged": False,
+                    runs.append({"mode": mode, "temperature_k": temperature, "recompute_down": recompute_down, "converged": False,
                                  "error": f"{type(exc).__name__}: {exc}"})
                     print(json.dumps(runs[-1], ensure_ascii=False), flush=True)
                     continue
-                print(json.dumps({key: runs[-1][key] for key in ("temperature_k", "recompute_down", "converged", "bed_char_kg", "bed_inert_by_cell_kg", "drain_ash_kg_s", "elutriated_ash_kg_s")}), flush=True)
+                print(json.dumps({key: runs[-1][key] for key in ("mode", "temperature_k", "recompute_down", "converged", "bed_char_kg", "bed_inert_by_cell_kg", "drain_ash_kg_s", "elutriated_ash_kg_s")}), flush=True)
         status = "OK"
     except _Timeout:
         status = "TIMEOUT"
     finally:
         signal.alarm(0)
         residual._Context.domain = check
-    (_OUT / "study.json").write_text(json.dumps({"status": status, "runs": runs}, ensure_ascii=False, indent=1), encoding="utf-8")
+    name = "study.json" if args.modes == "diagnostic" else f"study-{args.modes.replace(',', '-')}.json"
+    (_OUT / name).write_text(json.dumps({"status": status, "runs": runs}, ensure_ascii=False, indent=1), encoding="utf-8")
     return 0 if status == "OK" else 1
 
 
