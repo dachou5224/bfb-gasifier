@@ -98,6 +98,7 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
         "outer_round_limit",
         "damping_index_limit",
         "residual_tolerance",
+        "stock_roundoff_relative",
         "outer_temperature_tolerance_k",
         "outer_relative_tolerance",
         "element_balance_tolerance",
@@ -128,6 +129,7 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
     assert solver.outer_round_limit == 100
     assert solver.damping_index_limit == 30
     assert solver.residual_tolerance == 1.0e-6
+    assert solver.stock_roundoff_relative == 1.0e-12
     assert solver.outer_temperature_tolerance_k == 0.1
     assert solver.outer_relative_tolerance == 1.0e-4
     assert solver.element_balance_tolerance == 1.0e-3

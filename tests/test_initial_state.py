@@ -153,22 +153,35 @@ def test_frozen_downflow_gives_negative_bed_inert_and_recomputation_positive():
     assert len(solved.merit_history) == solved.iterations + 1
 
 
-def test_solid_feasibility_rejects_negative_inert_and_negative_drain_ash():
-    """ADR 0052 第 1 项第 3 步：可行条件为 ADR 0017 第 7 项，另加排灰灰分量非负。"""
+def test_trial_feasibility_only_requires_a_positive_bottom_ash_fraction():
+    """ADR 0052 第 1 项第 3 步（2026-10-31 修订）：试探点只查最底床格灰分为正。
+
+    存量、床格惰性物与排灰灰分量不在试探点上检查；主求解的可行条件不变。
+    """
+    from hamel.solver.driver import _feasible
+
     frozen, state, context = _system()
-    assert solid_feasible(state, frozen, context)
-    heavy = replace(state, bed_char_kg=np.full_like(state.bed_char_kg, 0.5))
-    assert not solid_feasible(heavy, frozen, context)
+    assert solid_feasible(state, frozen)
+    # 负存量、负惰性物与负排灰灰分量在试探点上都可以出现。
     negative = replace(state, freeboard_ash_free_kg=np.full_like(state.freeboard_ash_free_kg, -1.0e-9))
-    assert not solid_feasible(negative, frozen, context)
+    assert solid_feasible(negative, frozen)
+    heavy = replace(state, bed_char_kg=state.bed_char_kg.copy())
+    heavy.bed_char_kg[0, 0] = 0.5
+    assert solid_feasible(heavy, frozen)
     carried = make_state(frozen, temperature=900.0, char=2.0e-3, ash=0.0)
     carried.freeboard_ash_free_kg[0] = 1.0
-    heavy_ash = _context(a_f=1.0)
-    assert not solid_feasible(carried, frozen, heavy_ash)
+    assert solid_feasible(carried, frozen)
+    # 最底床格灰分为零时排灰总流率没有定义，仍是不可行。
+    ash_only = replace(state, bed_char_kg=np.zeros_like(state.bed_char_kg))
+    ash_only.bed_char_kg[-1] = frozen.geometric_mass_kg[-1]
+    assert not solid_feasible(ash_only, frozen)
+    # 主求解的内层牛顿仍按 ADR 0017 第 7 项拒绝负存量与负惰性物。
+    assert _feasible(pack_state(negative, frozen), frozen) is False
+    assert _feasible(pack_state(heavy, frozen), frozen) is False
 
 
 def test_converged_solution_violations_stop_and_are_reported():
-    """ADR 0052 第 3 项：收敛解违反任一条即停止并报告。"""
+    """ADR 0052 第 3 项：收敛解违反任一条即停止并报告；存量带舍入容差 τ。"""
     frozen, state, context = _system()
     solved = solve_solids(state, frozen, context, _M_REF, config=SolverConfig())
     flows = (
@@ -177,23 +190,33 @@ def test_converged_solution_violations_stop_and_are_reported():
     )
     rows = [slot.index for slot in unknown_slots(frozen) if slot.kind in ("char", "ash")]
     residual = np.zeros(len(rows))
-    assert require_converged_solution(solved.state, frozen, residual, flows, _M_REF, 1.0e-6) == 0.0
+    scale = float(np.sum(frozen.geometric_mass_kg))
+    tau = SolverConfig().stock_roundoff_relative * scale
+    assert require_converged_solution(solved.state, frozen, residual, flows, _M_REF, 1.0e-6, tau) == 0.0
+    # 舍入容差的边界：−τ 通过，−2τ 停止。
+    at_tau = replace(solved.state, bed_char_kg=solved.state.bed_char_kg.copy())
+    at_tau.bed_char_kg[0, 0] = -tau
+    require_converged_solution(at_tau, frozen, residual, flows, _M_REF, 1.0e-6, tau)
+    below_tau = replace(solved.state, bed_char_kg=solved.state.bed_char_kg.copy())
+    below_tau.bed_char_kg[0, 0] = -2.0 * tau
+    with pytest.raises(InitialStateError, match="负存量"):
+        require_converged_solution(below_tau, frozen, residual, flows, _M_REF, 1.0e-6, tau)
     bad_stock = replace(solved.state, bed_char_kg=solved.state.bed_char_kg.copy())
     bad_stock.bed_char_kg[0, 0] = -1.0e-3
     with pytest.raises(InitialStateError, match="负存量"):
-        require_converged_solution(bad_stock, frozen, residual, flows, _M_REF, 1.0e-6)
+        require_converged_solution(bad_stock, frozen, residual, flows, _M_REF, 1.0e-6, tau)
     bad_inert = (solved.bed_inert_kg.copy(),) + flows[1:]
     bad_inert[0][0] = -1.0e-3
     with pytest.raises(InitialStateError, match="惰性物为负"):
-        require_converged_solution(solved.state, frozen, residual, bad_inert, _M_REF, 1.0e-6)
+        require_converged_solution(solved.state, frozen, residual, bad_inert, _M_REF, 1.0e-6, tau)
     bad_drain = flows[:1] + (-1.0e-6,) + flows[2:]
     with pytest.raises(InitialStateError, match="排灰灰分量"):
-        require_converged_solution(solved.state, frozen, residual, bad_drain, _M_REF, 1.0e-6)
+        require_converged_solution(solved.state, frozen, residual, bad_drain, _M_REF, 1.0e-6, tau)
     zero_fraction = (np.zeros_like(solved.bed_inert_kg),) + flows[1:]
     with pytest.raises(InitialStateError, match="灰分为零"):
-        require_converged_solution(solved.state, frozen, residual, zero_fraction, _M_REF, 1.0e-6)
+        require_converged_solution(solved.state, frozen, residual, zero_fraction, _M_REF, 1.0e-6, tau)
     with pytest.raises(InitialStateError, match="固相门"):
-        require_converged_solution(solved.state, frozen, np.full(len(rows), 2.0 * _M_REF), flows, _M_REF, 1.0e-6)
+        require_converged_solution(solved.state, frozen, np.full(len(rows), 2.0 * _M_REF), flows, _M_REF, 1.0e-6, tau)
 
 
 def test_domain_rejection_at_the_start_keeps_the_state_for_the_report():

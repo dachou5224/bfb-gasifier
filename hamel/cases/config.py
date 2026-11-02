@@ -80,6 +80,9 @@ class SolverConfig:
     damping_index_limit: int = 30
     # ADR 0012。元素 0,1 %，能量 0,5 %。
     residual_tolerance: float = 1.0e-6
+    # 初值构造收敛解的存量舍入容差 τ = 该系数 × M_tot（M_tot 为床区几何存量之和）。
+    # ADR 0052 第 3 项（2026-10-31 修订）：差分雅可比使恰为零的存量带 10⁻²⁰–10⁻¹³ 的舍入值。
+    stock_roundoff_relative: float = 1.0e-12
     outer_temperature_tolerance_k: float = 0.1
     outer_relative_tolerance: float = 1.0e-4
     element_balance_tolerance: float = 1.0e-3

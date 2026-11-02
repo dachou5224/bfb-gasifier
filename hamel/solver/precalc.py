@@ -675,8 +675,12 @@ def _transport(books):
             drift["drift_hover_per_s"][balance, klass] = item.drift_hover
             drift["drift_free_per_s"][balance, klass] = item.drift_free
             migration_mu[balance, klass] = item.migration_mu
-            # 半格捕获区下悬停状态由格内转入与当地生成份额决定。解释性选择：ADR 0048 第 2 项。
-            hover[balance, klass] = bool(missing or item.theta_up + item.theta_down > 0.0 or (item.c_up or 0.0) + (item.c_down or 0.0) > 0.0)
+            # 悬停状态记在界面下方的格（衡算下标 0 为顶）。本格向上捕获（θ↑、c↑）落在本格；
+            # 上方格向下捕获（θ↓、c↓）的目标也是本格。解释性选择：ADR 0048 第 2 项。
+            hover[balance, klass] = bool(missing or item.theta_up + (item.c_up or 0.0) > 0.0)
+            if balance > 0:
+                above = book.cells[cell + 1]
+                hover[balance, klass] |= above.theta_down + (above.c_down or 0.0) > 0.0
             if item.hover_slip_m_s is not None:
                 hover_slip[balance, klass] = item.hover_slip_m_s
             if not missing:
@@ -687,6 +691,8 @@ def _transport(books):
     # 漂移进入的悬停状态即使没有被捕获的子样本也须存在；链式向上传递。解释性选择：ADR 0051 第 2 项。
     for balance in range(n_free - 2, -1, -1):
         hover[balance] |= (drift["drift_hover_per_s"][balance + 1] > 0.0) & hover[balance + 1]
+    # 最上一格上方没有界面，不设悬停状态。解释性选择：ADR 0048 第 2 项。
+    hover[0] = False
     for name in drift:
         drift[name][~hover] = 0.0
     migration_mu[~hover] = 0.0
