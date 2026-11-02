@@ -256,8 +256,12 @@ class FrozenQuantities:
                 raise AssemblyError("粒级 1 的迁移因子恒为 0")
         if np.any(self.free_absent & (held == 0.0)):
             raise AssemblyError("自由状态不存在时必须有悬停份额")
-        if self.hover_closure == "A" and np.any(~self.hover & (held != 0.0)):
-            raise AssemblyError("没有悬停状态时 θ↑、θ↓ 必须为 0")
+        if self.hover_closure == "A" and np.any(~self.hover & (self.theta_up != 0.0)):
+            raise AssemblyError("没有悬停状态时 θ↑ 必须为 0")
+        # θ↓ 的目标是下方相邻格（衡算下标 0 为顶，源 i 到目标 i+1）。ADR 0048 第 2 项。
+        # B、C 有意不设悬停状态，θ↓ 保留用于改送床顶或出口。ADR 0038。
+        if self.hover_closure == "A" and np.any((self.theta_down[:-1] != 0.0) & ~self.hover[1:]):
+            raise AssemblyError("θ↓ 的悬停目标没有悬停状态")
         if np.any(np.abs(self.ejection_to_free + self.ejection_to_hover - 1.0) > 1.0e-12):
             raise AssemblyError("床面抛出进入自由与悬停的份额之和必须为 1")
         bottom = self.free_absent[-1]

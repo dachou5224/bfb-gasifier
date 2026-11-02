@@ -14,9 +14,8 @@ import numpy as np
 
 from hamel.cases.config import SolverConfig
 from hamel.solver.frozen import AssemblyError, FreeboardDomainError, TrialNotEvaluable
-from hamel.solver.gates import arrays_allowed
 from hamel.solver.newton import damped_newton
-from hamel.solver.precalc import PrecalcError, _drain, bed_downflow, freeboard_return_kg_s
+from hamel.solver.precalc import PrecalcError, _drain_terms, bed_downflow, freeboard_return_kg_s
 from hamel.solver.residual import evaluate_residual
 from hamel.solver.sensitivity import diameter_at, section_volume_m3
 from hamel.solver.vector import ReactorState, pack_state, unknown_slots, unpack_state
@@ -57,6 +56,8 @@ class SolidSolve:
     bottom_closure_kg_s: float
     bed_char_kg: float
     bed_inert_kg: np.ndarray
+    # 每次接受的阻尼步（原始最大分量，kg）。ADR 0052 报告项。
+    step_history: tuple[float, ...] = ()
 
 
 def interface_flows(frozen, state: ReactorState) -> dict:
@@ -73,15 +74,16 @@ def interface_flows(frozen, state: ReactorState) -> dict:
 def recompute_flows(state: ReactorState, frozen, context, reaction=None):
     """按当前状态重算排灰（ADR 0014 A5）与床区整体向下流（ADR 0009 第 2 项）。
 
-    写法复用预计算的同一函数 ``_drain`` 与 ``bed_downflow``：上行流取冻结的 k_auf·M_i；
-    回落取当前自由空间最下格的自由焦炭与灰存量乘 b^f 再加冻结的燃料回落；反应汇取当前
-    床区焦炭消耗；排灰取前一项。求解手段：ADR 0052 第 1 项第 2 步。
+    写法复用预计算的同一函数 ``_drain_terms``（不含符号保护）与 ``bed_downflow``。试探点上的
+    负余额照原样参与原残差，不带 ``_drain`` 的符号保护，只在收敛解上检查非负（ADR 0052
+    第 1 项第 3 步修订、第 3 项）。求解手段：ADR 0052 第 1 项第 2 步。
     """
     inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
-    drain_ash, drain_char = _drain(
+    a5 = _drain_terms(
         context.case, state, context.released, inert, frozen.geometric_mass_kg, context.books,
         context.redirected_ash_out_kg_s, context.redirected_fuel_out_kg_s,
     )
+    drain_ash, drain_char = float(a5["ash"]), np.asarray(a5["char"], dtype=float)
     returned = freeboard_return_kg_s(
         frozen.b_free_per_s[-1], state.freeboard_char_free_kg[-1], state.freeboard_ash_free_kg[-1],
         float(frozen.fuel_down_free_kg_s[-1].sum()),
@@ -91,59 +93,48 @@ def recompute_flows(state: ReactorState, frozen, context, reaction=None):
         float(drain_ash + np.sum(drain_char)),
     )
     return (
-        np.asarray(inert, dtype=float), float(drain_ash), np.asarray(drain_char, dtype=float),
+        np.asarray(inert, dtype=float), drain_ash, drain_char,
         np.asarray(down, dtype=float), float(closure), float(returned),
     )
 
 
-def solid_feasible(state: ReactorState, frozen, context) -> bool:
-    """ADR 0017 第 7 项的可行条件取固相部分，另加排灰灰分量非负。
+def solid_feasible(state: ReactorState, frozen) -> bool:
+    """初值固相子系统的试探点可行条件：最底床格灰分为正（ADR 0014 A5 的排灰总流率有定义）。
 
-    求解手段：ADR 0052 第 1 项第 3 步。气相与温度固定，故不重复检查。
+    求解手段：ADR 0052 第 1 项第 3 步（2026-10-31 修订）。存量、各床格惰性物与排灰灰分量
+    不在试探点上检查，只在收敛解上检查（``require_converged_solution``）；残差有限与
+    有效域拒绝由 ``damped_newton`` 的试探点评价处理，不在本函数重复。主求解的可行条件
+    仍按 ADR 0017 第 7 项（``driver._feasible``），不受本函数影响。
     """
-    inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
-    stocks = (
-        state.bed_char_kg, state.freeboard_char_free_kg, state.freeboard_char_hover_kg,
-        state.freeboard_ash_free_kg, state.freeboard_ash_hover_kg,
-    )
-    temperatures = np.concatenate([state.bed_temperature_k, state.freeboard_temperature_k])
-    if not arrays_allowed((), stocks, temperatures, inert):
-        return False
-    try:
-        _, drain_ash, _, _, _, _ = recompute_flows(state, frozen, context)
-    except (PrecalcError, ArithmeticError):
-        return False
-    return bool(drain_ash >= 0.0)
+    fraction = _bottom_ash_fraction(state, frozen)
+    return bool(fraction > 0.0)
 
 
-def _infeasible_clause(state: ReactorState, frozen, context) -> str:
-    """按 ADR 0017 第 7 项的顺序报告第一条不满足的可行条件。只用于阻尼记录。"""
-    values = np.asarray(pack_state(state, frozen), dtype=float)
-    for slot in unknown_slots(frozen):
-        if slot.kind in ("char", "ash") and values[slot.index] < 0.0:
-            return f"{slot.name} < 0"
+def _bottom_ash_fraction(state: ReactorState, frozen) -> float:
+    """最底床格的灰质量分数。排灰总流率 = 灰分量 ÷ 灰分，故分母须为正。"""
     inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
-    if np.any(inert < 0.0):
-        return f"m_inert < 0（床区格 {int(np.flatnonzero(inert < 0.0)[0])}）"
-    try:
-        _, drain_ash, _, _, _, _ = recompute_flows(state, frozen, context)
-    except (PrecalcError, ArithmeticError) as exc:
-        return f"排灰没有定义：{exc}"
-    if drain_ash < 0.0:
-        return f"排灰灰分量为负：{drain_ash:.3e} kg/s"
+    return float(inert[-1] / frozen.geometric_mass_kg[-1])
+
+
+def _infeasible_clause(state: ReactorState, frozen) -> str:
+    """报告试探点上唯一被检查的条件（最底床格灰分为正）。只用于阻尼记录。"""
+    fraction = _bottom_ash_fraction(state, frozen)
+    if fraction <= 0.0:
+        return f"最底床格灰分为 {fraction:.3e}，排灰总流率没有定义"
     return "可行条件不满足"
 
 
-def require_converged_solution(state: ReactorState, frozen, residual, flows, m_dot_ref: float, gate: float) -> float:
-    """ADR 0052 第 3 项：收敛解上任一存量为负、床格惰性物为负、排灰灰分量为负或最底床格
-    灰分为零时停止并报告；同时复核固相门。返回固相行的归一最大残差。"""
+def require_converged_solution(state: ReactorState, frozen, residual, flows, m_dot_ref: float, gate: float, tolerance: float = 0.0) -> float:
+    """ADR 0052 第 3 项：收敛解上任一存量小于 −τ、床格惰性物为负、排灰灰分量为负或最底床格
+    灰分为零时停止并报告；同时复核固相门。τ 是舍入容差（2026-10-31 修订）。返回固相行的归一
+    最大残差。"""
     inert, drain_ash, _, _, _, _ = flows
     values = np.asarray(pack_state(state, frozen), dtype=float)
     slots = [slot for slot in unknown_slots(frozen) if slot.kind in ("char", "ash")]
-    negative = [(slot.name, float(values[slot.index])) for slot in slots if values[slot.index] < 0.0]
+    negative = [(slot.name, float(values[slot.index])) for slot in slots if values[slot.index] < -tolerance]
     if negative:
         text = ", ".join(f"{name} = {value:.3e} kg" for name, value in negative[:6])
-        raise InitialStateError(f"初值构造的收敛解出现 {len(negative)} 项负存量：{text}")
+        raise InitialStateError(f"初值构造的收敛解出现 {len(negative)} 项负存量（小于 −τ = {tolerance:.3e} kg）：{text}")
     bad = [(cell, float(value)) for cell, value in enumerate(inert) if value < 0.0]
     if bad:
         raise InitialStateError(f"初值构造的收敛解在床区格 {bad[0][0]}（衡算下标）的惰性物为负：{bad[0][1]:.3e} kg")
@@ -162,8 +153,9 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
     """以全部固相为未知量的阻尼牛顿。求解手段：ADR 0052 第 1 项第 3 步。
 
     残差取原残差的固相行；每次评价按当前状态重算排灰与床区向下流。差分步长与行列缩放
-    按 ADR 0043（由 ``damped_newton`` 给出），阻尼、可行条件与迭代上限按 ADR 0017 第 7、8 项，
-    可行条件另加排灰灰分量非负。试探点的有效域拒绝按不可行缩步；起点与收敛解超域时停止。
+    按 ADR 0043（由 ``damped_newton`` 给出），阻尼与迭代上限按 ADR 0017 第 7、8 项；
+    试探点的可行条件按 ADR 0052 第 1 项第 3 步（2026-10-31 修订）：只要求残差有限、
+    最底床格灰分为正、不被有效域拒绝。存量、惰性物与排灰灰分量的非负在收敛解上检查。
     """
     limits = SolverConfig() if config is None else config
     slots = unknown_slots(frozen)
@@ -173,6 +165,7 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
     base = np.asarray(pack_state(state, frozen), dtype=float)
     scale = float(np.sum(frozen.geometric_mass_kg))
     scales = np.full(rows.size, scale)
+    tolerance = float(limits.stock_roundoff_relative) * scale
 
     def point(y, trial: bool = True):
         x = base.copy()
@@ -197,7 +190,7 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
     def feasible(y) -> bool:
         x = base.copy()
         x[rows] = y
-        return solid_feasible(unpack_state(x, frozen), frozen, context)
+        return solid_feasible(unpack_state(x, frozen), frozen)
 
     def converged(residual) -> bool:
         return bool(np.max(np.abs(residual)) / m_dot_ref <= gate)
@@ -208,7 +201,7 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
     def explain(y) -> str:
         x = base.copy()
         x[rows] = y
-        return _infeasible_clause(unpack_state(x, frozen), frozen, context)
+        return _infeasible_clause(unpack_state(x, frozen), frozen)
 
     log = {} if journal is None else journal
     log.setdefault("iterations", [])
@@ -243,12 +236,16 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
     except (PrecalcError, TrialNotEvaluable) as exc:
         raise InitialStateError(f"初值构造收敛解不可评价：{exc}") from exc
     inert, drain_ash, drain_char, down, closure, _returned = flows
-    residual = require_converged_solution(current, frozen, checked, flows, m_dot_ref, gate)
+    residual = require_converged_solution(current, frozen, checked, flows, m_dot_ref, gate, tolerance)
     history = tuple(float(entry["merit"]) for entry in log.get("iterations", ()))
     history += (float(outcome.merit) if outcome.merit is not None else residual,)
+    steps = tuple(
+        float(entry["step"]["max"]["raw"]) for entry in log.get("iterations", ())
+        if (entry.get("step") or {}).get("max") is not None
+    )
     return SolidSolve(
         current, int(outcome.iterations), history, residual, drain_ash, drain_char, down,
-        np.asarray(frozen.m_dot_ab_kg_s, dtype=float), closure, float(current.bed_char_kg.sum()), inert,
+        np.asarray(frozen.m_dot_ab_kg_s, dtype=float), closure, float(current.bed_char_kg.sum()), inert, steps,
     )
 
 
@@ -283,7 +280,14 @@ def construct(initial, precalc, m_dot_ref: float, *, gate: float = 1.0e-6, toler
                 **(exc.diagnostics or {}),
             })
             raise
-        result = precalc(solved.state, (solved.drain_ash_kg_s, np.asarray(solved.drain_char_kg_s, dtype=float)))
+        try:
+            result = precalc(solved.state, (solved.drain_ash_kg_s, np.asarray(solved.drain_char_kg_s, dtype=float)))
+        except PrecalcError as exc:
+            # 预计算报错也留下这次交替的记录：固相解已收敛，A5 各项随错误带出。
+            record = _record(index, solved, None, None, None, getattr(exc, "drain_terms", None))
+            record["precalc_error"] = str(exc)
+            log.append(record)
+            raise
         current = interface_flows(result.frozen, result.state)
         change = {name: float(np.max(np.abs(current[name] - previous[name])) / m_dot_ref) for name in current}
         log.append(_record(index, solved, result, current, change))
@@ -295,30 +299,52 @@ def construct(initial, precalc, m_dot_ref: float, *, gate: float = 1.0e-6, toler
     return result, log, note
 
 
-def _record(index: int, solved: SolidSolve, result, current: dict, change: dict) -> dict:
-    """一次交替的报告量。ADR 0052 报告项：存量、排灰、带出、回落、两类 Ṁ_ab、闭合差、体积比。"""
-    state, frozen = result.state, result.frozen
-    top = state.freeboard_ash_free_kg[0] + state.freeboard_ash_hover_kg[0]
-    elutriation = float(np.sum((frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]) * top))
-    return {
+def _record(index: int, solved: SolidSolve, result, current: dict | None, change: dict | None, a5: dict | None = None) -> dict:
+    """一次交替的报告量。ADR 0052 报告项：存量、排灰、带出、回落、两类 Ṁ_ab、闭合差、体积比。
+
+    result 为 None 时是重做预计算报错的那一次：记下已收敛的固相解与 A5 各项，不记冻结量项。
+    """
+    record = {
         "loop": index,
         "iterations": solved.iterations,
         "residual_history": list(solved.merit_history),
+        "step_history": list(solved.step_history),
+        "min_stock_kg": _minimum_stock(solved.state),
         "solid_residual": solved.solid_residual,
         "bed_char_kg": solved.bed_char_kg,
         "bed_inert_kg": np.asarray(solved.bed_inert_kg, dtype=float).tolist(),
         "drain_ash_kg_s": solved.drain_ash_kg_s,
         "drain_char_kg_s": np.asarray(solved.drain_char_kg_s, dtype=float).tolist(),
-        "elutriated_ash_kg_s": elutriation,
-        "return_kg_s": float(np.sum(current["return"])),
         "frozen_down_kg_s": np.asarray(solved.frozen_down_kg_s, dtype=float).tolist(),
         "down_kg_s": np.asarray(solved.m_dot_ab_kg_s, dtype=float).tolist(),
-        "up_kg_s": np.asarray(current["up"], dtype=float).tolist(),
         "bottom_closure_kg_s": solved.bottom_closure_kg_s,
-        "hover_char_kg": float(np.sum(state.freeboard_char_hover_kg)),
+        "hover_char_kg": float(np.sum(solved.state.freeboard_char_hover_kg)),
+        "a5": None if a5 is None else {
+            name: value.tolist() if isinstance(value, np.ndarray) else float(value)
+            for name, value in a5.items()
+        },
+    }
+    if result is None:
+        return record
+    state, frozen = result.state, result.frozen
+    top = state.freeboard_ash_free_kg[0] + state.freeboard_ash_hover_kg[0]
+    record.update({
+        "elutriated_ash_kg_s": float(np.sum((frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]) * top)),
+        "return_kg_s": float(np.sum(current["return"])),
+        "up_kg_s": np.asarray(current["up"], dtype=float).tolist(),
         "volume_ratio": _volume_ratio(state, frozen),
         "change": change,
-    }
+    })
+    return record
+
+
+def _minimum_stock(state) -> float:
+    """收敛解全部固相未知量中的最小存量。ADR 0052 报告项（舍入容差 τ 的对照）。"""
+    stocks = (
+        state.bed_char_kg, state.freeboard_char_free_kg, state.freeboard_char_hover_kg,
+        state.freeboard_ash_free_kg, state.freeboard_ash_hover_kg,
+    )
+    return float(min(np.min(item) for item in stocks))
 
 
 def _volume_ratio(state, frozen) -> list:

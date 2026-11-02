@@ -186,6 +186,41 @@ def test_redirect_ledger_cancels_item_by_item_and_the_gaps_stay_closed():
     assert same.redirect_char_kg_s == 0.0
 
 
+def test_nonzero_theta_down_assembles_under_closures_b_and_c():
+    """B、C 有意不设悬停状态；θ↓ 用于改送床顶或出口，非零 θ↓ 不能因缺悬停状态被拒。
+
+    ADR 0038（改送）、ADR 0048 第 2 项（θ↓ 的目标是下方相邻格）。
+    """
+    for closure in ("B", "C"):
+        base = _closure_frozen(closure)
+        zeros = np.zeros((2, 2))
+        theta_down = np.zeros((2, 2))
+        theta_down[0, 0] = 0.25
+        frozen = replace(base, theta_up=zeros, theta_down=theta_down, theta=theta_down)
+        assert not frozen.hover.any()
+        state = make_state(frozen, char=2.0e-3, ash=1.0e-4)
+        state.freeboard_char_hover_kg[:] = 0.0
+        state.freeboard_ash_hover_kg[:] = 0.0
+        # 装配与全炉闭合：改送逐项从自由空间撤销、加到床顶（B）或出口（C），差值闭合。
+        result = evaluate_residual(pack_state(state, frozen), frozen)
+        assert abs(result.char_gap_kg_s) <= 1.0e-8
+        assert abs(result.ash_gap_kg_s) <= 1.0e-8
+        assert abs(result.energy_gap_w) <= 1.0e-2
+        # 改送额：θ↓ 乘从粒级 2 迁入粒级 1 的质量，来源是格 0、目标是格 1。
+        inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
+        share = _bed_ash_by_class(state.bed_char_kg, inert)
+        migration = np.zeros((2, 2))
+        migration[0, 1] = 1.0e-3
+        items = redirect_ledger(frozen, state, migration, zeros, zeros, zeros, share, zeros, zeros)
+        theta_items = [item for item in items if item["kind"] == "theta"]
+        assert len(theta_items) == 1
+        assert theta_items[0]["char"] == pytest.approx(0.25 * 1.0e-3)
+        assert theta_items[0]["undo"] == ("free", 1)
+    # 同一冻结量在闭合 A 下仍按 ADR 0048 第 2 项拒绝：没有悬停状态时 θ↓ 没有目标。
+    with pytest.raises(AssemblyError, match="θ↓ 的悬停目标"):
+        replace(_closure_frozen("A"), theta_up=zeros, theta_down=theta_down, theta=theta_down, hover=np.zeros((2, 2), dtype=bool))
+
+
 def test_release_closures_solve_separately_and_keep_the_split():
     captured = _transport(False)
     base = _run(np.array([2.0]), np.array([3.0]), captured)

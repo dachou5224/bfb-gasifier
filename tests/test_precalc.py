@@ -8,6 +8,7 @@ import signal
 import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -17,7 +18,7 @@ from hamel.properties.data import GAS_SPECIES, atoms, molar_mass_kg_mol
 from hamel.properties.thermo import mixture_enthalpy_j
 from hamel.pyrolysis.release import FuelTransport, release_distribution
 from hamel.pyrolysis.yields import lignite_yields
-from hamel.freeboard import account_freeboard, terminal_settling_velocity
+from hamel.freeboard import CellTransport, account_freeboard, terminal_settling_velocity
 from hamel.cases.config import SolverConfig
 from hamel.solver.precalc import (
     PrecalcError, _adaptive_bed, bed_downflow, downward_mass_flow, freeboard_return_kg_s,
@@ -133,7 +134,11 @@ def test_hover_drying_stays_in_the_hover_state():
 
 
 def test_hover_is_set_where_the_capture_region_is():
-    """捕获区决定悬停。θ 与自由状态是否存在分开（ADR 0026 第 3 项、ADR 0047 第 3 项）。"""
+    """捕获区决定悬停。θ 与自由状态是否存在分开（ADR 0026 第 3 项、ADR 0047 第 3 项）。
+
+    悬停状态记在界面下方的格：顶格（衡算下标 0）上方没有界面，即使它的当地生成子样本
+    向下被捕获，也不在顶格设悬停状态（ADR 0048 第 2 项）。
+    """
     edges = np.array([0.0, 0.5, 1.0, 1.5])
     rho = np.full(3, 1.2)
     mu = np.full(3, 2.0e-5)
@@ -156,8 +161,39 @@ def test_hover_is_set_where_the_capture_region_is():
     _packed, hover, absent = pack_transport((book,))
     # 衡算下标从自由空间顶部起算：0 是顶格，2 是最下格。
     assert absent[0, 0] and not absent[1, 0] and not absent[2, 0]
-    assert hover[0, 0] and hover[1, 0]
+    # 格 2 的 θ↓ = 1 的目标是下方格 1 的悬停状态；顶格 0 不设悬停状态。
+    assert not hover[0, 0] and hover[1, 0]
     assert not hover[2, 0]
+
+
+def test_hover_state_belongs_to_the_cell_below_each_interface():
+    """ADR 0048 第 2 项：悬停状态记在界面下方的格。
+
+    向下捕获（θ↓、c↓）在**上方格**的记账里记为源格，悬停状态却属于下方格；最上一格
+    上方没有界面，不设悬停状态。其余格的 θ、c、漂移与 μ 只按原值搬到衡算下标。
+    """
+    def cell(theta_up=0.0, theta_down=0.0, c_up=0.0, c_down=0.0, drift=0.0, mu=0.0):
+        return CellTransport(
+            theta_up, theta_down, "存在", 0.1, 0.0, c_up, c_down, 1.0, 0.0, 0.0, drift, 0.0, mu,
+        )
+
+    books = (SimpleNamespace(cells=(
+        cell(c_up=0.3, drift=0.2, mu=0.4),
+        cell(theta_up=0.25, theta_down=0.5, c_up=0.1, c_down=0.2, drift=0.7, mu=0.9),
+        cell(theta_down=0.125),
+    )),)
+    packed, hover, _absent = pack_transport(books)
+    # 衡算下标 0 为顶：顶格的 θ↓ 不属于顶格的悬停状态，下方格 1 由它取得悬停状态。
+    assert not hover[0, 0] and hover[1, 0] and hover[2, 0]
+    theta_up, theta_down = packed[3], packed[4]
+    assert np.array_equal(theta_up, np.array([[0.0], [0.25], [0.0]]))
+    assert np.array_equal(theta_down, np.array([[0.125], [0.5], [0.0]]))
+    assert np.array_equal(packed[2]["c_up"], np.array([[0.0], [0.1], [0.3]]))
+    assert np.array_equal(packed[2]["c_down"], np.array([[0.0], [0.2], [0.0]]))
+    assert np.array_equal(packed[5], np.zeros((3, 1)))
+    assert np.array_equal(packed[6]["drift_hover_per_s"], np.array([[0.0], [0.7], [0.2]]))
+    assert np.array_equal(packed[6]["drift_free_per_s"], np.zeros((3, 1)))
+    assert np.array_equal(packed[7], np.array([[0.0], [0.9], [0.4]]))
 
 
 def test_return_uses_the_freeboard_inventory_and_the_drain_enters_the_residual():

@@ -398,6 +398,23 @@ def test_fuel_mass_reduces_inert_and_missing_layout_is_rejected():
         make_frozen(free_absent=np.ones((2, 2), dtype=bool), hover=np.zeros((2, 2), dtype=bool))
 
 
+def test_theta_down_requires_a_hover_state_at_the_cell_below():
+    """ADR 0048 第 2 项：θ↓ 的悬停目标是下方相邻格，源格本身不需要悬停状态。"""
+    theta_down = np.zeros((2, 1))
+    theta_down[0, 0] = 1.0
+    with pytest.raises(AssemblyError, match="θ↓ 的悬停目标"):
+        make_frozen(n_free=2, n_class=1, theta_down=theta_down)
+    hover = np.zeros((2, 1), dtype=bool)
+    hover[1, 0] = True
+    frozen = make_frozen(n_free=2, n_class=1, hover=hover, theta_down=theta_down)
+    # 源格（衡算下标 0）没有悬停状态，但 θ↓ 的目标（下标 1）有。
+    assert not frozen.hover[0, 0] and frozen.hover[1, 0]
+    theta_up = np.zeros((2, 1))
+    theta_up[1, 0] = 1.0
+    with pytest.raises(AssemblyError, match="θ↑ 必须为 0"):
+        make_frozen(n_free=2, n_class=1, theta_up=theta_up)
+
+
 def test_case1_smoke_prints_block_magnitudes(capsys):
     """工况 1 的临时冻结量和一个试探 x。临时系数不是预计算结果。"""
     n_bed, n_free, n_class = 8, 8, 7
