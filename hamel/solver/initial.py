@@ -15,7 +15,7 @@ import numpy as np
 from hamel.cases.config import SolverConfig
 from hamel.solver.frozen import AssemblyError, FreeboardDomainError, TrialNotEvaluable
 from hamel.solver.newton import damped_newton
-from hamel.solver.precalc import PrecalcError, _drain, bed_downflow, freeboard_return_kg_s
+from hamel.solver.precalc import PrecalcError, _drain_terms, bed_downflow, freeboard_return_kg_s
 from hamel.solver.residual import evaluate_residual
 from hamel.solver.sensitivity import diameter_at, section_volume_m3
 from hamel.solver.vector import ReactorState, pack_state, unknown_slots, unpack_state
@@ -74,15 +74,16 @@ def interface_flows(frozen, state: ReactorState) -> dict:
 def recompute_flows(state: ReactorState, frozen, context, reaction=None):
     """按当前状态重算排灰（ADR 0014 A5）与床区整体向下流（ADR 0009 第 2 项）。
 
-    写法复用预计算的同一函数 ``_drain`` 与 ``bed_downflow``：上行流取冻结的 k_auf·M_i；
-    回落取当前自由空间最下格的自由焦炭与灰存量乘 b^f 再加冻结的燃料回落；反应汇取当前
-    床区焦炭消耗；排灰取前一项。求解手段：ADR 0052 第 1 项第 2 步。
+    写法复用预计算的同一函数 ``_drain_terms``（不含符号保护）与 ``bed_downflow``。试探点上的
+    负余额照原样参与原残差，不带 ``_drain`` 的符号保护，只在收敛解上检查非负（ADR 0052
+    第 1 项第 3 步修订、第 3 项）。求解手段：ADR 0052 第 1 项第 2 步。
     """
     inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
-    drain_ash, drain_char = _drain(
+    a5 = _drain_terms(
         context.case, state, context.released, inert, frozen.geometric_mass_kg, context.books,
         context.redirected_ash_out_kg_s, context.redirected_fuel_out_kg_s,
     )
+    drain_ash, drain_char = float(a5["ash"]), np.asarray(a5["char"], dtype=float)
     returned = freeboard_return_kg_s(
         frozen.b_free_per_s[-1], state.freeboard_char_free_kg[-1], state.freeboard_ash_free_kg[-1],
         float(frozen.fuel_down_free_kg_s[-1].sum()),
@@ -92,7 +93,7 @@ def recompute_flows(state: ReactorState, frozen, context, reaction=None):
         float(drain_ash + np.sum(drain_char)),
     )
     return (
-        np.asarray(inert, dtype=float), float(drain_ash), np.asarray(drain_char, dtype=float),
+        np.asarray(inert, dtype=float), drain_ash, drain_char,
         np.asarray(down, dtype=float), float(closure), float(returned),
     )
 
@@ -279,7 +280,14 @@ def construct(initial, precalc, m_dot_ref: float, *, gate: float = 1.0e-6, toler
                 **(exc.diagnostics or {}),
             })
             raise
-        result = precalc(solved.state, (solved.drain_ash_kg_s, np.asarray(solved.drain_char_kg_s, dtype=float)))
+        try:
+            result = precalc(solved.state, (solved.drain_ash_kg_s, np.asarray(solved.drain_char_kg_s, dtype=float)))
+        except PrecalcError as exc:
+            # 预计算报错也留下这次交替的记录：固相解已收敛，A5 各项随错误带出。
+            record = _record(index, solved, None, None, None, getattr(exc, "drain_terms", None))
+            record["precalc_error"] = str(exc)
+            log.append(record)
+            raise
         current = interface_flows(result.frozen, result.state)
         change = {name: float(np.max(np.abs(current[name] - previous[name])) / m_dot_ref) for name in current}
         log.append(_record(index, solved, result, current, change))
@@ -291,12 +299,12 @@ def construct(initial, precalc, m_dot_ref: float, *, gate: float = 1.0e-6, toler
     return result, log, note
 
 
-def _record(index: int, solved: SolidSolve, result, current: dict, change: dict) -> dict:
-    """一次交替的报告量。ADR 0052 报告项：存量、排灰、带出、回落、两类 Ṁ_ab、闭合差、体积比。"""
-    state, frozen = result.state, result.frozen
-    top = state.freeboard_ash_free_kg[0] + state.freeboard_ash_hover_kg[0]
-    elutriation = float(np.sum((frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]) * top))
-    return {
+def _record(index: int, solved: SolidSolve, result, current: dict | None, change: dict | None, a5: dict | None = None) -> dict:
+    """一次交替的报告量。ADR 0052 报告项：存量、排灰、带出、回落、两类 Ṁ_ab、闭合差、体积比。
+
+    result 为 None 时是重做预计算报错的那一次：记下已收敛的固相解与 A5 各项，不记冻结量项。
+    """
+    record = {
         "loop": index,
         "iterations": solved.iterations,
         "residual_history": list(solved.merit_history),
@@ -307,16 +315,27 @@ def _record(index: int, solved: SolidSolve, result, current: dict, change: dict)
         "bed_inert_kg": np.asarray(solved.bed_inert_kg, dtype=float).tolist(),
         "drain_ash_kg_s": solved.drain_ash_kg_s,
         "drain_char_kg_s": np.asarray(solved.drain_char_kg_s, dtype=float).tolist(),
-        "elutriated_ash_kg_s": elutriation,
-        "return_kg_s": float(np.sum(current["return"])),
         "frozen_down_kg_s": np.asarray(solved.frozen_down_kg_s, dtype=float).tolist(),
         "down_kg_s": np.asarray(solved.m_dot_ab_kg_s, dtype=float).tolist(),
-        "up_kg_s": np.asarray(current["up"], dtype=float).tolist(),
         "bottom_closure_kg_s": solved.bottom_closure_kg_s,
-        "hover_char_kg": float(np.sum(state.freeboard_char_hover_kg)),
+        "hover_char_kg": float(np.sum(solved.state.freeboard_char_hover_kg)),
+        "a5": None if a5 is None else {
+            name: value.tolist() if isinstance(value, np.ndarray) else float(value)
+            for name, value in a5.items()
+        },
+    }
+    if result is None:
+        return record
+    state, frozen = result.state, result.frozen
+    top = state.freeboard_ash_free_kg[0] + state.freeboard_ash_hover_kg[0]
+    record.update({
+        "elutriated_ash_kg_s": float(np.sum((frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]) * top)),
+        "return_kg_s": float(np.sum(current["return"])),
+        "up_kg_s": np.asarray(current["up"], dtype=float).tolist(),
         "volume_ratio": _volume_ratio(state, frozen),
         "change": change,
-    }
+    })
+    return record
 
 
 def _minimum_stock(state) -> float:

@@ -14,4 +14,6 @@ top hover classes: []
 top hover state stock: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 top free stock: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 free_absent top: [0, 0, 0, 0, 0, 0, 0]
+free_absent count: 0 at []
+hover count: 8
 n unknowns 512

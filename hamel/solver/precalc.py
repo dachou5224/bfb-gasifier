@@ -777,8 +777,11 @@ def _bounds(case):
         bottoms[case.n_free + cell] = geometric * bed_dz
         tops[case.n_free + cell] = bottoms[case.n_free + cell] + bed_dz
     return bottoms, tops
-def _drain(case, state, released, inert, masses, books, redirected_ash_out_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0):
-    """排灰灰分量 = 燃料带入灰 − 带出灰。ADR 0014 A5。
+def _drain_terms(case, state, released, inert, masses, books, redirected_ash_out_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0) -> dict:
+    """ADR 0014 A5 的余额式：排灰灰分量与同时排出的焦炭。只此一份公式，不截断、不做符号保护。
+
+    余额为负时照原样返回负值（初值构造的试探点让它参与原残差）；预计算用 ``_drain`` 加符号
+    保护（ADR 0052 第 1 项第 3 步修订）。最底格灰分为零时两处都报错。
     C 的改送灰和改送燃料是外部出口，从余额扣除。两项为 0 时与原式相同。
     模型边界选择（敏感性）：ADR 0026 第 6 项、ADR 0038。
     """
@@ -793,16 +796,31 @@ def _drain(case, state, released, inert, masses, books, redirected_ash_out_kg_s:
     carried = float(np.sum(top_free * coeff))
     fuel_top = 0.0 if released.fuel_up_kg_s is None else float(released.fuel_up_kg_s[0].sum())
     fuel_drain = float(released.undried_exit_kg_s[case.n_free:].sum() + released.dried_exit_kg_s[case.n_free:].sum())
-    ash_out = carried + ash_in / case.fuel_kg_s * (fuel_top + fuel_drain + float(redirected_fuel_out_kg_s))
-    ash_out += float(redirected_ash_out_kg_s)
-    if ash_out > ash_in:
-        raise PrecalcError("带出灰多于燃料带入灰")
+    fuel_ash = ash_in / case.fuel_kg_s * (fuel_top + fuel_drain + float(redirected_fuel_out_kg_s))
+    ash_out = carried + fuel_ash + float(redirected_ash_out_kg_s)
     fraction = float(inert[-1] / masses[-1])
     if fraction <= 0.0:
         raise PrecalcError("最底格灰分质量分数不是正数")
-    total = (ash_in - ash_out) / fraction
-    char = total * np.asarray(state.bed_char_kg[-1], dtype=float) / float(masses[-1])
-    return ash_in - ash_out, char
+    balance = ash_in - ash_out
+    char = balance / fraction * np.asarray(state.bed_char_kg[-1], dtype=float) / float(masses[-1])
+    return {
+        "ash_in": ash_in, "carried": carried, "fuel_ash": fuel_ash,
+        "redirected": float(redirected_ash_out_kg_s), "ash_out": ash_out,
+        "fraction": fraction, "ash": balance, "char": char,
+    }
+
+
+def _drain(case, state, released, inert, masses, books, redirected_ash_out_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0):
+    """预计算用：``_drain_terms`` 加 ADR 0014 A5 的符号保护。带出灰多于带入灰即停止，不截断。"""
+    terms = _drain_terms(
+        case, state, released, inert, masses, books, redirected_ash_out_kg_s, redirected_fuel_out_kg_s,
+    )
+    if terms["ash_out"] > terms["ash_in"]:
+        error = PrecalcError("带出灰多于燃料带入灰")
+        # 停止时把 A5 各项随错误带出，供初值构造写进交替记录（ADR 0052 报告项）。
+        error.drain_terms = terms
+        raise error
+    return terms["ash"], terms["char"]
 def _frozen(case, state, flow, profile, share, coefficient, rho_p, k_up, down, packed, theta, hover, absent, released, drain_ash, drain_char, bed_u, free_u, hover_u):
     hover_mask, absent_mask, arrays, theta_up, theta_down, _hover_slip, drift, migration_mu = packed
     bed, free = case.n_bed, case.n_free

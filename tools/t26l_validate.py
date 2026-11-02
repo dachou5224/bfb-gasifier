@@ -157,6 +157,21 @@ def _initial_lines(payload) -> list:
         if record.get("bed_char_kg") is not None:
             lines.append(f"  - 床区焦炭 {_fmt(record.get('bed_char_kg'))} kg；各床格惰性物 kg："
                          f"{_fmt(record.get('bed_inert_kg'))}")
+            if record.get("precalc_error"):
+                # 固相牛顿已收敛，停止在随后的预计算：把 A5 各项写进这一次交替的记录。
+                lines.append(f"  - 重做预计算停止：{record['precalc_error']}")
+                a5 = record.get("a5") or {}
+                lines.append(
+                    f"  - A5 各项：燃料带入灰 {_fmt(a5.get('ash_in'))} kg/s；带出灰 {_fmt(a5.get('carried'))} kg/s；"
+                    f"随未转化燃料离开的灰 {_fmt(a5.get('fuel_ash'))} kg/s；改送灰 {_fmt(a5.get('redirected'))} kg/s；"
+                    f"余额 {_fmt(a5.get('ash'))} kg/s（为负，按 ADR 0014 A5 停止）"
+                )
+                lines.append(f"  - 停止时最底床格灰分 {_fmt(a5.get('fraction'))}；排灰按余额 ÷ 灰分计，不截断")
+                lines.append(f"  - Ṁ_ab 冻结值 kg/s：{_fmt(record.get('frozen_down_kg_s'))}；重算值 kg/s："
+                             f"{_fmt(record.get('down_kg_s'))}；递推最底格闭合差 {_fmt(record.get('bottom_closure_kg_s'))} kg/s；"
+                             f"悬停焦炭 {_fmt(record.get('hover_char_kg'))} kg")
+                lines.append("  - 体积比与床面回落要由报错的那次预计算给出，两者未生成")
+                continue
             lines.append(f"  - 排灰：灰 {_fmt(record.get('drain_ash_kg_s'))} kg/s，焦炭 {_fmt(record.get('drain_char_kg_s'))} kg/s；"
                          f"带出灰 {_fmt(record.get('elutriated_ash_kg_s'))} kg/s；床面回落 {_fmt(record.get('return_kg_s'))} kg/s")
             lines.append(f"  - Ṁ_ab 冻结值 kg/s：{_fmt(record.get('frozen_down_kg_s'))}；重算值 kg/s：{_fmt(record.get('down_kg_s'))}；"
@@ -218,7 +233,7 @@ def _research_lines(payload) -> list:
     if not latest:
         lines.append("- 本次没有完成一次交替（固相牛顿在第一次交替即停止），没有同一阶段的存量与排灰可比。")
     if latest:
-        lines.append("- 本次同一阶段（最后一次交替）：")
+        lines.append(f"- 本次最后一次完成预计算的交替（交替 {latest.get('loop')}）：")
         lines.append(f"  - 床区焦炭 {_fmt(latest.get('bed_char_kg'))} kg；各床格惰性物 kg：{_fmt(latest.get('bed_inert_kg'))}")
         lines.append(f"  - 排灰：灰 {_fmt(latest.get('drain_ash_kg_s'))} kg/s，焦炭 {_fmt(_sum(latest.get('drain_char_kg_s')))} kg/s；"
                      f"带出灰 {_fmt(latest.get('elutriated_ash_kg_s'))} kg/s；悬停焦炭 {_fmt(latest.get('hover_char_kg'))} kg")
@@ -230,7 +245,7 @@ def _research_lines(payload) -> list:
 def _latest(payload):
     loops = [
         item for item in (payload.get("initial") or {}).get("loops") or []
-        if item.get("bed_char_kg") is not None and not item.get("stopped")
+        if item.get("bed_char_kg") is not None and not item.get("stopped") and item.get("change") is not None
     ]
     return loops[-1] if loops else None
 
