@@ -15,7 +15,7 @@ import numpy as np
 from hamel.cases.config import SolverConfig
 from hamel.solver.frozen import AssemblyError, FreeboardDomainError, TrialNotEvaluable
 from hamel.solver.newton import damped_newton
-from hamel.solver.precalc import PrecalcError, _drain_terms, bed_downflow, freeboard_return_kg_s
+from hamel.solver.precalc import PrecalcError, _drain_terms, bed_downflow, bed_release_terms, freeboard_return_kg_s
 from hamel.solver.residual import evaluate_residual
 from hamel.solver.sensitivity import diameter_at, section_volume_m3
 from hamel.solver.vector import ReactorState, pack_state, unknown_slots, unpack_state
@@ -77,6 +77,9 @@ def recompute_flows(state: ReactorState, frozen, context, reaction=None):
     写法复用预计算的同一函数 ``_drain_terms``（不含符号保护）与 ``bed_downflow``。试探点上的
     负余额照原样参与原残差，不带 ``_drain`` 的符号保护，只在收敛解上检查非负（ADR 0052
     第 1 项第 3 步修订、第 3 项）。求解手段：ADR 0052 第 1 项第 2 步。
+
+    干燥与热解的失重、随排灰离开的燃料取当前预计算的释放分布（ADR 0053 第 3 项），
+    与预计算共用 ``bed_release_terms``。
     """
     inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
     a5 = _drain_terms(
@@ -88,9 +91,10 @@ def recompute_flows(state: ReactorState, frozen, context, reaction=None):
         frozen.b_free_per_s[-1], state.freeboard_char_free_kg[-1], state.freeboard_ash_free_kg[-1],
         float(frozen.fuel_down_free_kg_s[-1].sum()),
     ) + float(context.redirected_return_kg_s)
+    loss, fuel_exit = bed_release_terms(context.released, frozen.n_freeboard)
     down, closure = bed_downflow(
         frozen.k_auf_per_s * frozen.geometric_mass_kg, context.case.fuel_kg_s, reaction, returned,
-        float(drain_ash + np.sum(drain_char)),
+        float(drain_ash + np.sum(drain_char)), loss, fuel_exit,
     )
     return (
         np.asarray(inert, dtype=float), drain_ash, drain_char,

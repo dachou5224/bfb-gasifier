@@ -9,13 +9,14 @@ import numpy as np
 import pytest
 
 from hamel.cases.config import SolverConfig
-from hamel.properties.data import GAS_SPECIES
+from hamel.properties.data import GAS_SPECIES, molar_mass_kg_mol
+from hamel.pyrolysis.yields import PYROLYSIS_GAS_SPECIES
 from hamel.solver import initial
 from hamel.solver.initial import (
     DomainRejected, InitialStateError, SolidSolve, construct, recompute_flows,
     require_converged_solution, solid_feasible, solve_solids,
 )
-from hamel.solver.precalc import PrecalcError, SolidContext, _drain, _initial_tar, bed_downflow
+from hamel.solver.precalc import PrecalcError, SolidContext, _drain, _initial_tar, bed_downflow, bed_release_terms
 from hamel.solver.residual import evaluate_residual
 from hamel.solver.vector import pack_state, unknown_slots, unpack_state
 
@@ -27,8 +28,11 @@ _ASH_WF = 0.043
 _MOISTURE = 0.118
 
 
-def _context(n_bed=2, n_free=2, n_class=1, fuel_kg_s=0.013027777777777777, a_f=0.0, ash_out=0.0, fuel_out=0.0):
-    """小例子的排灰与向下流输入。字段与预计算调用 _drain 时相同。"""
+def _context(n_bed=2, n_free=2, n_class=1, fuel_kg_s=0.013027777777777777, a_f=0.0, ash_out=0.0, fuel_out=0.0, loss_kg_s=0.0, fuel_exit_kg_s=0.0):
+    """小例子的排灰与向下流输入。字段与预计算调用 _drain 时相同。
+
+    loss_kg_s 以最底床格的水分流给出（ADR 0053 第 1 项），fuel_exit_kg_s 是最底格的燃料出口。
+    """
     case = SimpleNamespace(
         physical=SimpleNamespace(moisture_mass_fraction=_MOISTURE, ash_mass_fraction_wf=_ASH_WF),
         fuel_kg_s=fuel_kg_s, n_free=n_free,
@@ -36,7 +40,12 @@ def _context(n_bed=2, n_free=2, n_class=1, fuel_kg_s=0.013027777777777777, a_f=0
     zeros = np.zeros((n_free + n_bed, n_class))
     released = SimpleNamespace(
         fuel_up_kg_s=np.zeros((1, n_class)), undried_exit_kg_s=zeros, dried_exit_kg_s=zeros.copy(),
+        water_kg_s=np.zeros(n_free + n_bed),
+        gas_mol_s={name: np.zeros(n_free + n_bed) for name in PYROLYSIS_GAS_SPECIES},
+        benzene_mol_s=np.zeros(n_free + n_bed), naphthalene_mol_s=np.zeros(n_free + n_bed),
     )
+    released.water_kg_s[-1] = float(loss_kg_s)
+    released.undried_exit_kg_s[-1] = float(fuel_exit_kg_s)
     books = tuple(
         SimpleNamespace(cells=[SimpleNamespace(a_f=a_f) for _ in range(n_free)]) for _ in range(n_class)
     )
@@ -132,6 +141,29 @@ def test_recomputed_drain_and_downflow_match_the_precalculation_under_the_same_s
     assert np.array_equal(drain_char, expected_char)
     assert np.array_equal(down, np.asarray(expected_down, dtype=float))
     assert closure == expected_closure
+
+
+def test_recomputed_downflow_adds_release_loss_and_the_bottom_fuel_exit():
+    """ADR 0053 第 1、2 项：两处共用同一函数，同一状态、同一释放分布下逐位相同。
+
+    补入两项后闭合到舍入；去掉任一项，闭合差恰为该项。
+    """
+    frozen, state, _ignored = _system()
+    context = _context(loss_kg_s=1.0e-3, fuel_exit_kg_s=2.0e-4)
+    reaction = -evaluate_residual(pack_state(state, frozen), frozen).char_consumption_bed_kg_s.sum(axis=1)
+    _inert, drain_ash, drain_char, down, closure, returned = recompute_flows(state, frozen, context, reaction)
+    loss, fuel_exit = bed_release_terms(context.released, frozen.n_freeboard)
+    assert loss[-1] == pytest.approx(1.0e-3)
+    assert fuel_exit == pytest.approx(2.0e-4)
+    up = frozen.k_auf_per_s * frozen.geometric_mass_kg
+    drain = float(drain_ash + np.sum(drain_char))
+    expected_down, expected_closure = bed_downflow(up, context.case.fuel_kg_s, reaction, returned, drain, loss, fuel_exit)
+    assert np.array_equal(down, np.asarray(expected_down, dtype=float))
+    assert closure == expected_closure
+    _down, without_loss = bed_downflow(up, context.case.fuel_kg_s, reaction, returned, drain, None, fuel_exit)
+    _down, without_fuel = bed_downflow(up, context.case.fuel_kg_s, reaction, returned, drain, loss, 0.0)
+    assert without_loss - closure == pytest.approx(float(np.sum(loss)))
+    assert without_fuel - closure == pytest.approx(fuel_exit)
 
 
 def test_frozen_downflow_gives_negative_bed_inert_and_recomputation_positive():

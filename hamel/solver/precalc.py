@@ -136,20 +136,21 @@ def _halt(iteration, quantity, value, cell=None, klass=None):
     if klass is not None:
         text += f"，粒级={klass}"
     raise PrecalcError(text)
-def precalculate(path, case_id, previous: ReactorState | None, *, reaction_solid_kg_s=None, previous_drain_kg_s: float = 0.0, previous_fuel_return_kg_s: float = 0.0, adiabatic: bool = False, iteration: int = 0, consistency: bool = False, solver=None, redirected_return_kg_s: float = 0.0, redirected_ash_out_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0) -> PrecalcResult:
+def precalculate(path, case_id, previous: ReactorState | None, *, reaction_solid_kg_s=None, previous_drain_kg_s: float = 0.0, previous_fuel_return_kg_s: float = 0.0, previous_release=None, adiabatic: bool = False, iteration: int = 0, consistency: bool = False, solver=None, redirected_return_kg_s: float = 0.0, redirected_ash_out_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0) -> PrecalcResult:
     """用上一轮单元解填满冻结量。previous 为空时构造初值。
     自由空间燃料回落由调用方传入，第一次外层为 0。一次风温度是混合焓的等效温度。
     consistency 为真时按真实类别重算，非 B 或产率式越界即停止。求解手段：ADR 0035。
     B 的改送回落加入床层总流；C 的改送灰和燃料记入排灰出口。默认 0，与未改送逐位相同。
+    previous_release 是上一次预计算的释放分布，供 ADR 0053 的两项；第一次预计算为空，取 0。
     模型边界选择（敏感性）：ADR 0026 第 6 项、ADR 0038。
     """
     try:
-        return _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver, redirected_return_kg_s, redirected_ash_out_kg_s, redirected_fuel_out_kg_s)
+        return _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver, redirected_return_kg_s, redirected_ash_out_kg_s, redirected_fuel_out_kg_s, previous_release)
     except PrecalcError:
         raise
     except (HydrodynamicsError, PyrolysisError, PropertyError, FreeboardError, AssemblyError) as exc:
         raise PrecalcError(f"迭代 {iteration} 停止：{exc}") from exc
-def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver=None, redirected_return_kg_s: float = 0.0, redirected_ash_out_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0) -> PrecalcResult:
+def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver=None, redirected_return_kg_s: float = 0.0, redirected_ash_out_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0, previous_release=None) -> PrecalcResult:
     case = _load(path, case_id, solver)
     equilibrium = _equilibrium(case, adiabatic)
     t_ad = float(equilibrium.temperature)
@@ -196,7 +197,8 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
         transport[2]["b_f"][-1], state.freeboard_char_free_kg[-1],
         state.freeboard_ash_free_kg[-1], previous_fuel_return_kg_s,
     ) + float(redirected_return_kg_s)
-    down, residual = bed_downflow(upflow, case.fuel_kg_s, reaction, returned, previous_drain_kg_s)
+    loss, fuel_exit = (None, 0.0) if previous_release is None else bed_release_terms(previous_release, case.n_free)
+    down, residual = bed_downflow(upflow, case.fuel_kg_s, reaction, returned, previous_drain_kg_s, loss, fuel_exit)
     k_down = down / masses
     k_exit = np.zeros_like(k_down)
     if previous_drain_kg_s:
@@ -712,15 +714,34 @@ def freeboard_return_kg_s(b_free_bottom, char_free_kg, ash_free_kg, fuel_return_
     if coeff.shape != mobile.shape:
         raise PrecalcError("回落系数与自由空间存量的粒级不一致")
     return float(np.sum(coeff * mobile) + float(fuel_return_kg_s))
-def bed_downflow(up, fuel_feed_kg_s, reaction, returned, drain_kg_s):
-    """整体固体向下流。最底格排灰进入守恒残差，不改写 Ṁ_ab = 0。ADR 0009 第 2 项。"""
+def bed_downflow(up, fuel_feed_kg_s, reaction, returned, drain_kg_s, loss_kg_s=None, fuel_exit_kg_s=0.0):
+    """整体固体向下流。最底格排灰进入守恒残差，不改写 Ṁ_ab = 0。ADR 0009 第 2 项。
+
+    反应汇减去床区干燥与热解的失重，外排加上随排灰离开的燃料。ADR 0053 第 1、2 项。
+    """
     upward = _column("up", up)
     added = np.zeros(upward.size)
     added[-1] = float(fuel_feed_kg_s)
     leaving = np.zeros(upward.size)
-    leaving[-1] = float(drain_kg_s)
+    leaving[-1] = float(drain_kg_s) + float(fuel_exit_kg_s)
     reacted = np.zeros(upward.size) if reaction is None else _column("reaction", reaction)
+    if loss_kg_s is not None:
+        reacted = reacted - _column("loss_kg_s", loss_kg_s)
     return downward_mass_flow(upward, added, np.zeros(upward.size), leaving, reacted, returned)
+
+
+def bed_release_terms(released, n_free: int):
+    """ADR 0053 第 1、2 项：床区干燥与热解失重（逐格）与随排灰离开的燃料（最底格）。
+
+    失重取 ``_pyro_flows`` 的床区部分，与床区气相源项是同一组量，不按产率重算；
+    燃料出口取最底格的湿燃料与干燥后燃料的出口流之和。预计算与 ``initial.recompute_flows``
+    共用本函数，两处不复制公式。
+    """
+    bed, _free = _pyro_flows(released, int(released.water_kg_s.size) - int(n_free), int(n_free))
+    molar = np.array([molar_mass_kg_mol(name) for name in GAS_SPECIES])
+    return bed @ molar, float(np.sum(released.undried_exit_kg_s[-1] + released.dried_exit_kg_s[-1]))
+
+
 def _release(case, state, flow, profile, packed, k_up, k_down, k_exit, group, notes, iteration, consistency):
     hover, absent, arrays, theta_up, theta_down, hover_slip, _drift, _mu = packed
     transport = FuelTransport(
@@ -796,7 +817,11 @@ def _drain_terms(case, state, released, inert, masses, books, redirected_ash_out
     carried = float(np.sum(top_free * coeff))
     fuel_top = 0.0 if released.fuel_up_kg_s is None else float(released.fuel_up_kg_s[0].sum())
     fuel_drain = float(released.undried_exit_kg_s[case.n_free:].sum() + released.dried_exit_kg_s[case.n_free:].sum())
+    # 随未转化燃料离开的灰 = 干基灰分 × 离开燃料的干物质。已干燥的出口流是干基（(1−水分)×当量出流），
+    # 只按湿基灰分比乘实际出口流会漏掉这部分干物质的灰（T26n 定位于此）。ADR 0052 第 1 项第 2 步。
+    dried = float(np.sum(released.dried_exit_kg_s))
     fuel_ash = ash_in / case.fuel_kg_s * (fuel_top + fuel_drain + float(redirected_fuel_out_kg_s))
+    fuel_ash += float(case.physical.ash_mass_fraction_wf) * moisture * dried
     ash_out = carried + fuel_ash + float(redirected_ash_out_kg_s)
     fraction = float(inert[-1] / masses[-1])
     if fraction <= 0.0:

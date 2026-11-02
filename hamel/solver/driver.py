@@ -120,7 +120,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
     config = assembled.solver if config is None else config
     physical = assembled.physical
     n_ref, m_ref, q_ref = _references(physical)
-    holder = {"state": None, "reaction": None, "drain": 0.0, "fuel_return": 0.0, "records": [], "redirect": (0.0, 0.0, 0.0, 0.0)}
+    holder = {"state": None, "reaction": None, "drain": 0.0, "fuel_return": 0.0, "release": None, "records": [], "redirect": (0.0, 0.0, 0.0, 0.0)}
     journal = {"iterations": []}
     if artifact_dir is not None:
         folder = Path(artifact_dir)
@@ -151,11 +151,13 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         result = precalculate(
             path, case_id, used, reaction_solid_kg_s=holder["reaction"],
             previous_drain_kg_s=holder["drain"], previous_fuel_return_kg_s=holder["fuel_return"],
+            previous_release=holder["release"],
             adiabatic=adiabatic, iteration=iteration, consistency=consistency, solver=config,
             redirected_return_kg_s=bed_return, redirected_ash_out_kg_s=ash_out, redirected_fuel_out_kg_s=fuel_out,
         )
         holder["drain"] = float(result.frozen.drain_ash_kg_s + result.frozen.drain_char_kg_s.sum())
         holder["fuel_return"] = float(result.frozen.fuel_down_free_kg_s[-1].sum())
+        holder["release"] = result.solid_context.released
         holder["records"].append(result)
         return result
 
