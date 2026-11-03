@@ -40,27 +40,20 @@ class _InitialDone(BaseException):
     """初值构造已结束：用它跳出 solve_case，不运行主求解的内层。"""
 
 
-def _ash_in(case) -> float:
-    return case.fuel_kg_s * float(case.physical.ash_mass_fraction_wf) * (1.0 - float(case.physical.moisture_mass_fraction))
+def signed_drain(case, state, released, inert, masses, books, ash_out_redirect=0.0, fuel_out_redirect=0.0):
+    """A5 同式（``precalc._drain_terms``），只取消余额的符号拒绝。诊断用。
+
+    直接复用 ``_drain_terms``，不复制公式：本工具与正式写法只差“余额为负时不停止”，
+    最底格灰分为正的定义域检查照旧由 ``_drain_terms`` 报错。
+    """
+    terms = precalc._drain_terms(
+        case, state, released, inert, masses, books, ash_out_redirect, fuel_out_redirect,
+    )
+    return float(terms["ash"]), np.asarray(terms["char"], dtype=float)
 
 
 def _top_af(books) -> list:
     return [0.0 if book.cells[-1].a_f is None else float(book.cells[-1].a_f) for book in books]
-
-
-def signed_drain(case, state, released, inert, masses, books, ash_out_redirect=0.0, fuel_out_redirect=0.0):
-    """A5 同式（precalc._drain），余额为负时不停止。诊断用。"""
-    ash_in = _ash_in(case)
-    carried = float(np.dot(np.asarray(state.freeboard_ash_free_kg[0], dtype=float), _top_af(books)))
-    fuel_top = 0.0 if released.fuel_up_kg_s is None else float(released.fuel_up_kg_s[0].sum())
-    n = case.n_free
-    fuel_drain = float(released.undried_exit_kg_s[n:].sum() + released.dried_exit_kg_s[n:].sum())
-    ash_out = carried + ash_in / case.fuel_kg_s * (fuel_top + fuel_drain + float(fuel_out_redirect)) + float(ash_out_redirect)
-    fraction = float(inert[-1] / masses[-1])
-    if fraction <= 0.0:
-        raise precalc.PrecalcError("最底格灰分质量分数不是正数")
-    total = (ash_in - ash_out) / fraction
-    return ash_in - ash_out, total * np.asarray(state.bed_char_kg[-1], dtype=float) / float(masses[-1])
 
 
 def itemize(frozen, state, context, reaction) -> dict:

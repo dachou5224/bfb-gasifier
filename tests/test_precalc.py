@@ -264,6 +264,51 @@ def test_drain_fuel_ash_uses_the_dry_matter_of_the_leaving_fuel():
     assert terms["fuel_ash"] == pytest.approx(0.2 * dry_out)
 
 
+def test_diagnostic_signed_drain_reuses_the_shared_balance_formula():
+    """T26n 审查 P2：诊断的 signed_drain 只取消负余额的符号拒绝，公式与 `_drain_terms` 逐位相同。
+
+    负余额 + 非零 dried_exit 时，旧复制式会少算 `ash_wf·m·Σdried_exit`；本用例断言修正后的
+    诊断值等于共享公式、且与复制式的差恰为该修正项。
+    """
+    from tools import alternation_diagnostic as tool
+
+    n_free, n_class = 2, 1
+    moisture, ash_wf = 0.1, 0.2
+    case = SimpleNamespace(
+        physical=SimpleNamespace(moisture_mass_fraction=moisture, ash_mass_fraction_wf=ash_wf),
+        fuel_kg_s=1.0, n_free=n_free,
+    )
+    released = SimpleNamespace(
+        fuel_up_kg_s=np.array([[0.05]]),
+        undried_exit_kg_s=np.zeros((n_free + 2, n_class)),
+        dried_exit_kg_s=np.zeros((n_free + 2, n_class)),
+    )
+    released.undried_exit_kg_s[-1] = 0.3
+    released.dried_exit_kg_s[-1] = 0.4
+    released.dried_exit_kg_s[0] = 0.05
+    inert = np.full(n_free + 2, 0.05)
+    masses = np.full(n_free + 2, 0.4)
+    books = tuple(SimpleNamespace(cells=[SimpleNamespace(a_f=0.5), SimpleNamespace(a_f=0.5)]) for _ in range(n_class))
+    state = SimpleNamespace(
+        freeboard_ash_free_kg=np.ones((n_free, n_class)),
+        bed_char_kg=np.full((n_free + 2, n_class), 0.01),
+    )
+    terms = _drain_terms(case, state, released, inert, masses, books)
+    assert terms["ash"] < 0.0
+    balance, char = tool.signed_drain(case, state, released, inert, masses, books)
+    assert balance == terms["ash"]
+    assert np.array_equal(char, np.asarray(terms["char"], dtype=float))
+    # 复制式（乘燃料的**实际**出口流）与共享公式之差恰为 ash_wf·m·Σdried_exit。
+    dried = float(np.sum(released.dried_exit_kg_s))
+    fuel_out = float(
+        released.fuel_up_kg_s[0].sum()
+        + np.sum(released.undried_exit_kg_s[n_free:])
+        + np.sum(released.dried_exit_kg_s[n_free:])
+    )
+    copied_balance = terms["ash_in"] - (terms["carried"] + terms["ash_in"] * fuel_out)
+    assert copied_balance - balance == pytest.approx(ash_wf * moisture * dried)
+
+
 def test_return_uses_the_freeboard_inventory_and_the_drain_enters_the_residual():
     """ADR 0016 第 10 条。同一床顶、不同自由存量，回落不同；排灰进入底格残差。
 
