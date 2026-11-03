@@ -17,14 +17,14 @@ from hamel.hydrodynamics.bed import geldart_group
 from hamel.properties.data import GAS_SPECIES, atoms, molar_mass_kg_mol
 from hamel.properties.thermo import mixture_enthalpy_j
 from hamel.pyrolysis.release import FuelTransport, release_distribution
-from hamel.pyrolysis.yields import lignite_yields
+from hamel.pyrolysis.yields import PYROLYSIS_GAS_SPECIES, lignite_yields
 from hamel.freeboard import CellTransport, account_freeboard, terminal_settling_velocity
 from hamel.cases.config import SolverConfig
 from hamel.solver.precalc import (
-    PrecalcError, _adaptive_bed, bed_downflow, downward_mass_flow, freeboard_return_kg_s,
-    initial_temperature_k, require_geldart_b, wall_coefficient,
+    PrecalcError, _adaptive_bed, bed_downflow, bed_release_terms, downward_mass_flow,
+    freeboard_return_kg_s, initial_temperature_k, require_geldart_b, wall_coefficient,
 )
-from hamel.solver.precalc import _equilibrium, _gas_enthalpy, _load, _primary_temperature, _primary_vector
+from hamel.solver.precalc import _drain_terms, _equilibrium, _gas_enthalpy, _load, _primary_temperature, _primary_vector
 from hamel.solver.precalc import _transport as pack_transport
 from hamel.solver.residual import wall_area_m2
 
@@ -194,6 +194,119 @@ def test_hover_state_belongs_to_the_cell_below_each_interface():
     assert np.array_equal(packed[6]["drift_hover_per_s"], np.array([[0.0], [0.7], [0.2]]))
     assert np.array_equal(packed[6]["drift_free_per_s"], np.zeros((3, 1)))
     assert np.array_equal(packed[7], np.array([[0.0], [0.9], [0.4]]))
+
+
+def test_bed_downflow_subtracts_release_loss_and_adds_the_fuel_exit():
+    """ADR 0053 第 1、2 项。补入两项后闭合到舍入；去掉任一项，闭合差恰为该项。"""
+    up = np.array([1.0, 1.0, 1.0])
+    loss = np.array([0.0, 0.0, 0.25])
+    _down, closed = bed_downflow(up, 0.6, np.zeros(3), 1.0, 0.3, loss, 0.05)
+    assert closed == pytest.approx(0.0, abs=1.0e-15)
+    _down, without_loss = bed_downflow(up, 0.6, np.zeros(3), 1.0, 0.3, None, 0.05)
+    assert without_loss == pytest.approx(0.25)
+    _down, without_fuel = bed_downflow(up, 0.6, np.zeros(3), 1.0, 0.3, loss, 0.0)
+    assert without_fuel == pytest.approx(0.05)
+
+
+def test_bed_release_terms_take_the_bed_gas_sources_and_the_bottom_exit():
+    """ADR 0053：失重取与床区气相源项相同的量；燃料出口取最底格的湿+干燥后出口流（逐粒级求和）。"""
+    cells, n_free = 4, 2
+    gas = {name: np.zeros(cells) for name in PYROLYSIS_GAS_SPECIES}
+    gas["CO"][n_free] = 2.0
+    released = SimpleNamespace(
+        water_kg_s=np.zeros(cells),
+        gas_mol_s=gas,
+        benzene_mol_s=np.zeros(cells),
+        naphthalene_mol_s=np.zeros(cells),
+        undried_exit_kg_s=np.zeros((cells, 2)),
+        dried_exit_kg_s=np.zeros((cells, 2)),
+    )
+    released.water_kg_s[-1] = 0.01
+    released.benzene_mol_s[0] = 1.0
+    released.undried_exit_kg_s[-1] = np.array([0.012, 0.008])
+    released.dried_exit_kg_s[-1] = np.array([0.02, 0.01])
+    loss, fuel_exit = bed_release_terms(released, n_free)
+    assert loss[0] == pytest.approx(2.0 * molar_mass_kg_mol("CO"))
+    assert loss[1] == pytest.approx(0.01)
+    assert fuel_exit == pytest.approx(0.05)
+
+
+def test_drain_fuel_ash_uses_the_dry_matter_of_the_leaving_fuel():
+    """T26n：随未转化燃料离开的灰按干物质计。
+
+    已干燥的出口流是干基（(1−水分)×当量），只乘湿基灰分比会漏掉这部分干物质的灰。
+    """
+    n_free, n_class = 2, 1
+    case = SimpleNamespace(
+        physical=SimpleNamespace(moisture_mass_fraction=0.1, ash_mass_fraction_wf=0.2),
+        fuel_kg_s=1.0, n_free=n_free,
+    )
+    released = SimpleNamespace(
+        fuel_up_kg_s=np.array([[0.1 * 0.9 * 0.5]]),
+        undried_exit_kg_s=np.zeros((n_free + 2, n_class)),
+        dried_exit_kg_s=np.zeros((n_free + 2, n_class)),
+        undried_free_kg=np.zeros((n_free, n_class)),
+        dried_free_kg=np.zeros((n_free, n_class)),
+    )
+    released.undried_exit_kg_s[-1] = 0.3
+    released.dried_exit_kg_s[-1] = 0.4
+    released.dried_exit_kg_s[0] = 0.9 * 0.1 * 0.5
+    released.dried_free_kg[0] = 0.5
+    inert = np.full(n_free + 2, 0.05)
+    masses = np.full(n_free + 2, 0.4)
+    books = tuple(SimpleNamespace(cells=[SimpleNamespace(a_f=0.0), SimpleNamespace(a_f=0.1)]) for _ in range(n_class))
+    state = SimpleNamespace(
+        freeboard_ash_free_kg=np.zeros((n_free, n_class)),
+        bed_char_kg=np.zeros((n_free + 2, n_class)),
+    )
+    terms = _drain_terms(case, state, released, inert, masses, books)
+    dry_out = 0.9 * 0.3 + 0.4 + 0.9 * 0.1 * 0.5
+    assert terms["fuel_ash"] == pytest.approx(0.2 * dry_out)
+
+
+def test_diagnostic_signed_drain_reuses_the_shared_balance_formula():
+    """T26n 审查 P2：诊断的 signed_drain 只取消负余额的符号拒绝，公式与 `_drain_terms` 逐位相同。
+
+    负余额 + 非零 dried_exit 时，旧复制式会少算 `ash_wf·m·Σdried_exit`；本用例断言修正后的
+    诊断值等于共享公式、且与复制式的差恰为该修正项。
+    """
+    from tools import alternation_diagnostic as tool
+
+    n_free, n_class = 2, 1
+    moisture, ash_wf = 0.1, 0.2
+    case = SimpleNamespace(
+        physical=SimpleNamespace(moisture_mass_fraction=moisture, ash_mass_fraction_wf=ash_wf),
+        fuel_kg_s=1.0, n_free=n_free,
+    )
+    released = SimpleNamespace(
+        fuel_up_kg_s=np.array([[0.05]]),
+        undried_exit_kg_s=np.zeros((n_free + 2, n_class)),
+        dried_exit_kg_s=np.zeros((n_free + 2, n_class)),
+    )
+    released.undried_exit_kg_s[-1] = 0.3
+    released.dried_exit_kg_s[-1] = 0.4
+    released.dried_exit_kg_s[0] = 0.05
+    inert = np.full(n_free + 2, 0.05)
+    masses = np.full(n_free + 2, 0.4)
+    books = tuple(SimpleNamespace(cells=[SimpleNamespace(a_f=0.5), SimpleNamespace(a_f=0.5)]) for _ in range(n_class))
+    state = SimpleNamespace(
+        freeboard_ash_free_kg=np.ones((n_free, n_class)),
+        bed_char_kg=np.full((n_free + 2, n_class), 0.01),
+    )
+    terms = _drain_terms(case, state, released, inert, masses, books)
+    assert terms["ash"] < 0.0
+    balance, char = tool.signed_drain(case, state, released, inert, masses, books)
+    assert balance == terms["ash"]
+    assert np.array_equal(char, np.asarray(terms["char"], dtype=float))
+    # 复制式（乘燃料的**实际**出口流）与共享公式之差恰为 ash_wf·m·Σdried_exit。
+    dried = float(np.sum(released.dried_exit_kg_s))
+    fuel_out = float(
+        released.fuel_up_kg_s[0].sum()
+        + np.sum(released.undried_exit_kg_s[n_free:])
+        + np.sum(released.dried_exit_kg_s[n_free:])
+    )
+    copied_balance = terms["ash_in"] - (terms["carried"] + terms["ash_in"] * fuel_out)
+    assert copied_balance - balance == pytest.approx(ash_wf * moisture * dried)
 
 
 def test_return_uses_the_freeboard_inventory_and_the_drain_enters_the_residual():
