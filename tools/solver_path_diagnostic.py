@@ -129,6 +129,27 @@ def build(cache: Path, loops: int, limit_s: float) -> dict:
 
 # ---------------------------------------------------------------- 内层
 
+def final_violations(x, names, stock_mask, gas_mask, inert, tau, tau_n) -> dict:
+    """第 3 层：存量 ≥ −τ、气体出流 ≥ −τ_n、各床格惰性物 ≥ 0。
+
+    分开报告舍入容差内的负值（不算违反）与真正的违反；ok 只看后者。
+    """
+    x = np.asarray(x, dtype=float)
+    stock_round = np.flatnonzero(stock_mask & (x < 0.0) & (x >= -tau))
+    stock_bad = np.flatnonzero(stock_mask & (x < -tau))
+    gas_bad = np.flatnonzero(gas_mask & (x < -tau_n))
+    inert_bad = np.flatnonzero(np.asarray(inert) < 0.0)
+    return {
+        "ok": bool(stock_bad.size == 0 and gas_bad.size == 0 and inert_bad.size == 0),
+        "tau_kg": tau, "tau_n_mol_s": tau_n,
+        "stocks_within_tau": {names[i]: float(x[i]) for i in stock_round},
+        "stocks_below_tau": {names[i]: float(x[i]) for i in stock_bad[np.argsort(x[stock_bad])][:8]},
+        "gas_below_tau_n": {names[i]: float(x[i]) for i in gas_bad[:8]},
+        "inert_kg": np.asarray(inert, dtype=float).tolist(),
+        "inert_negative_cells": inert_bad.tolist(),
+    }
+
+
 class Problem:
     """第 1 轮内层的原问题：与 driver.solve_aligned 的 prepare 同一组块、尺度与可行条件。"""
 
@@ -164,14 +185,18 @@ class Problem:
         return bool(np.all(gas >= 0.0) and np.all(temperature > 0.0))
 
     def final_check(self, x) -> dict:
-        """收敛解上的 ADR 0017 第 7 项：存量 ≥ −τ、惰性物 ≥ 0，列出最负的几项。"""
-        tau = float(self.config.stock_roundoff_relative) * self.m_tot
+        """收敛解上的第 3 层检查（#145 审查 P2）。惰性物不在 x 中，逐格由 M − 焦炭 − 燃料算出。"""
+        state = unpack_state(x, self.frozen)
+        inert = self.frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - self.frozen.fuel_bed_kg.sum(axis=1)
         lower = np.ones(x.size, dtype=bool)
         lower[self.temperature] = False
-        bad = np.flatnonzero(lower & (x < -tau))
-        order = bad[np.argsort(x[bad])][:8]
-        return {"strict_feasible": bool(driver._feasible(x, self.frozen)), "below_minus_tau": int(bad.size),
-                "worst": {self.names[i]: float(x[i]) for i in order}}
+        stocks = np.zeros(x.size, dtype=bool)
+        stocks[[s.index for s in self.slots if s.kind in ("char", "ash")]] = True
+        return final_violations(
+            x, self.names, stocks, lower & ~stocks, np.asarray(inert, dtype=float),
+            float(self.config.stock_roundoff_relative) * self.m_tot,
+            float(self.config.stock_roundoff_relative) * self.n_ref,
+        )
 
     def merit(self, values):
         return newton.normalized_merit(values, self.blocks)
@@ -417,9 +442,14 @@ def outer(variant: set, rounds: int, limit_s: float, out: Path) -> dict:
             "m_dot_ab_kg_s": np.asarray(problem.frozen.m_dot_ab_kg_s).tolist(),
         })
         np.save(out / f"outer-x-round{len(rounds_log)}.npy", x)
+        with (out / f"outer-frozen-round{len(rounds_log)}.pkl").open("wb") as handle:
+            pickle.dump(problem.frozen, handle, protocol=pickle.HIGHEST_PROTOCOL)
         (out / "outer.json").write_text(json.dumps({"rounds": rounds_log}, ensure_ascii=False, indent=1, default=_plain), encoding="utf-8")
         values = None if x is None else problem.residual(x)
-        status = "CONVERGED" if stage["status"] == "CONVERGED" else stage["status"]
+        status = stage["status"]
+        if status == "CONVERGED" and not (stage.get("final_check") or {}).get("ok", False):
+            status = "FINAL_CHECK_FAILED"
+            rounds_log[-1]["status"] = status
         return newton.NewtonResult(status, stage["reason"], x, values, len(stage["iterations"]), stage["final_merit"])
 
     restore_a5 = _patch_a5()
@@ -431,7 +461,7 @@ def outer(variant: set, rounds: int, limit_s: float, out: Path) -> dict:
         status = [result.status, result.reason]
         extra = {"rounds_driver": result.rounds, "nonnegative": result.nonnegative, "balance": result.balance,
                  "measurements": result.measurements}
-    except _Timeout:
+    except (_Timeout, newton.SolveTimeout):
         status, extra = ["TIMEOUT", ""], {}
     except Exception as exc:
         status, extra = [type(exc).__name__, str(exc)[:800]], {}
@@ -456,16 +486,25 @@ def main(argv=None) -> None:
     i.add_argument("--nu-max", type=int, default=60)
     i.add_argument("--limit-s", type=float, default=7200.0)
     i.add_argument("--tag", default=None)
+    c = sub.add_parser("check")
+    c.add_argument("--frozen", required=True)
+    c.add_argument("--x", required=True)
+    c.add_argument("--tag", required=True)
     o = sub.add_parser("outer")
     o.add_argument("--variant", default="gaslog,o2pow,relax,corellaX")
     o.add_argument("--rounds", type=int, default=3)
     o.add_argument("--limit-s", type=float, default=5400.0)
-    for p in (b, i, o):
+    for p in (b, i, o, c):
         p.add_argument("--out", default=str(_OUT))
     args = parser.parse_args(argv)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    if args.command == "outer":
+    if args.command == "check":
+        with Path(args.frozen).open("rb") as handle:
+            problem = Problem(pickle.load(handle))
+        summary = problem.final_check(np.load(args.x))
+        name = f"check-{args.tag}.json"
+    elif args.command == "outer":
         variant = set(args.variant.split(","))
         if "corellaX" in variant:
             import hamel.kinetics.homogeneous as homogeneous
@@ -494,7 +533,7 @@ def main(argv=None) -> None:
         restore = _alarm(args.limit_s + 60)
         try:
             summary = run_inner(problem, x0, variant, args.limit_s, args.nu_max, journal)
-        except _Timeout:
+        except (_Timeout, newton.SolveTimeout):
             summary = {"stages": [], "status": "TIMEOUT"}
         finally:
             restore()
@@ -504,7 +543,7 @@ def main(argv=None) -> None:
         if "x_final" in journal:
             np.save(out / f"x-{tag}.npy", journal["x_final"])
     (out / name).write_text(json.dumps(summary, ensure_ascii=False, indent=1, default=_plain), encoding="utf-8")
-    print(name, json.dumps(summary.get("status") or [s.get("status") for s in summary.get("stages", [])], ensure_ascii=False))
+    print(name, json.dumps(summary.get("status") or summary.get("ok") if "ok" in summary else summary.get("status") or [s.get("status") for s in summary.get("stages", [])], ensure_ascii=False))
 
 
 def _plain(value):
