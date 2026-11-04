@@ -1,0 +1,851 @@
+{
+ "stages": [
+  {
+   "label": "full",
+   "status": "DAMPING_FAILED",
+   "reason": "没有使归一残差严格下降的可行步",
+   "iterations": [
+    {
+     "iteration": 1,
+     "merit": 0.31368396537882454,
+     "blocks": {
+      "gas": 0.2934282603118534,
+      "solid": 0.00031269928319560905,
+      "energy": 0.11089359046086077,
+      "bottom": null
+     },
+     "step_norm": 2532226123.463842,
+     "step_max": {
+      "index": 489,
+      "block": "气体",
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+      "value": 2532226123.2818804,
+      "raw": 2532226123.2818804
+     },
+     "accepted_i": 30,
+     "accepted_merit": 0.31368396524555026,
+     "rejections": {
+      "feasible 不满足": 22,
+      "KineticsInputError: 式 (5.22) 的牛顿步没有有限导数": 4
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.10662789063821976
+      },
+      {
+       "index": 482,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.0981018227344456
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": 0.097161861988425
+      },
+      {
+       "index": 495,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.0849178889872815
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.07512772827759948
+      }
+     ],
+     "census": {
+      "solid": {
+       "count": 37,
+       "alpha": 0.2896534471079737,
+       "worst": "freeboard[b=6,geo=1].char.hover.k4"
+      },
+      "gas": {
+       "count": 30,
+       "alpha": 0.6346908371615958,
+       "worst": "bed[b=7,geo=0].gas_outflow.bubble.CO"
+      }
+     }
+    },
+    {
+     "iteration": 2,
+     "merit": 0.31368396524555026,
+     "blocks": {
+      "gas": 0.2934282602084112,
+      "solid": 0.00031269928290515183,
+      "energy": 0.11089359035758109,
+      "bottom": null
+     },
+     "step_norm": 241839786.2661105,
+     "step_max": {
+      "index": 489,
+      "block": "气体",
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+      "value": 241839784.36162558,
+      "raw": 241839784.36162558
+     },
+     "accepted_i": 27,
+     "accepted_merit": 0.3136839636215161,
+     "rejections": {
+      "feasible 不满足": 19,
+      "KineticsInputError: 式 (5.22) 的牛顿步没有有限导数": 4
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.10662789099643759
+      },
+      {
+       "index": 482,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.09810182265359703
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": 0.09716186189793599
+      },
+      {
+       "index": 495,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.08491788890819583
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.07512772799110402
+      }
+     ],
+     "census": {
+      "solid": {
+       "count": 66,
+       "alpha": 0.15051048115208043,
+       "worst": "freeboard[b=6,geo=1].char.hover.k4"
+      },
+      "gas": {
+       "count": 37,
+       "alpha": 0.5815824290435482,
+       "worst": "bed[b=0,geo=7].gas_outflow.bubble.CO2"
+      }
+     }
+    },
+    {
+     "iteration": 3,
+     "merit": 0.3136839636215161,
+     "blocks": {
+      "gas": 0.2934282587845189,
+      "solid": 0.00031269928057715146,
+      "energy": 0.11089358953136104,
+      "bottom": null
+     },
+     "step_norm": 41632666.34415897,
+     "step_max": {
+      "index": 489,
+      "block": "气体",
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+      "value": 41632655.2830442,
+      "raw": 41632655.2830442
+     },
+     "accepted_i": 24,
+     "accepted_merit": 0.31368395598169513,
+     "rejections": {
+      "feasible 不满足": 16,
+      "KineticsInputError: 式 (5.22) 的牛顿步没有有限导数": 4
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.10662789214285551
+      },
+      {
+       "index": 482,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.09810182196276326
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": 0.0971618611740234
+      },
+      {
+       "index": 495,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.08491788827552801
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.07512772646887636
+      }
+     ],
+     "census": {
+      "solid": {
+       "count": 66,
+       "alpha": 0.14537019158180592,
+       "worst": "freeboard[b=6,geo=1].char.hover.k4"
+      },
+      "gas": {
+       "count": 39,
+       "alpha": 0.5493794586938792,
+       "worst": "bed[b=0,geo=7].gas_outflow.bubble.CO2"
+      }
+     }
+    },
+    {
+     "iteration": 4,
+     "merit": 0.31368395598169513,
+     "blocks": {
+      "gas": 0.29342825311532217,
+      "solid": 0.0003126992619437922,
+      "energy": 0.11089358292159221,
+      "bottom": null
+     },
+     "step_norm": 3535950.2294899966,
+     "step_max": {
+      "index": 489,
+      "block": "气体",
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+      "value": 3535820.131572379,
+      "raw": 3535820.131572379
+     },
+     "accepted_i": 21,
+     "accepted_merit": 0.3136838485349807,
+     "rejections": {
+      "feasible 不满足": 13,
+      "KineticsInputError: 式 (5.22) 的牛顿步没有有限导数": 4
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.10662791584804472
+      },
+      {
+       "index": 482,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.09810181631318644
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": 0.09716185538272565
+      },
+      {
+       "index": 495,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.08491788321523046
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.07512770692166065
+      }
+     ],
+     "census": {
+      "solid": {
+       "count": 66,
+       "alpha": 0.14349470851582322,
+       "worst": "freeboard[b=6,geo=1].char.hover.k4"
+      },
+      "gas": {
+       "count": 39,
+       "alpha": 0.537616419655327,
+       "worst": "bed[b=0,geo=7].gas_outflow.bubble.CO2"
+      }
+     }
+    },
+    {
+     "iteration": 5,
+     "merit": 0.3136838485349807,
+     "blocks": {
+      "gas": 0.29342815823551294,
+      "solid": 0.00031269911320579174,
+      "energy": 0.11089353004344345,
+      "bottom": null
+     },
+     "step_norm": 657984.5684524643,
+     "step_max": {
+      "index": 489,
+      "block": "气体",
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+      "value": 657290.9900285475,
+      "raw": 657290.9900285475
+     },
+     "accepted_i": 18,
+     "accepted_merit": 0.31368338712247995,
+     "rejections": {
+      "feasible 不满足": 10,
+      "KineticsInputError: 式 (5.22) 的牛顿步没有有限导数": 4
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.10662797952772632
+      },
+      {
+       "index": 482,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.09810176978861004
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": 0.09716180905236432
+      },
+      {
+       "index": 495,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.08491784280042514
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.07512761369481125
+      }
+     ],
+     "census": {
+      "solid": {
+       "count": 66,
+       "alpha": 0.14351767276429875,
+       "worst": "freeboard[b=6,geo=1].char.hover.k4"
+      },
+      "gas": {
+       "count": 39,
+       "alpha": 0.5374246187151721,
+       "worst": "bed[b=0,geo=7].gas_outflow.bubble.CO2"
+      }
+     }
+    },
+    {
+     "iteration": 6,
+     "merit": 0.31368338712247995,
+     "blocks": {
+      "gas": 0.2934278248428816,
+      "solid": 0.00031269794249187466,
+      "energy": 0.1108931070202452,
+      "bottom": null
+     },
+     "step_norm": 61098.66168148973,
+     "step_max": {
+      "index": 489,
+      "block": "气体",
+      "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+      "value": 53669.90696121875,
+      "raw": 53669.90696121875
+     },
+     "accepted_i": 15,
+     "accepted_merit": 0.3136764143673101,
+     "rejections": {
+      "feasible 不满足": 7,
+      "KineticsInputError: 式 (5.22) 的牛顿步没有有限导数": 4
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.1066295706236378
+      },
+      {
+       "index": 482,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.09810139721122965
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": 0.09716143841083325
+      },
+      {
+       "index": 495,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.08491752382824595
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.07512632733835588
+      }
+     ],
+     "census": {
+      "solid": {
+       "count": 66,
+       "alpha": 0.14353366175999135,
+       "worst": "freeboard[b=6,geo=1].char.hover.k4"
+      },
+      "gas": {
+       "count": 39,
+       "alpha": 0.5374215541358822,
+       "worst": "bed[b=0,geo=7].gas_outflow.bubble.CO2"
+      }
+     }
+    },
+    {
+     "iteration": 7,
+     "merit": 0.3136764143673101,
+     "blocks": {
+      "gas": 0.29342164967128676,
+      "solid": 0.0003126898091253313,
+      "energy": 0.11088972296654166,
+      "bottom": null
+     },
+     "step_norm": 24811.364279197707,
+     "step_max": {
+      "index": 502,
+      "block": "气体",
+      "name": "bed[b=7,geo=0].gas_outflow.bubble.O2",
+      "value": 22204.354999784024,
+      "raw": 22204.354999784024
+     },
+     "accepted_i": 12,
+     "accepted_merit": 0.31365065475196036,
+     "rejections": {
+      "feasible 不满足": 5,
+      "KineticsInputError: 式 (5.22) 的牛顿步没有有限导数": 4
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.10663332560458437
+      },
+      {
+       "index": 482,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.09809840761117014
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": 0.09715847336532914
+      },
+      {
+       "index": 495,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.08491526452885022
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.07512052836854863
+      }
+     ],
+     "census": {
+      "solid": {
+       "count": 66,
+       "alpha": 0.14366531118722844,
+       "worst": "freeboard[b=6,geo=1].char.hover.k4"
+      },
+      "gas": {
+       "count": 39,
+       "alpha": 0.5386687855320141,
+       "worst": "bed[b=0,geo=7].gas_outflow.bubble.CO2"
+      }
+     }
+    },
+    {
+     "iteration": 8,
+     "merit": 0.31365065475196036,
+     "blocks": {
+      "gas": 0.2934043392611251,
+      "solid": 0.0003127061416186719,
+      "energy": 0.11086265892510895,
+      "bottom": null
+     },
+     "step_norm": 5244.966673446863,
+     "step_max": {
+      "index": 502,
+      "block": "气体",
+      "name": "bed[b=7,geo=0].gas_outflow.bubble.O2",
+      "value": 4347.353391417115,
+      "raw": 4347.353391417115
+     },
+     "accepted_i": 9,
+     "accepted_merit": 0.31323646189810306,
+     "rejections": {
+      "feasible 不满足": 3,
+      "KineticsInputError: 式 (5.22) 的牛顿步没有有限导数": 3
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.10674008846646697
+      },
+      {
+       "index": 482,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.0980746082003676
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": 0.09713475855471942
+      },
+      {
+       "index": 495,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.08492224050815385
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.0750357358495603
+      }
+     ],
+     "census": {
+      "solid": {
+       "count": 66,
+       "alpha": 0.14471790796932457,
+       "worst": "freeboard[b=6,geo=1].char.hover.k4"
+      },
+      "gas": {
+       "count": 41,
+       "alpha": 0.5489360167368939,
+       "worst": "bed[b=0,geo=7].gas_outflow.bubble.CO2"
+      }
+     }
+    },
+    {
+     "iteration": 9,
+     "merit": 0.31323646189810306,
+     "blocks": {
+      "gas": 0.2930431465744229,
+      "solid": 0.0003283267755215906,
+      "energy": 0.11064667871080254,
+      "bottom": null
+     },
+     "step_norm": 646.311009753573,
+     "step_max": {
+      "index": 187,
+      "block": "气体",
+      "name": "freeboard[b=6,geo=1].gas_outflow.gas.O2",
+      "value": 529.2322063394848,
+      "raw": 529.2322063394848
+     },
+     "accepted_i": 6,
+     "accepted_merit": 0.3115662899921566,
+     "rejections": {
+      "Ṅ < 0（下标 14）": 1,
+      "m < 0（下标 4）": 2,
+      "KineticsInputError: 式 (5.22) 的牛顿步没有有限导数": 1
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.10695370360047468
+      },
+      {
+       "index": 482,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.09789157176579026
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": 0.09694539295645255
+      },
+      {
+       "index": 495,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.08528740963888301
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.07467519582511953
+      }
+     ],
+     "census": {
+      "solid": {
+       "count": 66,
+       "alpha": 0.1514782777466807,
+       "worst": "freeboard[b=6,geo=1].char.hover.k4"
+      },
+      "gas": {
+       "count": 42,
+       "alpha": 0.5274550275528361,
+       "worst": "bed[b=7,geo=0].gas_outflow.bubble.H2"
+      }
+     }
+    },
+    {
+     "iteration": 10,
+     "merit": 0.3115662899921566,
+     "blocks": {
+      "gas": 0.29184870499083704,
+      "solid": 0.005247703184266682,
+      "energy": 0.10895112696038459,
+      "bottom": null
+     },
+     "step_norm": 284.2638724192661,
+     "step_max": {
+      "index": 193,
+      "block": "能量",
+      "name": "freeboard[b=6,geo=1].temperature",
+      "value": 201.48113932553255,
+      "raw": 201.48113932553255
+     },
+     "accepted_i": 4,
+     "accepted_merit": 0.3003932304747167,
+     "rejections": {
+      "Ṅ < 0（下标 17）": 1,
+      "m < 0（下标 4）": 1,
+      "m < 0（下标 38）": 1
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.11365943674639573
+      },
+      {
+       "index": 482,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.09683110203779263
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": 0.09545221705808103
+      },
+      {
+       "index": 495,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.084362386072532
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.06916774629477271
+      }
+     ],
+     "census": {
+      "gas": {
+       "count": 40,
+       "alpha": 0.5371834186001865,
+       "worst": "bed[b=7,geo=0].gas_outflow.bubble.H2"
+      },
+      "solid": {
+       "count": 51,
+       "alpha": 0.18070002746307134,
+       "worst": "freeboard[b=6,geo=1].char.hover.k4"
+      }
+     }
+    },
+    {
+     "iteration": 11,
+     "merit": 0.3003932304747167,
+     "blocks": {
+      "gas": 0.27518237681674035,
+      "solid": 0.06323577559525108,
+      "energy": 0.10252799173588087,
+      "bottom": null
+     },
+     "step_norm": 346.06953552545053,
+     "step_max": {
+      "index": 193,
+      "block": "能量",
+      "name": "freeboard[b=6,geo=1].temperature",
+      "value": 214.34527560234278,
+      "raw": 214.34527560234278
+     },
+     "accepted_i": 4,
+     "accepted_merit": 0.29013145766429094,
+     "rejections": {
+      "Ṅ < 0（下标 17）": 1,
+      "m < 0（下标 4）": 1,
+      "m < 0（下标 44）": 1
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.10942791371394538
+      },
+      {
+       "index": 482,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.09361617146543344
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": 0.089746625271026
+      },
+      {
+       "index": 495,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.07905807636294779
+      },
+      {
+       "index": 180,
+       "block": "气体",
+       "name": "freeboard[b=6,geo=1].gas_outflow.gas.CO",
+       "value": -0.06369710908745978
+      }
+     ],
+     "census": {
+      "gas": {
+       "count": 41,
+       "alpha": 0.5704153466560791,
+       "worst": "bed[b=7,geo=0].gas_outflow.bubble.H2"
+      },
+      "solid": {
+       "count": 40,
+       "alpha": 0.21728767181037467,
+       "worst": "freeboard[b=6,geo=1].char.hover.k4"
+      }
+     }
+    },
+    {
+     "iteration": 12,
+     "merit": 0.29013145766429094,
+     "blocks": {
+      "gas": 0.2585918853284941,
+      "solid": 0.08957388723467742,
+      "energy": 0.0963484213380298,
+      "bottom": null
+     },
+     "step_norm": 327.52843658447625,
+     "step_max": {
+      "index": 193,
+      "block": "能量",
+      "name": "freeboard[b=6,geo=1].temperature",
+      "value": 202.1760579407196,
+      "raw": 202.1760579407196
+     },
+     "accepted_i": null,
+     "accepted_merit": null,
+     "rejections": {
+      "Ṅ < 0（下标 17）": 1,
+      "m < 0（下标 4）": 1,
+      "m < 0（下标 45）": 1,
+      "m < 0（下标 38）": 28
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.10420787898281093
+      },
+      {
+       "index": 482,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.08846020487032773
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": 0.08429259531348962
+      },
+      {
+       "index": 495,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.07387101670990195
+      },
+      {
+       "index": 235,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k4",
+       "value": 0.06593782048127579
+      }
+     ],
+     "census": {
+      "gas": {
+       "count": 38,
+       "alpha": 0.5611329142093826,
+       "worst": "bed[b=7,geo=0].gas_outflow.bubble.H2"
+      },
+      "solid": {
+       "count": 41,
+       "alpha": 0.0,
+       "worst": "freeboard[b=5,geo=2].ash.free.k4"
+      }
+     }
+    }
+   ],
+   "final_merit": 0.29013145766429094,
+   "final_ratios": {
+    "gas": 0.10420787898281093,
+    "solid": 0.06593782048127579,
+    "energy": 0.08429259531348962
+   }
+  }
+ ],
+ "elapsed_s": 166.07851508299998,
+ "evaluations": 1302,
+ "variant": [
+  "o2log"
+ ],
+ "o2_share": 0.5,
+ "start_changes": {
+  "handoff_rounded": {
+   "freeboard[b=5,geo=2].char.free.k4": -1.8909140209225187e-124,
+   "freeboard[b=5,geo=2].char.free.k5": -7.745183829698637e-121,
+   "freeboard[b=5,geo=2].char.free.k6": -2.5379418373156492e-116
+  }
+ }
+}
