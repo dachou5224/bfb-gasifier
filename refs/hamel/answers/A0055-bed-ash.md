@@ -47,7 +47,7 @@ Q6 共同：未查看归档代码。
 
 - **Q1**：PDF 46 右 / S. 73，Bild 5.1；PDF 52 / S. 84–85。
 - **Q3**：S. 73：shrinking particle 时 „… führt zu einer Abnahme des Partikeldurchmessers“；„Unter Berücksichtigung eines weiteren diffusiven Widerstandes in Form der den Partikel umgebenden Ascheschicht, wird für sehr aschereiche Kohlen häufig das ‚Shrinking core‘-Modell angewendet“（总司令核对文本层）。S. 85 继续采用 shrinking particle。
-- **Q5**：燃尽后灰的粒径与去向，原文未说明。所选模型里没有灰壳，这支持“灰不以原粒径的灰骨架留在床内”。ADR 0055 的细灰进入 k = 1，是解释性选择。
+- **Q5**：燃尽后灰的粒径与去向，原文未说明。所选模型里没有包住反应颗粒的灰壳，但它没有规定脱离的灰有多大，不能据此在灰粒径的写法之间作出唯一选择（PR #150 复审）。ADR 0055 的细灰进入 k = 1、粗灰进入 k = K，都是解释性选择。
 
 ## 7. 气化床的含碳量（S. 155）
 
