@@ -11,10 +11,15 @@
 
 候选手段（--variant，可用逗号组合）
 - base：原样（ADR 0043 差分步长、ADR 0017 第 7 项可行条件）。
-- o2mix：进风格（床区最底格、二次风所在自由空间格）O₂ 出流取进风 O₂ 的份额 --o2-share，
-  只改起点，原方程不变（CHARTER §5 允许初值构造）。
-- fixedT：先固定全部温度解气相与固相，再放开温度（Hamel S. 15 的分阶段），同一原方程。
-- o2step：O₂ 列的差分步长改为 √ε·max(|x|, 1e-12·ṅ_ref)（只改雅可比近似）。
+- o2mix：进风格 O₂ 出流取进风 O₂ 的份额 --o2-share，只改起点。
+- fixedT：先固定全部温度解气相与固相，再放开温度（Hamel S. 15 的分阶段）。
+- o2step：O₂ 列的差分步长改为 √ε·max(|x|, 1e-12·ṅ_ref)。
+- o2log：O₂ 出流取 ln Ṅ。
+- o2pow：O₂ 出流取 Ṅ^n，n 为该相 R5 的 O₂ 级数（0,5／0,3）。
+- gaslog：其余（起点为正的）气体出流取 ln Ṅ。
+- relax：三层试探规则（试探点只要求气体 ≥ 0、T > 0；非负在收敛解上检查）。
+- corellaX：**仅诊断、属模型有效域放宽**：Corella 高温段外推到 900 °C 以上。
+  outer 默认不带；用到时须在结论中注明（M5 审计）。
 
 所有结果写在 --out（默认 reports/research-solver-path/diagnostic/）。
 """
@@ -491,7 +496,7 @@ def main(argv=None) -> None:
     c.add_argument("--x", required=True)
     c.add_argument("--tag", required=True)
     o = sub.add_parser("outer")
-    o.add_argument("--variant", default="gaslog,o2pow,relax,corellaX")
+    o.add_argument("--variant", default="gaslog,o2pow,relax")
     o.add_argument("--rounds", type=int, default=3)
     o.add_argument("--limit-s", type=float, default=5400.0)
     for p in (b, i, o, c):
