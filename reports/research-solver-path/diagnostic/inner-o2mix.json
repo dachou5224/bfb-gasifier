@@ -1,0 +1,113 @@
+{
+ "stages": [
+  {
+   "label": "full",
+   "status": "DAMPING_FAILED",
+   "reason": "没有使归一残差严格下降的可行步",
+   "iterations": [
+    {
+     "iteration": 1,
+     "merit": 1089736395726.6427,
+     "blocks": {
+      "gas": 1089736395726.6427,
+      "solid": 1.2663872147906348,
+      "energy": 0.07977369805223349,
+      "bottom": null
+     },
+     "step_norm": 8384.82816307415,
+     "step_max": {
+      "index": 131,
+      "block": "能量",
+      "name": "freeboard[b=4,geo=3].temperature",
+      "value": 3262.258852763388,
+      "raw": 3262.258852763388
+     },
+     "accepted_i": null,
+     "accepted_merit": null,
+     "rejections": {
+      "Ṅ < 0（下标 3）": 1,
+      "Ṅ < 0（下标 7）": 2,
+      "Ṅ < 0（下标 20）": 15,
+      "Ṅ < 0（下标 124）": 1,
+      "Ṅ < 0（下标 163）": 12
+     },
+     "largest": [
+      {
+       "index": 183,
+       "block": "气体",
+       "name": "freeboard[b=6,geo=1].gas_outflow.gas.H2O",
+       "value": 706735393723.9617
+      },
+      {
+       "index": 182,
+       "block": "气体",
+       "name": "freeboard[b=6,geo=1].gas_outflow.gas.H2",
+       "value": -706735387042.0555
+      },
+      {
+       "index": 187,
+       "block": "气体",
+       "name": "freeboard[b=6,geo=1].gas_outflow.gas.O2",
+       "value": -353367704673.20667
+      },
+      {
+       "index": 498,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.H2O",
+       "value": 119278904694.44145
+      },
+      {
+       "index": 497,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.H2",
+       "value": -119278903287.83972
+      }
+     ],
+     "census": {
+      "gas": {
+       "count": 110,
+       "alpha": 0.01667556079751317,
+       "worst": "freeboard[b=6,geo=1].gas_outflow.gas.H2O"
+      },
+      "O2": {
+       "count": 22,
+       "alpha": 2.772502560423082e-10,
+       "worst": "bed[b=6,geo=1].gas_outflow.suspension.O2"
+      },
+      "solid": {
+       "count": 46,
+       "alpha": 0.03981292617418515,
+       "worst": "freeboard[b=7,geo=0].ash.hover.k3"
+      }
+     }
+    }
+   ],
+   "final_merit": 1089736395726.6427,
+   "final_ratios": {
+    "gas": 706735393723.9617,
+    "solid": 0.8510337505876681,
+    "energy": 0.0474197917295555
+   }
+  }
+ ],
+ "elapsed_s": 21.394538667000003,
+ "evaluations": 103,
+ "variant": [
+  "o2mix"
+ ],
+ "o2_share": 0.5,
+ "start_changes": {
+  "bed[-1,0]": [
+   1.6425388663432956e-23,
+   0.04023853565864949
+  ],
+  "bed[-1,1]": [
+   1.1089684853762764e-23,
+   0.02716725239048646
+  ],
+  "free[6]": [
+   3.9976674050894495e-23,
+   0.03916822819071414
+  ]
+ }
+}

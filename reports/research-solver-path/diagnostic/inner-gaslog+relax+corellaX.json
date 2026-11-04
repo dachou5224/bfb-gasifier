@@ -1,0 +1,171 @@
+{
+ "stages": [
+  {
+   "label": "full",
+   "status": "DAMPING_FAILED",
+   "reason": "没有使归一残差严格下降的可行步",
+   "iterations": [
+    {
+     "iteration": 1,
+     "merit": 0.3136839653788245,
+     "blocks": {
+      "gas": 0.2934282603118533,
+      "solid": 0.00031269928319561116,
+      "energy": 0.11089359046086077,
+      "bottom": null
+     },
+     "step_norm": 361.4911539949494,
+     "step_max": {
+      "index": 270,
+      "block": "能量",
+      "name": "bed[b=0,geo=7].temperature",
+      "value": -119.47950136899806,
+      "raw": -119.47950136899806
+     },
+     "accepted_i": 20,
+     "accepted_merit": 0.31367619509538036,
+     "rejections": {
+      "Ṅ < 0（下标 20）": 20
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.10662789063821974
+      },
+      {
+       "index": 482,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.09810182273444565
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": 0.097161861988425
+      },
+      {
+       "index": 495,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.08491788898728145
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.07512772827759948
+      }
+     ],
+     "census": {
+      "O2": {
+       "count": 14,
+       "alpha": 1.5260632751122674e-06,
+       "worst": "freeboard[b=5,geo=2].gas_outflow.gas.O2"
+      },
+      "solid": {
+       "count": 66,
+       "alpha": 0.12137746124144702,
+       "worst": "freeboard[b=6,geo=1].char.hover.k4"
+      }
+     }
+    },
+    {
+     "iteration": 2,
+     "merit": 0.31367619509538036,
+     "blocks": {
+      "gas": 0.2934199935909135,
+      "solid": 0.0003126989864012628,
+      "energy": 0.1108934847047712,
+      "bottom": null
+     },
+     "step_norm": 361.3407918887528,
+     "step_max": {
+      "index": 270,
+      "block": "能量",
+      "name": "bed[b=0,geo=7].temperature",
+      "value": -119.36997427718856,
+      "raw": -119.36997427718856
+     },
+     "accepted_i": null,
+     "accepted_merit": null,
+     "rejections": {
+      "Ṅ < 0（下标 20）": 21
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.10662778894634091
+      },
+      {
+       "index": 482,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.09810173019014178
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": 0.09716176932787911
+      },
+      {
+       "index": 495,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.08498077085334331
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.0751276561251387
+      }
+     ],
+     "census": {
+      "O2": {
+       "count": 14,
+       "alpha": 7.70542228200077e-07,
+       "worst": "freeboard[b=5,geo=2].gas_outflow.gas.O2"
+      },
+      "solid": {
+       "count": 66,
+       "alpha": 0.12163166241264198,
+       "worst": "freeboard[b=6,geo=1].char.hover.k4"
+      }
+     }
+    }
+   ],
+   "final_merit": 0.31367619509538036,
+   "final_ratios": {
+    "gas": 0.10662778894634091,
+    "solid": 0.00015965114268117012,
+    "energy": 0.09716176932787911
+   },
+   "final_check": {
+    "strict_feasible": true,
+    "below_minus_tau": 0,
+    "worst": {}
+   }
+  }
+ ],
+ "elapsed_s": 36.499481791,
+ "evaluations": 216,
+ "variant": [
+  "corellaX",
+  "gaslog",
+  "relax"
+ ],
+ "o2_share": 0.5,
+ "start_changes": {
+  "handoff_rounded": {
+   "freeboard[b=5,geo=2].char.free.k4": -1.8909140209225187e-124,
+   "freeboard[b=5,geo=2].char.free.k5": -7.745183829698637e-121,
+   "freeboard[b=5,geo=2].char.free.k6": -2.5379418373156492e-116
+  }
+ }
+}
