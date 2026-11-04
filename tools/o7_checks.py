@@ -11,6 +11,7 @@
 - k3：同一状态上床区灰的边界收支差 = Σ ash_gen_bed + 回落灰 − 床面抛出灰 − 冻结的排灰灰分量。
 - k1：固定第 k 轮的冻结量、气相与温度，把床区焦炭按比例缩放到给定总量 C（床灰 = M − C − 燃料，
   按 ADR 0017 第 19 项分粒级），只解自由空间固相（焦炭与灰，自由与悬停），算 D(C)，求 D = 0 的 C*。
+- ledger：逐粒级的床灰 A_k、带出灰、带出系数 e_k = 带出灰 / A_k 与热解释放到床区的灰 S_k（闭合复核用）。
 - k2：固定第 k 轮的冻结量，从不同起点跑内层（gaslog,o2pow,relax），比较收敛的床区焦炭。
   --drain-zero：把冻结的排灰与排焦炭取 0（反事实设定，不是模型写法）。在耦合问题中它不是
   床区焦炭的严格上界；解出的状态只看它自己的 A5 余额，不与 k1 的 C*（只适用于 k1 的扫描族）比较。
@@ -70,6 +71,24 @@ def balance(frozen, x) -> dict:
     }
 
 
+def ledger(frozen, x) -> dict:
+    """逐粒级灰账：床灰按现行闭合（随焦炭比例）分粒级时的 A_k、带出灰与 e_k，以及床区灰供给 S_k。"""
+    state = unpack_state(x, frozen)
+    char = np.asarray(state.bed_char_kg, dtype=float)
+    inert = np.asarray(frozen.geometric_mass_kg) - char.sum(axis=1) - np.asarray(frozen.fuel_bed_kg).sum(axis=1)
+    by_class = (inert[:, None] * char / char.sum(axis=1, keepdims=True)).sum(axis=0)
+    carried = np.asarray(frozen.a_free_per_s[0]) * np.asarray(state.freeboard_ash_free_kg[0])
+    with np.errstate(invalid="ignore", divide="ignore"):
+        e = np.where(by_class > 0, carried / by_class, 0.0)
+    return {
+        "diameter_mm": (np.asarray(frozen.diameter_m) * 1e3).tolist(),
+        "bed_ash_by_class_kg": by_class.tolist(), "carried_by_class_kg_s": carried.tolist(),
+        "elutriation_per_s": e.tolist(),
+        "ash_supply_bed_by_class_kg_s": np.asarray(frozen.ash_gen_bed_kg_s).sum(axis=0).tolist(),
+        "ash_supply_freeboard_kg_s": float(np.sum(frozen.ash_gen_free_kg_s) + np.sum(frozen.ash_gen_hover_kg_s)),
+    }
+
+
 def response(frozen, x, totals) -> list:
     """K1：床区焦炭缩放到各总量 C，只解自由空间固相，返回 D(C)。"""
     problem = Problem(frozen)
@@ -119,7 +138,7 @@ def zero_crossing(points) -> float | None:
 
 def main(argv=None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("check", choices=("k4", "k1", "k2"))
+    parser.add_argument("check", choices=("k4", "k1", "k2", "ledger"))
     parser.add_argument("--dir", required=True, help="outer 写出的目录")
     parser.add_argument("--cache", default=None, help="build 的缓存目录（k2 的初值起点）")
     parser.add_argument("--round", type=int, default=2)
@@ -137,7 +156,9 @@ def main(argv=None) -> None:
     folder, out = Path(args.dir), Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     started = time.monotonic()
-    if args.check == "k4":
+    if args.check == "ledger":
+        summary = {"rounds": [dict(round=k, **ledger(*_load(folder, k))) for k in range(1, args.rounds + 1)]}
+    elif args.check == "k4":
         summary = {"rounds": [dict(round=k, **balance(*_load(folder, k))) for k in range(1, args.rounds + 1)]}
     elif args.check == "k1":
         frozen, x = _load(folder, args.round)
@@ -171,7 +192,7 @@ def main(argv=None) -> None:
             summary["runs"][name] = entry
     summary["elapsed_s"] = time.monotonic() - started
     suffix = ("-drain0" if args.check == "k2" and args.drain_zero else "")
-    name = f"{args.check}.json" if args.check == "k4" else f"{args.check}-round{args.round}{suffix}.json"
+    name = f"{args.check}.json" if args.check in ("k4", "ledger") else f"{args.check}-round{args.round}{suffix}.json"
     summary["corellaX"] = args.corellaX
     (out / name).write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
     print(name, round(summary["elapsed_s"]))
