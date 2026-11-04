@@ -272,6 +272,14 @@ def census(problem: Problem, x, dx) -> dict:
     return out
 
 
+def _inlet_o2(problem: Problem) -> set:
+    """进风格的 O₂ 出流下标：床区最底格两相（一次风）与二次风所在的自由空间格。"""
+    frozen = problem.frozen
+    bottom = f"bed[b={frozen.n_bed - 1},"
+    secondary = f"freeboard[b={int(frozen.secondary_balance_index)},"
+    return {int(i) for i in problem.o2 if problem.names[i].startswith((bottom, secondary))}
+
+
 def transforms(problem: Problem, variant: set, x, scales):
     """候选 4：只换牛顿所用的自变量，原方程不变（CHARTER §5 的求解手段，先例 ADR 0042）。
 
@@ -282,8 +290,12 @@ def transforms(problem: Problem, variant: set, x, scales):
     负 s 映到负 Ṅ，由原可行条件拒绝。差分与列缩放的尺度：对数列取 1，幂列取 ṅ_ref^n。
     """
     log_idx, pow_idx, order = [], [], []
+    inlet = _inlet_o2(problem)
     for index in problem.o2:
-        if "o2pow" in variant:
+        if "o2inlet" in variant and index not in inlet:
+            # 非进风格的 O₂ 只来自下游残余，真解为痕量：取对数变量（与 gaslog 同）。
+            log_idx.append(index)
+        elif "o2pow" in variant or "o2inlet" in variant:
             pow_idx.append(index)
             order.append(0.5 if ".suspension." in problem.names[index] else 0.3)
         elif "o2log" in variant:
@@ -312,6 +324,32 @@ def transforms(problem: Problem, variant: set, x, scales):
     return to_x, from_x, scales
 
 
+def _projected_damp(x, delta, bound, merit, evaluate, feasible, merit_of, limit, deadline, trials=None, explain=None):
+    """o2proj：与 newton._damp 相同的减半与严格下降，只是试探点上把 O₂ 幂变量 s 投影到 s ≥ 0。
+
+    s = 0 即 Ṅ_O2 = 0，残差按原式评价（R5 在 c_O2 = 0 有定义）；投影不改残差，只改试探点。
+    不是取绝对值折返：负 s 只截到边界。
+    """
+    for index in range(limit + 1):
+        newton._clock(deadline)
+        point = x + delta / (2.0 ** index)
+        point[bound] = np.maximum(point[bound], 0.0)
+        values, status, reason = newton._at(point, evaluate, feasible, explain)
+        trial_merit = merit_of(values) if status == "ok" else None
+        if trials is not None:
+            trials.append({"i": index, "step": float(2.0 ** (-index)), "status": status, "reason": reason,
+                           "merit": None if trial_merit is None else float(trial_merit), "accepted": False})
+        if status == "domain":
+            raise newton.FreeboardDomainError("试探点落在自由空间有效域外")
+        if status != "ok":
+            continue
+        if trial_merit < merit:
+            if trials is not None:
+                trials[-1]["accepted"] = True
+            return point, values, trial_merit
+    return None
+
+
 def run_inner(problem: Problem, x0, variant: set, limit_s: float, nu_max: int, journal: dict) -> dict:
     """候选组合下跑内层。fixedT 时先在温度固定的子系统上收敛，再放开。"""
     started = time.monotonic()
@@ -338,10 +376,13 @@ def run_inner(problem: Problem, x0, variant: set, limit_s: float, nu_max: int, j
            "explain": lambda trial: driver._infeasible_clause(to_x(trial), problem.frozen)}
     original = newton._damp
     censuses = []
+    pow_idx = problem.o2 if ("o2pow" in variant or "o2inlet" in variant) else np.array([], dtype=int)
 
     def damp(x, delta, *args, **kwargs):
         censuses.append(census(problem, to_x(x), to_x(x + delta) - to_x(x)))
-        return original(x, delta, *args, **kwargs)
+        if "o2proj" not in variant:
+            return original(x, delta, *args, **kwargs)
+        return _projected_damp(x, delta, pow_idx, *args, **kwargs)
 
     newton._damp = damp
     try:
