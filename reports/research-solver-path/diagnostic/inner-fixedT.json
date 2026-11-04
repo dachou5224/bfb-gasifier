@@ -1,0 +1,136 @@
+{
+ "stages": [
+  {
+   "label": "fixedT",
+   "status": "DAMPING_FAILED",
+   "reason": "没有使归一残差严格下降的可行步",
+   "iterations": [
+    {
+     "iteration": 1,
+     "merit": 0.2934284269297753,
+     "blocks": {
+      "gas": 0.2934282603118534,
+      "solid": 0.00031269928319560905,
+      "energy": 0.0,
+      "bottom": null
+     },
+     "step_norm": 3.4298198734498255,
+     "step_max": {
+      "index": 197,
+      "block": "固体",
+      "name": "freeboard[b=6,geo=1].char.hover.k4",
+      "value": -0.5808705812842673,
+      "raw": -2.301940967596679
+     },
+     "accepted_i": 21,
+     "accepted_merit": 0.2934221820249327,
+     "rejections": {
+      "feasible 不满足": 21
+     },
+     "largest": [
+      {
+       "index": 470,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.10662789063821976
+      },
+      {
+       "index": 467,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.0981018227344456
+      },
+      {
+       "index": 480,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.0849178889872815
+      },
+      {
+       "index": 474,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.07512772827759948
+      },
+      {
+       "index": 181,
+       "block": "气体",
+       "name": "freeboard[b=6,geo=1].gas_outflow.gas.O2",
+       "value": 0.06540471658382357
+      }
+     ]
+    },
+    {
+     "iteration": 2,
+     "merit": 0.2934221820249327,
+     "blocks": {
+      "gas": 0.2934220154036223,
+      "solid": 0.00031269913517173947,
+      "energy": 0.0,
+      "bottom": null
+     },
+     "step_norm": 3.4242152979377725,
+     "step_max": {
+      "index": 197,
+      "block": "固体",
+      "name": "freeboard[b=6,geo=1].char.hover.k4",
+      "value": -0.5793176448908525,
+      "raw": -2.2957868120597094
+     },
+     "accepted_i": null,
+     "accepted_merit": null,
+     "rejections": {
+      "feasible 不满足": 21
+     },
+     "largest": [
+      {
+       "index": 470,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.10662783979286068
+      },
+      {
+       "index": 467,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.09810177666603075
+      },
+      {
+       "index": 480,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.08496744265072861
+      },
+      {
+       "index": 474,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.07512769209958643
+      },
+      {
+       "index": 181,
+       "block": "气体",
+       "name": "freeboard[b=6,geo=1].gas_outflow.gas.O2",
+       "value": 0.06524774851262005
+      }
+     ]
+    }
+   ],
+   "final_merit": 0.2934221820249327,
+   "final_ratios": null
+  }
+ ],
+ "elapsed_s": 133.187715209,
+ "evaluations": 1012,
+ "variant": [
+  "fixedT"
+ ],
+ "o2_share": 0.5,
+ "start_changes": {
+  "handoff_rounded": {
+   "freeboard[b=5,geo=2].char.free.k4": -1.8909140209225187e-124,
+   "freeboard[b=5,geo=2].char.free.k5": -7.745183829698637e-121,
+   "freeboard[b=5,geo=2].char.free.k6": -2.5379418373156492e-116
+  }
+ }
+}

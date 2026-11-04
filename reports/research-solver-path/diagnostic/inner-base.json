@@ -1,0 +1,178 @@
+{
+ "stages": [
+  {
+   "label": "full",
+   "status": "DAMPING_FAILED",
+   "reason": "没有使归一残差严格下降的可行步",
+   "iterations": [
+    {
+     "iteration": 1,
+     "merit": 0.31368396537882454,
+     "blocks": {
+      "gas": 0.2934282603118534,
+      "solid": 0.00031269928319560905,
+      "energy": 0.11089359046086077,
+      "bottom": null
+     },
+     "step_norm": 329.4180671327371,
+     "step_max": {
+      "index": 270,
+      "block": "能量",
+      "name": "bed[b=0,geo=7].temperature",
+      "value": -119.47937903187344,
+      "raw": -119.47937903187344
+     },
+     "accepted_i": 20,
+     "accepted_merit": 0.31367619513777295,
+     "rejections": {
+      "Ṅ < 0（下标 1）": 1,
+      "Ṅ < 0（下标 14）": 1,
+      "Ṅ < 0（下标 20）": 18
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.10662789063821976
+      },
+      {
+       "index": 482,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.0981018227344456
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": 0.097161861988425
+      },
+      {
+       "index": 495,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.0849178889872815
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.07512772827759948
+      }
+     ],
+     "census": {
+      "gas": {
+       "count": 56,
+       "alpha": 0.4431945381772715,
+       "worst": "bed[b=7,geo=0].gas_outflow.bubble.H2"
+      },
+      "O2": {
+       "count": 14,
+       "alpha": 1.5260608029313434e-06,
+       "worst": "freeboard[b=5,geo=2].gas_outflow.gas.O2"
+      },
+      "solid": {
+       "count": 66,
+       "alpha": 0.12137729725985408,
+       "worst": "freeboard[b=6,geo=1].char.hover.k4"
+      }
+     }
+    },
+    {
+     "iteration": 2,
+     "merit": 0.31367619513777295,
+     "blocks": {
+      "gas": 0.29341999363627547,
+      "solid": 0.00031269898648172317,
+      "energy": 0.11089348470465774,
+      "bottom": null
+     },
+     "step_norm": 329.2583312259023,
+     "step_max": {
+      "index": 270,
+      "block": "能量",
+      "name": "bed[b=0,geo=7].temperature",
+      "value": -119.36989590355834,
+      "raw": -119.36989590355834
+     },
+     "accepted_i": null,
+     "accepted_merit": null,
+     "rejections": {
+      "Ṅ < 0（下标 1）": 1,
+      "Ṅ < 0（下标 14）": 1,
+      "Ṅ < 0（下标 20）": 19
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": 0.10662778894781279
+      },
+      {
+       "index": 482,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.CO",
+       "value": -0.09810173019026124
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": 0.09716176932775528
+      },
+      {
+       "index": 495,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.0849807708532943
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.0751276561251387
+      }
+     ],
+     "census": {
+      "gas": {
+       "count": 56,
+       "alpha": 0.44355242269903356,
+       "worst": "bed[b=7,geo=0].gas_outflow.bubble.H2"
+      },
+      "O2": {
+       "count": 14,
+       "alpha": 7.705402292086838e-07,
+       "worst": "freeboard[b=5,geo=2].gas_outflow.gas.O2"
+      },
+      "solid": {
+       "count": 66,
+       "alpha": 0.12163158159130792,
+       "worst": "freeboard[b=6,geo=1].char.hover.k4"
+      }
+     }
+    }
+   ],
+   "final_merit": 0.31367619513777295,
+   "final_ratios": {
+    "gas": 0.10662778894781279,
+    "solid": 0.00015965114269461827,
+    "energy": 0.09716176932775528
+   }
+  }
+ ],
+ "elapsed_s": 30.928375667,
+ "evaluations": 216,
+ "variant": [
+  "base"
+ ],
+ "o2_share": 0.5,
+ "start_changes": {
+  "handoff_rounded": {
+   "freeboard[b=5,geo=2].char.free.k4": -1.8909140209225187e-124,
+   "freeboard[b=5,geo=2].char.free.k5": -7.745183829698637e-121,
+   "freeboard[b=5,geo=2].char.free.k6": -2.5379418373156492e-116
+  }
+ }
+}
