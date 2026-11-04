@@ -80,7 +80,17 @@ def ledger(frozen, x) -> dict:
     carried = np.asarray(frozen.a_free_per_s[0]) * np.asarray(state.freeboard_ash_free_kg[0])
     with np.errstate(invalid="ignore", divide="ignore"):
         e = np.where(by_class > 0, carried / by_class, 0.0)
+    # 床面逐粒级净流失 = 最上床格抛出 − 自由空间最下格回落（#150 审查）。出口同粒级的比值 e 不追踪来源粒级：
+    # 自由空间中灰随缩粒迁往细粒级、燃尽释放进最细粒级，粗灰可变细后离开。
+    top_share = (inert[0] * char[0] / char[0].sum())
+    ejected = np.asarray(frozen.k_auf_per_s[0]) * top_share
+    returned = np.asarray(frozen.b_free_per_s[-1]) * np.asarray(state.freeboard_ash_free_kg[-1])
+    net = ejected - returned
+    with np.errstate(invalid="ignore", divide="ignore"):
+        e_net = np.where(by_class > 0, net / by_class, 0.0)
     return {
+        "ejected_by_class_kg_s": ejected.tolist(), "returned_by_class_kg_s": returned.tolist(),
+        "net_bed_loss_by_class_kg_s": net.tolist(), "net_loss_per_s": e_net.tolist(),
         "diameter_mm": (np.asarray(frozen.diameter_m) * 1e3).tolist(),
         "bed_ash_by_class_kg": by_class.tolist(), "carried_by_class_kg_s": carried.tolist(),
         "elutriation_per_s": e.tolist(),
