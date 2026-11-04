@@ -1,0 +1,436 @@
+{
+ "summary": {
+  "status": "NOT_CONVERGED",
+  "reason": "雅可比不能求解",
+  "rounds": 1,
+  "iterations": 20,
+  "elapsed_s": 1498.985859167,
+  "initial": {
+   "note": "",
+   "loops": 4,
+   "drain_ash_kg_s": 0.00015347618477098035,
+   "iterations": [
+    5,
+    3,
+    3,
+    1
+   ],
+   "bed_char_kg": 3.424616447917785,
+   "solid_residual": 2.5814023686635e-07
+  },
+  "inner": {
+   "status": "NOT_CONVERGED",
+   "reason": "雅可比不能求解",
+   "rows": 1,
+   "iterations": 20,
+   "final_blocks": {
+    "gas": 0.07943356900464443,
+    "solid": 0.15720293735483745,
+    "energy": 0.031607886162093535,
+    "bottom": 5.409927361944822e-05
+   },
+   "final_check": null,
+   "max_delta_y": 231.06920611996608,
+   "all_jacobians_ok": false,
+   "steps": [
+    {
+     "iteration": 1,
+     "merit": 0.3136839653788245,
+     "blocks": {
+      "gas": 0.2934282603118533,
+      "solid": 0.00031269928319561116,
+      "energy": 0.11089359046086077,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 146.3603822021506,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 146.3603822021506,
+     "accepted_i": 5,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=0,geo=7].gas_outflow.gas.O2 = -3.468e-": 1,
+      "幂变量 s < 0（freeboard[b=0,geo=7].gas_outflow.gas.O2 = -7.801e-": 1,
+      "幂变量 s < 0（freeboard[b=7,geo=0].gas_outflow.gas.O2 = -7.629e-": 1
+     }
+    },
+    {
+     "iteration": 2,
+     "merit": 0.3131069540913696,
+     "blocks": {
+      "gas": 0.2931808905449687,
+      "solid": 0.02463751409052255,
+      "energy": 0.10711639939371291,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 231.06920611996608,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 231.06920611996608,
+     "accepted_i": 4,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=0,geo=7].gas_outflow.gas.O2 = -2.724e-": 1,
+      "幂变量 s < 0（bed[b=3,geo=4].gas_outflow.bubble.O2 = -3.890e-09）": 1
+     }
+    },
+    {
+     "iteration": 3,
+     "merit": 0.29820500210165773,
+     "blocks": {
+      "gas": 0.27303161442438506,
+      "solid": 0.06432304130506976,
+      "energy": 0.10120527239491993,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 214.26652395731088,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 214.26652395731088,
+     "accepted_i": 4,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=0,geo=7].gas_outflow.gas.O2 = -1.942e-": 1,
+      "幂变量 s < 0（bed[b=6,geo=1].gas_outflow.bubble.O2 = -1.147e-08）": 1
+     }
+    },
+    {
+     "iteration": 4,
+     "merit": 0.28611458441555054,
+     "blocks": {
+      "gas": 0.255154605824964,
+      "solid": 0.08749893844245375,
+      "energy": 0.09540240202968744,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 199.99163387451662,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 199.99163387451662,
+     "accepted_i": 4,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=0,geo=7].gas_outflow.gas.O2 = -1.419e-": 1,
+      "TrialNotEvaluable: 床区格 0 没有焦炭，不能按焦炭比例分配灰": 1
+     }
+    },
+    {
+     "iteration": 5,
+     "merit": 0.2749486760996074,
+     "blocks": {
+      "gas": 0.2386860114896295,
+      "solid": 0.10273967470977567,
+      "energy": 0.08983496896325374,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 187.74131972027558,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 187.74131972027558,
+     "accepted_i": 4,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=0,geo=7].gas_outflow.gas.O2 = -8.046e-": 1
+     }
+    },
+    {
+     "iteration": 6,
+     "merit": 0.2640263066355012,
+     "blocks": {
+      "gas": 0.2233635816759113,
+      "solid": 0.11257385789047528,
+      "energy": 0.08453240500628902,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 176.5883535298935,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 176.5883535298935,
+     "accepted_i": 3,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=0,geo=7].gas_outflow.gas.O2 = -3.692e-": 1
+     }
+    },
+    {
+     "iteration": 7,
+     "merit": 0.2609906005500343,
+     "blocks": {
+      "gas": 0.19459096880405846,
+      "solid": 0.1569029394078237,
+      "energy": 0.07504609277337711,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 155.65720511901483,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 155.65720511901483,
+     "accepted_i": 3,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -8.932e-": 1
+     }
+    },
+    {
+     "iteration": 8,
+     "merit": 0.2510179910568473,
+     "blocks": {
+      "gas": 0.16962032124100745,
+      "solid": 0.17271478906576734,
+      "energy": 0.06639713920253192,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 137.62361982888646,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 137.62361982888646,
+     "accepted_i": 3,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -5.714e-": 1
+     }
+    },
+    {
+     "iteration": 9,
+     "merit": 0.23547567531636504,
+     "blocks": {
+      "gas": 0.14782834030404168,
+      "solid": 0.1736655690771367,
+      "energy": 0.05861608640778471,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 121.7684524610671,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 121.7684524610671,
+     "accepted_i": 2,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -3.807e-": 1,
+      "KineticsInputError: Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没": 1
+     }
+    },
+    {
+     "iteration": 10,
+     "merit": 0.23127871704283678,
+     "blocks": {
+      "gas": 0.11052990419006295,
+      "solid": 0.1979746936448146,
+      "energy": 0.045596117301343754,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 93.2776576317179,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 93.2776576317179,
+     "accepted_i": 2,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.608e-": 1,
+      "KineticsInputError: Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没": 1
+     }
+    },
+    {
+     "iteration": 11,
+     "merit": 0.19693645764476703,
+     "blocks": {
+      "gas": 0.08678612782981124,
+      "solid": 0.17328926483174942,
+      "energy": 0.0349709459415757,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 71.45020887401124,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 71.45020887401124,
+     "accepted_i": 4,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -6.863e-": 1,
+      "KineticsInputError: Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没": 3
+     }
+    },
+    {
+     "iteration": 12,
+     "merit": 0.1854961301310978,
+     "blocks": {
+      "gas": 0.0821570298075858,
+      "solid": 0.16304283957225027,
+      "energy": 0.0328034938844339,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 67.32178858447647,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 67.32178858447647,
+     "accepted_i": 5,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -5.654e-": 1,
+      "KineticsInputError: Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没": 4
+     }
+    },
+    {
+     "iteration": 13,
+     "merit": 0.17992601166930758,
+     "blocks": {
+      "gas": 0.07985744303407617,
+      "solid": 0.15806970906395432,
+      "energy": 0.03178247227199189,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 65.3862524869459,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 65.3862524869459,
+     "accepted_i": 8,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -5.140e-": 1,
+      "KineticsInputError: Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没": 7
+     }
+    },
+    {
+     "iteration": 14,
+     "merit": 0.17922979892162721,
+     "blocks": {
+      "gas": 0.07955695470500516,
+      "solid": 0.15745398814724676,
+      "energy": 0.031658385872930364,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 65.1520452810494,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 65.1520452810494,
+     "accepted_i": 10,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -5.080e-": 1,
+      "KineticsInputError: Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没": 9
+     }
+    },
+    {
+     "iteration": 15,
+     "merit": 0.179055846854394,
+     "blocks": {
+      "gas": 0.07948147409795497,
+      "solid": 0.15730033213660094,
+      "energy": 0.03162747346335673,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 65.09367098789232,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 65.09367098789232,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -5.065e-": 1,
+      "KineticsInputError: Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没": 10
+     }
+    },
+    {
+     "iteration": 16,
+     "merit": 0.17896890746419525,
+     "blocks": {
+      "gas": 0.07944371552635025,
+      "solid": 0.15722355223029788,
+      "energy": 0.03161203135489409,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 65.06463186341976,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 65.06463186341976,
+     "accepted_i": 13,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -5.058e-": 1,
+      "KineticsInputError: Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没": 12
+     }
+    },
+    {
+     "iteration": 17,
+     "merit": 0.17894717420568967,
+     "blocks": {
+      "gas": 0.07943427018111603,
+      "solid": 0.15720436160108478,
+      "energy": 0.03160817252848206,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 65.05738622980729,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 65.05738622980729,
+     "accepted_i": 17,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -5.056e-": 1,
+      "KineticsInputError: Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没": 16
+     }
+    },
+    {
+     "iteration": 18,
+     "merit": 0.17894581586685274,
+     "blocks": {
+      "gas": 0.07943367971787839,
+      "solid": 0.15720316223524672,
+      "energy": 0.03160793137757955,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 65.05691195954529,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 65.05691195954529,
+     "accepted_i": 20,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -5.056e-": 1,
+      "KineticsInputError: Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没": 19
+     }
+    },
+    {
+     "iteration": 19,
+     "merit": 0.17894564607450542,
+     "blocks": {
+      "gas": 0.07943360590906648,
+      "solid": 0.15720301231494235,
+      "energy": 0.03160790123392182,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 65.05681371319959,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 65.05681371319959,
+     "accepted_i": 21,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -5.056e-": 1,
+      "KineticsInputError: Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没": 20
+     }
+    },
+    {
+     "iteration": 20,
+     "merit": 0.17894556117836627,
+     "blocks": {
+      "gas": 0.07943356900464443,
+      "solid": 0.15720293735483745,
+      "energy": 0.031607886162093535,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": false,
+     "delta_y": null,
+     "delta_y_name": null,
+     "delta_y_scaled": null,
+     "accepted_i": null,
+     "rejections": {}
+    }
+   ]
+  },
+  "temperature_c": {
+   "bed": [
+    793.5744739981868,
+    799.5671034068142,
+    807.3342142524601,
+    817.3102200381935,
+    830.1861800418136,
+    847.0440124910652,
+    869.5534793896644,
+    899.9999982099308
+   ],
+   "freeboard": [
+    794.4449895304789,
+    813.1727694756893,
+    836.1749403581699,
+    862.6162997674083,
+    892.6218901516212,
+    927.8792825530812,
+    975.91452943919,
+    802.6510171326648
+   ]
+  }
+ },
+ "extrapolated": false
+}

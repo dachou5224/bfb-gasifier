@@ -2,9 +2,8 @@
 
 只报告，不改模型。本工具只运行到初值构造结束，不进入主求解的内层（T26n 卡 C）。
 
-与正式写法只差一处（诊断）：ADR 0014 A5 的余额为负时不停止，排灰取同式的负值；
-预计算与固相牛顿的残差中都如此。收敛解上的检查（存量 ≥ −τ、床格惰性物、排灰灰分量
-非负、最底床格灰分为正）照常。交替次数上限放宽到 --loops。
+ADR 0054 第 3 项之后，正式写法在初值构造的交替中间同样取 A5 余额的负值，本工具与正式
+路径在这一点上已无差异；只把交替次数上限放宽到 --loops，并逐次记录 A5 各项。
 
 输出：--out 指定的 JSON（默认 reports/research-solver-path/alternation.json）；--artifacts 只作
     solve_case 的目录参数（本工具不写内层失败点）。每条交替记录最底格闭合差、两项补入量、
@@ -38,18 +37,6 @@ class _Timeout(BaseException):
 
 class _InitialDone(BaseException):
     """初值构造已结束：用它跳出 solve_case，不运行主求解的内层。"""
-
-
-def signed_drain(case, state, released, inert, masses, books, ash_out_redirect=0.0, fuel_out_redirect=0.0):
-    """A5 同式（``precalc._drain_terms``），只取消余额的符号拒绝。诊断用。
-
-    直接复用 ``_drain_terms``，不复制公式：本工具与正式写法只差“余额为负时不停止”，
-    最底格灰分为正的定义域检查照旧由 ``_drain_terms`` 报错。
-    """
-    terms = precalc._drain_terms(
-        case, state, released, inert, masses, books, ash_out_redirect, fuel_out_redirect,
-    )
-    return float(terms["ash"]), np.asarray(terms["char"], dtype=float)
 
 
 def _top_af(books) -> list:
@@ -109,16 +96,10 @@ def run(loops: int, artifacts: str | None, limit_s: float) -> dict:
         current.update(d_bar_m=out[0], d_sv_m=out[1])
         return out
 
-    def guarded(*args):
-        try:
-            return original[0](*args), False
-        except precalc.PrecalcError as exc:
-            if "带出灰" not in str(exc):
-                raise
-            return signed_drain(*args), True
-
-    def precalc_drain(case, state, released, inert, masses, books, *rest):
-        out, negative = guarded(case, state, released, inert, masses, books, *rest)
+    def precalc_drain(case, state, released, inert, masses, books, *rest, **kwargs):
+        # 符号放宽已随 ADR 0054 第 3 项并入正式路径；本工具只记录 A5 各项。
+        out = original[0](case, state, released, inert, masses, books, *rest, **kwargs)
+        negative = float(out[0]) < 0.0
         loss, fuel_exit = precalc.bed_release_terms(released, case.n_free)
         log["precalc"].append(dict(
             current, a5_negative=negative, drain_ash_kg_s=float(out[0]),

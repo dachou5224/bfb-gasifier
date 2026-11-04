@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 from hamel.kinetics.common import KineticsInputError
 from hamel.properties.data import GAS_SPECIES, PropertyError
-from hamel.solver.driver import _feasible, _infeasible_clause
+from tools import legacy_feasible
 from hamel.solver.frozen import AssemblyError, FreeboardDomainError
 from hamel.solver.gates import ResidualBlocks
 from hamel.solver.newton import _SQRT_EPS, _at, normalized_merit
@@ -78,7 +78,7 @@ def _probe(frozen, point):
     def evaluate(trial):
         return evaluate_residual(np.asarray(trial, dtype=float), frozen).values
     try:
-        values, status, reason = _at(np.asarray(point, dtype=float), evaluate, lambda trial: _feasible(trial, frozen), lambda trial: _infeasible_clause(trial, frozen))
+        values, status, reason = _at(np.asarray(point, dtype=float), evaluate, lambda trial: legacy_feasible.feasible(trial, frozen), lambda trial: legacy_feasible.clause(trial, frozen))
     except _CAUGHT as exc:
         return None, "reject", f"{type(exc).__name__}: {exc}"
     return values, status, reason
@@ -449,12 +449,12 @@ def _inert_switches(frozen, state0, state1) -> list:
     return rows
 def _endpoint_feasible(values, frozen):
     try:
-        ok = _feasible(values, frozen)
+        ok = legacy_feasible.feasible(values, frozen)
     except _CAUGHT as exc:
         return False, f"{type(exc).__name__}: {exc}"
     if ok:
         return True, ""
-    return False, _infeasible_clause(values, frozen)
+    return False, legacy_feasible.clause(values, frozen)
 def _safe_unpack(values, frozen):
     from hamel.solver.vector import unpack_state
     try:

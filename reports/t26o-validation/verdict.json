@@ -1,0 +1,87 @@
+{
+ "initial_loops": {
+  "value": 4,
+  "target": 4,
+  "ok": true
+ },
+ "initial_drain_ash_g_s": {
+  "value": 0.15347618477098035,
+  "target": 0.153,
+  "ok": true
+ },
+ "frozen_stop": {
+  "status": "NOT_CONVERGED",
+  "reason": "雅可比不能求解",
+  "bottom_bed_c": 899.9999982099308
+ },
+ "frozen_no_O1": {
+  "ok": true
+ },
+ "frozen_no_O2": {
+  "ok": true
+ },
+ "frozen_no_O3": {
+  "ok": true
+ },
+ "frozen_no_O5": {
+  "ok": true
+ },
+ "frozen_o4": {
+  "reason": "雅可比不能求解",
+  "ok": true
+ },
+ "extrapolated_converged": {
+  "status": "CONVERGED",
+  "ok": true
+ },
+ "extrapolated_residuals": {
+  "value": {
+   "gas": 7.010419029510595e-07,
+   "solid": 3.233530086559495e-07,
+   "energy": 5.111816085147944e-08
+  },
+  "ok": true
+ },
+ "extrapolated_iterations": {
+  "value": 85,
+  "limit": 100,
+  "ok": true
+ },
+ "temperature_match": {
+  "ok": true,
+  "largest_k": 0.0,
+  "differences": {
+   "bed": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "freeboard": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  }
+ },
+ "frozen_steps": {
+  "max_delta_y": 231.06920611996608,
+  "jacobians_ok": false,
+  "ok": true
+ },
+ "extrapolated_steps": {
+  "max_delta_y": 231.06920611996608,
+  "jacobians_ok": true,
+  "ok": true
+ },
+ "all_ok": true
+}

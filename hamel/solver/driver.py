@@ -1,5 +1,5 @@
 """外层对齐与工况求解。每轮重算预计算，内层从上一轮单元解出发。
-求解手段：ADR 0012；ADR 0017 第 10、14 项；ADR 0035 第 2 项；ADR 0045。
+求解手段：ADR 0012；ADR 0017 第 10、14 项；ADR 0035 第 2 项；ADR 0045；ADR 0054。
 """
 from __future__ import annotations
 
@@ -20,10 +20,10 @@ from hamel.properties.data import GAS_SPECIES, atomic_weight, atoms
 from hamel.solver.frozen import FreeboardDomainError, TrialNotEvaluable
 from hamel.solver.sensitivity import bubble_balance_ratio, redirect_feedback
 from hamel.solver.gates import (
-    OuterMonitor, ResidualBlocks, arrays_allowed, balance_met, block_ratios, inner_met, outer_met,
+    OuterMonitor, ResidualBlocks, balance_met, block_ratios, inner_met, outer_met,
 )
 from hamel.solver.initial import DomainRejected, InitialStateError, construct
-from hamel.solver.newton import SolveTimeout, damped_newton, normalized_merit
+from hamel.solver.newton import SolveTimeout, build_rule, build_transform, damped_newton, normalized_merit
 from hamel.solver.precalc import PrecalcError, precalculate
 from hamel.solver.residual import evaluate_residual, wall_area_m2
 from hamel.solver.vector import jacobian_layout, pack_state, unknown_slots, unpack_state
@@ -63,7 +63,7 @@ def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, 
             opened = refresh(x, round_index, False)
         except PrecalcError as exc:
             return SolveResult("DOMAIN_STOP", str(exc), round_index, iterations, diagnostics=diagnostics, x=x)
-        blocks, scales, feasible, refs = prepare(opened)
+        blocks, scales, rule, refs = prepare(opened)
         mark = 0 if journal is None else len(journal.setdefault("iterations", []))
         # 核对绑定首次实际构造的雅可比，不绑定外层轮号：0 次内层迭代不消耗这次核对。ADR 0046 第 5 项。
         layout = None if journal is None else journal.get("jacobian_layout")
@@ -72,8 +72,9 @@ def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, 
             inner = damped_newton(
                 opened.x, lambda trial, opened=opened: evaluate(trial, opened), scales,
                 lambda residual, blocks=blocks: inner_met(residual, blocks, config.residual_tolerance),
-                feasible, lambda residual, blocks=blocks: normalized_merit(residual, blocks),
+                rule.trial, lambda residual, blocks=blocks: normalized_merit(residual, blocks),
                 config, deadline, journal, blocks, layout, verify,
+                rule.transform, rule.final,
             )
         except SolveTimeout:
             raise
@@ -129,7 +130,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
 
     def _feedback(state):
         """从已解固相与它对应的冻结量更新床区反应汇与改送反馈。
-        求解手段：ADR 0052 第 1 项第 5 步；PR #130 审查 P2。
+        求解手段：ADR 0054 第 3 项（原 ADR 0052 第 1 项第 5 步）；PR #130 审查 P2。
         """
         if not holder["records"]:
             return
@@ -137,10 +138,11 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         holder["reaction"] = reaction
         holder["redirect"] = redirect
 
-    def _precalc(iteration, consistency, state=None, drain=None):
+    def _precalc(iteration, consistency, state=None, drain=None, inside=False):
         """一轮预计算。drain 给出时用收敛固相重算的排灰作 previous_drain_kg_s。
 
-        求解手段：ADR 0052 第 1 项第 5 步（回馈排灰；ADR 0049 第 4 步只回馈反应汇与改送）。
+        inside 为真时是初值构造的交替中间：A5 余额取同式的负值，不按符号停止（ADR 0054 第 3 项第 5 步）。
+        求解手段：ADR 0054 第 3 项（回馈排灰；原 ADR 0052 第 1 项第 5 步）。
         """
         used = holder["state"] if state is None else state
         if state is not None:
@@ -154,6 +156,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
             previous_release=holder["release"],
             adiabatic=adiabatic, iteration=iteration, consistency=consistency, solver=config,
             redirected_return_kg_s=bed_return, redirected_ash_out_kg_s=ash_out, redirected_fuel_out_kg_s=fuel_out,
+            signed_drain=inside,
         )
         holder["drain"] = float(result.frozen.drain_ash_kg_s + result.frozen.drain_char_kg_s.sum())
         holder["fuel_return"] = float(result.frozen.fuel_down_free_kg_s[-1].sum())
@@ -162,14 +165,14 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         return result
 
     def _initial(iteration):
-        """初值：焦油另加，固相、排灰与床区向下流按同一状态联立牛顿，再与预计算交替。求解手段：ADR 0052"""
-        first = _precalc(iteration, False)
+        """初值：焦油另加，固相、排灰与床区向下流按同一状态联立牛顿，再与预计算交替。求解手段：ADR 0054 第 3 项"""
+        first = _precalc(iteration, False, inside=True)
         loops: list = []
         # 先挂上空列表：交替中途停止时，已完成的记录仍写进报告。
         holder["initial"] = {"loops": loops, "note": "停止"}
         try:
             result, loops, note = construct(
-                first, lambda state, drain: _precalc(iteration, False, state, drain), m_ref,
+                first, lambda state, drain: _precalc(iteration, False, state, drain, True), m_ref,
                 gate=float(config.residual_tolerance), config=config, records=loops,
             )
         except DomainRejected as exc:
@@ -200,13 +203,20 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         blocks = _blocks(frozen, n_ref, m_ref, q_ref)
         m_tot = float(frozen.geometric_mass_kg.sum())
         slots = unknown_slots(frozen)
+        transform = build_transform(slots, opened.x, n_ref)
+        # 三层规则：τ = 系数·M_tot，τ_n = 系数·ṅ_ref。求解手段：ADR 0054 第 2 项。
+        rule = build_rule(
+            slots, frozen, transform,
+            tau=float(config.stock_roundoff_relative) * m_tot,
+            tau_n=float(config.stock_roundoff_relative) * n_ref,
+        )
         journal["blocks"] = blocks
         journal["jacobian_layout"] = jacobian_layout(slots, frozen)
         journal["names"] = [slot.name for slot in slots]
-        journal["explain"] = lambda trial, frozen=frozen: _infeasible_clause(trial, frozen)
+        journal["explain"] = rule.explain
         bottom = opened.info.get("bottom_residual_kg_s")
         journal["bottom_norm"] = None if bottom is None else abs(float(bottom)) / m_ref
-        return blocks, _scales(frozen, n_ref, m_tot), lambda trial, frozen=frozen: _feasible(trial, frozen), (n_ref, m_ref, q_ref, m_tot)
+        return blocks, transform.scaled(_scales(frozen, n_ref, m_tot)), rule, (n_ref, m_ref, q_ref, m_tot)
 
     def monitor_from(opened, values):
         frozen = holder["records"][-1].frozen
@@ -230,6 +240,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
 
     outcome = solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, deadline, journal)
     outcome.diagnostics["initial"] = holder.get("initial")
+    outcome.diagnostics["final_check"] = journal.get("final_check")
     if artifact_dir is not None and outcome.status == "DAMPING_FAILED" and holder["records"]:
         frozen_path = Path(artifact_dir) / "frozen.pkl"
         with frozen_path.open("wb") as handle:
@@ -290,7 +301,7 @@ class _Checked:
 def solid_feedback(state, frozen):
     """从已解固相与冻结量取床区反应汇与改送流，供下一次预计算回馈。
 
-    求解手段：ADR 0052 第 1 项第 5 步；PR #130 审查 P2。
+    求解手段：ADR 0054 第 3 项（原 ADR 0052 第 1 项第 5 步）；PR #130 审查 P2。
     """
     assembly = evaluate_residual(pack_state(state, frozen), frozen)
     return -assembly.char_consumption_bed_kg_s.sum(axis=1), _redirect_tuple(assembly)
@@ -322,48 +333,6 @@ def _scales(frozen, n_ref, m_tot) -> np.ndarray:
         else:
             scale[slot.index] = m_tot
     return scale
-
-
-def _feasible(values, frozen) -> bool:
-    state = unpack_state(values, frozen)
-    inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
-    return arrays_allowed(
-        (state.bed_gas_mol_s, state.freeboard_gas_mol_s),
-        (state.bed_char_kg, state.freeboard_char_free_kg, state.freeboard_char_hover_kg, state.freeboard_ash_free_kg, state.freeboard_ash_hover_kg),
-        np.concatenate([state.bed_temperature_k, state.freeboard_temperature_k]),
-        inert,
-    )
-
-
-def _infeasible_clause(values, frozen) -> str:
-    """与 arrays_allowed 同一组条件，按 ADR 0017 第 7 项的顺序报告第一条。"""
-    state = unpack_state(values, frozen)
-    inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
-    groups = (
-        ("Ṅ < 0", state.bed_gas_mol_s), ("Ṅ < 0", state.freeboard_gas_mol_s),
-        ("m < 0", state.bed_char_kg), ("m < 0", state.freeboard_char_free_kg),
-        ("m < 0", state.freeboard_char_hover_kg), ("m < 0", state.freeboard_ash_free_kg),
-        ("m < 0", state.freeboard_ash_hover_kg), ("m_inert < 0", inert),
-    )
-    for label, array in groups:
-        hit = _bound_hit(array, label)
-        if hit:
-            return hit
-    temperature = np.concatenate([state.bed_temperature_k, state.freeboard_temperature_k])
-    if not np.isfinite(temperature).all():
-        return "T 非有限"
-    if np.any(temperature <= 0.0):
-        return f"T ≤ 0（下标 {int(np.flatnonzero(temperature <= 0.0)[0])}）"
-    return "feasible 不满足"
-
-
-def _bound_hit(array, label):
-    flat = np.asarray(array, dtype=float).ravel()
-    if flat.size == 0 or (np.isfinite(flat).all() and np.all(flat >= 0.0)):
-        return None
-    if not np.isfinite(flat).all():
-        return f"{label} 的量非有限"
-    return f"{label}（下标 {int(np.flatnonzero(flat < 0.0)[0])}）"
 
 
 def _monitor(state, frozen) -> OuterMonitor:
@@ -410,7 +379,11 @@ def _wall_heat(state, frozen) -> float:
 
 
 def _nonnegative(state, frozen) -> bool:
-    return _feasible(pack_state(state, frozen), frozen) and bool(np.all(np.isfinite(pack_state(state, frozen))))
+    """最终解的非负（ADR 0012 第 4 项、ADR 0017 第 14 项）：按第 3 层、τ = τ_n = 0 判定，另查 T > 0。"""
+    values = pack_state(state, frozen)
+    rule = build_rule(unknown_slots(frozen), frozen, build_transform((), values, 1.0), tau=0.0, tau_n=0.0)
+    temperature = np.concatenate([state.bed_temperature_k, state.freeboard_temperature_k])
+    return bool(rule.final(values)["ok"]) and bool(np.all(temperature > 0.0)) and bool(np.all(np.isfinite(values)))
 
 
 def _measurements(state, physical, freeboard_dh_m) -> dict:

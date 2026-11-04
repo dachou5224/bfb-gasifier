@@ -12,10 +12,11 @@ import numpy as np
 
 from hamel.cases.config import SolverConfig
 from hamel.solver.campaign import _process, config_for
-from hamel.solver.driver import SolveResult, _feasible, solve_case
+from hamel.solver.driver import SolveResult, solve_case
 from hamel.solver.gates import ResidualBlocks
 from hamel.solver.newton import SolveTimeout, _SQRT_EPS, _difference_basis, _jacobian, _newton_step, normalized_merit
 from hamel.solver.residual import evaluate_residual
+from tools import legacy_feasible
 from tools.driver_report import convert
 from tools.t26c_diagnosis import _direction, _direction_sentence, _list, _num, _probe
 
@@ -107,7 +108,7 @@ def point() -> dict:
     evaluate = _evaluate(frozen, calls)
     started = time.perf_counter()
     fresh = evaluate(x)
-    matrix = _jacobian(x, fresh, evaluate, scales, lambda trial, frozen=frozen: _feasible(trial, frozen))
+    matrix = _jacobian(x, fresh, evaluate, scales, lambda trial, frozen=frozen: legacy_feasible.feasible(trial, frozen))
     delta = _newton_step(matrix, fresh, x, scales, blocks)
     direction = _direction(frozen, blocks, x, fresh, matrix, delta)
     hover = _hover_rows(frozen, x, fresh, scales, matrix, payload["J"], names)

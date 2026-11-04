@@ -12,9 +12,10 @@ from pathlib import Path
 import numpy as np
 
 from hamel.cases.assemble import assemble_case
-from hamel.solver.driver import _feasible, _references, _scales
+from hamel.solver.driver import _references, _scales
 from hamel.solver.newton import _grouped_jacobian, _jacobian
 from hamel.solver.residual import evaluate_residual
+from tools import legacy_feasible
 from hamel.solver.vector import jacobian_layout, unknown_slots
 
 _ROOT = Path(__file__).resolve().parents[1]
@@ -34,7 +35,7 @@ def _measure(frozen, x) -> dict:
         return evaluate_residual(np.asarray(trial, dtype=float), frozen).values
 
     residual = evaluate(x)
-    feasible = lambda trial: _feasible(trial, frozen)
+    feasible = lambda trial: legacy_feasible.feasible(trial, frozen)
     started, offset = time.perf_counter(), calls["n"]
     grouped, stats = _grouped_jacobian(x, residual, evaluate, scales, feasible, layout)
     grouped_seconds, grouped_calls = time.perf_counter() - started, calls["n"] - offset

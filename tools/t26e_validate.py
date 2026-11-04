@@ -10,11 +10,12 @@ import numpy as np
 from hamel.cases.assemble import assemble_case
 from hamel.cases.config import SolverConfig
 from hamel.solver.campaign import _process, config_for
-from hamel.solver.driver import SolveResult, _blocks, _feasible, _references, _scales, solve_case
+from hamel.solver.driver import SolveResult, _blocks, _references, _scales, solve_case
 from hamel.solver.gates import ResidualBlocks
 from hamel.solver.newton import SolveTimeout, normalized_merit
 from hamel.solver.precalc import precalculate
 from hamel.solver.residual import evaluate_residual
+from tools import legacy_feasible
 from hamel.solver.vector import pack_state, unknown_slots
 from tools.driver_report import convert
 from tools.t26c_diagnosis import _list, _num
@@ -56,7 +57,7 @@ def point() -> None:
     calls, started = {"n": 0}, time.perf_counter()
     evaluate = _evaluate(frozen, calls)
     fresh = evaluate(x)
-    feasible = lambda trial, frozen=frozen: _feasible(trial, frozen)
+    feasible = lambda trial, frozen=frozen: legacy_feasible.feasible(trial, frozen)
     mask, matrix, delta, unresolved, enlarged = _column(x, fresh, evaluate, scales, feasible, blocks, names, kinds)
     direction = None if delta is None else _direction(frozen, blocks, x, fresh, matrix, delta, mask)
     body = {"repeated_residual_norm": normalized_merit(fresh - payload["F"], blocks), "residual_calls": calls["n"],
@@ -79,7 +80,7 @@ def initial() -> None:
     evaluate = _evaluate(frozen, calls)
     residual = evaluate(x)
     mask, matrix, _delta, unresolved, enlarged = _column(
-        x, residual, evaluate, scales, lambda trial, frozen=frozen: _feasible(trial, frozen), blocks, names, kinds,
+        x, residual, evaluate, scales, lambda trial, frozen=frozen: legacy_feasible.feasible(trial, frozen), blocks, names, kinds,
     )
     singular = np.linalg.svd(matrix, compute_uv=False)
     smallest, largest = float(singular[-1]), float(singular[0])

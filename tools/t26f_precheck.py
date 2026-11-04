@@ -15,11 +15,12 @@ import numpy as np
 from hamel.cases.assemble import assemble_case
 from hamel.cases.config import SolverConfig
 from hamel.solver.campaign import _process
-from hamel.solver.driver import _blocks, _feasible, _references, _scales
+from hamel.solver.driver import _blocks, _references, _scales
 from hamel.solver.gates import ResidualBlocks, block_ratios, inner_met
 from hamel.solver.newton import SolveTimeout, damped_newton, normalized_merit
 from hamel.solver.precalc import precalculate
 from hamel.solver.residual import _cell_volume_m3, evaluate_residual
+from tools import legacy_feasible
 from hamel.solver.vector import pack_state, unknown_slots, unpack_state
 
 _ROOT = Path(__file__).resolve().parents[1]
@@ -99,7 +100,7 @@ def _solve_loaded(label, frozen, full_x, deadline) -> dict:
     def feasible(solid):
         trial = base.copy()
         trial[solid_index] = solid
-        return _feasible(trial, frozen)
+        return legacy_feasible.feasible(trial, frozen)
 
     print(f"{label} 固体未知量 {solid_index.size}", file=sys.stderr, flush=True)
     _OUT.mkdir(parents=True, exist_ok=True)
