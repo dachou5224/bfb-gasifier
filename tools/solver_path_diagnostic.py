@@ -290,6 +290,7 @@ def transforms(problem: Problem, variant: set, x, scales):
       Hamel Tab. 5.3, S. 91），R5 在 s 上近似线性。
     - gaslog：其余气体出流（起点为正者）取 z = ln Ṅ；恒为 0 的分量（Ar）不变。
     负 s 映到负 Ṅ，由原可行条件拒绝。差分与列缩放的尺度：对数列取 1，幂列取 ṅ_ref^n。
+    返回 (to_x, from_x, scales, pow_idx)，pow_idx 是取幂变量的列（o2proj 只投影这些列）。
     """
     log_idx, pow_idx, order = [], [], []
     inlet = _inlet_o2(problem)
@@ -323,7 +324,7 @@ def transforms(problem: Problem, variant: set, x, scales):
     scales = np.array(scales, dtype=float)
     scales[log_idx] = 1.0
     scales[pow_idx] = problem.n_ref ** order
-    return to_x, from_x, scales
+    return to_x, from_x, scales, pow_idx
 
 
 def _projected_damp(x, delta, bound, merit, evaluate, feasible, merit_of, limit, deadline, trials=None, explain=None):
@@ -372,13 +373,13 @@ def run_inner(problem: Problem, x0, variant: set, limit_s: float, nu_max: int, j
         x = stage.pop("x")
         if stage["status"] != "CONVERGED":
             return {"stages": stages, "elapsed_s": time.monotonic() - started, "evaluations": problem.evaluations}
-    to_x, from_x, scales = transforms(problem, variant, x, scales)
+    to_x, from_x, scales, pow_idx = transforms(problem, variant, x, scales)
     x = from_x(x)
     log = {"iterations": [], "blocks": problem.blocks, "names": problem.names,
            "explain": lambda trial: driver._infeasible_clause(to_x(trial), problem.frozen)}
     original = newton._damp
     censuses = []
-    pow_idx = problem.o2 if ("o2pow" in variant or "o2inlet" in variant) else np.array([], dtype=int)
+    # 投影只作用于真正取幂变量的列（o2inlet 下非进风格 O₂ 是对数列，不投影；#148 审查）。
 
     def damp(x, delta, *args, **kwargs):
         censuses.append(census(problem, to_x(x), to_x(x + delta) - to_x(x)))

@@ -38,7 +38,7 @@ from hamel.cases.config import SolverConfig
 from hamel.solver.residual import evaluate_residual
 from hamel.solver.vector import ReactorState, pack_state, unpack_state
 from tools.o7_checks import balance
-from tools.solver_path_diagnostic import _CASE, Problem, _Built, _patch_a5, run_inner
+from tools.solver_path_diagnostic import _CASE, Problem, _Built, _Timeout, _alarm, _patch_a5, run_inner
 
 _ROOT = Path(__file__).resolve().parents[1]
 _OUT = _ROOT / "reports" / "research-solver-path" / "outer-coupled"
@@ -74,8 +74,10 @@ def blend(old: ReactorState, new: ReactorState, omega: float) -> ReactorState:
     return ReactorState(**values)
 
 
-def run(rounds: int, omega: float, variant: set, limit_s: float, out: Path) -> dict:
+def run(rounds: int, omega: float, variant: set, limit_s: float, out: Path, total_limit_s: float = 21600.0) -> dict:
+    """total_limit_s：全程硬超时（SIGALRM，CHARTER §7），覆盖初值构造、预计算与内层；到点记 TIMEOUT，保留已完成轮次。"""
     restore = _patch_a5()
+    stop_alarm = _alarm(total_limit_s)
     log: dict = {"omega": omega, "variant": sorted(variant), "rounds": []}
     started = time.monotonic()
     try:
@@ -164,9 +166,12 @@ def run(rounds: int, omega: float, variant: set, limit_s: float, out: Path) -> d
             state = next_state
         else:
             log["stop"] = "做满轮数"
+    except _Timeout:
+        log["stop"] = "TIMEOUT"
     except Exception as exc:
         log["stop"] = f"{type(exc).__name__}: {str(exc)[:600]}"
     finally:
+        stop_alarm()
         restore()
     log["elapsed_s"] = time.monotonic() - started
     last = log["rounds"][-1] if log["rounds"] else {}
@@ -183,6 +188,7 @@ def main(argv=None) -> None:
     parser.add_argument("--omega", type=float, default=0.5)
     parser.add_argument("--variant", default="gaslog,o2pow,relax,corellaX")
     parser.add_argument("--limit-s", type=float, default=3600.0)
+    parser.add_argument("--total-limit-s", type=float, default=21600.0)
     parser.add_argument("--out", default=str(_OUT))
     args = parser.parse_args(argv)
     variant = set(args.variant.split(","))
@@ -191,7 +197,7 @@ def main(argv=None) -> None:
         homogeneous._CORELLA_HIGH_K = float("inf")
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    log = run(args.rounds, args.omega, variant, args.limit_s, out)
+    log = run(args.rounds, args.omega, variant, args.limit_s, out, args.total_limit_s)
     (out / "coupled.json").write_text(json.dumps(log, ensure_ascii=False, indent=1), encoding="utf-8")
     print(log.get("stop"), log["fixed_point_admissible"], round(log["elapsed_s"]))
 
