@@ -1,0 +1,19 @@
+{
+ "summary": {
+  "status": "DOMAIN_STOP",
+  "reason": "初值构造停止：初值构造停止：收敛解出现 14 项负存量（小于 −τ = 3.963e-12 kg）",
+  "rounds": 1,
+  "iterations": 0,
+  "balance": null,
+  "consistent_ash_relative": null,
+  "outer": [],
+  "initial": {
+   "loops": 1,
+   "note": "停止"
+  },
+  "elapsed_s": 405.994332583,
+  "initial_precalcs": null
+ },
+ "rounds": [],
+ "extrapolated": false
+}

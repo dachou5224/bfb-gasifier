@@ -3,8 +3,7 @@
 Corella 外推只在本工具里设置（``_CORELLA_HIGH_K = +inf``），不进入正式路径。两个子命令：
 ``extrapolated`` 从头跑外层（最多 ``--rounds`` 轮，默认 outer_round_limit）；``frozen`` 不外推，
 只跑第 1 轮。逐轮记录 w_f、E、E₀、E₁、评价次数、T、Ṁ_A、子求解迭代、E(0,5) 与 (E₀+E₁)/2 的相对差、
-内层状态与迭代数、各块归一残差、最底床格与最高床温、床区焦炭存量、第 5 项三条检查与 (b) 复核。
-全程硬超时（SIGALRM）。
+内层状态与迭代数、各块归一残差、最底床格与最高床温、床区焦炭存量、第 5 项三条检查与 (b) 复核。全程硬超时。
 """
 
 from __future__ import annotations
@@ -30,8 +29,6 @@ _ROOT = Path(__file__).resolve().parents[1]
 _CASE = _ROOT / "data" / "cases" / "vtt_pressurized.json"
 _OUT = _ROOT / "reports" / "t26p-validation"
 _REFS = None
-
-
 class _Timeout(BaseException):
     """继承 BaseException：任何 except Exception 都不会吞掉全局期限（CHARTER §7）。"""
 
@@ -104,7 +101,9 @@ def run(extrapolate: bool, rounds: int, limit_s: float) -> dict:
                              "ash_relative": item.get("ash_relative")}
                             for item in result.diagnostics.get("rounds") or []]
         initial = result.diagnostics.get("initial") or {}
-        summary["initial"] = {"loops": len(initial.get("loops") or []), "note": initial.get("note")}
+        loops = initial.get("loops") or []
+        summary["initial"] = {"loops": len(loops), "note": initial.get("note"),
+                              "last": dict(loops[-1]) if loops else None}
     except (_Timeout, SolveTimeout) as exc:
         summary.update(status="TIMEOUT", reason=str(exc) or "运行超过墙钟上限")
     except Exception as exc:  # noqa: BLE001 - 运行记录要留下任何异常
