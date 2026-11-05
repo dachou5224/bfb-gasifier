@@ -1,0 +1,1002 @@
+{
+ "omega": 1.0,
+ "variant": [
+  "corellaX",
+  "gaslog",
+  "o2pow",
+  "relax"
+ ],
+ "rounds": [
+  {
+   "round": 1,
+   "inner": "CONVERGED",
+   "inner_reason": "",
+   "iterations": 85,
+   "final_merit": 1.5324064008374933e-06,
+   "final_check_ok": true,
+   "drain_substituted": false,
+   "previous_drain_kg_s": 0.0012202257102692116,
+   "frozen_drain_ash_kg_s": 0.00015343360469534894,
+   "inner_s": 1223.7208761250001,
+   "o2proj_fallback": null,
+   "newton_tail": [
+    {
+     "iteration": 82,
+     "merit": 2.2228724737869918e-05,
+     "accepted_i": 1,
+     "rejections": {
+      "Ṅ < 0（下标 20）": 1
+     },
+     "census": {
+      "solid": {
+       "count": 1,
+       "alpha": Infinity,
+       "worst": ""
+      }
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": -1.1209946031958916e-05
+      },
+      {
+       "index": 484,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+       "value": 1.0228802957592355e-05
+      },
+      {
+       "index": 496,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO2",
+       "value": -9.06694225139552e-06
+      },
+      {
+       "index": 502,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.O2",
+       "value": 6.202034653095173e-06
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 6.022057036058295e-06
+      }
+     ]
+    },
+    {
+     "iteration": 83,
+     "merit": 1.1146931214027624e-05,
+     "accepted_i": 1,
+     "rejections": {
+      "Ṅ < 0（下标 20）": 1
+     },
+     "census": {
+      "solid": {
+       "count": 1,
+       "alpha": Infinity,
+       "worst": ""
+      }
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": -5.606447541977723e-06
+      },
+      {
+       "index": 484,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+       "value": 5.11517928778175e-06
+      },
+      {
+       "index": 496,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO2",
+       "value": -4.547266757071146e-06
+      },
+      {
+       "index": 502,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.O2",
+       "value": 3.1148319411922434e-06
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 3.01150594524217e-06
+      }
+     ]
+    },
+    {
+     "iteration": 84,
+     "merit": 5.609590702894881e-06,
+     "accepted_i": 1,
+     "rejections": {
+      "Ṅ < 0（下标 20）": 1
+     },
+     "census": {
+      "solid": {
+       "count": 1,
+       "alpha": Infinity,
+       "worst": ""
+      }
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": -2.8036634573896744e-06
+      },
+      {
+       "index": 484,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+       "value": 2.5578493606896748e-06
+      },
+      {
+       "index": 496,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO2",
+       "value": -2.277121864309204e-06
+      },
+      {
+       "index": 502,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.O2",
+       "value": 1.5609199415169548e-06
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 1.5059124297947773e-06
+      }
+     ]
+    },
+    {
+     "iteration": 85,
+     "merit": 2.8627813722739687e-06,
+     "accepted_i": 1,
+     "rejections": {
+      "Ṅ < 0（下标 20）": 1
+     },
+     "census": {
+      "solid": {
+       "count": 1,
+       "alpha": Infinity,
+       "worst": ""
+      }
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": -1.4019766884825265e-06
+      },
+      {
+       "index": 484,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+       "value": 1.2790224553653505e-06
+      },
+      {
+       "index": 496,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO2",
+       "value": -1.1394380984473365e-06
+      },
+      {
+       "index": 502,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.O2",
+       "value": 7.813456551646233e-07
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 7.530162041016562e-07
+      }
+     ]
+    }
+   ],
+   "bed_char_kg": 0.510335154617226,
+   "bed_ash_kg": 3.408062038255015,
+   "carried_ash_kg_s": 0.009245344363788679,
+   "ash_generated_kg_s": 0.000491756500162788,
+   "a5_balance_kg_s": -0.008753587863625891,
+   "bed_temperature_c": [
+    784.218849657955,
+    791.1136336042251,
+    800.5206767078497,
+    812.9232239257111,
+    829.1627682707107,
+    850.6442488150755,
+    879.65998972773,
+    919.5581963349604
+   ],
+   "freeboard_temperature_c": [
+    797.7657951109019,
+    827.5230137486798,
+    862.332526114628,
+    900.9379454865899,
+    942.5297952303405,
+    988.0674687256948,
+    1046.1888009164159,
+    797.9652448751414
+   ],
+   "max_bed_temperature_c": 919.5581963349604
+  },
+  {
+   "round": 2,
+   "inner": "CONVERGED",
+   "inner_reason": "",
+   "iterations": 26,
+   "final_merit": 1.1994848741392673e-06,
+   "final_check_ok": true,
+   "drain_substituted": false,
+   "previous_drain_kg_s": 0.0012202257102692116,
+   "frozen_drain_ash_kg_s": -0.009073244604607372,
+   "inner_s": 369.64953066700036,
+   "o2proj_fallback": null,
+   "newton_tail": [
+    {
+     "iteration": 23,
+     "merit": 1.9086878845920334e-05,
+     "accepted_i": 1,
+     "rejections": {
+      "Ṅ < 0（下标 72）": 1
+     },
+     "census": {},
+     "largest": [
+      {
+       "index": 241,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k7",
+       "value": -1.4025779907178071e-05
+      },
+      {
+       "index": 229,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k3",
+       "value": 5.878909135277616e-06
+      },
+      {
+       "index": 233,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k4",
+       "value": 5.538132434240627e-06
+      },
+      {
+       "index": 239,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k6",
+       "value": -4.955770400413427e-06
+      },
+      {
+       "index": 483,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": -3.5975549772041736e-06
+      }
+     ]
+    },
+    {
+     "iteration": 24,
+     "merit": 9.554495906611357e-06,
+     "accepted_i": 1,
+     "rejections": {
+      "Ṅ < 0（下标 72）": 1
+     },
+     "census": {},
+     "largest": [
+      {
+       "index": 241,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k7",
+       "value": -7.0129198390606025e-06
+      },
+      {
+       "index": 229,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k3",
+       "value": 2.9394629637399095e-06
+      },
+      {
+       "index": 233,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k4",
+       "value": 2.7691004132177023e-06
+      },
+      {
+       "index": 239,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k6",
+       "value": -2.477903177308567e-06
+      },
+      {
+       "index": 483,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": -1.8241337190506613e-06
+      }
+     ]
+    },
+    {
+     "iteration": 25,
+     "merit": 4.783013820367739e-06,
+     "accepted_i": 1,
+     "rejections": {
+      "Ṅ < 0（下标 46）": 1
+     },
+     "census": {},
+     "largest": [
+      {
+       "index": 241,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k7",
+       "value": -3.5064672052720523e-06
+      },
+      {
+       "index": 229,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k3",
+       "value": 1.469733530741516e-06
+      },
+      {
+       "index": 233,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k4",
+       "value": 1.3845585477819246e-06
+      },
+      {
+       "index": 239,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k6",
+       "value": -1.2389559661459133e-06
+      },
+      {
+       "index": 483,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": -9.247409798009171e-07
+      }
+     ]
+    },
+    {
+     "iteration": 26,
+     "merit": 2.3947144908994727e-06,
+     "accepted_i": 1,
+     "rejections": {
+      "Ṅ < 0（下标 20）": 1
+     },
+     "census": {},
+     "largest": [
+      {
+       "index": 241,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k7",
+       "value": -1.7532353374561621e-06
+      },
+      {
+       "index": 229,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k3",
+       "value": 7.348672520583782e-07
+      },
+      {
+       "index": 233,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k4",
+       "value": 6.922812567193119e-07
+      },
+      {
+       "index": 239,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k6",
+       "value": -6.19479034373754e-07
+      },
+      {
+       "index": 483,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": -4.687146129856072e-07
+      }
+     ]
+    }
+   ],
+   "bed_char_kg": 2.491004037540463,
+   "bed_ash_kg": 1.451179549925178,
+   "carried_ash_kg_s": 0.0010623217284193363,
+   "ash_generated_kg_s": 0.0004930566586774933,
+   "a5_balance_kg_s": -0.0005692650697418431,
+   "bed_temperature_c": [
+    822.5887394801981,
+    811.4594227291799,
+    804.5279705643333,
+    801.7515050711628,
+    803.423473515115,
+    810.4543157948555,
+    825.0898635334294,
+    853.0317500465873
+   ],
+   "freeboard_temperature_c": [
+    752.9966178263493,
+    779.384643235053,
+    819.894412276875,
+    862.3007799941339,
+    906.7438475200557,
+    955.5879992347478,
+    1011.9786597576996,
+    838.6038721896745
+   ],
+   "max_bed_temperature_c": 853.0317500465873,
+   "change": {
+    "temperature_k": 66.52644628837311,
+    "char_relative": 0.7951287324603799,
+    "a5_relative_to_g": 16.59915275424236
+   }
+  },
+  {
+   "round": 3,
+   "inner": "CONVERGED",
+   "inner_reason": "",
+   "iterations": 1,
+   "final_merit": 1.4289013463872374e-06,
+   "final_check_ok": true,
+   "drain_substituted": true,
+   "previous_drain_kg_s": -0.010320157130463007,
+   "frozen_drain_ash_kg_s": -0.0005554947223515096,
+   "inner_s": 852.9406429999999,
+   "o2proj_fallback": {
+    "from_merit": 1.8735021043888457e-05,
+    "status": "CONVERGED",
+    "iterations": 1
+   },
+   "newton_tail": [
+    {
+     "iteration": 1,
+     "merit": 1.873502104388867e-05,
+     "accepted_i": 0,
+     "rejections": {},
+     "census": {
+      "O2": {
+       "count": 7,
+       "alpha": 3.1910346533346396e-31,
+       "worst": "bed[b=0,geo=7].gas_outflow.bubble.O2"
+      }
+     },
+     "largest": [
+      {
+       "index": 277,
+       "block": "固体",
+       "name": "bed[b=0,geo=7].char.bed.k5",
+       "value": -8.23248632414946e-06
+      },
+      {
+       "index": 278,
+       "block": "固体",
+       "name": "bed[b=0,geo=7].char.bed.k6",
+       "value": -7.703688016023992e-06
+      },
+      {
+       "index": 210,
+       "block": "固体",
+       "name": "freeboard[b=6,geo=1].char.free.k6",
+       "value": 6.772172864845121e-06
+      },
+      {
+       "index": 240,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].char.free.k5",
+       "value": 6.555662818452178e-06
+      },
+      {
+       "index": 243,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k6",
+       "value": -4.440216072325578e-06
+      }
+     ]
+    }
+   ],
+   "bed_char_kg": 2.460037817032644,
+   "bed_ash_kg": 1.4742696098065333,
+   "carried_ash_kg_s": 0.0009702109345312848,
+   "ash_generated_kg_s": 0.0004940091507136375,
+   "a5_balance_kg_s": -0.0004762017838176473,
+   "bed_temperature_c": [
+    828.9819457669668,
+    808.461762156316,
+    793.023258026018,
+    782.5827670382879,
+    777.3339382096825,
+    777.9595036408626,
+    786.1530764267765,
+    806.1289332809919
+   ],
+   "freeboard_temperature_c": [
+    728.3730265454496,
+    755.1391216050212,
+    793.4364766382213,
+    835.6622555189866,
+    879.1274168611843,
+    932.9715462214486,
+    993.9231266138994,
+    852.9037810980852
+   ],
+   "max_bed_temperature_c": 828.9819457669668,
+   "change": {
+    "temperature_k": 46.90281676559539,
+    "char_relative": 0.01258770100744676,
+    "a5_relative_to_g": 0.18838372890412672
+   }
+  },
+  {
+   "round": 4,
+   "inner": "CONVERGED",
+   "inner_reason": "",
+   "iterations": 9,
+   "final_merit": 6.670664473430114e-07,
+   "final_check_ok": true,
+   "drain_substituted": true,
+   "previous_drain_kg_s": -0.0013004563425541545,
+   "frozen_drain_ash_kg_s": -0.0005587898886273635,
+   "inner_s": 13.73023083399994,
+   "o2proj_fallback": {
+    "from_merit": 1.3575259950414014,
+    "status": "CONVERGED",
+    "iterations": 9
+   },
+   "newton_tail": [
+    {
+     "iteration": 6,
+     "merit": 0.04824911161686011,
+     "accepted_i": 0,
+     "rejections": {},
+     "census": {
+      "O2": {
+       "count": 7,
+       "alpha": 0.0,
+       "worst": "freeboard[b=4,geo=3].gas_outflow.gas.O2"
+      }
+     },
+     "largest": [
+      {
+       "index": 497,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.026300948740955694
+      },
+      {
+       "index": 498,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO2",
+       "value": 0.022626381660252205
+      },
+      {
+       "index": 504,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.O2",
+       "value": -0.019531555716223985
+      },
+      {
+       "index": 500,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.H2O",
+       "value": 0.01615383642643814
+      },
+      {
+       "index": 499,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.H2",
+       "value": -0.013959391661522824
+      }
+     ]
+    },
+    {
+     "iteration": 7,
+     "merit": 0.007248116417460472,
+     "accepted_i": 0,
+     "rejections": {},
+     "census": {
+      "O2": {
+       "count": 7,
+       "alpha": 0.0,
+       "worst": "freeboard[b=0,geo=7].gas_outflow.gas.O2"
+      }
+     },
+     "largest": [
+      {
+       "index": 500,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.H2O",
+       "value": 0.003277288560376427
+      },
+      {
+       "index": 504,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.O2",
+       "value": -0.0031888068392113803
+      },
+      {
+       "index": 499,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.H2",
+       "value": -0.002892509066805681
+      },
+      {
+       "index": 498,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO2",
+       "value": 0.002807993110988722
+      },
+      {
+       "index": 497,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": -0.0025585184685828046
+      }
+     ]
+    },
+    {
+     "iteration": 8,
+     "merit": 0.0005667680648579921,
+     "accepted_i": 0,
+     "rejections": {},
+     "census": {
+      "O2": {
+       "count": 6,
+       "alpha": 0.0,
+       "worst": "freeboard[b=7,geo=0].gas_outflow.gas.O2"
+      }
+     },
+     "largest": [
+      {
+       "index": 500,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.H2O",
+       "value": 0.000274066637272474
+      },
+      {
+       "index": 499,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.H2",
+       "value": -0.00022602215852769435
+      },
+      {
+       "index": 504,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.O2",
+       "value": -0.00019490418879569924
+      },
+      {
+       "index": 508,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.C6H6",
+       "value": -0.00018568801969877762
+      },
+      {
+       "index": 490,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.N2",
+       "value": -0.000142987941305483
+      }
+     ]
+    },
+    {
+     "iteration": 9,
+     "merit": 1.731498644287087e-05,
+     "accepted_i": 0,
+     "rejections": {},
+     "census": {
+      "O2": {
+       "count": 6,
+       "alpha": 0.0,
+       "worst": "freeboard[b=7,geo=0].gas_outflow.gas.O2"
+      }
+     },
+     "largest": [
+      {
+       "index": 508,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.C6H6",
+       "value": -9.723764070671121e-06
+      },
+      {
+       "index": 495,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.C6H6",
+       "value": 7.267191159640009e-06
+      },
+      {
+       "index": 497,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.CO",
+       "value": 6.408658431058535e-06
+      },
+      {
+       "index": 490,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.N2",
+       "value": -5.786897095660575e-06
+      },
+      {
+       "index": 503,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.bubble.N2",
+       "value": 5.786876218554677e-06
+      }
+     ]
+    }
+   ],
+   "bed_char_kg": 1.5942096380048363,
+   "bed_ash_kg": 2.317630530928584,
+   "carried_ash_kg_s": 0.0029711617450304886,
+   "ash_generated_kg_s": 0.0004932221023487112,
+   "a5_balance_kg_s": -0.0024779396426817773,
+   "bed_temperature_c": [
+    779.9222039042633,
+    781.7727981248321,
+    786.4788270148839,
+    794.609082828286,
+    807.1208006797507,
+    825.762753366049,
+    854.1249601827029,
+    901.2683323619539
+   ],
+   "freeboard_temperature_c": [
+    713.5632109471871,
+    740.0486645516106,
+    776.7594424663667,
+    817.4065371995756,
+    859.9463969272905,
+    914.2740433371661,
+    977.938487954881,
+    806.1270751466471
+   ],
+   "max_bed_temperature_c": 901.2683323619539,
+   "change": {
+    "temperature_k": 95.139399080962,
+    "char_relative": 0.5431081072319932,
+    "a5_relative_to_g": 4.058491801831071
+   }
+  },
+  {
+   "round": 5,
+   "inner": "NOT_CONVERGED",
+   "inner_reason": "雅可比不能求解",
+   "iterations": 12,
+   "final_merit": 0.09014407729255791,
+   "final_check_ok": false,
+   "drain_substituted": true,
+   "previous_drain_kg_s": -0.0012336498138576458,
+   "frozen_drain_ash_kg_s": -0.0023867494203394708,
+   "inner_s": 13.60987733300044,
+   "o2proj_fallback": {
+    "from_merit": 1.7396110384937535,
+    "status": "NOT_CONVERGED",
+    "iterations": 12
+   },
+   "newton_tail": [
+    {
+     "iteration": 9,
+     "merit": 0.09453348345507942,
+     "accepted_i": 4,
+     "rejections": {},
+     "census": {
+      "O2": {
+       "count": 8,
+       "alpha": 0.0,
+       "worst": "freeboard[b=0,geo=7].gas_outflow.gas.O2"
+      },
+      "solid": {
+       "count": 48,
+       "alpha": -7.788617506011137,
+       "worst": "freeboard[b=7,geo=0].ash.hover.k3"
+      }
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": -0.059415877298992455
+      },
+      {
+       "index": 484,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+       "value": 0.05738619204701241
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.030286091737131638
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": -0.023064413482045146
+      },
+      {
+       "index": 243,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k7",
+       "value": -0.012291797849091781
+      }
+     ]
+    },
+    {
+     "iteration": 10,
+     "merit": 0.09223544550404508,
+     "accepted_i": 4,
+     "rejections": {},
+     "census": {
+      "solid": {
+       "count": 48,
+       "alpha": -8.07084179752324,
+       "worst": "freeboard[b=7,geo=0].ash.hover.k3"
+      },
+      "O2": {
+       "count": 5,
+       "alpha": 6.8451959961617075e-06,
+       "worst": "freeboard[b=1,geo=6].gas_outflow.gas.O2"
+      }
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": -0.058036005730781735
+      },
+      {
+       "index": 484,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+       "value": 0.05610892334459208
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.02956238531421016
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": -0.022553485714057613
+      },
+      {
+       "index": 243,
+       "block": "固体",
+       "name": "freeboard[b=7,geo=0].ash.free.k7",
+       "value": -0.011525523258866221
+      }
+     ]
+    },
+    {
+     "iteration": 11,
+     "merit": 0.09113976957789437,
+     "accepted_i": 5,
+     "rejections": {},
+     "census": {
+      "solid": {
+       "count": 48,
+       "alpha": -8.272626337692838,
+       "worst": "freeboard[b=7,geo=0].ash.hover.k3"
+      },
+      "O2": {
+       "count": 4,
+       "alpha": 0.0,
+       "worst": "freeboard[b=1,geo=6].gas_outflow.gas.O2"
+      }
+     },
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": -0.05734011007006795
+      },
+      {
+       "index": 484,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+       "value": 0.0555077750861111
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.02918295269085921
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": -0.022602480298544902
+      },
+      {
+       "index": 181,
+       "block": "气体",
+       "name": "freeboard[b=6,geo=1].gas_outflow.gas.CO2",
+       "value": 0.011448962305849042
+      }
+     ]
+    },
+    {
+     "iteration": 12,
+     "merit": 0.09014407729255791,
+     "accepted_i": null,
+     "rejections": {},
+     "census": null,
+     "largest": [
+      {
+       "index": 485,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2O",
+       "value": -0.05657165639319476
+      },
+      {
+       "index": 484,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+       "value": 0.05478935416670639
+      },
+      {
+       "index": 489,
+       "block": "气体",
+       "name": "bed[b=7,geo=0].gas_outflow.suspension.O2",
+       "value": 0.028783418082603443
+      },
+      {
+       "index": 193,
+       "block": "能量",
+       "name": "freeboard[b=6,geo=1].temperature",
+       "value": -0.022923748625565486
+      },
+      {
+       "index": 181,
+       "block": "气体",
+       "name": "freeboard[b=6,geo=1].gas_outflow.gas.CO2",
+       "value": 0.011740455489609865
+      }
+     ]
+    }
+   ],
+   "bed_char_kg": 5.173683978036714,
+   "bed_ash_kg": -1.24138537754548,
+   "carried_ash_kg_s": -0.00016514809348973616,
+   "ash_generated_kg_s": 0.0004940153779992755,
+   "a5_balance_kg_s": 0.0006591634714890117,
+   "bed_temperature_c": [
+    673.1080145136192,
+    684.1384956084419,
+    696.5100148508764,
+    710.7140374703266,
+    727.5399225993956,
+    748.348845359024,
+    775.7834129101308,
+    816.2130907845846
+   ]
+  }
+ ],
+ "construct_s": 1068.358382458,
+ "stop": "内层未收敛",
+ "elapsed_s": 4200.935846958,
+ "fixed_point_admissible": false
+}

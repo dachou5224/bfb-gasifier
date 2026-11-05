@@ -1,0 +1,65 @@
+{
+ "omega": 0.5,
+ "variant": [
+  "corellaX",
+  "gaslog",
+  "o2pow",
+  "relax"
+ ],
+ "rounds": [
+  {
+   "round": 1,
+   "inner": "CONVERGED",
+   "inner_reason": "",
+   "iterations": 85,
+   "final_merit": 1.5324064008374933e-06,
+   "final_check_ok": true,
+   "drain_substituted": false,
+   "previous_drain_kg_s": 0.0012202257102692116,
+   "frozen_drain_ash_kg_s": 0.00015343360469534894,
+   "inner_s": 1326.365676375,
+   "bed_char_kg": 0.510335154617226,
+   "bed_ash_kg": 3.408062038255015,
+   "carried_ash_kg_s": 0.009245344363788679,
+   "ash_generated_kg_s": 0.000491756500162788,
+   "a5_balance_kg_s": -0.008753587863625891,
+   "bed_temperature_c": [
+    784.218849657955,
+    791.1136336042251,
+    800.5206767078497,
+    812.9232239257111,
+    829.1627682707107,
+    850.6442488150755,
+    879.65998972773,
+    919.5581963349604
+   ],
+   "freeboard_temperature_c": [
+    797.7657951109019,
+    827.5230137486798,
+    862.332526114628,
+    900.9379454865899,
+    942.5297952303405,
+    988.0674687256948,
+    1046.1888009164159,
+    797.9652448751414
+   ],
+   "max_bed_temperature_c": 919.5581963349604
+  },
+  {
+   "round": 2,
+   "inner": "DAMPING_FAILED",
+   "inner_reason": "没有使归一残差严格下降的可行步",
+   "iterations": 18,
+   "final_merit": 1.1489310329825848,
+   "final_check_ok": false,
+   "drain_substituted": false,
+   "previous_drain_kg_s": 0.0012202257102692116,
+   "frozen_drain_ash_kg_s": -0.004669449279290463,
+   "inner_s": 271.1208161249997
+  }
+ ],
+ "construct_s": 1175.09289275,
+ "stop": "内层未收敛",
+ "elapsed_s": 2864.6926245,
+ "fixed_point_admissible": false
+}
