@@ -30,13 +30,18 @@ T26p 合并后 `hamel/` 为 10 886 行，距 11 000 行上限只剩 114 行（CH
    - 第一次预计算的全部冻结量数组（`FrozenQuantities` 各字段）；
    - 初值状态上的完整残差向量；
    - 以 φ = 0,3 的工况副本跑初值构造（ADR 0054 第 3 项）的每次交替：固相牛顿迭代数、收敛固相向量、排灰与 w_f 更新记录（E、E₀、E₁、评价次数）；
-   - 上述初值构造结束状态上的 `damped_newton` 内层前 3 次迭代（φ = 1 的工况，`tools` 中外推 Corella），每次的残差范数与步向量。
+   - **全程 φ = 0,3**：上述初值构造结束后，经正式路径（`driver.solve_case`，工况副本 φ = 0,3，`tools` 中外推 Corella，`outer_round_limit = 1`）进入外层第 1 轮，记录内层前 3 次迭代的归一残差范数、y 上的步向量与阻尼试探记录（达到 3 次即用期限或包装函数中止，不改正式路径）。不做 φ = 0,3 → 1 的切换（那是 ADR 0056 的内容，PR #155 审查）；
+   - **φ = 1 的初值构造拒绝终态**（工况 1 原文件）：`InitialStateError.diagnostics` 的全部内容，含 #154 补齐的被拒解五组存量数组、逐格惰性物、排灰、归一残差、`min_stock_kg` 与第 3 层 detail。
+   - 快照所用的基准提交（origin/main 的 SHA）写进 PR 与 `golden.npz` 的元数据。
 2. 改动后用同一工具重算，与快照**逐位比较**（`np.array_equal`，不是容差）；任何不等即停下上报。
 
 ### B. 候选（逐项查，能删则删，不能删写明原因）
 
 1. **合并两处“子集牛顿”**：`initial.solve_solids` 与 `inert_balance.free_ash_state` 都是“固定其余未知量、只取一部分行与未知量、调用 `damped_newton`”。抽成一个共用函数（选行、嵌入、缩放、门、负存量检查），两处调用。
-2. **只供报告或工具的函数移出 `hamel/`**：`residual.particle_temperatures`（只有 `tools/` 使用）；`initial._volume_ratio`、`initial._minimum_stock`、`SolidSolve.step_history` 及其报告项（ADR 0052 遗留，只被 `tools/initial_solids_diagnostic.py`、`tools/t26l_validate.py` 使用）——移到 `tools/` 并改这些工具的导入，正式路径的记录里不再带。
+2. **只供报告或工具的函数移出 `hamel/`**：
+   - `residual.particle_temperatures`（只有 `tools/` 使用）移到 `tools/`；
+   - 初值构造**成功交替记录**（`initial._record`）中的 ADR 0052 遗留报告项 `step_history`、`volume_ratio`、`min_stock_kg` 可删，`_volume_ratio` 与 `SolidSolve.step_history` 随之移到 `tools/` 或删去，并改 `tools/initial_solids_diagnostic.py`、`tools/t26l_validate.py` 的导入；
+   - **保留**被拒解的证据（PR #154 审查第 4 项补齐，PR #155 审查）：`_rejected()` 写入 `InitialStateError.diagnostics` 的五组存量数组、逐格惰性物、排灰、归一残差、`min_stock_kg` 与第 3 层 detail 一项不少。`_minimum_stock` 仍被 `_rejected()` 使用，留在 `hamel/`（可在 `hamel/` 内等价合并），`hamel/` 不得反向导入 `tools/`。
 3. **只被测试引用的函数**：`hydrodynamics.bed.sphericity_diameter_product`、`ergun_archimedes`：若对应 Hamel 式号的计算已在正式路径中由别的函数完成，则删去并把测试改为测正式函数；若它们是某式的唯一实现，保留并在 PR 写明。
 4. `newton._dump`（失败点 npz）：保留功能，但查能否与 `_note` 共用数组整理，压缩重复。
 5. `inert_balance.py`：`_text`、`_Exhausted` 与报告字典的组装能否简化；`InertBalanceError` 能否复用现有错误类型。
