@@ -192,10 +192,14 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
     except (PrecalcError, TrialNotEvaluable) as exc:
         raise InitialStateError(f"初值构造收敛解不可评价：{exc}") from exc
     inert, drain_ash, drain_char, down, closure, _returned = flows
+    residual = float(np.max(np.abs(checked)) / m_dot_ref)
     detail = rule.final(pack_state(current, frozen))
     if not detail["ok"]:
-        raise InitialStateError(f"初值构造停止：{detail['message']}")
-    residual = float(np.max(np.abs(checked)) / m_dot_ref)
+        # 第 3 层拒绝：保留被拒解、归一残差与检查详情，供报告复核（不截断、不接受）。ADR 0054 第 2 项。
+        raise InitialStateError(
+            f"初值构造停止：{detail['message']}",
+            {"rejected": _rejected(current, frozen, detail, residual, inert, drain_ash, drain_char)},
+        )
     if residual > gate:
         raise InitialStateError(f"初值构造的收敛解不满足固相门：{residual:.3e} > {gate:.1e}")
     history = tuple(float(entry["merit"]) for entry in log.get("iterations", ()))
@@ -208,6 +212,25 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
         current, int(outcome.iterations), history, residual, drain_ash, drain_char, down,
         np.asarray(frozen.m_dot_ab_kg_s, dtype=float), closure, float(current.bed_char_kg.sum()), inert, steps,
     )
+
+
+def _rejected(state, frozen, detail, residual, inert, drain_ash, drain_char) -> dict:
+    """第 3 层被拒的收敛解：存量数组、惰性物、排灰、归一残差与检查详情。ADR 0054 第 2 项。"""
+    return {
+        "kind": "rejected_converged_solution",
+        "solid_residual": float(residual),
+        "bed_char_kg": np.asarray(state.bed_char_kg, dtype=float).tolist(),
+        "freeboard_char_free_kg": np.asarray(state.freeboard_char_free_kg, dtype=float).tolist(),
+        "freeboard_char_hover_kg": np.asarray(state.freeboard_char_hover_kg, dtype=float).tolist(),
+        "freeboard_ash_free_kg": np.asarray(state.freeboard_ash_free_kg, dtype=float).tolist(),
+        "freeboard_ash_hover_kg": np.asarray(state.freeboard_ash_hover_kg, dtype=float).tolist(),
+        "bed_char_total_kg": float(np.sum(state.bed_char_kg)),
+        "bed_inert_kg": np.asarray(inert, dtype=float).tolist(),
+        "min_stock_kg": _minimum_stock(state),
+        "drain_ash_kg_s": float(drain_ash),
+        "drain_char_kg_s": np.asarray(drain_char, dtype=float).tolist(),
+        "detail": {key: value for key, value in detail.items()},
+    }
 
 
 def construct(initial, precalc, m_dot_ref: float, *, gate: float = 1.0e-6, tolerance: float = 1.0e-2, max_loops: int = 5, config=None, records=None):
@@ -231,13 +254,16 @@ def construct(initial, precalc, m_dot_ref: float, *, gate: float = 1.0e-6, toler
                 result.frozen.geometric_mass_kg - result.state.bed_char_kg.sum(axis=1)
                 - result.frozen.fuel_bed_kg.sum(axis=1)
             )
+            # pre_solve 是这次牛顿之前（上一轮预计算）的状态；被拒解在 diagnostics 的 rejected 里。
             log.append({
                 "loop": index, "stopped": True, "reason": str(exc),
-                "frozen_down_kg_s": np.asarray(result.frozen.m_dot_ab_kg_s, dtype=float).tolist(),
-                "drain_ash_kg_s": float(result.frozen.drain_ash_kg_s),
-                "drain_char_kg_s": np.asarray(result.frozen.drain_char_kg_s, dtype=float).tolist(),
-                "bed_char_kg": float(result.state.bed_char_kg.sum()),
-                "bed_inert_kg": np.asarray(inert, dtype=float).tolist(),
+                "pre_solve": {
+                    "bed_char_kg": float(result.state.bed_char_kg.sum()),
+                    "bed_inert_kg": np.asarray(inert, dtype=float).tolist(),
+                    "frozen_down_kg_s": np.asarray(result.frozen.m_dot_ab_kg_s, dtype=float).tolist(),
+                    "drain_ash_kg_s": float(result.frozen.drain_ash_kg_s),
+                    "drain_char_kg_s": np.asarray(result.frozen.drain_char_kg_s, dtype=float).tolist(),
+                },
                 **(exc.diagnostics or {}),
             })
             raise

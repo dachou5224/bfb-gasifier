@@ -130,7 +130,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
     config = assembled.solver if config is None else config
     physical = assembled.physical
     n_ref, m_ref, q_ref = _references(physical)
-    holder = {"state": None, "reaction": None, "drain": 0.0, "fuel_return": 0.0, "release": None, "records": [], "redirect": (0.0, 0.0, 0.0, 0.0)}
+    holder = {"state": None, "reaction": None, "drain": 0.0, "fuel_return": 0.0, "release": None, "records": [], "redirect": (0.0, 0.0, 0.0, 0.0), "fine": None}
     journal = {"iterations": []}
     if artifact_dir is not None:
         folder = Path(artifact_dir)
@@ -164,10 +164,13 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
             previous_release=holder["release"],
             adiabatic=adiabatic, iteration=iteration, consistency=consistency, solver=config,
             redirected_return_kg_s=bed_return, redirected_fuel_out_kg_s=fuel_out,
+            previous_fine_share=holder["fine"],
         )
         holder["drain"] = float(result.frozen.drain_ash_kg_s + result.frozen.drain_char_kg_s.sum())
         holder["fuel_return"] = float(result.frozen.fuel_down_free_kg_s[-1].sum())
         holder["release"] = result.solid_context.released
+        # 上一次预计算的 w_f 传给下一次（含初值构造的交替与外层）。ADR 0055 第 3 项。
+        holder["fine"] = float(result.frozen.bed_ash_fine_share)
         holder["records"].append(result)
         return result
 

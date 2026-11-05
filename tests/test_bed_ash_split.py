@@ -11,16 +11,18 @@ import numpy as np
 import pytest
 
 from hamel.cases.config import SolverConfig
-from hamel.solver import campaign, driver
+from hamel.solver import campaign, driver, initial
+from hamel.solver.initial import InitialStateError, solve_solids
 from hamel.solver.gates import OuterMonitor, ash_met
 from hamel.solver.inert_balance import (
     ASH_RELATIVE_TOLERANCE, InertBalanceError, fine_share, free_ash_state, top_ash, update_fine_share,
 )
-from hamel.solver.precalc import PrecalcError, _drain_terms
+from hamel.solver.precalc import PrecalcError, _drain_terms, _start_fine_share
 from hamel.solver.residual import bed_ash_by_class, evaluate_residual
 from hamel.solver.vector import pack_state, unpack_state, unknown_slots
 
 from test_assembly import make_frozen, make_state
+from test_initial_state import _system
 
 _CASE = Path("data/cases/vtt_pressurized.json")
 _M_REF = 1.0e-3
@@ -86,17 +88,63 @@ def test_hand_examples_of_the_endpoint_and_illinois_search():
         kept, info = fine_share(lambda w: 1.0, start, 1.0)
         assert kept == start and info["stop"] == "satisfied"
 
-    # 不连续函数使 50 次内不达容差：报告求根失败，评价次数达上限。
+    # 不连续函数使 50 次内不达容差：报告求根失败，且实际调用数不超过 50。
+    calls = []
+
     def step(w):
+        calls.append(w)
         return 0.9 if w < 1.0 / 3.0 else 1.1
 
     with pytest.raises(InertBalanceError) as caught:
         fine_share(step, 0.5, 1.0, limit=50)
     assert "求根失败" in str(caught.value)
-    assert caught.value.info["stop"] == "failed" and caught.value.info["evaluations"] >= 50
+    assert caught.value.info["stop"] == "failed"
+    assert caught.value.info["evaluations"] == len(calls) == 50
 
 
-# C12b：端点响应只求一次（缓存命中不重算）。
+# C12b：容差内的端点必须在插值前接受，且 response 从不收到 [0, 1] 外的 w。
+@pytest.mark.parametrize(
+    "response, expected",
+    (
+        (lambda w: 1.0 + 5.0e-7 + w, 0.0),
+        (lambda w: 1.0 - 5.0e-7 - 0.5 * w, 0.0),
+        (lambda w: 0.5 + 0.5 * w - 5.0e-7, 1.0),
+        (lambda w: 0.5 + 0.5 * w + 5.0e-7, 1.0),
+    ),
+)
+def test_tolerant_endpoints_are_accepted_before_interpolation(response, expected):
+    seen = []
+
+    def wrapped(w):
+        seen.append(float(w))
+        return response(w)
+
+    w, info = fine_share(wrapped, 0.25, 1.0)
+    assert w == expected and info["stop"] == "satisfied"
+    # 端点都在容差检查时求得；没有插值点，即 response 只收到 0、1、当前值。
+    assert set(seen) == {0.0, 1.0, 0.25}
+    assert all(0.0 <= value <= 1.0 for value in seen)
+
+
+def test_every_response_call_stays_inside_the_unit_interval():
+    """求根只在 [0, 1] 上评价 E；越界时改用括号中点，不 clip 域外点，也不放弃预算检查。"""
+    seen = []
+
+    def wrapped(response):
+        def call(w):
+            seen.append(float(w))
+            return response(w)
+        return call
+
+    fine_share(wrapped(lambda w: 0.2 + 0.8 * w), 0.5, 1.0)
+    with pytest.raises(InertBalanceError):
+        fine_share(wrapped(lambda w: 0.9 if w < 1.0 / 3.0 else 1.1), 0.5, 1.0, limit=20)
+    with pytest.raises(InertBalanceError):
+        fine_share(wrapped(lambda w: 0.2 + 0.5 * w), 0.5, 1.0)
+    assert seen and all(0.0 <= value <= 1.0 for value in seen)
+
+
+# C12c：端点响应只求一次（缓存命中不重算）。
 def test_response_is_evaluated_once_per_distinct_share():
     calls = []
 
@@ -113,6 +161,44 @@ def test_response_is_evaluated_once_per_distinct_share():
     assert kept == 1.0 and info["stop"] == "satisfied"
     # 初值就是端点：该端点只求一次。
     assert calls == [0.0, 1.0]
+
+
+# C3：w_f 跨预计算沿用上一轮份额；只有首次预计算用燃料粒级 1 的质量分数。
+def test_start_share_is_the_fuel_initial_only_on_the_first_precalculation():
+    case = SimpleNamespace(class_fraction=np.array([0.116, 0.2, 0.3, 0.384]))
+    assert _start_fine_share(case, None) == pytest.approx(0.116)
+    assert _start_fine_share(case, 0.42) == pytest.approx(0.42)
+    assert _start_fine_share(case, 0.0) == 0.0
+
+
+# C4：第 3 层拒绝时保留被拒解与检查详情，供报告复核。
+def test_layer_three_rejection_keeps_the_rejected_solution(monkeypatch):
+    frozen, state, context = _system()
+    original = initial.build_rule
+
+    def strict(*args, **kwargs):
+        rule = original(*args, **kwargs)
+
+        class _Strict:
+            def __getattr__(self, name):
+                return getattr(rule, name)
+
+            def final(self, x):
+                detail = rule.final(x)
+                detail.update(ok=False, message="收敛解的排灰灰分量为负：-1.0e-06")
+                return detail
+
+        return _Strict()
+
+    monkeypatch.setattr(initial, "build_rule", strict)
+    with pytest.raises(InitialStateError) as caught:
+        solve_solids(state, frozen, context, _M_REF, config=SolverConfig())
+    rejected = caught.value.diagnostics["rejected"]
+    assert rejected["kind"] == "rejected_converged_solution"
+    assert rejected["bed_char_kg"] and np.asarray(rejected["bed_char_kg"]).shape == state.bed_char_kg.shape
+    assert np.asarray(rejected["freeboard_ash_free_kg"]).shape == state.freeboard_ash_free_kg.shape
+    assert rejected["bed_inert_kg"] and "负" in rejected["detail"]["message"]
+    assert rejected["solid_residual"] is not None
 
 
 # C13：φ、Ṁ_A 的输入有效域。

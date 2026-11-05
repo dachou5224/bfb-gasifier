@@ -22,7 +22,7 @@ from hamel.freeboard import CellTransport, account_freeboard, terminal_settling_
 from hamel.cases.config import SolverConfig
 from hamel.solver.precalc import (
     PrecalcError, _adaptive_bed, bed_downflow, bed_release_terms, downward_mass_flow,
-    freeboard_return_kg_s, initial_temperature_k, require_geldart_b, wall_coefficient,
+    freeboard_return_kg_s, initial_temperature_k, precalculate, require_geldart_b, wall_coefficient,
 )
 from hamel.solver.precalc import _drain_terms, _equilibrium, _gas_enthalpy, _initial_fine_share, _load, _primary_temperature, _primary_vector
 from hamel.solver.precalc import _transport as pack_transport
@@ -552,6 +552,29 @@ print(json.dumps({
     "elutriation_share": [float(value) for value in result.reported["reference_elutriation_share"]],
 }))
 """
+
+
+@pytest.mark.slow
+def test_precalculation_carries_the_previous_fine_share(tmp_path):
+    """ADR 0055 第 3 项：只有首次预计算用燃料粒级 1 的质量分数，其后沿用上一轮 w_f。
+
+    用 φ = 0,3 的工况副本（φ = 1 的初值构造在第 1 次固相牛顿即停，见 T26p 验证报告）。
+    """
+    doc = json.loads(_CASE.read_text(encoding="utf-8"))
+    doc["cases"]["1"]["fly_ash_fraction"]["value"] = 0.3
+    path = tmp_path / "phi03.json"
+    path.write_text(json.dumps(doc, ensure_ascii=False), encoding="utf-8")
+    first = precalculate(str(path), "1", None, iteration=1)
+    fuel_initial = float(_DOC["cases"]["1"]["fuel_size_class_mass_fractions"]["value"][0])
+    assert first.frozen.bed_ash_fine_share == pytest.approx(fuel_initial)
+    second = precalculate(
+        str(path), "1", first.state, iteration=2, previous_fine_share=0.2,
+        previous_release=first.solid_context.released,
+        previous_drain_kg_s=float(first.frozen.drain_ash_kg_s + np.sum(first.frozen.drain_char_kg_s)),
+    )
+    # 求根前的“当前值”是传入的上一轮份额 0,2，而不是燃料初值 0,116。
+    assert second.reported["ash_balance"]["initial"] == pytest.approx(0.2)
+    assert second.frozen.bed_ash_fine_share != pytest.approx(0.2)
 
 
 @pytest.mark.slow

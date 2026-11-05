@@ -30,41 +30,72 @@ class InertBalanceError(AssemblyError):
 
 
 def _text(reason: str, info: dict) -> str:
+    def show(name: str) -> str:
+        value = info.get(name)
+        return "未求" if value is None else f"{float(value):.6e}"
     return (
-        f"{reason}：T = {info['target']:.6e} kg/s，E₀ = {info['E0']:.6e}，E₁ = {info['E1']:.6e}，"
+        f"{reason}：T = {info['target']:.6e} kg/s，E₀ = {show('E0')}，E₁ = {show('E1')}，"
         f"w_f = {info['initial']:.6e}，E 评价 {info['evaluations']} 次"
     )
 
 
-def fine_share(response, initial: float, target: float, *, tolerance: float = FINE_TOLERANCE, limit: int = MAX_EVALUATIONS) -> tuple:
-    """端点响应加 Illinois 括号求根，解 E(w) = T。第 5 项三条停止成立时抛 ``InertBalanceError``。"""
+class _Exhausted(Exception):
+    """E 评价预算用尽。ADR 0055 第 3 项「至多 50 次 E 评价」。"""
+
+
+def fine_share(response, initial: float, target: float, *, tolerance: float = FINE_TOLERANCE, limit: int = MAX_EVALUATIONS, cache: dict | None = None) -> tuple:
+    """端点响应加 Illinois 括号求根，解 E(w) = T。第 5 项三条停止成立时抛 ``InertBalanceError``。
+
+    第 2 步先看当前 w_f，再看两个端点：任一在容差内即接受它（端点解合法，ADR 0055 第 3 项）。
+    评价预算 ``limit`` 计全部 E 评价（两端、当前值与每次插值），调用前检查；超出即报告求根失败。
+    """
     goal = float(target)
     if not np.isfinite(goal) or goal <= 0.0:
         raise InertBalanceError(f"飞灰目标 T 不是正数：{goal}")
-    seen: dict[float, float] = {}
+    seen: dict[float, float] = {} if cache is None else cache
+    info = {"target": goal, "initial": float(initial), "E0": None, "E1": None, "E": None, "w": float(initial)}
 
     def at(w: float) -> float:
         key = float(w)
         if key not in seen:
+            if len(seen) >= int(limit):
+                raise _Exhausted()
             seen[key] = float(response(key))
         return seen[key]
 
-    e0, e1, e = at(0.0), at(1.0), at(initial)
-    info = {"target": goal, "E0": e0, "E1": e1, "initial": float(initial), "E": e, "w": float(initial)}
-    if abs(e - goal) / goal < tolerance:
+    def failed() -> None:
+        info.update(stop="failed", evaluations=len(seen))
+        raise InertBalanceError(_text("求根失败", info), info)
+
+    try:
+        info["E0"], info["E1"], info["E"] = at(0.0), at(1.0), at(initial)
+    except _Exhausted:
+        failed()
+    if abs(info["E"] - goal) / goal < tolerance:
         info.update(stop="satisfied", evaluations=len(seen))
         return float(initial), info
-    coarse = (e0 - goal) / goal >= tolerance
-    if coarse or (goal - e1) / goal >= tolerance:
-        info.update(stop="coarse" if coarse else "fine", E=e0 if coarse else e1, w=0.0 if coarse else 1.0,
-                    evaluations=len(seen))
+    for share in (0.0, 1.0):
+        if abs(info["E0" if share == 0.0 else "E1"] - goal) / goal < tolerance:
+            info.update(stop="satisfied", w=share, E=info["E0" if share == 0.0 else "E1"],
+                        evaluations=len(seen))
+            return share, info
+    coarse = (info["E0"] - goal) / goal >= tolerance
+    if coarse or (goal - info["E1"]) / goal >= tolerance:
+        info.update(stop="coarse" if coarse else "fine", E=info["E0"] if coarse else info["E1"],
+                    w=0.0 if coarse else 1.0, evaluations=len(seen))
         raise InertBalanceError(_text("粗灰带出超过目标" if coarse else "细灰不足", info), info)
-    a, b, fa, fb = 0.0, 1.0, e0 - goal, e1 - goal
+    a, b, fa, fb = 0.0, 1.0, info["E0"] - goal, info["E1"] - goal
     for _ in range(int(limit)):
         if fb == fa:
             break
         w = (a * fb - b * fa) / (fb - fa)
-        residual = at(w) - goal
+        if not 0.0 <= w <= 1.0:
+            # 端点响应在容差外但差得很近时，割线式可能舍入到 [0, 1] 外；改用括号中点，不 clip。
+            w = 0.5 * (a + b)
+        try:
+            residual = at(w) - goal
+        except _Exhausted:
+            failed()
         if abs(residual) / goal < tolerance:
             info.update(stop="root", w=float(w), E=at(w), evaluations=len(seen))
             return float(w), info
@@ -131,9 +162,10 @@ def update_fine_share(frozen, state, config, m_ref: float) -> tuple:
             cache[key] = top_ash(trial, x)
         return cache[key]
 
-    w, info = fine_share(response, float(frozen.bed_ash_fine_share), float(frozen.ash_target_kg_s))
+    w, info = fine_share(response, float(frozen.bed_ash_fine_share), float(frozen.ash_target_kg_s), cache=cache)
+    root = int(info["evaluations"])
     half = response(0.5)
     middle = 0.5 * (info["E0"] + info["E1"])
     info.update(E_half=half, linearity=None if middle == 0.0 else abs(half - middle) / abs(middle),
-                subsolve_iterations=iterations)
+                diagnostic_evaluations=len(iterations) - root, subsolve_iterations=iterations)
     return float(w), info
