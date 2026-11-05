@@ -94,12 +94,15 @@ def _physical():
 def _initial(initial: dict) -> dict:
     loops = initial.get("loops") or []
     last = loops[-1] if loops else {}
+    # 停止的那次交替：pre_solve 是牛顿前的状态，rejected 是被第 3 层拒的收敛解。
+    before = last.get("pre_solve") or {}
     return {
         "note": initial.get("note"), "loops": len(loops),
-        "drain_ash_kg_s": last.get("drain_ash_kg_s"),
+        "drain_ash_kg_s": before.get("drain_ash_kg_s", last.get("drain_ash_kg_s")),
         "iterations": [item.get("iterations") for item in loops],
-        "bed_char_kg": last.get("bed_char_kg"),
+        "bed_char_kg": before.get("bed_char_kg", last.get("bed_char_kg")),
         "solid_residual": last.get("solid_residual"),
+        "rejected": last.get("rejected"),
     }
 
 

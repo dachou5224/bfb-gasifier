@@ -28,6 +28,7 @@ from hamel.pyrolysis.particle import PyrolysisError, lignite_particle_properties
 from hamel.pyrolysis.release import FuelTransport, feed_cell_index, release_distribution
 from hamel.pyrolysis.yields import PYROLYSIS_GAS_SPECIES, lignite_yields, path_yields
 from hamel.solver.frozen import AssemblyError, FrozenQuantities
+from hamel.solver.inert_balance import update_fine_share
 from hamel.solver.residual import wall_area_m2
 from hamel.solver.sensitivity import diameter_at, edge_diameters, interface_balance_index, pack_reported, section_volume_m3
 from hamel.solver.vector import ReactorState
@@ -45,14 +46,12 @@ class PrecalcError(ValueError):
 class SolidContext:
     """按当前状态重算排灰与床区向下流时的预计算输入。
 
-    求解手段：ADR 0054 第 3 项。字段就是 ``_drain`` 与 ``bed_downflow`` 的既有输入；
+    求解手段：ADR 0054 第 3 项。字段就是 ``_drain_terms`` 与 ``bed_downflow`` 的既有输入；
     初值构造据此调用同一函数，不复制公式。
     """
     case: object
     released: object
-    books: tuple
     redirected_return_kg_s: float = 0.0
-    redirected_ash_out_kg_s: float = 0.0
     redirected_fuel_out_kg_s: float = 0.0
 @dataclass
 class PrecalcResult:
@@ -136,21 +135,21 @@ def _halt(iteration, quantity, value, cell=None, klass=None):
     if klass is not None:
         text += f"，粒级={klass}"
     raise PrecalcError(text)
-def precalculate(path, case_id, previous: ReactorState | None, *, reaction_solid_kg_s=None, previous_drain_kg_s: float = 0.0, previous_fuel_return_kg_s: float = 0.0, previous_release=None, adiabatic: bool = False, iteration: int = 0, consistency: bool = False, solver=None, redirected_return_kg_s: float = 0.0, redirected_ash_out_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0, signed_drain: bool = False) -> PrecalcResult:
+def precalculate(path, case_id, previous: ReactorState | None, *, reaction_solid_kg_s=None, previous_drain_kg_s: float = 0.0, previous_fuel_return_kg_s: float = 0.0, previous_release=None, adiabatic: bool = False, iteration: int = 0, consistency: bool = False, solver=None, redirected_return_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0, previous_fine_share: float | None = None) -> PrecalcResult:
     """用上一轮单元解填满冻结量。previous 为空时构造初值。
     自由空间燃料回落由调用方传入，第一次外层为 0。一次风温度是混合焓的等效温度。
     consistency 为真时按真实类别重算，非 B 或产率式越界即停止。求解手段：ADR 0035。
-    B 的改送回落加入床层总流；C 的改送灰和燃料记入排灰出口。默认 0，与未改送逐位相同。
+    B 的改送回落加入床层总流；C 的改送灰与燃料计入出口带出（ADR 0055 第 2、3 项）。
     previous_release 是上一次预计算的释放分布，供 ADR 0053 的两项；第一次预计算为空，取 0。
     模型边界选择（敏感性）：ADR 0026 第 6 项、ADR 0038。
     """
     try:
-        return _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver, redirected_return_kg_s, redirected_ash_out_kg_s, redirected_fuel_out_kg_s, previous_release, signed_drain)
+        return _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver, redirected_return_kg_s, redirected_fuel_out_kg_s, previous_release, previous_fine_share)
     except PrecalcError:
         raise
     except (HydrodynamicsError, PyrolysisError, PropertyError, FreeboardError, AssemblyError) as exc:
         raise PrecalcError(f"迭代 {iteration} 停止：{exc}") from exc
-def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver=None, redirected_return_kg_s: float = 0.0, redirected_ash_out_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0, previous_release=None, signed_drain: bool = False) -> PrecalcResult:
+def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver=None, redirected_return_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0, previous_release=None, previous_fine_share: float | None = None) -> PrecalcResult:
     case = _load(path, case_id, solver)
     equilibrium = _equilibrium(case, adiabatic)
     t_ad = float(equilibrium.temperature)
@@ -208,11 +207,21 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
     inert = masses - state.bed_char_kg.sum(axis=1) - fuel_bed.sum(axis=1)
     if np.any(inert < 0.0):
         raise PrecalcError("几何存量扣去焦炭和未转化燃料后灰分为负")
-    drain_ash, drain_char = _drain(
-        case, state, released, inert, masses, accounting, redirected_ash_out_kg_s, redirected_fuel_out_kg_s,
-        guard_sign=not signed_drain,
-    )
+    terms = _drain_terms(case, state, released, inert, masses, redirected_fuel_out_kg_s)
+    drain_ash, drain_char = terms["ash"], terms["char"]
     frozen = _frozen(case, state, flow, profile, share, coefficient, rho_p, k_up, down, transport, theta, hover, absent, released, drain_ash, drain_char, bed_u, free_u, hover_u)
+    # 床灰的细灰份额：首次预计算取燃料粒级 1 的质量分数，其后每次按 E(w) = φ·Ṁ_A 更新。
+    # 惰性料衡算校正：ADR 0055 第 2、3 项。
+    frozen = replace(
+        frozen, fly_ash_fraction=case.fly_ash_fraction,
+        bed_ash_fine_share=_start_fine_share(case, previous_fine_share), ash_target_kg_s=float(terms["target"]),
+    )
+    balance = None
+    if previous is not None:
+        reference = case.fuel_kg_s * (1.0 - float(case.physical.moisture_mass_fraction))
+        fine, balance = update_fine_share(frozen, state, case.solver, reference)
+        balance["available_ash_kg_s"] = float(terms["available"])
+        frozen = replace(frozen, bed_ash_fine_share=fine)
     gas_out = _gas_release(released)
     reported = pack_reported(profile, flow, case, released)
     reported["bed_gas_temperature_deviation_k"] = float(np.max(np.abs(flow.bed_temperature - gas.temperature)))
@@ -232,12 +241,14 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
     reported["pyrolysis"] = pyrolysis
     reported["trajectory"] = trajectory
     reported["hover_drift"] = _drift_report(accounting, case)
+    if balance is not None:
+        reported["ash_balance"] = balance
     return PrecalcResult(
         frozen, state, t_ad, dict(equilibrium.fractions), group, d_bar, d_sv, residual,
         equilibrium.feed_enthalpy, equilibrium.product_enthalpy, ejection.mass_flow, _hover_pairs(hover),
         gas_out / case.fuel_kg_s, t_init, hydro, record, tuple(notes), ratios, intervals, substeps,
         reported,
-        SolidContext(case, released, accounting, float(redirected_return_kg_s), float(redirected_ash_out_kg_s), float(redirected_fuel_out_kg_s)),
+        SolidContext(case, released, float(redirected_return_kg_s), float(redirected_fuel_out_kg_s)),
     )
 @dataclass
 class _Case:
@@ -259,6 +270,7 @@ class _Case:
     epsilon_mf: float
     phi_s: float
     secondary_height_m: float
+    fly_ash_fraction: float = 1.0
     @property
     def fuel_kg_s(self) -> float:
         return float(self.physical.fuel_mass_flow)
@@ -329,6 +341,7 @@ def _load(path, case_id: str, solver=None) -> _Case:
         float(_value(doc, key, "bed_minimum_fluidization_voidage")),
         float(_value(doc, key, "bed_sphericity")),
         float(_value(doc, key, "agent_feed_height")),
+        float(_value(doc, key, "fly_ash_fraction")),
     )
 def _value(doc, key, name):
     case = doc["cases"][key]
@@ -799,23 +812,35 @@ def _bounds(case):
         bottoms[case.n_free + cell] = geometric * bed_dz
         tops[case.n_free + cell] = bottoms[case.n_free + cell] + bed_dz
     return bottoms, tops
-def _drain_terms(case, state, released, inert, masses, books, redirected_ash_out_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0) -> dict:
-    """ADR 0014 A5 的余额式：排灰灰分量与同时排出的焦炭。只此一份公式，不截断、不做符号保护。
+def _start_fine_share(case, previous_fine_share: float | None) -> float:
+    """首次预计算用燃料粒级 1 的质量分数，其后沿用上一轮的 w_f。ADR 0055 第 3 项。"""
+    return _initial_fine_share(case) if previous_fine_share is None else float(previous_fine_share)
 
-    余额为负时照原样返回负值（初值构造的试探点让它参与原残差）；预计算用 ``_drain`` 加符号
-    保护（ADR 0054 第 3 项第 5 步）。最底格灰分为零时两处都报错。
-    C 的改送灰和改送燃料是外部出口，从余额扣除。两项为 0 时与原式相同。
-    模型边界选择（敏感性）：ADR 0026 第 6 项、ADR 0038。
+
+def _initial_fine_share(case) -> float:
+    """w_f,0 = 燃料粒级 1 的质量分数，只作起点。ADR 0014 D2；ADR 0055 第 3 项。"""
+    total = float(np.sum(case.class_fraction))
+    if not total > 0.0:
+        raise PrecalcError("燃料粒级质量分数之和不是正数")
+    return float(case.class_fraction[0] / total)
+
+
+
+
+
+def _drain_terms(case, state, released, inert, masses, redirected_fuel_out_kg_s: float = 0.0) -> dict:
+    """ADR 0055 第 1、4 项：Ṁ_A、飞灰目标 T 与底灰。只此一份公式，不截断、不做符号检查。
+
+    Ṁ_A = 燃料带入灰 − 随未转化燃料离开的灰（含 T26n 的干基项）。飞灰 = φ·Ṁ_A（由 E(w) 求 w_f），
+    底灰 = (1 − φ)·Ṁ_A。φ = 1 时排灰为 0，不计算最底床格的局部组成。
+    随排灰离开的焦炭仍按最底床格的局部组成。C 的改送燃料是外部出口，其灰随该流离开。
+    解释性选择：ADR 0055。模型边界选择（敏感性）：ADR 0026 第 6 项、ADR 0038。
     """
     moisture = float(case.physical.moisture_mass_fraction)
+    fraction_phi = float(case.fly_ash_fraction)
+    if not 0.0 < fraction_phi <= 1.0:
+        raise PrecalcError(f"飞灰份额 φ = {fraction_phi} 不在 (0, 1] 内，工况输入无效")
     ash_in = case.fuel_kg_s * float(case.physical.ash_mass_fraction_wf) * (1.0 - moisture)
-    top_free = np.asarray(state.freeboard_ash_free_kg[0], dtype=float)
-    coeff = np.array([
-        0.0 if book.cells[-1].a_f is None else book.cells[-1].a_f
-        for book in books
-    ])
-    # cells[-1] 是自由空间顶（edges 从床面向上，最后一格是顶）。衡算下标 0 是顶。
-    carried = float(np.sum(top_free * coeff))
     fuel_top = 0.0 if released.fuel_up_kg_s is None else float(released.fuel_up_kg_s[0].sum())
     fuel_drain = float(released.undried_exit_kg_s[case.n_free:].sum() + released.dried_exit_kg_s[case.n_free:].sum())
     # 随未转化燃料离开的灰 = 干基灰分 × 离开燃料的干物质。已干燥的出口流是干基（(1−水分)×当量出流），
@@ -823,33 +848,22 @@ def _drain_terms(case, state, released, inert, masses, books, redirected_ash_out
     dried = float(np.sum(released.dried_exit_kg_s))
     fuel_ash = ash_in / case.fuel_kg_s * (fuel_top + fuel_drain + float(redirected_fuel_out_kg_s))
     fuel_ash += float(case.physical.ash_mass_fraction_wf) * moisture * dried
-    ash_out = carried + fuel_ash + float(redirected_ash_out_kg_s)
+    available = ash_in - fuel_ash
+    if not available > 0.0:
+        raise PrecalcError(f"可离开体系的灰 Ṁ_A = {available:.6e} kg/s 不是正数，工况输入无效")
+    terms = {
+        "ash_in": ash_in, "fuel_ash": fuel_ash, "available": available,
+        "target": fraction_phi * available, "fly_ash_fraction": fraction_phi,
+        "ash": 0.0, "char": np.zeros_like(np.asarray(state.bed_char_kg[-1], dtype=float)),
+    }
+    if fraction_phi == 1.0:
+        return terms
     fraction = float(inert[-1] / masses[-1])
     if fraction <= 0.0:
         raise PrecalcError("最底格灰分质量分数不是正数")
-    balance = ash_in - ash_out
-    char = balance / fraction * np.asarray(state.bed_char_kg[-1], dtype=float) / float(masses[-1])
-    return {
-        "ash_in": ash_in, "carried": carried, "fuel_ash": fuel_ash,
-        "redirected": float(redirected_ash_out_kg_s), "ash_out": ash_out,
-        "fraction": fraction, "ash": balance, "char": char,
-    }
-
-
-def _drain(case, state, released, inert, masses, books, redirected_ash_out_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0, guard_sign: bool = True):
-    """预计算用：``_drain_terms`` 加 ADR 0014 A5 的符号保护。带出灰多于带入灰即停止，不截断。
-
-    guard_sign 为假时取同式的负值，供初值构造交替中间的预计算（ADR 0054 第 3 项第 5 步）。
-    """
-    terms = _drain_terms(
-        case, state, released, inert, masses, books, redirected_ash_out_kg_s, redirected_fuel_out_kg_s,
-    )
-    if guard_sign and terms["ash_out"] > terms["ash_in"]:
-        error = PrecalcError("带出灰多于燃料带入灰")
-        # 停止时把 A5 各项随错误带出，供初值构造写进交替记录（ADR 0054 第 3 项报告项）。
-        error.drain_terms = terms
-        raise error
-    return terms["ash"], terms["char"]
+    ash = (1.0 - fraction_phi) * available
+    terms.update(ash=ash, char=ash / fraction * np.asarray(state.bed_char_kg[-1], dtype=float) / float(masses[-1]))
+    return terms
 def _frozen(case, state, flow, profile, share, coefficient, rho_p, k_up, down, packed, theta, hover, absent, released, drain_ash, drain_char, bed_u, free_u, hover_u):
     hover_mask, absent_mask, arrays, theta_up, theta_down, _hover_slip, drift, migration_mu = packed
     bed, free = case.n_bed, case.n_free

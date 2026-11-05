@@ -2,7 +2,7 @@
 
 求解手段：ADR 0054 第 3 项（取代 ADR 0045 第 3、4 项、ADR 0049 与 ADR 0052）。
 未知量与残差取 ``unknown_slots``／``evaluate_residual`` 的固相部分，不另写方程。
-每次评价残差时按当前状态重算排灰（ADR 0014 A5）与床区整体向下流（ADR 0009 第 2 项），
+每次评价残差时按当前状态重算排灰（ADR 0055 第 4 项）与床区整体向下流（ADR 0009 第 2 项），
 复用 ``precalc._drain_terms`` 与 ``precalc.bed_downflow``。气相、温度与其余冻结量固定。
 """
 from __future__ import annotations
@@ -72,19 +72,18 @@ def interface_flows(frozen, state: ReactorState) -> dict:
 
 
 def recompute_flows(state: ReactorState, frozen, context, reaction=None):
-    """按当前状态重算排灰（ADR 0014 A5）与床区整体向下流（ADR 0009 第 2 项）。
+    """按当前状态重算排灰（ADR 0055 第 4 项）与床区整体向下流（ADR 0009 第 2 项）。
 
-    写法复用预计算的同一函数 ``_drain_terms``（不含符号保护）与 ``bed_downflow``。试探点上的
-    负余额照原样参与原残差，只在收敛解上检查非负（ADR 0054 第 2 项第 3 层、第 3 项第 5 步）。
-    求解手段：ADR 0054 第 3 项。
+    写法复用预计算的同一函数 ``_drain_terms`` 与 ``bed_downflow``。底灰取 (1 − φ)·Ṁ_A，
+    不再由余额给出，因此没有负余额。求解手段：ADR 0054 第 3 项。
 
     干燥与热解的失重、随排灰离开的燃料取当前预计算的释放分布（ADR 0053 第 3 项），
     与预计算共用 ``bed_release_terms``。
     """
     inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
     a5 = _drain_terms(
-        context.case, state, context.released, inert, frozen.geometric_mass_kg, context.books,
-        context.redirected_ash_out_kg_s, context.redirected_fuel_out_kg_s,
+        context.case, state, context.released, inert, frozen.geometric_mass_kg,
+        context.redirected_fuel_out_kg_s,
     )
     drain_ash, drain_char = float(a5["ash"]), np.asarray(a5["char"], dtype=float)
     returned = freeboard_return_kg_s(
@@ -126,7 +125,7 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
     scales = np.full(rows.size, scale)
     rule = build_rule(
         slots, frozen, IDENTITY, tau=float(limits.stock_roundoff_relative) * scale,
-        unknowns=rows, bottom_ash=True,
+        unknowns=rows, bottom_ash=float(frozen.fly_ash_fraction) < 1.0,
     )
     embed = lambda y: _embed(base, rows, y)
 
@@ -193,10 +192,14 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
     except (PrecalcError, TrialNotEvaluable) as exc:
         raise InitialStateError(f"初值构造收敛解不可评价：{exc}") from exc
     inert, drain_ash, drain_char, down, closure, _returned = flows
-    detail = rule.final(pack_state(current, frozen), drain_ash)
-    if not detail["ok"]:
-        raise InitialStateError(f"初值构造停止：{detail['message']}")
     residual = float(np.max(np.abs(checked)) / m_dot_ref)
+    detail = rule.final(pack_state(current, frozen))
+    if not detail["ok"]:
+        # 第 3 层拒绝：保留被拒解、归一残差与检查详情，供报告复核（不截断、不接受）。ADR 0054 第 2 项。
+        raise InitialStateError(
+            f"初值构造停止：{detail['message']}",
+            {"rejected": _rejected(current, frozen, detail, residual, inert, drain_ash, drain_char)},
+        )
     if residual > gate:
         raise InitialStateError(f"初值构造的收敛解不满足固相门：{residual:.3e} > {gate:.1e}")
     history = tuple(float(entry["merit"]) for entry in log.get("iterations", ()))
@@ -209,6 +212,25 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
         current, int(outcome.iterations), history, residual, drain_ash, drain_char, down,
         np.asarray(frozen.m_dot_ab_kg_s, dtype=float), closure, float(current.bed_char_kg.sum()), inert, steps,
     )
+
+
+def _rejected(state, frozen, detail, residual, inert, drain_ash, drain_char) -> dict:
+    """第 3 层被拒的收敛解：存量数组、惰性物、排灰、归一残差与检查详情。ADR 0054 第 2 项。"""
+    return {
+        "kind": "rejected_converged_solution",
+        "solid_residual": float(residual),
+        "bed_char_kg": np.asarray(state.bed_char_kg, dtype=float).tolist(),
+        "freeboard_char_free_kg": np.asarray(state.freeboard_char_free_kg, dtype=float).tolist(),
+        "freeboard_char_hover_kg": np.asarray(state.freeboard_char_hover_kg, dtype=float).tolist(),
+        "freeboard_ash_free_kg": np.asarray(state.freeboard_ash_free_kg, dtype=float).tolist(),
+        "freeboard_ash_hover_kg": np.asarray(state.freeboard_ash_hover_kg, dtype=float).tolist(),
+        "bed_char_total_kg": float(np.sum(state.bed_char_kg)),
+        "bed_inert_kg": np.asarray(inert, dtype=float).tolist(),
+        "min_stock_kg": _minimum_stock(state),
+        "drain_ash_kg_s": float(drain_ash),
+        "drain_char_kg_s": np.asarray(drain_char, dtype=float).tolist(),
+        "detail": {key: value for key, value in detail.items()},
+    }
 
 
 def construct(initial, precalc, m_dot_ref: float, *, gate: float = 1.0e-6, tolerance: float = 1.0e-2, max_loops: int = 5, config=None, records=None):
@@ -232,13 +254,16 @@ def construct(initial, precalc, m_dot_ref: float, *, gate: float = 1.0e-6, toler
                 result.frozen.geometric_mass_kg - result.state.bed_char_kg.sum(axis=1)
                 - result.frozen.fuel_bed_kg.sum(axis=1)
             )
+            # pre_solve 是这次牛顿之前（上一轮预计算）的状态；被拒解在 diagnostics 的 rejected 里。
             log.append({
                 "loop": index, "stopped": True, "reason": str(exc),
-                "frozen_down_kg_s": np.asarray(result.frozen.m_dot_ab_kg_s, dtype=float).tolist(),
-                "drain_ash_kg_s": float(result.frozen.drain_ash_kg_s),
-                "drain_char_kg_s": np.asarray(result.frozen.drain_char_kg_s, dtype=float).tolist(),
-                "bed_char_kg": float(result.state.bed_char_kg.sum()),
-                "bed_inert_kg": np.asarray(inert, dtype=float).tolist(),
+                "pre_solve": {
+                    "bed_char_kg": float(result.state.bed_char_kg.sum()),
+                    "bed_inert_kg": np.asarray(inert, dtype=float).tolist(),
+                    "frozen_down_kg_s": np.asarray(result.frozen.m_dot_ab_kg_s, dtype=float).tolist(),
+                    "drain_ash_kg_s": float(result.frozen.drain_ash_kg_s),
+                    "drain_char_kg_s": np.asarray(result.frozen.drain_char_kg_s, dtype=float).tolist(),
+                },
                 **(exc.diagnostics or {}),
             })
             raise
@@ -258,13 +283,8 @@ def construct(initial, precalc, m_dot_ref: float, *, gate: float = 1.0e-6, toler
             reached = True
             break
     note = "" if reached else f"交替 {int(max_loops)} 次后相对变化仍未全部小于 {tolerance:g}"
-    # 交替结束：最后一次预计算的排灰灰分量 ≥ 0。ADR 0054 第 3 项第 5 步；最后一次固相解的第 3 层
-    # 检查在 solve_solids 内完成。
-    drain_ash = float(result.frozen.drain_ash_kg_s)
-    if drain_ash < 0.0:
-        reason = f"交替结束时最后一次预计算的排灰灰分量为负：{drain_ash:.3e} kg/s"
-        log.append({"loop": len(log), "stopped": True, "reason": reason})
-        raise InitialStateError(reason)
+    # 交替结束时的第 3 层检查在 solve_solids 内完成（ADR 0054 第 2 项第 3 层）。
+    # ADR 0055 第 4 项删去了“排灰灰分量 ≥ 0”一条：底灰取 (1 − φ)·Ṁ_A，不再由余额给出。
     return result, log, note
 
 

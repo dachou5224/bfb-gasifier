@@ -131,8 +131,8 @@ class TrialRule:
         fraction = self.inert(values)[-1] / self.geometric[-1] if self.bottom_ash else 1.0
         return "" if fraction > 0.0 else f"最底床格灰分为 {fraction:.3e}，排灰总流率没有定义"
 
-    def final(self, x, drain_ash: float | None = None) -> dict:
-        """第 3 层：存量 ≥ −τ、各床格惰性物 ≥ 0、不变换的气体 ≥ −τ_n；初值构造另查排灰灰分量。"""
+    def final(self, x) -> dict:
+        """第 3 层：存量 ≥ −τ、各床格惰性物 ≥ 0、不变换的气体 ≥ −τ_n；φ < 1 时另查最底床格灰分。"""
         values = np.asarray(x, dtype=float)
         inert = self.inert(values)
         cells = np.flatnonzero(inert < 0.0)
@@ -143,7 +143,6 @@ class TrialRule:
             f"收敛解出现 {len(below)} 项负存量（小于 −τ = {self.tau:.3e} kg）" if below else
             f"收敛解在床区格 {int(cells[0])}（衡算下标）的惰性物为负：{inert[cells[0]]:.3e} kg" if cells.size else
             f"收敛解有 {len(gas)} 项不变换的气体出流低于 −τ_n" if gas else
-            f"收敛解的排灰灰分量为负：{drain_ash:.3e} kg/s" if self.bottom_ash and drain_ash is not None and drain_ash < 0.0 else
             "收敛解最底床格灰分为零，排灰总流率没有定义" if self.bottom_ash and inert[-1] / self.geometric[-1] <= 0.0 else ""
         )
         return {"ok": not message, "message": message, "stocks_within_tau": within, "stocks_below_tau": below[:8],

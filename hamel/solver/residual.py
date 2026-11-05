@@ -131,7 +131,7 @@ class _Context:
         self.char_drift_hover = np.zeros((n_free, n_class))
         self.ash_drift_hover = np.zeros((n_free, n_class))
         self.silent_hover = np.ones((n_free, n_class), dtype=bool)
-        self._bed_ash_share = _bed_ash_by_class(state.bed_char_kg, m_inert)
+        self._bed_ash_share = bed_ash_by_class(m_inert, frozen.bed_ash_fine_share, frozen.n_class)
         self.redirect_char = self.redirect_ash = self.redirect_fuel = self.redirect_enthalpy = 0.0
         self._redirect_cache = None
     def heterogeneous(self) -> None:
@@ -514,7 +514,7 @@ class _Context:
             return self._redirect_cache
         items = redirect_ledger(
             frozen, self.state, self.migration_free, self.migration_hover,
-            self.ash_migration_free, self.ash_migration_hover, self._bed_ash_share,
+            self.ash_migration_free, self.ash_migration_hover,
             self.ash_release_free, self.ash_release_hover,
         )
         self._redirect_cache = items
@@ -623,15 +623,18 @@ def _apply(gas, reaction, extent, molar, phi=None, tar=None) -> float:
         gas[_INDEX[name]] += coefficient * extent
     return stoich.get("C", 0.0) * extent * molar
 
-def _bed_ash_by_class(char_kg, m_inert) -> np.ndarray:
-    total = char_kg.sum(axis=1)
-    share = np.zeros_like(char_kg)
-    for cell, char_total in enumerate(total):
-        if char_total > 0.0:
-            share[cell] = m_inert[cell] * char_kg[cell] / char_total
-        elif m_inert[cell] != 0.0:
-            raise TrialNotEvaluable(f"床区格 {cell} 没有焦炭，不能按焦炭比例分配灰")
-    return share
+def bed_ash_by_class(m_inert, fine_share: float, n_class: int) -> np.ndarray:
+    """床灰的粒级分配：细灰 w_f 全部进 k = 1，粗灰 1 − w_f 全部进 k = K。
+
+    床区平均粒径仍按焦炭粒级计（ADR 0015 第 11 项的该部分不变）。解释性选择：ADR 0055 第 2 项。
+    """
+    share = float(fine_share)
+    if not 0.0 <= share <= 1.0:
+        raise AssemblyError("细灰份额 w_f 必须在 [0, 1] 内")
+    split = np.zeros((np.size(m_inert), int(n_class)))
+    split[:, 0] = share * np.asarray(m_inert, dtype=float)
+    split[:, -1] += (1.0 - share) * np.asarray(m_inert, dtype=float)
+    return split
 
 def _phase_point(flow_mol_s, temperature_k, pressure_pa):
     total = float(np.sum(flow_mol_s))
@@ -653,7 +656,10 @@ def particle_temperatures(frozen, state) -> dict:
         _y, concentration, fractions, mu, rho = _phase_point(
             state.bed_gas_mol_s[cell, 0], state.bed_temperature_k[cell], frozen.bed_pressure_pa[cell],
         )
-        ash = _bed_ash_by_class(state.bed_char_kg, frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1))
+        ash = bed_ash_by_class(
+            frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1),
+            frozen.bed_ash_fine_share, frozen.n_class,
+        )
         for klass in range(frozen.n_class):
             if state.bed_char_kg[cell, klass] <= 0.0 and ash[cell, klass] > 0.0:
                 continue
