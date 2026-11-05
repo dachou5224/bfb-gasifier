@@ -96,6 +96,25 @@ def test_hand_examples_of_the_endpoint_and_illinois_search():
     assert caught.value.info["stop"] == "failed" and caught.value.info["evaluations"] >= 50
 
 
+# C12b：端点响应只求一次（缓存命中不重算）。
+def test_response_is_evaluated_once_per_distinct_share():
+    calls = []
+
+    def response(w):
+        calls.append(w)
+        return 0.5 + w
+
+    w, info = fine_share(response, 0.0, 1.0)
+    assert w == pytest.approx(0.5)
+    assert len(calls) == len(set(calls)) == info["evaluations"]
+
+    calls.clear()
+    kept, info = fine_share(response, 1.0, 1.5)
+    assert kept == 1.0 and info["stop"] == "satisfied"
+    # 初值就是端点：该端点只求一次。
+    assert calls == [0.0, 1.0]
+
+
 # C13：φ、Ṁ_A 的输入有效域。
 def test_invalid_phi_and_empty_ash_inputs_stop():
     released = SimpleNamespace(

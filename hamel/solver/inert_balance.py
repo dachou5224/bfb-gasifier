@@ -44,8 +44,10 @@ def fine_share(response, initial: float, target: float, *, tolerance: float = FI
     seen: dict[float, float] = {}
 
     def at(w: float) -> float:
-        seen.setdefault(float(w), float(response(float(w))))
-        return seen[float(w)]
+        key = float(w)
+        if key not in seen:
+            seen[key] = float(response(key))
+        return seen[key]
 
     e0, e1, e = at(0.0), at(1.0), at(initial)
     info = {"target": goal, "E0": e0, "E1": e1, "initial": float(initial), "E": e, "w": float(initial)}
@@ -118,12 +120,16 @@ def top_ash(frozen, values) -> float:
 def update_fine_share(frozen, state, config, m_ref: float) -> tuple:
     """每次预计算更新 w_f：E₀、E₁ → 已满足就保留 → 查停止 → Illinois 求根。ADR 0055 第 3 项。"""
     iterations: list[int] = []
+    cache: dict[float, float] = {}
 
     def response(w: float) -> float:
-        trial = replace(frozen, bed_ash_fine_share=float(w))
-        x, count = free_ash_state(trial, state, config, m_ref)
-        iterations.append(count)
-        return top_ash(trial, x)
+        key = float(w)
+        if key not in cache:
+            trial = replace(frozen, bed_ash_fine_share=key)
+            x, count = free_ash_state(trial, state, config, m_ref)
+            iterations.append(count)
+            cache[key] = top_ash(trial, x)
+        return cache[key]
 
     w, info = fine_share(response, float(frozen.bed_ash_fine_share), float(frozen.ash_target_kg_s))
     half = response(0.5)
