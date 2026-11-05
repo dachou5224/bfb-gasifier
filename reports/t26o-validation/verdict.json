@@ -11,7 +11,7 @@
  },
  "frozen_stop": {
   "status": "NOT_CONVERGED",
-  "reason": "雅可比不能求解",
+  "reason": "雅可比不能求解：差分点不可评价：KineticsInputError: Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没有批准外推",
   "bottom_bed_c": 899.9999982099308
  },
  "frozen_no_O1": {
@@ -27,8 +27,13 @@
   "ok": true
  },
  "frozen_o4": {
-  "reason": "雅可比不能求解",
-  "ok": true
+  "ok": true,
+  "reason": "雅可比不能求解：差分点不可评价：KineticsInputError: Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没有批准外推",
+  "corella_rejection": true,
+  "difference_point": true,
+  "bottom_bed_c": 899.9999982099308,
+  "bottom_within_tolerance_k": 0.01,
+  "bottom_within_tolerance": true
  },
  "extrapolated_converged": {
   "status": "CONVERGED",

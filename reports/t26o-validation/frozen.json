@@ -1,10 +1,10 @@
 {
  "summary": {
   "status": "NOT_CONVERGED",
-  "reason": "雅可比不能求解",
+  "reason": "雅可比不能求解：差分点不可评价：KineticsInputError: Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没有批准外推",
   "rounds": 1,
   "iterations": 20,
-  "elapsed_s": 1498.985859167,
+  "elapsed_s": 1448.656344959,
   "initial": {
    "note": "",
    "loops": 4,
@@ -20,7 +20,7 @@
   },
   "inner": {
    "status": "NOT_CONVERGED",
-   "reason": "雅可比不能求解",
+   "reason": "雅可比不能求解：差分点不可评价：KineticsInputError: Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没有批准外推",
    "rows": 1,
    "iterations": 20,
    "final_blocks": {
@@ -409,6 +409,7 @@
     }
    ]
   },
+  "final_check": null,
   "temperature_c": {
    "bed": [
     793.5744739981868,
@@ -430,6 +431,11 @@
     975.91452943919,
     802.6510171326648
    ]
+  },
+  "final_ratios": {
+   "gas": 0.032199211340394676,
+   "solid": 0.10946564850094005,
+   "energy": 0.02593992099568178
   }
  },
  "extrapolated": false

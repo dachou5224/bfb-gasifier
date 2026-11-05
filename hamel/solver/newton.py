@@ -8,7 +8,7 @@ journal 只追加迭代和试探记录，不参与接受判定。
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
@@ -22,7 +22,6 @@ _SQRT_EPS = math.sqrt(_EPS)
 _SHRINK = (TrialNotEvaluable, KineticsInputError, PropertyError)
 # 差分点上自由空间有效域被拒时先缩步再判不可评价。求解手段：ADR 0054 第 2 项第 1 层。
 _DIFFERENCE_SHRINK = 5
-_EMPTY = np.zeros(0, dtype=int)
 
 
 class SolveTimeout(TimeoutError):
@@ -42,10 +41,11 @@ class JacobianMismatchError(RuntimeError):
 class Transform:
     """ADR 0054 第 1 项：y ↔ x 的一对映射。log 取 z = ln Ṅ，power 取 s = Ṅ^n；残差函数不知道变换。"""
 
-    log: np.ndarray = _EMPTY
-    power: np.ndarray = _EMPTY
-    order: np.ndarray = _EMPTY
-    power_scale: np.ndarray = _EMPTY
+    # Python ≥ 3.11 不接受不可哈希的 ndarray 作默认值，数组字段用 default_factory（PR #152 审查 P1）。
+    log: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=int))
+    power: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=int))
+    order: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=int))
+    power_scale: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=int))
 
     def to_x(self, y):
         """s < 0 带符号映为负 Ṅ：只让试探被拒，不平方或取绝对值折返为正。"""

@@ -13,6 +13,45 @@ from hamel.solver.newton import (
 _POWER = Transform(np.zeros(0, dtype=int), np.array([0]), np.array([0.5]), np.array([1.0]))
 
 
+def test_transform_array_defaults_are_factories():
+    """Python ≥ 3.11 不接受不可哈希的 ndarray 作 dataclass 默认值（PR #152 审查 P1）。
+
+    每个数组字段的默认值必须是 field(default_factory=…)，默认值本身不能是 ndarray；
+    无参构造得到的仍是四个空下标数组。
+    """
+    import dataclasses
+
+    for item in dataclasses.fields(Transform):
+        assert not isinstance(item.default, np.ndarray), f"{item.name} 的默认值仍是 ndarray"
+        assert item.default_factory is not dataclasses.MISSING, f"{item.name} 没有 default_factory"
+    empty = Transform()
+    for name in ("log", "power", "order", "power_scale"):
+        array = getattr(empty, name)
+        assert isinstance(array, np.ndarray) and array.size == 0
+    # 实例之间不共享同一个数组。
+    another = Transform()
+    assert another.log is not empty.log
+
+
+def test_jacobian_failure_carries_the_specific_reason():
+    """差分点不可评价时，具体原因（速率式越界原文）要带到 NewtonResult.reason（PR #152 审查 P2）。
+
+    只写“雅可比不能求解”无法区分 Corella 有效域拒绝与其它原因。
+    """
+    from hamel.kinetics.common import KineticsInputError
+
+    def evaluate(x):
+        if float(x[0]) > 1.0e-10:
+            raise KineticsInputError("Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没有批准外推")
+        return np.array([float(x[0]) - 0.5])
+
+    result = _run([0.0], evaluate, _rule())
+    assert result.status == "NOT_CONVERGED"
+    assert "雅可比不能求解" in result.reason
+    assert "差分点不可评价" in result.reason
+    assert "Corella 参数只覆盖" in result.reason
+
+
 def _rule(transform=IDENTITY, *, stock=(), gas=(), temperature=(), tau=1.0e-12, tau_n=None, names=("x",)):
     return TrialRule(
         transform, tuple(names), np.array(stock, dtype=int), np.array(gas, dtype=int),

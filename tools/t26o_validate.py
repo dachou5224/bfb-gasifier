@@ -35,6 +35,10 @@ _OUT = _ROOT / "reports" / "t26o-validation"
 _BASELINE = _ROOT / "reports" / "research-solver-path" / "diagnostic" / "outer.json"
 _TOLERANCE = 1.0e-6
 _MAX_STEP = 1.0e6
+# Corella 有效域拒绝的原文（hamel/kinetics/homogeneous.py，ADR 0010 第 9 条）。
+_CORELLA_REJECTION = "Corella 参数只覆盖"
+_BOTTOM_BOUNDARY_K = 900.0
+_BOTTOM_TOLERANCE_K = 0.01
 
 
 def run(extrapolate: bool, limit_s: float) -> dict:
@@ -156,7 +160,7 @@ def compare(extrapolated: dict, frozen: dict) -> dict:
                           "bottom_bed_c": None if not bed else bed[-1]}
     for name in ("O1", "O2", "O3", "O5"):
         out[f"frozen_no_{name}"] = {"ok": not _has(inner, name)}
-    out["frozen_o4"] = {"reason": inner.get("reason"), "ok": _is_o4(inner)}
+    out["frozen_o4"] = _is_o4(inner, bed)
     out["extrapolated_converged"] = {"status": cool.get("status"), "ok": cool.get("status") == "CONVERGED"}
     blocks = extrapolated["summary"].get("final_ratios") or {}
     out["extrapolated_residuals"] = {
@@ -211,9 +215,22 @@ def _has(inner: dict, code: str) -> bool:
     return False
 
 
-def _is_o4(inner: dict) -> bool:
+def _is_o4(inner: dict, bed_celsius: list) -> dict:
+    """判据 1 的停止点：Corella 有效域在差分点上被拒，且最底床格在 900 °C（PR #152 审查 P2）。
+
+    两条都要满足：(a) 停止原因是 Corella 范围拒绝的原文；(b) 最底床格温度与 900 °C
+    相差 < 0.01 K。只凭“雅可比不能求解”这个前缀不算 O4 —— 任何差分点不可评价都带它。
+    """
     reason = str(inner.get("reason") or "")
-    return "雅可比不能求解" in reason or "900" in reason or "Corella" in reason
+    bottom = None if not bed_celsius else float(bed_celsius[-1])
+    corella = _CORELLA_REJECTION in reason
+    near = bottom is not None and abs(bottom - _BOTTOM_BOUNDARY_K) < _BOTTOM_TOLERANCE_K
+    return {
+        "ok": bool(corella and near), "reason": reason,
+        "corella_rejection": corella, "difference_point": "差分点不可评价" in reason,
+        "bottom_bed_c": bottom, "bottom_within_tolerance_k": _BOTTOM_TOLERANCE_K,
+        "bottom_within_tolerance": near,
+    }
 
 
 def main(argv=None) -> None:
