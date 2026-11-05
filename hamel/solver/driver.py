@@ -18,9 +18,10 @@ from hamel.properties import (
 )
 from hamel.properties.data import GAS_SPECIES, atomic_weight, atoms
 from hamel.solver.frozen import FreeboardDomainError, TrialNotEvaluable
+from hamel.solver.inert_balance import ASH_RELATIVE_TOLERANCE
 from hamel.solver.sensitivity import bubble_balance_ratio, redirect_feedback
 from hamel.solver.gates import (
-    OuterMonitor, ResidualBlocks, balance_met, block_ratios, inner_met, outer_met,
+    OuterMonitor, ResidualBlocks, ash_met, balance_met, block_ratios, inner_met, outer_met,
 )
 from hamel.solver.initial import DomainRejected, InitialStateError, construct
 from hamel.solver.newton import SolveTimeout, build_rule, build_transform, damped_newton, normalized_merit
@@ -96,7 +97,8 @@ def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, 
         aligned = previous is not None and outer_met(
             monitor, previous, m_dot_ref=refs[1], n_dot_ref=refs[0], m_tot=refs[3],
             temperature_tolerance=config.outer_temperature_tolerance_k, relative_tolerance=config.outer_relative_tolerance,
-        )
+        ) and ash_met(monitor, ASH_RELATIVE_TOLERANCE)
+        diagnostics["rounds"][-1]["ash_relative"] = monitor.ash_relative
         previous = monitor
         x = inner.x
         if not aligned:
@@ -105,6 +107,13 @@ def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, 
             checked = consistent(inner.x, round_index)
         except PrecalcError as exc:
             return SolveResult("DOMAIN_STOP", str(exc), round_index, iterations, diagnostics=diagnostics, x=inner.x)
+        diagnostics["consistent_ash_relative"] = getattr(checked, "ash_relative", None)
+        ash_relative = getattr(checked, "ash_relative", None)
+        if ash_relative is not None and ash_relative >= ASH_RELATIVE_TOLERANCE:
+            reason = (
+                f"灰平衡复核未通过：|E − T| / T = {ash_relative:.3e} ≥ {ASH_RELATIVE_TOLERANCE:g}"
+            )
+            return SolveResult("NOT_CONVERGED", reason, round_index, iterations, diagnostics=diagnostics, x=inner.x)
         ratios = block_ratios(checked.residual, checked.blocks)
         if inner_met(checked.residual, checked.blocks, config.residual_tolerance):
             diagnostics["consistent"] = checked.info
@@ -138,10 +147,9 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         holder["reaction"] = reaction
         holder["redirect"] = redirect
 
-    def _precalc(iteration, consistency, state=None, drain=None, inside=False):
+    def _precalc(iteration, consistency, state=None, drain=None):
         """一轮预计算。drain 给出时用收敛固相重算的排灰作 previous_drain_kg_s。
 
-        inside 为真时是初值构造的交替中间：A5 余额取同式的负值，不按符号停止（ADR 0054 第 3 项第 5 步）。
         求解手段：ADR 0054 第 3 项（回馈排灰；原 ADR 0052 第 1 项第 5 步）。
         """
         used = holder["state"] if state is None else state
@@ -149,14 +157,13 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
             _feedback(state)
         if drain is not None:
             holder["drain"] = float(drain[0] + np.sum(drain[1]))
-        bed_return, ash_out, fuel_out = redirect_feedback(config.hover_closure, holder["redirect"])
+        bed_return, _ash_out, fuel_out = redirect_feedback(config.hover_closure, holder["redirect"])
         result = precalculate(
             path, case_id, used, reaction_solid_kg_s=holder["reaction"],
             previous_drain_kg_s=holder["drain"], previous_fuel_return_kg_s=holder["fuel_return"],
             previous_release=holder["release"],
             adiabatic=adiabatic, iteration=iteration, consistency=consistency, solver=config,
-            redirected_return_kg_s=bed_return, redirected_ash_out_kg_s=ash_out, redirected_fuel_out_kg_s=fuel_out,
-            signed_drain=inside,
+            redirected_return_kg_s=bed_return, redirected_fuel_out_kg_s=fuel_out,
         )
         holder["drain"] = float(result.frozen.drain_ash_kg_s + result.frozen.drain_char_kg_s.sum())
         holder["fuel_return"] = float(result.frozen.fuel_down_free_kg_s[-1].sum())
@@ -166,13 +173,13 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
 
     def _initial(iteration):
         """初值：焦油另加，固相、排灰与床区向下流按同一状态联立牛顿，再与预计算交替。求解手段：ADR 0054 第 3 项"""
-        first = _precalc(iteration, False, inside=True)
+        first = _precalc(iteration, False)
         loops: list = []
         # 先挂上空列表：交替中途停止时，已完成的记录仍写进报告。
         holder["initial"] = {"loops": loops, "note": "停止"}
         try:
             result, loops, note = construct(
-                first, lambda state, drain: _precalc(iteration, False, state, drain, True), m_ref,
+                first, lambda state, drain: _precalc(iteration, False, state, drain), m_ref,
                 gate=float(config.residual_tolerance), config=config, records=loops,
             )
         except DomainRejected as exc:
@@ -225,7 +232,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         assembly = evaluate_residual(values, frozen)
         holder["reaction"] = -assembly.char_consumption_bed_kg_s.sum(axis=1)
         holder["redirect"] = _redirect_tuple(assembly)
-        return _monitor(state, frozen)
+        return _monitor(state, frozen, assembly)
 
     def consistent(values, iteration):
         state = unpack_state(values, holder["records"][-1].frozen)
@@ -236,7 +243,10 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         holder["assembly"] = residual
         holder["final"] = result
         holder["state"] = state
-        return _Checked(residual.values, _blocks(result.frozen, n_ref, m_ref, q_ref), _info(result))
+        return _Checked(
+            residual.values, _blocks(result.frozen, n_ref, m_ref, q_ref), _info(result),
+            _ash_relative(state, result.frozen, residual),
+        )
 
     outcome = solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, deadline, journal)
     outcome.diagnostics["initial"] = holder.get("initial")
@@ -296,6 +306,7 @@ class _Checked:
     residual: np.ndarray
     blocks: ResidualBlocks
     info: dict
+    ash_relative: float | None = None
 
 
 def solid_feedback(state, frozen):
@@ -335,7 +346,7 @@ def _scales(frozen, n_ref, m_tot) -> np.ndarray:
     return scale
 
 
-def _monitor(state, frozen) -> OuterMonitor:
+def _monitor(state, frozen, assembly=None) -> OuterMonitor:
     temperature = np.concatenate([state.freeboard_temperature_k, state.bed_temperature_k])
     elutriation = (frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]) * (
         state.freeboard_char_free_kg[0] + state.freeboard_ash_free_kg[0]
@@ -346,7 +357,19 @@ def _monitor(state, frozen) -> OuterMonitor:
     ])
     inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
     gas = np.concatenate([state.bed_gas_mol_s.ravel(), state.freeboard_gas_mol_s.ravel(), _exchange(state, frozen).ravel()])
-    return OuterMonitor(temperature, solid, np.concatenate([frozen.geometric_mass_kg, inert]), gas)
+    ash = None if assembly is None else _ash_relative(state, frozen, assembly)
+    return OuterMonitor(temperature, solid, np.concatenate([frozen.geometric_mass_kg, inert]), gas, ash)
+
+
+def _ash_relative(state, frozen, assembly) -> float | None:
+    """|E − T| / T。E 为内层解的顶部带出灰，闭合 C 含改送出口灰（ADR 0026 第 6 项）。ADR 0055 第 7 项。"""
+    target = float(frozen.ash_target_kg_s)
+    if not target > 0.0:
+        return None
+    top = float(np.sum(frozen.a_free_per_s[0] * state.freeboard_ash_free_kg[0]))
+    if frozen.hover_closure == "C":
+        top += float(assembly.redirect_ash_kg_s)
+    return abs(top - target) / target
 
 
 def _exchange(state, frozen):
@@ -496,6 +519,8 @@ def _info(result) -> dict:
         "ejection_to_hover", "a_free_per_s", "a_hover_per_s", "b_free_per_s", "b_hover_per_s",
         "c_up_per_s", "c_down_per_s", "theta_up", "theta_down",
         "hover", "theta", "u_r_bed_m_s", "u_r_freeboard_m_s", "u_r_hover_m_s", "m_dot_ab_kg_s",
+        # ADR 0055：飞灰份额、细灰份额与飞灰目标 T。
+        "fly_ash_fraction", "bed_ash_fine_share", "ash_target_kg_s",
     )
     info = {name: getattr(result, name) for name in names}
     info.update({name: getattr(frozen, name) for name in copied})

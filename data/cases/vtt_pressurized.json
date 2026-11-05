@@ -727,6 +727,14 @@
         "cited_source": "KURKELA_1992, Table 6, p. 18（brown coal, recycle of fines: No）",
         "status": "cited",
         "note": "Heat losses (as diff.)，Kurkela 用实验数据做的能量平衡差额，21,7 kW。表 6 该列对应表 5 首列即工况 1（ADR 0014 X1 的对应依据）。只用于按 ADR 0029 求壁面传热系数 k_W；依赖实验出口数据，验收结论须注明共享这一校准输入。"
+      },
+      "fly_ash_fraction": {
+        "value": 1.0,
+        "unit": "1",
+        "source": "KURKELA_1992 p. 7；解释性选择：ADR 0055 第 1 项",
+        "status": "derived",
+        "formula": "φ = 1：KURKELA_1992 p. 7 的设定点底灰排出不显著（表 5 的 0,94 是灰收支闭合比，不是飞灰份额）。飞灰 = φ·Ṁ_A，底灰 = (1 − φ)·Ṁ_A。",
+        "note": "只填工况 1；其它工况不填，使用时按缺失输入停止。敏感性 S18 取 0,3（底灰 7、飞灰 3）。"
       }
     },
     "2": {

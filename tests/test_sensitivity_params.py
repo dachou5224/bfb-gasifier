@@ -14,8 +14,8 @@ from hamel.properties.data import GAS_SPECIES
 from hamel.pyrolysis.release import FuelTransport, feed_cell_index
 from hamel.solver.campaign import config_for, overlay, run_specs
 from hamel.solver.frozen import AssemblyError
-from hamel.solver.precalc import EPSILON_MF, PHI_S, _bounds, _drain, _exchange_diffusivity, _load, bed_downflow
-from hamel.solver.residual import _bed_ash_by_class, evaluate_residual, wall_area_m2
+from hamel.solver.precalc import EPSILON_MF, PHI_S, _bounds, _drain_terms, _exchange_diffusivity, _load, bed_downflow
+from hamel.solver.residual import bed_ash_by_class, evaluate_residual, wall_area_m2
 from hamel.solver.sensitivity import (
     bubble_balance_ratio, edge_diameters, interface_balance_index, pack_reported, redirect_feedback, redirect_ledger,
 )
@@ -149,13 +149,11 @@ def test_redirect_ledger_cancels_item_by_item_and_the_gaps_stay_closed():
     state.freeboard_char_hover_kg[:] = 0.0
     state.freeboard_ash_hover_kg[:] = 0.0
     zeros = np.zeros_like(state.freeboard_char_free_kg)
-    inert = frozen_a.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen_a.fuel_bed_kg.sum(axis=1)
-    share = _bed_ash_by_class(state.bed_char_kg, inert)
-    items = redirect_ledger(frozen_a, state, zeros, zeros, zeros, zeros, share, zeros, zeros)
+    items = redirect_ledger(frozen_a, state, zeros, zeros, zeros, zeros, zeros, zeros)
     assert items == ()
     for closure in ("B", "C"):
         frozen = _closure_frozen(closure)
-        moved = redirect_ledger(frozen, state, zeros, zeros, zeros, zeros, share, zeros, zeros)
+        moved = redirect_ledger(frozen, state, zeros, zeros, zeros, zeros, zeros, zeros)
         assert moved
         assert sum(item["char"] for item in moved) > 0.0
         assert sum(item["enthalpy"] for item in moved) != 0.0
@@ -207,11 +205,9 @@ def test_nonzero_theta_down_assembles_under_closures_b_and_c():
         assert abs(result.ash_gap_kg_s) <= 1.0e-8
         assert abs(result.energy_gap_w) <= 1.0e-2
         # 改送额：θ↓ 乘从粒级 2 迁入粒级 1 的质量，来源是格 0、目标是格 1。
-        inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
-        share = _bed_ash_by_class(state.bed_char_kg, inert)
         migration = np.zeros((2, 2))
         migration[0, 1] = 1.0e-3
-        items = redirect_ledger(frozen, state, migration, zeros, zeros, zeros, share, zeros, zeros)
+        items = redirect_ledger(frozen, state, migration, zeros, zeros, zeros, zeros, zeros)
         theta_items = [item for item in items if item["kind"] == "theta"]
         assert len(theta_items) == 1
         assert theta_items[0]["char"] == pytest.approx(0.25 * 1.0e-3)
@@ -384,28 +380,23 @@ def test_redirect_feedback_enters_the_next_precalc_without_double_counting():
             assert bed_return == 0.0
             assert ash_out == pytest.approx(residual.redirect_ash_kg_s)
             assert ash_out > 0.0
-            plain = _drain_ash(0.0, 0.0)
-            only_ash = _drain_ash(ash_out, 0.0)
-            both = _drain_ash(ash_out, fuel_out)
-            assert plain - only_ash == pytest.approx(ash_out)
-            assert plain - both == pytest.approx(ash_out + 0.18 * fuel_out)
+            # ADR 0055 第 4 项：改送出口灰计入飞灰 E，不再从底灰里扣除；只有随改送燃料离开的灰
+            # 会减少 Ṁ_A。φ = 0.3 时底灰的变化是它的一半乘 0,7。
+            plain = _drain_ash(0.0)
+            both = _drain_ash(fuel_out)
+            assert plain - both == pytest.approx(0.7 * 0.18 * fuel_out)
 
 
-def _drain_ash(ash_out: float, fuel_out: float) -> float:
+def _drain_ash(fuel_out: float) -> float:
+    """φ = 0.3 的底灰，只随改送燃料离开的灰变化。ADR 0055 第 1、4 项。"""
     physical = SimpleNamespace(moisture_mass_fraction=0.1, ash_mass_fraction_wf=0.2)
-    case = SimpleNamespace(physical=physical, fuel_kg_s=1.0, n_free=1)
-    state = SimpleNamespace(
-        freeboard_ash_free_kg=np.zeros((1, 1)), bed_char_kg=np.array([[0.4]]),
-    )
+    case = SimpleNamespace(physical=physical, fuel_kg_s=1.0, n_free=1, fly_ash_fraction=0.3)
+    state = SimpleNamespace(bed_char_kg=np.array([[0.4]]))
     released = SimpleNamespace(
         fuel_up_kg_s=np.zeros((1, 1)), undried_exit_kg_s=np.zeros(2), dried_exit_kg_s=np.zeros(2),
     )
-    cell = SimpleNamespace(a_f=0.0, a_t=0.0)
-    ash, _char = _drain(
-        case, state, released, np.array([0.5]), np.array([1.0]), [SimpleNamespace(cells=[cell])],
-        ash_out, fuel_out,
-    )
-    return ash
+    terms = _drain_terms(case, state, released, np.array([0.5]), np.array([1.0]), fuel_out)
+    return float(terms["ash"])
 
 
 def test_diagnostics_publish_existing_intermediates():
@@ -488,9 +479,7 @@ def test_redirect_fuel_uses_the_same_coefficient_as_the_reported_flow():
     state.freeboard_char_hover_kg[:] = 0.0
     state.freeboard_ash_hover_kg[:] = 0.0
     zeros = np.zeros_like(state.freeboard_char_free_kg)
-    inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
-    share = _bed_ash_by_class(state.bed_char_kg, inert)
-    items = redirect_ledger(frozen, state, zeros, zeros, zeros, zeros, share, zeros, zeros)
+    items = redirect_ledger(frozen, state, zeros, zeros, zeros, zeros, zeros, zeros)
     assert items
     klass = 0
     cell = 0

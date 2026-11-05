@@ -2,8 +2,8 @@
 
 只报告，不改模型。本工具只运行到初值构造结束，不进入主求解的内层（T26n 卡 C）。
 
-ADR 0054 第 3 项之后，正式写法在初值构造的交替中间同样取 A5 余额的负值，本工具与正式
-路径在这一点上已无差异；只把交替次数上限放宽到 --loops，并逐次记录 A5 各项。
+ADR 0055 第 4 项之后，底灰取 (1 − φ)·Ṁ_A，没有余额符号；本工具只把交替次数上限放宽到
+--loops，并逐次记录 Ṁ_A、飞灰目标 T 与底灰。
 
 输出：--out 指定的 JSON（默认 reports/research-solver-path/alternation.json）；--artifacts 只作
     solve_case 的目录参数（本工具不写内层失败点）。每条交替记录最底格闭合差、两项补入量、
@@ -58,8 +58,7 @@ def itemize(frozen, state, context, reaction) -> dict:
     share = np.asarray(inert, dtype=float) / masses
     returning = float(np.sum(np.asarray(frozen.b_free_per_s[-1]) * np.asarray(state.freeboard_ash_free_kg[-1])))
     terms = precalc._drain_terms(
-        context.case, state, context.released, inert, masses, context.books,
-        context.redirected_ash_out_kg_s, context.redirected_fuel_out_kg_s,
+        context.case, state, context.released, inert, masses, context.redirected_fuel_out_kg_s,
     )
     ash_gen_total = float(np.sum(np.asarray(frozen.ash_gen_bed_kg_s)) + np.sum(frozen.ash_gen_free_kg_s) + np.sum(frozen.ash_gen_hover_kg_s))
     return {
@@ -82,28 +81,27 @@ def itemize(frozen, state, context, reaction) -> dict:
         - float(up[0] * share[0]) - float(drain_ash),
         "release_mass_gap_bed_kg_s": float(np.sum(np.asarray(context.released.mass_gap_kg_s)[frozen.n_freeboard:])),
         "ash_in_kg_s": float(terms["ash_in"]), "ash_gen_total_kg_s": ash_gen_total,
-        "fuel_ash_kg_s": float(terms["fuel_ash"]), "carried_ash_kg_s": float(terms["carried"]),
+        "fuel_ash_kg_s": float(terms["fuel_ash"]), "ash_target_kg_s": float(terms["target"]),
     }
 
 
 def run(loops: int, artifacts: str | None, limit_s: float) -> dict:
     log: dict = {"precalc": [], "solids": [], "loops": None}
     current: dict = {}
-    original = precalc._drain, precalc._diameters, initial.solve_solids, driver.construct
+    original = precalc._drain_terms, precalc._diameters, initial.solve_solids, driver.construct
 
     def diameters(diameter_m, fraction, phi_s):
         out = original[1](diameter_m, fraction, phi_s)
         current.update(d_bar_m=out[0], d_sv_m=out[1])
         return out
 
-    def precalc_drain(case, state, released, inert, masses, books, *rest, **kwargs):
-        # 符号放宽已随 ADR 0054 第 3 项并入正式路径；本工具只记录 A5 各项。
-        out = original[0](case, state, released, inert, masses, books, *rest, **kwargs)
-        negative = float(out[0]) < 0.0
+    def precalc_drain(case, state, released, inert, masses, *rest, **kwargs):
+        # ADR 0055 第 4 项起底灰取 (1 − φ)·Ṁ_A，没有余额符号；本工具只记录 Ṁ_A、T 与底灰。
+        out = original[0](case, state, released, inert, masses, *rest, **kwargs)
         loss, fuel_exit = precalc.bed_release_terms(released, case.n_free)
         log["precalc"].append(dict(
-            current, a5_negative=negative, drain_ash_kg_s=float(out[0]),
-            elutriated_ash_kg_s=float(np.dot(_top_af(books), np.asarray(state.freeboard_ash_free_kg[0], dtype=float))),
+            current, drain_ash_kg_s=float(out["ash"]), ash_available_kg_s=float(out["available"]),
+            ash_target_kg_s=float(out["target"]),
             loss_total_kg_s=float(np.sum(loss)), fuel_exit_kg_s=fuel_exit,
         ))
         return out
@@ -137,7 +135,7 @@ def run(loops: int, artifacts: str | None, limit_s: float) -> dict:
         log["initial"] = {"note": out[2]}
         raise _InitialDone()
 
-    precalc._drain, precalc._diameters, initial.solve_solids, driver.construct = (
+    precalc._drain_terms, precalc._diameters, initial.solve_solids, driver.construct = (
         precalc_drain, diameters, solve, construct,
     )
 
@@ -162,7 +160,7 @@ def run(loops: int, artifacts: str | None, limit_s: float) -> dict:
     finally:
         signal.alarm(0)
         signal.signal(signal.SIGALRM, previous)
-        precalc._drain, precalc._diameters, initial.solve_solids, driver.construct = original
+        precalc._drain_terms, precalc._diameters, initial.solve_solids, driver.construct = original
     log["elapsed_s"] = time.monotonic() - started
     return log
 

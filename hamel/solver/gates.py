@@ -30,6 +30,13 @@ class OuterMonitor:
     solid_flow_kg_s: np.ndarray
     inventory_kg: np.ndarray
     gas_flow_mol_s: np.ndarray
+    # |E − T| / T。构造的冻结量没有灰目标，记为 None，不作判据。ADR 0055 第 7 项。
+    ash_relative: float | None = None
+
+
+def ash_met(monitor: OuterMonitor, tolerance: float) -> bool:
+    """ADR 0055 第 7 项：外层收敛时灰平衡也须达到。没有灰目标时不作判据。"""
+    return monitor.ash_relative is None or monitor.ash_relative < tolerance
 
 
 def block_ratios(residual, blocks: ResidualBlocks) -> dict[str, float]:

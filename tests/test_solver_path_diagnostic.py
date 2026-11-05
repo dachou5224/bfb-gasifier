@@ -52,10 +52,10 @@ def test_outer_coupled_hard_timeout_covers_initial_construction(monkeypatch):
     from pathlib import Path
     import hamel.solver.precalc as precalc
     import tools.outer_coupled as outer
-    original = precalc._drain
+    original = precalc._drain_terms
     monkeypatch.setattr(outer, "construct", lambda: time.sleep(10))
     started = time.monotonic()
     log = outer.run(2, 1.0, {"corellaX"}, 60.0, Path(".scratch"), total_limit_s=1.0)  # 超时前不写文件
     assert log["stop"] == "TIMEOUT"
     assert time.monotonic() - started < 5.0
-    assert precalc._drain is original
+    assert precalc._drain_terms is original

@@ -19,7 +19,7 @@ from hamel.properties.thermo import density_kg_m3, volume_flow_m3_s
 from hamel.properties.transport import mixture_viscosity_pa_s
 from hamel.pyrolysis import lignite_particle_properties, particle_release_times
 from hamel.solver.gates import block_ratios
-from hamel.solver.residual import _bed_ash_by_class, evaluate_residual, particle_temperatures
+from hamel.solver.residual import bed_ash_by_class, evaluate_residual, particle_temperatures
 from hamel.solver.vector import pack_state
 
 # T23 单元测试里 Δ > 0 的常气速构造。气速为 0，所以速度尺度不用 u_g。
@@ -156,7 +156,7 @@ def freeboard_closure(state, frozen, assembly, fuel) -> dict:
     燃料的 W 与 P 分开记账。P 已释放水分，不用收到基组成。
     """
     inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
-    share = _bed_ash_by_class(state.bed_char_kg, inert)
+    share = bed_ash_by_class(inert, frozen.bed_ash_fine_share, frozen.n_class)
     thrown_char = frozen.k_auf_per_s[0] * state.bed_char_kg[0]
     thrown_ash = frozen.k_auf_per_s[0] * share[0]
     received, dried = fuel["received"], fuel["dried"]

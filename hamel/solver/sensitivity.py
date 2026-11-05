@@ -123,7 +123,7 @@ def _free_fuel_per_coefficient(frozen, cell: int, klass: int) -> float:
 
 def redirect_ledger(
     frozen, state, migration_free, migration_hover, ash_migration_free, ash_migration_hover,
-    bed_ash_share, ash_release_free, ash_release_hover,
+    ash_release_free, ash_release_hover,
 ) -> tuple:
     """进入悬停状态的流：c↑·m^f、c↓·m^f、θ↑·M^in、θ↓·M^in。A 返回空。
 

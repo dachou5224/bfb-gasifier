@@ -114,6 +114,10 @@ class FrozenQuantities:
     drift_hover_per_s: np.ndarray | None = None
     drift_free_per_s: np.ndarray | None = None
     migration_mu_per_s: np.ndarray | None = None
+    # 飞灰份额 φ、床灰细灰份额 w_f 与飞灰目标 T = φ·Ṁ_A。解释性选择：ADR 0055 第 1–3 项。
+    fly_ash_fraction: float = 1.0
+    bed_ash_fine_share: float = 0.0
+    ash_target_kg_s: float = 0.0
     def __post_init__(self) -> None:
         n_bed = len(np.asarray(self.bed_pressure_pa))
         n_free = len(np.asarray(self.freeboard_pressure_pa))
@@ -186,6 +190,16 @@ class FrozenQuantities:
             if not np.isfinite(number):
                 raise AssemblyError(f"{name} 必须是有限数")
             object.__setattr__(self, name, number)
+        # ADR 0055 第 1–3 项：0 < φ ≤ 1、0 ≤ w_f ≤ 1、目标 T 非负。
+        for name, low, high in (("fly_ash_fraction", 0.0, 1.0), ("bed_ash_fine_share", 0.0, 1.0)):
+            number = float(getattr(self, name))
+            if not np.isfinite(number) or not low <= number <= high or (name == "fly_ash_fraction" and number == 0.0):
+                raise AssemblyError(f"{name} 超出允许范围：{number}")
+            object.__setattr__(self, name, number)
+        target = float(self.ash_target_kg_s)
+        if not np.isfinite(target) or target < 0.0:
+            raise AssemblyError("ash_target_kg_s 必须是非负有限数")
+        object.__setattr__(self, "ash_target_kg_s", target)
         epsilon = float(self.epsilon_mf)
         if not np.isfinite(epsilon) or not 0.0 < epsilon < 1.0:
             raise AssemblyError("ε_mf 必须在 (0, 1) 内")

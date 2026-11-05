@@ -16,7 +16,7 @@ from hamel.solver.initial import (
     DomainRejected, InitialStateError, SolidSolve, construct, recompute_flows, solve_solids,
 )
 from hamel.solver.newton import IDENTITY, build_rule
-from hamel.solver.precalc import PrecalcError, SolidContext, _drain, _initial_tar, bed_downflow, bed_release_terms
+from hamel.solver.precalc import PrecalcError, SolidContext, _drain_terms, _initial_tar, bed_downflow, bed_release_terms
 from hamel.solver.residual import evaluate_residual
 from hamel.solver.vector import pack_state, unknown_slots, unpack_state
 
@@ -28,14 +28,14 @@ _ASH_WF = 0.043
 _MOISTURE = 0.118
 
 
-def _context(n_bed=2, n_free=2, n_class=1, fuel_kg_s=0.013027777777777777, a_f=0.0, ash_out=0.0, fuel_out=0.0, loss_kg_s=0.0, fuel_exit_kg_s=0.0):
-    """小例子的排灰与向下流输入。字段与预计算调用 _drain 时相同。
+def _context(n_bed=2, n_free=2, n_class=1, fuel_kg_s=0.013027777777777777, fuel_out=0.0, loss_kg_s=0.0, fuel_exit_kg_s=0.0, fly_ash_fraction=0.3):
+    """小例子的排灰与向下流输入。字段与预计算调用 _drain_terms 时相同。
 
     loss_kg_s 以最底床格的水分流给出（ADR 0053 第 1 项），fuel_exit_kg_s 是最底格的燃料出口。
     """
     case = SimpleNamespace(
         physical=SimpleNamespace(moisture_mass_fraction=_MOISTURE, ash_mass_fraction_wf=_ASH_WF),
-        fuel_kg_s=fuel_kg_s, n_free=n_free,
+        fuel_kg_s=fuel_kg_s, n_free=n_free, fly_ash_fraction=fly_ash_fraction,
     )
     zeros = np.zeros((n_free + n_bed, n_class))
     released = SimpleNamespace(
@@ -46,10 +46,7 @@ def _context(n_bed=2, n_free=2, n_class=1, fuel_kg_s=0.013027777777777777, a_f=0
     )
     released.water_kg_s[-1] = float(loss_kg_s)
     released.undried_exit_kg_s[-1] = float(fuel_exit_kg_s)
-    books = tuple(
-        SimpleNamespace(cells=[SimpleNamespace(a_f=a_f) for _ in range(n_free)]) for _ in range(n_class)
-    )
-    return SolidContext(case, released, books, 0.0, ash_out, fuel_out)
+    return SolidContext(case, released, 0.0, fuel_out)
 
 
 def _system(generation=1.2e-3):
@@ -65,6 +62,7 @@ def _system(generation=1.2e-3):
         b_free_per_s=np.array([[0.0], [1.0]]),
         a_free_per_s=np.full((2, 1), 0.1),
         char_gen_bed_kg_s=np.full((2, 1), generation),
+        fly_ash_fraction=0.3,
     )
     state = make_state(frozen, temperature=900.0, char=2.0e-3, ash=0.0)
     oxygen = GAS_SPECIES.index("O2")
@@ -116,11 +114,12 @@ def test_recomputed_drain_and_downflow_match_the_precalculation_under_the_same_s
     frozen, state, context = _system()
     reaction = -evaluate_residual(pack_state(state, frozen), frozen).char_consumption_bed_kg_s.sum(axis=1)
     inert, drain_ash, drain_char, down, closure, returned = recompute_flows(state, frozen, context, reaction)
-    # 先按 ADR 0014 A5 与 ADR 0009 第 2 项手算。
+    # 先按 ADR 0055 第 1、4 项与 ADR 0009 第 2 项手算：底灰 = (1 − φ)·Ṁ_A，焦炭按最底床格局部组成。
     ash_in = context.case.fuel_kg_s * _ASH_WF * (1.0 - _MOISTURE)
+    available = ash_in  # 没有未转化燃料离开，Ṁ_A = 燃料带入灰。
     fraction = float(inert[-1] / frozen.geometric_mass_kg[-1])
-    total = ash_in / fraction
-    assert drain_ash == pytest.approx(ash_in)
+    total = (1.0 - context.case.fly_ash_fraction) * available / fraction
+    assert drain_ash == pytest.approx(0.7 * available)
     assert drain_char[0] == pytest.approx(total * state.bed_char_kg[-1, 0] / frozen.geometric_mass_kg[-1])
     up = np.array([0.01, 0.05])
     hand_returned = 1.0 * (state.freeboard_char_free_kg[-1, 0] + state.freeboard_ash_free_kg[-1, 0])
@@ -131,14 +130,12 @@ def test_recomputed_drain_and_downflow_match_the_precalculation_under_the_same_s
         context.case.fuel_kg_s + down[0] - up[1] - (drain_ash + drain_char.sum()) + reaction[-1]
     )
     # 再与预计算的同一函数、同一输入逐位对照。
-    expected_ash, expected_char = _drain(
-        context.case, state, context.released, inert, frozen.geometric_mass_kg, context.books, 0.0, 0.0,
-    )
+    terms = _drain_terms(context.case, state, context.released, inert, frozen.geometric_mass_kg, 0.0)
     expected_down, expected_closure = bed_downflow(
-        up, context.case.fuel_kg_s, reaction, hand_returned, expected_ash + expected_char.sum(),
+        up, context.case.fuel_kg_s, reaction, hand_returned, terms["ash"] + float(np.sum(terms["char"])),
     )
-    assert drain_ash == expected_ash
-    assert np.array_equal(drain_char, expected_char)
+    assert drain_ash == terms["ash"]
+    assert np.array_equal(drain_char, np.asarray(terms["char"], dtype=float))
     assert np.array_equal(down, np.asarray(expected_down, dtype=float))
     assert closure == expected_closure
 
@@ -216,38 +213,26 @@ def test_trial_feasibility_only_requires_a_positive_bottom_ash_fraction():
     assert rule.trial(pack_state(cold, frozen))
 
 
-def test_negative_drain_balance_is_evaluated_at_trial_points(monkeypatch):
-    """ADR 0052 修订：试探点上的负排灰余额照原样参与原残差，只在收敛解上检查非负。
+def test_drain_does_not_depend_on_the_carried_ash():
+    """ADR 0055 第 4 项：底灰取 (1 − φ)·Ṁ_A，不再由“带入灰 − 带出灰”的余额给出。
 
-    预计算仍用带符号保护的 ``_drain``（A5 口径不变）；初值固相牛顿走不带保护的余额式。
+    自由空间灰量大到旧余额为负时，排灰仍为正的定值，并且不随带出灰变化。
     """
     frozen, state, _ignored = _system()
-    # 排灰用的 a^f 与残差里的输运系数取同一个值，避免两处不一致。
-    context = _context(a_f=float(frozen.a_free_per_s[0, 0]))
-    start = replace(state, freeboard_ash_free_kg=state.freeboard_ash_free_kg.copy())
-    # 带出灰 = a^f × 最上一格自由灰 = 0,1 /s × 6·10⁻³ kg = 6·10⁻⁴ kg/s，略大于燃料带入灰 4,94·10⁻⁴ kg/s。
-    start.freeboard_ash_free_kg[0, 0] = 6.0e-3
-    inert, drain_ash, drain_char, _down, _closure, _returned = recompute_flows(start, frozen, context)
-    assert drain_ash < 0.0
-    assert float(np.sum(drain_char)) < 0.0
-    # 同一状态在预计算里仍按 ADR 0014 A5 停止，余额不被截断。
-    with pytest.raises(PrecalcError, match="带出灰多于燃料带入灰"):
-        _drain(context.case, start, context.released, inert, frozen.geometric_mass_kg, context.books)
-
-    balances = []
-    original = initial._drain_terms
-
-    def probe(*args, **kwargs):
-        terms = original(*args, **kwargs)
-        balances.append(terms["ash"])
-        return terms
-
-    monkeypatch.setattr(initial, "_drain_terms", probe)
-    solved = solve_solids(start, frozen, context, _M_REF, config=SolverConfig())
-    # 迭代中的试探点确实出现过负余额，且没有被截断或拒评。
-    assert min(balances) < 0.0
-    assert solved.drain_ash_kg_s >= 0.0
-    assert float(np.sum(solved.drain_char_kg_s)) >= 0.0
+    start = replace(state, freeboard_ash_free_kg=np.full_like(state.freeboard_ash_free_kg, 6.0e-3))
+    light, drain_ash, drain_char, _down, _closure, _returned = recompute_flows(state, frozen, _context())
+    heavy, heavy_ash, heavy_char, _down, _closure, _returned = recompute_flows(start, frozen, _context())
+    assert drain_ash > 0.0 and heavy_ash == pytest.approx(drain_ash)
+    assert np.array_equal(drain_char, heavy_char)
+    lost, _ash, _char, _down, _closure, _returned = recompute_flows(
+        start, frozen, _context(fly_ash_fraction=1.0),
+    )
+    # φ = 1：排灰（灰与焦炭）为 0，且不要求最底床格有灰。
+    _inert, zero_ash, zero_char, _down, _closure, _returned = recompute_flows(
+        start, frozen, _context(fly_ash_fraction=1.0),
+    )
+    assert zero_ash == 0.0 and float(np.sum(zero_char)) == 0.0
+    del lost
 
 
 def test_converged_solution_violations_stop_and_are_reported():
@@ -258,58 +243,30 @@ def test_converged_solution_violations_stop_and_are_reported():
     scale = float(np.sum(frozen.geometric_mass_kg))
     tau = SolverConfig().stock_roundoff_relative * scale
     rule = build_rule(unknown_slots(frozen), frozen, IDENTITY, tau=tau, unknowns=rows, bottom_ash=True)
-    assert rule.final(pack_state(solved.state, frozen), solved.drain_ash_kg_s)["ok"]
+    assert rule.final(pack_state(solved.state, frozen))["ok"]
     # 舍入容差的边界：−τ 通过，−2τ 停止。
     at_tau = replace(solved.state, bed_char_kg=solved.state.bed_char_kg.copy())
     at_tau.bed_char_kg[0, 0] = -tau
-    assert rule.final(pack_state(at_tau, frozen), solved.drain_ash_kg_s)["ok"]
+    assert rule.final(pack_state(at_tau, frozen))["ok"]
     below_tau = replace(solved.state, bed_char_kg=solved.state.bed_char_kg.copy())
     below_tau.bed_char_kg[0, 0] = -2.0 * tau
-    detail = rule.final(pack_state(below_tau, frozen), solved.drain_ash_kg_s)
+    detail = rule.final(pack_state(below_tau, frozen))
     assert not detail["ok"] and "负存量" in detail["message"]
     # 惰性物为负：几何存量扣去焦炭与燃料后为负。
     heavy = replace(solved.state, bed_char_kg=solved.state.bed_char_kg.copy())
     heavy.bed_char_kg[0, 0] = 1.2 * float(frozen.geometric_mass_kg[0])
-    detail = rule.final(pack_state(heavy, frozen), solved.drain_ash_kg_s)
+    detail = rule.final(pack_state(heavy, frozen))
     assert not detail["ok"] and "惰性物为负" in detail["message"]
-    # 排灰灰分量为负、最底床格灰分为零。
-    negative = replace(solved.state, bed_char_kg=np.zeros_like(solved.state.bed_char_kg))
-    detail = rule.final(pack_state(negative, frozen), -1.0e-6)
-    assert not detail["ok"] and "排灰灰分量" in detail["message"]
+    # φ < 1 时最底床格灰分为零，排灰总流率没有定义。ADR 0055 第 4 项。
     ash_only = replace(solved.state, bed_char_kg=np.zeros_like(solved.state.bed_char_kg))
     ash_only.bed_char_kg[-1] = frozen.geometric_mass_kg[-1]
-    detail = rule.final(pack_state(ash_only, frozen), solved.drain_ash_kg_s)
+    detail = rule.final(pack_state(ash_only, frozen))
     assert not detail["ok"] and "灰分为零" in detail["message"]
+    # φ = 1 时排灰为 0，不计算局部组成，同一点也不停止。
+    carried = replace(frozen, fly_ash_fraction=1.0)
+    relaxed = build_rule(unknown_slots(frozen), carried, IDENTITY, tau=tau, unknowns=rows, bottom_ash=False)
+    assert relaxed.final(pack_state(ash_only, frozen))["ok"]
     # 固相门仍由 solve_solids 在收敛解上复核（converged 用同一个 gate），不再重复断言。
-
-
-def test_signed_drain_allows_a_negative_a5_balance():
-    """ADR 0054 第 3 项第 5 步：交替中间的预计算取同式的负值；外层与 guarded 调用仍按符号停止。"""
-    frozen, state, _ignored = _system()
-    context = _context(a_f=float(frozen.a_free_per_s[0, 0]))
-    start = replace(state, freeboard_ash_free_kg=state.freeboard_ash_free_kg.copy())
-    start.freeboard_ash_free_kg[0, 0] = 6.0e-3
-    inert = frozen.geometric_mass_kg - start.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
-    with pytest.raises(PrecalcError, match="带出灰多于燃料带入灰"):
-        _drain(context.case, start, context.released, inert, frozen.geometric_mass_kg, context.books)
-    ash, char = _drain(
-        context.case, start, context.released, inert, frozen.geometric_mass_kg, context.books,
-        0.0, 0.0, guard_sign=False,
-    )
-    assert ash < 0.0 and float(np.sum(char)) < 0.0
-
-
-def test_construct_stops_when_the_last_precalculation_has_a_negative_drain(monkeypatch):
-    """ADR 0054 第 3 项第 5 步：交替结束时的排灰灰分量必须非负，否则停止并报告。"""
-    frozen = make_frozen()
-    state = make_state(frozen)
-
-    def precalc(previous, drain):
-        return SimpleNamespace(frozen=replace(frozen, drain_ash_kg_s=-1.0e-5), state=previous, solid_context=None)
-
-    monkeypatch.setattr(initial, "solve_solids", lambda *args, **kwargs: _stub(state))
-    with pytest.raises(InitialStateError, match="排灰灰分量"):
-        construct(_opened(frozen, state), precalc, 1.0e-3)
 
 
 def test_domain_rejection_at_the_start_keeps_the_state_for_the_report():
@@ -326,27 +283,27 @@ def test_construct_records_the_alternation_when_the_precalc_stops(monkeypatch):
     frozen = make_frozen()
     state = make_state(frozen)
     terms = {
-        "ash_in": 4.9e-4, "carried": 8.7e-4, "fuel_ash": 5.7e-6, "redirected": 0.0,
-        "ash_out": 8.7e-4, "fraction": 0.07, "ash": -3.8e-4, "char": np.array([-1.0e-3]),
+        "ash_in": 4.9e-4, "fuel_ash": 5.7e-6, "available": 4.84e-4, "target": 3.4e-4,
+        "fly_ash_fraction": 0.7, "ash": 1.45e-4, "char": np.array([1.0e-3]),
     }
 
     def precalc(previous, drain):
-        error = PrecalcError("带出灰多于燃料带入灰")
+        error = PrecalcError("细灰不足")
         error.drain_terms = terms
         raise error
 
     records: list = []
     monkeypatch.setattr(initial, "solve_solids", lambda *args, **kwargs: _stub(state))
-    with pytest.raises(PrecalcError, match="带出灰多于燃料带入灰"):
+    with pytest.raises(PrecalcError, match="细灰不足"):
         construct(_opened(frozen, state), precalc, 1.0e-3, records=records)
     assert len(records) == 1
     record = records[0]
     # 固相牛顿的那一次已收敛，记录里保留它的迭代数与解出的存量。
     assert record["iterations"] == 1 and record["bed_char_kg"] == pytest.approx(1.0)
-    assert record["precalc_error"] == "带出灰多于燃料带入灰"
-    assert record["a5"]["ash"] == pytest.approx(-3.8e-4)
+    assert record["precalc_error"] == "细灰不足"
+    assert record["a5"]["ash"] == pytest.approx(1.45e-4)
     assert record["a5"]["fuel_ash"] == pytest.approx(5.7e-6)
-    assert record["a5"]["char"] == pytest.approx([-1.0e-3])
+    assert record["a5"]["char"] == pytest.approx([1.0e-3])
 
 
 def _stub(result):
