@@ -1,9 +1,9 @@
 """初值构造：第一次预计算之后，对固相子系统做牛顿求解，再与预计算交替。
 
-求解手段：ADR 0052（取代 ADR 0045 第 3 项的块顺序求解与 ADR 0049）。
+求解手段：ADR 0054 第 3 项（取代 ADR 0045 第 3、4 项、ADR 0049 与 ADR 0052）。
 未知量与残差取 ``unknown_slots``／``evaluate_residual`` 的固相部分，不另写方程。
 每次评价残差时按当前状态重算排灰（ADR 0014 A5）与床区整体向下流（ADR 0009 第 2 项），
-复用 ``precalc._drain`` 与 ``precalc.bed_downflow``。气相、温度与其余冻结量固定。
+复用 ``precalc._drain_terms`` 与 ``precalc.bed_downflow``。气相、温度与其余冻结量固定。
 """
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ import numpy as np
 
 from hamel.cases.config import SolverConfig
 from hamel.solver.frozen import AssemblyError, FreeboardDomainError, TrialNotEvaluable
-from hamel.solver.newton import damped_newton
+from hamel.solver.newton import IDENTITY, build_rule, damped_newton
 from hamel.solver.precalc import PrecalcError, _drain_terms, bed_downflow, bed_release_terms, freeboard_return_kg_s
 from hamel.solver.residual import evaluate_residual
 from hamel.solver.sensitivity import diameter_at, section_volume_m3
@@ -22,7 +22,7 @@ from hamel.solver.vector import ReactorState, pack_state, unknown_slots, unpack_
 
 
 class InitialStateError(AssemblyError):
-    """初值构造按 ADR 0052 第 3 项停止：阻尼失败、超过 ν_max、收敛解越界或预计算报错。
+    """初值构造按 ADR 0054 第 3 项停止：阻尼失败、超过 ν_max、收敛解越界或预计算报错。
 
     diagnostics 带停止时的牛顿记录，供报告写明哪一步、哪一项不可行。
     """
@@ -43,7 +43,7 @@ class DomainRejected(InitialStateError):
 
 @dataclass(frozen=True)
 class SolidSolve:
-    """一次固相牛顿的结果与报告量。求解手段：ADR 0052 第 1 项。"""
+    """一次固相牛顿的结果与报告量。求解手段：ADR 0054 第 3 项。"""
 
     state: ReactorState
     iterations: int
@@ -56,7 +56,7 @@ class SolidSolve:
     bottom_closure_kg_s: float
     bed_char_kg: float
     bed_inert_kg: np.ndarray
-    # 每次接受的阻尼步（原始最大分量，kg）。ADR 0052 报告项。
+    # 每次接受的阻尼步（原始最大分量，kg）。ADR 0054 第 3 项报告项。
     step_history: tuple[float, ...] = ()
 
 
@@ -75,8 +75,8 @@ def recompute_flows(state: ReactorState, frozen, context, reaction=None):
     """按当前状态重算排灰（ADR 0014 A5）与床区整体向下流（ADR 0009 第 2 项）。
 
     写法复用预计算的同一函数 ``_drain_terms``（不含符号保护）与 ``bed_downflow``。试探点上的
-    负余额照原样参与原残差，不带 ``_drain`` 的符号保护，只在收敛解上检查非负（ADR 0052
-    第 1 项第 3 步修订、第 3 项）。求解手段：ADR 0052 第 1 项第 2 步。
+    负余额照原样参与原残差，只在收敛解上检查非负（ADR 0054 第 2 项第 3 层、第 3 项第 5 步）。
+    求解手段：ADR 0054 第 3 项。
 
     干燥与热解的失重、随排灰离开的燃料取当前预计算的释放分布（ADR 0053 第 3 项），
     与预计算共用 ``bed_release_terms``。
@@ -102,64 +102,19 @@ def recompute_flows(state: ReactorState, frozen, context, reaction=None):
     )
 
 
-def solid_feasible(state: ReactorState, frozen) -> bool:
-    """初值固相子系统的试探点可行条件：最底床格灰分为正（ADR 0014 A5 的排灰总流率有定义）。
-
-    求解手段：ADR 0052 第 1 项第 3 步（2026-10-31 修订）。存量、各床格惰性物与排灰灰分量
-    不在试探点上检查，只在收敛解上检查（``require_converged_solution``）；残差有限与
-    有效域拒绝由 ``damped_newton`` 的试探点评价处理，不在本函数重复。主求解的可行条件
-    仍按 ADR 0017 第 7 项（``driver._feasible``），不受本函数影响。
-    """
-    fraction = _bottom_ash_fraction(state, frozen)
-    return bool(fraction > 0.0)
-
-
-def _bottom_ash_fraction(state: ReactorState, frozen) -> float:
-    """最底床格的灰质量分数。排灰总流率 = 灰分量 ÷ 灰分，故分母须为正。"""
-    inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
-    return float(inert[-1] / frozen.geometric_mass_kg[-1])
-
-
-def _infeasible_clause(state: ReactorState, frozen) -> str:
-    """报告试探点上唯一被检查的条件（最底床格灰分为正）。只用于阻尼记录。"""
-    fraction = _bottom_ash_fraction(state, frozen)
-    if fraction <= 0.0:
-        return f"最底床格灰分为 {fraction:.3e}，排灰总流率没有定义"
-    return "可行条件不满足"
-
-
-def require_converged_solution(state: ReactorState, frozen, residual, flows, m_dot_ref: float, gate: float, tolerance: float = 0.0) -> float:
-    """ADR 0052 第 3 项：收敛解上任一存量小于 −τ、床格惰性物为负、排灰灰分量为负或最底床格
-    灰分为零时停止并报告；同时复核固相门。τ 是舍入容差（2026-10-31 修订）。返回固相行的归一
-    最大残差。"""
-    inert, drain_ash, _, _, _, _ = flows
-    values = np.asarray(pack_state(state, frozen), dtype=float)
-    slots = [slot for slot in unknown_slots(frozen) if slot.kind in ("char", "ash")]
-    negative = [(slot.name, float(values[slot.index])) for slot in slots if values[slot.index] < -tolerance]
-    if negative:
-        text = ", ".join(f"{name} = {value:.3e} kg" for name, value in negative[:6])
-        raise InitialStateError(f"初值构造的收敛解出现 {len(negative)} 项负存量（小于 −τ = {tolerance:.3e} kg）：{text}")
-    bad = [(cell, float(value)) for cell, value in enumerate(inert) if value < 0.0]
-    if bad:
-        raise InitialStateError(f"初值构造的收敛解在床区格 {bad[0][0]}（衡算下标）的惰性物为负：{bad[0][1]:.3e} kg")
-    if drain_ash < 0.0:
-        raise InitialStateError(f"初值构造的收敛解排灰灰分量为负：{drain_ash:.3e} kg/s")
-    fraction = float(inert[-1] / frozen.geometric_mass_kg[-1])
-    if fraction <= 0.0:
-        raise InitialStateError("初值构造的收敛解最底床格灰分为零，排灰总流率没有定义")
-    norm = float(np.max(np.abs(residual)) / m_dot_ref)
-    if norm > gate:
-        raise InitialStateError(f"初值构造的收敛解不满足固相门：{norm:.3e} > {gate:.1e}")
-    return norm
+def _embed(base, rows, y) -> np.ndarray:
+    """把固相子系统的 y 放回全向量。子系统的未知量都不变换，y 即 x。"""
+    x = np.array(base, dtype=float)
+    x[rows] = np.asarray(y, dtype=float)
+    return x
 
 
 def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate: float = 1.0e-6, config=None, journal: dict | None = None) -> SolidSolve:
-    """以全部固相为未知量的阻尼牛顿。求解手段：ADR 0052 第 1 项第 3 步。
+    """以全部固相为未知量的阻尼牛顿。求解手段：ADR 0054 第 2、3 项（取代 ADR 0052 第 1 项第 3 步）。
 
     残差取原残差的固相行；每次评价按当前状态重算排灰与床区向下流。差分步长与行列缩放
     按 ADR 0043（由 ``damped_newton`` 给出），阻尼与迭代上限按 ADR 0017 第 7、8 项；
-    试探点的可行条件按 ADR 0052 第 1 项第 3 步（2026-10-31 修订）：只要求残差有限、
-    最底床格灰分为正、不被有效域拒绝。存量、惰性物与排灰灰分量的非负在收敛解上检查。
+    试探点与收敛解用与内层共用的三层规则（``newton.build_rule``）。
     """
     limits = SolverConfig() if config is None else config
     slots = unknown_slots(frozen)
@@ -169,11 +124,14 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
     base = np.asarray(pack_state(state, frozen), dtype=float)
     scale = float(np.sum(frozen.geometric_mass_kg))
     scales = np.full(rows.size, scale)
-    tolerance = float(limits.stock_roundoff_relative) * scale
+    rule = build_rule(
+        slots, frozen, IDENTITY, tau=float(limits.stock_roundoff_relative) * scale,
+        unknowns=rows, bottom_ash=True,
+    )
+    embed = lambda y: _embed(base, rows, y)
 
     def point(y, trial: bool = True):
-        x = base.copy()
-        x[rows] = y
+        x = embed(y)
         current = unpack_state(x, frozen)
         try:
             reaction = -np.asarray(evaluate_residual(x, frozen).char_consumption_bed_kg_s, dtype=float).sum(axis=1)
@@ -192,9 +150,7 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
         return values[rows], current, flows
 
     def feasible(y) -> bool:
-        x = base.copy()
-        x[rows] = y
-        return solid_feasible(unpack_state(x, frozen), frozen)
+        return rule.trial(embed(y))
 
     def converged(residual) -> bool:
         return bool(np.max(np.abs(residual)) / m_dot_ref <= gate)
@@ -203,9 +159,7 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
         return float(np.linalg.norm(residual)) / m_dot_ref
 
     def explain(y) -> str:
-        x = base.copy()
-        x[rows] = y
-        return _infeasible_clause(unpack_state(x, frozen), frozen)
+        return rule.explain(embed(y))
 
     log = {} if journal is None else journal
     log.setdefault("iterations", [])
@@ -231,8 +185,7 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
             f"ν_max = {int(limits.nu_max)}",
             diagnostics,
         )
-    x = base.copy()
-    x[rows] = np.asarray(outcome.x, dtype=float)
+    x = embed(np.asarray(outcome.x, dtype=float))
     try:
         checked, current, flows = point(x[rows], trial=False)
     except FreeboardDomainError as exc:
@@ -240,7 +193,12 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
     except (PrecalcError, TrialNotEvaluable) as exc:
         raise InitialStateError(f"初值构造收敛解不可评价：{exc}") from exc
     inert, drain_ash, drain_char, down, closure, _returned = flows
-    residual = require_converged_solution(current, frozen, checked, flows, m_dot_ref, gate, tolerance)
+    detail = rule.final(pack_state(current, frozen), drain_ash)
+    if not detail["ok"]:
+        raise InitialStateError(f"初值构造停止：{detail['message']}")
+    residual = float(np.max(np.abs(checked)) / m_dot_ref)
+    if residual > gate:
+        raise InitialStateError(f"初值构造的收敛解不满足固相门：{residual:.3e} > {gate:.1e}")
     history = tuple(float(entry["merit"]) for entry in log.get("iterations", ()))
     history += (float(outcome.merit) if outcome.merit is not None else residual,)
     steps = tuple(
@@ -259,7 +217,7 @@ def construct(initial, precalc, m_dot_ref: float, *, gate: float = 1.0e-6, toler
     precalc(state, drain) 接收解出的固相与它按同一状态重算的排灰（灰分量，各粒级焦炭），
     后者作下一次预计算的 previous_drain_kg_s。交替判据与次数沿用 ADR 0045 第 3 项第 5 步：
     相邻两次预计算的床区界面上下行流与自由空间回落的相对变化都小于 tolerance，或做满
-    max_loops 次。求解手段：ADR 0052 第 1 项第 5 步。
+    max_loops 次。求解手段：ADR 0054 第 3 项。
     """
     limits = SolverConfig() if config is None else config
     log = [] if records is None else records
@@ -300,11 +258,18 @@ def construct(initial, precalc, m_dot_ref: float, *, gate: float = 1.0e-6, toler
             reached = True
             break
     note = "" if reached else f"交替 {int(max_loops)} 次后相对变化仍未全部小于 {tolerance:g}"
+    # 交替结束：最后一次预计算的排灰灰分量 ≥ 0。ADR 0054 第 3 项第 5 步；最后一次固相解的第 3 层
+    # 检查在 solve_solids 内完成。
+    drain_ash = float(result.frozen.drain_ash_kg_s)
+    if drain_ash < 0.0:
+        reason = f"交替结束时最后一次预计算的排灰灰分量为负：{drain_ash:.3e} kg/s"
+        log.append({"loop": len(log), "stopped": True, "reason": reason})
+        raise InitialStateError(reason)
     return result, log, note
 
 
 def _record(index: int, solved: SolidSolve, result, current: dict | None, change: dict | None, a5: dict | None = None) -> dict:
-    """一次交替的报告量。ADR 0052 报告项：存量、排灰、带出、回落、两类 Ṁ_ab、闭合差、体积比。
+    """一次交替的报告量。ADR 0054 第 3 项报告项：存量、排灰、带出、回落、两类 Ṁ_ab、闭合差、体积比。
 
     result 为 None 时是重做预计算报错的那一次：记下已收敛的固相解与 A5 各项，不记冻结量项。
     """
@@ -343,7 +308,7 @@ def _record(index: int, solved: SolidSolve, result, current: dict | None, change
 
 
 def _minimum_stock(state) -> float:
-    """收敛解全部固相未知量中的最小存量。ADR 0052 报告项（舍入容差 τ 的对照）。"""
+    """收敛解全部固相未知量中的最小存量。ADR 0054 第 3 项报告项（舍入容差 τ 的对照）。"""
     stocks = (
         state.bed_char_kg, state.freeboard_char_free_kg, state.freeboard_char_hover_kg,
         state.freeboard_ash_free_kg, state.freeboard_ash_hover_kg,

@@ -6,12 +6,27 @@ import numpy as np
 import pytest
 
 from hamel.cases.config import SolverConfig
-from hamel.solver.driver import _feasible
+from hamel.solver.driver import _references
 from hamel.solver.gates import OuterMonitor, ResidualBlocks
-from hamel.solver.newton import _SQRT_EPS, _grouped_jacobian, _jacobian, damped_newton
+from hamel.solver.newton import IDENTITY, _SQRT_EPS, _grouped_jacobian, _jacobian, build_rule, damped_newton
 from hamel.solver.residual import evaluate_residual
 from hamel.solver.vector import jacobian_layout, unknown_slots
 from test_assembly import make_frozen
+
+
+class _StubRule:
+    """分层规则替身：只查 y 有限。"""
+
+    transform = IDENTITY
+    final = None
+
+    @staticmethod
+    def trial(trial):
+        return bool(np.all(np.isfinite(np.asarray(trial, dtype=float))))
+
+    @staticmethod
+    def explain(trial):
+        return "可行条件不满足"
 
 
 def _toy(layout, hidden=0.0):
@@ -125,7 +140,7 @@ def _aligned(plan, opened, evaluate, checked, blocks, config, journal):
     from hamel.solver.driver import solve_aligned
     return solve_aligned(
         lambda x, iteration, consistency: opened(plan[iteration], iteration, consistency), evaluate,
-        lambda _opened: (blocks, np.ones(6), lambda trial: bool(np.all(np.isfinite(trial))), (1.0, 1.0, 1.0, 1.0)),
+        lambda _opened: (blocks, np.ones(6), _StubRule(), (1.0, 1.0, 1.0, 1.0)),
         lambda _opened, values: OuterMonitor(np.ones(1), np.ones(1), np.ones(1), np.asarray(values)[:1]),
         checked, config, journal=journal,
     )
@@ -146,9 +161,9 @@ def test_verification_runs_once_per_run(monkeypatch):
     calls = {"full": 0}
     reference = newton._jacobian
 
-    def counted(x, residual, evaluate, scales, feasible, *, blocks=None, columns=None):
+    def counted(x, residual, evaluate, scales, feasible, *, transform=IDENTITY, blocks=None, columns=None):
         calls["full"] += columns is None
-        return reference(x, residual, evaluate, scales, feasible, blocks=blocks, columns=columns)
+        return reference(x, residual, evaluate, scales, feasible, transform=transform, blocks=blocks, columns=columns)
 
     monkeypatch.setattr(newton, "_jacobian", counted)
     _layout, journal, plan, evaluate, opened, checked, blocks = _six_nodes(starts={1: np.ones(6), 2: np.ones(6)})
@@ -170,7 +185,7 @@ def test_case1_saved_state_grouped_matches_columnwise():
     layout = jacobian_layout(slots, frozen)
     evaluate = lambda trial: evaluate_residual(np.asarray(trial, dtype=float), frozen).values
     residual = evaluate(x)
-    feasible = lambda trial: _feasible(trial, frozen)
+    feasible = build_rule(slots, frozen, IDENTITY, tau=0.0, tau_n=0.0).trial
     grouped, stats = _grouped_jacobian(x, residual, evaluate, scales, feasible, layout)
     reference = _jacobian(x, residual, evaluate, scales, feasible)
     assert np.array_equal(grouped, reference)

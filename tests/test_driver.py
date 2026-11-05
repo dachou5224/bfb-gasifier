@@ -11,8 +11,8 @@ from hamel.cases.config import SolverConfig
 from hamel.kinetics.common import KineticsInputError
 from hamel.solver.campaign import _process, execute, overlay, run_campaign, run_specs, write_report
 from hamel.solver.driver import SolveResult, solve_aligned
-from hamel.solver.gates import OuterMonitor, ResidualBlocks, arrays_allowed, balance_met, inner_met, outer_met
-from hamel.solver.newton import damped_newton, normalized_merit
+from hamel.solver.gates import OuterMonitor, ResidualBlocks, balance_met, inner_met, outer_met
+from hamel.solver.newton import IDENTITY, damped_newton, normalized_merit
 
 _CASE = Path(__file__).resolve().parents[1] / "data" / "cases" / "vtt_pressurized.json"
 
@@ -109,10 +109,22 @@ def test_balance_and_nonnegative_checks():
     assert closed["ok"]
     carbon = balance_met(BalanceGap(0.01, 0.0, 0.0, 5.0), (1.0, 3.0, 4.0), 5.0, 1.0e4, 1.0e-3, 5.0e-3)
     assert not carbon["ok"]
-    assert arrays_allowed(([1.0, 0.0],), ([0.2],), [1100.0], [0.0])
-    assert not arrays_allowed(([-1e-9],), ([0.2],), [1100.0], [0.0])
-    assert not arrays_allowed(([1.0],), ([0.2],), [0.0], [0.0])
-    assert not arrays_allowed(([1.0],), ([0.2],), [1100.0], [-0.1])
+
+
+class Rule:
+    """内层与初值构造共用的三层规则的替身：只有试探点约束与收敛解检查。"""
+
+    transform = IDENTITY
+    final = None
+
+    def __init__(self, ok=None):
+        self._ok = ok or (lambda trial: True)
+
+    def trial(self, trial):
+        return bool(self._ok(trial))
+
+    def explain(self, trial):
+        return "可行条件不满足"
 
 
 def test_outer_loop_recomputes_and_passes_both_gates():
@@ -134,7 +146,7 @@ def test_outer_loop_recomputes_and_passes_both_gates():
 
     result = solve_aligned(
         refresh, lambda trial, opened: np.asarray(trial, dtype=float) - target,
-        lambda opened: (blocks, np.ones(3), lambda trial: bool(np.all(trial > 0.0)), (1.0, 1.0, 1.0e3, 1.0)),
+        lambda opened: (blocks, np.ones(3), Rule(lambda trial: bool(np.all(trial > 0.0))), (1.0, 1.0, 1.0e3, 1.0)),
         lambda opened, values: OuterMonitor(values[2:3], values[1:2], values[1:2], values[0:1]),
         consistent, config,
     )
@@ -253,7 +265,7 @@ def _toy(config):
 
     return solve_aligned(
         refresh, lambda trial, opened: np.asarray(trial, dtype=float) - target,
-        lambda opened: (blocks, np.ones(3), lambda trial: bool(np.all(trial > 0.0)), (1.0, 1.0, 1.0e3, 1.0)),
+        lambda opened: (blocks, np.ones(3), Rule(lambda trial: bool(np.all(trial > 0.0))), (1.0, 1.0, 1.0e3, 1.0)),
         lambda opened, values: OuterMonitor(np.asarray(values)[2:3], np.asarray(values)[1:2], np.asarray(values)[1:2], np.asarray(values)[0:1]),
         lambda values, iteration: type("Checked", (), {"residual": np.asarray(values) - target, "blocks": blocks, "info": {}})(),
         config,

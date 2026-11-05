@@ -16,7 +16,7 @@ class TrialNotEvaluable(AssemblyError):
     """
 
 class FreeboardDomainError(AssemblyError):
-    """ADR 0026 第 5 项。报告并停止，不截断，也不靠缩短步长把这一项变成可行。"""
+    """ADR 0026 第 5 项。起点或收敛解超域时报告并停止，不截断；试探点与差分点按 ADR 0054 第 2 项第 1 层缩步。"""
 
 def _array(name: str, value: object, shape: tuple[int, ...]) -> np.ndarray:
     try:

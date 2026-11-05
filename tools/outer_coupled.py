@@ -4,10 +4,10 @@
 K1–K2（`tools/o7_checks.py`）只在外层第 1、2 轮的两组冻结系数上做了检查。本工具让冻结系数随外层更新。
 
 写法（诊断，与正式路径的差别逐条列出）：
-1. 初值构造同 `solver_path_diagnostic.py build`（A5 中间余额取负值继续）。
+1. 初值构造同 `driver.solve_case`（ADR 0054 第 3 项：交替中间 A5 余额取负值继续）。
 2. 第 k 轮：用状态 s_k 做预计算（与 driver 相同的输入：s_k、床区反应汇、上一次的排灰、
    燃料回落与释放分布），得冻结量 q_k；内层从**上一轮的内层解** s̃_{k−1} 出发（第 1 轮从初值构造的状态），
-   用 `gaslog,o2pow,relax[,corellaX]` 求解，得 s̃_k。
+   用正式实现的变量与三层规则求解（`--variant` 只保留 `corellaX` 与诊断的 `o2proj`），得 s̃_k。
 3. 欠松弛只作用于预计算的输入：s_{k+1} = s_k + ω·(s̃_k − s_k)（ReactorState 的全部数组逐元素；
    反应汇同样欠松弛）。内层起点不取混合态：气相线性混合会在进风格造出 H₂ 与 O₂ 并存的状态，
    R6 残差达 10⁵ 量级（第一次试跑 ω = 0,25、0,5 的第 2 轮都在 6 次后雅可比不可解）。
@@ -38,7 +38,7 @@ from hamel.cases.config import SolverConfig
 from hamel.solver.residual import evaluate_residual
 from hamel.solver.vector import ReactorState, pack_state, unpack_state
 from tools.o7_checks import balance
-from tools.solver_path_diagnostic import _CASE, Problem, _Built, _Timeout, _alarm, _patch_a5, run_inner
+from tools.solver_path_diagnostic import _CASE, Problem, _Built, _Timeout, _alarm, run_inner
 
 _ROOT = Path(__file__).resolve().parents[1]
 _OUT = _ROOT / "reports" / "research-solver-path" / "outer-coupled"
@@ -76,7 +76,6 @@ def blend(old: ReactorState, new: ReactorState, omega: float) -> ReactorState:
 
 def run(rounds: int, omega: float, variant: set, limit_s: float, out: Path, total_limit_s: float = 21600.0) -> dict:
     """total_limit_s：全程硬超时（SIGALRM，CHARTER §7），覆盖初值构造、预计算与内层；到点记 TIMEOUT，保留已完成轮次。"""
-    restore = _patch_a5()
     stop_alarm = _alarm(total_limit_s)
     log: dict = {"omega": omega, "variant": sorted(variant), "rounds": []}
     started = time.monotonic()
@@ -104,18 +103,16 @@ def run(rounds: int, omega: float, variant: set, limit_s: float, out: Path, tota
                 )
             frozen = result.frozen
             problem = Problem(frozen)
-            local: dict = {}
-            inner = run_inner(problem, pack_state(warm, frozen), variant, limit_s, 150, local)
+            inner = run_inner(problem, pack_state(warm, frozen), variant, limit_s, 150)
             stage = inner["stages"][-1]
-            x = local.get("x_final")
+            x = inner.get("x")
             fallback = None
             if stage["status"] == "DAMPING_FAILED" and "o2proj" not in variant and x is not None:
                 # 只在阻尼失败时，从停下的点改用 O₂ 投影阻尼续解（痕量 O₂ 的幂变量越零）。
-                again: dict = {}
-                retry = run_inner(problem, x, variant | {"o2proj"}, limit_s, 150, again)
+                retry = run_inner(problem, x, variant | {"o2proj"}, limit_s, 150)
                 fallback = {"from_merit": stage["final_merit"], "status": retry["stages"][-1]["status"],
                             "iterations": len(retry["stages"][-1]["iterations"])}
-                stage, x = retry["stages"][-1], again.get("x_final", x)
+                stage, x = retry["stages"][-1], retry.get("x", x)
             entry = {
                 "round": k, "inner": stage["status"], "inner_reason": stage["reason"],
                 "iterations": len(stage["iterations"]), "final_merit": stage["final_merit"],
@@ -172,7 +169,6 @@ def run(rounds: int, omega: float, variant: set, limit_s: float, out: Path, tota
         log["stop"] = f"{type(exc).__name__}: {str(exc)[:600]}"
     finally:
         stop_alarm()
-        restore()
     log["elapsed_s"] = time.monotonic() - started
     last = log["rounds"][-1] if log["rounds"] else {}
     log["fixed_point_admissible"] = bool(
@@ -186,7 +182,7 @@ def main(argv=None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--rounds", type=int, default=12)
     parser.add_argument("--omega", type=float, default=0.5)
-    parser.add_argument("--variant", default="gaslog,o2pow,relax,corellaX")
+    parser.add_argument("--variant", default="corellaX")
     parser.add_argument("--limit-s", type=float, default=3600.0)
     parser.add_argument("--total-limit-s", type=float, default=21600.0)
     parser.add_argument("--out", default=str(_OUT))

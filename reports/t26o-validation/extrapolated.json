@@ -1,0 +1,1625 @@
+{
+ "summary": {
+  "status": "NOT_CONVERGED",
+  "reason": "外层超过 outer_round_limit",
+  "rounds": 1,
+  "iterations": 85,
+  "elapsed_s": 2381.392866166,
+  "initial": {
+   "note": "",
+   "loops": 4,
+   "drain_ash_kg_s": 0.00015347618477098035,
+   "iterations": [
+    5,
+    3,
+    3,
+    1
+   ],
+   "bed_char_kg": 3.424616447917785,
+   "solid_residual": 2.5814023686635e-07
+  },
+  "inner": {
+   "status": "CONVERGED",
+   "reason": "",
+   "rows": 1,
+   "iterations": 85,
+   "final_blocks": {
+    "gas": 2.676334735233996e-06,
+    "solid": 1.0097945678895592e-06,
+    "energy": 1.1430004846692592e-07,
+    "bottom": 5.409927361944822e-05
+   },
+   "final_check": null,
+   "max_delta_y": 231.06920611996608,
+   "all_jacobians_ok": true,
+   "steps": [
+    {
+     "iteration": 1,
+     "merit": 0.3136839653788245,
+     "blocks": {
+      "gas": 0.2934282603118533,
+      "solid": 0.00031269928319561116,
+      "energy": 0.11089359046086077,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 146.3603822021506,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 146.3603822021506,
+     "accepted_i": 5,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=0,geo=7].gas_outflow.gas.O2 = -3.468e-": 1,
+      "幂变量 s < 0（freeboard[b=0,geo=7].gas_outflow.gas.O2 = -7.801e-": 1,
+      "幂变量 s < 0（freeboard[b=7,geo=0].gas_outflow.gas.O2 = -7.629e-": 1
+     }
+    },
+    {
+     "iteration": 2,
+     "merit": 0.3131069540913696,
+     "blocks": {
+      "gas": 0.2931808905449687,
+      "solid": 0.02463751409052255,
+      "energy": 0.10711639939371291,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 231.06920611996608,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 231.06920611996608,
+     "accepted_i": 4,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=0,geo=7].gas_outflow.gas.O2 = -2.724e-": 1,
+      "幂变量 s < 0（bed[b=3,geo=4].gas_outflow.bubble.O2 = -3.890e-09）": 1
+     }
+    },
+    {
+     "iteration": 3,
+     "merit": 0.29820500210165773,
+     "blocks": {
+      "gas": 0.27303161442438506,
+      "solid": 0.06432304130506976,
+      "energy": 0.10120527239491993,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 214.26652395731088,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 214.26652395731088,
+     "accepted_i": 4,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=0,geo=7].gas_outflow.gas.O2 = -1.942e-": 1,
+      "幂变量 s < 0（bed[b=6,geo=1].gas_outflow.bubble.O2 = -1.147e-08）": 1
+     }
+    },
+    {
+     "iteration": 4,
+     "merit": 0.28611458441555054,
+     "blocks": {
+      "gas": 0.255154605824964,
+      "solid": 0.08749893844245375,
+      "energy": 0.09540240202968744,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 199.99163387451662,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 199.99163387451662,
+     "accepted_i": 4,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=0,geo=7].gas_outflow.gas.O2 = -1.419e-": 1,
+      "TrialNotEvaluable: 床区格 0 没有焦炭，不能按焦炭比例分配灰": 1
+     }
+    },
+    {
+     "iteration": 5,
+     "merit": 0.2749486760996074,
+     "blocks": {
+      "gas": 0.2386860114896295,
+      "solid": 0.10273967470977567,
+      "energy": 0.08983496896325374,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 187.74131972027558,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 187.74131972027558,
+     "accepted_i": 4,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=0,geo=7].gas_outflow.gas.O2 = -8.046e-": 1
+     }
+    },
+    {
+     "iteration": 6,
+     "merit": 0.2640263066355012,
+     "blocks": {
+      "gas": 0.2233635816759113,
+      "solid": 0.11257385789047528,
+      "energy": 0.08453240500628902,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 176.5883535298935,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 176.5883535298935,
+     "accepted_i": 3,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=0,geo=7].gas_outflow.gas.O2 = -3.692e-": 1
+     }
+    },
+    {
+     "iteration": 7,
+     "merit": 0.2609906005500343,
+     "blocks": {
+      "gas": 0.19459096880405846,
+      "solid": 0.1569029394078237,
+      "energy": 0.07504609277337711,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 155.65720511901483,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 155.65720511901483,
+     "accepted_i": 3,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -8.932e-": 1
+     }
+    },
+    {
+     "iteration": 8,
+     "merit": 0.2510179910568473,
+     "blocks": {
+      "gas": 0.16962032124100745,
+      "solid": 0.17271478906576734,
+      "energy": 0.06639713920253192,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 137.62361982888646,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 137.62361982888646,
+     "accepted_i": 3,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -5.714e-": 1
+     }
+    },
+    {
+     "iteration": 9,
+     "merit": 0.23547567531636504,
+     "blocks": {
+      "gas": 0.14782834030404168,
+      "solid": 0.1736655690771367,
+      "energy": 0.05861608640778471,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 121.7684524610671,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 121.7684524610671,
+     "accepted_i": 2,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -3.807e-": 1
+     }
+    },
+    {
+     "iteration": 10,
+     "merit": 0.23127871704283678,
+     "blocks": {
+      "gas": 0.11052990419006295,
+      "solid": 0.1979746936448146,
+      "energy": 0.045596117301343754,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 93.2776576317179,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 93.2776576317179,
+     "accepted_i": 2,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.608e-": 1
+     }
+    },
+    {
+     "iteration": 11,
+     "merit": 0.19693645764476703,
+     "blocks": {
+      "gas": 0.08678612782981124,
+      "solid": 0.17328926483174942,
+      "energy": 0.0349709459415757,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 71.45020887401124,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 71.45020887401124,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -6.863e-": 1
+     }
+    },
+    {
+     "iteration": 12,
+     "merit": 0.17771868931350657,
+     "blocks": {
+      "gas": 0.11508613413317718,
+      "solid": 0.13403627403395332,
+      "energy": 0.019323340929714956,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 37.60192929980084,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 37.60192929980084,
+     "accepted_i": 2,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -7.524e-": 1
+     }
+    },
+    {
+     "iteration": 13,
+     "merit": 0.16939078543532493,
+     "blocks": {
+      "gas": 0.13487549808659377,
+      "solid": 0.10134739512856163,
+      "energy": 0.015183665794027761,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 28.534213013069188,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 28.534213013069188,
+     "accepted_i": 4,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.808e-": 1
+     }
+    },
+    {
+     "iteration": 14,
+     "merit": 0.16901153444347777,
+     "blocks": {
+      "gas": 0.13902867244771816,
+      "solid": 0.09503713811038263,
+      "energy": 0.014278283935824742,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 26.79681108934177,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 26.79681108934177,
+     "accepted_i": 6,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.234e-": 1
+     }
+    },
+    {
+     "iteration": 15,
+     "merit": 0.1683625397533755,
+     "blocks": {
+      "gas": 0.13926987766071144,
+      "solid": 0.09355343548482384,
+      "energy": 0.014057050813179385,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 26.394334594357314,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 26.394334594357314,
+     "accepted_i": 7,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.182e-": 1
+     }
+    },
+    {
+     "iteration": 16,
+     "merit": 0.16787994145022758,
+     "blocks": {
+      "gas": 0.1391871401378998,
+      "solid": 0.09282284566682995,
+      "energy": 0.013947547593622243,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 26.1996527414843,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 26.1996527414843,
+     "accepted_i": 7,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.195e-": 1
+     }
+    },
+    {
+     "iteration": 17,
+     "merit": 0.16767589365778807,
+     "blocks": {
+      "gas": 0.13943335289391845,
+      "solid": 0.09209795348477375,
+      "energy": 0.01383879975338569,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -30.788616634849735,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -30.788616634849735,
+     "accepted_i": 8,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.255e-": 1
+     }
+    },
+    {
+     "iteration": 18,
+     "merit": 0.1674347668930528,
+     "blocks": {
+      "gas": 0.13938605586513073,
+      "solid": 0.09173826430996933,
+      "energy": 0.01378475448775927,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -34.435003171004965,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -34.435003171004965,
+     "accepted_i": 8,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.327e-": 1
+     }
+    },
+    {
+     "iteration": 19,
+     "merit": 0.1672887083594078,
+     "blocks": {
+      "gas": 0.13945133228752982,
+      "solid": 0.09137997801371034,
+      "energy": 0.01373089530969335,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -38.982742844635524,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -38.982742844635524,
+     "accepted_i": 8,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.449e-": 1
+     }
+    },
+    {
+     "iteration": 20,
+     "merit": 0.16727230208428945,
+     "blocks": {
+      "gas": 0.13967016190328263,
+      "solid": 0.09102308850903927,
+      "energy": 0.013677217434997528,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -44.75844304735729,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -44.75844304735729,
+     "accepted_i": 9,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.645e-": 1
+     }
+    },
+    {
+     "iteration": 21,
+     "merit": 0.16716229953388562,
+     "blocks": {
+      "gas": 0.1396568144759532,
+      "solid": 0.09084532399806668,
+      "energy": 0.013650482173607497,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -48.372037845957884,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -48.372037845957884,
+     "accepted_i": 9,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.797e-": 1
+     }
+    },
+    {
+     "iteration": 22,
+     "merit": 0.1670861748396635,
+     "blocks": {
+      "gas": 0.13968361714147107,
+      "solid": 0.0906679060181466,
+      "energy": 0.013623793271701993,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -52.514146051548146,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -52.514146051548146,
+     "accepted_i": 9,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -2.001e-": 1
+     }
+    },
+    {
+     "iteration": 23,
+     "merit": 0.1670515131225004,
+     "blocks": {
+      "gas": 0.139759559811385,
+      "solid": 0.09049083372584645,
+      "energy": 0.013597150048669649,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -57.26510813078013,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -57.26510813078013,
+     "accepted_i": 10,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -2.277e-": 1
+     }
+    },
+    {
+     "iteration": 24,
+     "merit": 0.16697805945789587,
+     "blocks": {
+      "gas": 0.1397302581706013,
+      "solid": 0.0904024668829061,
+      "energy": 0.01358386076882362,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -59.94543553995715,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -59.94543553995715,
+     "accepted_i": 10,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -2.458e-": 1
+     }
+    },
+    {
+     "iteration": 25,
+     "merit": 0.16691270669272534,
+     "blocks": {
+      "gas": 0.13971055327867016,
+      "solid": 0.09031418616992806,
+      "energy": 0.013570583426043491,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -62.80707376361462,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -62.80707376361462,
+     "accepted_i": 10,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -2.671e-": 1
+     }
+    },
+    {
+     "iteration": 26,
+     "merit": 0.16685635483265107,
+     "blocks": {
+      "gas": 0.13970151300693384,
+      "solid": 0.09022599147945089,
+      "energy": 0.013557318066753268,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -65.8489976318105,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -65.8489976318105,
+     "accepted_i": 10,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -2.927e-": 1
+     }
+    },
+    {
+     "iteration": 27,
+     "merit": 0.16680996661647185,
+     "blocks": {
+      "gas": 0.1397042783107073,
+      "solid": 0.0901378826954686,
+      "energy": 0.013544064657658396,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -69.06219424744434,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -69.06219424744434,
+     "accepted_i": 10,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -3.230e-": 1
+     }
+    },
+    {
+     "iteration": 28,
+     "merit": 0.16677454116506202,
+     "blocks": {
+      "gas": 0.1397200313813007,
+      "solid": 0.09004985970662632,
+      "energy": 0.013530823272891663,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -72.42443087213198,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -72.42443087213198,
+     "accepted_i": 10,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -3.588e-": 1
+     }
+    },
+    {
+     "iteration": 29,
+     "merit": 0.16675106229692627,
+     "blocks": {
+      "gas": 0.1397499336539899,
+      "solid": 0.08996192238953474,
+      "energy": 0.013517593751779054,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -75.89448037690732,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -75.89448037690732,
+     "accepted_i": 10,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -4.017e-": 1
+     }
+    },
+    {
+     "iteration": 30,
+     "merit": 0.16674041309484666,
+     "blocks": {
+      "gas": 0.13979502356532383,
+      "solid": 0.08987407062389052,
+      "energy": 0.013504376138963305,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -79.4058341945941,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -79.4058341945941,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -4.534e-": 1
+     }
+    },
+    {
+     "iteration": 31,
+     "merit": 0.16670204754375498,
+     "blocks": {
+      "gas": 0.13977811034530394,
+      "solid": 0.08983018713055363,
+      "energy": 0.013497777730652371,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -81.15642675589605,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -81.15642675589605,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -4.830e-": 1
+     }
+    },
+    {
+     "iteration": 32,
+     "merit": 0.16666550003346264,
+     "blocks": {
+      "gas": 0.13976334547048092,
+      "solid": 0.08978632501432715,
+      "energy": 0.013491182480596324,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -82.87305141300668,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -82.87305141300668,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -5.152e-": 1
+     }
+    },
+    {
+     "iteration": 33,
+     "merit": 0.16663076880425381,
+     "blocks": {
+      "gas": 0.13975072612645767,
+      "solid": 0.08974248426241456,
+      "energy": 0.01348459038438995,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -84.53603267549703,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -84.53603267549703,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -5.504e-": 1
+     }
+    },
+    {
+     "iteration": 34,
+     "merit": 0.1665978284178554,
+     "blocks": {
+      "gas": 0.1397402212381044,
+      "solid": 0.08969866486343388,
+      "energy": 0.013478001468622845,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -86.1240488663806,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -86.1240488663806,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -5.880e-": 1
+     }
+    },
+    {
+     "iteration": 35,
+     "merit": 0.16656662638005157,
+     "blocks": {
+      "gas": 0.13973176746799304,
+      "solid": 0.08965486680568151,
+      "energy": 0.013471415736956637,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -87.611295738105,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -87.611295738105,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -6.291e-": 1
+     }
+    },
+    {
+     "iteration": 36,
+     "merit": 0.1665370765756037,
+     "blocks": {
+      "gas": 0.1397252614153138,
+      "solid": 0.08961109007712392,
+      "energy": 0.013464833157536436,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -88.97250756920477,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -88.97250756920477,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -6.731e-": 1
+     }
+    },
+    {
+     "iteration": 37,
+     "merit": 0.16650905865686408,
+     "blocks": {
+      "gas": 0.13972055888923307,
+      "solid": 0.08956733466922387,
+      "energy": 0.013458253925625234,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -90.18016714361613,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -90.18016714361613,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -7.197e-": 1
+     }
+    },
+    {
+     "iteration": 38,
+     "merit": 0.1664824142260377,
+     "blocks": {
+      "gas": 0.13971747044388044,
+      "solid": 0.08952360057059604,
+      "energy": 0.013451677968557367,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -91.20496632159916,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -91.20496632159916,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -7.697e-": 1
+     }
+    },
+    {
+     "iteration": 39,
+     "merit": 0.16645694408172118,
+     "blocks": {
+      "gas": 0.1397157580981055,
+      "solid": 0.08947988777415676,
+      "energy": 0.013445105281150792,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -92.02135227874092,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -92.02135227874092,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -8.222e-": 1
+     }
+    },
+    {
+     "iteration": 40,
+     "merit": 0.16643241231787267,
+     "blocks": {
+      "gas": 0.1397151402619352,
+      "solid": 0.08943619627130464,
+      "energy": 0.013438535934201305,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -92.6037680495,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -92.6037680495,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -8.774e-": 1
+     }
+    },
+    {
+     "iteration": 41,
+     "merit": 0.166408547080736,
+     "blocks": {
+      "gas": 0.13971529267183685,
+      "solid": 0.08939252605636695,
+      "energy": 0.013431970086560274,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -92.93129955724616,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -92.93129955724616,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -9.345e-": 1
+     }
+    },
+    {
+     "iteration": 42,
+     "merit": 0.16638504710010787,
+     "blocks": {
+      "gas": 0.13971585625167116,
+      "solid": 0.08934887712448913,
+      "energy": 0.013425407515618428,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -92.9876958840573,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -92.9876958840573,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -9.938e-": 1
+     }
+    },
+    {
+     "iteration": 43,
+     "merit": 0.16636158953268726,
+     "blocks": {
+      "gas": 0.1397164464032809,
+      "solid": 0.08930524947388585,
+      "energy": 0.01341884841141283,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -92.76414968458955,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -92.76414968458955,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.054e-": 1
+     }
+    },
+    {
+     "iteration": 44,
+     "merit": 0.1663378411355933,
+     "blocks": {
+      "gas": 0.1397166664011937,
+      "solid": 0.08926164309802194,
+      "energy": 0.013412292676078222,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -92.25908261161264,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -92.25908261161264,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.115e-": 1
+     }
+    },
+    {
+     "iteration": 45,
+     "merit": 0.1663134698953608,
+     "blocks": {
+      "gas": 0.1397161211836908,
+      "solid": 0.0892180579974892,
+      "energy": 0.013405740456086947,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -91.4755735600692,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -91.4755735600692,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.177e-": 1
+     }
+    },
+    {
+     "iteration": 46,
+     "merit": 0.16628815328557803,
+     "blocks": {
+      "gas": 0.1397144272289774,
+      "solid": 0.08917449417139837,
+      "energy": 0.013399191635390204,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -90.4280030973446,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -90.4280030973446,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.238e-": 1
+     }
+    },
+    {
+     "iteration": 47,
+     "merit": 0.16626159403938592,
+     "blocks": {
+      "gas": 0.13971123126269844,
+      "solid": 0.0891309516166352,
+      "energy": 0.013392646321448468,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -89.13646542124287,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -89.13646542124287,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.298e-": 1
+     }
+    },
+    {
+     "iteration": 48,
+     "merit": 0.1662335285304636,
+     "blocks": {
+      "gas": 0.1397062202297401,
+      "solid": 0.08908743033065893,
+      "energy": 0.013386104507578265,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -87.62526212556318,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -87.62526212556318,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.357e-": 1
+     }
+    },
+    {
+     "iteration": 49,
+     "merit": 0.16620373238577343,
+     "blocks": {
+      "gas": 0.13969912792270556,
+      "solid": 0.08904393031205535,
+      "energy": 0.013379566180529445,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -85.92346186587089,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -85.92346186587089,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.414e-": 1
+     }
+    },
+    {
+     "iteration": 50,
+     "merit": 0.16617202580259421,
+     "blocks": {
+      "gas": 0.13968974126853917,
+      "solid": 0.08900045155778916,
+      "energy": 0.013373031300952002,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -84.06276031915708,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -84.06276031915708,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.468e-": 1
+     }
+    },
+    {
+     "iteration": 51,
+     "merit": 0.16613827530973518,
+     "blocks": {
+      "gas": 0.13967790237464514,
+      "solid": 0.08895699406472439,
+      "energy": 0.01336649984405223,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -82.07482264025799,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -82.07482264025799,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.520e-": 1
+     }
+    },
+    {
+     "iteration": 52,
+     "merit": 0.1661023917877861,
+     "blocks": {
+      "gas": 0.13966350612542866,
+      "solid": 0.08891355782629866,
+      "energy": 0.013359971895366784,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -79.99128648078023,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -79.99128648078023,
+     "accepted_i": 11,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.570e-": 1
+     }
+    },
+    {
+     "iteration": 53,
+     "merit": 0.16606432810011704,
+     "blocks": {
+      "gas": 0.13964649736035437,
+      "solid": 0.08887014283703723,
+      "energy": 0.013353447287215998,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -77.8421901707836,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -77.8421901707836,
+     "accepted_i": 10,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.617e-": 1
+     }
+    },
+    {
+     "iteration": 54,
+     "merit": 0.16606091971402487,
+     "blocks": {
+      "gas": 0.13969888526002222,
+      "solid": 0.08878335516870625,
+      "energy": 0.013340403230874234,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -73.47131733401726,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -73.47131733401726,
+     "accepted_i": 10,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.702e-": 1
+     }
+    },
+    {
+     "iteration": 55,
+     "merit": 0.16604072847345677,
+     "blocks": {
+      "gas": 0.13973120066823458,
+      "solid": 0.08869665263196445,
+      "energy": 0.013327373473208585,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -69.10131097580584,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -69.10131097580584,
+     "accepted_i": 10,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.776e-": 1
+     }
+    },
+    {
+     "iteration": 56,
+     "merit": 0.16600472574867653,
+     "blocks": {
+      "gas": 0.139744618921581,
+      "solid": 0.08861003515743388,
+      "energy": 0.013314357767228124,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -64.86325893257369,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -64.86325893257369,
+     "accepted_i": 10,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.839e-": 1
+     }
+    },
+    {
+     "iteration": 57,
+     "merit": 0.1659543023862921,
+     "blocks": {
+      "gas": 0.13974080970352157,
+      "solid": 0.08852350265686465,
+      "energy": 0.013301355618324509,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -60.83895692425883,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -60.83895692425883,
+     "accepted_i": 10,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.893e-": 1
+     }
+    },
+    {
+     "iteration": 58,
+     "merit": 0.1658910138874228,
+     "blocks": {
+      "gas": 0.13972163428464673,
+      "solid": 0.08843705502200035,
+      "energy": 0.013288367110379652,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -57.0741702029009,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -57.0741702029009,
+     "accepted_i": 10,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.939e-": 1
+     }
+    },
+    {
+     "iteration": 59,
+     "merit": 0.16581641919865073,
+     "blocks": {
+      "gas": 0.13968895462305628,
+      "solid": 0.08835069215082723,
+      "energy": 0.013275391845446514,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -53.58687200920739,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -53.58687200920739,
+     "accepted_i": 9,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.977e-": 1
+     }
+    },
+    {
+     "iteration": 60,
+     "merit": 0.16579317171490973,
+     "blocks": {
+      "gas": 0.13977282638346744,
+      "solid": 0.08817813940550936,
+      "energy": 0.013249472557395149,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -47.379426122242904,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -47.379426122242904,
+     "accepted_i": 9,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -2.038e-": 1
+     }
+    },
+    {
+     "iteration": 61,
+     "merit": 0.16570728949725494,
+     "blocks": {
+      "gas": 0.13978196962693856,
+      "solid": 0.08800592583955452,
+      "energy": 0.01322360680236355,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -42.17618190257381,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -42.17618190257381,
+     "accepted_i": 9,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -2.081e-": 1
+     }
+    },
+    {
+     "iteration": 62,
+     "merit": 0.16557460469916213,
+     "blocks": {
+      "gas": 0.13973527675385775,
+      "solid": 0.08783405035407553,
+      "energy": 0.013197793383907168,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -37.8245078359113,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -37.8245078359113,
+     "accepted_i": 8,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -2.111e-": 1
+     }
+    },
+    {
+     "iteration": 63,
+     "merit": 0.16552669110369378,
+     "blocks": {
+      "gas": 0.13989848234436314,
+      "solid": 0.08749099891817817,
+      "energy": 0.01314630038379315,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -30.949335632226504,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.suspension.H2",
+     "delta_y_scaled": -30.949335632226504,
+     "accepted_i": 8,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -2.148e-": 1
+     }
+    },
+    {
+     "iteration": 64,
+     "merit": 0.16529260481604677,
+     "blocks": {
+      "gas": 0.13983978721421778,
+      "solid": 0.08714929568021978,
+      "energy": 0.013095013600517473,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 26.813076511754698,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 26.813076511754698,
+     "accepted_i": 7,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -2.165e-": 1
+     }
+    },
+    {
+     "iteration": 65,
+     "merit": 0.16513981437867412,
+     "blocks": {
+      "gas": 0.14009105980379058,
+      "solid": 0.08646869784719301,
+      "energy": 0.012992980746716783,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 26.65449382579406,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 26.65449382579406,
+     "accepted_i": 6,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -2.168e-": 1
+     }
+    },
+    {
+     "iteration": 66,
+     "merit": 0.1650297938491744,
+     "blocks": {
+      "gas": 0.14080489882400168,
+      "solid": 0.08511875267873441,
+      "energy": 0.012791062015332417,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 26.29235871244408,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 26.29235871244408,
+     "accepted_i": 5,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -2.130e-": 1
+     }
+    },
+    {
+     "iteration": 67,
+     "merit": 0.16392989408800646,
+     "blocks": {
+      "gas": 0.14113506432330497,
+      "solid": 0.08246364567068994,
+      "energy": 0.012395601512653056,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 25.529420024225697,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 25.529420024225697,
+     "accepted_i": 3,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -2.009e-": 1
+     }
+    },
+    {
+     "iteration": 68,
+     "merit": 0.16155182966021178,
+     "blocks": {
+      "gas": 0.14409024787593724,
+      "solid": 0.07223588547418996,
+      "energy": 0.010907382058622198,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 22.51710123561434,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 22.51710123561434,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.554e-": 1
+     }
+    },
+    {
+     "iteration": 69,
+     "merit": 0.09761611526914139,
+     "blocks": {
+      "gas": 0.08992374346592177,
+      "solid": 0.03749448025318909,
+      "energy": 0.0060654984837692815,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 11.991667777985544,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 11.991667777985544,
+     "accepted_i": 2,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -5.540e-": 1
+     }
+    },
+    {
+     "iteration": 70,
+     "merit": 0.07190542399373762,
+     "blocks": {
+      "gas": 0.06580825862825597,
+      "solid": 0.028621926666678607,
+      "energy": 0.00452199180926081,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 9.059613388653487,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 9.059613388653487,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -3.006e-": 1
+     }
+    },
+    {
+     "iteration": 71,
+     "merit": 0.03545138815517384,
+     "blocks": {
+      "gas": 0.03183312095444489,
+      "solid": 0.015449879241973755,
+      "energy": 0.002180496236389843,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 4.585208005682928,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 4.585208005682928,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -7.093e-": 1
+     }
+    },
+    {
+     "iteration": 72,
+     "merit": 0.018356714002990937,
+     "blocks": {
+      "gas": 0.016480474458237054,
+      "solid": 0.008017233548696743,
+      "energy": 0.001042533857796046,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 2.3034713282484356,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 2.3034713282484356,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.710e-": 1
+     }
+    },
+    {
+     "iteration": 73,
+     "merit": 0.00956618108399698,
+     "blocks": {
+      "gas": 0.008638273385631808,
+      "solid": 0.004079389611095161,
+      "energy": 0.0005006334465411778,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": 1.151841087556517,
+     "delta_y_name": "freeboard[b=6,geo=1].temperature",
+     "delta_y_scaled": 1.151841087556517,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -4.125e-": 1
+     }
+    },
+    {
+     "iteration": 74,
+     "merit": 0.004968334518503113,
+     "blocks": {
+      "gas": 0.0045164428588474565,
+      "solid": 0.002055991203158198,
+      "energy": 0.0002428826116696765,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -0.7125014557180195,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.bubble.C6H6",
+     "delta_y_scaled": -0.7125014557180195,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -9.815e-": 1
+     }
+    },
+    {
+     "iteration": 75,
+     "merit": 0.0025690320190488317,
+     "blocks": {
+      "gas": 0.0023498155728245004,
+      "solid": 0.0010315530748825827,
+      "energy": 0.00011912406268203208,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -0.5373432313245893,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.bubble.C6H6",
+     "delta_y_scaled": -0.5373432313245893,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -2.293e-": 1
+     }
+    },
+    {
+     "iteration": 76,
+     "merit": 0.0013237400778011409,
+     "blocks": {
+      "gas": 0.0012173853360642006,
+      "solid": 0.0005165137937480957,
+      "energy": 5.894266689566422e-05,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -0.3664837695594693,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.bubble.C6H6",
+     "delta_y_scaled": -0.3664837695594693,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -5.289e-": 1
+     }
+    },
+    {
+     "iteration": 77,
+     "merit": 0.0006790406912952433,
+     "blocks": {
+      "gas": 0.0006272661904544603,
+      "solid": 0.0002584046541210753,
+      "energy": 2.93329418237971e-05,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -0.22681629096820852,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.bubble.C6H6",
+     "delta_y_scaled": -0.22681629096820852,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.223e-": 1
+     }
+    },
+    {
+     "iteration": 78,
+     "merit": 0.0003461272572009343,
+     "blocks": {
+      "gas": 0.00032076285624097985,
+      "solid": 0.00012923201082732,
+      "energy": 1.4640888330211523e-05,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -0.12955623068136812,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.bubble.C6H6",
+     "delta_y_scaled": -0.12955623068136812,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -2.872e-": 1
+     }
+    },
+    {
+     "iteration": 79,
+     "merit": 0.0001752658159304977,
+     "blocks": {
+      "gas": 0.00016275303009908253,
+      "solid": 6.462218362856485e-05,
+      "energy": 7.316475273401103e-06,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -0.06992982426159958,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.bubble.C6H6",
+     "delta_y_scaled": -0.06992982426159958,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -6.882e-": 1
+     }
+    },
+    {
+     "iteration": 80,
+     "merit": 8.829186467117652e-05,
+     "blocks": {
+      "gas": 8.208520544471965e-05,
+      "solid": 3.231243594211257e-05,
+      "energy": 3.6577175531181897e-06,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -0.03644558260240962,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.bubble.C6H6",
+     "delta_y_scaled": -0.03644558260240962,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.674e-": 1
+     }
+    },
+    {
+     "iteration": 81,
+     "merit": 4.4335313666477295e-05,
+     "blocks": {
+      "gas": 4.124612006920815e-05,
+      "solid": 1.6156518636170437e-05,
+      "energy": 1.8288036254530585e-06,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -0.018621894244244482,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.bubble.C6H6",
+     "delta_y_scaled": -0.018621894244244482,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -4.115e-": 1
+     }
+    },
+    {
+     "iteration": 82,
+     "merit": 2.2228724737869918e-05,
+     "blocks": {
+      "gas": 2.0688662083931014e-05,
+      "solid": 8.078325194516297e-06,
+      "energy": 9.143996394075914e-07,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -0.00941471474285124,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.bubble.C6H6",
+     "delta_y_scaled": -0.00941471474285124,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.013e-": 1
+     }
+    },
+    {
+     "iteration": 83,
+     "merit": 1.1146931214027624e-05,
+     "blocks": {
+      "gas": 1.0379311306081274e-05,
+      "solid": 4.039175779362848e-06,
+      "energy": 4.5719943692585414e-07,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -0.004733835352053572,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.bubble.C6H6",
+     "delta_y_scaled": -0.004733835352053572,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -2.481e-": 1
+     }
+    },
+    {
+     "iteration": 84,
+     "merit": 5.609590702894881e-06,
+     "blocks": {
+      "gas": 5.228432579432791e-06,
+      "solid": 2.0195897206703792e-06,
+      "energy": 2.2860003607390394e-07,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -0.002373602021651558,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.bubble.C6H6",
+     "delta_y_scaled": -0.002373602021651558,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -5.984e-": 1
+     }
+    },
+    {
+     "iteration": 85,
+     "merit": 2.8627813722739687e-06,
+     "blocks": {
+      "gas": 2.676334735233996e-06,
+      "solid": 1.0097945678895592e-06,
+      "energy": 1.1430004846692592e-07,
+      "bottom": 5.409927361944822e-05
+     },
+     "jacobian_ok": true,
+     "delta_y": -0.0011884798447230108,
+     "delta_y_name": "bed[b=7,geo=0].gas_outflow.bubble.C6H6",
+     "delta_y_scaled": -0.0011884798447230108,
+     "accepted_i": 1,
+     "rejections": {
+      "幂变量 s < 0（freeboard[b=1,geo=6].gas_outflow.gas.O2 = -1.391e-": 1
+     }
+    }
+   ]
+  },
+  "final_check": {
+   "ok": true,
+   "message": "",
+   "stocks_within_tau": {
+    "freeboard[b=5,geo=2].char.free.k4": -5.591087896534758e-20,
+    "freeboard[b=5,geo=2].ash.free.k4": -2.2037197057530235e-20,
+    "freeboard[b=5,geo=2].char.free.k5": -9.136791378451587e-126,
+    "freeboard[b=5,geo=2].char.free.k6": -1.0908453030671843e-122
+   },
+   "stocks_below_tau": [],
+   "gas_below_tau_n": [],
+   "inert_kg": [
+    0.43667703754173354,
+    0.4343876432288617,
+    0.4318925605801291,
+    0.4291115753859773,
+    0.42591146822780224,
+    0.4220744215334675,
+    0.41723911457939905,
+    0.4107682171776443
+   ],
+   "inert_negative_cells": []
+  },
+  "temperature_c": {
+   "bed": [
+    784.218849657955,
+    791.1136336042251,
+    800.5206767078497,
+    812.9232239257111,
+    829.1627682707107,
+    850.6442488150755,
+    879.65998972773,
+    919.5581963349604
+   ],
+   "freeboard": [
+    797.7657951109019,
+    827.5230137486798,
+    862.332526114628,
+    900.9379454865899,
+    942.5297952303405,
+    988.0674687256948,
+    1046.1888009164159,
+    797.9652448751414
+   ]
+  },
+  "final_ratios": {
+   "gas": 7.010419029510595e-07,
+   "solid": 3.233530086559495e-07,
+   "energy": 5.111816085147944e-08
+  }
+ },
+ "extrapolated": true
+}

@@ -61,15 +61,6 @@ def outer_met(current: OuterMonitor, previous: OuterMonitor, *, m_dot_ref, n_dot
     )
 
 
-def arrays_allowed(flows, inventories, temperatures, inert) -> bool:
-    """气体出流与存量不小于 0，温度大于 0，惰性存量不小于 0。ADR 0017 第 7、14 项。"""
-    groups = [np.asarray(item, dtype=float) for item in (*flows, *inventories, inert)]
-    if any(np.any(item < 0.0) or not np.isfinite(item).all() for item in groups):
-        return False
-    temperature = np.asarray(temperatures, dtype=float)
-    return bool(np.isfinite(temperature).all() and np.all(temperature > 0.0))
-
-
 def balance_met(gap: BalanceGap, inlet_mol: tuple[float, float, float], heat_loss_w: float, q_dot_ref: float, element_tolerance: float, energy_tolerance: float) -> dict:
     """ADR 0012 第 3 项。热损失单独减去，不写进物流焓。进口元素不是正数则该项不通过。"""
     ratios = {}

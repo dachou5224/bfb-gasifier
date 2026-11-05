@@ -24,7 +24,7 @@ from hamel.solver.precalc import (
     PrecalcError, _adaptive_bed, bed_downflow, bed_release_terms, downward_mass_flow,
     freeboard_return_kg_s, initial_temperature_k, require_geldart_b, wall_coefficient,
 )
-from hamel.solver.precalc import _drain_terms, _equilibrium, _gas_enthalpy, _load, _primary_temperature, _primary_vector
+from hamel.solver.precalc import _drain, _drain_terms, _equilibrium, _gas_enthalpy, _load, _primary_temperature, _primary_vector
 from hamel.solver.precalc import _transport as pack_transport
 from hamel.solver.residual import wall_area_m2
 
@@ -264,13 +264,12 @@ def test_drain_fuel_ash_uses_the_dry_matter_of_the_leaving_fuel():
     assert terms["fuel_ash"] == pytest.approx(0.2 * dry_out)
 
 
-def test_diagnostic_signed_drain_reuses_the_shared_balance_formula():
-    """T26n 审查 P2：诊断的 signed_drain 只取消负余额的符号拒绝，公式与 `_drain_terms` 逐位相同。
+def test_unguarded_drain_reuses_the_shared_balance_formula():
+    """ADR 0054 第 3 项第 5 步：交替中间用 `_drain_terms` 取负余额，公式与外侧的守卫版逐位相同。
 
-    负余额 + 非零 dried_exit 时，旧复制式会少算 `ash_wf·m·Σdried_exit`；本用例断言修正后的
-    诊断值等于共享公式、且与复制式的差恰为该修正项。
+    负余额 + 非零 dried_exit 时，旧复制式会少算 `ash_wf·m·Σdried_exit`；本用例断言不设守卫的
+    结果等于共享公式、且与复制式的差恰为该修正项。
     """
-    from tools import alternation_diagnostic as tool
 
     n_free, n_class = 2, 1
     moisture, ash_wf = 0.1, 0.2
@@ -295,7 +294,7 @@ def test_diagnostic_signed_drain_reuses_the_shared_balance_formula():
     )
     terms = _drain_terms(case, state, released, inert, masses, books)
     assert terms["ash"] < 0.0
-    balance, char = tool.signed_drain(case, state, released, inert, masses, books)
+    balance, char = _drain(case, state, released, inert, masses, books, 0.0, 0.0, guard_sign=False)
     assert balance == terms["ash"]
     assert np.array_equal(char, np.asarray(terms["char"], dtype=float))
     # 复制式（乘燃料的**实际**出口流）与共享公式之差恰为 ash_wf·m·Σdried_exit。
