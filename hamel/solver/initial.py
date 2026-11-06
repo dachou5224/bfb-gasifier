@@ -7,7 +7,6 @@
 """
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, replace
 
 import numpy as np
@@ -17,7 +16,6 @@ from hamel.solver.frozen import AssemblyError, FreeboardDomainError, TrialNotEva
 from hamel.solver.newton import IDENTITY, build_rule, damped_newton
 from hamel.solver.precalc import PrecalcError, _drain_terms, bed_downflow, bed_release_terms, freeboard_return_kg_s
 from hamel.solver.residual import evaluate_residual
-from hamel.solver.sensitivity import diameter_at, section_volume_m3
 from hamel.solver.vector import ReactorState, pack_state, unknown_slots, unpack_state
 
 
@@ -56,8 +54,6 @@ class SolidSolve:
     bottom_closure_kg_s: float
     bed_char_kg: float
     bed_inert_kg: np.ndarray
-    # 每次接受的阻尼步（原始最大分量，kg）。ADR 0054 第 3 项报告项。
-    step_history: tuple[float, ...] = ()
 
 
 def interface_flows(frozen, state: ReactorState) -> dict:
@@ -204,13 +200,9 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
         raise InitialStateError(f"初值构造的收敛解不满足固相门：{residual:.3e} > {gate:.1e}")
     history = tuple(float(entry["merit"]) for entry in log.get("iterations", ()))
     history += (float(outcome.merit) if outcome.merit is not None else residual,)
-    steps = tuple(
-        float(entry["step"]["max"]["raw"]) for entry in log.get("iterations", ())
-        if (entry.get("step") or {}).get("max") is not None
-    )
     return SolidSolve(
         current, int(outcome.iterations), history, residual, drain_ash, drain_char, down,
-        np.asarray(frozen.m_dot_ab_kg_s, dtype=float), closure, float(current.bed_char_kg.sum()), inert, steps,
+        np.asarray(frozen.m_dot_ab_kg_s, dtype=float), closure, float(current.bed_char_kg.sum()), inert,
     )
 
 
@@ -226,7 +218,10 @@ def _rejected(state, frozen, detail, residual, inert, drain_ash, drain_char) -> 
         "freeboard_ash_hover_kg": np.asarray(state.freeboard_ash_hover_kg, dtype=float).tolist(),
         "bed_char_total_kg": float(np.sum(state.bed_char_kg)),
         "bed_inert_kg": np.asarray(inert, dtype=float).tolist(),
-        "min_stock_kg": _minimum_stock(state),
+        "min_stock_kg": float(min(np.min(item) for item in (
+            state.bed_char_kg, state.freeboard_char_free_kg, state.freeboard_char_hover_kg,
+            state.freeboard_ash_free_kg, state.freeboard_ash_hover_kg,
+        ))),
         "drain_ash_kg_s": float(drain_ash),
         "drain_char_kg_s": np.asarray(drain_char, dtype=float).tolist(),
         "detail": {key: value for key, value in detail.items()},
@@ -289,7 +284,7 @@ def construct(initial, precalc, m_dot_ref: float, *, gate: float = 1.0e-6, toler
 
 
 def _record(index: int, solved: SolidSolve, result, current: dict | None, change: dict | None, a5: dict | None = None) -> dict:
-    """一次交替的报告量。ADR 0054 第 3 项报告项：存量、排灰、带出、回落、两类 Ṁ_ab、闭合差、体积比。
+    """一次交替的报告量。ADR 0054 第 3 项报告项：存量、排灰、带出、回落、两类 Ṁ_ab、闭合差。
 
     result 为 None 时是重做预计算报错的那一次：记下已收敛的固相解与 A5 各项，不记冻结量项。
     """
@@ -297,8 +292,6 @@ def _record(index: int, solved: SolidSolve, result, current: dict | None, change
         "loop": index,
         "iterations": solved.iterations,
         "residual_history": list(solved.merit_history),
-        "step_history": list(solved.step_history),
-        "min_stock_kg": _minimum_stock(solved.state),
         "solid_residual": solved.solid_residual,
         "bed_char_kg": solved.bed_char_kg,
         "bed_inert_kg": np.asarray(solved.bed_inert_kg, dtype=float).tolist(),
@@ -321,34 +314,6 @@ def _record(index: int, solved: SolidSolve, result, current: dict | None, change
         "elutriated_ash_kg_s": float(np.sum((frozen.a_free_per_s[0] + frozen.a_hover_per_s[0]) * top)),
         "return_kg_s": float(np.sum(current["return"])),
         "up_kg_s": np.asarray(current["up"], dtype=float).tolist(),
-        "volume_ratio": _volume_ratio(state, frozen),
         "change": change,
     })
     return record
-
-
-def _minimum_stock(state) -> float:
-    """收敛解全部固相未知量中的最小存量。ADR 0054 第 3 项报告项（舍入容差 τ 的对照）。"""
-    stocks = (
-        state.bed_char_kg, state.freeboard_char_free_kg, state.freeboard_char_hover_kg,
-        state.freeboard_ash_free_kg, state.freeboard_ash_hover_kg,
-    )
-    return float(min(np.min(item) for item in stocks))
-
-
-def _volume_ratio(state, frozen) -> list:
-    """每格自由空间固体体积与 (1−ε_mf)·V 之比。只报告，不截断。"""
-    ratios = []
-    for cell in range(frozen.n_freeboard):
-        solid = float(
-            state.freeboard_char_free_kg[cell].sum() + state.freeboard_char_hover_kg[cell].sum()
-            + state.freeboard_ash_free_kg[cell].sum() + state.freeboard_ash_hover_kg[cell].sum()
-        )
-        height = frozen.freeboard_height_m
-        geometric = frozen.n_freeboard - 1 - cell
-        z0 = geometric * height
-        d0 = diameter_at(z0, frozen.bed_diameter_m, frozen.freeboard_diameter_m)
-        d1 = diameter_at(z0 + height, frozen.bed_diameter_m, frozen.freeboard_diameter_m)
-        volume = math.pi * (0.5 * d0) ** 2 * height if d0 == d1 else section_volume_m3(z0, z0 + height, frozen.bed_diameter_m, frozen.freeboard_diameter_m)
-        ratios.append(solid / frozen.rho_p_kg_m3 / (volume * (1.0 - frozen.epsilon_mf)))
-    return ratios

@@ -22,7 +22,7 @@ from hamel.freeboard import CellTransport, account_freeboard, terminal_settling_
 from hamel.cases.config import SolverConfig
 from hamel.solver.precalc import (
     PrecalcError, _adaptive_bed, bed_downflow, bed_release_terms, downward_mass_flow,
-    freeboard_return_kg_s, initial_temperature_k, precalculate, require_geldart_b, wall_coefficient,
+    freeboard_return_kg_s, initial_temperature_k, precalculate, wall_coefficient,
 )
 from hamel.solver.precalc import _drain_terms, _equilibrium, _gas_enthalpy, _initial_fine_share, _load, _primary_temperature, _primary_vector
 from hamel.solver.precalc import _transport as pack_transport
@@ -40,10 +40,7 @@ _PRESSURE = 5.0e5
 def test_geldart_b_and_d():
     """ADR 0024 第 4 项。d' 用 μm，密度差用 g/cm³。"""
     assert geldart_group(300.0e-6, 1500.0, 0.0) == "B"
-    assert require_geldart_b(300.0e-6, 1500.0, 0.0) == "B"
     assert geldart_group(2.0e-3, 1500.0, 0.0) == "D"
-    with pytest.raises(PrecalcError, match="不是 B"):
-        require_geldart_b(2.0e-3, 1500.0, 0.0)
 
 
 def test_downward_flow_reports_the_bottom_residual():
@@ -441,8 +438,8 @@ def test_precalculation_timeout_is_recorded():
 
 _CASE1_SMOKE = r"""
 import json, math
-from hamel.solver.precalc import initial_precalculation
-result = initial_precalculation("data/cases/vtt_pressurized.json", "1")
+from hamel.solver.precalc import precalculate
+result = precalculate("data/cases/vtt_pressurized.json", "1", None)
 _previous, _finer, rho_rel, masses = result.substep_history[-1]
 print(json.dumps({
     "geldart": result.geldart,

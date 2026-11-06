@@ -19,14 +19,12 @@ import argparse
 import json
 import signal
 import sys
-import time
 from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
 
 import hamel.solver.driver as driver
-import hamel.solver.initial as initial
 import hamel.solver.precalc as precalc
 import hamel.solver.residual as residual
 from hamel.cases.config import SolverConfig
@@ -200,7 +198,13 @@ def _summary(x, frozen, case, recompute_down, temperature, history):
         "ash_in_kg_s": info["ash_in"],
         "bottom_ash_fraction": info["fraction"],
         "hover_char_kg": float(np.sum(state.freeboard_char_hover_kg)),
-        "volume_ratio": initial._volume_ratio(state, frozen),
+        "volume_ratio": [
+            (state.freeboard_char_free_kg[cell].sum() + state.freeboard_char_hover_kg[cell].sum()
+             + state.freeboard_ash_free_kg[cell].sum() + state.freeboard_ash_hover_kg[cell].sum())
+            / frozen.rho_p_kg_m3
+            / (residual._cell_volume_m3("freeboard", cell, frozen) * (1.0 - frozen.epsilon_mf))
+            for cell in range(frozen.n_freeboard)
+        ],
         "flows": flows,
     }
 

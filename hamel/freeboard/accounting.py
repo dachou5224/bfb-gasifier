@@ -697,7 +697,6 @@ def account_freeboard(
         equilibria = stable_equilibria(edges, gas_velocity, densities, viscosities, diameter, rho_p, phi)
         if index == 0:
             first = equilibria
-        capture_set = frozenset(cell for item in equilibria for cell in item.cells)
 
         def follow(height: float, speed: float, diameter=diameter, phi=phi, equilibria=equilibria) -> TrajectoryFate:
             return trace_until_fate(
@@ -762,7 +761,7 @@ def account_freeboard(
             statistics.append((ledger.segments, ledger.time_s, diameter, phi, start))
     cells = []
     for cell in range(count):
-        bed_mass, local_mass = totals["res"][cell], local_totals["res"][cell]
+        bed_mass = totals["res"][cell]
         use_bed = bed_mass > 0.0 or totals["up"][cell] + totals["down"][cell] > 0.0
         source = totals if use_bed else local_totals
         mass = source["res"][cell]
