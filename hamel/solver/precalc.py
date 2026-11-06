@@ -17,7 +17,7 @@ from hamel.hydrodynamics.bed import (
     state_at_height, suspension_superficial_velocity,
 )
 from hamel.properties.data import (
-    GAS_SPECIES, PropertyError, atomic_weight, atoms, gas_constant_j_mol_k, molar_mass_g_mol, molar_mass_kg_mol,
+    GAS_SPECIES, PropertyError, atomic_weight, atoms, molar_mass_g_mol, molar_mass_kg_mol,
 )
 from hamel.properties.equilibrium import adiabatic_gas_equilibrium
 from hamel.properties.thermo import (
@@ -64,8 +64,6 @@ class PrecalcResult:
     d_bar_m: float
     d_sv_m: float
     bottom_residual_kg_s: float
-    feed_enthalpy_w: float
-    equilibrium_enthalpy_w: float
     f0_a_kg_s: float
     hover_balance: tuple[tuple[int, int], ...]
     release_to_gas: float
@@ -78,12 +76,6 @@ class PrecalcResult:
     substep_history: tuple
     reported: dict
     solid_context: SolidContext
-def require_geldart_b(surface_volume_diameter_m: float, rho_s_kg_m3: float, rho_f_kg_m3: float) -> str:
-    """收敛后的真实类别必须是 B。求解手段：ADR 0035。"""
-    group = geldart_group(surface_volume_diameter_m, rho_s_kg_m3, rho_f_kg_m3)
-    if group != "B":
-        raise PrecalcError(f"Geldart 判类为 {group}，不是 B 类")
-    return group
 def downward_mass_flow(up, feed, recycle, leaving, reaction, returned):
     """自上而下确定 Ṁ_ab。最底一格保持 0，残差只返回。
     解释性选择：ADR 0009 第 2 项。容差由调用方按 ADR 0017 第 13 项报告。
@@ -117,9 +109,6 @@ def wall_coefficient(bed_temperature_k, freeboard_temperature_k, bed_height_m, f
     if areas <= 0.0:
         raise PrecalcError("Σ A_W·(T−298.15 K) 不是正数，不能求 k_W")
     return loss / areas
-def initial_precalculation(path, case_id: str = "1", *, adiabatic: bool = False) -> PrecalcResult:
-    """第一次外层：先做绝热平衡初值，再把这份初值当作上一轮。ADR 0017 第 9、10 项。"""
-    return precalculate(path, case_id, None, adiabatic=adiabatic)
 def initial_temperature_k(t_ad: float) -> float:
     """求解手段：ADR 0035。T_init = min(max(T_ad, 1073), 1273)，只用于构造初值。"""
     temperature = float(t_ad)
@@ -129,12 +118,9 @@ def initial_temperature_k(t_ad: float) -> float:
 def _eq8_distance(d_sv, rho_s, rho_f) -> float:
     return (float(rho_s) - float(rho_f)) / 1000.0 * (float(d_sv) * 1.0e6) ** 2 - 1.0e6
 def _halt(iteration, quantity, value, cell=None, klass=None):
-    text = f"迭代 {iteration}：{quantity}={value}"
-    if cell is not None:
-        text += f"，cell={cell}"
-    if klass is not None:
-        text += f"，粒级={klass}"
-    raise PrecalcError(text)
+    where = "" if cell is None else f"，cell={cell}"
+    where += "" if klass is None else f"，粒级={klass}"
+    raise PrecalcError(f"迭代 {iteration}：{quantity}={value}{where}")
 def precalculate(path, case_id, previous: ReactorState | None, *, reaction_solid_kg_s=None, previous_drain_kg_s: float = 0.0, previous_fuel_return_kg_s: float = 0.0, previous_release=None, adiabatic: bool = False, iteration: int = 0, consistency: bool = False, solver=None, redirected_return_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0, previous_fine_share: float | None = None) -> PrecalcResult:
     """用上一轮单元解填满冻结量。previous 为空时构造初值。
     自由空间燃料回落由调用方传入，第一次外层为 0。一次风温度是混合焓的等效温度。
@@ -245,7 +231,7 @@ def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_k
         reported["ash_balance"] = balance
     return PrecalcResult(
         frozen, state, t_ad, dict(equilibrium.fractions), group, d_bar, d_sv, residual,
-        equilibrium.feed_enthalpy, equilibrium.product_enthalpy, ejection.mass_flow, _hover_pairs(hover),
+        ejection.mass_flow, _hover_pairs(hover),
         gas_out / case.fuel_kg_s, t_init, hydro, record, tuple(notes), ratios, intervals, substeps,
         reported,
         SolidContext(case, released, float(redirected_return_kg_s), float(redirected_fuel_out_kg_s)),

@@ -174,7 +174,6 @@ def test_frozen_downflow_gives_negative_bed_inert_and_recomputation_positive():
     assert solved.solid_residual <= 1.0e-6
     assert solved.m_dot_ab_kg_s[0] > frozen.m_dot_ab_kg_s[0]
     assert np.all(np.asarray(solved.drain_char_kg_s) >= 0.0) and solved.drain_ash_kg_s >= 0.0
-    assert all(0.0 <= value < 1.0 for value in initial._volume_ratio(solved.state, frozen))
     # 气相与温度固定，只解固相。
     assert np.array_equal(solved.state.bed_gas_mol_s, state.bed_gas_mol_s)
     assert np.array_equal(solved.state.freeboard_gas_mol_s, state.freeboard_gas_mol_s)

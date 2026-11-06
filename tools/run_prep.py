@@ -19,7 +19,7 @@ from hamel.properties.thermo import density_kg_m3, volume_flow_m3_s
 from hamel.properties.transport import mixture_viscosity_pa_s
 from hamel.pyrolysis import lignite_particle_properties, particle_release_times
 from hamel.solver.gates import block_ratios
-from hamel.solver.residual import bed_ash_by_class, evaluate_residual, particle_temperatures
+from hamel.solver.residual import _particle_k, _phase_point, bed_ash_by_class, evaluate_residual
 from hamel.solver.vector import pack_state
 
 # T23 单元测试里 Δ > 0 的常气速构造。气速为 0，所以速度尺度不用 u_g。
@@ -32,6 +32,49 @@ _ACCEPTANCE = ("T_FRB_K", "X_C", "CO", "CO2", "H2", "CH4", "H2O")
 _CLOSED_FORM_WINDOW_S = 80.0
 _T_FRB = "Σ T_i·Δh_i / Σ Δh_i，自由空间全部 cell，含锥段。解释性选择：ADR 0040 第 1 项。"
 _X_C = "出口气体（含焦油蒸气）中的碳 / 燃料碳。分子不计带出焦炭与排灰。解释性选择：ADR 0040 第 1 项。"
+
+
+def particle_temperatures(frozen, state) -> dict:
+    """各 (cell, 粒级) 的颗粒温度。与残差里的式 (5.22) 是同一次对齐，只供加密检查读取。"""
+    bed = np.full((frozen.n_bed, frozen.n_class), np.nan)
+    free = np.full((frozen.n_freeboard, frozen.n_class), np.nan)
+    hover = np.full((frozen.n_freeboard, frozen.n_class), np.nan)
+    for cell in range(frozen.n_bed):
+        _y, concentration, fractions, mu, rho = _phase_point(
+            state.bed_gas_mol_s[cell, 0], state.bed_temperature_k[cell], frozen.bed_pressure_pa[cell],
+        )
+        ash = bed_ash_by_class(
+            frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1),
+            frozen.bed_ash_fine_share, frozen.n_class,
+        )
+        for klass in range(frozen.n_class):
+            if state.bed_char_kg[cell, klass] <= 0.0 and ash[cell, klass] > 0.0:
+                continue
+            bed[cell, klass] = _particle_k(
+                float(frozen.diameter_m[klass]), float(state.bed_temperature_k[cell]), float(frozen.bed_pressure_pa[cell]),
+                float(frozen.u_r_bed_m_s[cell]), concentration, fractions, mu, rho, frozen,
+            )
+    for cell in range(frozen.n_freeboard):
+        _y, concentration, fractions, mu, rho = _phase_point(
+            state.freeboard_gas_mol_s[cell], state.freeboard_temperature_k[cell], frozen.freeboard_pressure_pa[cell],
+        )
+        for klass in range(frozen.n_class):
+            for hover_state, target in ((False, free), (True, hover)):
+                char = state.freeboard_char_hover_kg if hover_state else state.freeboard_char_free_kg
+                ash_row = state.freeboard_ash_hover_kg if hover_state else state.freeboard_ash_free_kg
+                if hover_state and not frozen.hover[cell, klass]:
+                    continue
+                if char[cell, klass] <= 0.0 and ash_row[cell, klass] > 0.0:
+                    continue
+                if char[cell, klass] <= 0.0 and ash_row[cell, klass] <= 0.0 and not hover_state:
+                    continue
+                velocity = frozen.u_r_hover_m_s if hover_state else frozen.u_r_freeboard_m_s
+                target[cell, klass] = _particle_k(
+                    float(frozen.diameter_m[klass]), float(state.freeboard_temperature_k[cell]),
+                    float(frozen.freeboard_pressure_pa[cell]), float(velocity[cell, klass]),
+                    concentration, fractions, mu, rho, frozen,
+                )
+    return {"bed": bed, "free": free, "hover": hover}
 
 
 def fuel_element_fractions(physical) -> dict:

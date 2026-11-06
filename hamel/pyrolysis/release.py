@@ -74,6 +74,27 @@ def feed_cell_index(height_m: float, bottom_m, top_m) -> int:
     return max(matches, key=lambda index: (top[index], -index))
 
 
+def _inputs(feed_kg_s, cell_bottom_m, k_up_per_s, k_down_per_s, k_exit_per_s, tau_dry_s, tau_pyr_s,
+            moisture_mass_fraction, ash_mass_fraction_wf):
+    """两个入口共用的输入校验与形状检查。"""
+    feed = _array("feed_kg_s", feed_kg_s, 1)
+    upward = _array("k_up_per_s", k_up_per_s, 2)
+    cells, classes = upward.shape
+    downward = _same("k_down_per_s", k_down_per_s, upward.shape)
+    leaving = _same("k_exit_per_s", k_exit_per_s, upward.shape)
+    dry, pyro = _same("tau_dry_s", tau_dry_s, (classes,)), _same("tau_pyr_s", tau_pyr_s, (classes,))
+    if feed.shape != (classes,) or np.any(feed < 0.0) or np.any(upward < 0.0) or np.any(downward < 0.0) or np.any(leaving < 0.0):
+        raise PyrolysisError("进料必须是非负粒级向量，输运系数不能为负")
+    if np.any(dry < 0.0) or np.any(pyro < 0.0):
+        raise PyrolysisError("时间常数不能为负")
+    moisture, ash = float(moisture_mass_fraction), float(ash_mass_fraction_wf)
+    if not (0.0 <= moisture < 1.0) or not (0.0 <= ash < 1.0):
+        raise PyrolysisError("水分或灰分不在定义域内")
+    if np.shape(cell_bottom_m) != (cells,):
+        raise PyrolysisError("cell 数必须与输运系数的第 0 轴一致")
+    return feed, upward, downward, leaving, dry, pyro, moisture, ash, cells, classes
+
+
 def release_distribution(
     feed_kg_s, fuel_feed_height_m: float, cell_bottom_m, cell_top_m, k_up_per_s,
     k_down_per_s, k_exit_per_s, tau_dry_s, tau_pyr_s, moisture_mass_fraction: float,
@@ -93,21 +114,10 @@ def release_distribution(
             k_exit_per_s, tau_dry_s, tau_pyr_s, moisture_mass_fraction, ash_mass_fraction_wf,
             yields, temperature_k, pressure_pa, transport,
         )
-    feed = _array("feed_kg_s", feed_kg_s, 1)
-    upward = _array("k_up_per_s", k_up_per_s, 2)
-    cells, classes = upward.shape
-    downward = _same("k_down_per_s", k_down_per_s, upward.shape)
-    leaving = _same("k_exit_per_s", k_exit_per_s, upward.shape)
-    dry, pyro = _same("tau_dry_s", tau_dry_s, (classes,)), _same("tau_pyr_s", tau_pyr_s, (classes,))
-    if feed.shape != (classes,) or np.any(feed < 0.0) or np.any(upward < 0.0) or np.any(downward < 0.0) or np.any(leaving < 0.0):
-        raise PyrolysisError("进料必须是非负粒级向量，输运系数不能为负")
-    if np.any(dry < 0.0) or np.any(pyro < 0.0):
-        raise PyrolysisError("时间常数不能为负")
-    moisture, ash = float(moisture_mass_fraction), float(ash_mass_fraction_wf)
-    if not (0.0 <= moisture < 1.0) or not (0.0 <= ash < 1.0):
-        raise PyrolysisError("水分或灰分不在定义域内")
-    if np.shape(cell_bottom_m) != (cells,):
-        raise PyrolysisError("cell 数必须与输运系数的第 0 轴一致")
+    feed, upward, downward, leaving, dry, pyro, moisture, ash, cells, classes = _inputs(
+        feed_kg_s, cell_bottom_m, k_up_per_s, k_down_per_s, k_exit_per_s, tau_dry_s, tau_pyr_s,
+        moisture_mass_fraction, ash_mass_fraction_wf,
+    )
     cell = feed_cell_index(fuel_feed_height_m, cell_bottom_m, cell_top_m)
     equilibrium = pyrolysis_gas(yields, temperature_k, pressure_pa)
     undried, dried_stock = np.zeros((cells, classes)), np.zeros((cells, classes))
@@ -143,21 +153,10 @@ def _release_states(
     yields, temperature_k, pressure_pa, transport: FuelTransport,
 ) -> ReleaseDistribution:
     """自由空间两状态。悬停部分没有出流，原地转化。解释性选择：ADR 0032。"""
-    feed = _array("feed_kg_s", feed_kg_s, 1)
-    upward = _array("k_up_per_s", k_up_per_s, 2)
-    cells, classes = upward.shape
-    downward = _same("k_down_per_s", k_down_per_s, upward.shape)
-    leaving = _same("k_exit_per_s", k_exit_per_s, upward.shape)
-    dry, pyro = _same("tau_dry_s", tau_dry_s, (classes,)), _same("tau_pyr_s", tau_pyr_s, (classes,))
-    if feed.shape != (classes,) or np.any(feed < 0.0) or np.any(upward < 0.0) or np.any(downward < 0.0) or np.any(leaving < 0.0):
-        raise PyrolysisError("进料必须是非负粒级向量，输运系数不能为负")
-    if np.any(dry < 0.0) or np.any(pyro < 0.0):
-        raise PyrolysisError("时间常数不能为负")
-    moisture, ash = float(moisture_mass_fraction), float(ash_mass_fraction_wf)
-    if not (0.0 <= moisture < 1.0) or not (0.0 <= ash < 1.0):
-        raise PyrolysisError("水分或灰分不在定义域内")
-    if np.shape(cell_bottom_m) != (cells,):
-        raise PyrolysisError("cell 数必须与输运系数的第 0 轴一致")
+    feed, upward, downward, leaving, dry, pyro, moisture, ash, cells, classes = _inputs(
+        feed_kg_s, cell_bottom_m, k_up_per_s, k_down_per_s, k_exit_per_s, tau_dry_s, tau_pyr_s,
+        moisture_mass_fraction, ash_mass_fraction_wf,
+    )
     n_free = cells - int(transport.bed_count)
     if transport.bed_count < 1 or n_free < 1:
         raise PyrolysisError("拆分输运至少要有一个床区格和一个自由空间格")
@@ -211,8 +210,8 @@ def _release_states(
     fuel_up, fuel_down, exit_w, exit_p = _state_flows(upward, downward, leaving, undried, dried, undried_free, dried_free, transport, n_free, moisture)
     mass_gap, element_gap = _state_closure(
         feed, cell, water, char, ash_made, benzene, naphthalene, gas_flow, moisture, received,
-        dried_elements, water_elements, undried, dried, dry_rate, pyro_rate, transport, n_free,
-        upward, downward, leaving, undried_free, dried_free, undried_hover, dried_hover,
+        dried_elements, water_elements, undried, dried, transport, n_free,
+        upward, downward, leaving, undried_free, dried_free,
     )
     return ReleaseDistribution(
         water, gas_flow, benzene, naphthalene, char, ash_made, exit_w, (1.0 - moisture) * exit_p,
@@ -418,11 +417,9 @@ def _state_flows(up, down, exit_rate, undried, dried, undried_free, dried_free, 
     return fuel_up, fuel_down, exit_w, exit_p
 
 
-def _state_closure(
-    feed, cell, water, char, ash_made, benzene, naphthalene, gas, moisture, received, dried_elements,
-    water_elements, undried, dried, dry_rate, pyro_rate, transport, n_free, up, down, exit_rate,
-    undried_free, dried_free, undried_hover, dried_hover,
-):
+def _gaps(feed, cell, undried, inflow, outflow, water, char, ash_made, benzene, naphthalene, gas,
+          moisture, received, dried_elements, water_elements):
+    """质量与元素闭合差。inflow/outflow 按 cell 下标返回（湿基、干基）两股。"""
     carbon, hydrogen = atomic_weight("C") * 1.0e-3, atomic_weight("H") * 1.0e-3
     tar_c = benzene * 6.0 * carbon + naphthalene * 10.0 * carbon
     tar_h = benzene * 6.0 * hydrogen + naphthalene * 8.0 * hydrogen
@@ -435,8 +432,8 @@ def _state_closure(
     element_gap = {name: np.zeros(undried.shape[0]) for name in _ELEMENTS}
     for index in range(undried.shape[0]):
         feed_here = feed if index == cell else np.zeros_like(feed)
-        inflow_w, inflow_p = _state_in(index, undried, dried, undried_free, dried_free, transport, n_free, up, down)
-        outflow_w, outflow_p = _state_out(index, undried, dried, undried_free, dried_free, transport, n_free, up, down, exit_rate)
+        inflow_w, inflow_p = inflow(index)
+        outflow_w, outflow_p = outflow(index)
         gas_mass = sum(gas_elements[name][index] for name in _ELEMENTS)
         mass_gap[index] = (
             np.sum(feed_here) + np.sum(inflow_w) + (1.0 - moisture) * np.sum(inflow_p)
@@ -464,43 +461,20 @@ def _state_closure(
     return mass_gap, element_gap
 
 
+def _state_closure(feed, cell, water, char, ash_made, benzene, naphthalene, gas, moisture, received,
+                   dried_elements, water_elements, undried, dried, transport, n_free, up, down, exit_rate,
+                   undried_free, dried_free):
+    return _gaps(
+        feed, cell, undried,
+        lambda index: _state_in(index, undried, dried, undried_free, dried_free, transport, n_free, up, down),
+        lambda index: _state_out(index, undried, dried, undried_free, dried_free, transport, n_free, up, down, exit_rate),
+        water, char, ash_made, benzene, naphthalene, gas, moisture, received, dried_elements, water_elements,
+    )
+
+
 def _state_in(index, undried, dried, undried_free, dried_free, transport, n_free, up, down):
-    if transport.closure != "A":
-        return _state_in_redirect(index, undried, dried, undried_free, dried_free, transport, n_free, up, down)
-    w = np.zeros(undried.shape[1])
-    p = np.zeros_like(w)
-    if index >= n_free:
-        if index + 1 < undried.shape[0]:
-            w += up[index + 1] * undried[index + 1]
-            p += up[index + 1] * dried[index + 1]
-        if index > n_free:
-            w += down[index - 1] * undried[index - 1]
-            p += down[index - 1] * dried[index - 1]
-        elif index == n_free:
-            coeff = transport.b_free_per_s[-1]
-            w += coeff * undried_free[-1]
-            p += coeff * dried_free[-1]
-        return w, p
-    if index + 1 < n_free:
-        w += transport.a_free_per_s[index + 1] * undried_free[index + 1]
-        p += transport.a_free_per_s[index + 1] * dried_free[index + 1]
-    elif index + 1 == n_free:
-        share_w = up[n_free] * undried[n_free]
-        share_p = up[n_free] * dried[n_free]
-        w += share_w
-        p += share_p
-    w += transport.c_up_per_s[index] * undried_free[index]
-    p += transport.c_up_per_s[index] * dried_free[index]
-    if index > 0:
-        w += transport.b_free_per_s[index - 1] * undried_free[index - 1]
-        p += transport.b_free_per_s[index - 1] * dried_free[index - 1]
-        w += transport.c_down_per_s[index - 1] * undried_free[index - 1]
-        p += transport.c_down_per_s[index - 1] * dried_free[index - 1]
-    return w, p
-
-
-def _state_in_redirect(index, undried, dried, undried_free, dried_free, transport, n_free, up, down):
-    """B 把悬停入流加回床顶，C 让它离开体系。底格 b^t 仍回到床顶。"""
+    """A 的完整入流；B 把悬停入流加回床顶（底格 b^t 仍回到床顶），C 让它离开体系。"""
+    redirect = transport.closure != "A"
     w = np.zeros(undried.shape[1])
     p = np.zeros_like(w)
     if index >= n_free:
@@ -525,9 +499,15 @@ def _state_in_redirect(index, undried, dried, undried_free, dried_free, transpor
     elif index + 1 == n_free:
         w += up[n_free] * undried[n_free]
         p += up[n_free] * dried[n_free]
+    if not redirect:
+        w += transport.c_up_per_s[index] * undried_free[index]
+        p += transport.c_up_per_s[index] * dried_free[index]
     if index > 0:
         w += transport.b_free_per_s[index - 1] * undried_free[index - 1]
         p += transport.b_free_per_s[index - 1] * dried_free[index - 1]
+        if not redirect:
+            w += transport.c_down_per_s[index - 1] * undried_free[index - 1]
+            p += transport.c_down_per_s[index - 1] * dried_free[index - 1]
     return w, p
 
 
@@ -591,46 +571,13 @@ def _neighbor_in(up, down, inventory, index):
 
 
 def _closure(feed, cell, up, down, exit_rate, undried, dried, water, char, ash_made, benzene, naphthalene, gas, moisture, received, dried_elements, water_elements):
-    carbon, hydrogen = atomic_weight("C") * 1.0e-3, atomic_weight("H") * 1.0e-3
-    tar_c = benzene * 6.0 * carbon + naphthalene * 10.0 * carbon
-    tar_h = benzene * 6.0 * hydrogen + naphthalene * 8.0 * hydrogen
-    gas_elements = {name: np.zeros(undried.shape[0]) for name in _ELEMENTS}
-    for species, flow in gas.items():
-        for element, count in atoms(species).items():
-            if element in gas_elements:
-                gas_elements[element] += flow * count * atomic_weight(element) * 1.0e-3
-    mass_gap = np.zeros(undried.shape[0])
-    element_gap = {name: np.zeros(undried.shape[0]) for name in _ELEMENTS}
-    for index in range(undried.shape[0]):
-        feed_here = feed if index == cell else np.zeros_like(feed)
-        inflow_w, inflow_p = _neighbor_in(up, down, undried, index), _neighbor_in(up, down, dried, index)
-        outflow_w = (up[index] + down[index] + exit_rate[index]) * undried[index]
-        outflow_p = (up[index] + down[index] + exit_rate[index]) * dried[index]
-        gas_mass = sum(gas_elements[name][index] for name in _ELEMENTS)
-        mass_gap[index] = (
-            np.sum(feed_here) + np.sum(inflow_w) + (1.0 - moisture) * np.sum(inflow_p)
-            - np.sum(outflow_w) - (1.0 - moisture) * np.sum(outflow_p) - water[index]
-            - np.sum(char[index]) - np.sum(ash_made[index]) - tar_c[index] - tar_h[index] - gas_mass
-        )
-        for name in _ELEMENTS:
-            entered = np.sum(feed_here) * received[name] + np.sum(inflow_w) * received[name] + np.sum(inflow_p) * dried_elements[name]
-            solid = np.sum(char[index]) if name == "C" else 0.0
-            tar = tar_c[index] if name == "C" else tar_h[index] if name == "H" else 0.0
-            exited = (
-                np.sum(outflow_w) * received[name] + np.sum(outflow_p) * dried_elements[name]
-                + water[index] * water_elements[name] + solid + tar + gas_elements[name][index]
-            )
-            element_gap[name][index] = entered - exited
-    fuel = float(np.sum(feed))
-    if fuel <= 0.0:
-        raise PyrolysisError("燃料进料为 0 时没有闭合的分母")
-    if np.any(np.abs(mass_gap) > _CLOSURE * fuel):
-        raise PyrolysisError("释放份额的质量闭合超过 ADR 0012 的 0,1 %")
-    for name, gap in element_gap.items():
-        inlet = fuel * received[name]
-        if np.any(np.abs(gap) > _CLOSURE * (inlet if inlet > 0.0 else fuel)):
-            raise PyrolysisError(f"释放份额的 {name} 闭合超过 ADR 0012 的 0,1 %")
-    return mass_gap, element_gap
+    return _gaps(
+        feed, cell, undried,
+        lambda index: (_neighbor_in(up, down, undried, index), _neighbor_in(up, down, dried, index)),
+        lambda index: ((up[index] + down[index] + exit_rate[index]) * undried[index],
+                       (up[index] + down[index] + exit_rate[index]) * dried[index]),
+        water, char, ash_made, benzene, naphthalene, gas, moisture, received, dried_elements, water_elements,
+    )
 
 
 def _compositions(moisture: float, ash: float, yields: LigniteYields):

@@ -136,15 +136,12 @@ def _measurements_finite_nonnegative(
     measured: Mapping[str, Measurement],
     targets: Sequence[AcceptanceTarget],
 ) -> bool:
-    for target in targets:
-        if not target.present or target.quantity not in measured:
-            continue
-        value = measured[target.quantity].value
-        if isinstance(value, bool) or not isinstance(value, (int, float)):
-            return False
-        if not math.isfinite(float(value)) or float(value) < 0:
-            return False
-    return True
+    values = [measured[item.quantity].value for item in targets if item.present and item.quantity in measured]
+    return all(
+        not isinstance(value, bool) and isinstance(value, (int, float))
+        and math.isfinite(float(value)) and float(value) >= 0
+        for value in values
+    )
 
 def _rollup(statuses: Sequence[str] | object) -> str:
     judged = [status for status in statuses if status != ABSENT]

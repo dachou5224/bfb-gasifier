@@ -71,14 +71,10 @@ def fine_share(response, initial: float, target: float, *, tolerance: float = FI
         info["E0"], info["E1"], info["E"] = at(0.0), at(1.0), at(initial)
     except _Exhausted:
         failed()
-    if abs(info["E"] - goal) / goal < tolerance:
-        info.update(stop="satisfied", evaluations=len(seen))
-        return float(initial), info
-    for share in (0.0, 1.0):
-        if abs(info["E0" if share == 0.0 else "E1"] - goal) / goal < tolerance:
-            info.update(stop="satisfied", w=share, E=info["E0" if share == 0.0 else "E1"],
-                        evaluations=len(seen))
-            return share, info
+    for share, value in ((initial, info["E"]), (0.0, info["E0"]), (1.0, info["E1"])):
+        if abs(value - goal) / goal < tolerance:
+            info.update(stop="satisfied", w=float(share), E=value, evaluations=len(seen))
+            return float(share), info
     coarse = (info["E0"] - goal) / goal >= tolerance
     if coarse or (goal - info["E1"]) / goal >= tolerance:
         info.update(stop="coarse" if coarse else "fine", E=info["E0"] if coarse else info["E1"],
@@ -103,8 +99,7 @@ def fine_share(response, initial: float, target: float, *, tolerance: float = FI
             b, fb, fa = w, residual, 0.5 * fa
         else:
             a, fa, fb = w, residual, 0.5 * fb
-    info.update(stop="failed", evaluations=len(seen))
-    raise InertBalanceError(_text("求根失败", info), info)
+    failed()
 
 
 def free_ash_state(frozen, state, config, m_ref: float) -> tuple:

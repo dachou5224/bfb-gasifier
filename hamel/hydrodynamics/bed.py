@@ -769,7 +769,7 @@ def particle_density_from_bed_mass(
         if mid_mass < target:
             low, low_mass = mid, mid_mass
         else:
-            high, high_mass = mid, mid_mass
+            high = mid
     final = 0.5 * (low + high)
     final_mass = solids_mass(final)
     if abs(final_mass - target) > used.density_mass_tolerance * target:
