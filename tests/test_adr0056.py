@@ -13,7 +13,7 @@ from hamel.solver import driver
 from hamel.solver.driver import PHI_INIT_CAP, solve_aligned
 from hamel.solver.gates import OuterMonitor, ResidualBlocks
 from hamel.solver.initial import InitialStateError
-from hamel.solver.newton import NewtonResult, IDENTITY
+from hamel.solver.newton import IDENTITY, NewtonResult, Transform, TrialRule, _damp, _jacobian, damped_newton
 from hamel.solver.precalc import PrecalcError, PrecalcResult, SolidContext, _drain_terms
 from test_assembly import make_frozen, make_state
 
@@ -281,3 +281,137 @@ def test_switch_precalc_failure_on_the_driver_path(monkeypatch):
     result = driver.solve_case(str(_CASE), "1", config=SolverConfig(outer_round_limit=3, nu_max=1))
     assert result.status == "DOMAIN_STOP" and result.rounds == 2
     assert "切换时" in result.reason
+
+
+_POWER = Transform(np.zeros(0, dtype=int), np.array([0]), np.array([0.5]), np.array([1.0]))
+
+
+def _power_rule(*, names=("s",), temperature=()):
+    return TrialRule(
+        _POWER, names, np.zeros(0, dtype=int), np.zeros(0, dtype=int),
+        np.array(temperature, dtype=int), (), np.zeros(0), np.zeros(0), 1.0e-12,
+    )
+
+
+def test_finite_negative_power_is_projected_to_zero():
+    """有限越零的 O₂ 幂变量置 0；接受后的状态与 merit 都在投影点上。"""
+    calls = []
+
+    def evaluate(x):
+        calls.append(float(np.asarray(x)[0]))
+        return np.array([x[0] + 2.0])
+
+    rule = _power_rule()
+    trials = []
+    accepted = _damp(
+        np.array([1.0]), np.array([-1.5]), 3.0, evaluate, rule.trial,
+        lambda residual: abs(float(residual[0])), 4, None, trials, rule.explain, _POWER, True,
+    )
+    assert accepted is not None
+    point, _values, merit = accepted
+    assert point[0] == 0.0 and merit == pytest.approx(2.0)
+    assert trials[0]["projected"] == 1 and trials[0]["overshoot"] == pytest.approx(0.5)
+    assert trials[0]["accepted"] is True and trials[0]["merit"] == pytest.approx(2.0)
+    assert 0.0 in calls and all(value >= 0.0 for value in calls)
+
+
+def test_nonfinite_power_is_not_projected():
+    """−∞ 与 NaN 不投影、不评价残差，并缩步。"""
+    calls = {"n": 0}
+
+    def evaluate(x):
+        calls["n"] += 1
+        return np.array([x[0] + 2.0])
+
+    rule = _power_rule()
+    for delta in (np.array([-np.inf]), np.array([np.nan])):
+        calls["n"] = 0
+        trials = []
+        accepted = _damp(
+            np.array([1.0]), delta, 3.0, evaluate, rule.trial,
+            lambda residual: abs(float(residual[0])), 3, None, trials, rule.explain, _POWER, True,
+        )
+        assert accepted is None and calls["n"] == 0
+        assert trials and all(item["projected"] == 0 for item in trials)
+        assert all("非有限" in item["reason"] for item in trials)
+
+
+def test_difference_points_are_not_projected():
+    seen = []
+
+    def evaluate(x):
+        seen.append(float(np.asarray(x)[0]))
+        return np.array([x[0] + 2.0])
+
+    y = np.array([-0.05])
+    residual = evaluate(_POWER.to_x(y))
+    _jacobian(y, residual, evaluate, np.ones(1), lambda trial: True, transform=_POWER)
+    assert seen and all(value < 0.0 for value in seen)
+
+
+def test_non_o2_bounds_still_reject_when_projecting():
+    calls = []
+
+    def evaluate(x):
+        calls.append(tuple(float(item) for item in x))
+        return np.array([x[0] + 2.0, x[1] + 100.0])
+
+    rule = _power_rule(names=("s", "T"), temperature=(1,))
+    trials = []
+    _damp(
+        np.array([1.0, 800.0]), np.array([-1.5, -900.0]), 900.0, evaluate, rule.trial,
+        lambda residual: float(np.linalg.norm(residual)), 4, None, trials, rule.explain, _POWER, True,
+    )
+    assert trials[0]["projected"] == 1
+    assert "T ≤ 0" in trials[0]["reason"] and trials[0]["status"] != "ok"
+    assert (0.0, -100.0) not in calls
+
+
+def test_identity_transform_is_not_projected():
+    trials = []
+    accepted = _damp(
+        np.array([1.0]), np.array([-2.0]), 10.0, lambda x: x + 1.0, lambda trial: True,
+        lambda residual: abs(float(residual[0])), 0, None, trials, None, IDENTITY, True,
+    )
+    assert trials[0]["projected"] == 0
+    assert accepted is not None and accepted[0][0] == -1.0
+
+
+def test_projection_starts_at_outer_round_three(monkeypatch):
+    """外层第 1、2 轮不投影；第 3 轮起由驱动传入 project=True。"""
+    flags = []
+
+    def fake(x0, *args, **kwargs):
+        flags.append(bool(kwargs.get("project", False)))
+        x = np.asarray(x0, dtype=float)
+        return NewtonResult("CONVERGED", "", x, np.zeros_like(x), 1, 0.0)
+
+    monkeypatch.setattr(driver, "damped_newton", fake)
+    _linear_aligned(SolverConfig(outer_round_limit=4), gate_from=99)
+    assert flags[:3] == [False, False, True] and flags[3] is True
+
+
+def test_rounds_one_and_two_still_reject_finite_overshoot():
+    """第 1、2 轮保持 ADR 0054：有限越零的试探点被拒绝。"""
+    calls = {"n": 0}
+
+    def evaluate(x):
+        calls["n"] += 1
+        return np.array([x[0] + 2.0])
+
+    journal = {"iterations": [], "explain": _power_rule().explain}
+    damped_newton(
+        np.array([1.0]), evaluate, np.ones(1), lambda residual: False, _power_rule().trial,
+        lambda residual: abs(float(residual[0])), SolverConfig(nu_max=1),
+        journal=journal, transform=_POWER, project=False,
+    )
+    rejected = [item for item in journal["iterations"][0]["trials"] if item["status"] != "ok"]
+    assert rejected and all("幂变量 s < 0" in item["reason"] for item in rejected)
+    assert all(item.get("projected", 0) == 0 for item in journal["iterations"][0]["trials"])
+
+
+def test_initial_construction_does_not_enable_projection():
+    text = Path("hamel/solver/initial.py").read_text(encoding="utf-8")
+    assert "project=" not in text
+    text = Path("hamel/solver/inert_balance.py").read_text(encoding="utf-8")
+    assert "project=" not in text

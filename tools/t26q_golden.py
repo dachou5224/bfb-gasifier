@@ -35,6 +35,8 @@ _SOLID = ("bed_char_kg", "freeboard_char_free_kg", "freeboard_char_hover_kg",
           "freeboard_ash_free_kg", "freeboard_ash_hover_kg")
 # ADR 0052 遗留的成功交替报告项；B2 允许删除，快照不比较它们。
 _DROP = {"step_history", "volume_ratio", "min_stock_kg"}
+# ADR 0056 第 5 项写入牛顿记录；φ = 0,3 第 1 轮不投影，值为 0。比较时排除，不改记录内容。
+_EXCLUDE = (".projected", ".overshoot")
 
 
 class _Stop(BaseException):
@@ -204,15 +206,21 @@ def compare(golden: Path, limit_s: float, prefix: str = "data.") -> int:
     except _Timeout:
         print(json.dumps({"golden": str(golden), "status": "TIMEOUT"}, ensure_ascii=False))
         return 2
-    keys = sorted(key for key in reference.files if key.startswith(prefix))
+
+    def kept(key: str) -> bool:
+        return not any(key.endswith(item) for item in _EXCLUDE)
+
+    keys = sorted(key for key in reference.files if key.startswith(prefix) and kept(key))
     missing = [key for key in keys if key not in current]
-    extra = sorted(key for key in current if key.startswith(prefix) and key not in reference.files)
+    extra = sorted(key for key in current if key.startswith(prefix) and key not in reference.files and kept(key))
+    excluded = sorted(key for key in current if key.startswith(prefix) and not kept(key))
     different = [key for key in keys if key in current and not np.array_equal(reference[key], current[key])]
     print(json.dumps({
         "golden": str(golden), "prefix": prefix, "arrays": len(keys),
         "equal": not (missing or extra or different),
         "missing": missing[:10], "extra": extra[:10], "different": different[:10],
-        "different_count": len(different), "base_sha": str(reference["meta.base_sha"]),
+        "different_count": len(different), "excluded": excluded[:10], "excluded_count": len(excluded),
+        "base_sha": str(reference["meta.base_sha"]),
     }, ensure_ascii=False))
     return 0 if not (missing or extra or different) else 1
 
