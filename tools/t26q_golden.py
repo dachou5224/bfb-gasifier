@@ -165,19 +165,21 @@ def _expire(signum, frame):
     raise _Timeout()
 
 
-def _snapshot(limit_s: float) -> dict:
+def _snapshot(limit_s: float, rejection: bool = True) -> dict:
     signal.signal(signal.SIGALRM, _expire)
     signal.setitimer(signal.ITIMER_REAL, float(limit_s))
     original = homogeneous._CORELLA_HIGH_K
     homogeneous._CORELLA_HIGH_K = float("inf")
     try:
-        phi, rejection = _run(limit_s, True), _run(limit_s, False)
+        phi = _run(limit_s, True)
+        extra = _run(limit_s, False) if rejection else {}
     finally:
         homogeneous._CORELLA_HIGH_K = original
         signal.setitimer(signal.ITIMER_REAL, 0)
     out: dict = {}
     _flatten("data.phi03", phi, out)
-    _flatten("data.rejection", rejection, out)
+    if extra:
+        _flatten("data.rejection", extra, out)
     return {re.sub(r"[^0-9A-Za-z_.-]+", "_", key): np.asarray(value) for key, value in out.items()}
 
 
@@ -195,19 +197,20 @@ def capture(path: Path, limit_s: float, base_sha: str) -> int:
     return 0
 
 
-def compare(golden: Path, limit_s: float) -> int:
+def compare(golden: Path, limit_s: float, prefix: str = "data.") -> int:
     reference = np.load(golden, allow_pickle=False)
     try:
-        current = _snapshot(limit_s)
+        current = _snapshot(limit_s, rejection=not prefix.startswith("data.phi03."))
     except _Timeout:
         print(json.dumps({"golden": str(golden), "status": "TIMEOUT"}, ensure_ascii=False))
         return 2
-    keys = sorted(key for key in reference.files if key.startswith("data."))
+    keys = sorted(key for key in reference.files if key.startswith(prefix))
     missing = [key for key in keys if key not in current]
-    extra = sorted(key for key in current if key.startswith("data.") and key not in reference.files)
+    extra = sorted(key for key in current if key.startswith(prefix) and key not in reference.files)
     different = [key for key in keys if key in current and not np.array_equal(reference[key], current[key])]
     print(json.dumps({
-        "golden": str(golden), "arrays": len(keys), "equal": not (missing or extra or different),
+        "golden": str(golden), "prefix": prefix, "arrays": len(keys),
+        "equal": not (missing or extra or different),
         "missing": missing[:10], "extra": extra[:10], "different": different[:10],
         "different_count": len(different), "base_sha": str(reference["meta.base_sha"]),
     }, ensure_ascii=False))
@@ -221,10 +224,11 @@ def main(argv=None) -> int:
     parser.add_argument("--golden", default=None)
     parser.add_argument("--limit-s", type=float, default=6.0 * 3600.0)
     parser.add_argument("--base-sha", default=None)
+    parser.add_argument("--prefix", default="data.", help="只比较以此为前缀的数组（T26r：data.phi03.）")
     args = parser.parse_args(argv)
     if args.action == "capture":
         return capture(Path(args.out), args.limit_s, args.base_sha or _sha())
-    return compare(Path(args.golden or args.out), args.limit_s)
+    return compare(Path(args.golden or args.out), args.limit_s, args.prefix)
 
 
 if __name__ == "__main__":

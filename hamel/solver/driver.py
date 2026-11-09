@@ -1,5 +1,5 @@
 """外层对齐与工况求解。每轮重算预计算，内层从上一轮单元解出发。
-求解手段：ADR 0012；ADR 0017 第 10、14 项；ADR 0035 第 2 项；ADR 0045；ADR 0054。
+求解手段：ADR 0012；ADR 0017 第 10、14 项；ADR 0035 第 2 项；ADR 0045；ADR 0054；ADR 0056。
 """
 from __future__ import annotations
 
@@ -33,6 +33,8 @@ from hamel.solver.vector import jacobian_layout, pack_state, unknown_slots, unpa
 _AMBIENT_K = 298.15
 _WALL_RELATIVE = 1.0e-4
 _DRY_GAS = ("CO", "CO2", "CH4", "C2H4", "C6H6", "C10H8")
+# 求解手段：ADR 0056。0,3 取自 S18，是 φ_init 的上限，不是为本工况另选。
+PHI_INIT_CAP = 0.3
 
 
 @dataclass
@@ -49,7 +51,7 @@ class SolveResult:
     x: np.ndarray | None = None
 
 
-def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, deadline=None, journal=None) -> SolveResult:
+def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, deadline=None, journal=None, gate_from=2, switch_at=None) -> SolveResult:
     """refresh(x, round, consistency) 给出本轮起点。x 为 None 时是第一次。
     (a) 比较相邻两轮结束时的监测量。(b) 用最终单元解重算预计算，再查内层门。
     """
@@ -63,7 +65,7 @@ def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, 
         try:
             opened = refresh(x, round_index, False)
         except PrecalcError as exc:
-            return SolveResult("DOMAIN_STOP", str(exc), round_index, iterations, diagnostics=diagnostics, x=x)
+            return SolveResult("DOMAIN_STOP", _switch_note(exc, round_index, switch_at, True), round_index, iterations, diagnostics=diagnostics, x=x)
         blocks, scales, rule, refs = prepare(opened)
         mark = 0 if journal is None else len(journal.setdefault("iterations", []))
         # 核对绑定首次实际构造的雅可比，不绑定外层轮号：0 次内层迭代不消耗这次核对。ADR 0046 第 5 项。
@@ -80,7 +82,7 @@ def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, 
         except SolveTimeout:
             raise
         except PrecalcError as exc:
-            return SolveResult("DOMAIN_STOP", str(exc), round_index, iterations, diagnostics=diagnostics, x=x)
+            return SolveResult("DOMAIN_STOP", _switch_note(exc, round_index, switch_at, True), round_index, iterations, diagnostics=diagnostics, x=x)
         iterations += inner.iterations
         row = {"round": round_index, "inner": inner.status, "reason": inner.reason, "info": opened.info}
         if journal is not None:
@@ -89,12 +91,12 @@ def solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, 
                 diagnostics["failure_npz"] = journal["failure_npz"]
         diagnostics["rounds"].append(row)
         if inner.status != "CONVERGED":
-            return SolveResult(inner.status, inner.reason, round_index, iterations, diagnostics=diagnostics, x=inner.x)
+            return SolveResult(inner.status, _switch_note(inner.reason, round_index, switch_at, False), round_index, iterations, diagnostics=diagnostics, x=inner.x)
         try:
             monitor = monitor_from(opened, inner.x)
         except TrialNotEvaluable as exc:
             return SolveResult("NOT_CONVERGED", str(exc), round_index, iterations, diagnostics=diagnostics, x=inner.x)
-        aligned = previous is not None and outer_met(
+        aligned = previous is not None and round_index >= gate_from and outer_met(
             monitor, previous, m_dot_ref=refs[1], n_dot_ref=refs[0], m_tot=refs[3],
             temperature_tolerance=config.outer_temperature_tolerance_k, relative_tolerance=config.outer_relative_tolerance,
         ) and ash_met(monitor, ASH_RELATIVE_TOLERANCE)
@@ -130,6 +132,9 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
     config = assembled.solver if config is None else config
     physical = assembled.physical
     n_ref, m_ref, q_ref = _references(physical)
+    case_phi = float(_case_field(path, case_id, "fly_ash_fraction"))
+    phi_init = min(case_phi, PHI_INIT_CAP)
+    switching = phi_init != case_phi
     holder = {"state": None, "reaction": None, "drain": 0.0, "fuel_return": 0.0, "release": None, "records": [], "redirect": (0.0, 0.0, 0.0, 0.0), "fine": None}
     journal = {"iterations": []}
     if artifact_dir is not None:
@@ -165,6 +170,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
             adiabatic=adiabatic, iteration=iteration, consistency=consistency, solver=config,
             redirected_return_kg_s=bed_return, redirected_fuel_out_kg_s=fuel_out,
             previous_fine_share=holder["fine"],
+            fly_ash_fraction=phi_init if holder["state"] is None and not consistency else case_phi,
         )
         holder["drain"] = float(result.frozen.drain_ash_kg_s + result.frozen.drain_char_kg_s.sum())
         holder["fuel_return"] = float(result.frozen.fuel_down_free_kg_s[-1].sum())
@@ -251,8 +257,14 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
             _ash_relative(state, result.frozen, residual),
         )
 
-    outcome = solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, deadline, journal)
-    outcome.diagnostics["initial"] = holder.get("initial")
+    outcome = solve_aligned(refresh, evaluate, prepare, monitor_from, consistent, config, deadline, journal,
+                            gate_from=3 if switching else 2, switch_at=2 if switching else None)
+    outcome.diagnostics["initial"] = {**(holder.get("initial") or {}), "phi_init": phi_init, "phi": case_phi}
+    for row in outcome.diagnostics.get("rounds") or []:
+        if row.get("round") == 1:
+            row["phi_init"], row["phi"] = phi_init, case_phi
+        elif switching and row.get("round") == 2:
+            row["switched"] = True
     outcome.diagnostics["final_check"] = journal.get("final_check")
     if artifact_dir is not None and outcome.status == "DAMPING_FAILED" and holder["records"]:
         frozen_path = Path(artifact_dir) / "frozen.pkl"
@@ -554,10 +566,21 @@ def _with_sensitivity(info, state, frozen, assembly) -> dict:
 
 
 def _case_heat(path, case_id) -> float:
+    return float(_case_field(path, case_id, "wall_heat_loss"))
+
+
+def _case_field(path, case_id, name):
     from hamel.cases.assemble import load_case_file, resolve_case_key
     doc = load_case_file(path)
-    key = resolve_case_key(doc, case_id)
-    return float(doc["cases"][key]["wall_heat_loss"]["value"])
+    return doc["cases"][resolve_case_key(doc, case_id)][name]["value"]
+
+
+def _switch_note(reason, round_index, switch_at, precalc) -> str:
+    """切换前／切换时。求解手段：ADR 0056 第 2 项。"""
+    if switch_at is None:
+        return str(reason)
+    tag = "切换时" if precalc and round_index == switch_at else "切换前" if round_index < switch_at else ""
+    return f"{reason}（{tag}）" if tag else str(reason)
 
 
 def _clock(deadline) -> None:
