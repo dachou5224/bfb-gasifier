@@ -121,7 +121,7 @@ def _halt(iteration, quantity, value, cell=None, klass=None):
     where = "" if cell is None else f"，cell={cell}"
     where += "" if klass is None else f"，粒级={klass}"
     raise PrecalcError(f"迭代 {iteration}：{quantity}={value}{where}")
-def precalculate(path, case_id, previous: ReactorState | None, *, reaction_solid_kg_s=None, previous_drain_kg_s: float = 0.0, previous_fuel_return_kg_s: float = 0.0, previous_release=None, adiabatic: bool = False, iteration: int = 0, consistency: bool = False, solver=None, redirected_return_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0, previous_fine_share: float | None = None) -> PrecalcResult:
+def precalculate(path, case_id, previous: ReactorState | None, *, reaction_solid_kg_s=None, previous_drain_kg_s: float = 0.0, previous_fuel_return_kg_s: float = 0.0, previous_release=None, adiabatic: bool = False, iteration: int = 0, consistency: bool = False, solver=None, redirected_return_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0, previous_fine_share: float | None = None, fly_ash_fraction=None) -> PrecalcResult:
     """用上一轮单元解填满冻结量。previous 为空时构造初值。
     自由空间燃料回落由调用方传入，第一次外层为 0。一次风温度是混合焓的等效温度。
     consistency 为真时按真实类别重算，非 B 或产率式越界即停止。求解手段：ADR 0035。
@@ -130,13 +130,15 @@ def precalculate(path, case_id, previous: ReactorState | None, *, reaction_solid
     模型边界选择（敏感性）：ADR 0026 第 6 项、ADR 0038。
     """
     try:
-        return _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver, redirected_return_kg_s, redirected_fuel_out_kg_s, previous_release, previous_fine_share)
+        return _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver, redirected_return_kg_s, redirected_fuel_out_kg_s, previous_release, previous_fine_share, fly_ash_fraction)
     except PrecalcError:
         raise
     except (HydrodynamicsError, PyrolysisError, PropertyError, FreeboardError, AssemblyError) as exc:
         raise PrecalcError(f"迭代 {iteration} 停止：{exc}") from exc
-def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver=None, redirected_return_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0, previous_release=None, previous_fine_share: float | None = None) -> PrecalcResult:
+def _precalculate(path, case_id, previous, reaction_solid_kg_s, previous_drain_kg_s, previous_fuel_return_kg_s, adiabatic, iteration, consistency, solver=None, redirected_return_kg_s: float = 0.0, redirected_fuel_out_kg_s: float = 0.0, previous_release=None, previous_fine_share: float | None = None, fly_ash_fraction=None) -> PrecalcResult:
     case = _load(path, case_id, solver)
+    if fly_ash_fraction is not None:
+        case.fly_ash_fraction = float(fly_ash_fraction)
     equilibrium = _equilibrium(case, adiabatic)
     t_ad = float(equilibrium.temperature)
     t_init = initial_temperature_k(t_ad)

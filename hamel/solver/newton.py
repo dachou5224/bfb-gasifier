@@ -1,6 +1,6 @@
 """内层阻尼牛顿。迭代在变换后的自变量 y 上进行，残差在 x = x(y) 上按原式评价。不显式求逆。
 差分步长 √ε·max(|y|, s)。求牛顿步时解 (R·J·C)·z = −R·F，Δy = C·z。
-求解手段：ADR 0043；ADR 0054 第 1、2 项。
+求解手段：ADR 0043；ADR 0054 第 1、2 项；ADR 0056 第 5 项。
 Source: Hamel Eq.2.9, S. 20
 解释性选择：ADR 0011 第 5 条。求解手段：ADR 0002；ADR 0017 第 6 项；ADR 0022；ADR 0046；ADR 0054。
 journal 只追加迭代和试探记录，不参与接受判定。
@@ -186,7 +186,7 @@ class NewtonResult:
     merit: float | None
 
 
-def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, deadline=None, journal=None, blocks=None, jacobian_layout=None, verify_jacobian=False, transform=IDENTITY, final_check=None) -> NewtonResult:
+def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, deadline=None, journal=None, blocks=None, jacobian_layout=None, verify_jacobian=False, transform=IDENTITY, final_check=None, project=False) -> NewtonResult:
     """Wirsum 第 4、5 步。merit_of 是归一残差的欧氏范数。
     雅可比每次在当前点用前向差分重算。给定布局时按 ADR 0046 分组；合并不改变各列的值。
     迭代、差分与阻尼在 y 上；evaluate 仍接收 x = x(y)。求解手段：ADR 0043；ADR 0046；ADR 0054。
@@ -222,7 +222,7 @@ def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, d
                     if journal is not None:
                         journal["jacobian_verified"] = True
             delta = _newton_step(matrix, residual, y, scales, blocks)
-            accepted = _damp(y, delta, merit, evaluate, feasible, merit_of, limit, deadline, trials, explain, transform)
+            accepted = _damp(y, delta, merit, evaluate, feasible, merit_of, limit, deadline, trials, explain, transform, project)
         except JacobianMismatchError as exc:
             if journal is not None:
                 journal["jacobian_mismatch"] = {"rows": [int(item) for item in exc.rows], "columns": [int(item) for item in exc.columns]}
@@ -233,6 +233,7 @@ def damped_newton(x0, evaluate, scales, converged, feasible, merit_of, config, d
             return NewtonResult("DOMAIN_STOP", str(exc), transform.to_x(y), residual, iteration, merit)
         except np.linalg.LinAlgError as exc:
             _note(journal, iteration, merit, residual, delta, trials, scales, False)
+            _dump(journal, y, residual, matrix, delta, scales, transform)
             return NewtonResult("NOT_CONVERGED", f"雅可比不能求解：{exc}", transform.to_x(y), residual, iteration, merit)
         _note(journal, iteration, merit, residual, delta, trials, scales, True)
         if journal is not None and final_check is not None:
@@ -360,16 +361,25 @@ def _fill_row(weights, index, reference) -> None:
         weights[np.asarray(index, dtype=int)] = 1.0 / float(reference)
 
 
-def _damp(y, delta, merit, evaluate, feasible, merit_of, limit, deadline, trials=None, explain=None, transform=IDENTITY):
+def _damp(y, delta, merit, evaluate, feasible, merit_of, limit, deadline, trials=None, explain=None, transform=IDENTITY, project=False):
     for index in range(limit + 1):
         _clock(deadline)
         point = y + delta / (2.0 ** index)
+        count, overshoot = 0, 0.0
+        if project and transform.power.size:
+            power = point[transform.power]
+            mask = np.isfinite(power) & (power < 0.0)
+            count = int(np.count_nonzero(mask))
+            if count:
+                overshoot = float(-np.min(power[mask]))
+                point[transform.power[mask]] = 0.0
         values, status, reason = _at(point, evaluate, feasible, transform, explain)
         trial_merit = merit_of(values) if status == "ok" else None
         if trials is not None:
             trials.append({
                 "i": index, "step": float(2.0 ** (-index)), "status": status, "reason": reason,
                 "merit": None if trial_merit is None else float(trial_merit), "accepted": False,
+                "projected": count, "overshoot": overshoot,
             })
         if status != "ok":
             # 超域与越出速率式范围都只在试探点上缩步；起点与收敛解超域仍停止（ADR 0054 第 2 项第 1 层）。
@@ -453,6 +463,8 @@ def _note(journal, iteration, merit, residual, delta, trials, scales, jacobian_o
         },
         "largest": largest, "step": step, "jacobian_ok": bool(jacobian_ok),
         "trials": [] if trials is None else trials,
+        "projected": 0 if not trials else int(sum(item.get("projected", 0) for item in trials)),
+        "overshoot": 0.0 if not trials else float(max(item.get("overshoot", 0.0) for item in trials)),
     })
 
 
@@ -476,13 +488,13 @@ def _block_norm(scaled, index) -> float:
 
 
 def _dump(journal, y, residual, matrix, delta, scales, transform=IDENTITY) -> None:
-    if journal is None or not journal.get("failure_path") or matrix is None or delta is None:
+    if journal is None or not journal.get("failure_path") or matrix is None:
         return
     path = Path(journal["failure_path"])
     path.parent.mkdir(parents=True, exist_ok=True)
     blocks = journal.get("blocks")
-    # dx 是 y 上的牛顿步；x 是它对应的物理点。ADR 0054 第 1 项。
-    payload = {"y": np.asarray(y), "x": np.asarray(transform.to_x(y)), "F": np.asarray(residual), "J": np.asarray(matrix), "dx": np.asarray(delta), "scales": np.asarray(scales)}
+    # dx 是 y 上的牛顿步；x 是它对应的物理点。ADR 0054 第 1 项。奇异时 delta 可能尚未求出。
+    payload = {"y": np.asarray(y), "x": np.asarray(transform.to_x(y)), "F": np.asarray(residual), "J": np.asarray(matrix), "dx": np.array([]) if delta is None else np.asarray(delta), "scales": np.asarray(scales)}
     if blocks is not None:
         payload.update(
             gas=np.asarray(blocks.gas, dtype=int), solid=np.asarray(blocks.solid, dtype=int),

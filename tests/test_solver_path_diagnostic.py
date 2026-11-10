@@ -47,6 +47,30 @@ def test_projection_clamps_only_the_power_columns():
     assert point[1] == np.log(1.0e-29) - 1.0
 
 
+def test_o2proj_entry_accepts_project_from_damped_newton():
+    """run_inner 的 o2proj 包装把 damped_newton 传入的 project 原样转给 projected_damp。"""
+    from hamel.cases.config import SolverConfig
+    from hamel.solver import newton
+    from tools.solver_path_diagnostic import projected_damp
+
+    transform = Transform(np.array([], dtype=int), np.array([0]), np.array([0.5]), np.array([1.0]))
+    original = newton._damp
+
+    def damp(y, delta, *args, **kwargs):
+        return projected_damp(y, delta, *args, **kwargs)
+
+    newton._damp = damp
+    try:
+        result = newton.damped_newton(
+            np.array([1.0]), lambda x: np.array([float(x[0]) - 0.5]), np.array([1.0]),
+            lambda r: abs(float(r[0])) < 1e-9, lambda y: True, lambda r: abs(float(r[0])),
+            SolverConfig(nu_max=8, damping_index_limit=8), transform=transform, project=True,
+        )
+    finally:
+        newton._damp = original
+    assert result.status == "CONVERGED"
+
+
 def test_outer_coupled_hard_timeout_covers_initial_construction(monkeypatch):
     import time
     from pathlib import Path

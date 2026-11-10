@@ -10,6 +10,12 @@ from hamel.properties.data import GAS_SPECIES
 class AssemblyError(ValueError):
     """装配输入或冻结量不成立。不改残差。"""
 
+def bounded_share(name, number, *, exclude_zero=False):
+    number = float(number)
+    if not np.isfinite(number) or not 0.0 <= number <= 1.0 or (exclude_zero and number == 0.0):
+        raise AssemblyError(f"{name} 超出允许范围：{number}")
+    return number
+
 class TrialNotEvaluable(AssemblyError):
     """试探点上浓度、颗粒温度或灰分配没有定义。
     求解手段：ADR 0022 C4。T25c 与速率式越界（KineticsInputError、PropertyError）同样判为不可行。
@@ -191,11 +197,8 @@ class FrozenQuantities:
                 raise AssemblyError(f"{name} 必须是有限数")
             object.__setattr__(self, name, number)
         # ADR 0055 第 1–3 项：0 < φ ≤ 1、0 ≤ w_f ≤ 1、目标 T 非负。
-        for name, low, high in (("fly_ash_fraction", 0.0, 1.0), ("bed_ash_fine_share", 0.0, 1.0)):
-            number = float(getattr(self, name))
-            if not np.isfinite(number) or not low <= number <= high or (name == "fly_ash_fraction" and number == 0.0):
-                raise AssemblyError(f"{name} 超出允许范围：{number}")
-            object.__setattr__(self, name, number)
+        object.__setattr__(self, "fly_ash_fraction", bounded_share("fly_ash_fraction", self.fly_ash_fraction, exclude_zero=True))
+        object.__setattr__(self, "bed_ash_fine_share", bounded_share("bed_ash_fine_share", self.bed_ash_fine_share))
         target = float(self.ash_target_kg_s)
         if not np.isfinite(target) or target < 0.0:
             raise AssemblyError("ash_target_kg_s 必须是非负有限数")
