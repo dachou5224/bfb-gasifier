@@ -11,6 +11,7 @@ import pytest
 from hamel.cases.config import SolverConfig
 from hamel.solver import driver
 from hamel.solver.driver import PHI_INIT_CAP, solve_aligned
+from hamel.solver.frozen import AssemblyError
 from hamel.solver.gates import OuterMonitor, ResidualBlocks
 from hamel.solver.initial import InitialStateError
 from hamel.solver.newton import IDENTITY, NewtonResult, Transform, TrialRule, _damp, _jacobian, damped_newton
@@ -217,6 +218,16 @@ def test_phi_one_uses_init_then_switches(monkeypatch):
     assert round2["info"]["ash_target_kg_s"] == pytest.approx(1.0e-4)
     assert round2["info"]["drain_ash_kg_s"] == 0.0
     assert result.status == "NOT_CONVERGED" and result.rounds == 2
+
+
+def test_case_phi_above_one_is_rejected_before_init_cap(tmp_path):
+    """工况 φ 先按 (0, 1] 校验再取 min。φ = 1,1 不得被 cap 成 0,3。"""
+    doc = json.loads(_CASE.read_text(encoding="utf-8"))
+    doc["cases"]["1"]["fly_ash_fraction"]["value"] = 1.1
+    path = tmp_path / "phi11.json"
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(AssemblyError, match="fly_ash_fraction 超出允许范围"):
+        driver.solve_case(str(path), "1", config=SolverConfig(outer_round_limit=1, nu_max=1))
 
 
 def test_phi_below_cap_does_not_switch(monkeypatch, tmp_path):

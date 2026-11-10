@@ -17,7 +17,7 @@ from hamel.properties import (
     enthalpy_j_mol, gas_constant_j_mol_k, molar_mass_kg_mol,
 )
 from hamel.properties.data import GAS_SPECIES, atomic_weight, atoms
-from hamel.solver.frozen import FreeboardDomainError, TrialNotEvaluable
+from hamel.solver.frozen import bounded_share, FreeboardDomainError, TrialNotEvaluable
 from hamel.solver.inert_balance import ASH_RELATIVE_TOLERANCE
 from hamel.solver.sensitivity import bubble_balance_ratio, redirect_feedback
 from hamel.solver.gates import (
@@ -132,7 +132,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
     config = assembled.solver if config is None else config
     physical = assembled.physical
     n_ref, m_ref, q_ref = _references(physical)
-    case_phi = float(_case_field(path, case_id, "fly_ash_fraction"))
+    case_phi = bounded_share("fly_ash_fraction", _case_field(path, case_id, "fly_ash_fraction"), exclude_zero=True)
     phi_init = min(case_phi, PHI_INIT_CAP)
     switching = phi_init != case_phi
     holder = {"state": None, "reaction": None, "drain": 0.0, "fuel_return": 0.0, "release": None, "records": [], "redirect": (0.0, 0.0, 0.0, 0.0), "fine": None}

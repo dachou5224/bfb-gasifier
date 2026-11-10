@@ -180,11 +180,12 @@ def o2_mix(problem: Problem, x0, share: float):
     return pack_state(state, frozen), changed
 
 
-def projected_damp(y, delta, merit, evaluate, feasible, merit_of, limit, deadline, trials=None, explain=None, transform=newton.IDENTITY):
+def projected_damp(y, delta, merit, evaluate, feasible, merit_of, limit, deadline, trials=None, explain=None, transform=newton.IDENTITY, project=False):
     """o2proj（仅诊断）：试探点上把 O₂ 幂变量 s 投影到 s ≥ 0，其余与 newton._damp 相同。
 
     s = 0 即 Ṅ_O2 = 0，残差按原式评价（R5 在 c_O2 = 0 处有定义）；只改试探点，不改残差。
     不是取绝对值折返。正式实现见 ADR 0056 第 5 项（自外层第 3 轮起；−∞ 与 NaN 不投影）。
+    `project` 只为对接 `_damp` 的位置参数；本诊断入口始终投影。
     """
     for index in range(limit + 1):
         newton._clock(deadline)
