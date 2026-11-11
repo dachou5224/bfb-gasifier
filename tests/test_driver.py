@@ -158,9 +158,9 @@ def test_outer_loop_recomputes_and_passes_both_gates():
 
 def test_run_table_changes_one_item_and_records_unwired_rows():
     specs = run_specs()
-    # ADR 0030 的敏感性运行由 16 次增为 18 次（ADR 0048 第 3 项加 S17，ADR 0055 第 1 项加 S18）。
-    assert [item.name for item in specs] == ["baseline", *[f"S{index}" for index in range(1, 19)]]
-    assert len({item.change for item in specs}) == 19
+    # ADR 0030 的敏感性运行由 18 次增为 19 次（ADR 0057 加 S19）。
+    assert [item.name for item in specs] == ["baseline", *[f"S{index}" for index in range(1, 20)]]
+    assert len({item.change for item in specs}) == 20
     assert next(item for item in specs if item.name == "S1").wired
     assert [item.name for item in specs if not item.wired] == []
     assert all(item.wired for item in specs)

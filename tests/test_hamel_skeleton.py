@@ -88,6 +88,7 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
         "freeboard_max_segments",
         "freeboard_delta_h_m",
         "freeboard_delta_u_m_s",
+        "freeboard_residence_floor_m_s",
         "particle_tolerance_w",
         "particle_max_iterations",
         "coupling_tolerance_k",
@@ -119,6 +120,7 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
     assert solver.freeboard_max_segments == 1000
     assert solver.freeboard_delta_h_m == 1.0e-3
     assert solver.freeboard_delta_u_m_s == 1.0e-2
+    assert solver.freeboard_residence_floor_m_s == 1.0e-2
     assert solver.particle_tolerance_w == 1.0e-4
     assert solver.particle_max_iterations == 25
     assert solver.coupling_tolerance_k == 1.0e-3

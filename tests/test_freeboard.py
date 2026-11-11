@@ -286,9 +286,9 @@ def test_segment_guard_reports_and_does_not_turn_into_a_fate():
 
 
 def test_slow_crossing_far_beyond_80_s_still_settles_and_is_counted():
-    """|ū_g − v_t| 很小但不中性的格：穿越时间远超 80 s，轨迹正常定归宿，停留按解析时间计入。
+    """|ū_g − v_t| 很小但不中性的格：穿越时间远超 80 s，轨迹正常定归宿。u_min = 0 时停留按解析时间计入。
 
-    ADR 0050 实现约束 (a)；旧实现会因 freeboard_time_limit_s 误判失败。
+    ADR 0050 实现约束 (a)。默认 u_min 的截断见 ADR 0057 的测试。
     """
     terminal = terminal_settling_velocity(RHO_G, MU, 2.0e-4, RHO_P, PHI)
     edges = np.array([0.0, 1.0])
@@ -297,7 +297,7 @@ def test_slow_crossing_far_beyond_80_s_still_settles_and_is_counted():
     def gas(_cell, _height, terminal=terminal):
         return terminal + 1.0e-6
 
-    fate = trace_until_fate(0.0, 0.0, edges, gas, rho, mu, 2.0e-4, RHO_P, PHI, SolverConfig())
+    fate = trace_until_fate(0.0, 0.0, edges, gas, rho, mu, 2.0e-4, RHO_P, PHI, _config(freeboard_residence_floor_m_s=0.0))
     assert fate.fate == "elutriate"
     assert fate.time_s > 80.0
     assert sum(fate.residence_s) == pytest.approx(fate.time_s)

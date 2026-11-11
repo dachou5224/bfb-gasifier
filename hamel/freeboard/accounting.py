@@ -380,13 +380,15 @@ def _classify(
     velocity: float,
     reversals: int,
     start_cell: int,
-    segments: list[tuple[int, float, float, float]],
+    segments: list[tuple],
     crossings: list[tuple[float, int, int | None, str]],
     midpoints: list[tuple[float, int, str]],
     capture_cells: frozenset[int],
     region: str,
     segments_used: int = 0,
     captured_face: tuple[int, ...] | None = None,
+    u_min: float = 0.0,
+    capture_height: float | None = None,
 ) -> TrajectoryFate:
     entry_index = None
     source = None
@@ -424,15 +426,20 @@ def _classify(
     slip = [0.0] * count
     upward_free = [0.0] * count
     downward_free = [0.0] * count
-    for cell, start, end, piece in segments:
+    for item in segments:
+        cell, start, end, piece = item[0], item[1], item[2], item[3]
+        h0, h1 = (item[4], item[5]) if len(item) > 5 else (0.0, 0.0)
         if capture_time is None or end <= capture_time:
-            kept = end - start
+            span, h_end = end - start, h1
         elif start < capture_time:
-            kept = capture_time - start
+            span = capture_time - start
+            h_end = h1 if capture_height is None else capture_height
         else:
             continue
-        residence[cell] += kept
-        slip[cell] += piece * kept / (end - start)
+        # 自由部分的滑移与停留乘同一比例。解释性选择：ADR 0057。
+        counted = span if not u_min else min(span, abs(h_end - h0) / u_min)
+        residence[cell] += counted
+        slip[cell] += piece * counted / (end - start)
     for time, from_cell, _to_cell, direction in crossings:
         if captured and capture_time is not None and time >= capture_time:
             continue
@@ -480,7 +487,7 @@ def trace_until_fate(
     格内气速取 u_gb(h) 的高度平均。穿过稳定界面时 |u_P| ≤ δ_u，且按闭式 h(u)
     求得的越界距离 ≤ δ_h，即判为捕获；进入捕获区的时刻按最后一次越过格中点记账，
     只有捕获区之前的穿出才计入自由状态。解释性选择：ADR 0026 第 2 项、ADR 0047 第 1 项、
-    ADR 0048 第 2 项；求解手段：ADR 0047 第 2、3 项。
+    ADR 0048 第 2 项、ADR 0057；求解手段：ADR 0047 第 2、3 项。
     Source: Hamel Eq.3.88, S. 46
     Source: Hamel Eq.3.93, S. 47
     """
@@ -498,6 +505,10 @@ def trace_until_fate(
     delta_h = scale * _positive("freeboard_delta_h_m", config.freeboard_delta_h_m)
     delta_u = scale * _positive("freeboard_delta_u_m_s", config.freeboard_delta_u_m_s)
     # 解析段数保护代替物理时间截止。求解器参数：ADR 0050。
+    # 停留下限速度只改记账，不改轨迹。解释性选择：ADR 0057。
+    u_min = float(config.freeboard_residence_floor_m_s)
+    if not math.isfinite(u_min) or u_min < 0.0:
+        raise FreeboardError("freeboard_residence_floor_m_s 必须是有限非负数")
     max_segments = int(config.freeboard_max_segments)
     if max_segments < 1:
         raise FreeboardError("freeboard_max_segments 必须是不小于 1 的整数")
@@ -541,6 +552,7 @@ def trace_until_fate(
     crossings: list[tuple[float, int, int | None, str]] = []
     midpoints: list[tuple[float, int, str]] = []
     pending = 0.0
+    open_height = height
     outcome = None
     chosen = None
     span = bounds[-1] - bounds[0]
@@ -549,10 +561,10 @@ def trace_until_fate(
             midpoints.append((0.0, index, "up" if velocity > 0.0 else "down"))
 
     def close(end: float) -> None:
-        nonlocal open_time, pending
+        nonlocal open_time, pending, open_height
         if end > open_time:
-            segments.append((cell, open_time, end, pending))
-            open_time = end
+            segments.append((cell, open_time, end, pending, open_height, height))
+            open_time, open_height = end, height
         pending = 0.0
 
     while segments_used < max_segments:
@@ -612,9 +624,13 @@ def trace_until_fate(
             f"起点 h0={height_0:.4g} m、u0={velocity_0:.4g} m/s，当前格 {cell}，已用 {elapsed:.4g} s）"
         )
     capture_cells = frozenset(chosen.cells) if chosen is not None else frozenset()
+    cap_h = None
+    if region != "cell" and midpoints:
+        index = midpoints[-1][1]
+        cap_h = 0.5 * (bounds[index] + bounds[index + 1])
     return _classify(
         count, outcome, elapsed, height, velocity, reversals, start_cell, segments, crossings, midpoints,
-        capture_cells, region, segments_used, None if chosen is None else chosen.cells,
+        capture_cells, region, segments_used, None if chosen is None else chosen.cells, u_min, cap_h,
     )
 
 
