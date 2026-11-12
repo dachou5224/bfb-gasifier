@@ -1,4 +1,4 @@
-"""ADR 0030 的基准与 S1–S19。不能通过现有接口表达的项记 NOT_APPLIED。"""
+"""ADR 0030 的基准与 S1–S18、S19a、S19b。不能通过现有接口表达的项记 NOT_APPLIED。"""
 from __future__ import annotations
 
 import json
@@ -37,7 +37,8 @@ _ROWS = (
     ("S16", "cell 数加倍", "ADR 0013 第 7 项", True, ""),
     ("S17", "颗粒轨迹的格内气速改用逐格表观气速", "ADR 0048 第 3 项", True, ""),
     ("S18", "φ = 0.3（底灰 7、飞灰 3）", "ADR 0055 第 1 项", True, ""),
-    ("S19", "u_min ∈ {3e-3, 1e-2, 3e-2} m/s", "ADR 0057", True, ""),
+    ("S19a", "u_min = 3e-3 m/s", "ADR 0057", True, ""),
+    ("S19b", "u_min = 3e-2 m/s", "ADR 0057", True, ""),
 )
 
 _BED_PAIRS = {"S9": (0.40, 0.6), "S10": (0.40, 0.9), "S11": (0.55, 0.6), "S12": (0.55, 0.9)}
@@ -53,7 +54,7 @@ class RunSpec:
 
 
 def run_specs() -> tuple:
-    order = ["baseline", *[f"S{index}" for index in range(1, 20)]]
+    order = ["baseline", *[f"S{index}" for index in range(1, 19)], "S19a", "S19b"]
     by_name = {row[0]: row for row in _ROWS}
     return tuple(RunSpec(*by_name[name]) for name in order)
 
@@ -81,14 +82,14 @@ def overlay(source, dest, spec: RunSpec) -> bool:
     elif spec.name == "S18":
         # ADR 0055 第 1 项：只改飞灰份额 φ，其余冻结量不变。
         _assign(doc, "fly_ash_fraction", 0.3)
-    elif spec.name not in {"S3", "S4", "S5", "S13", "S14", "S15", "S17", "S19"}:
+    elif spec.name not in {"S3", "S4", "S5", "S13", "S14", "S15", "S17", "S19a", "S19b"}:
         raise ValueError(spec.name)
     Path(dest).write_text(json.dumps(doc), encoding="utf-8")
     return False
 
 
 def run_campaign(source, report_dir, *, timeout_s: float | None = None) -> list:
-    """依次跑基准和 S1–S19。超时记 TIMEOUT。未接线的项不假装跑过。"""
+    """依次跑基准、S1–S18 和 S19 的两次子运行。超时记 TIMEOUT。未接线的项不假装跑过。"""
     timeout = float(SolverConfig().wall_timeout_s if timeout_s is None else timeout_s)
     records = []
     with tempfile.TemporaryDirectory() as directory:
@@ -178,6 +179,10 @@ def config_for(name: str) -> SolverConfig:
         return replace(base, serio_pair="second")
     if name == "S17":
         return replace(base, freeboard_gas_velocity="superficial")
+    if name == "S19a":
+        return replace(base, freeboard_residence_floor_m_s=3.0e-3)
+    if name == "S19b":
+        return replace(base, freeboard_residence_floor_m_s=3.0e-2)
     return base
 
 

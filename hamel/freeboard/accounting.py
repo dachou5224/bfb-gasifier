@@ -427,8 +427,7 @@ def _classify(
     upward_free = [0.0] * count
     downward_free = [0.0] * count
     for item in segments:
-        cell, start, end, piece = item[0], item[1], item[2], item[3]
-        h0, h1 = (item[4], item[5]) if len(item) > 5 else (0.0, 0.0)
+        cell, start, end, piece, h0, h1 = item
         if capture_time is None or end <= capture_time:
             span, h_end = end - start, h1
         elif start < capture_time:
