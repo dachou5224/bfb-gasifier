@@ -1,4 +1,5 @@
 """求解驱动。完整工况标 slow，不进默认集。"""
+import dataclasses
 import json
 import sys
 from pathlib import Path
@@ -9,7 +10,7 @@ import pytest
 from hamel.cases.balance import BalanceGap
 from hamel.cases.config import SolverConfig
 from hamel.kinetics.common import KineticsInputError
-from hamel.solver.campaign import _process, execute, overlay, run_campaign, run_specs, write_report
+from hamel.solver.campaign import _process, config_for, execute, overlay, run_campaign, run_specs, write_report
 from hamel.solver.driver import SolveResult, solve_aligned
 from hamel.solver.gates import OuterMonitor, ResidualBlocks, balance_met, inner_met, outer_met
 from hamel.solver.newton import IDENTITY, damped_newton, normalized_merit
@@ -158,12 +159,30 @@ def test_outer_loop_recomputes_and_passes_both_gates():
 
 def test_run_table_changes_one_item_and_records_unwired_rows():
     specs = run_specs()
-    # ADR 0030 的敏感性运行由 16 次增为 18 次（ADR 0048 第 3 项加 S17，ADR 0055 第 1 项加 S18）。
-    assert [item.name for item in specs] == ["baseline", *[f"S{index}" for index in range(1, 19)]]
-    assert len({item.change for item in specs}) == 19
+    # ADR 0030：S1–S18，另加 S19 的两次子运行。
+    assert [item.name for item in specs] == ["baseline", *[f"S{index}" for index in range(1, 19)], "S19a", "S19b"]
+    assert len({item.change for item in specs}) == 21
     assert next(item for item in specs if item.name == "S1").wired
     assert [item.name for item in specs if not item.wired] == []
     assert all(item.wired for item in specs)
+
+
+def test_s19_subruns_change_only_the_residence_floor(tmp_path):
+    """S19a、S19b 只改 u_min。1×10⁻² 留在基准。overlay 不改工况文件。"""
+    base = SolverConfig()
+    for name, floor in (("S19a", 3.0e-3), ("S19b", 3.0e-2)):
+        config = config_for(name)
+        assert config.freeboard_residence_floor_m_s == floor
+        for field in dataclasses.fields(SolverConfig):
+            if field.name == "freeboard_residence_floor_m_s":
+                continue
+            assert getattr(config, field.name) == getattr(base, field.name)
+    original = json.loads(_CASE.read_text(encoding="utf-8"))
+    specs = {item.name: item for item in run_specs()}
+    for name in ("S19a", "S19b"):
+        dest = tmp_path / f"{name}.json"
+        assert overlay(_CASE, dest, specs[name]) is False
+        assert json.loads(dest.read_text(encoding="utf-8")) == original
 
 
 def test_overlay_changes_only_the_named_value(tmp_path):

@@ -66,6 +66,8 @@ class SolverConfig:
     freeboard_delta_h_m: float = 1.0e-3
     # 穿过稳定界面时的捕获判据。见 ADR 0034、ADR 0047 第 3 项。
     freeboard_delta_u_m_s: float = 1.0e-2
+    # 近中性自由部分停留的下限速度。0 表示规则不起作用。解释性选择：ADR 0057。
+    freeboard_residence_floor_m_s: float = 1.0e-2
     particle_tolerance_w: float = 1.0e-4
     particle_max_iterations: int = 25
     coupling_tolerance_k: float = 1.0e-3
