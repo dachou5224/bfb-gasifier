@@ -282,6 +282,19 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         return outcome
     result = holder["final"]
     state = holder["state"]
+    # ADR 0058 第 2 项：极小负固相存量置零，在置零后的状态上重做 2(b) 与全部检验。
+    try:
+        values, report, reason = _floor_and_recheck(
+            pack_state(state, result.frozen), result.frozen, config, consistent, outcome.rounds, outcome.ratios,
+        )
+    except PrecalcError as exc:
+        return SolveResult("DOMAIN_STOP", str(exc), outcome.rounds, outcome.iterations, diagnostics=outcome.diagnostics, x=outcome.x)
+    outcome.diagnostics["negative_floor"] = report
+    if reason:
+        return SolveResult("NOT_CONVERGED", reason, outcome.rounds, outcome.iterations, diagnostics=outcome.diagnostics, x=outcome.x)
+    outcome.ratios = report["ratios_after"]
+    result, state = holder["final"], holder["state"]
+    outcome.x = pack_state(state, result.frozen)
     heat = _wall_heat(state, result.frozen)
     gap_in, gap_out, inlet_mol = _streams(state, result.frozen, physical, holder.get("redirect"))
     gap = external_balance(gap_in, gap_out)
@@ -414,6 +427,38 @@ def _wall_heat(state, frozen) -> float:
             area = wall_area_m2(zone, index, len(temperatures), height, frozen.bed_diameter_m, frozen.freeboard_diameter_m)
             total += frozen.k_w_w_m2_k * area * (float(temperature) - _AMBIENT_K)
     return float(total)
+
+
+def _negative_stocks(values, frozen, epsilon):
+    """固相存量中 [−ε_0, 0) 的分量置零；低于 −ε_0 的只记录，不截断。解释性选择：ADR 0058 第 2 项。"""
+    floor = float(epsilon)  # 合法范围由 SolverConfig 保证。
+    vector, floored, below = np.array(values, dtype=float, copy=True), [], []
+    for slot in unknown_slots(frozen):
+        value = float(vector[slot.index])
+        if slot.kind in ("gas_outflow", "temperature") or value >= 0.0:
+            continue
+        if value < -floor:
+            below.append((slot.name, value))
+            continue
+        floored.append((slot.name, value))
+        vector[slot.index] = 0.0
+    return vector, floored, below
+
+
+def _floor_and_recheck(values, frozen, config, consistent, round_index, before_ratios):
+    """置零 [−ε_0, 0) 的固相存量并重做 2(b)。解释性选择：ADR 0058 第 2 项。"""
+    floored_values, floored, below = _negative_stocks(values, frozen, config.final_negative_floor_kg)
+    ratios = dict(before_ratios or {})
+    report = {"applied": bool(floored), "count": len(floored), "components": floored, "below_floor": below, "ratios_before": ratios, "ratios_after": ratios}
+    if not floored:
+        return values, report, None
+    checked = consistent(floored_values, round_index)
+    report.update(ratios_after=block_ratios(checked.residual, checked.blocks), ash_after=checked.ash_relative)
+    if checked.ash_relative is not None and checked.ash_relative >= ASH_RELATIVE_TOLERANCE:
+        return floored_values, report, "置零后灰平衡复核未通过"
+    if not inner_met(checked.residual, checked.blocks, config.residual_tolerance):
+        return floored_values, report, "置零后 2(b) 复核未通过"
+    return floored_values, report, None
 
 
 def _nonnegative(state, frozen) -> bool:

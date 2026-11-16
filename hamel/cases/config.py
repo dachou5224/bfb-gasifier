@@ -1,6 +1,7 @@
 """物理参数与求解器参数。字段名与 data/cases/*.json 的键一致。"""
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 @dataclass(frozen=True)
@@ -68,6 +69,9 @@ class SolverConfig:
     freeboard_delta_u_m_s: float = 1.0e-2
     # 近中性自由部分停留的下限速度。0 表示规则不起作用。解释性选择：ADR 0057。
     freeboard_residence_floor_m_s: float = 1.0e-2
+    # 粒级内边界定位的二分次数（第 1 项）与最终解 [−ε_0, 0) 负固相存量的归零阈值，kg（第 2 项）。解释性选择：ADR 0058。
+    freeboard_boundary_bisections: int = 6
+    final_negative_floor_kg: float = 1.0e-30
     particle_tolerance_w: float = 1.0e-4
     particle_max_iterations: int = 25
     coupling_tolerance_k: float = 1.0e-3
@@ -98,6 +102,12 @@ class SolverConfig:
     serio_pair: str = "first"
     # 敏感性 S17：自由空间轨迹的格内气速。ADR 0048 第 3 项。
     freeboard_gas_velocity: str = "ghost_bubble"
+
+    def __post_init__(self) -> None:
+        """非法值报错。解释性选择：ADR 0058。"""
+        n, eps = self.freeboard_boundary_bisections, self.final_negative_floor_kg
+        if isinstance(n, bool) or not isinstance(n, int) or n < 0 or isinstance(eps, bool) or not isinstance(eps, (int, float)) or not math.isfinite(eps) or eps < 0.0:
+            raise ValueError(f"freeboard_boundary_bisections 须为不小于 0 的整数，final_negative_floor_kg 须为有限非负数：{n}、{eps}")
 
 
 # 已批准的 ε_P 与 Serio 对。不是新的可调物理参数。ADR 0017 第 17 项；表 5.4，S. 97。

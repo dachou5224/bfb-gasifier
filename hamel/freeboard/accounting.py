@@ -99,6 +99,8 @@ class TrajectoryFate:
     slip_m: tuple[float, ...]
     upward_free: tuple[float, ...]
     downward_free: tuple[float, ...]
+    # 进入记账的边界穿越序列（源格, 目标格或 None, 方向）。解释性选择：ADR 0058 第 1 项。
+    crossings: tuple = ()
 
 
 @dataclass(frozen=True)
@@ -142,6 +144,8 @@ class ReferenceAccounting:
     max_time_s: float = 0.0
     p99_time_s: float = 0.0
     longest: tuple | None = None
+    # ADR 0058 第 1 项：(端点轨迹数, 定位用中间轨迹数, 第三种签名的区间数)。只报告。
+    boundary: tuple = (0, 0, 0)
 
 
 def _edges_and_gas(edges_m, rho_g, mu_g) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -439,13 +443,15 @@ def _classify(
         counted = span if not u_min else min(span, abs(h_end - h0) / u_min)
         residence[cell] += counted
         slip[cell] += piece * counted / (end - start)
-    for time, from_cell, _to_cell, direction in crossings:
+    accounted = []
+    for time, from_cell, to_cell, direction in crossings:
         if captured and capture_time is not None and time >= capture_time:
             continue
         if direction == "up":
             upward_free[from_cell] += 1.0
         else:
             downward_free[from_cell] += 1.0
+        accounted.append((int(from_cell), None if to_cell is None else int(to_cell), str(direction)))
     return TrajectoryFate(
         fate,
         elapsed,
@@ -463,6 +469,7 @@ def _classify(
         tuple(slip),
         tuple(upward_free),
         tuple(downward_free),
+        tuple(accounted),
     )
 
 
@@ -635,18 +642,74 @@ def trace_until_fate(
 
 def _sum_ledgers(ledgers, count: int, weight: float):
     """把若干条轨迹的停留、滑移与自由状态穿出按（样本权重 × 轨迹权重）加总。"""
-    residence = [0.0] * count
-    slip = [0.0] * count
-    upward_free = [0.0] * count
-    downward_free = [0.0] * count
+    parts = ([0.0] * count, [0.0] * count, [0.0] * count, [0.0] * count)
     for ledger, share in ledgers:
         scale = weight * share
-        for cell in range(count):
-            residence[cell] += scale * ledger.residence_s[cell]
-            slip[cell] += scale * ledger.slip_m[cell]
-            upward_free[cell] += scale * ledger.upward_free[cell]
-            downward_free[cell] += scale * ledger.downward_free[cell]
-    return residence, slip, upward_free, downward_free
+        for part, values in zip(parts, (ledger.residence_s, ledger.slip_m, ledger.upward_free, ledger.downward_free)):
+            for cell in range(count):
+                part[cell] += scale * values[cell]
+    return parts
+
+
+def _touch_max(touched: dict, cell: int, value: float) -> None:
+    """按节点累加：同一节点在同一格的权重取各轨迹位权重的最大值。ADR 0058 第 1 项。"""
+    touched[cell] = max(touched.get(cell, 0.0), value)
+
+def _signature(ledger: TrajectoryFate) -> tuple:
+    """离散记账签名：归宿、起点即在捕获区、进入格与来源格、方向、次数、穿越序列。ADR 0058 第 1 项。"""
+    return (ledger.fate, ledger.captured_at_start, ledger.entry_cell, ledger.entered_cell, ledger.entry_kind,
+            ledger.entry_count, tuple(map(int, ledger.upward_free)), tuple(map(int, ledger.downward_free)), ledger.crossings)
+
+
+def boundary_weights(xs, signatures, probe, delta: float, bisections: int):
+    """按 ADR 0058 第 1 项把 [x_0, x_(N_d+1)] 分给各节点的质量权重（单位 w，合计 N_d）。
+
+    probe(x) 返回 (新节点下标, 该处签名)，由调用方登记。解释性选择：ADR 0058 第 1 项。
+    Source: Hamel Eq.3.88, S. 46
+    """
+    tolerance = delta * 2.0 ** (-int(bisections))
+    weights: dict[int, float] = {}
+    counts = {"bisections": 0, "thirds": 0}
+    if len(set(signatures)) == 1:  # 处处相同：与现行的等权求和逐位相同。
+        return dict.fromkeys(range(1, len(xs) - 1), 1.0), counts
+
+    def add(index, value):
+        weights[index] = weights.get(index, 0.0) + value
+
+    def locate(left, right, index_left, index_right, signature_left, signature_right):
+        if right - left <= tolerance:
+            middle = 0.5 * (left + right)
+            add(index_left, (middle - left) / delta)
+            add(index_right, (right - middle) / delta)
+            return
+        middle = 0.5 * (left + right)
+        counts["bisections"] += 1
+        index_middle, signature_middle = probe(middle)
+        if signature_middle == signature_left:
+            add(index_left, (middle - left) / delta)
+            locate(middle, right, index_left, index_right, signature_left, signature_right)
+        elif signature_middle == signature_right:
+            add(index_right, (right - middle) / delta)
+            locate(left, middle, index_left, index_right, signature_left, signature_right)
+        else:
+            counts["thirds"] += 1
+            locate(left, middle, index_left, index_middle, signature_left, signature_middle)
+            locate(middle, right, index_middle, index_right, signature_middle, signature_right)
+
+    for position in range(len(xs) - 1):
+        left, right = float(xs[position]), float(xs[position + 1])
+        width = (right - left) / delta
+        if signatures[position] == signatures[position + 1]:
+            if position == 0 and len(xs) > 2:
+                add(1, width)
+            elif position == len(xs) - 2 and len(xs) > 2:
+                add(position, width)
+            else:
+                add(position, 0.5 * width)
+                add(position + 1, 0.5 * width)
+        else:
+            locate(left, right, position, position + 1, signatures[position], signatures[position + 1])
+    return weights, counts
 
 
 def account_freeboard(
@@ -698,82 +761,118 @@ def account_freeboard(
     totals = {name: [0.0] * count for name in names}
     local_totals = {name: [0.0] * count for name in names}
     theta_up, theta_down = [0.0] * count, [0.0] * count
-    returned, elutriated, captured = direct, 0.0, 0.0
-    local_return, local_elutriation = 0.0, 0.0
-    statistics: list[tuple[int, float, float, float, str]] = []
-    # 捕获到的 φ_p 权重，用于 ADR 0051 第 2 项的 ω_p。
+    returned, elutriated, captured, local_return, local_elutriation = direct, 0.0, 0.0, 0.0, 0.0
+    statistics: list[tuple] = []
     captured_phi: list[dict] = [{} for _ in range(count)]
     facets = tuple(dict.fromkeys(float(phi) for _d, phi, _w in entries))
-    windows = () if class_window is None else drift_windows(
-        edges, gas_velocity, densities, viscosities, rho_p, facets, class_window, bool(first_class)
-    )
-    first: tuple[StableEquilibrium, ...] = ()
-    for index, (diameter, phi, weight) in enumerate(entries):
-        equilibria = stable_equilibria(edges, gas_velocity, densities, viscosities, diameter, rho_p, phi)
-        if index == 0:
-            first = equilibria
+    windows = () if class_window is None else drift_windows(edges, gas_velocity, densities, viscosities, rho_p, facets, class_window, bool(first_class))
+    first = stable_equilibria(edges, gas_velocity, densities, viscosities, float(entries[0][0]), rho_p, float(entries[0][1]))
+    bisections = int(config.freeboard_boundary_bisections)  # 解释性选择：ADR 0058 第 1 项。
+    diameters = tuple(dict.fromkeys(float(item[0]) for item in entries))
+    phis = tuple(dict.fromkeys(float(item[1]) for item in entries))
+    grid = samples is not None and len(diameters) * len(phis) == len(entries) and len(diameters) >= 2
+    if grid:
+        step = math.log(diameters[1] / diameters[0])
+        xs = [math.log(diameters[0]) - 0.5 * step] + [math.log(item) for item in diameters] + [math.log(diameters[-1]) + 0.5 * step]
+        weight, wanted = float(entries[0][2]), 1.0 / len(phis)
+    positions = [("bed", i, float(shares[i])) for i in range(speeds_in.size)] + [("local", c, 1.0) for c in range(count)]
+    counts = {"endpoints": 2 * len(phis) * len(positions) if grid else 0, "bisections": 0, "thirds": 0}
+    # 第一阶段：逐 φ_S 行、逐轨迹位沿 x = ln d 定位，得到该轨迹位的“轨迹–权重”表。ADR 0058 第 1 项。
+    plans, lookup = [], {}
+    for phi, single in ([(item, None) for item in phis] if grid else [(float(item[1]), item) for item in entries]):
+        nodes, by_key, cache = [], {}, {}
 
-        def follow(height: float, speed: float, diameter=diameter, phi=phi, equilibria=equilibria) -> TrajectoryFate:
-            return trace_until_fate(
-                height, speed, edges, gas_velocity, densities, viscosities, diameter, rho_p, phi,
-                config, equilibria, scale, region,
-            )
+        def add_node(x, diameter=None, phi=phi):
+            key = round(float(x), 12)
+            if key not in by_key:
+                value = math.exp(float(x)) if diameter is None else float(diameter)
+                terminal = [terminal_settling_velocity(float(densities[c]), float(viscosities[c]), value, rho_p, phi) for c in range(count)]
+                nodes.append({"diameter": value, "terminal": terminal,
+                              "equilibria": stable_equilibria(edges, gas_velocity, densities, viscosities, value, rho_p, phi)})
+                by_key[key] = len(nodes) - 1
+            return by_key[key]
 
-        bed = [(follow(bed_surface, float(speeds_in[i])), float(shares[i])) for i in range(speeds_in.size)]
-        local, settling = [], []
-        for cell in range(count):
-            terminal = terminal_settling_velocity(float(densities[cell]), float(viscosities[cell]), diameter, rho_p, phi)
-            settling.append(terminal)
-            middle = 0.5 * (edges[cell] + edges[cell + 1])
-            local.append(follow(middle, cell_mean_velocity(gas_velocity, cell, edges[cell], edges[cell + 1]) - terminal))
-        touched = [False] * count
-        for ledger, share in bed:
-            mass = weight * share
-            if ledger.fate == "return":
-                returned += mass
-            elif ledger.fate == "elutriate":
-                elutriated += mass
+        base = [add_node(x, d) for x, d in zip(xs, [math.exp(xs[0])] + list(diameters) + [math.exp(xs[-1])])] if grid else [add_node(math.log(single[0]), single[0])]
+        plan = {}
+        for kind, where, _share in positions:
+            def ledger_at(index, kind=kind, where=where):
+                key = (kind, where, index)
+                if key not in cache:
+                    node = nodes[index]
+                    if kind == "bed":
+                        height, speed = bed_surface, float(speeds_in[where])
+                    else:
+                        height = 0.5 * (edges[where] + edges[where + 1])
+                        speed = cell_mean_velocity(gas_velocity, where, edges[where], edges[where + 1]) - node["terminal"][where]
+                    cache[key] = trace_until_fate(height, speed, edges, gas_velocity, densities, viscosities, node["diameter"], rho_p, phi,
+                                                  config, node["equilibria"], scale, region)
+                    # ADR 0050 第 5 项：段数与归宿时刻，只报告。
+                    statistics.append((cache[key].segments, cache[key].time_s, node["diameter"], phi, "床面抛出" if kind == "bed" else f"格 {where} 中点"))
+                return cache[key]
+
+            if grid:
+                signatures = [_signature(ledger_at(index)) for index in base]
+
+                def probe(x):
+                    index = add_node(x)
+                    return index, _signature(ledger_at(index))
+                weights, used = boundary_weights(xs, signatures, probe, step, bisections)
+                counts["bisections"] += used["bisections"]
+                counts["thirds"] += used["thirds"]
+                weights = {index: value * weight for index, value in weights.items()}
+                if abs(sum(weights.values()) - wanted) > 1.0e-12 * wanted:
+                    raise FreeboardError("每行每轨迹位的权重之和不是 1/N_φ")
             else:
-                captured += mass
-                if ledger.entered_cell is None:
-                    raise FreeboardError("捕获轨迹没有进入的格子")
-                key = "c_down" if ledger.entry_kind == "down" else "c_up"
-                totals[key][ledger.entry_cell] += mass
-                touched[ledger.entry_cell] = True
-                # ω_p 归集到实际悬停目标格（向下进入时是源格下方相邻格）。ADR 0051 第 2 项。
-                captured_phi[ledger.entered_cell][float(phi)] = captured_phi[ledger.entered_cell].get(float(phi), 0.0) + mass
-        for cell, ledger in enumerate(local):
-            if ledger.fate == "return":
-                local_return += weight
-            elif ledger.fate == "elutriate":
-                local_elutriation += weight
-            if ledger.fate == "capture" and ledger.entered_cell is not None:
-                # 每条被捕获的当地轨迹按其目标悬停格计入一次，与 θ、滑移的源格记账分开。
-                captured_phi[ledger.entered_cell][float(phi)] = captured_phi[ledger.entered_cell].get(float(phi), 0.0) + weight
-            entered = ledger.captured_at_start if region == "cell" else ledger.entry_count == 1
-            if ledger.fate != "capture" or not entered:
+                ledger_at(0)
+                weights = {0: float(single[2])}
+            plan[(kind, where)] = weights
+        plans.append({"nodes": nodes, "plan": plan, "cache": cache})
+        for position, index in enumerate(base):
+            lookup[(round(phi, 15), round(nodes[index]["diameter"], 15))] = (len(plans) - 1, position)
+    # 第二阶段：按取样点顺序累加；签名处处相同时与现行逐位相同。ADR 0058 第 1 项。
+    for diameter, phi, _weight in entries:
+        row, node = lookup[(round(float(phi), 15), round(float(diameter), 15))]
+        plan, cache, terminal = plans[row]["plan"], plans[row]["cache"], plans[row]["nodes"][node]["terminal"]
+        touched: dict[int, float] = {}
+        for kind, where, share in positions:
+            value, ledger = plan[(kind, where)].get(node, 0.0), cache[(kind, where, node)]
+            if kind == "bed":
+                mass = value * share
+                if ledger.fate == "return":
+                    returned += mass
+                elif ledger.fate == "elutriate":
+                    elutriated += mass
+                else:
+                    captured += mass
+                    if ledger.entered_cell is None:
+                        raise FreeboardError("捕获轨迹没有进入的格子")
+                    totals["c_down" if ledger.entry_kind == "down" else "c_up"][ledger.entry_cell] += mass
+                    _touch_max(touched, ledger.entered_cell, value)
+                    captured_phi[ledger.entered_cell][phi] = captured_phi[ledger.entered_cell].get(phi, 0.0) + mass
                 continue
-            if ledger.entry_kind == "up" and ledger.entered_cell == cell:
-                theta_up[cell] += weight
-                touched[cell] = True
-            elif ledger.entry_kind == "down" and ledger.entered_cell == cell - 1:
-                theta_down[cell] += weight
-                touched[cell] = True
+            if ledger.fate == "return":
+                local_return += value
+            elif ledger.fate == "elutriate":
+                local_elutriation += value
+            if ledger.fate == "capture" and ledger.entered_cell is not None:
+                captured_phi[ledger.entered_cell][phi] = captured_phi[ledger.entered_cell].get(phi, 0.0) + value
+            entered = ledger.captured_at_start if region == "cell" else ledger.entry_count == 1
+            if ledger.fate == "capture" and entered and ((ledger.entry_kind == "up" and ledger.entered_cell == where)
+                                                         or (ledger.entry_kind == "down" and ledger.entered_cell == where - 1)):
+                (theta_up if ledger.entry_kind == "up" else theta_down)[where] += value
+                _touch_max(touched, where, value)
         for cell in range(count):
-            if touched[cell]:
-                totals["w_t"][cell] += weight
-                totals["slip_t"][cell] += weight * settling[cell]
-        bed_sum = dict(zip(("res", "slip", "up", "down"), _sum_ledgers(bed, count, weight)))
-        for name, values in bed_sum.items():
+            if cell in touched:
+                totals["w_t"][cell] += touched[cell]
+                totals["slip_t"][cell] += touched[cell] * terminal[cell]
+        for name, values in zip(("res", "slip", "up", "down"), _sum_ledgers(
+                [(cache[("bed", j, node)], plan[("bed", j)].get(node, 0.0) * float(shares[j])) for j in range(speeds_in.size)], count, 1.0)):
             for cell in range(count):
                 totals[name][cell] += values[cell]
-        local_sum = dict(zip(("res", "slip", "up", "down"), _sum_ledgers([(ledger, 1.0) for ledger in local], count, weight)))
-        for name, values in local_sum.items():
+        for name, values in zip(("res", "slip", "up", "down"), _sum_ledgers(
+                [(cache[("local", c, node)], plan[("local", c)].get(node, 0.0)) for c in range(count)], count, 1.0)):
             for cell in range(count):
                 local_totals[name][cell] += values[cell]
-        # ADR 0050 第 5 项：记录段数与归宿时刻，只报告。
-        for ledger, start in [(item, "床面抛出") for item, _share in bed] + [(item, f"格 {cell} 中点") for cell, item in enumerate(local)]:
-            statistics.append((ledger.segments, ledger.time_s, diameter, phi, start))
     cells = []
     for cell in range(count):
         bed_mass = totals["res"][cell]
@@ -782,8 +881,7 @@ def account_freeboard(
         mass = source["res"][cell]
         outflow = source["up"][cell] + source["down"][cell]
         if mass == 0.0:
-            if outflow != 0.0:
-                raise FreeboardError("自由段有穿出通量但停留时间为 0")
+            if outflow != 0.0: raise FreeboardError("自由段有穿出通量但停留时间为 0")
             cells.append(CellTransport(theta_up[cell], theta_down[cell], _FREE_ABSENT, None, None, None, None, None, **_window_factors(windows, captured_phi[cell], cell, first_class)))
             continue
         hover = None if totals["w_t"][cell] == 0.0 else totals["slip_t"][cell] / totals["w_t"][cell]
@@ -797,17 +895,12 @@ def account_freeboard(
     return ReferenceAccounting(
         tuple(item.height_m for item in first),
         tuple(sorted({cell for item in first for cell in item.cells})),
-        returned,
-        elutriated,
-        captured,
-        float(shares.sum()),
-        0.0,
-        local_return,
-        local_elutriation,
-        tuple(cells),
+        returned, elutriated, captured, float(shares.sum()), 0.0,
+        local_return, local_elutriation, tuple(cells),
         tuple((item.cells, item.height_m, item.half_width_m) for item in first),
         max((item[0] for item in statistics), default=0),
         max((item[1] for item in statistics), default=0.0),
         float(np.percentile([item[1] for item in statistics], 99)) if statistics else 0.0,
         max(statistics, key=lambda item: item[1]) if statistics else None,
+        tuple(counts.values()),
     )

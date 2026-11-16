@@ -89,6 +89,8 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
         "freeboard_delta_h_m",
         "freeboard_delta_u_m_s",
         "freeboard_residence_floor_m_s",
+        "freeboard_boundary_bisections",
+        "final_negative_floor_kg",
         "particle_tolerance_w",
         "particle_max_iterations",
         "coupling_tolerance_k",
