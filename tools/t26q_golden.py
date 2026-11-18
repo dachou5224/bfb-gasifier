@@ -3,6 +3,8 @@
 ``python -m tools.t26q_golden capture --out .scratch/t26q/golden.npz``
 ``python -m tools.t26q_golden compare --golden .scratch/t26q/golden.npz``
 
+T26u 另加边界求积基准（T26t 的两份预计算入参，只比冻结量与 boundary 记录）：``boundary`` 与 ``boundary_compare``。
+
 全程 φ = 0,3（工况副本，不做 φ 切换）；另记 φ = 1 时初值构造被拒的完整 diagnostics。
 外层只进第 1 轮、内层记前 3 次迭代，用包装函数在 3 次后中止，不改正式路径。
 Corella 外推只在本工具里设置，与 T26o、T26p 相同。比较用 ``np.array_equal``。
@@ -11,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import pickle
 import re
 import signal
 import subprocess
@@ -30,6 +33,8 @@ from hamel.solver.vector import pack_state
 
 _ROOT = Path(__file__).resolve().parents[1]
 _CASE = _ROOT / "data" / "cases" / "vtt_pressurized.json"
+# T26u A.2：T26t 留下的两份预计算入参（第 17 轮与第 D.3 项收敛解的 2(b)）。
+_SAVED = (("r17", ".scratch/t26t/precalc_args_r17.pkl"), ("final", ".scratch/t26t/final_args.pkl"))
 _PHI = 0.3
 _SOLID = ("bed_char_kg", "freeboard_char_free_kg", "freeboard_char_hover_kg",
           "freeboard_ash_free_kg", "freeboard_ash_hover_kg")
@@ -225,9 +230,75 @@ def compare(golden: Path, limit_s: float, prefix: str = "data.") -> int:
     return 0 if not (missing or extra or different) else 1
 
 
+def _numeric(frozen) -> dict:
+    """冻结量的全部数值字段（数组与标量），与 ``tools/t26t_validate.py`` 同一口径。"""
+    values = {}
+    for item in fields(frozen):
+        value = getattr(frozen, item.name)
+        if isinstance(value, np.ndarray):
+            values[item.name] = np.array(value)
+        elif isinstance(value, (int, float, np.integer, np.floating)) and not isinstance(value, (bool, np.bool_)):
+            values[item.name] = np.asarray(value)
+    return values
+
+
+def _saved_solver(saved):
+    """旧进程 pickle 的 SolverConfig 只取当前仍存在的字段。"""
+    names = {item.name for item in fields(SolverConfig)}
+    return SolverConfig(**{item.name: getattr(saved, item.name) for item in fields(saved) if item.name in names})
+
+
+def _boundary_arrays() -> dict:
+    """两份入参各做一次预计算：全部冻结量，另加逐粒级的 boundary 记录。"""
+    import hamel.solver.precalc as precalc
+
+    original = homogeneous._CORELLA_HIGH_K
+    homogeneous._CORELLA_HIGH_K = float("inf")
+    try:
+        data = {}
+        for label, name in _SAVED:
+            with (_ROOT / name).open("rb") as handle:
+                saved = pickle.load(handle)
+            kwargs = dict(saved["kwargs"])
+            kwargs["solver"] = _saved_solver(kwargs["solver"])
+            result = precalc.precalculate(*saved["args"], **kwargs)
+            data[label] = result
+    finally:
+        homogeneous._CORELLA_HIGH_K = original
+    out: dict = {}
+    for label, result in data.items():
+        _flatten(f"data.{label}.frozen", _numeric(result.frozen), out)
+        _flatten(f"data.{label}.boundary", (result.reported.get("trajectory") or {}).get("boundary"), out)
+    return {re.sub(r"[^0-9A-Za-z_.-]+", "_", key): np.asarray(value) for key, value in out.items()}
+
+
+def boundary_capture(path: Path, base_sha: str) -> int:
+    data = _boundary_arrays()
+    data.update({"meta.base_sha": np.array(base_sha), "meta.kind": np.array("T26U_BOUNDARY_PRECALC")})
+    path.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(path, **data)
+    print(json.dumps({"out": str(path), "base_sha": base_sha, "arrays": len(data)}, ensure_ascii=False))
+    return 0
+
+
+def boundary_compare(golden: Path) -> int:
+    reference = np.load(golden, allow_pickle=False)
+    current = _boundary_arrays()
+    keys = sorted(key for key in reference.files if not key.startswith("meta."))
+    missing = [key for key in keys if key not in current]
+    extra = sorted(key for key in current if key not in reference.files)
+    different = [key for key in keys if key in current and not np.array_equal(reference[key], current[key])]
+    print(json.dumps({
+        "golden": str(golden), "arrays": len(keys), "equal": not (missing or extra or different),
+        "missing": missing[:10], "extra": extra[:10], "different": different[:10],
+        "different_count": len(different), "base_sha": str(reference["meta.base_sha"]),
+    }, ensure_ascii=False))
+    return 0 if not (missing or extra or different) else 1
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("capture", "compare"))
+    parser.add_argument("action", choices=("capture", "compare", "boundary", "boundary_compare"))
     parser.add_argument("--out", default=str(_ROOT / ".scratch" / "t26q" / "golden.npz"))
     parser.add_argument("--golden", default=None)
     parser.add_argument("--limit-s", type=float, default=6.0 * 3600.0)
@@ -236,6 +307,10 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
     if args.action == "capture":
         return capture(Path(args.out), args.limit_s, args.base_sha or _sha())
+    if args.action == "boundary":
+        return boundary_capture(Path(args.out), args.base_sha or _sha())
+    if args.action == "boundary_compare":
+        return boundary_compare(Path(args.golden or args.out))
     return compare(Path(args.golden or args.out), args.limit_s, args.prefix)
 
 

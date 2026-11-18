@@ -12,7 +12,7 @@ from hamel.cases.config import SolverConfig, approved_emissivity, approved_serio
 from hamel.hydrodynamics.bed import BedConditions, BedProfile
 from hamel.properties.data import GAS_SPECIES
 from hamel.pyrolysis.release import FuelTransport, feed_cell_index
-from hamel.solver.campaign import config_for, overlay, run_specs
+from tools.campaign import config_for, overlay, run_specs
 from hamel.solver.frozen import AssemblyError
 from hamel.solver.precalc import EPSILON_MF, PHI_S, _bounds, _drain_terms, _exchange_diffusivity, _load, bed_downflow
 from hamel.solver.residual import bed_ash_by_class, evaluate_residual, wall_area_m2
