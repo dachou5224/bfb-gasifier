@@ -40,7 +40,8 @@ T26t 合并后 `hamel/` 为 10 966 行，距 11 000 行上限（CHARTER v0.14 §
    - 移到 `tools/campaign.py`（或并入 `tools/driver_report.py`，择一，PR 写明理由），运行表内容一字不改。
    - 改写全部导入方，包括 `tools/driver_report.py`、`tools/t26c_run.py`、`tools/t26d_validate.py`、`tools/t26e_validate.py`、`tools/t26f_precheck.py`、`tools/t26g_validate.py`，以及 `tests/test_driver.py`、`tests/test_run_prep.py`、`tests/test_bed_ash_split.py`、`tests/test_t26c_diagnosis.py`、`tests/test_sensitivity_params.py` 中的 import 与 monkeypatch 路径。用 `rg "solver.campaign|solver import .*campaign"` 确认没有遗漏。
    - 文档中的 `campaign.py`、`hamel/solver/campaign.py` 路径只改**现行**文档：ADR 0030 冻结清单，以及 STATUS 中“下一步”一类的指引。已接受的 ADR 和历史任务卡正文不改（它们记录当时的路径）；需要时在 ADR 0030 加一行路径变更注记。
-   - 搬走后 `hamel/` 不得导入 `tools/`：PR 中给出 `rg "^from tools|^import tools" hamel` 的空输出。
+   - 搬走后 `hamel/` 不再有对 `tools/` 的**新增**导入。导入检查用 `rg -n '^\s*(from tools\b|import tools\b)' hamel`（含缩进导入），PR 中给出完整输出：应当**只剩**下面一条具名例外。
+   - **具名例外（保留，不改）**：`hamel/solver/driver.py` 在 `solve_case` 收敛并通过外部平衡、非负与壁面散热之后，缩进导入 `from tools.run_prep import attach_converged` 并调用它，把记账、闭式比对与加密写进 `outcome.diagnostics`（T26a 起如此，T26q 把相关函数放进 `tools/run_prep.py`）。它在求解结束后执行、不影响求解与收敛判定，但属于 `solve_case` 返回内容的一部分。本卡**不迁移、不删除**这条调用，收敛后的报告内容保持不变；是否迁移另立卡讨论。
 2. **`hamel/solver/sensitivity.py` 中只供报告的部分**：逐个函数查调用方。只被 `tools/` 或测试使用、正式路径（residual、precalc、driver）不用的函数，随第 1 项移到 `tools/`；正式路径用到的（如 `diameter_at`、`section_volume_m3`、`pack_reported`）保留。
 3. **T26t 留下的压行**：`hamel/freeboard/accounting.py` 中 `_sum_ledgers` 与 `_check_closure` 被写成单行的 `for …: …` 和 `if …: raise …`（commit `96282c8`），按第 C 项规则恢复为正常的多行写法。这会增加几行，计入本卡的净变化。
 4. **T26t 实现中的冗余**：`accounting.account_freeboard` 两阶段累加中，只为第一轮写法保留的变量或分支（例如 `plans` 中不再使用的字段、`lookup` 与 `sequence` 的重复构造）能否等价简化。必须保证第 A.2 项逐位相同。
@@ -53,7 +54,7 @@ T26t 合并后 `hamel/` 为 10 966 行，距 11 000 行上限（CHARTER v0.14 §
 
 - **不改**：方程、残差、闭合、冻结值、收敛门与容差、求解手段（ADR 0054–0058 的行为）、来源引用（`Source:`、`解释性选择：ADR …`）、`SolverConfig` 字段的名称与默认值。
 - **不得用格式手段凑数**：不把多行合并成长行或单行复合语句，不删 docstring 中的来源与 ADR 引用，不删有效注释。行数以 `tools/drift_check.py` 的计数为准；PR 中按文件列出净变化，并逐项写明删改理由。
-- 移到 `tools/` 的代码不得被 `hamel/` 的正式路径调用，`hamel/` 不得导入 `tools/`。
+- 移到 `tools/` 的代码不得被 `hamel/` 的正式路径调用；除第 B.1 项列出的 `driver.py` → `tools.run_prep.attach_converged` 具名例外外，`hamel/` 不得导入 `tools/`。不得以删除或改写该例外调用来满足导入检查。
 
 ### D. 验证
 
@@ -66,7 +67,8 @@ T26t 合并后 `hamel/` 为 10 966 行，距 11 000 行上限（CHARTER v0.14 §
 
 - 任何行为变化；O4；ADR 0058 的“A…C…A”两次边界局限。
 - 改动 `tools/` 中历史运行记录，或重新生成已有报告。
-- 修改已接受 ADR、历史任务卡的正文（第 B1 项允许的 ADR 0030 路径注记除外）。
+- 修改已接受 ADR、历史任务卡的正文（第 B.1 项允许的 ADR 0030 路径注记除外）。
+- 迁移或删除 `driver.py` 对 `tools.run_prep.attach_converged` 的收敛后调用。
 
 ## 原文答卷
 
@@ -89,3 +91,4 @@ T26t 合并后 `hamel/` 为 10 966 行，距 11 000 行上限（CHARTER v0.14 §
 
 ## 审查记录
 
+- PR #169 审查（codex）第 1 轮（`8e21fa4`）一项 P2：`driver.py` 收敛后缩进导入 `tools.run_prep.attach_converged`，卡上导入检查漏掉缩进导入且未说明这条既有依赖的处置。已修订：导入检查改为含缩进的写法，这条调用列为具名例外，本卡保留不改、不得以删除它满足检查。
