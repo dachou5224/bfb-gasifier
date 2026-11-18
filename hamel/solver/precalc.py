@@ -616,6 +616,8 @@ def _segregate(case, flow, profile, rho_p, d_bar):
         "max_segments": max((book.max_segments for book in books), default=0),
         "max_time_s": max((book.max_time_s for book in books), default=0.0),
         "p99_time_s": max((book.p99_time_s for book in books), default=0.0),
+        # ADR 0058 第 1 项：逐粒级的 (端点轨迹数, 定位轨迹数, 第三种签名的区间数)。只报告。
+        "boundary": [list(item.boundary) for item in books],
         "longest": max(
             ((klass, book.longest) for klass, book in enumerate(books) if book.longest is not None),
             key=lambda item: item[1][1], default=None,
