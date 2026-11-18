@@ -88,7 +88,7 @@ def initial(name):
 def capture(limit_s):
     scan._hamel_clean()
     summary = scan._solve(18, limit_s, {17, 18})
-    _write("capture.json", summary | {"baseline_sha": _BASE})
+    _write("capture.json", dict(summary, baseline_sha=_BASE))
     saved = summary.get("saved") or {}
     if saved.get(17) != 1 or saved.get(18) != 1:
         raise SystemExit(f"第 18 轮之前停止或预计算次数异常：{summary.get('status')} {summary.get('reason')} saved={saved}")
@@ -153,7 +153,7 @@ def _jumps(points):
         if scale == 0.0:
             continue
         steps = [float(np.max(np.abs(arrays[i + 1] - arrays[i]), initial=0.0) / scale) for i in range(len(arrays) - 1)]
-        rows[name] = {"max": max(steps), "at": int(np.argmax(steps))}
+        rows[name] = {"max": max(steps), "absolute": max(steps) * scale, "scale": scale, "at": int(np.argmax(steps))}
     return sorted(rows.items(), key=lambda item: -item[1]["max"])
 
 def scan_twostate():
@@ -170,7 +170,7 @@ def scan_twostate():
         scale = max((abs(value) for row in values for value in row), default=0.0)
         steps = [max((abs(a - b) for a, b in zip(values[i], values[i + 1])), default=0.0) / scale if scale else 0.0
                  for i in range(len(values) - 1)]
-        coefficients[name] = {"max": max(steps), "at": int(np.argmax(steps))}
+        coefficients[name] = {"max": max(steps), "absolute": max(steps) * scale, "at": int(np.argmax(steps))}
     changes = []
     for index in range(10):
         for klass in ("2", "3"):
@@ -213,7 +213,7 @@ def outer(limit_s):
             with (_SCRATCH / "final_args.pkl").open("wb") as handle:
                 pickle.dump({"args": candidates[0][0], "kwargs": candidates[0][1]}, handle, protocol=pickle.HIGHEST_PROTOCOL)
             summary["final_args_saved"] = len(candidates)
-    _write("outer.json", summary | {"baseline_sha": _BASE})
+    _write("outer.json", dict(summary, baseline_sha=_BASE))
 
 def nodebits():
     saved = scan._load("final_args.pkl")
