@@ -181,20 +181,84 @@ def _checked(residual=0.0, ash=None):
     )
 
 
-def _segregation(*speeds, lower=0.1e-3, upper=0.4e-3, diameters=2):
+def _segregation(*speeds, lower=0.1e-3, upper=0.4e-3, diameters=2, sphericities=2, count=8):
     """越过界面的构造：两格、给定的格内气速、粒级两端跨在归宿翻转的两侧。"""
     from hamel.freeboard.accounting import account_freeboard, within_class_samples
     from hamel.freeboard.ejection import ejection_velocity_samples
 
     edges = np.arange(len(speeds) + 1, dtype=float)
     gas = lambda cell, _height: float(speeds[cell])
-    samples = within_class_samples(lower, upper, diameters=diameters, sphericities=2)
-    velocities, shares, direct = ejection_velocity_samples(float(speeds[0]), 8)
+    samples = within_class_samples(lower, upper, diameters=diameters, sphericities=sphericities)
+    velocities, shares, direct = ejection_velocity_samples(float(speeds[0]), count)
     book = account_freeboard(
         edges, gas, np.full(len(speeds), 1.2), np.full(len(speeds), 2.0e-5),
         lower, 1200.0, 0.8, velocities, shares, direct, SolverConfig(), samples=samples,
     )
     return book, samples
+
+
+def _sparse_positions(*speeds, lower, upper, diameters, count):
+    """记录每个轨迹位的缓存与正权重，返回 (book, 床面独有节点, 当地独有节点)。
+
+    「床面独有节点」是一个被某个床面轨迹位赋正权重、但某个当地轨迹位从未探测（因而
+    没有缓存）的二分节点；当地独有同理反向。修复前这两种情况都会在读缓存时崩溃。
+    """
+    import hamel.freeboard.accounting as accounting
+
+    real, record = accounting.boundary_weights, []
+
+    def spy(xs, signatures, probe, delta, bisections):
+        probed = []
+
+        def wrapped(x):
+            index, signature = probe(x)
+            probed.append(index)
+            return index, signature
+
+        weights, counts = real(xs, signatures, wrapped, delta, bisections)
+        record.append((set(range(len(xs))) | set(probed), {i for i, value in weights.items() if value > 0.0}))
+        return weights, counts
+
+    accounting.boundary_weights = spy
+    try:
+        book, _samples = _segregation(*speeds, lower=lower, upper=upper, diameters=diameters,
+                                      sphericities=1, count=count)
+    finally:
+        accounting.boundary_weights = real
+    bed_owns, local_owns = [], []
+    for left, (cache_left, weighted) in enumerate(record):
+        for right, (cache_right, _other) in enumerate(record):
+            if left == right or not weighted - cache_right:
+                continue
+            if left < count <= right:
+                bed_owns.append(sorted(weighted - cache_right))
+            elif left >= count > right:
+                local_owns.append(sorted(weighted - cache_right))
+    return book, bed_owns, local_owns
+
+
+def test_bed_positions_own_a_node_the_local_positions_never_probe():
+    """床面轨迹在二分中得到第三签名节点、当地轨迹不需要它：该节点的质量必须计入。"""
+    book, bed_owns, _local = _sparse_positions(
+        *(0.2633063900154369, 0.23567432655898093, 0.4074187171071231),
+        lower=2.8966743437600435e-05, upper=0.00019237337213688245, diameters=2, count=2,
+    )
+    assert bed_owns  # 该构造确实出现「床面独有节点」，否则测不到这条路径
+    total = book.return_share + book.elutriation_share + book.capture_share
+    assert total == pytest.approx(1.0, abs=1.0e-12)
+    assert book.capture_share > 0.0
+
+
+def test_local_positions_own_a_node_the_bed_positions_never_probe():
+    """反向：当地轨迹独有第三签名节点时，床面位不能去读它没有的缓存，份额仍为 1。"""
+    book, _bed, local_owns = _sparse_positions(
+        *(0.4036629105541608, 0.6450707402713319, 0.4776847549049839),
+        lower=0.00011257460856391577, upper=0.00029190298468638253, diameters=3, count=3,
+    )
+    assert local_owns
+    total = book.return_share + book.elutriation_share + book.capture_share
+    assert total == pytest.approx(1.0, abs=1.0e-12)
+    assert book.return_share > 0.0 and book.elutriation_share > 0.0
 
 
 def test_endpoint_and_midpoint_mass_is_counted_and_shares_close_to_one():

@@ -640,14 +640,12 @@ def trace_until_fate(
     )
 
 
-def _sum_ledgers(ledgers, count: int, weight: float):
-    """把若干条轨迹的停留、滑移与自由状态穿出按（样本权重 × 轨迹权重）加总。"""
+def _sum_ledgers(ledgers, count: int):
+    """把若干条轨迹的停留、滑移与自由状态穿出按给定权重加总。"""
     parts = ([0.0] * count, [0.0] * count, [0.0] * count, [0.0] * count)
-    for ledger, share in ledgers:
-        scale = weight * share
+    for ledger, scale in ledgers:
         for part, values in zip(parts, (ledger.residence_s, ledger.slip_m, ledger.upward_free, ledger.downward_free)):
-            for cell in range(count):
-                part[cell] += scale * values[cell]
+            for cell in range(count): part[cell] += scale * values[cell]
     return parts
 
 
@@ -656,8 +654,7 @@ def _check_closure(bed_shares, local_weight) -> None:
     if abs(float(bed_shares) - 1.0) > 1.0e-12:
         raise FreeboardError(f"床面抛出的回落 + 带出 + 捕获 = {float(bed_shares):.15g}，不是 1")
     for cell, value in enumerate(local_weight):
-        if abs(float(value) - 1.0) > 1.0e-12:
-            raise FreeboardError(f"格 {cell} 的当地轨迹权重之和 = {float(value):.15g}，不是 1")
+        if abs(float(value) - 1.0) > 1.0e-12: raise FreeboardError(f"格 {cell} 的当地轨迹权重之和 = {float(value):.15g}，不是 1")
 
 
 def _touch_max(touched: dict, cell: int, value: float) -> None:
@@ -853,7 +850,10 @@ def account_freeboard(
             continue
         touched: dict[int, float] = {}
         for kind, where, share in positions:
-            value, ledger = weights[(kind, where)], cache[(kind, where, node)]
+            value = weights[(kind, where)]
+            if value == 0.0:  # 该轨迹位没有探测这个节点，缓存里也没有它。
+                continue
+            ledger = cache[(kind, where, node)]
             if kind == "bed":
                 mass = value * share
                 if ledger.fate == "return":
@@ -883,14 +883,14 @@ def account_freeboard(
         for cell, value in touched.items():
             totals["w_t"][cell] += value
             totals["slip_t"][cell] += value * terminal[cell]
+        # 只把有正权重的轨迹位交给 _sum_ledgers：其余位的缓存里没有这个节点。
         for name, values in zip(("res", "slip", "up", "down"), _sum_ledgers(
-                [(cache[("bed", j, node)], weights[("bed", j)] * float(shares[j])) for j in range(speeds_in.size)], count, 1.0)):
-            for cell in range(count):
-                totals[name][cell] += values[cell]
+                [(cache[("bed", j, node)], weights[("bed", j)] * float(shares[j]))
+                 for j in range(speeds_in.size) if weights[("bed", j)] > 0.0], count)):
+            totals[name][:] = [a + b for a, b in zip(totals[name], values)]
         for name, values in zip(("res", "slip", "up", "down"), _sum_ledgers(
-                [(cache[("local", c, node)], weights[("local", c)]) for c in range(count)], count, 1.0)):
-            for cell in range(count):
-                local_totals[name][cell] += values[cell]
+                [(cache[("local", c, node)], weights[("local", c)]) for c in range(count) if weights[("local", c)] > 0.0], count)):
+            local_totals[name][:] = [a + b for a, b in zip(local_totals[name], values)]
     # 闭合校验：床面抛出的三项份额与当地轨迹的权重之和。ADR 0058 第 1 项。
     _check_closure(returned + elutriated + captured, local_weight)
     cells = []
