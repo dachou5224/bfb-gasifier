@@ -651,6 +651,15 @@ def _sum_ledgers(ledgers, count: int, weight: float):
     return parts
 
 
+def _check_closure(bed_shares, local_weight) -> None:
+    """床面抛出的三项份额之和与各格当地轨迹权重之和都是 1。ADR 0058 第 1 项。"""
+    if abs(float(bed_shares) - 1.0) > 1.0e-12:
+        raise FreeboardError(f"床面抛出的回落 + 带出 + 捕获 = {float(bed_shares):.15g}，不是 1")
+    for cell, value in enumerate(local_weight):
+        if abs(float(value) - 1.0) > 1.0e-12:
+            raise FreeboardError(f"格 {cell} 的当地轨迹权重之和 = {float(value):.15g}，不是 1")
+
+
 def _touch_max(touched: dict, cell: int, value: float) -> None:
     """按节点累加：同一节点在同一格的权重取各轨迹位权重的最大值。ADR 0058 第 1 项。"""
     touched[cell] = max(touched.get(cell, 0.0), value)
@@ -826,16 +835,25 @@ def account_freeboard(
                 ledger_at(0)
                 weights = {0: float(single[2])}
             plan[(kind, where)] = weights
-        plans.append({"nodes": nodes, "plan": plan, "cache": cache})
-        for position, index in enumerate(base):
-            lookup[(round(phi, 15), round(nodes[index]["diameter"], 15))] = (len(plans) - 1, position)
-    # 第二阶段：按取样点顺序累加；签名处处相同时与现行逐位相同。ADR 0058 第 1 项。
-    for diameter, phi, _weight in entries:
-        row, node = lookup[(round(float(phi), 15), round(float(diameter), 15))]
-        plan, cache, terminal = plans[row]["plan"], plans[row]["cache"], plans[row]["nodes"][node]["terminal"]
+        plans.append({"nodes": nodes, "plan": plan, "cache": cache, "phi": phi, "base": tuple(base)})
+        for index in base:
+            lookup[(round(phi, 15), round(nodes[index]["diameter"], 15))] = (len(plans) - 1, index)
+    # 第二阶段：先按原取样点顺序、再遍历端点与第三种签名的中点节点，两者的权重同样累加（否则丢质量）。ADR 0058 第 1 项。
+    sequence = [lookup[(round(float(phi), 15), round(float(diameter), 15))] for diameter, phi, _weight in entries]
+    used = set(sequence)
+    for row, item in enumerate(plans):
+        sequence += [(row, index) for index in range(len(item["nodes"])) if (row, index) not in used]
+    local_weight = [0.0] * count
+    for row, node in sequence:
+        item = plans[row]
+        phi, plan, cache = item["phi"], item["plan"], item["cache"]
+        terminal = item["nodes"][node]["terminal"]
+        weights = {key: value.get(node, 0.0) for key, value in plan.items()}
+        if not any(weights.values()):
+            continue
         touched: dict[int, float] = {}
         for kind, where, share in positions:
-            value, ledger = plan[(kind, where)].get(node, 0.0), cache[(kind, where, node)]
+            value, ledger = weights[(kind, where)], cache[(kind, where, node)]
             if kind == "bed":
                 mass = value * share
                 if ledger.fate == "return":
@@ -850,6 +868,7 @@ def account_freeboard(
                     _touch_max(touched, ledger.entered_cell, value)
                     captured_phi[ledger.entered_cell][phi] = captured_phi[ledger.entered_cell].get(phi, 0.0) + mass
                 continue
+            local_weight[where] += value
             if ledger.fate == "return":
                 local_return += value
             elif ledger.fate == "elutriate":
@@ -861,18 +880,19 @@ def account_freeboard(
                                                          or (ledger.entry_kind == "down" and ledger.entered_cell == where - 1)):
                 (theta_up if ledger.entry_kind == "up" else theta_down)[where] += value
                 _touch_max(touched, where, value)
-        for cell in range(count):
-            if cell in touched:
-                totals["w_t"][cell] += touched[cell]
-                totals["slip_t"][cell] += touched[cell] * terminal[cell]
+        for cell, value in touched.items():
+            totals["w_t"][cell] += value
+            totals["slip_t"][cell] += value * terminal[cell]
         for name, values in zip(("res", "slip", "up", "down"), _sum_ledgers(
-                [(cache[("bed", j, node)], plan[("bed", j)].get(node, 0.0) * float(shares[j])) for j in range(speeds_in.size)], count, 1.0)):
+                [(cache[("bed", j, node)], weights[("bed", j)] * float(shares[j])) for j in range(speeds_in.size)], count, 1.0)):
             for cell in range(count):
                 totals[name][cell] += values[cell]
         for name, values in zip(("res", "slip", "up", "down"), _sum_ledgers(
-                [(cache[("local", c, node)], plan[("local", c)].get(node, 0.0)) for c in range(count)], count, 1.0)):
+                [(cache[("local", c, node)], weights[("local", c)]) for c in range(count)], count, 1.0)):
             for cell in range(count):
                 local_totals[name][cell] += values[cell]
+    # 闭合校验：床面抛出的三项份额与当地轨迹的权重之和。ADR 0058 第 1 项。
+    _check_closure(returned + elutriated + captured, local_weight)
     cells = []
     for cell in range(count):
         bed_mass = totals["res"][cell]

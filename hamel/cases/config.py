@@ -69,9 +69,9 @@ class SolverConfig:
     freeboard_delta_u_m_s: float = 1.0e-2
     # 近中性自由部分停留的下限速度。0 表示规则不起作用。解释性选择：ADR 0057。
     freeboard_residence_floor_m_s: float = 1.0e-2
-    # 粒级内边界定位的二分次数（第 1 项）与最终解 [−ε_0, 0) 负固相存量的归零阈值，kg（第 2 项）。解释性选择：ADR 0058。
+    # 粒级内边界定位的二分次数（第 1 项）与最终解 [−ε_0, 0) 负固相存量的归零阈值，kg（第 2 项，2026-11-17 修订）。解释性选择：ADR 0058。
     freeboard_boundary_bisections: int = 6
-    final_negative_floor_kg: float = 1.0e-30
+    final_negative_floor_kg: float = 1.0e-15
     particle_tolerance_w: float = 1.0e-4
     particle_max_iterations: int = 25
     coupling_tolerance_k: float = 1.0e-3

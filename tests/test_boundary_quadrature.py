@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 from hamel.cases.config import SolverConfig
+from hamel.freeboard import FreeboardError
 from hamel.freeboard.accounting import _touch_max, boundary_weights
 from hamel.solver.driver import _floor_and_recheck, _negative_stocks
 from hamel.solver.gates import ResidualBlocks
@@ -180,6 +181,55 @@ def _checked(residual=0.0, ash=None):
     )
 
 
+def _segregation(*speeds, lower=0.1e-3, upper=0.4e-3, diameters=2):
+    """越过界面的构造：两格、给定的格内气速、粒级两端跨在归宿翻转的两侧。"""
+    from hamel.freeboard.accounting import account_freeboard, within_class_samples
+    from hamel.freeboard.ejection import ejection_velocity_samples
+
+    edges = np.arange(len(speeds) + 1, dtype=float)
+    gas = lambda cell, _height: float(speeds[cell])
+    samples = within_class_samples(lower, upper, diameters=diameters, sphericities=2)
+    velocities, shares, direct = ejection_velocity_samples(float(speeds[0]), 8)
+    book = account_freeboard(
+        edges, gas, np.full(len(speeds), 1.2), np.full(len(speeds), 2.0e-5),
+        lower, 1200.0, 0.8, velocities, shares, direct, SolverConfig(), samples=samples,
+    )
+    return book, samples
+
+
+def test_endpoint_and_midpoint_mass_is_counted_and_shares_close_to_one():
+    """端部区间签名不同、第三种签名时，端点与中点轨迹的质量必须计入。ADR 0058 第 1 项。
+
+    修复前第二阶段只遍历原取样点，这些节点的权重从未累加：同一构造下床面抛出的三项
+    份额之和会小于 1（第 17 轮入参上实测粒级 2 为 0,8269、粒级 3 为 0,9927）。
+    """
+    book, _samples = _segregation(1.0, 0.9)
+    total = book.return_share + book.elutriation_share + book.capture_share
+    assert total == pytest.approx(1.0, abs=1.0e-12)
+    assert book.boundary[1] > 0 and book.boundary[2] > 0
+    assert book.capture_share > 0.0 and book.return_share > 0.0 and book.elutriation_share > 0.0
+
+
+def test_endpoint_nodes_carry_mass_when_the_end_intervals_differ():
+    """端部区间 A/B：端点承担 A 段的质量，取样点承担其余部分，总和仍为 1。"""
+    book, samples = _segregation(1.0, 0.5, lower=0.15e-3, upper=0.5e-3)
+    total = book.return_share + book.elutriation_share + book.capture_share
+    assert total == pytest.approx(1.0, abs=1.0e-12)
+    # 端点轨迹与取样点的归宿不同：端部区间确实被定位过。
+    assert book.boundary[0] == 2 * 2 * (8 + len(book.cells))
+    assert book.capture_share > 0.0 and book.return_share > 0.0
+
+
+def test_closure_check_rejects_lost_mass():
+    from hamel.freeboard.accounting import _check_closure
+
+    _check_closure(1.0, [1.0, 1.0])
+    with pytest.raises(FreeboardError, match="不是 1"):
+        _check_closure(0.8269, [1.0])
+    with pytest.raises(FreeboardError, match="不是 1"):
+        _check_closure(1.0, [1.0, 0.9927])
+
+
 def test_negative_stock_in_the_floor_range_is_zeroed_and_rechecked():
     frozen = _frozen()
     vector, slot = _values(frozen, "char.bed.k1", -1.0e-40)
@@ -196,12 +246,20 @@ def test_negative_stock_in_the_floor_range_is_zeroed_and_rechecked():
     assert report["ratios_after"]["solid"] <= 1.0e-6
 
 
-def test_negative_stock_below_the_floor_is_not_zeroed():
+def test_default_floor_is_the_revised_epsilon():
+    """ε_0 = 1·10⁻¹⁵ kg：衡算可分辨的最小质量量级。ADR 0058 第 2 项（2026-11-17 修订）。"""
+    assert SolverConfig().final_negative_floor_kg == 1.0e-15
+
+
+def test_negative_stock_at_the_floor_is_zeroed_and_below_it_is_not():
     frozen = _frozen()
-    vector, slot = _values(frozen, "char.bed.k1", -1.0e-20)
+    vector, slot = _values(frozen, "char.bed.k1", -1.0e-15)
+    values, report, _reason = _floor_and_recheck(vector, frozen, SolverConfig(), lambda *_: _checked(), 1, None)
+    assert report["applied"] and values[slot.index] == 0.0
+    vector, slot = _values(frozen, "char.bed.k1", -1.0e-12)
     values, report, _reason = _floor_and_recheck(vector, frozen, SolverConfig(), lambda *_: _checked(), 1, None)
     assert not report["applied"] and report["below_floor"]
-    assert values[slot.index] == -1.0e-20
+    assert values[slot.index] == -1.0e-12
 
 
 def test_post_floor_block_residual_above_the_gate_is_not_converged():
@@ -233,5 +291,5 @@ def test_no_negative_stock_is_unchanged():
 def test_negative_stocks_only_returns_the_two_lists():
     frozen = _frozen()
     vector, _slot = _values(frozen, "char.bed.k1", -1.0e-40)
-    _values_out, floored, below = _negative_stocks(vector, frozen, 1.0e-30)
+    _values_out, floored, below = _negative_stocks(vector, frozen, SolverConfig().final_negative_floor_kg)
     assert len(floored) == 1 and not below
