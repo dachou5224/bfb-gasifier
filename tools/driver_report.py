@@ -463,9 +463,24 @@ def _markdown(payload) -> str:
         "每次运行的 JSON `diagnostics` 写入预计算已经算出的量，以及求解后由这些量整理的诊断。",
         "气泡相总流之比、d_b/D 与 d_b>D 的格数、与 KURKELA 表 5 的气速对照、悬停焦炭消耗占比，都取自这些中间量。",
         "床区各格气体温度与摩尔流量加权平均温度的最大偏差写在 `bed_gas_temperature_deviation_k`。",
+        "床区最高温度与超出 900 °C 的幅度见下一节（ADR 0059 第 4 项）。",
         "全自由空间闭合按 ADR 0040 第 5 项逐股记账，不加反应项。闭式比对只在报告工具里做，不设通过门。",
         "",
     ]
+    lines += ["### 床区最高温度（ADR 0059 第 4 项）", ""]
+    found_peak = False
+    for run in payload["runs"]:
+        peak = (run.get("diagnostics") or {}).get("bed_temperature_peak")
+        if not peak:
+            continue
+        found_peak = True
+        lines.append(
+            f"- {run['name']}：{peak['peak_c']} °C（{peak['peak_k']} K），自上而下第 {peak['from_top']} 格"
+            f"（衡算下标 {peak['balance_index']}）；超出 900 °C {peak['above_900c_k']} K，共 {peak['above_900c_cells']} 格。"
+        )
+    if not found_peak:
+        lines.append("这次运行没有床区最高温度记录。")
+    lines.append("")
     example = _sensitivity_example(payload["runs"])
     if example:
         lines += ["构造例不启动工况进程。已有中间量仍由打包函数给出。", ""]

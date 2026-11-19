@@ -100,6 +100,8 @@ class SolverConfig:
     interphase_diffusivity: str = "hamel_5_20"
     hover_closure: str = "A"
     serio_pair: str = "first"
+    # Corella 高温段只选择已批准的固定处理，不接受任意数值。ADR 0059 第 5 项。
+    corella_high_temperature: str = "extrapolate"
     # 敏感性 S17：自由空间轨迹的格内气速。ADR 0048 第 3 项。
     freeboard_gas_velocity: str = "ghost_bubble"
 
@@ -108,11 +110,14 @@ class SolverConfig:
         n, eps = self.freeboard_boundary_bisections, self.final_negative_floor_kg
         if isinstance(n, bool) or not isinstance(n, int) or n < 0 or isinstance(eps, bool) or not isinstance(eps, (int, float)) or not math.isfinite(eps) or eps < 0.0:
             raise ValueError(f"freeboard_boundary_bisections 须为不小于 0 的整数，final_negative_floor_kg 须为有限非负数：{n}、{eps}")
+        if self.corella_high_temperature not in _CORELLA_HIGH_TEMPERATURE:
+            raise ValueError("corella_high_temperature 只能取已批准的 extrapolate 或 truncate")
 
 
-# 已批准的 ε_P 与 Serio 对。不是新的可调物理参数。ADR 0017 第 17 项；表 5.4，S. 97。
+# 已批准的 ε_P、Serio 对与 Corella 高温段处理。不是新的可调物理参数。ADR 0017 第 17 项；表 5.4，S. 97；ADR 0059 第 5 项。
 _EMISSIVITY = {"frozen": 0.85, "S3": 0.79, "S4": 0.91}
 _SERIO = {"first": (5.42e4, 100.5e3), "second": (9.96e2, 64.5e3)}
+_CORELLA_HIGH_TEMPERATURE = ("extrapolate", "truncate")
 
 
 def approved_emissivity(choice: str) -> float:
@@ -129,3 +134,10 @@ def approved_serio(choice: str) -> tuple[float, float]:
         return _SERIO[choice]
     except KeyError as exc:
         raise ValueError("Serio 参数只能取已批准的 first 或 second") from exc
+
+
+def approved_corella_high_temperature(choice: str) -> str:
+    """返回 Corella 高温段的外推或截断。其它字符串拒绝。ADR 0059 第 5 项。"""
+    if choice not in _CORELLA_HIGH_TEMPERATURE:
+        raise ValueError("Corella 高温段只能取已批准的 extrapolate 或 truncate")
+    return choice

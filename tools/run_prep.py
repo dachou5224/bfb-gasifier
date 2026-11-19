@@ -32,6 +32,23 @@ _ACCEPTANCE = ("T_FRB_K", "X_C", "CO", "CO2", "H2", "CH4", "H2O")
 _CLOSED_FORM_WINDOW_S = 80.0
 _T_FRB = "Σ T_i·Δh_i / Σ Δh_i，自由空间全部 cell，含锥段。解释性选择：ADR 0040 第 1 项。"
 _X_C = "出口气体（含焦油蒸气）中的碳 / 燃料碳。分子不计带出焦炭与排灰。解释性选择：ADR 0040 第 1 项。"
+# ADR 0059 第 4 项要报告的界：900 °C 是 Corella 原表上界（ADR 0010 第 9 条）。
+_CORELLA_UPPER_K = 900.0 + 273.15
+
+
+def bed_temperature_peak(state) -> dict:
+    """床区最高温度（不取整）、所在格、超出 900 °C 的幅度与格数。ADR 0059 第 4 项。
+
+    衡算下标 0 为床顶；``from_top`` 是自 1 起数的自上而下序号。
+    """
+    temperature = np.asarray(state.bed_temperature_k, dtype=float)
+    index = int(np.argmax(temperature))
+    peak = float(temperature[index])
+    return {
+        "peak_k": peak, "peak_c": peak - 273.15, "from_top": index + 1, "balance_index": index,
+        "above_900c_k": max(peak - _CORELLA_UPPER_K, 0.0),
+        "above_900c_cells": int(np.count_nonzero(temperature > _CORELLA_UPPER_K)),
+    }
 
 
 def particle_temperatures(frozen, state) -> dict:
@@ -373,6 +390,8 @@ def attach_converged(outcome, state, frozen, assembly, physical, reported, confi
     if fuel is not None:
         outcome.diagnostics["freeboard_closure"] = freeboard_closure(state, frozen, assembly, fuel)
     outcome.diagnostics["used"] = used_values(frozen, reported, outcome.measurements)
+    # ADR 0059 第 4 项：每次收敛的运行报告床区最高温度与超出 900 °C 的幅度。
+    outcome.diagnostics["bed_temperature_peak"] = bed_temperature_peak(state)
     outcome.diagnostics["bed_gas_temperature_deviation_k"] = reported.get("bed_gas_temperature_deviation_k")
     if "trajectory" in reported and "pyrolysis" in reported:
         outcome.diagnostics["closed_form"] = closed_form_from_state(state, frozen, reported, config)
