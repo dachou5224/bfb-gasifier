@@ -248,12 +248,22 @@ def _saved_solver(saved):
     return SolverConfig(**{item.name: getattr(saved, item.name) for item in fields(saved) if item.name in names})
 
 
-def _boundary_arrays() -> dict:
-    """两份入参各做一次预计算：全部冻结量，另加逐粒级的 boundary 记录。"""
+def _alarm(limit_s: float) -> None:
+    """硬墙钟：两次预计算合计受同一上限约束。CHARTER §7。"""
+    signal.signal(signal.SIGALRM, _expire)
+    signal.setitimer(signal.ITIMER_REAL, float(limit_s))
+
+
+def _boundary_arrays(limit_s: float) -> dict:
+    """两份入参各做一次预计算：全部冻结量，另加逐粒级的 boundary 记录。
+
+    整体带硬墙钟；超时抛 ``_Timeout``，调用方记 TIMEOUT，不写出不完整的基准。
+    """
     import hamel.solver.precalc as precalc
 
     original = homogeneous._CORELLA_HIGH_K
     homogeneous._CORELLA_HIGH_K = float("inf")
+    _alarm(limit_s)
     try:
         data = {}
         for label, name in _SAVED:
@@ -264,6 +274,7 @@ def _boundary_arrays() -> dict:
             result = precalc.precalculate(*saved["args"], **kwargs)
             data[label] = result
     finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
         homogeneous._CORELLA_HIGH_K = original
     out: dict = {}
     for label, result in data.items():
@@ -272,8 +283,12 @@ def _boundary_arrays() -> dict:
     return {re.sub(r"[^0-9A-Za-z_.-]+", "_", key): np.asarray(value) for key, value in out.items()}
 
 
-def boundary_capture(path: Path, base_sha: str) -> int:
-    data = _boundary_arrays()
+def boundary_capture(path: Path, limit_s: float, base_sha: str) -> int:
+    try:
+        data = _boundary_arrays(limit_s)
+    except _Timeout:
+        print(json.dumps({"out": str(path), "status": "TIMEOUT", "limit_s": limit_s}, ensure_ascii=False))
+        return 2
     data.update({"meta.base_sha": np.array(base_sha), "meta.kind": np.array("T26U_BOUNDARY_PRECALC")})
     path.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(path, **data)
@@ -281,9 +296,13 @@ def boundary_capture(path: Path, base_sha: str) -> int:
     return 0
 
 
-def boundary_compare(golden: Path) -> int:
+def boundary_compare(golden: Path, limit_s: float) -> int:
     reference = np.load(golden, allow_pickle=False)
-    current = _boundary_arrays()
+    try:
+        current = _boundary_arrays(limit_s)
+    except _Timeout:
+        print(json.dumps({"golden": str(golden), "status": "TIMEOUT", "limit_s": limit_s}, ensure_ascii=False))
+        return 2
     keys = sorted(key for key in reference.files if not key.startswith("meta."))
     missing = [key for key in keys if key not in current]
     extra = sorted(key for key in current if key not in reference.files)
@@ -308,9 +327,9 @@ def main(argv=None) -> int:
     if args.action == "capture":
         return capture(Path(args.out), args.limit_s, args.base_sha or _sha())
     if args.action == "boundary":
-        return boundary_capture(Path(args.out), args.base_sha or _sha())
+        return boundary_capture(Path(args.out), args.limit_s, args.base_sha or _sha())
     if args.action == "boundary_compare":
-        return boundary_compare(Path(args.golden or args.out))
+        return boundary_compare(Path(args.golden or args.out), args.limit_s)
     return compare(Path(args.golden or args.out), args.limit_s, args.prefix)
 
 
