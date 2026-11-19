@@ -26,6 +26,7 @@ import numpy as np
 import hamel.kinetics.homogeneous as homogeneous
 import hamel.solver.driver as driver
 import hamel.solver.newton as newton
+import hamel.solver.precalc as precalc
 from hamel.cases.config import SolverConfig
 from hamel.solver.initial import InitialStateError
 from hamel.solver.residual import evaluate_residual
@@ -35,6 +36,7 @@ _ROOT = Path(__file__).resolve().parents[1]
 _CASE = _ROOT / "data" / "cases" / "vtt_pressurized.json"
 # T26u A.2：T26t 留下的两份预计算入参（第 17 轮与第 D.3 项收敛解的 2(b)）。
 _SAVED = (("r17", ".scratch/t26t/precalc_args_r17.pkl"), ("final", ".scratch/t26t/final_args.pkl"))
+_SOLVER_FIELDS = {item.name for item in fields(SolverConfig)}
 _PHI = 0.3
 _SOLID = ("bed_char_kg", "freeboard_char_free_kg", "freeboard_char_hover_kg",
           "freeboard_ash_free_kg", "freeboard_ash_hover_kg")
@@ -230,56 +232,37 @@ def compare(golden: Path, limit_s: float, prefix: str = "data.") -> int:
     return 0 if not (missing or extra or different) else 1
 
 
-def _numeric(frozen) -> dict:
-    """冻结量的全部数值字段（数组与标量），与 ``tools/t26t_validate.py`` 同一口径。"""
-    values = {}
-    for item in fields(frozen):
-        value = getattr(frozen, item.name)
-        if isinstance(value, np.ndarray):
-            values[item.name] = np.array(value)
-        elif isinstance(value, (int, float, np.integer, np.floating)) and not isinstance(value, (bool, np.bool_)):
-            values[item.name] = np.asarray(value)
-    return values
-
-
-def _saved_solver(saved):
-    """旧进程 pickle 的 SolverConfig 只取当前仍存在的字段。"""
-    names = {item.name for item in fields(SolverConfig)}
-    return SolverConfig(**{item.name: getattr(saved, item.name) for item in fields(saved) if item.name in names})
-
-
-def _alarm(limit_s: float) -> None:
-    """硬墙钟：两次预计算合计受同一上限约束。CHARTER §7。"""
-    signal.signal(signal.SIGALRM, _expire)
-    signal.setitimer(signal.ITIMER_REAL, float(limit_s))
-
-
 def _boundary_arrays(limit_s: float) -> dict:
-    """两份入参各做一次预计算：全部冻结量，另加逐粒级的 boundary 记录。
+    """两份入参各做一次预计算：全部数值冻结量（与 ``tools/t26t_validate.py`` 同一口径），
+    另加逐粒级的 boundary 记录。
 
-    整体带硬墙钟；超时抛 ``_Timeout``，调用方记 TIMEOUT，不写出不完整的基准。
+    两次预计算合计受同一硬墙钟约束；超时抛 ``_Timeout``，调用方记 TIMEOUT，不写出不完整的基准。
+    CHARTER §7。
     """
-    import hamel.solver.precalc as precalc
-
     original = homogeneous._CORELLA_HIGH_K
     homogeneous._CORELLA_HIGH_K = float("inf")
-    _alarm(limit_s)
+    signal.signal(signal.SIGALRM, _expire)
+    signal.setitimer(signal.ITIMER_REAL, float(limit_s))
+    out: dict = {}
     try:
-        data = {}
         for label, name in _SAVED:
             with (_ROOT / name).open("rb") as handle:
                 saved = pickle.load(handle)
             kwargs = dict(saved["kwargs"])
-            kwargs["solver"] = _saved_solver(kwargs["solver"])
+            # 旧进程 pickle 的 SolverConfig 可能缺当前字段，按字段名取交集重建。
+            solver = kwargs["solver"]
+            kwargs["solver"] = SolverConfig(**{item.name: getattr(solver, item.name) for item in fields(solver) if item.name in _SOLVER_FIELDS})
             result = precalc.precalculate(*saved["args"], **kwargs)
-            data[label] = result
+            for item in fields(result.frozen):
+                value = getattr(result.frozen, item.name)
+                if isinstance(value, np.ndarray) or (
+                    isinstance(value, (int, float, np.integer, np.floating)) and not isinstance(value, (bool, np.bool_))
+                ):
+                    _flatten(f"data.{label}.frozen.{item.name}", value, out)
+            _flatten(f"data.{label}.boundary", (result.reported.get("trajectory") or {}).get("boundary"), out)
     finally:
         signal.setitimer(signal.ITIMER_REAL, 0)
         homogeneous._CORELLA_HIGH_K = original
-    out: dict = {}
-    for label, result in data.items():
-        _flatten(f"data.{label}.frozen", _numeric(result.frozen), out)
-        _flatten(f"data.{label}.boundary", (result.reported.get("trajectory") or {}).get("boundary"), out)
     return {re.sub(r"[^0-9A-Za-z_.-]+", "_", key): np.asarray(value) for key, value in out.items()}
 
 
