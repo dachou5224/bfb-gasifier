@@ -10,7 +10,7 @@ import pytest
 from hamel.cases.balance import BalanceGap
 from hamel.cases.config import SolverConfig
 from hamel.kinetics.common import KineticsInputError
-from hamel.solver.campaign import _process, config_for, execute, overlay, run_campaign, run_specs, write_report
+from tools.campaign import _process, config_for, execute, overlay, run_campaign, run_specs, write_report
 from hamel.solver.driver import SolveResult, solve_aligned
 from hamel.solver.gates import OuterMonitor, ResidualBlocks, balance_met, inner_met, outer_met
 from hamel.solver.newton import IDENTITY, damped_newton, normalized_merit
@@ -251,7 +251,7 @@ def test_execute_report_keeps_numpy_array_shapes(tmp_path, monkeypatch):
     def fake_solve(path, case_id="1", *, adiabatic=False, deadline=None, config=None):
         return queued.pop(0)
 
-    monkeypatch.setattr("hamel.solver.campaign.solve_case", fake_solve)
+    monkeypatch.setattr("tools.campaign.solve_case", fake_solve)
     failed = execute("baseline", "case.json", False)
     solved = execute("S1", "case.json", True)
     for record in (failed, solved):

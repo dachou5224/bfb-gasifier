@@ -16,7 +16,7 @@ import numpy as np
 from hamel.cases.assemble import assemble_case
 from hamel.cases.config import SolverConfig
 from hamel.properties.data import GAS_SPECIES
-from hamel.solver.campaign import _process, config_for
+from tools.campaign import _process, config_for
 from hamel.solver.driver import SolveResult, _references, solve_case
 from hamel.solver.initial import DomainRejected, InitialStateError, construct, interface_flows
 from hamel.solver.newton import SolveTimeout

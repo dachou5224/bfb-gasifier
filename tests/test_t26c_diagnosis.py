@@ -95,7 +95,7 @@ def test_saved_baseline_uses_the_structural_column_union():
 def test_supervised_run_kills_the_process_group(tmp_path, monkeypatch):
     from dataclasses import replace
 
-    from hamel.solver.campaign import config_for
+    from tools.campaign import config_for
     import tools.t26c_run as runner
 
     monkeypatch.setattr(runner, "_OUT", tmp_path)

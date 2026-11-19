@@ -107,7 +107,7 @@ def run_campaign(source, report_dir, *, timeout_s: float | None = None) -> list:
 
 def _spawn(spec, path, adiabatic, timeout, report_dir) -> dict:
     completed = _process(
-        [sys.executable, "-m", "hamel.solver.campaign", spec.name, str(path), "1" if adiabatic else "0"],
+        [sys.executable, "-m", "tools.campaign", spec.name, str(path), "1" if adiabatic else "0"],
         timeout,
     )
     if completed is None:
@@ -211,7 +211,7 @@ def _locate(doc, name):
 
 
 def _root() -> Path:
-    return Path(__file__).resolve().parents[2]
+    return Path(__file__).resolve().parents[1]
 
 
 def main(argv) -> None:

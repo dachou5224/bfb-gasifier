@@ -645,7 +645,8 @@ def _sum_ledgers(ledgers, count: int):
     parts = ([0.0] * count, [0.0] * count, [0.0] * count, [0.0] * count)
     for ledger, scale in ledgers:
         for part, values in zip(parts, (ledger.residence_s, ledger.slip_m, ledger.upward_free, ledger.downward_free)):
-            for cell in range(count): part[cell] += scale * values[cell]
+            for cell in range(count):
+                part[cell] += scale * values[cell]
     return parts
 
 
@@ -654,7 +655,8 @@ def _check_closure(bed_shares, local_weight) -> None:
     if abs(float(bed_shares) - 1.0) > 1.0e-12:
         raise FreeboardError(f"床面抛出的回落 + 带出 + 捕获 = {float(bed_shares):.15g}，不是 1")
     for cell, value in enumerate(local_weight):
-        if abs(float(value) - 1.0) > 1.0e-12: raise FreeboardError(f"格 {cell} 的当地轨迹权重之和 = {float(value):.15g}，不是 1")
+        if abs(float(value) - 1.0) > 1.0e-12:
+            raise FreeboardError(f"格 {cell} 的当地轨迹权重之和 = {float(value):.15g}，不是 1")
 
 
 def _touch_max(touched: dict, cell: int, value: float) -> None:
@@ -832,7 +834,7 @@ def account_freeboard(
                 ledger_at(0)
                 weights = {0: float(single[2])}
             plan[(kind, where)] = weights
-        plans.append({"nodes": nodes, "plan": plan, "cache": cache, "phi": phi, "base": tuple(base)})
+        plans.append({"nodes": nodes, "plan": plan, "cache": cache, "phi": phi})
         for index in base:
             lookup[(round(phi, 15), round(nodes[index]["diameter"], 15))] = (len(plans) - 1, index)
     # 第二阶段：先按原取样点顺序、再遍历端点与第三种签名的中点节点，两者的权重同样累加（否则丢质量）。ADR 0058 第 1 项。

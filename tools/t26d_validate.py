@@ -11,7 +11,7 @@ from pathlib import Path
 import numpy as np
 
 from hamel.cases.config import SolverConfig
-from hamel.solver.campaign import _process, config_for
+from tools.campaign import _process, config_for
 from hamel.solver.driver import SolveResult, solve_case
 from hamel.solver.gates import ResidualBlocks
 from hamel.solver.newton import SolveTimeout, _SQRT_EPS, _difference_basis, _jacobian, _newton_step, normalized_merit

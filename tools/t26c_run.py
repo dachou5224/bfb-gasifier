@@ -5,7 +5,7 @@ import sys
 import time
 from dataclasses import replace
 from pathlib import Path
-from hamel.solver.campaign import _process, config_for
+from tools.campaign import _process, config_for
 from hamel.solver.driver import SolveResult, solve_case
 from hamel.solver.newton import SolveTimeout
 from tools.driver_report import convert

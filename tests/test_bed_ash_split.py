@@ -11,7 +11,7 @@ import numpy as np
 import pytest
 
 from hamel.cases.config import SolverConfig
-from hamel.solver import campaign, driver, initial
+from hamel.solver import driver, initial
 from hamel.solver.initial import InitialStateError, solve_solids
 from hamel.solver.gates import OuterMonitor, ash_met
 from hamel.solver.inert_balance import (
@@ -20,6 +20,8 @@ from hamel.solver.inert_balance import (
 from hamel.solver.precalc import PrecalcError, _drain_terms, _start_fine_share
 from hamel.solver.residual import bed_ash_by_class, evaluate_residual
 from hamel.solver.vector import pack_state, unpack_state, unknown_slots
+
+from tools import campaign
 
 from test_assembly import make_frozen, make_state
 from test_initial_state import _system

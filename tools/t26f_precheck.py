@@ -14,7 +14,7 @@ import numpy as np
 
 from hamel.cases.assemble import assemble_case
 from hamel.cases.config import SolverConfig
-from hamel.solver.campaign import _process
+from tools.campaign import _process
 from hamel.solver.driver import _blocks, _references, _scales
 from hamel.solver.gates import ResidualBlocks, block_ratios, inner_met
 from hamel.solver.newton import SolveTimeout, damped_newton, normalized_merit

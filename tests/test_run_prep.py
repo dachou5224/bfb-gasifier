@@ -166,12 +166,12 @@ def test_half_tolerance_is_marked_and_error_keeps_stderr(tmp_path, monkeypatch):
     row = payload["differences"][0]
     assert "T_FRB_K" in row["over_half_tolerance"]
     assert "CO" not in row["over_half_tolerance"]
-    from hamel.solver.campaign import run_campaign
+    from tools.campaign import run_campaign
 
     def fail(_args, _timeout):
         return SimpleNamespace(returncode=2, stdout="", stderr="完整失败\n第二行\n")
 
-    monkeypatch.setattr("hamel.solver.campaign._process", fail)
+    monkeypatch.setattr("tools.campaign._process", fail)
     records = run_campaign(_CASE, tmp_path / "run", timeout_s=1.0)
     assert records[0]["status"] == "ERROR"
     log = Path(records[0]["stderr_log"])

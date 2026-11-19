@@ -116,7 +116,7 @@ def _toy_extra() -> dict:
 
 def publish_toy_report(report_dir) -> dict:
     """写出 reports/toy。基准和 S1 用构造数字，S2–S16 只列接线。"""
-    from hamel.solver.campaign import run_specs
+    from tools.campaign import run_specs
     from hamel.solver.sensitivity import pack_reported
 
     extra = _toy_extra()

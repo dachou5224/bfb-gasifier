@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 from hamel.cases.assemble import assemble_case
 from hamel.cases.config import SolverConfig
-from hamel.solver.campaign import _process, config_for
+from tools.campaign import _process, config_for
 from hamel.solver.driver import SolveResult, _blocks, _references, _scales, solve_case
 from hamel.solver.gates import ResidualBlocks
 from hamel.solver.newton import SolveTimeout, normalized_merit
