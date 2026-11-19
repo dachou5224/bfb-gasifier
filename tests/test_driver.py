@@ -159,9 +159,9 @@ def test_outer_loop_recomputes_and_passes_both_gates():
 
 def test_run_table_changes_one_item_and_records_unwired_rows():
     specs = run_specs()
-    # ADR 0030：S1–S18，另加 S19 的两次子运行。
-    assert [item.name for item in specs] == ["baseline", *[f"S{index}" for index in range(1, 19)], "S19a", "S19b"]
-    assert len({item.change for item in specs}) == 21
+    # ADR 0030：S1–S18，另加 S19 的两次子运行与 S20（ADR 0059）。
+    assert [item.name for item in specs] == ["baseline", *[f"S{index}" for index in range(1, 19)], "S19a", "S19b", "S20"]
+    assert len({item.change for item in specs}) == 22
     assert next(item for item in specs if item.name == "S1").wired
     assert [item.name for item in specs if not item.wired] == []
     assert all(item.wired for item in specs)

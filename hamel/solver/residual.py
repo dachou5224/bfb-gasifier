@@ -438,7 +438,8 @@ class _Context:
                 )
                 _apply(gas, "R11", rate.extent_mol_s, self.molar, tar=tar)
             if corella:
-                _apply(gas, "R11", r11_corella_rate(c[_INDEX[tar]], temperature, gas_constant_j_mol_k(), catalyst).extent_mol_s, self.molar, tar=tar)
+                rate = r11_corella_rate(c[_INDEX[tar]], temperature, gas_constant_j_mol_k(), catalyst, high_temperature=self.frozen.corella_high_temperature)
+                _apply(gas, "R11", rate.extent_mol_s, self.molar, tar=tar)
         del fractions
     def _exchange(self):
         frozen, state = self.frozen, self.state

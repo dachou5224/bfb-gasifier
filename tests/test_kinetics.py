@@ -455,10 +455,39 @@ def test_tar_secondary_hand_calculation():
     assert cool.specific == pytest.approx(k_low * tar)
     assert r11_corella_rate(tar, 600.0 + 273.15, R_G, catalyst).specific > 0.0
     assert r11_corella_rate(tar, 900.0 + 273.15, R_G, catalyst).specific > 0.0
-    with pytest.raises(KineticsInputError):
-        r11_corella_rate(tar, 600.0 + 273.15 - 1.0, R_G, catalyst)
-    with pytest.raises(KineticsInputError):
-        r11_corella_rate(tar, 900.0 + 273.15 + 1.0, R_G, catalyst)
+    assert r11_corella_rate(tar, 950.0 + 273.15, R_G, catalyst).specific > 0.0
+    with pytest.raises(KineticsInputError, match="600"):
+        r11_corella_rate(tar, 600.0 + 273.15 - 0.1, R_G, catalyst)
+    with pytest.raises(KineticsInputError, match="950"):
+        r11_corella_rate(tar, 950.0 + 273.15 + 0.1, R_G, catalyst)
+
+
+def test_corella_high_segment_extrapolates_to_the_stop_line():
+    # ADR 0059 第 1、2 项：900–950 °C 沿用高温段；950 °C 是停止线。
+    tar, catalyst = 0.05, 1.2
+    for celsius in (740.0, 899.9, 900.0, 900.1, 920.0, 949.9, 950.0):
+        temperature = celsius + 273.15
+        expected = 0.7 * math.exp(-63.1e3 / (R_G * temperature)) * tar
+        rate = r11_corella_rate(tar, temperature, R_G, catalyst)
+        assert rate.specific == pytest.approx(expected)
+        assert rate.extent_mol_s == pytest.approx(expected * catalyst)
+
+
+def test_corella_truncation_uses_the_900_degree_constant():
+    # ADR 0059 第 5 项（S20）：900 °C < T ≤ 950 °C 用 900 °C 的速率常数；900 °C 以下两种模式逐位相同。
+    tar, catalyst = 0.05, 1.2
+    at_900 = r11_corella_rate(tar, 900.0 + 273.15, R_G, catalyst).specific
+    for celsius in (900.0, 900.1, 920.0, 950.0):
+        truncate = r11_corella_rate(tar, celsius + 273.15, R_G, catalyst, high_temperature="truncate")
+        assert truncate.specific == pytest.approx(at_900)
+    for celsius in (600.0, 740.0, 800.0, 899.9):
+        temperature = celsius + 273.15
+        assert (
+            r11_corella_rate(tar, temperature, R_G, catalyst, high_temperature="truncate").specific
+            == r11_corella_rate(tar, temperature, R_G, catalyst, high_temperature="extrapolate").specific
+        )
+    with pytest.raises(KineticsInputError, match="extrapolate"):
+        r11_corella_rate(tar, 920.0 + 273.15, R_G, catalyst, high_temperature="linear")
 
 
 def test_every_reaction_conserves_elements():
