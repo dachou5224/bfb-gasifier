@@ -49,6 +49,25 @@ _KINDS = {
     "CO": "major_gas", "CO2": "major_gas", "H2": "major_gas", "H2O": "major_gas",
 }
 _SHARED = "各验收量共享壁面散热这一校准输入。"
+
+
+def corella_declaration(runs) -> str:
+    """验收之前的 Corella 外推声明。ADR 0059 第 4 项（2026-11-19 版）。
+
+    基准收敛且有床格超过 900 °C 时写明结果依赖外推；都没超过时写未触发；
+    没有峰值记录（未收敛或未运行）时写明不可判定，不假装无关。
+    """
+    baseline = next((run for run in runs if run.get("name") == "baseline"), None)
+    peak = ((baseline or {}).get("diagnostics") or {}).get("bed_temperature_peak")
+    if not peak:
+        return "基准没有床区最高温度记录（未收敛或未运行），无法判定是否越过 Corella 原表区间（ADR 0059 第 4 项）。"
+    if peak.get("above_900c_k", 0.0) > 0.0:
+        return (
+            f"本工况的床区温度超出 Corella 原文区间：最高 {peak['peak_c']:.6f} °C，"
+            f"超出 900 °C {peak['above_900c_k']:.6f} K（{peak['above_900c_cells']} 格）。"
+            "结果依赖 ADR 0059 的 Corella 外推。"
+        )
+    return "基准的床区各格都不超过 900 °C，未触发 Corella 外推（ADR 0059 第 4 项）。"
 _TOY_EXTRA = None
 
 
@@ -416,6 +435,7 @@ def _markdown(payload) -> str:
         ]
     lines += [
         f"单次运行墙钟上限 {payload['timeout_s']} s（ADR 0037）。", "",
+        corella_declaration(payload["runs"]), "",
         "## 验收", "", payload["shared_input"], "",
     ]
     lines.extend(_acceptance_pair(payload["runs"]))

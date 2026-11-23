@@ -214,6 +214,21 @@ def test_overlay_changes_only_the_named_value(tmp_path):
     assert overlay(_CASE, tmp_path / "s1.json", specs["S1"]) is True
 
 
+def test_corella_declaration_precedes_the_acceptance_section():
+    """ADR 0059 第 4 项：验收之前必须声明结果是否依赖外推，三种情形都写明。"""
+    from tools.driver_report import corella_declaration
+
+    hot = {"name": "baseline", "diagnostics": {"bed_temperature_peak": {
+        "peak_c": 908.9452359382707, "above_900c_k": 8.94523593827057, "above_900c_cells": 1}}}
+    assert "结果依赖 ADR 0059 的 Corella 外推" in corella_declaration([hot])
+    assert "908.945236" in corella_declaration([hot])
+    cold = {"name": "baseline", "diagnostics": {"bed_temperature_peak": {
+        "peak_c": 880.0, "above_900c_k": 0.0, "above_900c_cells": 0}}}
+    assert "未触发 Corella 外推" in corella_declaration([cold])
+    assert "无法判定" in corella_declaration([{"name": "baseline", "diagnostics": {}}])
+    assert "无法判定" in corella_declaration([{"name": "S1", "diagnostics": {}}])
+
+
 def test_toy_report_covers_the_required_sections(tmp_path):
     solved = _toy(SolverConfig())
     record = {
@@ -236,6 +251,8 @@ def test_toy_report_covers_the_required_sections(tmp_path):
     assert "全自由空间闭合" in text and "数值积分与闭式" in text and "超过容差一半" in text
     assert "T_FRB_K" in text and "TIMEOUT" not in payload["runs"][0]["status"]
     assert payload["runs"][0]["acceptance"]["premises_met"] is True
+    # ADR 0059 第 4 项：声明必须出现在「## 验收」之前。
+    assert text.index("无法判定是否越过 Corella 原表区间") < text.index("## 验收")
     assert payload["differences"][0]["status"] == "NOT_APPLIED"
 
 
