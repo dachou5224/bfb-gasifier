@@ -454,3 +454,23 @@ def test_path_recorder_ignores_points_it_cannot_unpack():
     first = path.peak_k
     path.note(np.full(len(unknown_slots(frozen)), np.nan), frozen)
     assert path.peak_k == first
+
+
+def test_path_recorder_sees_the_point_even_when_its_first_residual_is_rejected(monkeypatch):
+    """ADR 0059 第 2a 项：先记温度再看残差，首次残差被拒时该点也不能漏。"""
+    from hamel.kinetics.common import KineticsInputError
+    from hamel.solver.vector import PathPeaks
+
+    frozen, state, context = _system()
+    hot = replace(state, bed_temperature_k=np.asarray(state.bed_temperature_k) + 200.0)
+    track = PathPeaks()
+
+    def rejecting(*args, **kwargs):
+        raise KineticsInputError("Corella 参数只覆盖 600 °C 以上")
+
+    monkeypatch.setattr(initial, "evaluate_residual", rejecting)
+    with pytest.raises(Exception):
+        solve_solids(hot, frozen, context, _M_REF, config=SolverConfig(), path=track)
+    # 第一次残差就失败，但温度已经记下（不是 -inf）。
+    assert track.peak_k > -np.inf
+    assert track.peak_k == pytest.approx(float(np.max(hot.bed_temperature_k)))

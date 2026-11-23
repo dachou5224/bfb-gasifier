@@ -37,26 +37,19 @@ _X_C = "出口气体（含焦油蒸气）中的碳 / 燃料碳。分子不计带
 _CORELLA_UPPER_K = 900.0 + 273.15
 
 
-def bed_temperature_peak(state, per_round=None, trial_peak_k=None, trial_bed_peak_k=None) -> dict:
-    """床区最高温度（不取整）、所在格、超出 900 °C 与 950 °C 的幅度与格数。ADR 0059 第 4 项。
+def bed_temperature_peak(state, per_round=None, trial_peak_k=None, trial_bed_peak_k=None, check="passed") -> dict:
+    """床区最高温度与检查线状态（ADR 0059 第 2a、4 项）。复用 driver._path_peak，避免两处口径分叉。
 
-    衡算下标 0 为床顶；``from_top`` 是自 1 起数的自上而下序号。
-    ``per_round``／``trial_peak_k``／``trial_bed_peak_k`` 是 ADR 0059 第 2a 项（2026-11-23 修订）
-    的路径记录，只报告。``trial_peak_k`` 是最底床格，``trial_bed_peak_k`` 是床区任一格。
+    ``per_round``／``trial_peak_k``（最底床格）／``trial_bed_peak_k``（床区任一格）是路径记录，只报告。
     """
-    temperature = np.asarray(state.bed_temperature_k, dtype=float)
-    index = int(np.argmax(temperature))
-    peak = float(temperature[index])
-    return {
-        "converged": True,
-        "peak_k": peak, "peak_c": peak - 273.15, "from_top": index + 1, "balance_index": index,
-        "above_900c_k": max(peak - _CORELLA_UPPER_K, 0.0),
-        "above_900c_cells": int(np.count_nonzero(temperature > _CORELLA_UPPER_K)),
-        "above_950c_k": max(peak - CORELLA_CHECK_K, 0.0),
-        "per_round": list(per_round or []), "trial_bottom_peak_k": trial_peak_k,
-        "trial_bed_peak_k": trial_bed_peak_k,
-        "check_line_c": CORELLA_CHECK_K - 273.15,
-    }
+    from hamel.solver.driver import _path_peak
+    from hamel.solver.vector import PathPeaks
+
+    track = PathPeaks(
+        bottom_k=-np.inf if trial_peak_k is None else float(trial_peak_k),
+        peak_k=-np.inf if trial_bed_peak_k is None else float(trial_bed_peak_k),
+    )
+    return _path_peak(list(per_round or []), track, state=state, check=check)
 
 
 def particle_temperatures(frozen, state) -> dict:
@@ -399,11 +392,12 @@ def attach_converged(outcome, state, frozen, assembly, physical, reported, confi
         outcome.diagnostics["freeboard_closure"] = freeboard_closure(state, frozen, assembly, fuel)
     outcome.diagnostics["used"] = used_values(frozen, reported, outcome.measurements)
     # ADR 0059 第 4 项：每次收敛的运行报告床区最高温度与超出 900 °C 的幅度。
-    # ADR 0059 第 2a 项（2026-11-23 修订）：另报逐轮峰值与全程试探点最高温度。
+    # ADR 0059 第 2a 项（2026-11-23 修订）：另报逐轮峰值与全程评价点最高温度，并记检查线状态。
     outcome.diagnostics["bed_temperature_peak"] = bed_temperature_peak(
         state, outcome.diagnostics.get("bed_peak_per_round"),
         outcome.diagnostics.get("trial_bottom_peak_k"),
         outcome.diagnostics.get("trial_bed_peak_k"),
+        check="passed",
     )
     outcome.diagnostics["bed_gas_temperature_deviation_k"] = reported.get("bed_gas_temperature_deviation_k")
     if "trajectory" in reported and "pyrolysis" in reported:

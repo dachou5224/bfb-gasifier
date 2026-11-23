@@ -128,14 +128,15 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
     def point(y, trial: bool = True):
         x = embed(y)
         current = unpack_state(x, frozen)
+        if path is not None:
+            # ADR 0059 第 2a 项：先记温度，再看该点的残差／排灰是否可评价，
+            # 与内层 evaluator 在评价前记录的做法一致。
+            path.note(x, frozen)
         try:
             reaction = -np.asarray(evaluate_residual(x, frozen).char_consumption_bed_kg_s, dtype=float).sum(axis=1)
             flows = recompute_flows(current, frozen, context, reaction)
             _, drain_ash, drain_char, down, _, _ = flows
             updated = replace(frozen, drain_ash_kg_s=drain_ash, drain_char_kg_s=drain_char, m_dot_ab_kg_s=down)
-            if path is not None:
-                # ADR 0059 第 2a 项：初值构造的评价点也要计入“全程”，只报告。
-                path.note(x, updated)
             values = np.asarray(evaluate_residual(x, updated).values, dtype=float)
         except FreeboardDomainError as exc:
             if trial:

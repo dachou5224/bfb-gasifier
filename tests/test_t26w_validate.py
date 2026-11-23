@@ -2,6 +2,7 @@
 import time
 
 import numpy as np
+import pytest
 
 from hamel.solver.newton import SolveTimeout
 
@@ -58,3 +59,32 @@ def test_failure_path_record_carries_the_path_and_marks_itself_unconverged():
     assert record["per_round"] == peaks and "round" not in record
     empty = _path_peak([], PathPeaks())
     assert empty["converged"] is False and empty["peak_c"] is None and empty["above_950c_k"] == 0.0
+
+
+def test_every_failure_exit_packs_the_path_record():
+    """ADR 0059 第 4 项：失败出口（重检报错／不通过、平衡失败、检查线拒绝）都要有记录。"""
+    from hamel.solver.driver import _path_peak
+    from hamel.solver.vector import PathPeaks
+
+    track = PathPeaks()
+    track.bottom_k, track.peak_k = 1246.129, 1250.0
+    peaks = [{"round": 1, "peak_k": 1230.59, "peak_c": 957.44, "from_top": 8, "balance_index": 7,
+              "above_900c_k": 57.44, "above_900c_cells": 1, "above_950c_k": 7.44}]
+
+    # 未收敛／重检失败：终态未知，检查线未执行。
+    failed = _path_peak(peaks, track)
+    assert failed["converged"] is False and failed["check"] is None
+    assert failed["trial_bed_peak_k"] == 1250.0
+
+    # 检查线拒绝：有终态、check = rejected，且终态超幅可读。
+    class _State:
+        bed_temperature_k = np.array([1100.0, 957.44 + 273.15])
+
+    rejected = _path_peak(peaks, track, state=_State(), check="rejected")
+    assert rejected["converged"] is True and rejected["check"] == "rejected"
+    assert rejected["peak_c"] == pytest.approx(957.44)
+    assert rejected["above_950c_k"] == pytest.approx(7.44)
+
+    # 检查线通过但平衡失败：check = passed。
+    passed = _path_peak(peaks, track, state=_State(), check="passed")
+    assert passed["check"] == "passed" and passed["converged"] is True

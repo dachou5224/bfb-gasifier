@@ -214,28 +214,46 @@ def test_overlay_changes_only_the_named_value(tmp_path):
     assert overlay(_CASE, tmp_path / "s1.json", specs["S1"]) is True
 
 
-def test_corella_declaration_precedes_the_acceptance_section():
-    """ADR 0059 第 2a、4 项：验收之前必须同时给出路径温度与收敛解，四种情形都写明。"""
+def test_corella_declaration_separates_path_final_and_check():
+    """ADR 0059 第 2a、4 项：路径温度、终解温区、检查线是否执行／拒绝，三者分别说明。"""
     from tools.driver_report import corella_declaration
 
-    hot = {"name": "baseline", "diagnostics": {"bed_temperature_peak": {
-        "converged": True, "peak_c": 908.9452359382707, "above_900c_k": 8.94523593827057,
-        "above_900c_cells": 1, "trial_bed_peak_k": 972.9787129919879 + 273.15, "check_line_c": 950.0}}}
-    text = corella_declaration([hot])
-    assert "结果依赖 ADR 0059 的 Corella 外推" in text
-    assert "908.945236" in text
-    # 第 2a 项：首页必须暴露路径上实际用到的温度，不能只报终态。
-    assert "972.978713" in text and "求解路径" in text
-    cold = {"name": "baseline", "diagnostics": {"bed_temperature_peak": {
-        "converged": True, "peak_c": 880.0, "above_900c_k": 0.0, "above_900c_cells": 0,
-        "trial_bed_peak_k": 885.0 + 273.15, "check_line_c": 950.0}}}
-    assert "未触发 Corella 外推" in corella_declaration([cold])
-    # 未收敛：说明终态未知，只给路径温度。
-    failed = {"name": "baseline", "diagnostics": {"bed_temperature_peak": {
-        "converged": False, "peak_c": None, "above_900c_k": 0.0, "above_900c_cells": 0,
-        "trial_bed_peak_k": 972.9787129919879 + 273.15, "check_line_c": 950.0}}}
-    failed_text = corella_declaration([failed])
-    assert "未收敛" in failed_text and "972.978713" in failed_text
+    def one(**peak):
+        return [{"name": "baseline", "diagnostics": {"bed_temperature_peak": peak}}]
+
+    hot = corella_declaration(one(
+        converged=True, peak_c=908.9452359382707, above_900c_k=8.94523593827057, above_900c_cells=1,
+        above_950c_k=0.0, trial_bed_peak_k=972.9787129919879 + 273.15, check="passed", check_line_c=950.0))
+    assert "求解路径（含初值构造与差分点）实际用到 972.978713" in hot
+    assert "收敛解 908.945236" in hot and "结果依赖 ADR 0059 的 Corella 外推" in hot
+    assert "检查线 950 °C 已执行且通过" in hot
+
+    # 终解被检查线拒绝：不能写成“检查线未参与判定”。
+    rejected = corella_declaration(one(
+        converged=True, peak_c=957.44, above_900c_k=57.44, above_900c_cells=2, above_950c_k=7.44,
+        trial_bed_peak_k=1250.0, check="rejected", check_line_c=950.0))
+    assert "957.440000" in rejected and "越过检查线 950 °C" in rejected and "不可验收" in rejected
+    assert "未参与" not in rejected and "未执行" not in rejected
+
+    # 未收敛：检查线未执行，但路径温度仍要给出。
+    failed = corella_declaration(one(
+        converged=False, peak_c=957.44, above_900c_k=57.44, above_900c_cells=2,
+        trial_bed_peak_k=1250.0, check=None, check_line_c=950.0))
+    assert "未收敛" in failed and "检查线未执行" in failed and "976.850000" in failed
+
+    # 终解与路径都在 900 °C 以下：终解未触发外推。
+    cold = corella_declaration(one(
+        converged=True, peak_c=880.0, above_900c_k=0.0, above_900c_cells=0,
+        trial_bed_peak_k=885.0 + 273.15, check="passed", check_line_c=950.0))
+    assert "终解未触发外推" in cold and "检查线 950 °C 已执行且通过" in cold
+
+    # 路径越 900 但终解没越：必须写出路径已外推，不能只说“未触发”。
+    mixed = corella_declaration(one(
+        converged=True, peak_c=880.0, above_900c_k=0.0, above_900c_cells=0,
+        trial_bed_peak_k=972.9787129919879 + 273.15, check="passed", check_line_c=950.0))
+    assert "求解路径（含初值构造与差分点）实际用到 972.978713" in mixed and "超出 900 °C" in mixed
+    assert "终解未触发外推" in mixed
+
     assert "无法判定" in corella_declaration([{"name": "baseline", "diagnostics": {}}])
     assert "无法判定" in corella_declaration([{"name": "S1", "diagnostics": {}}])
 

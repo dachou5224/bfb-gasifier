@@ -49,38 +49,45 @@ _KINDS = {
     "CO": "major_gas", "CO2": "major_gas", "H2": "major_gas", "H2O": "major_gas",
 }
 _SHARED = "各验收量共享壁面散热这一校准输入。"
+_TOY_EXTRA = None
 
 
 def corella_declaration(runs) -> str:
-    """验收之前的 Corella 外推声明。ADR 0059 第 2a、4 项（2026-11-23 修订）。
+    """验收之前的 Corella 声明。ADR 0059 第 2a、4 项（2026-11-23 修订）。
 
-    必须同时暴露路径（含初值构造与差分点）实际用到的温度与收敛解的温度；只有终态会掩盖
-    “外推到 973 °C”这一事实。未收敛、无记录、未越界各有对应写法，不假装无关。
+    必须分别说清三件事：路径（含初值构造与差分点）用到多少温度、终解是否越出原文温区、
+    检查线是否执行及是否拒绝。只写其一（只用终态或只用 ``converged``）会把“终解被检查线拒绝”
+    误报成“检查线未参与判定”。
     """
     baseline = next((run for run in runs if run.get("name") == "baseline"), None)
     peak = ((baseline or {}).get("diagnostics") or {}).get("bed_temperature_peak")
     if not peak:
         return "基准没有床区温度记录（未收敛或未运行），无法判定是否越过 Corella 原表区间（ADR 0059 第 4 项）。"
+    line = peak.get("check_line_c", 950.0)
     path = peak.get("trial_bed_peak_k")
-    path_text = (
-        f"求解路径（含初值构造与差分点）实际用到 {path - 273.15:.6f} °C"
-        if path is not None else "求解路径温度未记录"
-    )
-    check = peak.get("check_line_c", 950.0)
-    if not peak.get("converged", False):
-        return (
-            f"基准未收敛（终态未知），其路径最高 {path_text}。"
-            f"收敛解检查线 {check:.0f} °C 未参与判定（ADR 0059 第 2 项）。"
+    parts = []
+    if path is None:
+        parts.append("求解路径温度未记录")
+    else:
+        where = "超出 900 °C" if path > 900.0 + 273.15 else "未超出 900 °C"
+        parts.append(f"求解路径（含初值构造与差分点）实际用到 {path - 273.15:.6f} °C，{where}")
+    if peak.get("check") == "rejected":
+        parts.append(
+            f"收敛解 {peak['peak_c']:.6f} °C 越过检查线 {line:.0f} °C，已判为超出动力学参数的适用范围并停止，"
+            "该工况不可验收"
         )
-    final = f"收敛解 {peak['peak_c']:.6f} °C"
-    if peak.get("above_900c_k", 0.0) > 0.0:
-        return (
-            f"本工况的床区温度超出 Corella 原文区间：{final}，"
-            f"超出 900 °C {peak['above_900c_k']:.6f} K（{peak['above_900c_cells']} 格）；"
-            f"{path_text}。结果依赖 ADR 0059 的 Corella 外推（检查线 {check:.0f} °C 只判收敛解）。"
+    elif not peak.get("converged", False):
+        parts.append("运行未收敛，终态未知，检查线未执行")
+    elif peak.get("above_900c_k", 0.0) > 0.0:
+        parts.append(
+            f"收敛解 {peak['peak_c']:.6f} °C，超出 900 °C {peak['above_900c_k']:.6f} K"
+            f"（{peak['above_900c_cells']} 格），结果依赖 ADR 0059 的 Corella 外推"
         )
-    return f"{final}，{path_text}；床区各格都不超过 900 °C，未触发 Corella 外推。"
-_TOY_EXTRA = None
+        parts.append(f"检查线 {line:.0f} °C 已执行且通过")
+    else:
+        parts.append(f"收敛解 {peak['peak_c']:.6f} °C，未超出 900 °C，终解未触发外推")
+        parts.append(f"检查线 {line:.0f} °C 已执行且通过")
+    return "；".join(parts) + "。"
 
 
 def write_report(report_dir, records, *, title: str, toy: bool) -> dict:
