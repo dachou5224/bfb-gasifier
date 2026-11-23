@@ -4,7 +4,7 @@
 ``python -m tools.t26v_validate baseline|s20|compare [--limit-s …]``
 """
 from __future__ import annotations
-import argparse, dataclasses, json, pickle, time
+import argparse, dataclasses, json, pickle, signal, time
 from dataclasses import fields
 from pathlib import Path
 import numpy as np
@@ -13,12 +13,17 @@ from hamel.cases.assemble import assemble_case
 from hamel.cases.config import SolverConfig
 from hamel.kinetics.common import KineticsInputError
 from hamel.solver.gates import _abs_max
+from hamel.solver.newton import SolveTimeout
 from hamel.solver.vector import unpack_state
 
 _ROOT = Path(__file__).resolve().parents[1]
 _SCRATCH, _CASE = _ROOT / ".scratch/t26v", _ROOT / "data/cases/vtt_pressurized.json"
 _OLD = _ROOT / ".scratch/t26t/final_args.pkl"
 _ROUNDS, _LIMIT, _OLD_ITERATIONS = 26, 8.0 * 3600.0, 181  # T26t D.3：第 17 轮、内层 181 次
+
+
+class _Timeout(BaseException):
+    """硬墙钟。继承 BaseException：任何 ``except Exception`` 都不会吞掉它（CHARTER §7）。"""
 
 
 def _write(name, payload):
@@ -60,12 +65,25 @@ def run(label, truncate, limit_s=_LIMIT):
     driver.precalculate, driver.evaluate_residual, driver._monitor = precalculate, evaluate, monitor
     config = SolverConfig(outer_round_limit=_ROUNDS, corella_high_temperature="truncate" if truncate else "extrapolate")
     started, result, status, reason = time.monotonic(), None, "EXCEPTION", ""
+
+    def expire(signum, frame):
+        raise _Timeout()
+
+    # 硬墙钟：初值构造、预计算与单次残差／雅可比都不轮询 deadline，只能靠信号中断（CHARTER §7）。
+    # 用 itimer 取亚秒精度（alarm 只有整秒），并留 50 ms 余量避免与收尾清理竞争。
+    previous = signal.signal(signal.SIGALRM, expire)
+    signal.setitimer(signal.ITIMER_REAL, max(float(limit_s), 0.0) + 0.05)
     try:
-        result = driver.solve_case(str(_CASE), "1", config=config, deadline=lambda: time.monotonic() - started >= limit_s)
-        status, reason = result.status, result.reason
-    except Exception as exc:  # noqa: BLE001 - 超时与求解异常都记进报告
-        reason = str(exc)[:800] or type(exc).__name__
+        try:
+            result = driver.solve_case(str(_CASE), "1", config=config, deadline=lambda: time.monotonic() - started >= limit_s)
+            status, reason = result.status, result.reason
+        except (SolveTimeout, _Timeout):
+            status, reason = "TIMEOUT", f"运行超过墙钟上限 {limit_s:.0f} s"
+        except Exception as exc:  # noqa: BLE001 - 求解异常记进报告，不当作 TIMEOUT
+            reason = str(exc)[:800] or type(exc).__name__
     finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous)
         driver.precalculate, driver.evaluate_residual, driver._monitor = real_pre, real_eval, real_mon
         initial.evaluate_residual = real_initial_eval
     summary = {"label": label, "status": status, "reason": reason, "elapsed_s": time.monotonic() - started,
@@ -163,19 +181,21 @@ def compare():
     return report
 
 
-def main(argv=None):
+def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("baseline", "s20", "compare"))
     parser.add_argument("--limit-s", type=float, default=_LIMIT)
     args = parser.parse_args(argv)
     if args.mode == "compare":
         print(json.dumps(compare(), ensure_ascii=False, default=str))
-        return
+        return 0
     summary = run(args.mode, args.mode == "s20", args.limit_s)
     print(json.dumps({key: summary.get(key) for key in
                       ("label", "status", "reason", "rounds", "iterations", "elapsed_s", "trial_rejections")},
                      ensure_ascii=False, default=str))
+    # CHARTER §7：超时记 TIMEOUT 并以非零状态退出；求解异常也非零。
+    return {"TIMEOUT": 2}.get(summary.get("status"), 0 if summary.get("status") != "EXCEPTION" else 3)
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
