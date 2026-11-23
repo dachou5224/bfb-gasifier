@@ -17,6 +17,7 @@ from hamel.properties import (
     enthalpy_j_mol, gas_constant_j_mol_k, molar_mass_kg_mol,
 )
 from hamel.properties.data import GAS_SPECIES, atomic_weight, atoms
+from hamel.kinetics.homogeneous import CORELLA_CHECK_K
 from hamel.solver.frozen import bounded_share, FreeboardDomainError, TrialNotEvaluable
 from hamel.solver.inert_balance import ASH_RELATIVE_TOLERANCE
 from hamel.solver.sensitivity import bubble_balance_ratio, redirect_feedback
@@ -31,6 +32,8 @@ from hamel.solver.vector import jacobian_layout, pack_state, unknown_slots, unpa
 
 # ADR 0029。不是新的阈值。
 _AMBIENT_K = 298.15
+# ADR 0059 第 4 项要报告的下界：900 °C 是 Corella 原表上界（ADR 0010 第 9 条）。
+_CORELLA_UPPER_K = 900.0 + 273.15
 _WALL_RELATIVE = 1.0e-4
 _DRY_GAS = ("CO", "CO2", "CH4", "C2H4", "C6H6", "C10H8")
 # 求解手段：ADR 0056。0,3 取自 S18，是 φ_init 的上限，不是为本工况另选。
@@ -137,6 +140,8 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
     switching = phi_init != case_phi
     holder = {"state": None, "reaction": None, "drain": 0.0, "fuel_return": 0.0, "release": None, "records": [], "redirect": (0.0, 0.0, 0.0, 0.0), "fine": None}
     journal = {"iterations": []}
+    # ADR 0059 第 2a 项（2026-11-23 修订）：950 °C 只判最终解，路径上的峰值逐轮与全程报告。
+    peaks, trial_bottom = [], {"k": -np.inf}
     if artifact_dir is not None:
         folder = Path(artifact_dir)
         folder.mkdir(parents=True, exist_ok=True)
@@ -212,6 +217,13 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         return _Opened(pack_state(result.state, result.frozen), _info(result))
 
     def evaluate(trial, opened):
+        # ADR 0059 第 2a 项：记全程试探点（含差分点）最底床格的最高温度，只报告、不判定。
+        try:
+            bottom = float(unpack_state(trial, holder["records"][-1].frozen).bed_temperature_k[-1])
+        except Exception:  # noqa: BLE001 - 不可解包的点交给正式路径报错
+            pass
+        else:
+            trial_bottom["k"] = max(trial_bottom["k"], bottom)
         return evaluate_residual(trial, holder["records"][-1].frozen).values
 
     def prepare(opened):
@@ -241,6 +253,13 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         assembly = evaluate_residual(values, frozen)
         holder["reaction"] = -assembly.char_consumption_bed_kg_s.sum(axis=1)
         holder["redirect"] = _redirect_tuple(assembly)
+        # ADR 0059 第 2a 项：本轮内层收敛解的床区峰值。外层每轮调用一次。
+        temperature = np.asarray(state.bed_temperature_k, dtype=float)
+        index = int(np.argmax(temperature))
+        peaks.append({"round": len(peaks) + 1, "peak_k": float(temperature[index]),
+                      "peak_c": float(temperature[index]) - 273.15, "from_top": index + 1,
+                      "balance_index": index,
+                      "above_900c_k": max(float(temperature[index]) - _CORELLA_UPPER_K, 0.0)})
         return _monitor(state, frozen, assembly)
 
     def consistent(values, iteration):
@@ -266,6 +285,9 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         elif switching and row.get("round") == 2:
             row["switched"] = True
     outcome.diagnostics["final_check"] = journal.get("final_check")
+    # ADR 0059 第 2a 项：逐轮峰值与全程试探点最高温度。
+    outcome.diagnostics["bed_peak_per_round"] = peaks
+    outcome.diagnostics["trial_bottom_peak_k"] = None if trial_bottom["k"] == -np.inf else trial_bottom["k"]
     if artifact_dir is not None and outcome.status == "DAMPING_FAILED" and holder["records"]:
         frozen_path = Path(artifact_dir) / "frozen.pkl"
         with frozen_path.open("wb") as handle:
@@ -295,6 +317,11 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
     outcome.ratios = report["ratios_after"]
     result, state = holder["final"], holder["state"]
     outcome.x = pack_state(state, result.frozen)
+    # ADR 0059 第 2 项（2026-11-23 修订）：950 °C 只判最终解；越界按 ADR 0022 C4 的收敛解分支停止。
+    reason = converged_bed_peak_reason(state)
+    if reason:
+        return SolveResult("NOT_CONVERGED", reason, outcome.rounds, outcome.iterations,
+                           diagnostics=outcome.diagnostics, x=outcome.x)
     heat = _wall_heat(state, result.frozen)
     gap_in, gap_out, inlet_mol = _streams(state, result.frozen, physical, holder.get("redirect"))
     gap = external_balance(gap_in, gap_out)
@@ -344,6 +371,19 @@ def solid_feedback(state, frozen):
     """
     assembly = evaluate_residual(pack_state(state, frozen), frozen)
     return -assembly.char_consumption_bed_kg_s.sum(axis=1), _redirect_tuple(assembly)
+
+
+def converged_bed_peak_reason(state) -> str:
+    """ADR 0059 第 2 项（2026-11-23 修订）：最终收敛解的床区峰值是否越过检查线。
+
+    越界返回理由串（ADR 0022 C4 的收敛解分支：报告并停止，不截断温度）；未越界返回空串。
+    速率式本身不设上限，所以这是唯一的温度越界判定点。
+    """
+    peak = float(np.max(np.asarray(state.bed_temperature_k, dtype=float)))
+    if peak <= CORELLA_CHECK_K:
+        return ""
+    return (f"收敛解床区最高 {peak - 273.15:.6f} °C 高于 Corella 检查线 "
+            f"{CORELLA_CHECK_K - 273.15:.0f} °C：工况超出动力学参数的适用范围")
 
 
 def _references(physical):

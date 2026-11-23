@@ -9,6 +9,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from hamel.kinetics.homogeneous import CORELLA_CHECK_K
 from hamel.kinetics import (
     KineticsInputError,
     arrhenius_rate_constant,
@@ -458,19 +459,22 @@ def test_tar_secondary_hand_calculation():
     assert r11_corella_rate(tar, 950.0 + 273.15, R_G, catalyst).specific > 0.0
     with pytest.raises(KineticsInputError, match="600"):
         r11_corella_rate(tar, 600.0 + 273.15 - 0.1, R_G, catalyst)
-    with pytest.raises(KineticsInputError, match="950"):
-        r11_corella_rate(tar, 950.0 + 273.15 + 0.1, R_G, catalyst)
+    # ADR 0059 第 2 项（2026-11-23 修订）：速率式不再有温度上限，950 °C 只判最终收敛解。
+    assert r11_corella_rate(tar, 950.0 + 273.15 + 0.1, R_G, catalyst).specific > 0.0
+    assert r11_corella_rate(tar, 973.0 + 273.15, R_G, catalyst).specific > 0.0
 
 
-def test_corella_high_segment_extrapolates_to_the_stop_line():
-    # ADR 0059 第 1、2 项：900–950 °C 沿用高温段；950 °C 是停止线。
+def test_corella_high_segment_has_no_temperature_ceiling():
+    # ADR 0059 第 2 项（2026-11-23 修订）：900 °C 以上一律沿用高温段，速率式不设上限；
+    # 950 °C 只是最终收敛解的检查线（CORELLA_CHECK_K），不在这里判定。
     tar, catalyst = 0.05, 1.2
-    for celsius in (740.0, 899.9, 900.0, 900.1, 920.0, 949.9, 950.0):
+    for celsius in (740.0, 899.9, 900.0, 900.1, 920.0, 949.9, 950.0, 950.1, 973.0, 1100.0):
         temperature = celsius + 273.15
         expected = 0.7 * math.exp(-63.1e3 / (R_G * temperature)) * tar
         rate = r11_corella_rate(tar, temperature, R_G, catalyst)
         assert rate.specific == pytest.approx(expected)
         assert rate.extent_mol_s == pytest.approx(expected * catalyst)
+    assert CORELLA_CHECK_K == pytest.approx(950.0 + 273.15)
 
 
 def test_corella_truncation_uses_the_900_degree_constant():

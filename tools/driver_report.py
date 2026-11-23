@@ -467,7 +467,7 @@ def _markdown(payload) -> str:
         "全自由空间闭合按 ADR 0040 第 5 项逐股记账，不加反应项。闭式比对只在报告工具里做，不设通过门。",
         "",
     ]
-    lines += ["### 床区最高温度（ADR 0059 第 4 项）", ""]
+    lines += ["### 床区最高温度（ADR 0059 第 4、2a 项）", ""]
     found_peak = False
     for run in payload["runs"]:
         peak = (run.get("diagnostics") or {}).get("bed_temperature_peak")
@@ -478,6 +478,22 @@ def _markdown(payload) -> str:
             f"- {run['name']}：{peak['peak_c']} °C（{peak['peak_k']} K），自上而下第 {peak['from_top']} 格"
             f"（衡算下标 {peak['balance_index']}）；超出 900 °C {peak['above_900c_k']} K，共 {peak['above_900c_cells']} 格。"
         )
+        check = peak.get("check_line_c")
+        trial = peak.get("trial_bottom_peak_k")
+        if check is not None and trial is not None:
+            lines.append(
+                f"  - 收敛解检查线 {check:.0f} °C（ADR 0059 第 2 项）；全程试探点最底床格最高 "
+                f"{trial - 273.15:.6f} °C，只报告、不判定。"
+            )
+        per_round = peak.get("per_round") or []
+        if per_round:
+            over = [row for row in per_round if row["peak_k"] > 900.0 + 273.15]
+            lines.append(
+                f"  - 逐轮内层收敛解的床区峰值 {len(per_round)} 轮，最高 "
+                f"{max(row['peak_c'] for row in per_round):.6f} °C；超出 900 °C 的轮次："
+                + ("、".join(f"第 {row['round']} 轮 {row['peak_c']:.3f} °C" for row in over) or "无")
+                + "。"
+            )
     if not found_peak:
         lines.append("这次运行没有床区最高温度记录。")
     lines.append("")

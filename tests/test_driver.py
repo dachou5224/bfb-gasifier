@@ -11,7 +11,7 @@ from hamel.cases.balance import BalanceGap
 from hamel.cases.config import SolverConfig
 from hamel.kinetics.common import KineticsInputError
 from tools.campaign import _process, config_for, execute, overlay, run_campaign, run_specs, write_report
-from hamel.solver.driver import SolveResult, solve_aligned
+from hamel.solver.driver import SolveResult, converged_bed_peak_reason, solve_aligned
 from hamel.solver.gates import OuterMonitor, ResidualBlocks, balance_met, inner_met, outer_met
 from hamel.solver.newton import IDENTITY, damped_newton, normalized_merit
 
@@ -33,6 +33,19 @@ def _linear(config=None):
         lambda residual: normalized_merit(residual, blocks), config,
     )
     return result
+
+
+def test_corella_check_line_applies_to_the_final_bed_peak_only():
+    """ADR 0059 第 2 项（2026-11-23 修订）：950 °C 只判最终收敛解，不在速率式里判定。"""
+    class _State:
+        def __init__(self, celsius):
+            self.bed_temperature_k = np.array([800.0 + 273.15, celsius + 273.15])
+
+    assert converged_bed_peak_reason(_State(949.0)) == ""
+    assert converged_bed_peak_reason(_State(950.0)) == ""  # 端点含在内
+    message = converged_bed_peak_reason(_State(957.44))
+    assert "957.440000 °C" in message and "950 °C" in message
+    assert "超出动力学参数的适用范围" in message
 
 
 def test_damped_newton_converges_on_a_linear_system():
