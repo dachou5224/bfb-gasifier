@@ -111,6 +111,8 @@ class FrozenQuantities:
     hover_closure: str = "A"
     serio_frequency_per_s: float = 5.42e4
     serio_activation_j_mol: float = 100.5e3
+    # Corella 高温段的外推或截断。解释性选择（外推）：ADR 0059 第 5 项。
+    corella_high_temperature: str = "extrapolate"
     # 半格捕获区的格内转入系数与当地生成份额。解释性选择：ADR 0048 第 2 项。
     c_up_per_s: np.ndarray | None = None
     c_down_per_s: np.ndarray | None = None

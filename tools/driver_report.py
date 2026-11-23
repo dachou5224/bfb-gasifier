@@ -49,6 +49,25 @@ _KINDS = {
     "CO": "major_gas", "CO2": "major_gas", "H2": "major_gas", "H2O": "major_gas",
 }
 _SHARED = "各验收量共享壁面散热这一校准输入。"
+
+
+def corella_declaration(runs) -> str:
+    """验收之前的 Corella 外推声明。ADR 0059 第 4 项（2026-11-19 版）。
+
+    基准收敛且有床格超过 900 °C 时写明结果依赖外推；都没超过时写未触发；
+    没有峰值记录（未收敛或未运行）时写明不可判定，不假装无关。
+    """
+    baseline = next((run for run in runs if run.get("name") == "baseline"), None)
+    peak = ((baseline or {}).get("diagnostics") or {}).get("bed_temperature_peak")
+    if not peak:
+        return "基准没有床区最高温度记录（未收敛或未运行），无法判定是否越过 Corella 原表区间（ADR 0059 第 4 项）。"
+    if peak.get("above_900c_k", 0.0) > 0.0:
+        return (
+            f"本工况的床区温度超出 Corella 原文区间：最高 {peak['peak_c']:.6f} °C，"
+            f"超出 900 °C {peak['above_900c_k']:.6f} K（{peak['above_900c_cells']} 格）。"
+            "结果依赖 ADR 0059 的 Corella 外推。"
+        )
+    return "基准的床区各格都不超过 900 °C，未触发 Corella 外推（ADR 0059 第 4 项）。"
 _TOY_EXTRA = None
 
 
@@ -416,6 +435,7 @@ def _markdown(payload) -> str:
         ]
     lines += [
         f"单次运行墙钟上限 {payload['timeout_s']} s（ADR 0037）。", "",
+        corella_declaration(payload["runs"]), "",
         "## 验收", "", payload["shared_input"], "",
     ]
     lines.extend(_acceptance_pair(payload["runs"]))
@@ -463,9 +483,24 @@ def _markdown(payload) -> str:
         "每次运行的 JSON `diagnostics` 写入预计算已经算出的量，以及求解后由这些量整理的诊断。",
         "气泡相总流之比、d_b/D 与 d_b>D 的格数、与 KURKELA 表 5 的气速对照、悬停焦炭消耗占比，都取自这些中间量。",
         "床区各格气体温度与摩尔流量加权平均温度的最大偏差写在 `bed_gas_temperature_deviation_k`。",
+        "床区最高温度与超出 900 °C 的幅度见下一节（ADR 0059 第 4 项）。",
         "全自由空间闭合按 ADR 0040 第 5 项逐股记账，不加反应项。闭式比对只在报告工具里做，不设通过门。",
         "",
     ]
+    lines += ["### 床区最高温度（ADR 0059 第 4 项）", ""]
+    found_peak = False
+    for run in payload["runs"]:
+        peak = (run.get("diagnostics") or {}).get("bed_temperature_peak")
+        if not peak:
+            continue
+        found_peak = True
+        lines.append(
+            f"- {run['name']}：{peak['peak_c']} °C（{peak['peak_k']} K），自上而下第 {peak['from_top']} 格"
+            f"（衡算下标 {peak['balance_index']}）；超出 900 °C {peak['above_900c_k']} K，共 {peak['above_900c_cells']} 格。"
+        )
+    if not found_peak:
+        lines.append("这次运行没有床区最高温度记录。")
+    lines.append("")
     example = _sensitivity_example(payload["runs"])
     if example:
         lines += ["构造例不启动工况进程。已有中间量仍由打包函数给出。", ""]

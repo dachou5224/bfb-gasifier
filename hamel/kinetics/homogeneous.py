@@ -16,6 +16,10 @@ _R8_SHIFT = -8.91
 _CORELLA_LOW_K = 600.0 + 273.15
 _CORELLA_SPLIT_K = 740.0 + 273.15
 _CORELLA_HIGH_K = 900.0 + 273.15
+# 解释性选择（外推）：ADR 0059 第 2 项。950 °C 取自表 5.4 的最高温度，是停止线，不是适用范围。
+_CORELLA_STOP_K = 950.0 + 273.15
+# ADR 0059 第 1、5 项：900 °C 以上沿用高温段（外推），或按 900 °C 取速率常数（S20 截断）。
+_CORELLA_HIGH_TEMPERATURE = ("extrapolate", "truncate")
 
 
 def _extent(specific: float, factor: float) -> ReactionRate:
@@ -258,12 +262,15 @@ def r11_corella_rate(
     temperature_k: float,
     gas_constant_j_mol_k: float,
     m_catalyst_kg: float,
+    *,
+    high_temperature: str = "extrapolate",
 ) -> ReactionRate:
     """悬浮相焦油二次反应。频率因子单位 m³/(s·kg 催化剂)，再乘催化剂质量。
 
     ``m_catalyst_kg`` 是焦炭加灰的质量（ADR 0014 A6），与 R8、R9 的灰质量不是同一个参数。
-    740 °C 用高温段。低于 600 °C 或高于 900 °C 时拒绝计算：ADR 0010 第 9 条没有批准外推。
-    解释性选择：ADR 0010 第 9 条。
+    740 °C 用高温段。600–900 °C 为原表区间；900–950 °C 按 ADR 0059 外推，高于 950 °C 拒绝计算。
+    ``high_temperature`` 只取 extrapolate（默认，外推）或 truncate（S20，900 °C 以上用 900 °C 的速率常数）。
+    解释性选择：ADR 0010 第 9 条；解释性选择（外推）：ADR 0059
 
     Source: Hamel Tab.5.4, S. 97
     """
@@ -271,11 +278,15 @@ def r11_corella_rate(
     temperature = _positive("temperature_k", temperature_k)
     gas_constant = _positive("gas_constant_j_mol_k", gas_constant_j_mol_k)
     catalyst = _finite("m_catalyst_kg", m_catalyst_kg)
-    if temperature < _CORELLA_LOW_K or temperature > _CORELLA_HIGH_K:
-        raise KineticsInputError("Corella 参数只覆盖 600–900 °C，ADR 0010 第 9 条没有批准外推")
+    if high_temperature not in _CORELLA_HIGH_TEMPERATURE:
+        raise KineticsInputError("Corella 高温段只能取已批准的 extrapolate 或 truncate")
+    if temperature < _CORELLA_LOW_K or temperature > _CORELLA_STOP_K:
+        raise KineticsInputError("Corella 参数只覆盖 600–950 °C 的获批计算区间：600–900 °C 为原表区间，ADR 0059 外推至 950 °C 为止")
     if temperature >= _CORELLA_SPLIT_K:
         prefactor = 0.7
         energy = 63.1e3
+        if high_temperature == "truncate" and temperature > _CORELLA_HIGH_K:
+            temperature = _CORELLA_HIGH_K
     else:
         prefactor = 7.5e-4
         energy = 5.9e3

@@ -111,6 +111,7 @@ def test_physical_config_has_no_defaults_and_solver_fields_match_registered_adrs
         "interphase_diffusivity",
         "hover_closure",
         "serio_pair",
+        "corella_high_temperature",
         "freeboard_gas_velocity",
     }
     assert solver.pyrolysis_radial_intervals == 24

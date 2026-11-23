@@ -8,7 +8,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from hamel.cases.config import SolverConfig, approved_emissivity, approved_serio
+from hamel.cases.config import SolverConfig, approved_corella_high_temperature, approved_emissivity, approved_serio
 from hamel.hydrodynamics.bed import BedConditions, BedProfile
 from hamel.properties.data import GAS_SPECIES
 from hamel.pyrolysis.release import FuelTransport, feed_cell_index
@@ -436,6 +436,14 @@ def test_campaign_rows_are_wired_and_overlay_changes_the_copy(tmp_path):
     assert config_for("S14").hover_closure == "C"
     assert config_for("S15").serio_pair == "second"
     assert approved_serio(config_for("S15").serio_pair)[0] == pytest.approx(9.96e2)
+    assert config_for("S20").corella_high_temperature == "truncate"
+    assert approved_corella_high_temperature(config_for("S20").corella_high_temperature) == "truncate"
+    assert config_for("baseline").corella_high_temperature == "extrapolate"
+    assert [item.name for item in run_specs()][-1] == "S20"
+    with pytest.raises(ValueError):
+        approved_corella_high_temperature("linear")
+    with pytest.raises(ValueError):
+        SolverConfig(corella_high_temperature="linear")
     assert config_for("baseline").hover_closure == "A"
     dest = tmp_path / "s9.json"
     overlay(_CASE, dest, specs["S9"])

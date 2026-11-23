@@ -6,7 +6,7 @@ from dataclasses import dataclass, replace
 import math
 import numpy as np
 from hamel.cases.assemble import assemble_case, load_case_file, resolve_case_key
-from hamel.cases.config import approved_emissivity, approved_serio
+from hamel.cases.config import approved_corella_high_temperature, approved_emissivity, approved_serio
 from hamel.freeboard import FreeboardError, terminal_settling_velocity
 from hamel.freeboard.accounting import ClassWindow, account_freeboard, within_class_samples
 from hamel.freeboard.ejection import ejection_mass_flow, ejection_velocity_samples
@@ -869,6 +869,7 @@ def _frozen(case, state, flow, profile, share, coefficient, rho_p, k_up, down, p
     formation = _formation(case)
     emissivity = _approved(approved_emissivity, case.solver.particle_emissivity_case)
     frequency, activation = _approved(approved_serio, case.solver.serio_pair)
+    corella = _approved(approved_corella_high_temperature, case.solver.corella_high_temperature)
     return FrozenQuantities(
         diameter_m=case.diameters_m, bed_pressure_pa=np.full(bed, flow.pressure), freeboard_pressure_pa=np.full(free, flow.pressure),
         k_auf_per_s=k_up, m_dot_ab_kg_s=down, geometric_mass_kg=profile.solids_mass, k_bd_per_s=profile.k_bd,
@@ -898,6 +899,7 @@ def _frozen(case, state, flow, profile, share, coefficient, rho_p, k_up, down, p
         freeboard_diameter_m=case.free_diameter_m, epsilon_mf=case.epsilon_mf,
         particle_emissivity=emissivity, hover_closure=case.solver.hover_closure,
         serio_frequency_per_s=frequency, serio_activation_j_mol=activation,
+        corella_high_temperature=corella,
         particle_tolerance_w=case.solver.particle_tolerance_w, particle_max_iterations=case.solver.particle_max_iterations,
         coupling_tolerance_k=case.solver.coupling_tolerance_k, coupling_max_iterations=case.solver.coupling_max_iterations,
     )
