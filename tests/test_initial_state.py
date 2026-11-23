@@ -426,3 +426,31 @@ def test_tar_is_not_added_below_the_feed_cell():
     assert free.sum() == pytest.approx(2 * 0.4)
     assert bed[0].sum() == pytest.approx(0.4)
     assert bed[-1].sum() == 0.0
+
+
+def test_path_recorder_covers_the_initial_solid_newton():
+    """ADR 0059 第 2a 项：初值构造的固相牛顿评价点也计入“全程”，不能只靠驱动器的内层钩子。"""
+    from hamel.solver.vector import PathPeaks
+
+    frozen, state, context = _system()
+    path = PathPeaks()
+    solved = solve_solids(state, frozen, context, _M_REF, config=SolverConfig(), path=path)
+    assert solved.solid_residual <= 1.0e-6
+    # 记录来自真实的评价点：峰值不低于该状态自身的床区最高温度。
+    assert path.peak_k >= float(np.max(state.bed_temperature_k))
+    assert path.bottom_k >= float(state.bed_temperature_k[-1])
+    # 不传 path 时行为不变（调用方不必提供记录器）。
+    again = solve_solids(state, frozen, context, _M_REF, config=SolverConfig())
+    assert np.allclose(again.state.bed_char_kg, solved.state.bed_char_kg)
+
+
+def test_path_recorder_ignores_points_it_cannot_unpack():
+    """解包失败的点只跳过，不抛异常、不影响已有的记录。"""
+    from hamel.solver.vector import PathPeaks
+
+    frozen, state, _context_ = _system()
+    path = PathPeaks()
+    path.note(pack_state(state, frozen), frozen)
+    first = path.peak_k
+    path.note(np.full(len(unknown_slots(frozen)), np.nan), frozen)
+    assert path.peak_k == first

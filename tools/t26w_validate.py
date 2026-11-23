@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import signal
 import time
 from pathlib import Path
 
@@ -16,11 +17,16 @@ import numpy as np
 
 import hamel.solver.driver as driver
 from hamel.cases.config import SolverConfig
+from hamel.solver.newton import SolveTimeout
 
 _ROOT = Path(__file__).resolve().parents[1]
 _CASE, _EVIDENCE = _ROOT / "data/cases/vtt_pressurized.json", _ROOT / ".scratch/t26v/evidence.json"
 _OUT = _ROOT / ".scratch/t26w/baseline.json"
 _ROUNDS, _LIMIT, _RTOL = 26, 8.0 * 3600.0, 1.0e-6
+
+
+class _Timeout(BaseException):
+    """硬墙钟。继承 BaseException：任何 ``except Exception`` 都不会吞掉它（CHARTER §7）。"""
 
 
 def _relative(left, right) -> float:
@@ -55,8 +61,11 @@ def compare(record, evidence) -> dict:
                        "evidence_peak_c": _peak_k(rows[index]) - 273.15, "relative": value})
     out.update(per_round=paired, per_round_worst_relative=worst, rounds_covered=len(paired),
                over_950c_rounds=[row["round"] for row in mine if _peak_k(row) > 950.0 + 273.15])
+    # 跨环境规则允许轮数不同（STATUS 2026-11-23 第 5 条）：只看已配对轮次的偏差与终态，
+    # 轮数差异作为诊断记录，不作否决条件。
+    out["rounds_differ"] = len(mine) != len(rows)
     out["passed"] = (record["status"] == "CONVERGED" and out["final_bed_relative"] <= _RTOL
-                     and worst <= _RTOL and len(paired) == len(rows))
+                     and worst <= _RTOL)
     return out
 
 
@@ -76,22 +85,40 @@ def main(argv=None) -> int:
         return real_monitor(state, frozen, assembly)
 
     driver._monitor = monitor
+    status, reason, result = "EXCEPTION", "", None
+
+    def expire(signum, frame):
+        raise _Timeout()
+
+    # 硬墙钟：初值构造、预计算与单次残差／雅可比都不轮询 deadline，只能靠信号中断（CHARTER §7）。
+    previous = signal.signal(signal.SIGALRM, expire)
+    signal.setitimer(signal.ITIMER_REAL, max(float(args.limit_s), 0.0) + 0.05)
     try:
-        result = driver.solve_case(str(_CASE), "1", config=SolverConfig(outer_round_limit=_ROUNDS),
-                                   deadline=lambda: time.monotonic() - started >= args.limit_s)
+        try:
+            result = driver.solve_case(str(_CASE), "1", config=SolverConfig(outer_round_limit=_ROUNDS),
+                                       deadline=lambda: time.monotonic() - started >= args.limit_s)
+            status, reason = result.status, result.reason
+        except (SolveTimeout, _Timeout):
+            status, reason = "TIMEOUT", f"运行超过墙钟上限 {args.limit_s:.0f} s"
+        except Exception as exc:  # noqa: BLE001 - 求解异常记进报告，不当作 TIMEOUT
+            reason = str(exc)[:800] or type(exc).__name__
     finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous)
         driver._monitor = real_monitor
-    diagnostics = result.diagnostics or {}
-    record = {"status": result.status, "reason": result.reason, "rounds": result.rounds,
-              "iterations": result.iterations, "elapsed_s": time.monotonic() - started,
+    diagnostics = (None if result is None else result.diagnostics) or {}
+    record = {"status": status, "reason": reason,
+              "rounds": None if result is None else result.rounds,
+              "iterations": None if result is None else result.iterations,
+              "elapsed_s": time.monotonic() - started,
               "final_bed_k": last["bed_k"],
               "bed_peak_per_round": diagnostics.get("bed_peak_per_round") or [],
               "trial_bottom_peak_k": diagnostics.get("trial_bottom_peak_k"),
               "bed_temperature_peak": diagnostics.get("bed_temperature_peak")}
     _OUT.parent.mkdir(parents=True, exist_ok=True)
-    # 先落盘再比较：比较出错时原始结果仍保留（T26w 的第一次运行因此在最后一步丢了结果）。
+    # 先落盘再比较：超时或比较出错时，TIMEOUT 记录与已有进度都要留下（T26v 曾因此丢结果）。
     _OUT.write_text(json.dumps(record, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
-    if _EVIDENCE.exists() and record["final_bed_k"] is not None:
+    if status == "CONVERGED" and _EVIDENCE.exists() and record["final_bed_k"] is not None:
         record["comparison"] = compare(record, json.loads(_EVIDENCE.read_text(encoding="utf-8")))
         _OUT.write_text(json.dumps(record, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     print(json.dumps({k: record.get(k) for k in ("status", "reason", "rounds", "iterations", "elapsed_s")},
@@ -100,8 +127,13 @@ def main(argv=None) -> int:
     if comparison is not None:
         print(json.dumps({k: comparison[k] for k in
                           ("final_bed_relative", "per_round_worst_relative", "rounds_covered",
-                           "over_950c_rounds", "passed")}, ensure_ascii=False), flush=True)
-    return 0 if comparison and comparison["passed"] else 2
+                           "rounds_differ", "over_950c_rounds", "passed")}, ensure_ascii=False), flush=True)
+    # CHARTER §7：超时记 TIMEOUT 并非零退出；未收敛或判据未过也非零。
+    if status == "TIMEOUT":
+        return 2
+    if status == "EXCEPTION":
+        return 3
+    return 0 if comparison and comparison["passed"] else 4
 
 
 if __name__ == "__main__":

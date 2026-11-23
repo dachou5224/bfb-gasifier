@@ -104,7 +104,7 @@ def _embed(base, rows, y) -> np.ndarray:
     return x
 
 
-def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate: float = 1.0e-6, config=None, journal: dict | None = None) -> SolidSolve:
+def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate: float = 1.0e-6, config=None, journal: dict | None = None, path=None) -> SolidSolve:
     """以全部固相为未知量的阻尼牛顿。求解手段：ADR 0054 第 2、3 项（取代 ADR 0052 第 1 项第 3 步）。
 
     残差取原残差的固相行；每次评价按当前状态重算排灰与床区向下流。差分步长与行列缩放
@@ -133,6 +133,9 @@ def solve_solids(state: ReactorState, frozen, context, m_dot_ref: float, *, gate
             flows = recompute_flows(current, frozen, context, reaction)
             _, drain_ash, drain_char, down, _, _ = flows
             updated = replace(frozen, drain_ash_kg_s=drain_ash, drain_char_kg_s=drain_char, m_dot_ab_kg_s=down)
+            if path is not None:
+                # ADR 0059 第 2a 项：初值构造的评价点也要计入“全程”，只报告。
+                path.note(x, updated)
             values = np.asarray(evaluate_residual(x, updated).values, dtype=float)
         except FreeboardDomainError as exc:
             if trial:
@@ -228,7 +231,7 @@ def _rejected(state, frozen, detail, residual, inert, drain_ash, drain_char) -> 
     }
 
 
-def construct(initial, precalc, m_dot_ref: float, *, gate: float = 1.0e-6, tolerance: float = 1.0e-2, max_loops: int = 5, config=None, records=None):
+def construct(initial, precalc, m_dot_ref: float, *, gate: float = 1.0e-6, tolerance: float = 1.0e-2, max_loops: int = 5, config=None, records=None, path=None):
     """第一次预计算之后，反复“固相牛顿 → 按 driver.solid_feedback 回馈并重做预计算”。
 
     precalc(state, drain) 接收解出的固相与它按同一状态重算的排灰（灰分量，各粒级焦炭），
@@ -243,7 +246,7 @@ def construct(initial, precalc, m_dot_ref: float, *, gate: float = 1.0e-6, toler
     reached = False
     for index in range(1, int(max_loops) + 1):
         try:
-            solved = solve_solids(result.state, result.frozen, result.solid_context, m_dot_ref, gate=gate, config=limits)
+            solved = solve_solids(result.state, result.frozen, result.solid_context, m_dot_ref, gate=gate, config=limits, path=path)
         except InitialStateError as exc:
             inert = (
                 result.frozen.geometric_mass_kg - result.state.bed_char_kg.sum(axis=1)

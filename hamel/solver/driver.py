@@ -28,7 +28,7 @@ from hamel.solver.initial import DomainRejected, InitialStateError, construct
 from hamel.solver.newton import SolveTimeout, build_rule, build_transform, damped_newton, normalized_merit
 from hamel.solver.precalc import PrecalcError, precalculate
 from hamel.solver.residual import evaluate_residual, wall_area_m2
-from hamel.solver.vector import jacobian_layout, pack_state, unknown_slots, unpack_state
+from hamel.solver.vector import PathPeaks, jacobian_layout, pack_state, unknown_slots, unpack_state
 
 # ADR 0029。不是新的阈值。
 _AMBIENT_K = 298.15
@@ -141,7 +141,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
     holder = {"state": None, "reaction": None, "drain": 0.0, "fuel_return": 0.0, "release": None, "records": [], "redirect": (0.0, 0.0, 0.0, 0.0), "fine": None}
     journal = {"iterations": []}
     # ADR 0059 第 2a 项（2026-11-23 修订）：950 °C 只判最终解，路径上的峰值逐轮与全程报告。
-    peaks, trial_bottom = [], {"k": -np.inf}
+    peaks, track = [], PathPeaks()
     if artifact_dir is not None:
         folder = Path(artifact_dir)
         folder.mkdir(parents=True, exist_ok=True)
@@ -194,7 +194,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         try:
             result, loops, note = construct(
                 first, lambda state, drain: _precalc(iteration, False, state, drain), m_ref,
-                gate=float(config.residual_tolerance), config=config, records=loops,
+                gate=float(config.residual_tolerance), config=config, records=loops, path=track,
             )
         except DomainRejected as exc:
             holder["initial"] = {"loops": loops, "note": f"停止：{exc.phase}的有效域拒绝"}
@@ -217,13 +217,8 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         return _Opened(pack_state(result.state, result.frozen), _info(result))
 
     def evaluate(trial, opened):
-        # ADR 0059 第 2a 项：记全程试探点（含差分点）最底床格的最高温度，只报告、不判定。
-        try:
-            bottom = float(unpack_state(trial, holder["records"][-1].frozen).bed_temperature_k[-1])
-        except Exception:  # noqa: BLE001 - 不可解包的点交给正式路径报错
-            pass
-        else:
-            trial_bottom["k"] = max(trial_bottom["k"], bottom)
+        # ADR 0059 第 2a 项：全程评价点（含差分点）的床区温度，只报告、不判定。
+        track.note(trial, holder["records"][-1].frozen)
         return evaluate_residual(trial, holder["records"][-1].frozen).values
 
     def prepare(opened):
@@ -250,6 +245,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         frozen = holder["records"][-1].frozen
         state = unpack_state(values, frozen)
         holder["state"] = state
+        track.note(values, frozen)
         assembly = evaluate_residual(values, frozen)
         holder["reaction"] = -assembly.char_consumption_bed_kg_s.sum(axis=1)
         holder["redirect"] = _redirect_tuple(assembly)
@@ -259,12 +255,15 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         peaks.append({"round": len(peaks) + 1, "peak_k": float(temperature[index]),
                       "peak_c": float(temperature[index]) - 273.15, "from_top": index + 1,
                       "balance_index": index,
-                      "above_900c_k": max(float(temperature[index]) - _CORELLA_UPPER_K, 0.0)})
+                      "above_900c_k": max(float(temperature[index]) - _CORELLA_UPPER_K, 0.0),
+                      "above_900c_cells": int(np.count_nonzero(temperature > _CORELLA_UPPER_K)),
+                      "above_950c_k": max(float(temperature[index]) - CORELLA_CHECK_K, 0.0)})
         return _monitor(state, frozen, assembly)
 
     def consistent(values, iteration):
         state = unpack_state(values, holder["records"][-1].frozen)
         holder["state"] = state
+        track.note(values, holder["records"][-1].frozen)
         result = _precalc(iteration, True)
         residual = evaluate_residual(pack_state(state, result.frozen), result.frozen)
         holder["redirect"] = _redirect_tuple(residual)
@@ -285,9 +284,10 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         elif switching and row.get("round") == 2:
             row["switched"] = True
     outcome.diagnostics["final_check"] = journal.get("final_check")
-    # ADR 0059 第 2a 项：逐轮峰值与全程试探点最高温度。
+    # ADR 0059 第 2a 项：逐轮峰值与全程评价点（含初值构造、差分点、一致性重检）的峰值。
     outcome.diagnostics["bed_peak_per_round"] = peaks
-    outcome.diagnostics["trial_bottom_peak_k"] = None if trial_bottom["k"] == -np.inf else trial_bottom["k"]
+    outcome.diagnostics["trial_bottom_peak_k"] = None if track.bottom_k == -np.inf else track.bottom_k
+    outcome.diagnostics["trial_bed_peak_k"] = None if track.peak_k == -np.inf else track.peak_k
     if artifact_dir is not None and outcome.status == "DAMPING_FAILED" and holder["records"]:
         frozen_path = Path(artifact_dir) / "frozen.pkl"
         with frozen_path.open("wb") as handle:
@@ -301,6 +301,8 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         # ADR 0051 第 2 项：第 1 次预计算的 δ、μ 与逐 φ_p 的去向，只报告。
         outcome.diagnostics["hover_drift"] = holder["records"][0].reported.get("hover_drift")
     if outcome.status != "CONVERGED":
+        # ADR 0059 第 2a 项：未收敛／越线停止的运行也要写出路径诊断，报告才能消费。
+        outcome.diagnostics["bed_temperature_peak"] = _path_peak(peaks, track)
         return outcome
     result = holder["final"]
     state = holder["state"]
@@ -320,6 +322,7 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
     # ADR 0059 第 2 项（2026-11-23 修订）：950 °C 只判最终解；越界按 ADR 0022 C4 的收敛解分支停止。
     reason = converged_bed_peak_reason(state)
     if reason:
+        outcome.diagnostics["bed_temperature_peak"] = _path_peak(peaks, track)
         return SolveResult("NOT_CONVERGED", reason, outcome.rounds, outcome.iterations,
                            diagnostics=outcome.diagnostics, x=outcome.x)
     heat = _wall_heat(state, result.frozen)
@@ -371,6 +374,18 @@ def solid_feedback(state, frozen):
     """
     assembly = evaluate_residual(pack_state(state, frozen), frozen)
     return -assembly.char_consumption_bed_kg_s.sum(axis=1), _redirect_tuple(assembly)
+
+
+def _path_peak(peaks, track) -> dict:
+    """未收敛或越线停止时的床区温度记录（ADR 0059 第 2a 项）。终态未知，标 ``converged=False``。"""
+    last = {"peak_k": None, "peak_c": None, "from_top": None, "balance_index": None,
+            "above_900c_k": 0.0, "above_900c_cells": 0, "above_950c_k": 0.0}
+    last.update({key: value for key, value in (peaks[-1] if peaks else {}).items() if key != "round"})
+    last.update(converged=False, per_round=list(peaks),
+                trial_bottom_peak_k=None if track.bottom_k == -np.inf else track.bottom_k,
+                trial_bed_peak_k=None if track.peak_k == -np.inf else track.peak_k,
+                check_line_c=CORELLA_CHECK_K - 273.15)
+    return last
 
 
 def converged_bed_peak_reason(state) -> str:

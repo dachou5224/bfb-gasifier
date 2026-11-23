@@ -37,20 +37,24 @@ _X_C = "出口气体（含焦油蒸气）中的碳 / 燃料碳。分子不计带
 _CORELLA_UPPER_K = 900.0 + 273.15
 
 
-def bed_temperature_peak(state, per_round=None, trial_peak_k=None) -> dict:
-    """床区最高温度（不取整）、所在格、超出 900 °C 的幅度与格数。ADR 0059 第 4 项。
+def bed_temperature_peak(state, per_round=None, trial_peak_k=None, trial_bed_peak_k=None) -> dict:
+    """床区最高温度（不取整）、所在格、超出 900 °C 与 950 °C 的幅度与格数。ADR 0059 第 4 项。
 
     衡算下标 0 为床顶；``from_top`` 是自 1 起数的自上而下序号。
-    ``per_round`` 与 ``trial_peak_k`` 是 ADR 0059 第 2a 项（2026-11-23 修订）的路径记录，只报告。
+    ``per_round``／``trial_peak_k``／``trial_bed_peak_k`` 是 ADR 0059 第 2a 项（2026-11-23 修订）
+    的路径记录，只报告。``trial_peak_k`` 是最底床格，``trial_bed_peak_k`` 是床区任一格。
     """
     temperature = np.asarray(state.bed_temperature_k, dtype=float)
     index = int(np.argmax(temperature))
     peak = float(temperature[index])
     return {
+        "converged": True,
         "peak_k": peak, "peak_c": peak - 273.15, "from_top": index + 1, "balance_index": index,
         "above_900c_k": max(peak - _CORELLA_UPPER_K, 0.0),
         "above_900c_cells": int(np.count_nonzero(temperature > _CORELLA_UPPER_K)),
+        "above_950c_k": max(peak - CORELLA_CHECK_K, 0.0),
         "per_round": list(per_round or []), "trial_bottom_peak_k": trial_peak_k,
+        "trial_bed_peak_k": trial_bed_peak_k,
         "check_line_c": CORELLA_CHECK_K - 273.15,
     }
 
@@ -399,6 +403,7 @@ def attach_converged(outcome, state, frozen, assembly, physical, reported, confi
     outcome.diagnostics["bed_temperature_peak"] = bed_temperature_peak(
         state, outcome.diagnostics.get("bed_peak_per_round"),
         outcome.diagnostics.get("trial_bottom_peak_k"),
+        outcome.diagnostics.get("trial_bed_peak_k"),
     )
     outcome.diagnostics["bed_gas_temperature_deviation_k"] = reported.get("bed_gas_temperature_deviation_k")
     if "trajectory" in reported and "pyrolysis" in reported:

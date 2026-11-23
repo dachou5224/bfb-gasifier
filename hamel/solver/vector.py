@@ -189,3 +189,20 @@ def _solid_array(state: ReactorState, slot: UnknownSlot) -> np.ndarray:
     if slot.phase == "free":
         return state.freeboard_ash_free_kg
     return state.freeboard_ash_hover_kg
+
+
+@dataclass
+class PathPeaks:
+    """ADR 0059 第 2a 项：全程评价点的床区温度峰值，只报告。初值构造直接调用 evaluate_residual，
+    所以由 solve_solids 显式记录，不能只靠驱动器的内层钩子。"""
+
+    bottom_k: float = -np.inf
+    peak_k: float = -np.inf
+
+    def note(self, values, frozen) -> None:
+        try:
+            t = np.asarray(unpack_state(values, frozen).bed_temperature_k, dtype=float)
+        except Exception:  # noqa: BLE001 - 不可解包的点由正式路径报错，这里只记录
+            return
+        if t.size:
+            self.bottom_k, self.peak_k = max(self.bottom_k, float(t[-1])), max(self.peak_k, float(t.max()))

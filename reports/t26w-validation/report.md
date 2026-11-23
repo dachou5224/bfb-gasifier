@@ -8,12 +8,13 @@
 
 | 项 | 结果 |
 |---|---|
-| 终态 | **`CONVERGED`**，16 轮 / 180 次内层迭代，墙钟 5 453,5 s |
+| 终态 | **`CONVERGED`**，16 轮 / 180 次内层迭代，墙钟 5 564,4 s |
 | 终态床区温度场 vs 取证 | 相对差 **6,78×10⁻¹⁰**（判据 ≤ 1×10⁻⁶） |
 | 逐轮峰值 vs 取证 | 最大相对差 **9,02×10⁻⁹**（16 轮全部覆盖，判据 ≤ 1×10⁻⁶） |
 | 越 950 °C 的轮次 | 第 1 轮 957,4399 °C、第 3 轮 951,7170 °C（路径瞬态，不停） |
 | 终解对检查线 | 908,9453 °C ≤ 950 °C，通过 |
-| 全程试探点最底床格最高 | 972,9790 °C（只报告，不判定） |
+| 全程评价点（含初值构造、差分点、2(b) 重检）床区最高 | **972,9790 °C**（只报告，不判定），超出检查线 22,979 K |
+| 终解超出 950 °C | 0 K（`above_950c_k` = 0） |
 | 判据 | 全部满足；`tools/t26w_validate.py` 退出码 0 |
 
 ## 逐轮内层收敛解的床区峰值
@@ -59,21 +60,46 @@
 
 | 文件 | 增 / 删 | 内容 |
 |---|---|---|
-| `hamel/kinetics/homogeneous.py` | +7 / −5 | 删除温度上限判定；950 °C 常数改为导出的 `CORELLA_CHECK_K`；docstring |
-| `hamel/solver/driver.py` | +40 / 0 | `converged_bed_peak_reason`（终解检查）；逐轮峰值与试探点最高温度的记录 |
-| `tools/run_prep.py` | +10 / −2 | `bed_temperature_peak` 增 `per_round`、`trial_bottom_peak_k`、`check_line_c` |
-| `tools/driver_report.py` | +17 / −1 | 报告增检查线与逐轮超 900 °C 的轮次 |
-| `tools/t26w_validate.py` | +108（新） | 基准重跑与取证对照（含跨环境判据） |
+| `hamel/kinetics/homogeneous.py` | +2 | 删除温度上限判定；950 °C 常数改为导出的 `CORELLA_CHECK_K` |
+| `hamel/solver/driver.py` | +62 / −2 | `converged_bed_peak_reason`；逐轮峰值与全程评价点记录；失败运行也写记录 |
+| `hamel/solver/initial.py` | +6 / −3 | `solve_solids`／`construct` 的 `path` 记录器透传 |
+| `hamel/solver/vector.py` | +22 | `PathPeaks`（全程评价点的床区峰值） |
+| `tools/run_prep.py` | +16 / −3 | `bed_temperature_peak` 增 `per_round`、两个路径峰值、`above_950c_k`、`check_line_c` |
+| `tools/driver_report.py` | +52 / −13 | 首页声明含路径与终态；失败运行也显示路径；逐轮超 950 °C 的轮次 |
+| `tools/t26w_validate.py` | +140（新） | 基准重跑、硬墙钟与取证对照（跨环境判据） |
 | `tests/` | 见 PR | 950 °C 以上不再拒绝；终解检查线两侧（949 过、950 过、957,44 停）；`bed_temperature_peak` 的字段 |
 
-`hamel/` 净增 **+42**（卡上目标 ≤ +40，停止线 +80，未触发；超出目标 2 行，全部是 ADR 0059
-第 2、2a 项要求的记录与检查）。
+`hamel/` 净增 **+77**（卡上目标 ≤ +40，**停止线 +80，未触发但已逼近**；超出目标 37 行，全部是
+ADR 0059 第 2、2a 项要求的记录、检查与 `PathPeaks`）。`tools/` 净增 **+192**，**超卡上 +150 停止线 42 行，未获批准**。
 
-默认 pytest：516 passed、1 failed（既有的 `test_cli_skip_render_does_not_rewrite_png`，本地缺
-`pdfplumber`）、5 deselected，46 s；`check_citations.py` 通过。
+默认 pytest：**527 passed**、1 failed（既有的 `test_cli_skip_render_does_not_rewrite_png`，本地缺
+`pdfplumber`）、5 deselected，47 s；`check_citations.py` 通过。
 
 ## 未做
 
 - S20 未重跑（本卡范围外；它现在也不应再因差分点停止，并入第 1 关批量运行）。
 - 未跑 S1–S19b，未计算验收量。
 - 未改残差、收敛门、容差、求解手段与其它速率式。
+
+## 2026-11-23 第二轮修订（4 项 P2）
+
+审查提交 `10a7745`，提出 4 项 P2；本轮全部修订。**基准已重跑**（见上表，16 轮 / 180 次，与上一轮数值相同到 1×10⁻⁹）。
+
+1. **验证入口的硬墙钟**（`tools/t26w_validate.py`）：改为 `signal.setitimer(ITIMER_REAL, limit + 0.05)`，
+   `_Timeout` 继承 `BaseException`；超时记 `TIMEOUT`、返回 2（求解异常 3、未收敛 4），
+   **先落盘记录再比较**，超时也留下已有进度与 `TIMEOUT` 状态；监测补丁在 `finally` 还原。
+   `tests/test_t26w_validate.py` 用阻塞替身验证中断、落盘与还原。
+2. **首页声明含路径温度**（`tools/driver_report.py`）：`corella_declaration` 现在同时给出
+   **路径实际用到的温度**与收敛解温度（第 2a 项）。本次基准：路径 972,9790 °C、收敛解 908,9453 °C。
+   未收敛时说明终态未知、只给路径；无记录时写“无法判定”。
+3. **第 2a 项的记录补齐**（`hamel/solver/vector.py` 的 `PathPeaks`、`initial.py` 的透传、`driver.py`）：
+   - 覆盖**全部**评价阶段：初值构造的固相牛顿（`solve_solids` 直接调用 `evaluate_residual`，原实现漏记）、
+     内层试探点与差分点、2(b) 一致性重检。
+   - 逐轮记录补 `above_950c_k` 与 `above_900c_cells`；收敛解的记录补 `above_950c_k`（本次为 0）。
+   - **未收敛／越线停止的运行也写出 `bed_temperature_peak`**（`converged: False`，峰值取最后一轮并注明），
+     报告的峰值节不再因缺少终解而整段跳过。
+4. **ADR 正文统一口径**：第 3 项改为“计算无上限、950 只检查终解”，取代“外推至 950 °C 为止”；
+   第 5 项明确 S20 在**全部 T > 900 °C**（含 950 以上）按 900 °C 取值；第 4 项补超 950 °C 的幅度与
+   “未收敛也要写出”；新增第 7 项把 2026-11-19 的有限区间表述标为历史记录。
+
+**行数**：`hamel/` +77（停止线 +80，未触发；已从 +87 压缩到线内）、`tools/` +192（**超 +150 停止线 42 行，未获批准**）。测试 527 passed、1 既有失败。

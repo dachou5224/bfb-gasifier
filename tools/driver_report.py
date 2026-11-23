@@ -52,22 +52,34 @@ _SHARED = "各验收量共享壁面散热这一校准输入。"
 
 
 def corella_declaration(runs) -> str:
-    """验收之前的 Corella 外推声明。ADR 0059 第 4 项（2026-11-19 版）。
+    """验收之前的 Corella 外推声明。ADR 0059 第 2a、4 项（2026-11-23 修订）。
 
-    基准收敛且有床格超过 900 °C 时写明结果依赖外推；都没超过时写未触发；
-    没有峰值记录（未收敛或未运行）时写明不可判定，不假装无关。
+    必须同时暴露路径（含初值构造与差分点）实际用到的温度与收敛解的温度；只有终态会掩盖
+    “外推到 973 °C”这一事实。未收敛、无记录、未越界各有对应写法，不假装无关。
     """
     baseline = next((run for run in runs if run.get("name") == "baseline"), None)
     peak = ((baseline or {}).get("diagnostics") or {}).get("bed_temperature_peak")
     if not peak:
-        return "基准没有床区最高温度记录（未收敛或未运行），无法判定是否越过 Corella 原表区间（ADR 0059 第 4 项）。"
+        return "基准没有床区温度记录（未收敛或未运行），无法判定是否越过 Corella 原表区间（ADR 0059 第 4 项）。"
+    path = peak.get("trial_bed_peak_k")
+    path_text = (
+        f"求解路径（含初值构造与差分点）实际用到 {path - 273.15:.6f} °C"
+        if path is not None else "求解路径温度未记录"
+    )
+    check = peak.get("check_line_c", 950.0)
+    if not peak.get("converged", False):
+        return (
+            f"基准未收敛（终态未知），其路径最高 {path_text}。"
+            f"收敛解检查线 {check:.0f} °C 未参与判定（ADR 0059 第 2 项）。"
+        )
+    final = f"收敛解 {peak['peak_c']:.6f} °C"
     if peak.get("above_900c_k", 0.0) > 0.0:
         return (
-            f"本工况的床区温度超出 Corella 原文区间：最高 {peak['peak_c']:.6f} °C，"
-            f"超出 900 °C {peak['above_900c_k']:.6f} K（{peak['above_900c_cells']} 格）。"
-            "结果依赖 ADR 0059 的 Corella 外推。"
+            f"本工况的床区温度超出 Corella 原文区间：{final}，"
+            f"超出 900 °C {peak['above_900c_k']:.6f} K（{peak['above_900c_cells']} 格）；"
+            f"{path_text}。结果依赖 ADR 0059 的 Corella 外推（检查线 {check:.0f} °C 只判收敛解）。"
         )
-    return "基准的床区各格都不超过 900 °C，未触发 Corella 外推（ADR 0059 第 4 项）。"
+    return f"{final}，{path_text}；床区各格都不超过 900 °C，未触发 Corella 外推。"
 _TOY_EXTRA = None
 
 
@@ -494,24 +506,35 @@ def _markdown(payload) -> str:
         if not peak:
             continue
         found_peak = True
-        lines.append(
-            f"- {run['name']}：{peak['peak_c']} °C（{peak['peak_k']} K），自上而下第 {peak['from_top']} 格"
-            f"（衡算下标 {peak['balance_index']}）；超出 900 °C {peak['above_900c_k']} K，共 {peak['above_900c_cells']} 格。"
-        )
-        check = peak.get("check_line_c")
-        trial = peak.get("trial_bottom_peak_k")
-        if check is not None and trial is not None:
+        if not peak.get("converged", True) or peak.get("peak_c") is None:
             lines.append(
-                f"  - 收敛解检查线 {check:.0f} °C（ADR 0059 第 2 项）；全程试探点最底床格最高 "
-                f"{trial - 273.15:.6f} °C，只报告、不判定。"
+                f"- {run['name']}：未收敛，终态未知；床边峰值取最后一轮内层收敛解（ADR 0059 第 2a 项）。"
+            )
+        else:
+            lines.append(
+                f"- {run['name']}：{peak['peak_c']} °C（{peak['peak_k']} K），自上而下第 {peak['from_top']} 格"
+                f"（衡算下标 {peak['balance_index']}）；超出 900 °C {peak['above_900c_k']} K，共 {peak['above_900c_cells']} 格。"
+            )
+        check = peak.get("check_line_c")
+        path = peak.get("trial_bed_peak_k")
+        if check is not None and path is not None:
+            converged = "收敛解" if peak.get("converged") else "未收敛，终态未知"
+            lines.append(
+                f"  - {converged}；检查线 {check:.0f} °C（ADR 0059 第 2 项）；全程评价点（含初值构造与差分点）"
+                f"床区最高 {path - 273.15:.6f} °C、最底床格最高 "
+                f"{(peak.get('trial_bottom_peak_k') or float('nan')) - 273.15:.6f} °C，只报告、不判定；"
+                f"收敛解超出 950 °C {peak.get('above_950c_k', 0.0):.6f} K。"
             )
         per_round = peak.get("per_round") or []
         if per_round:
             over = [row for row in per_round if row["peak_k"] > 900.0 + 273.15]
+            over_check = [row for row in per_round if row.get("above_950c_k", 0.0) > 0.0]
             lines.append(
                 f"  - 逐轮内层收敛解的床区峰值 {len(per_round)} 轮，最高 "
                 f"{max(row['peak_c'] for row in per_round):.6f} °C；超出 900 °C 的轮次："
                 + ("、".join(f"第 {row['round']} 轮 {row['peak_c']:.3f} °C" for row in over) or "无")
+                + "；超出 950 °C 的轮次："
+                + ("、".join(f"第 {row['round']} 轮 {row['peak_c']:.3f} °C" for row in over_check) or "无")
                 + "。"
             )
     if not found_peak:
