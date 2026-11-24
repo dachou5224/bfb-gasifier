@@ -112,6 +112,9 @@ def run_campaign(source, report_dir, *, timeout_s: float | None = None, only=Non
             adiabatic = overlay(source, dest, spec) if spec.name != "baseline" else False
             path = source if spec.name == "baseline" else dest
             records.append(_spawn(spec, path, adiabatic, timeout, report_dir, rounds))
+            # 每侧跑完立即落盘：后一侧失败、中断或超时时，前一侧的记录仍可读（任务卡 A.3）。
+            Path(report_dir).mkdir(parents=True, exist_ok=True)
+            (Path(report_dir) / f"{spec.name}.json").write_text(json.dumps(records[-1], ensure_ascii=False), encoding="utf-8")
     write_report(report_dir, records, title="第 1 关运行", toy=False, timeout_s=timeout)
     return records
 
@@ -192,11 +195,9 @@ def execute(name: str, path: str, adiabatic: bool, *, outer_round_limit=None, wa
 
 
 def _absent(spec: RunSpec, status: str = "NOT_APPLIED", reason: str | None = None) -> dict:
-    return {
-        "name": spec.name, "change": spec.change, "source": spec.source, "status": status,
-        "reason": spec.reason if reason is None else reason, "measurements": None, "balance": None,
-        "nonnegative": None, "ratios": {}, "diagnostics": {}, "rounds": 0, "iterations": 0,
-    }
+    return {"name": spec.name, "change": spec.change, "source": spec.source, "status": status,
+            "reason": spec.reason if reason is None else reason, "measurements": None, "balance": None,
+            "nonnegative": None, "ratios": {}, "diagnostics": {}, "rounds": 0, "iterations": 0}
 
 
 def config_for(name: str) -> SolverConfig:
@@ -255,7 +256,7 @@ def _root() -> Path:
 
 def campaign_main(argv) -> None:
     """整批入口：``--only baseline,S1``；另接受 ``--rounds``、``--timeout``、``--report-dir``。"""
-    options = dict(zip(argv[1::2], argv[2::2]))
+    options = dict(zip(argv[0::2], argv[1::2]))
     only = [name for name in (options.get("--only") or "").split(",") if name]
     run_campaign(str(_root() / "data/cases/vtt_pressurized.json"), options.get("--report-dir", str(_root() / "reports/t30-acceptance")),
                  only=only or None, timeout_s=None if "--timeout" not in options else float(options["--timeout"]),
