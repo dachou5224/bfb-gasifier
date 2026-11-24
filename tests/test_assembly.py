@@ -373,11 +373,16 @@ def test_solid_volume_above_voidage_limit_stops():
         _evaluate(frozen, state)
 
 
-def test_corella_outside_its_interval_is_not_evaluable():
+def test_corella_has_no_temperature_ceiling_after_the_adr0059_revision():
+    # ADR 0059 第 2 项（2026-11-23 修订）：速率式不设上限，1300 K 照高温段取值；
+    # 950 °C 只在最终收敛解上判定（driver.converged_bed_peak_reason）。
     frozen = make_frozen()
-    state = make_state(frozen, temperature=1300.0)
+    hot = _evaluate(frozen, make_state(frozen, temperature=1300.0))
+    colder = _evaluate(frozen, make_state(frozen, temperature=1200.0))
+    assert hot is not None and colder is not None
+    # 低温仍拒绝：原表下限 600 °C。
     with pytest.raises(Exception, match="600"):
-        _evaluate(frozen, state)
+        _evaluate(frozen, make_state(frozen, temperature=600.0))
 
 
 def test_zero_gas_flow_is_not_evaluable():

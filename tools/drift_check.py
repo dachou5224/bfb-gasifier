@@ -12,7 +12,7 @@
   未提交改动计入，避免超限代码只留在工作树里。目标所有者在派发前书面批准、
   并且批准记在 ``docs/STATUS.md`` 的任务卡除外：同一行要有任务号、
   「净增代码上限 N 行」和「派发前批准」，当前分支名含该任务号，净增不超过 N。
-- ``hamel/`` 非测试 Python 的当前总行数超过 11000（CHARTER v0.14 §6.2）。
+- ``hamel/`` 非测试 Python 的当前总行数超过 11400，或 ``tools/`` 超过 16000（CHARTER v0.15 §6.2）。
 - 新增配置字段没有出处。字段只从 ``hamel/**/config.py`` 读取：模块级字面量字典
   ``PHYSICAL`` / ``PHYSICAL_CONFIG``、``SOLVER`` / ``SOLVER_CONFIG``，以及类
   ``PhysicalConfig``、``SolverConfig`` 的公开字段。求解器字段必须在正式 ADR
@@ -45,8 +45,9 @@ NET_CODE_LIMIT = 800
 _NET_APPROVAL = re.compile(
     r"(T\d+[a-z]?)\D{0,40}净增代码上限\s*(\d+)\s*行[^|\n]{0,80}派发前批准"
 )
-# CHARTER v0.14 §6.2：第 1 关通过前，hamel/ 代码总量上限 11000 行（不含测试）。
-HAMEL_LINE_LIMIT = 11000
+# CHARTER v0.15 §6.2：第 1 关通过前，hamel/ 总量 11400 行、tools/ 总量 16000 行（不含测试）。
+HAMEL_LINE_LIMIT = 11400
+TOOLS_LINE_LIMIT = 16000
 # CHARTER §6.2：物理参数配置不超过 30 项。求解器参数单独成组，不计入此项。
 PHYSICAL_FIELD_LIMIT = 30
 # CHARTER §9：连续 2 周没有任何工况指标变化。
@@ -91,6 +92,7 @@ class Report:
     dirty: bool
     net_lines: int
     hamel_lines: int
+    tools_lines: int
     physical_base: int
     physical_head: int
     solver_base: int
@@ -119,6 +121,7 @@ class Report:
             "dirty": self.dirty,
             "net_lines": self.net_lines,
             "hamel_lines": self.hamel_lines,
+            "tools_lines": self.tools_lines,
             "physical_fields": {"base": self.physical_base, "head": self.physical_head},
             "solver_fields": {"base": self.solver_base, "head": self.solver_head},
             "added_physical": self.added_physical,
@@ -135,6 +138,7 @@ class Report:
             "limits": {
                 "net_lines": self.approved_net_limit or NET_CODE_LIMIT,
                 "hamel_lines": HAMEL_LINE_LIMIT,
+                "tools_lines": TOOLS_LINE_LIMIT,
                 "physical_fields": PHYSICAL_FIELD_LIMIT,
                 "stale_days": STALE_DAYS,
             },
@@ -286,6 +290,18 @@ def _worktree_code_lines(root: Path) -> dict[str, int]:
         if _is_hamel_code(relative):
             counts[relative] = _count_lines(path.read_bytes())
     return counts
+
+
+def _tools_code_lines(root: Path) -> int:
+    """CHARTER v0.15 §6.2：tools/ 下的 .py 总量（不含 __pycache__ 与 test_ 前缀）。"""
+    folder = root / "tools"
+    if not folder.is_dir():
+        return 0
+    return sum(
+        _count_lines(path.read_bytes()) for path in folder.rglob("*.py")
+        if path.is_file() and not path.is_symlink() and "__pycache__" not in path.parts
+        and not path.name.startswith("test_")
+    )
 
 
 def _base_hamel_paths(root: Path, base: str) -> list[str]:
@@ -795,7 +811,9 @@ def _approved_net_limit(root: Path) -> int | None:
 def _hamel_text(report: Report) -> str:
     if report.hamel_lines > HAMEL_LINE_LIMIT:
         return f"hamel/ 代码 {report.hamel_lines} 行，超过 {HAMEL_LINE_LIMIT} 行（不含测试）"
-    return f"hamel/ 代码 {report.hamel_lines} 行（上限 {HAMEL_LINE_LIMIT}，不含测试）"
+    if report.tools_lines > TOOLS_LINE_LIMIT:
+        return f"tools/ 代码 {report.tools_lines} 行，超过 {TOOLS_LINE_LIMIT} 行（不含测试）"
+    return f"hamel/ 代码 {report.hamel_lines} 行（上限 {HAMEL_LINE_LIMIT}）；tools/ {report.tools_lines} 行（上限 {TOOLS_LINE_LIMIT}），均不含测试"
 
 
 def _stage_text(report: Report) -> str:
@@ -846,7 +864,7 @@ def format_text(report: Report) -> str:
         "",
         _mark(_worktree_text(report), "dirty" in triggered),
         _mark(_net_text(report), "net_lines" in triggered),
-        _mark(_hamel_text(report), "hamel_lines" in triggered),
+        _mark(_hamel_text(report), "hamel_lines" in triggered or "tools_lines" in triggered),
         *config_lines,
         _mark(_stage_text(report), "stage_suffix" in triggered),
         _mark(_skill_text(report), "skill_mismatch" in triggered),
@@ -898,6 +916,9 @@ def check(root: Path, base: str, today: date) -> Report:
             signals.append(Signal("net_lines", f"相对共同祖先净增代码 {net_lines} 行，超过批准上限 {net_limit} 行"))
         else:
             signals.append(Signal("net_lines", f"相对共同祖先净增代码 {net_lines} 行，超过 {NET_CODE_LIMIT} 行"))
+    tools_lines = _tools_code_lines(root)
+    if tools_lines > TOOLS_LINE_LIMIT:
+        signals.append(Signal("tools_lines", f"tools/ 代码 {tools_lines} 行，超过 {TOOLS_LINE_LIMIT} 行（不含测试）"))
     if hamel_lines > HAMEL_LINE_LIMIT:
         signals.append(
             Signal("hamel_lines", f"hamel/ 代码 {hamel_lines} 行，超过 {HAMEL_LINE_LIMIT} 行（不含测试）")
@@ -935,7 +956,7 @@ def check(root: Path, base: str, today: date) -> Report:
         today=today.isoformat(),
         dirty=dirty,
         net_lines=net_lines,
-        hamel_lines=hamel_lines,
+        hamel_lines=hamel_lines, tools_lines=tools_lines,
         physical_base=len(base_physical),
         physical_head=len(work_physical),
         solver_base=len(base_solver),

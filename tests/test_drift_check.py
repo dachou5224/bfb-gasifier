@@ -241,18 +241,33 @@ class DriftRepoTests(unittest.TestCase):
         self.assertEqual(signal_codes(report), ["net_lines"])
         self.assertIn("超过 800 行", drift_check.format_text(report))
 
-    def test_hamel_total_limit_is_exclusive_at_11000(self):
-        self.write("hamel/core.py", py_lines(11000))
+    def test_hamel_total_limit_is_exclusive_at_11400(self):
+        """CHARTER v0.15 §6.2：上限 11400，正好等于上限不触发。"""
+        self.write("hamel/core.py", py_lines(11400))
         self.commit("bulk")
-        self.assertEqual(self.check().hamel_lines, 11000)
+        self.assertEqual(self.check().hamel_lines, 11400)
         self.assertEqual(signal_codes(self.check()), [])
         self.branch()
         self.write("hamel/extra.py", py_lines(1))
         self.commit("one")
         report = self.check()
         self.assertEqual(report.net_lines, 1)
-        self.assertEqual(report.hamel_lines, 11001)
+        self.assertEqual(report.hamel_lines, 11401)
         self.assertEqual(signal_codes(report), ["hamel_lines"])
+
+    def test_tools_total_limit_is_exclusive_at_16000(self):
+        """CHARTER v0.15 §6.2：tools/ 上限 16000。"""
+        self.write("hamel/core.py", py_lines(1))
+        self.write("tools/big.py", py_lines(16000))
+        self.commit("bulk")
+        self.assertEqual(self.check().tools_lines, 16000)
+        self.assertEqual(signal_codes(self.check()), [])
+        self.branch()
+        self.write("tools/extra.py", py_lines(1))
+        self.commit("one")
+        report = self.check()
+        self.assertEqual(report.tools_lines, 16001)
+        self.assertEqual(signal_codes(report), ["tools_lines"])
 
     def test_untracked_hamel_code_counts(self):
         self.write("hamel/sneak.py", py_lines(801))

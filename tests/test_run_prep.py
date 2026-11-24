@@ -19,9 +19,9 @@ from hamel.solver.vector import pack_state
 from tests.test_assembly import make_frozen, make_state
 from tools.driver_report import write_report
 from tools.run_prep import (
-    _CLOSED_FORM_WINDOW_S, _book_change, _fuel_packet, applicability_row, closed_form_from_state,
-    freeboard_closure, fuel_parts, refine_particle, refine_trajectory, refinement_from_case, toy_particle,
-    toy_trajectory,
+    _CLOSED_FORM_WINDOW_S, _book_change, _fuel_packet, applicability_row, bed_temperature_peak,
+    closed_form_from_state, freeboard_closure, fuel_parts, refine_particle, refine_trajectory,
+    refinement_from_case, toy_particle, toy_trajectory,
 )
 
 _CASE = Path(__file__).resolve().parents[1] / "data" / "cases" / "vtt_pressurized.json"
@@ -58,6 +58,22 @@ def test_freeboard_temperature_is_height_weighted_and_x_c_ignores_solids():
     fuel = 0.6 / (atomic_weight("C") * 1.0e-3)
     assert equal["X_C"] == 100.0 * carbon / fuel
     assert weighted["X_C"] == equal["X_C"]
+
+
+def test_bed_temperature_peak_reports_the_check_line_and_the_path():
+    """ADR 0059 第 4、2a 项（2026-11-23 修订）：终解峰值、检查线与路径记录一起给出。"""
+    state = SimpleNamespace(bed_temperature_k=np.array([1100.0, 1182.0952359382707, 1150.0]))
+    bare = bed_temperature_peak(state)
+    assert bare["peak_k"] == pytest.approx(1182.0952359382707)
+    assert bare["from_top"] == 2 and bare["balance_index"] == 1
+    assert bare["above_900c_k"] == pytest.approx(1182.0952359382707 - (900.0 + 273.15))
+    assert bare["above_900c_cells"] == 1
+    assert bare["check_line_c"] == pytest.approx(950.0)
+    assert bare["per_round"] == [] and bare["trial_bottom_peak_k"] is None
+    rounds = [{"round": 1, "peak_k": 957.44 + 273.15}, {"round": 3, "peak_k": 951.72 + 273.15}]
+    filled = bed_temperature_peak(state, rounds, 973.0 + 273.15)
+    assert filled["per_round"] == rounds
+    assert filled["trial_bottom_peak_k"] == pytest.approx(973.0 + 273.15)
 
 
 def test_bed_exchange_uses_each_cell_temperature():
