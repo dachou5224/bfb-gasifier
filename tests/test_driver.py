@@ -10,7 +10,7 @@ import pytest
 from hamel.cases.balance import BalanceGap
 from hamel.cases.config import SolverConfig
 from hamel.kinetics.common import KineticsInputError
-from tools.campaign import _process, config_for, execute, overlay, run_campaign, run_specs, write_report
+from tools.campaign import _process, config_for, execute, main, overlay, run_campaign, run_specs, write_report
 from hamel.solver.driver import SolveResult, converged_bed_peak_reason, solve_aligned
 from hamel.solver.gates import OuterMonitor, ResidualBlocks, balance_met, inner_met, outer_met
 from hamel.solver.newton import IDENTITY, damped_newton, normalized_merit
@@ -293,6 +293,60 @@ def _diagnostics():
         "k_w": np.float64(3.5),
         "bed_intervals": np.int64(64),
     }}]}
+
+
+def test_campaign_cli_pairs_options_from_the_first_argument(tmp_path, monkeypatch):
+    """真实 main → campaign_main 路径：argv 已去掉程序名，选项必须从 argv[0] 起配对（审查 P1）。"""
+    seen = {}
+
+    def fake(source, report_dir, *, timeout_s=None, only=None, outer_round_limit=None):
+        seen.update(source=source, report_dir=report_dir, timeout_s=timeout_s, only=only, outer_round_limit=outer_round_limit)
+        return []
+
+    monkeypatch.setattr("tools.campaign.run_campaign", fake)
+    main(["tools.campaign", "--only", "baseline,S1", "--rounds", "26", "--timeout", "28800",
+          "--report-dir", str(tmp_path)])
+    assert seen["only"] == ["baseline", "S1"]
+    assert seen["outer_round_limit"] == 26
+    assert seen["timeout_s"] == 28800.0
+    assert seen["report_dir"] == str(tmp_path)
+
+
+def test_each_side_is_persisted_before_the_next_starts(tmp_path, monkeypatch):
+    """第一侧（含 TIMEOUT）跑完即落盘；第二侧中断时第一侧的记录仍可读（审查 P2）。"""
+    def fake_spawn(spec, path, adiabatic, timeout, report_dir, outer_round_limit):
+        if spec.name == "S1":
+            raise RuntimeError("第二侧中断")
+        return {"name": spec.name, "change": "", "source": "", "status": "TIMEOUT",
+                "reason": "墙钟上限内没有返回", "measurements": None, "balance": None,
+                "nonnegative": None, "ratios": {}, "diagnostics": {}, "rounds": 0, "iterations": 0}
+
+    monkeypatch.setattr("tools.campaign._spawn", fake_spawn)
+    monkeypatch.setattr("tools.campaign.write_report", lambda *args, **kwargs: None)
+    with pytest.raises(RuntimeError):
+        run_campaign(_CASE, tmp_path, only=["baseline", "S1"])
+    assert json.loads((tmp_path / "baseline.json").read_text(encoding="utf-8"))["status"] == "TIMEOUT"
+
+
+def test_only_filter_spawns_only_named_rows(tmp_path, monkeypatch):
+    """``--only baseline,S1`` 只启动这两行，其余行不启动进程（T30 B 项）。"""
+    launched = []
+
+    def fake_spawn(spec, path, adiabatic, timeout, report_dir, outer_round_limit):
+        launched.append((spec.name, adiabatic, outer_round_limit))
+        return {
+            "name": spec.name, "change": spec.change, "source": spec.source, "status": "NOT_APPLIED",
+            "reason": "测试替身", "measurements": None, "balance": None, "nonnegative": None,
+            "ratios": {}, "diagnostics": {}, "rounds": 0, "iterations": 0,
+        }
+
+    monkeypatch.setattr("tools.campaign._spawn", fake_spawn)
+    records = run_campaign(_CASE, tmp_path, only=["baseline", "S1"], outer_round_limit=26, timeout_s=3600.0)
+    assert [item["name"] for item in records] == ["baseline", "S1"]
+    assert [item[0] for item in launched] == ["baseline", "S1"]
+    assert [item[1] for item in launched] == [False, True]
+    assert all(item[2] == 26 for item in launched)
+    assert [item.name for item in run_specs(only=["S1"])] == ["S1"]
 
 
 def test_execute_report_keeps_numpy_array_shapes(tmp_path, monkeypatch):

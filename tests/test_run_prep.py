@@ -167,6 +167,21 @@ def test_closed_form_marks_nonpositive_delta_and_compares_the_other():
     assert negative["max_velocity_relative"] is None
 
 
+def test_differences_are_baseline_minus_sensitivity(tmp_path):
+    """差值方向固定为“基准 − 敏感性运行”，第 1 关即“有散热 − 绝热”（T30 C.3）。"""
+    values = {"T_FRB_K": 1100.0, "X_C": 50.0, "CO": 0.1, "CO2": 0.1, "H2": 0.1, "CH4": 0.01, "H2O": 0.1}
+    baseline = {
+        "name": "baseline", "change": "", "source": "", "status": "CONVERGED",
+        "measurements": dict(values), "balance": {"ok": True, "ratios": {}},
+        "nonnegative": True, "ratios": {}, "diagnostics": {},
+    }
+    shifted = {**baseline, "name": "S1", "measurements": {**values, "T_FRB_K": 1115.0}}
+    payload = write_report(tmp_path, [baseline, shifted], title="差值方向", toy=False)
+    assert payload["differences"][0]["delta"]["T_FRB_K"] == pytest.approx(-15.0)
+    text = (tmp_path / "driver_report.md").read_text(encoding="utf-8")
+    assert "基准 − 敏感性运行" in text
+
+
 def test_half_tolerance_is_marked_and_error_keeps_stderr(tmp_path, monkeypatch):
     baseline = {
         "name": "baseline", "change": "不改", "source": "ADR 0030", "status": "CONVERGED",
