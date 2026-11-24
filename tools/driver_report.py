@@ -43,6 +43,10 @@ _FROZEN = (
     ("F26", "T̄_FRB 按自由空间格子高度加权，含锥段", "ADR 0040 第 1 项"),
     ("F27", "X_C 为出口气体（含焦油）碳／燃料碳", "ADR 0040 第 1 项"),
     ("F28", "床区流体力学气体物性用摩尔流量加权平均；D_g 逐格", "ADR 0040 第 2 项"),
+    ("F29", "自由空间轨迹为逐格常系数解析解，粒级内按归宿边界分配权重（n_b = 6）", "ADR 0047；ADR 0058 第 1 项"),
+    ("F30", "床灰飞灰份额 φ = 1.0（工况 1）；S18 取 0.3", "ADR 0055 第 1 项"),
+    ("F31", "近中性停留时间下限速度 u_min = 1e-2 m/s（0 表示规则不起作用）", "ADR 0057"),
+    ("F32", "Corella 速率式不设温度上限；950 °C 只作最终收敛解的检查线", "ADR 0059 第 1、2、2a、5 项"),
 )
 _KINDS = {
     "T_FRB_K": "temperature", "X_C": "carbon_conversion", "CH4": "ch4",
@@ -90,8 +94,8 @@ def corella_declaration(runs) -> str:
     return "；".join(parts) + "。"
 
 
-def write_report(report_dir, records, *, title: str, toy: bool) -> dict:
-    payload = _document(records, title, toy)
+def write_report(report_dir, records, *, title: str, toy: bool, timeout_s: float | None = None) -> dict:
+    payload = _document(records, title, toy, timeout_s)  # timeout_s 是实参，缺省取 SolverConfig
     folder = Path(report_dir)
     folder.mkdir(parents=True, exist_ok=True)
     (folder / "driver_report.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -114,12 +118,13 @@ def convert(value):
     return str(value)
 
 
-def _document(records, title, toy) -> dict:
+def _document(records, title, toy, timeout_s=None) -> dict:
     root = Path(__file__).resolve().parents[1]
     targets = acceptance_targets(_CASE_ID, root / _DIGITIZED)
     judged = [_judge(record, targets) for record in records]
     return {
-        "title": title, "toy": toy, "timeout_s": SolverConfig().wall_timeout_s,
+        "title": title, "toy": toy,
+        "timeout_s": SolverConfig().wall_timeout_s if timeout_s is None else float(timeout_s),  # 本次实参
         "frozen": [{"id": item[0], "choice": item[1], "source": item[2]} for item in _FROZEN],
         "shared_input": _SHARED,
         "numerical": _numerical(), "runs": judged, "differences": _differences(judged, targets),
@@ -235,6 +240,7 @@ def _over_half(quantity: str, delta: float, targets) -> bool:
 
 
 def _differences(runs, targets) -> list:
+    """差值方向固定为**基准 − 敏感性运行**（第 1 关即“有散热 − 绝热”），不另存反方向。"""
     baseline = next((item for item in runs if item["name"] == "baseline"), None)
     base = None if baseline is None else (baseline.get("measurements") or {})
     rows = []
@@ -247,7 +253,7 @@ def _differences(runs, targets) -> list:
         if base and current and item.get("status") == "CONVERGED" and baseline.get("status") == "CONVERGED":
             for key, value in current.items():
                 if key in base and value is not None and base[key] is not None:
-                    gap = float(value) - float(base[key])
+                    gap = float(base[key]) - float(value)
                     delta[key] = gap
                     if _over_half(key, gap, targets):
                         marked.append(key)
@@ -554,10 +560,11 @@ def _markdown(payload) -> str:
             lines.append(f"- {key}：{_cell(value) if not isinstance(value, (dict, list)) else value}")
         lines.append("")
     lines.extend(_closure_and_form(payload))
-    lines += ["## 敏感性差值", "", "| 运行 | 状态 | 差值 | 超过容差一半 |", "|---|---|---|---|"]
+    lines += ["## 敏感性差值（基准 − 敏感性运行）", "", "| 运行 | 状态 | 差值 | 超过容差一半 |", "|---|---|---|---|"]
     for row in payload["differences"]:
         marked = "、".join(row.get("over_half_tolerance") or []) or ""
-        lines.append(f"| {row['name']} | {row['status']} | {row['delta'] or row['reason']} | {marked} |")
+        shown = row["delta"] or "不可计算：" + (row["reason"] or "一侧未收敛")
+        lines.append(f"| {row['name']} | {row['status']} | {shown} | {marked} |")
     lines += ["", "## 数值加密", ""]
     for key, value in payload["numerical"].items():
         lines.append(f"- {key}：{value}")

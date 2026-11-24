@@ -295,6 +295,27 @@ def _diagnostics():
     }}]}
 
 
+def test_only_filter_spawns_only_named_rows(tmp_path, monkeypatch):
+    """``--only baseline,S1`` 只启动这两行，其余行不启动进程（T30 B 项）。"""
+    launched = []
+
+    def fake_spawn(spec, path, adiabatic, timeout, report_dir, outer_round_limit):
+        launched.append((spec.name, adiabatic, outer_round_limit))
+        return {
+            "name": spec.name, "change": spec.change, "source": spec.source, "status": "NOT_APPLIED",
+            "reason": "测试替身", "measurements": None, "balance": None, "nonnegative": None,
+            "ratios": {}, "diagnostics": {}, "rounds": 0, "iterations": 0,
+        }
+
+    monkeypatch.setattr("tools.campaign._spawn", fake_spawn)
+    records = run_campaign(_CASE, tmp_path, only=["baseline", "S1"], outer_round_limit=26, timeout_s=3600.0)
+    assert [item["name"] for item in records] == ["baseline", "S1"]
+    assert [item[0] for item in launched] == ["baseline", "S1"]
+    assert [item[1] for item in launched] == [False, True]
+    assert all(item[2] == 26 for item in launched)
+    assert [item.name for item in run_specs(only=["S1"])] == ["S1"]
+
+
 def test_execute_report_keeps_numpy_array_shapes(tmp_path, monkeypatch):
     """单元素数组保持列表。失败和收敛都要能写进 JSON。"""
     queued = [

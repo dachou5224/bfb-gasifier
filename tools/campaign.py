@@ -45,6 +45,10 @@ _ROWS = (
 _BED_PAIRS = {"S9": (0.40, 0.6), "S10": (0.40, 0.9), "S11": (0.55, 0.6), "S12": (0.55, 0.9)}
 
 
+class _Timeout(BaseException):
+    """进程级硬墙钟。继承 BaseException，``except Exception`` 吞不掉（CHARTER §7）。"""
+
+
 @dataclass(frozen=True)
 class RunSpec:
     name: str
@@ -54,10 +58,12 @@ class RunSpec:
     reason: str = ""
 
 
-def run_specs() -> tuple:
+def run_specs(only=None) -> tuple:
+    """``only`` 给出运行名时只保留这些行；默认返回全部行。纯筛选，不改任何行。"""
     order = ["baseline", *[f"S{index}" for index in range(1, 19)], "S19a", "S19b", "S20"]
     by_name = {row[0]: row for row in _ROWS}
-    return tuple(RunSpec(*by_name[name]) for name in order)
+    names = order if only is None else [name for name in order if name in set(only)]
+    return tuple(RunSpec(*by_name[name]) for name in names)
 
 
 def overlay(source, dest, spec: RunSpec) -> bool:
@@ -89,30 +95,41 @@ def overlay(source, dest, spec: RunSpec) -> bool:
     return False
 
 
-def run_campaign(source, report_dir, *, timeout_s: float | None = None) -> list:
-    """依次跑基准、S1–S18、S19 的两次子运行与 S20。超时记 TIMEOUT。未接线的项不假装跑过。"""
-    timeout = float(SolverConfig().wall_timeout_s if timeout_s is None else timeout_s)
+def run_campaign(source, report_dir, *, timeout_s: float | None = None, only=None, outer_round_limit=None) -> list:
+    """依次跑基准、S1–S18、S19 的两次子运行与 S20。超时记 TIMEOUT。未接线的项不假装跑过。
+    ``only`` 纯筛选；``outer_round_limit``／``timeout_s`` 显式传给子进程，缺省仍取 ``SolverConfig``。
+    """
+    config = SolverConfig()
+    timeout = float(config.wall_timeout_s if timeout_s is None else timeout_s)
+    rounds = int(config.outer_round_limit if outer_round_limit is None else outer_round_limit)
     records = []
     with tempfile.TemporaryDirectory() as directory:
-        for spec in run_specs():
+        for spec in run_specs(only):
             if not spec.wired:
                 records.append(_absent(spec))
                 continue
             dest = Path(directory) / f"{spec.name}.json"
             adiabatic = overlay(source, dest, spec) if spec.name != "baseline" else False
             path = source if spec.name == "baseline" else dest
-            records.append(_spawn(spec, path, adiabatic, timeout, report_dir))
-    write_report(report_dir, records, title="第 1 关运行", toy=False)
+            records.append(_spawn(spec, path, adiabatic, timeout, report_dir, rounds))
+    write_report(report_dir, records, title="第 1 关运行", toy=False, timeout_s=timeout)
     return records
 
 
-def _spawn(spec, path, adiabatic, timeout, report_dir) -> dict:
+def _spawn(spec, path, adiabatic, timeout, report_dir, outer_round_limit) -> dict:
     completed = _process(
-        [sys.executable, "-m", "tools.campaign", spec.name, str(path), "1" if adiabatic else "0"],
-        timeout,
+        [sys.executable, "-m", "tools.campaign", spec.name, str(path), "1" if adiabatic else "0",
+         str(outer_round_limit), repr(float(timeout))],
+        timeout + 5.0,
     )
     if completed is None:
         return _absent(spec, "TIMEOUT", "墙钟上限内没有返回")
+    try:
+        payload = json.loads(completed.stdout)
+    except (TypeError, json.JSONDecodeError):
+        payload = None
+    if completed.returncode != 0 and (payload or {}).get("status") == "TIMEOUT":
+        return {**payload, "exit_code": completed.returncode}  # 先落盘的 TIMEOUT 记录不丢
     if completed.returncode != 0:
         folder = Path(report_dir) / "logs"
         folder.mkdir(parents=True, exist_ok=True)
@@ -121,7 +138,7 @@ def _spawn(spec, path, adiabatic, timeout, report_dir) -> dict:
         record = _absent(spec, "ERROR", f"子进程退出码 {completed.returncode}")
         record["stderr_log"] = str(log)
         return record
-    return json.loads(completed.stdout)
+    return payload if payload is not None else _absent(spec, "ERROR", "子进程没有返回合法 JSON")
 
 
 def _process(args, timeout):
@@ -140,16 +157,35 @@ def _process(args, timeout):
     return subprocess.CompletedProcess(args, proc.returncode, out, err)
 
 
-def execute(name: str, path: str, adiabatic: bool) -> dict:
+def execute(name: str, path: str, adiabatic: bool, *, outer_round_limit=None, wall_timeout_s=None) -> dict:
+    """子进程入口。配置显式取自实参；未给出时沿用 ``SolverConfig`` 的字段值。
+
+    硬墙钟用 ``signal.setitimer``：预计算、残差与雅可比都不轮询 deadline（CHARTER §7）。
+    """
     spec = next(item for item in run_specs() if item.name == name)
-    end = time.monotonic() + SolverConfig().wall_timeout_s
+    base = config_for(name)
+    limit = float(base.wall_timeout_s if wall_timeout_s is None else wall_timeout_s)
+    rounds = base.outer_round_limit if outer_round_limit is None else int(outer_round_limit)
+    config = replace(base, wall_timeout_s=limit, outer_round_limit=rounds)
+    started, end = time.monotonic(), time.monotonic() + limit
+
+    def expire(signum, frame):
+        raise _Timeout()
+
+    previous = signal.signal(signal.SIGALRM, expire)
+    signal.setitimer(signal.ITIMER_REAL, limit + 0.05)
     try:
-        result = solve_case(path, adiabatic=adiabatic, deadline=lambda: time.monotonic() >= end, config=config_for(name))
-    except SolveTimeout:
-        result = SolveResult("TIMEOUT", "运行超过墙钟上限")
+        try:
+            result = solve_case(path, adiabatic=adiabatic, deadline=lambda: time.monotonic() >= end, config=config)
+        except (SolveTimeout, _Timeout):
+            result = SolveResult("TIMEOUT", f"运行超过墙钟上限 {limit:.0f} s")
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous)
     return convert({
         "name": spec.name, "change": spec.change, "source": spec.source, "status": result.status,
         "reason": result.reason, "rounds": result.rounds, "iterations": result.iterations,
+        "elapsed_s": time.monotonic() - started,
         "ratios": result.ratios, "balance": result.balance, "nonnegative": result.nonnegative,
         "measurements": result.measurements, "diagnostics": result.diagnostics,
     })
@@ -217,8 +253,24 @@ def _root() -> Path:
     return Path(__file__).resolve().parents[1]
 
 
+def campaign_main(argv) -> None:
+    """整批入口：``--only baseline,S1``；另接受 ``--rounds``、``--timeout``、``--report-dir``。"""
+    options = dict(zip(argv[1::2], argv[2::2]))
+    only = [name for name in (options.get("--only") or "").split(",") if name]
+    run_campaign(str(_root() / "data/cases/vtt_pressurized.json"), options.get("--report-dir", str(_root() / "reports/t30-acceptance")),
+                 only=only or None, timeout_s=None if "--timeout" not in options else float(options["--timeout"]),
+                 outer_round_limit=None if "--rounds" not in options else int(options["--rounds"]))
+
+
 def main(argv) -> None:
-    json.dump(execute(argv[1], argv[2], argv[3] == "1"), sys.stdout, ensure_ascii=False)
+    if argv[1].startswith("--"):
+        campaign_main(argv[1:])
+        return
+    record = execute(argv[1], argv[2], argv[3] == "1", outer_round_limit=int(argv[4]) if len(argv) > 4 else None,
+                     wall_timeout_s=float(argv[5]) if len(argv) > 5 else None)
+    json.dump(record, sys.stdout, ensure_ascii=False)
+    if record.get("status") == "TIMEOUT":
+        raise SystemExit(2)
 
 
 if __name__ == "__main__":
