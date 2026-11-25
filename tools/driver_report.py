@@ -10,6 +10,7 @@ import numpy as np
 from hamel.cases.config import SolverConfig
 from hamel.cases.judge import Measurement, Premises, judge
 from hamel.cases.targets import acceptance_targets, half_width
+from tools.ledger_account import markdown_ledger
 from tools.run_prep import _ACCEPTANCE, closed_form_report, constructed_books, refinement_report, toy_applicability_rows
 
 _CASE_ID = "CASE_VTT_PRESSURIZED_1"
@@ -283,6 +284,14 @@ def _sensitivity_example(runs) -> dict | None:
         sensitivity = (run.get("diagnostics") or {}).get("sensitivity")
         if sensitivity:
             return sensitivity
+    return None
+
+
+def _ledger_example(runs) -> dict | None:
+    for run in runs:
+        ledger = (run.get("diagnostics") or {}).get("reaction_ledger")
+        if ledger:
+            return ledger
     return None
 
 
@@ -560,6 +569,7 @@ def _markdown(payload) -> str:
             lines.append(f"- {key}：{_cell(value) if not isinstance(value, (dict, list)) else value}")
         lines.append("")
     lines.extend(_closure_and_form(payload))
+    lines.extend(markdown_ledger(_ledger_example(payload["runs"])))
     lines += ["## 敏感性差值（基准 − 敏感性运行）", "", "| 运行 | 状态 | 差值 | 超过容差一半 |", "|---|---|---|---|"]
     for row in payload["differences"]:
         marked = "、".join(row.get("over_half_tolerance") or []) or ""

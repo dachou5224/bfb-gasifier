@@ -361,7 +361,7 @@ def test_execute_report_keeps_numpy_array_shapes(tmp_path, monkeypatch):
         ),
     ]
 
-    def fake_solve(path, case_id="1", *, adiabatic=False, deadline=None, config=None):
+    def fake_solve(path, case_id="1", *, adiabatic=False, deadline=None, config=None, artifact_dir=None):
         return queued.pop(0)
 
     monkeypatch.setattr("tools.campaign.solve_case", fake_solve)

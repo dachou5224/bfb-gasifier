@@ -335,6 +335,22 @@ def solve_case(path, case_id: str = "1", *, adiabatic: bool = False, deadline=No
         outcome.status = "NOT_CONVERGED"
         outcome.reason = "外部平衡、非负或壁面散热未通过"
         return fail(outcome, state=state, check="passed")
+    # T31：只在通过 §2.1、2(b) 与 ADR 0059 检查线之后的收敛解上再评价一次，记录反应路径账。
+    # 不进入牛顿迭代、雅可比、初值构造或任何试探路径；求解时间与数值不受影响。
+    logged = evaluate_residual(pack_state(state, result.frozen), result.frozen, ledger=True)
+    outcome.diagnostics["reaction_ledger"] = {
+        "records": logged.ledger,
+        "gas_suspension_mol_s": logged.gas_suspension_mol_s,
+        "gas_bubble_mol_s": logged.gas_bubble_mol_s,
+        "gas_free_mol_s": logged.gas_free_mol_s,
+        "gas_exchange_mol_s": logged.gas_exchange_mol_s,
+    }
+    if artifact_dir is not None:
+        folder = Path(artifact_dir)
+        folder.mkdir(parents=True, exist_ok=True)
+        np.savez(folder / "state.npz", x=outcome.x)
+        with (folder / "frozen.pkl").open("wb") as handle:
+            pickle.dump(result.frozen, handle, protocol=pickle.HIGHEST_PROTOCOL)
     from tools.run_prep import attach_converged
     attach_converged(
         outcome, state, result.frozen, holder["assembly"], physical, result.reported,
