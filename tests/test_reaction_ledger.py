@@ -169,3 +169,39 @@ def test_gas_residual_rows_match_the_assembled_residual_with_exchange_sign():
         assert np.allclose(item["residual"], expected, rtol=0.0, atol=1.0e-18), (item["zone"], cell, phase)
     assert any(float(np.max(np.abs(item["exchange"]))) > 0.0
                for item in rows if item["zone"] == "bed")
+
+
+def test_freeboard_r5_is_computed_with_bubble_kinetics():
+    """R5 在自由空间不被排除：residual.py 的 r5_phase 对 freeboard 落 else（气泡相）分支。"""
+    frozen = make_frozen()
+    values = pack_state(make_state(frozen), frozen)
+    result = evaluate_residual(values, frozen, ledger=True)
+    rows = [row for row in result.ledger
+            if row["zone"] == "freeboard" and row["reaction"] == "R5" and float(row["q"].get("O2", 0.0)) < 0.0]
+    assert rows, "自由空间的 R5 必须在账内（不得加相排除）"
+    assert all(row["phase"] == "free" for row in rows)
+
+
+def test_c7_freeboard_crossover_uses_the_bubble_formula():
+    """C.7 的自由空间交叉点用气泡相动力学：O2 的 0.3 次、需 c_H2O。"""
+    import importlib.util
+    from pathlib import Path
+
+    from hamel.kinetics.arrhenius import arrhenius_rate_constant
+
+    path = Path(__file__).resolve().parents[1] / "reports" / "t31-reaction-ledger" / "make_report.py"
+    spec = importlib.util.spec_from_file_location("t31_make_report", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    temperature, c_co, c_h2, c_h2o, c_o2 = 1315.7, 6.61, 6.04, 3.87, 6.06e-14
+    c = np.zeros(len(GAS_SPECIES))
+    c[_INDEX["CO"]], c[_INDEX["H2"]], c[_INDEX["H2O"]], c[_INDEX["O2"]] = c_co, c_h2, c_h2o, c_o2
+    y = np.zeros(len(GAS_SPECIES))
+    item = module.Report._condition(None, "freeboard", 6, "自由空间", temperature, 5.0e5, 1.75, 1.4e-2, y, c, "bubble")
+    k5 = arrhenius_rate_constant(1.91e6, temperature, activation_temperature_k=8056.0)
+    k6 = arrhenius_rate_constant(1.631e9 * temperature**1.5, temperature, activation_temperature_k=3420.0)
+    expected = (k5 * c_co * c_h2o**0.5 / (k6 * c_h2**1.5)) ** (1.0 / 0.7)
+    assert item["crossover"] == pytest.approx(expected, rel=1e-12)
+    assert item["kinetics"] == "bubble"
+    assert item["position"] == ("低于交叉点" if c_o2 < expected else "高于交叉点")

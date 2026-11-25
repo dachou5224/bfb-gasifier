@@ -122,27 +122,38 @@ class Report:
                 y, c, _f, _mu, _rho = _phase_point(state.bed_gas_mol_s[cell, phase], state.bed_temperature_k[cell], frozen.bed_pressure_pa[cell])
                 volume = frozen.v_suspension_m3[cell] if phase == 0 else frozen.v_bubble_m3[cell]
                 out.append(self._condition("bed", cell, label, state.bed_temperature_k[cell], frozen.bed_pressure_pa[cell],
-                                           float(np.sum(state.bed_gas_mol_s[cell, phase])), volume, y, c, phase))
+                                           float(np.sum(state.bed_gas_mol_s[cell, phase])), volume, y, c,
+                                           "suspension" if phase == 0 else "bubble"))
         for cell in range(frozen.n_freeboard):
             y, c, _f, _mu, _rho = _phase_point(state.freeboard_gas_mol_s[cell], state.freeboard_temperature_k[cell], frozen.freeboard_pressure_pa[cell])
+            # 自由空间：residual.py 的 r5_phase 对 "freeboard" 落 else 分支，R5 按气泡相参数计算。
             out.append(self._condition("freeboard", cell, "自由空间", state.freeboard_temperature_k[cell], frozen.freeboard_pressure_pa[cell],
-                                       float(np.sum(state.freeboard_gas_mol_s[cell])), frozen.v_freeboard_m3[cell], y, c, 0))
+                                       float(np.sum(state.freeboard_gas_mol_s[cell])), frozen.v_freeboard_m3[cell], y, c, "bubble"))
         return out
 
-    def _condition(self, zone, cell, label, temperature, pressure, flow, volume, y, c, phase):
+    def _condition(self, zone, cell, label, temperature, pressure, flow, volume, y, c, kinetics):
+        """``kinetics`` 是 R5 的速率式分支：悬浮相 0.5 次，气泡相 0.3 次并需 c_H2O。
+
+        两种分支的 R5 与 R6 对 O2 的计量系数都是 0.5，故"耗氧速率相等"与"进度速率相等"等价。
+        """
         k6 = arrhenius_rate_constant(1.631e9 * float(temperature) ** 1.5, float(temperature), activation_temperature_k=3420.0)
         derivative = k6 * max(c[INDEX["H2"]], 0.0) ** 1.5
-        if phase == 0 and zone == "bed":
-            numerator = 1.8 * float(temperature) ** 0.5 * c[INDEX["CO"]]  # R5 悬浮相：O2 的 0.5 次
-            crossover = (numerator / derivative) ** 2 if derivative > 0.0 else None
-        elif phase == 1:
-            k5 = arrhenius_rate_constant(1.91e6, float(temperature), activation_temperature_k=8056.0)
-            numerator = k5 * c[INDEX["CO"]] * max(c[INDEX["H2O"]], 0.0) ** 0.5  # 气泡相：O2 的 0.3 次
-            crossover = (numerator / derivative) ** (1.0 / 0.7) if derivative > 0.0 else None
+        if kinetics == "suspension":
+            numerator = 1.8 * float(temperature) ** 0.5 * c[INDEX["CO"]]  # O2 的 0.5 次
+            power = 2.0
         else:
-            crossover = None
-        position = "—" if crossover is None else ("低于交叉点" if c[INDEX["O2"]] < crossover else "高于交叉点")
-        return {"zone": zone, "cell": cell, "phase": label, "t": float(temperature), "p": float(pressure),
+            k5 = arrhenius_rate_constant(1.91e6, float(temperature), activation_temperature_k=8056.0)
+            numerator = k5 * c[INDEX["CO"]] * max(c[INDEX["H2O"]], 0.0) ** 0.5  # O2 的 0.3 次
+            power = 1.0 / 0.7
+        crossover = None
+        if derivative > 0.0 and numerator > 0.0:
+            crossover = float((numerator / derivative) ** power)
+        if crossover is None:
+            position = "—"
+        else:
+            position = "低于交叉点" if c[INDEX["O2"]] < crossover else "高于交叉点"
+        return {"zone": zone, "cell": cell, "phase": label, "kinetics": kinetics,
+                "t": float(temperature), "p": float(pressure),
                 "flow": float(flow), "volume": float(volume),
                 "c": {name: float(c[INDEX[name]]) for name in ("O2", "H2", "H2O", "CO", "CO2", "CH4")},
                 "y": {name: float(y[INDEX[name]]) for name in ("O2", "H2", "H2O", "CO", "CO2", "CH4")},
@@ -373,10 +384,12 @@ def main() -> int:
               "气泡相 R5 对 O2 为 0.3 次，`c_O2* = (k5·c_CO·√c_H2O / k6·c_H2^1.5)^(1/0.7)`。只报数，不下因果结论。", ""]
     rows = []
     for item in report.conditions():
-        rows.append([item["zone"], item["cell"], item["phase"], g(item["t"], 3), g(item["p"], 3), f(item["volume"]),
-                     f(item["flow"]), f(item["c"]["O2"]), f(item["y"]["O2"]), f(item["crossover"]), item["position"]])
+        rows.append([item["zone"], item["cell"], item["phase"], _kinetics_label(item["kinetics"]),
+                     g(item["t"], 3), g(item["p"], 3), f(item["volume"]), f(item["flow"]),
+                     f(item["c"]["O2"]), f(item["y"]["O2"]), f(item["crossover"]), item["position"]])
     lines += ["### 温度、压力、相体积、气相摩尔流与 O2", ""]
-    lines += table(["区", "格", "相", "T / K", "p / Pa", "V / m³", "气相 mol/s", "c_O2", "y_O2", "c_O2*", "位置"], rows) + [""]
+    lines += table(["区", "格", "相", "R5 速率式", "T / K", "p / Pa", "V / m³", "气相 mol/s",
+                    "c_O2", "y_O2", "c_O2*", "位置"], rows) + [""]
     rows = []
     for item in report.conditions():
         rows.append([item["zone"], item["cell"], item["phase"]] +
@@ -386,7 +399,13 @@ def main() -> int:
               "| 区 | 格 | 相 | c_H2 | c_H2O | c_CO | c_CO2 | c_CH4 | y_H2 | y_H2O | y_CO | y_CO2 | y_CH4 |",
               "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     lines += ["| " + " | ".join(str(cell) for cell in row) + " |" for row in rows] + [""]
-    lines += ["自由空间只有单一气相，R5 不在此相计算（ADR 0010 第 5 条：R5 只在床区两相），故交叉点记“—”。", ""]
+    lines += [f"自由空间只有单一气相；`hamel/solver/residual.py::_Context._homogeneous` 的 "
+              f"`r5_phase = \"suspension\" if phase == \"suspension\" else \"bubble\"` 使 `freeboard` 落 else 分支，"
+              f"因此 R5 在自由空间**按气泡相速率式**（O2 的 0.3 次、乘 √c_H2O，Hottel 1965 参数）计算，"
+              f"不是被排除。它占全床耗氧 {pct(_free_r5_share(report))}（见 C.3 的 `free | R5` 行，"
+              f"{f(_free_r5_value(report))} mol/s）；本表的自由空间行因此也用气泡相动力学补出 `c_O2*`。",
+              "R5 与 R6 对 O2 的计量系数都是 0.5，故“耗氧速率相等”与“进度速率相等”等价。只报数，不下因果结论。",
+              _crossover_note(report), ""]
 
     # ---- C.8 ----------------------------------------------------------
     lines += ["## C.8 占比登记表（预登记门槛，看到数字后未移动）", "",
@@ -514,6 +533,36 @@ def main() -> int:
     if d1["worst"] > 1e-12 or worst > 1e-9 or status != "CONVERGED":
         return 2
     return 0
+
+
+def _crossover_note(report) -> str:
+    """自由空间各格 c_O2 与交叉点的距离，只报数。"""
+    free = [item for item in report.conditions() if item["zone"] == "freeboard"]
+    near = [item for item in free if item["crossover"] and item["c"]["O2"] > 0.0]
+    if not near:
+        return "自由空间各格 c_O2 都在交叉点以下。"
+    closest = min(near, key=lambda item: item["crossover"] / item["c"]["O2"])
+    return (f"自由空间的 {len(free)} 格都标为“低于交叉点”；其中格 {closest['cell']} 的 c_O2 与交叉点最接近"
+            f"（c_O2 = {f(closest['c']['O2'])}，c_O2* = {f(closest['crossover'])}，"
+            f"c_O2*/c_O2 = {g(closest['crossover'] / closest['c']['O2'], 3)}）。")
+
+
+def _kinetics_label(kinetics: str) -> str:
+    return "悬浮相" if kinetics == "suspension" else "气泡相"
+
+
+def _free_r5(records) -> float:
+    """自由空间 R5 的耗氧量（逐记录取 max(−q, 0) 后相加）。"""
+    return sum(max(-float(row["q"].get("O2", 0.0)), 0.0)
+               for row in records if row["zone"] == "freeboard" and row["reaction"] == "R5")
+
+
+def _free_r5_value(report) -> float:
+    return _free_r5(report.records)
+
+
+def _free_r5_share(report) -> float | None:
+    return share(_free_r5(report.records), report.book["species"]["O2"]["consume"])
 
 
 def _tar_totals(records) -> dict:
