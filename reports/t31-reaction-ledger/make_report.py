@@ -535,7 +535,7 @@ def _oxygen_rows(report: Report) -> list:
             out_flow = state.bed_gas_mol_s[cell, index, species]
             swap = exchange[cell, species] * (-1.0 if index == 0 else 1.0)
             residual = float(inflow[species] + external[species] + reaction - out_flow - swap)
-            rows.append(["bed", cell, label, f(inflow[species] + external[species]), f(out_flow), f(swap), f(-reaction), f(residual)])
+            rows.append(["bed", cell, label, f(inflow[species] + external[species]), f(out_flow), f(swap), f(max(-reaction, 0.0)), f(residual)])
     for cell in range(frozen.n_freeboard):
         inflow = state.freeboard_gas_mol_s[cell + 1] if cell + 1 < frozen.n_freeboard else np.zeros(count)
         external = np.zeros(count)
@@ -546,7 +546,7 @@ def _oxygen_rows(report: Report) -> list:
         reaction = result.reaction_free[cell, species] + frozen.pyro_freeboard_mol_s[cell, species]
         out_flow = state.freeboard_gas_mol_s[cell, species]
         residual = float(inflow[species] + external[species] + reaction - out_flow)
-        rows.append(["freeboard", cell, "自由空间", f(inflow[species] + external[species]), f(out_flow), "0", f(-reaction), f(residual)])
+        rows.append(["freeboard", cell, "自由空间", f(inflow[species] + external[species]), f(out_flow), "0", f(max(-reaction, 0.0)), f(residual)])
     return rows
 
 
