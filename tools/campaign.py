@@ -160,7 +160,7 @@ def _process(args, timeout):
     return subprocess.CompletedProcess(args, proc.returncode, out, err)
 
 
-def execute(name: str, path: str, adiabatic: bool, *, outer_round_limit=None, wall_timeout_s=None) -> dict:
+def execute(name: str, path: str, adiabatic: bool, *, outer_round_limit=None, wall_timeout_s=None, artifact_dir=None) -> dict:
     """子进程入口。配置显式取自实参；未给出时沿用 ``SolverConfig`` 的字段值。
 
     硬墙钟用 ``signal.setitimer``：预计算、残差与雅可比都不轮询 deadline（CHARTER §7）。
@@ -179,7 +179,7 @@ def execute(name: str, path: str, adiabatic: bool, *, outer_round_limit=None, wa
     signal.setitimer(signal.ITIMER_REAL, limit + 0.05)
     try:
         try:
-            result = solve_case(path, adiabatic=adiabatic, deadline=lambda: time.monotonic() >= end, config=config)
+            result = solve_case(path, adiabatic=adiabatic, deadline=lambda: time.monotonic() >= end, config=config, artifact_dir=artifact_dir)
         except (SolveTimeout, _Timeout):
             result = SolveResult("TIMEOUT", f"运行超过墙钟上限 {limit:.0f} s")
     finally:

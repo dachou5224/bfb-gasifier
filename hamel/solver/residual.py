@@ -54,6 +54,14 @@ class AssemblyResidual:
     redirect_char_by_class_kg_s: np.ndarray | None = None
     redirect_ash_by_class_kg_s: np.ndarray | None = None
     redirect_fuel_by_class_kg_s: np.ndarray | None = None
+    # 反应路径账（T31）。ledger 关闭时全为 None，数值路径不变。
+    ledger: list | None = None
+    reaction_bed: np.ndarray | None = None
+    reaction_free: np.ndarray | None = None
+    gas_suspension_mol_s: np.ndarray | None = None
+    gas_bubble_mol_s: np.ndarray | None = None
+    gas_free_mol_s: np.ndarray | None = None
+    gas_exchange_mol_s: np.ndarray | None = None
 
 def wall_area_m2(zone: str, balance_index: int, count: int, height_m: float, bed_diameter_m: float, freeboard_diameter_m: float) -> float:
     """侧壁面积。锥段是自由空间最下格。章程 v0.11 §1 例外；ADR 0014 X1；ADR 0029。
@@ -69,12 +77,14 @@ def wall_area_m2(zone: str, balance_index: int, count: int, height_m: float, bed
         return math.pi * d0 * height_m
     return section_wall_m2(z0, z0 + height_m, bed_diameter_m, freeboard_diameter_m)
 
-def evaluate_residual(unknown: np.ndarray, frozen: FrozenQuantities) -> AssemblyResidual:
+def evaluate_residual(unknown: np.ndarray, frozen: FrozenQuantities, ledger: bool = False) -> AssemblyResidual:
     """返回式 (2.4)–(2.7)。调用方先解包。自由空间出口即体系出口。
     模型边界选择：ADR 0014 X2、X2a。模型边界选择：ADR 0026。
     解释性选择：ADR 0031、ADR 0032、ADR 0044。求解手段：ADR 0022。
     焦炭的消耗、粒级迁移、灰随迁移与灰随燃尽释放都按单位焦炭质量的消耗系数 α_s 乘存量写，
     对存量线性，不再出现 m_A/m_C，也没有 m_C = 0 的切换（ADR 0044 第 3、4 项）。
+    ``ledger=True`` 时按 (zone, cell, phase, reaction, phi, tar) 记录带符号的 ν×extent（T31）；
+    默认关闭，返回值逐位不变。
     Source: Hamel Eq.2.4, S. 16
     Source: Hamel Eq.2.5, S. 16
     Source: Hamel Eq.2.6, S. 17
@@ -85,7 +95,7 @@ def evaluate_residual(unknown: np.ndarray, frozen: FrozenQuantities) -> Assembly
     molar = molar_mass_kg_mol("C_gr")
     masses = _particle_masses(frozen)
     m_inert = frozen.geometric_mass_kg - state.bed_char_kg.sum(axis=1) - frozen.fuel_bed_kg.sum(axis=1)
-    context = _Context(frozen, state, molar, masses, m_inert)
+    context = _Context(frozen, state, molar, masses, m_inert, ledger)
     context.heterogeneous()
     context.domain()
     context.homogeneous()
@@ -105,12 +115,18 @@ def evaluate_residual(unknown: np.ndarray, frozen: FrozenQuantities) -> Assembly
         gas_gap, char_gap, ash_gap, energy_gap, context.element_gaps(),
         context.redirect_char, context.redirect_ash, context.redirect_fuel, context.redirect_enthalpy,
         context._redirect_mass("char"), context._redirect_mass("ash"), context._redirect_mass("fuel"),
+        ledger=context.ledger, reaction_bed=context.reaction_bed, reaction_free=context.reaction_free,
+        gas_suspension_mol_s=context.gas_suspension,
+        gas_bubble_mol_s=context.gas_bubble, gas_free_mol_s=gas_free,
+        gas_exchange_mol_s=context.gas_exchange,
     )
 
 class _Context:
-    def __init__(self, frozen, state, molar, masses, m_inert):
+    def __init__(self, frozen, state, molar, masses, m_inert, ledger=False):
         self.frozen, self.state, self.molar = frozen, state, molar
         self.masses, self.m_inert = masses, m_inert
+        self.ledger = [] if ledger else None
+        self.gas_suspension = self.gas_bubble = self.gas_exchange = None
         n_bed, n_free, n_class = frozen.n_bed, frozen.n_freeboard, frozen.n_class
         n_species = len(GAS_SPECIES)
         self.reaction_bed = np.zeros((n_bed, 2, n_species))
@@ -134,6 +150,19 @@ class _Context:
         self._bed_ash_share = bed_ash_by_class(m_inert, frozen.bed_ash_fine_share, frozen.n_class)
         self.redirect_char = self.redirect_ash = self.redirect_fuel = self.redirect_enthalpy = 0.0
         self._redirect_cache = None
+    def _sink(self, zone: str, cell: int, phase: str):
+        """反应路径账的 sink 绑定（T31）。关闭时返回 None，_apply 的数值路径不变。
+
+        记录只在 ``_apply`` 一处产生，键为 (zone, cell, phase, reaction, phi, tar)，
+        每个物种存带符号的 q = ν_i × extent（mol/s）。相取 bubble／suspension／free／hover：
+        自由空间的自由态与悬停态分别记，气相均相反应记在 free。
+        """
+        if self.ledger is None:
+            return None
+        return lambda reaction, phi, tar, q: self.ledger.append({
+            "zone": zone, "cell": int(cell), "phase": phase,
+            "reaction": reaction, "phi": phi, "tar": tar, "q": q,
+        })
     def heterogeneous(self) -> None:
         """先算异相。悬停有效域在均相之前判定，避免水蒸气为零时 R8 先抛错。"""
         frozen, state = self.frozen, self.state
@@ -143,6 +172,7 @@ class _Context:
                 gas, consumption, migration, _, _, _silent, _alpha = self._char_rate(
                     state.bed_char_kg[cell, klass], self._bed_ash_share[cell, klass], klass,
                     state.bed_temperature_k[cell], frozen.bed_pressure_pa[cell], frozen.u_r_bed_m_s[cell], y, c, fractions, mu, rho,
+                    sink=self._sink("bed", cell, "suspension"),
                 )
                 self.reaction_bed[cell, 0] += gas
                 self.consumption_bed[cell, klass] = consumption
@@ -157,13 +187,13 @@ class _Context:
         for cell in range(frozen.n_bed):
             y, c, fractions, _, _ = _phase_point(state.bed_gas_mol_s[cell, 0], state.bed_temperature_k[cell], frozen.bed_pressure_pa[cell])
             catalyst = float(state.bed_char_kg[cell].sum() + self.m_inert[cell])
-            self._homogeneous(self.reaction_bed[cell, 0], "suspension", y, c, fractions, state.bed_temperature_k[cell], frozen.bed_pressure_pa[cell], frozen.v_suspension_m3[cell], self.m_inert[cell], catalyst, serio=False, corella=True)
+            self._homogeneous(self.reaction_bed[cell, 0], "suspension", y, c, fractions, state.bed_temperature_k[cell], frozen.bed_pressure_pa[cell], frozen.v_suspension_m3[cell], self.m_inert[cell], catalyst, serio=False, corella=True, sink=self._sink("bed", cell, "suspension"))
             y_b, c_b, fractions_b, _, _ = _phase_point(state.bed_gas_mol_s[cell, 1], state.bed_temperature_k[cell], frozen.bed_pressure_pa[cell])
-            self._homogeneous(self.reaction_bed[cell, 1], "bubble", y_b, c_b, fractions_b, state.bed_temperature_k[cell], frozen.bed_pressure_pa[cell], frozen.v_bubble_m3[cell], 0.0, 0.0, serio=True, corella=False)
+            self._homogeneous(self.reaction_bed[cell, 1], "bubble", y_b, c_b, fractions_b, state.bed_temperature_k[cell], frozen.bed_pressure_pa[cell], frozen.v_bubble_m3[cell], 0.0, 0.0, serio=True, corella=False, sink=self._sink("bed", cell, "bubble"))
         for cell in range(frozen.n_freeboard):
             y, c, fractions, _, _ = _phase_point(state.freeboard_gas_mol_s[cell], state.freeboard_temperature_k[cell], frozen.freeboard_pressure_pa[cell])
             ash = float(state.freeboard_ash_free_kg[cell].sum() + state.freeboard_ash_hover_kg[cell].sum())
-            self._homogeneous(self.reaction_free[cell], "freeboard", y, c, fractions, state.freeboard_temperature_k[cell], frozen.freeboard_pressure_pa[cell], frozen.v_freeboard_m3[cell], ash, 0.0, serio=True, corella=False)
+            self._homogeneous(self.reaction_free[cell], "freeboard", y, c, fractions, state.freeboard_temperature_k[cell], frozen.freeboard_pressure_pa[cell], frozen.v_freeboard_m3[cell], ash, 0.0, serio=True, corella=False, sink=self._sink("freeboard", cell, "free"))
     def _one_freeboard_state(self, cell, klass, hover, y, c, fractions, mu, rho) -> None:
         frozen, state = self.frozen, self.state
         if hover and not frozen.hover[cell, klass]:
@@ -180,6 +210,7 @@ class _Context:
             frozen.freeboard_pressure_pa[cell],
             frozen.u_r_hover_m_s[cell, klass] if hover else frozen.u_r_freeboard_m_s[cell, klass],
             y, c, fractions, mu, rho, migration_factor=factor,
+            sink=self._sink("freeboard", cell, "hover" if hover else "free"),
         )
         self.reaction_free[cell] += gas
         if hover:
@@ -242,6 +273,7 @@ class _Context:
             feed_s, zeros_bed, self.reaction_bed[:, 0] + pyro_bed[:, 0], state.bed_gas_mol_s[:, 0],
             feed_b, zeros_bed, self.reaction_bed[:, 1], state.bed_gas_mol_s[:, 1], exchange,
         )
+        self.gas_suspension, self.gas_bubble, self.gas_exchange = bed.suspension_mol_s, bed.bubble_mol_s, exchange
         feed_free = np.zeros_like(self.reaction_free)
         feed_free[-1] = state.bed_gas_mol_s[0, 0] + state.bed_gas_mol_s[0, 1]
         feed_free[frozen.secondary_balance_index] += frozen.secondary_feed_mol_s
@@ -387,7 +419,7 @@ class _Context:
                 self._deposit(entering_free, entering_hover, cell - 1, klass, True, self.ash_drift_hover[cell, klass])
                 self._deposit(entering_free, entering_hover, cell - 1, klass, False, self.ash_drift[cell, klass] - self.ash_drift_hover[cell, klass])
         return entering_free, entering_hover, ejection
-    def _char_rate(self, m_char, m_ash, klass, temperature, pressure, velocity, y, c, fractions, mu, rho, migration_factor=None):
+    def _char_rate(self, m_char, m_ash, klass, temperature, pressure, velocity, y, c, fractions, mu, rho, migration_factor=None, sink=None):
         diameter = float(self.frozen.diameter_m[klass])
         particle_k = _particle_k(diameter, temperature, pressure, velocity, c, fractions, mu, rho, self.frozen)
         film = 0.5 * (temperature + particle_k)
@@ -400,10 +432,10 @@ class _Context:
         r3 = r3_boudouard_rate(m_char, self.molar, y[_INDEX["CO2"]] * pressure, y[_INDEX["CO"]] * pressure, temperature, gas_constant_j_mol_k())
         r4 = r4_hydrogasification_rate(m_char, self.frozen.rho_p_kg_m3, diameter, c[_INDEX["H2"]], temperature)
         gas = np.zeros(len(GAS_SPECIES))
-        char_mass = _apply(gas, "R1", r1.extent_mol_s, self.molar, phi=phi)
-        char_mass += _apply(gas, "R2", r2.extent_mol_s, self.molar)
-        char_mass += _apply(gas, "R3", r3.extent_mol_s, self.molar)
-        char_mass += _apply(gas, "R4", r4.extent_mol_s, self.molar)
+        char_mass = _apply(gas, "R1", r1.extent_mol_s, self.molar, phi=phi, sink=sink)
+        char_mass += _apply(gas, "R2", r2.extent_mol_s, self.molar, sink=sink)
+        char_mass += _apply(gas, "R3", r3.extent_mol_s, self.molar, sink=sink)
+        char_mass += _apply(gas, "R4", r4.extent_mol_s, self.molar, sink=sink)
         consumption = -char_mass
         particle_mass = float(self.masses[klass])
         previous = 0.0 if klass == 0 else float(self.masses[klass - 1])
@@ -419,27 +451,27 @@ class _Context:
         ash_release = alpha * m_ash
         silent = r1.specific == 0.0 and r2.specific == 0.0 and r3.specific == 0.0 and r4.specific == 0.0
         return gas, consumption, char_mig, ash_release, ash_mig, silent, alpha
-    def _homogeneous(self, gas, phase, y, c, fractions, temperature, pressure, volume, ash, catalyst, serio, corella):
+    def _homogeneous(self, gas, phase, y, c, fractions, temperature, pressure, volume, ash, catalyst, serio, corella, sink=None):
         r5_phase = "suspension" if phase == "suspension" else "bubble"
         water = None if r5_phase == "suspension" else c[_INDEX["H2O"]]
-        _apply(gas, "R5", r5_co_oxidation_rate(r5_phase, c[_INDEX["CO"]], c[_INDEX["O2"]], temperature, volume, water).extent_mol_s, self.molar)
-        _apply(gas, "R6", r6_hydrogen_oxidation_rate(c[_INDEX["H2"]], c[_INDEX["O2"]], temperature, volume).extent_mol_s, self.molar)
-        _apply(gas, "R7", r7_methane_oxidation_rate(c[_INDEX["CH4"]], c[_INDEX["O2"]], temperature, volume).extent_mol_s, self.molar)
+        _apply(gas, "R5", r5_co_oxidation_rate(r5_phase, c[_INDEX["CO"]], c[_INDEX["O2"]], temperature, volume, water).extent_mol_s, self.molar, sink=sink)
+        _apply(gas, "R6", r6_hydrogen_oxidation_rate(c[_INDEX["H2"]], c[_INDEX["O2"]], temperature, volume).extent_mol_s, self.molar, sink=sink)
+        _apply(gas, "R7", r7_methane_oxidation_rate(c[_INDEX["CH4"]], c[_INDEX["O2"]], temperature, volume).extent_mol_s, self.molar, sink=sink)
         mus = [chemical_potential_j_mol(name, temperature) for name in ("CO", "H2O", "H2", "CO2")]
-        _apply(gas, "R8", r8_water_gas_shift_rate(y[_INDEX["CO"]], y[_INDEX["H2O"]], y[_INDEX["H2"]], y[_INDEX["CO2"]], mus[0], mus[1], mus[2], mus[3], temperature, pressure, gas_constant_j_mol_k(), ash).extent_mol_s, self.molar)
-        _apply(gas, "R9", r9_methane_reforming_rate(y[_INDEX["CH4"]] * pressure, temperature, gas_constant_j_mol_k(), ash).extent_mol_s, self.molar)
+        _apply(gas, "R8", r8_water_gas_shift_rate(y[_INDEX["CO"]], y[_INDEX["H2O"]], y[_INDEX["H2"]], y[_INDEX["CO2"]], mus[0], mus[1], mus[2], mus[3], temperature, pressure, gas_constant_j_mol_k(), ash).extent_mol_s, self.molar, sink=sink)
+        _apply(gas, "R9", r9_methane_reforming_rate(y[_INDEX["CH4"]] * pressure, temperature, gas_constant_j_mol_k(), ash).extent_mol_s, self.molar, sink=sink)
         for tar in _TARS:
-            _apply(gas, "R10", r10_tar_oxidation_rate(c[_INDEX[tar]], c[_INDEX["O2"]], temperature, pressure, volume).extent_mol_s, self.molar, tar=tar)
+            _apply(gas, "R10", r10_tar_oxidation_rate(c[_INDEX[tar]], c[_INDEX["O2"]], temperature, pressure, volume).extent_mol_s, self.molar, tar=tar, sink=sink)
             if serio:
                 rate = r11_serio_rate(
                     c[_INDEX[tar]], temperature, gas_constant_j_mol_k(), volume,
                     frequency_per_s=self.frozen.serio_frequency_per_s,
                     activation_energy_j_mol=self.frozen.serio_activation_j_mol,
                 )
-                _apply(gas, "R11", rate.extent_mol_s, self.molar, tar=tar)
+                _apply(gas, "R11", rate.extent_mol_s, self.molar, tar=tar, sink=sink)
             if corella:
                 rate = r11_corella_rate(c[_INDEX[tar]], temperature, gas_constant_j_mol_k(), catalyst, high_temperature=self.frozen.corella_high_temperature)
-                _apply(gas, "R11", rate.extent_mol_s, self.molar, tar=tar)
+                _apply(gas, "R11", rate.extent_mol_s, self.molar, tar=tar, sink=sink)
         del fractions
     def _exchange(self):
         frozen, state = self.frozen, self.state
@@ -616,12 +648,15 @@ class _Context:
         external[frozen.secondary_balance_index] += _gas_enthalpy(frozen.secondary_feed_mol_s, frozen.secondary_temperature_k)
         return upward, downward, external
 
-def _apply(gas, reaction, extent, molar, phi=None, tar=None) -> float:
+def _apply(gas, reaction, extent, molar, phi=None, tar=None, sink=None) -> float:
     stoich = reaction_stoichiometry(reaction, phi_c=phi, tar=tar)
     for name, coefficient in stoich.items():
         if name == "C":
             continue
         gas[_INDEX[name]] += coefficient * extent
+    if sink is not None:
+        # T31：唯一的记账入口。带符号的 q = ν_i × extent（mol/s），C 也记。
+        sink(reaction, phi, tar, {name: coefficient * extent for name, coefficient in stoich.items()})
     return stoich.get("C", 0.0) * extent * molar
 
 def bed_ash_by_class(m_inert, fine_share: float, n_class: int) -> np.ndarray:
