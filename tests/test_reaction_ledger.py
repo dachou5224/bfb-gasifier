@@ -6,9 +6,9 @@ import pytest
 
 from hamel.properties.data import GAS_SPECIES, molar_mass_kg_mol
 from hamel.solver.residual import _apply, evaluate_residual
-from hamel.solver.vector import pack_state
+from hamel.solver.vector import pack_state, unpack_state
 from test_assembly import make_frozen, make_state
-from tools.ledger_account import account, aggregated, registry
+from tools.ledger_account import account, aggregated, gas_residual_rows, registry
 
 _INDEX = {name: index for index, name in enumerate(GAS_SPECIES)}
 _MOLAR = molar_mass_kg_mol("C_gr")
@@ -136,9 +136,36 @@ def test_opposite_r8_in_two_cells_keeps_the_turnover():
     assert water["net"] == pytest.approx(-0.2)
 
 
-def test_registry_uses_same_sign_totals():
-    forward = _record("bed", 0, "suspension", _one("R8", 1.0))
-    reverse = _record("bed", 1, "suspension", _one("R8", 0.4))
-    reg = registry([forward, reverse])
-    assert reg["water_consume"] == pytest.approx(1.4)
-    assert reg["water_net"] == pytest.approx(-1.4)
+def test_registry_reports_each_path_contribution_not_the_total():
+    """占比表要给出该路径自己的贡献；分母为零时记“分母可忽略”，不退回 0 占比。"""
+    r2 = _record("bed", 0, "suspension", _one("R2", 1.5))
+    r8 = _record("bed", 1, "suspension", _one("R8", 0.5))
+    reg = registry([r2, r8])
+    assert reg["water_consume"] == pytest.approx(2.0)
+    assert reg["r2_water_contribution"] == pytest.approx(1.5)
+    assert reg["r2_water_share"] == pytest.approx(0.75)
+    assert reg["tar_water_contribution"] == 0.0 and reg["tar_water_share"] == 0.0
+    only_generate = registry([_record("bed", 0, "bubble", _one("R6", 1.0))])
+    assert only_generate["water_consume"] == 0.0
+    assert only_generate["r2_water_share"] is None
+    assert only_generate["tar_water_share"] is None
+
+
+def test_gas_residual_rows_match_the_assembled_residual_with_exchange_sign():
+    """C.3／D.2 共用的逐格逐相残差必须等于装配值，交换项只带一次相符号。"""
+    frozen = make_frozen()
+    state = make_state(frozen, temperature=900.0)
+    state.bed_gas_mol_s[:, 1, _INDEX["N2"]] += 0.01  # 两相组成不同，交换项才非零
+    values = pack_state(state, frozen)
+    result = evaluate_residual(values, frozen, ledger=True)
+    assert float(np.max(np.abs(result.gas_exchange_mol_s))) > 0.0  # 符号错误会被抓到
+    rows = gas_residual_rows(frozen, unpack_state(values, frozen), result, result.ledger)
+    for item in rows:
+        cell, phase = int(item["cell"]), item["phase"]
+        if item["zone"] == "bed":
+            expected = result.gas_suspension_mol_s[cell] if phase == "suspension" else result.gas_bubble_mol_s[cell]
+        else:
+            expected = result.gas_free_mol_s[cell]
+        assert np.allclose(item["residual"], expected, rtol=0.0, atol=1.0e-18), (item["zone"], cell, phase)
+    assert any(float(np.max(np.abs(item["exchange"]))) > 0.0
+               for item in rows if item["zone"] == "bed")

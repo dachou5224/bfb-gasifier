@@ -42,11 +42,19 @@ def _trim_report_json(folder) -> None:
 
 
 def main() -> int:
+    folder = ROOT / "reports" / "t31-reaction-ledger"
+    if "--render" in sys.argv[1:]:
+        # 不重跑求解：用 .scratch/t31/run.json 重新渲染报告（改了报告工具时用）。
+        record = json.loads((OUT / "run.json").read_text(encoding="utf-8"))
+        write_report(folder, [record], title="第 1 关反应路径账运行", toy=False)
+        _trim_report_json(folder)
+        print(json.dumps({"status": record.get("status"), "rendered": True}, ensure_ascii=False))
+        return 0
     OUT.mkdir(parents=True, exist_ok=True)
     record = execute("baseline", CASE, False, outer_round_limit=ROUNDS, wall_timeout_s=LIMIT, artifact_dir=str(OUT))
     (OUT / "run.json").write_text(json.dumps(record, ensure_ascii=False), encoding="utf-8")
-    write_report(ROOT / "reports" / "t31-reaction-ledger", [record], title="第 1 关反应路径账运行", toy=False)
-    _trim_report_json(ROOT / "reports" / "t31-reaction-ledger")
+    write_report(folder, [record], title="第 1 关反应路径账运行", toy=False)
+    _trim_report_json(folder)
     print(json.dumps({key: record.get(key) for key in ("status", "rounds", "iterations", "elapsed_s")}, ensure_ascii=False))
     return 0 if record.get("status") == "CONVERGED" else 2
 

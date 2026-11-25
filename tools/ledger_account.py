@@ -5,9 +5,11 @@ C.0 的口径：每条记录存带符号的 q = ν_i × extent（mol/s）。拆�
 """
 from __future__ import annotations
 
+import numpy as np
+
+from hamel.properties.data import GAS_SPECIES
+
 ACCOUNT_SPECIES = ("C", "O2", "H2O", "H2", "CH4", "CO", "CO2")
-TAR_SPECIES = ("C6H6", "C10H8")
-PHASES = {"bubble": "气泡相", "suspension": "悬浮相", "free": "自由空间", "hover": "自由空间悬停"}
 TINY = 1.0e-12
 
 
@@ -33,16 +35,6 @@ def account(records) -> dict:
     return {"species": species, "cells": cells, "reactions": reactions}
 
 
-def tar_totals(records) -> dict:
-    """焦油代表物（C6H6、C10H8）的消耗／生成／净值，只用于核对 R10／R11 的分项。"""
-    totals = {name: _zero() for name in TAR_SPECIES}
-    for record in records:
-        for name, value in record["q"].items():
-            if name in totals:
-                _add(totals[name], float(value))
-    return totals
-
-
 def _zero() -> dict:
     return {"consume": 0.0, "generate": 0.0, "net": 0.0}
 
@@ -59,7 +51,10 @@ def share(part: float, total: float) -> float | None:
 
 
 def registry(records) -> dict:
-    """C.8 的占比登记表。分母一律取自 ``account`` 的同符号总量。"""
+    """C.8 的占比登记表。分母一律取自 ``account`` 的同符号总量。
+
+    ``*_contribution`` 是该路径自己的同符号贡献（mol/s），与分母分开；分母另记在 ``*_total``。
+    """
     book = account(records)
     water, oxygen = book["species"]["H2O"], book["species"]["O2"]
     reactions = book["reactions"]
@@ -70,14 +65,69 @@ def registry(records) -> dict:
     def generated(name: str, reaction: str) -> float:
         return float(reactions[name].get(reaction, _zero())["generate"])
 
+    r2 = consumed("H2O", "R2")
+    r5 = consumed("O2", "R5")
+    tar = consumed("H2O", "R9") + consumed("H2O", "R11")
     return {
         "water_consume": water["consume"], "oxygen_consume": oxygen["consume"],
         "water_net": water["net"],
-        "r2_water_share": share(consumed("H2O", "R2"), water["consume"]),
-        "r5_oxygen_share": share(consumed("O2", "R5"), oxygen["consume"]),
-        "tar_water_share": share(consumed("H2O", "R9") + consumed("H2O", "R11"), water["consume"]),
+        "r2_water_share": share(r2, water["consume"]), "r2_water_contribution": r2,
+        "r5_oxygen_share": share(r5, oxygen["consume"]), "r5_oxygen_contribution": r5,
+        "tar_water_share": share(tar, water["consume"]), "tar_water_contribution": tar,
         "r6_water_generate": generated("H2O", "R6"),
     }
+
+
+def gas_residual_rows(frozen, state, result, records) -> list:
+    """逐格逐相的气相摩尔残差与尺度，供报告 C.3 与 D.2 共用同一份计算。
+
+    原式：入流 + 回流 + 反应 − 出流 ± 相间交换。交换项的相符号只在这里加一次
+    （悬浮相减、气泡相加），报告不再取负。尺度按本卡 D.2 定义逐物种取
+    max(|入流|, |出流|, Σ|ν×进度|, |交换|, 1e-12)。
+    """
+    count = len(GAS_SPECIES)
+    magnitudes: dict = {}
+    for record in records:
+        key = (record["zone"], int(record["cell"]), record["phase"])
+        bucket = magnitudes.setdefault(key, {})
+        for name, q in record["q"].items():
+            bucket[name] = bucket.get(name, 0.0) + abs(float(q))
+    exchange = result.gas_exchange_mol_s
+    rows = []
+
+    def add(zone, cell, phase, sink_key, inflow, outflow, swap, reaction):
+        magnitude = np.array([magnitudes.get(sink_key, {}).get(name, 0.0) for name in GAS_SPECIES])
+        scale = np.maximum.reduce([
+            np.abs(inflow), np.abs(outflow), magnitude, np.abs(swap), np.full(count, TINY),
+        ])
+        rows.append({
+            "zone": zone, "cell": int(cell), "phase": phase,
+            "inflow": inflow, "outflow": outflow, "exchange": swap,
+            "reaction": reaction, "residual": inflow + reaction - outflow + swap,
+            "scale": scale, "magnitude": magnitude,
+        })
+
+    for cell in range(frozen.n_bed):
+        for index, phase in ((0, "suspension"), (1, "bubble")):
+            inflow = state.bed_gas_mol_s[cell + 1, index] if cell + 1 < frozen.n_bed else np.zeros(count)
+            if cell == frozen.n_bed - 1:
+                share_in = frozen.feed_to_suspension if index == 0 else 1.0 - frozen.feed_to_suspension
+                inflow = inflow + frozen.primary_feed_mol_s * share_in
+            reaction = result.reaction_bed[cell, index].copy()
+            if index == 0:
+                reaction = reaction + frozen.pyro_bed_mol_s[cell]
+            swap = -exchange[cell] if index == 0 else exchange[cell]
+            add("bed", cell, phase, ("bed", cell, phase), inflow, state.bed_gas_mol_s[cell, index], swap, reaction)
+    for cell in range(frozen.n_freeboard):
+        inflow = state.freeboard_gas_mol_s[cell + 1] if cell + 1 < frozen.n_freeboard else np.zeros(count)
+        if cell == frozen.n_freeboard - 1:
+            inflow = inflow + state.bed_gas_mol_s[0, 0] + state.bed_gas_mol_s[0, 1]
+        if cell == frozen.secondary_balance_index:
+            inflow = inflow + frozen.secondary_feed_mol_s
+        reaction = result.reaction_free[cell] + frozen.pyro_freeboard_mol_s[cell]
+        add("freeboard", cell, "free", ("freeboard", cell, "free"), inflow,
+            state.freeboard_gas_mol_s[cell], np.zeros(count), reaction)
+    return rows
 
 
 def aggregated(records) -> list:
@@ -88,12 +138,15 @@ def aggregated(records) -> list:
                record["phi"], record["tar"])
         row = merged.setdefault(key, {})
         for name, value in record["q"].items():
-            row[name] = row.get(name, 0.0) + float(value)
-    return [
-        {"zone": key[0], "cell": key[1], "phase": key[2], "reaction": key[3],
-         "phi": key[4], "tar": key[5], "q": {name: value for name, value in row.items() if value != 0.0}}
-        for key, row in sorted(merged.items(), key=lambda item: (item[0][0], item[0][1], item[0][2], item[0][3]))
-    ]
+            if value != 0.0:
+                row[name] = row.get(name, 0.0) + float(value)
+    rows = []
+    for key, row in sorted(merged.items(), key=lambda item: (item[0][0], item[0][1], item[0][2], item[0][3])):
+        q = {name: value for name, value in row.items() if value != 0.0}
+        if q:  # 结构零的调用（例如 extent = 0）不单列
+            rows.append({"zone": key[0], "cell": key[1], "phase": key[2], "reaction": key[3],
+                         "phi": key[4], "tar": key[5], "q": q})
+    return rows
 
 
 def markdown_ledger(ledger) -> list:
@@ -111,18 +164,6 @@ def markdown_ledger(ledger) -> list:
         row = book["species"][name]
         lines.append(f"| {name} | {row['consume']:.6e} | {row['generate']:.6e} | {row['net']:.6e} |")
     lines.append("")
-    for zone, label in (("bed", "床区"), ("freeboard", "自由空间")):
-        if not any(key[0] == zone for key in book["cells"]):
-            continue
-        lines += [f"### {label}逐格（消耗／生成／净值，mol/s）", "",
-                  "| 格 | 物种 | 消耗 | 生成 | 净值 |", "|---|---|---|---|---|"]
-        for (cell_zone, cell), row in sorted(book["cells"].items(), key=lambda item: item[0][1]):
-            if cell_zone != zone:
-                continue
-            for name in ACCOUNT_SPECIES:
-                body = row[name]
-                lines.append(f"| {cell} | {name} | {body['consume']:.6e} | {body['generate']:.6e} | {body['net']:.6e} |")
-        lines.append("")
     lines += ["### 按 (区, 格, 相, 反应) 聚合（mol/s）", "",
               "| 区 | 格 | 相 | 反应 | φ | 焦油 | " + " | ".join(ACCOUNT_SPECIES) + " |",
               "|---|---|---|---|---|---|" + "---|" * len(ACCOUNT_SPECIES)]
@@ -132,13 +173,15 @@ def markdown_ledger(ledger) -> list:
         lines.append(f"| {row['zone']} | {row['cell']} | {row['phase']} | {row['reaction']} | {phi} | {row['tar'] or ''} | "
                      + " | ".join(cells) + " |")
     lines.append("")
-    lines += ["### 占比登记（C.8）", "", "| 项 | 占比 | 绝对量 mol/s |", "|---|---|---|"]
+    lines += ["### 占比登记（C.8）", "", "| 项 | 占比 | 该路径贡献 mol/s | 分母 mol/s |", "|---|---|---|---|"]
+
     def shown(value):
         return "分母可忽略" if value is None else f"{value:.6f}"
 
-    lines.append(f"| R2 占总耗水 | {shown(reg['r2_water_share'])} | {reg['water_consume']:.6e} |")
-    lines.append(f"| R5 占总耗氧 | {shown(reg['r5_oxygen_share'])} | {reg['oxygen_consume']:.6e} |")
-    lines.append(f"| R9+R11 占总耗水 | {shown(reg['tar_water_share'])} | {reg['water_consume']:.6e} |")
+    lines.append(f"| R2 占总耗水 | {shown(reg['r2_water_share'])} | {reg['r2_water_contribution']:.6e} | {reg['water_consume']:.6e} |")
+    lines.append(f"| R5 占总耗氧 | {shown(reg['r5_oxygen_share'])} | {reg['r5_oxygen_contribution']:.6e} | {reg['oxygen_consume']:.6e} |")
+    lines.append(f"| R9+R11 占总耗水 | {shown(reg['tar_water_share'])} | {reg['tar_water_contribution']:.6e} | {reg['water_consume']:.6e} |")
     lines += ["", f"R6 产水 {reg['r6_water_generate']:.6e} mol/s；水净值 {reg['water_net']:.6e} mol/s。",
+              "“分母”是同一物种的同类总量（`消耗_H2O`／`消耗_O2`），只作占比分母，不是该路径的量。",
               "本表只说明路径占比，不构成因果结论。", ""]
     return lines

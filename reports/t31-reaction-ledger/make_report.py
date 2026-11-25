@@ -24,8 +24,10 @@ from hamel.solver.residual import _phase_point, evaluate_residual  # noqa: E402
 from hamel.solver.vector import unpack_state  # noqa: E402
 from tools.run_prep import fuel_element_fractions  # noqa: E402
 from tools.ledger_account import (  # noqa: E402
-    ACCOUNT_SPECIES, TAR_SPECIES, account, aggregated, registry, share, tar_totals,
+    ACCOUNT_SPECIES, account, aggregated, gas_residual_rows, registry, share,
 )
+
+TAR_SPECIES = ("C6H6", "C10H8")
 
 CASE = ROOT / "data" / "cases" / "vtt_pressurized.json"
 SCRATCH = ROOT / ".scratch" / "t31"
@@ -82,7 +84,7 @@ class Report:
         self.book = account(self.records)
         self.reg = registry(self.records)
         self.rows = aggregated(self.records)
-        self.tars = tar_totals(self.records)
+        self.tars = _tar_totals(self.records)
         assembled = assemble_case(str(CASE), "1")
         self.physical = assembled.physical
         self.n_ref = _references(self.physical)[0]
@@ -159,7 +161,7 @@ def main() -> int:
     status = report.run.get("status")
     lines += ["## 首页", "",
               f"- 终态：**`{status}`**；外层 {report.run.get('rounds')} 轮 / 内层 {report.run.get('iterations')} 次；墙钟 {g(report.run.get('elapsed_s'), 1)} s。",
-              f"- 账目记录：{len(records)} 条（`_apply` 的每次调用一条，含结构零系数）；按 (格, 相, 反应, φ, 焦油) 聚合后 {len(report.rows)} 行。",
+              f"- 账目记录：{len(records)} 条（`_apply` 的每次调用一条，含结构零系数）；按 (格, 相, 反应, φ, 焦油) 聚合后 {len(report.rows)} 行（结构零的调用不单列）。",
               f"- 水净值 `Σq = {f(book['species']['H2O']['net'])}` mol/s；总生成 {f(book['species']['H2O']['generate'])}、总消耗 {f(book['species']['H2O']['consume'])} mol/s。",
               f"- 重建精度 D.1 的最坏相对差见下；物理收支 D.2 与 T30 的对照见下。",
               "- 账目只在通过 §2.1、2(b) 与 ADR 0059 检查线之后对最终解评价一次，不进入牛顿迭代、雅可比、初值构造或试探路径；下面的 C.10 用 7 量与残差证明数值未改。", ""]
@@ -194,12 +196,17 @@ def main() -> int:
         ["总水账净产水", f(report.overall_water_net), "约 −0.084", "出口水 − 入口水（见 C.2）"],
         ["K_act 模型（出口）", f(k_act), "1.686", "Q = y_CO2·y_H2 / (y_CO·y_H2O)"],
         ["K_act 目标（目标组成）", f(target_k), "0.496", "同上，用目标摩尔分数"],
-        ["K 的代码值（1182 K，式 5.43）", f(k_eq), "1.307（倒数）", "代码 K = 1/1.307 = 0.765；两方向互为倒数"],
+        ["K（式 5.43，1182 K，同向复算）", f(k_eq), "1.307", "同一 Q 定义；**与卡片值不符**，见下"],
     ]
     lines += table(["量", "本次复算", "卡片值", "说明"], rows) + [""]
     lines += [f"R8 的实际符号：{forward} 条记录为正进度（耗水、产氢），{reverse} 条为负进度（产水、耗氢）；"
               "同一全床合计同时含两个方向的记录，未按反应编号合并成一个符号。",
-              f"床区最高温度 {f(peak_k)} K；代码的式 (5.43) 给出 K = {f(k_eq)}，其倒数 {f(1.0 / k_eq)} 与卡片的 1.307 一致（方向约定不同）。", ""]
+              f"床区最高温度 {f(peak_k)} K。式 (5.43) 与这里的 Q 都对应同一个正向反应 CO + H₂O → H₂ + CO₂，"
+              f"所以同向复算的 K = {f(k_eq)}；`r8_water_gas_shift_rate` 也按同一方向用 "
+              "`y_eq_CO = y_CO2·y_H2/(K·y_H2O)`。**卡片所列 K = 1.307 与这个同向复算值不符**"
+              f"（1.307 是 {f(k_eq)} 的倒数），本卡不视其为已核实，也未为凑数而改方向或改公式。",
+              f"两种取值下定性结论相同：K_act 模型 {f(k_act)} 与 K_act 目标 {f(target_k)} 都分别位于"
+              f"K = {f(k_eq)}（或 1.307）的两侧，且离 1 都很远。", ""]
     lines += ["运行命令（配置与 T30 逐字相同，`outer_round_limit=26`、进程级硬墙钟 28 800 s）：", "",
               "```", ".venv/bin/python reports/t31-reaction-ledger/run.py", "```", "",
               "环境：arm64、Python 3.9.6、numpy 1.23.5、scipy 1.10.1。未跑 S1 与任何敏感性运行。", ""]
@@ -384,10 +391,10 @@ def main() -> int:
     # ---- C.8 ----------------------------------------------------------
     lines += ["## C.8 占比登记表（预登记门槛，看到数字后未移动）", "",
               "分母一律取自 C.0 的同符号总量；结论栏只做门槛分类，不构成因果结论。", ""]
-    lines += ["| 项 | 占比 | 门槛分类 | 绝对量 |", "|---|---|---|---|"]
-    lines.append(f"| R2 占总耗水 | {pct(reg['r2_water_share'])} | {_class(reg['r2_water_share'], 0.5, 0.2, '集中', '次要', '可忽略')} | 总耗水 {f(reg['water_consume'])} mol/s |")
-    lines.append(f"| R5 占总耗氧 | {pct(reg['r5_oxygen_share'])} | {_class(reg['r5_oxygen_share'], 0.5, 0.2, '集中', '次要', '可忽略')} | 总耗氧 {f(reg['oxygen_consume'])} mol/s |")
-    lines.append(f"| R9+R11 占总耗水 | {pct(reg['tar_water_share'])} | {_class(reg['tar_water_share'], 0.2, 0.2, '显著', '显著', '可忽略')} | 总耗水 {f(reg['water_consume'])} mol/s |")
+    lines += ["| 项 | 占比 | 门槛分类 | 该路径贡献 mol/s | 分母（同符号总量）mol/s |", "|---|---|---|---|---|"]
+    lines.append(f"| R2 占总耗水 | {pct(reg['r2_water_share'])} | {_class(reg['r2_water_share'], 0.5, 0.2, '集中', '次要', '可忽略')} | {f(reg['r2_water_contribution'])} | {f(reg['water_consume'])} |")
+    lines.append(f"| R5 占总耗氧 | {pct(reg['r5_oxygen_share'])} | {_class(reg['r5_oxygen_share'], 0.5, 0.2, '集中', '次要', '可忽略')} | {f(reg['r5_oxygen_contribution'])} | {f(reg['oxygen_consume'])} |")
+    lines.append(f"| R9+R11 占总耗水 | {pct(reg['tar_water_share'])} | {_class(reg['tar_water_share'], 0.2, 0.2, '显著', '显著', '可忽略')} | {f(reg['tar_water_contribution'])} | {f(reg['water_consume'])} |")
     delta = TARGET_NET_WATER - report.overall_water_net
     lines.append(f"| R6 产水缺口（算术） | — | 只报数 | 基准 R6 产水 {f(reg['r6_water_generate'])} mol/s；目标侧所需 {f(reg['r6_water_generate'] + delta)} mol/s；差值 {f(-delta)} mol/s |")
     lines += ["", "结论句只允许“占比 X %”“该反应消耗 Y mol/s”的形式；本表不判断谁过量、谁抢氧。", ""]
@@ -509,6 +516,20 @@ def main() -> int:
     return 0
 
 
+def _tar_totals(records) -> dict:
+    """焦油代表物的消耗／生成／净值。不属于 7 个物种账，单列核对 R10／R11。"""
+    totals = {name: {"consume": 0.0, "generate": 0.0, "net": 0.0} for name in TAR_SPECIES}
+    for record in records:
+        for name, value in record["q"].items():
+            if name not in totals:
+                continue
+            q = float(value)
+            totals[name]["generate"] += max(q, 0.0)
+            totals[name]["consume"] += max(-q, 0.0)
+            totals[name]["net"] += q
+    return totals
+
+
 def _class(value, high, low, high_label, mid_label, low_label):
     if value is None:
         return "分母可忽略"
@@ -519,34 +540,20 @@ def _class(value, high, low, high_label, mid_label, low_label):
     return low_label
 
 
+def _gas_rows(report: Report) -> list:
+    """逐格逐相的残差行。计算与 D.2 共用 ``tools.ledger_account.gas_residual_rows``。"""
+    return gas_residual_rows(report.frozen, report.state, report.result, report.records)
+
+
 def _oxygen_rows(report: Report) -> list:
-    frozen, state, result = report.frozen, report.state, report.result
-    species, count = INDEX["O2"], len(GAS_SPECIES)
     rows = []
-    exchange = result.gas_exchange_mol_s
-    for cell in range(frozen.n_bed):
-        for index, label in ((0, "悬浮相"), (1, "气泡相")):
-            inflow = state.bed_gas_mol_s[cell + 1, index] if cell + 1 < frozen.n_bed else np.zeros(count)
-            external = np.zeros(count)
-            if cell == frozen.n_bed - 1:
-                share = frozen.feed_to_suspension if index == 0 else 1.0 - frozen.feed_to_suspension
-                external = frozen.primary_feed_mol_s * share
-            reaction = result.reaction_bed[cell, index, species] + (frozen.pyro_bed_mol_s[cell, species] if index == 0 else 0.0)
-            out_flow = state.bed_gas_mol_s[cell, index, species]
-            swap = exchange[cell, species] * (-1.0 if index == 0 else 1.0)
-            residual = float(inflow[species] + external[species] + reaction - out_flow - swap)
-            rows.append(["bed", cell, label, f(inflow[species] + external[species]), f(out_flow), f(swap), f(-reaction if reaction < 0.0 else 0.0), f(residual)])
-    for cell in range(frozen.n_freeboard):
-        inflow = state.freeboard_gas_mol_s[cell + 1] if cell + 1 < frozen.n_freeboard else np.zeros(count)
-        external = np.zeros(count)
-        if cell == frozen.n_freeboard - 1:
-            external = state.bed_gas_mol_s[0, 0] + state.bed_gas_mol_s[0, 1]
-        if cell == frozen.secondary_balance_index:
-            external = external + frozen.secondary_feed_mol_s
-        reaction = result.reaction_free[cell, species] + frozen.pyro_freeboard_mol_s[cell, species]
-        out_flow = state.freeboard_gas_mol_s[cell, species]
-        residual = float(inflow[species] + external[species] + reaction - out_flow)
-        rows.append(["freeboard", cell, "自由空间", f(inflow[species] + external[species]), f(out_flow), "0", f(-reaction if reaction < 0.0 else 0.0), f(residual)])
+    for item in _gas_rows(report):
+        inflow, outflow = item["inflow"][INDEX["O2"]], item["outflow"][INDEX["O2"]]
+        swap, reaction = item["exchange"][INDEX["O2"]], item["reaction"][INDEX["O2"]]
+        residual = item["residual"][INDEX["O2"]]
+        label = {"suspension": "悬浮相", "bubble": "气泡相", "free": "自由空间"}[item["phase"]]
+        rows.append([item["zone"], item["cell"], label, f(inflow), f(outflow), f(swap),
+                     f(-reaction if reaction < 0.0 else 0.0), f(residual)])
     return rows
 
 
@@ -591,49 +598,15 @@ def _reconstruction(report: Report) -> dict:
 
 
 def _physical_balance(report: Report) -> dict:
-    frozen, state, result = report.frozen, report.state, report.result
     rows, peak = [], 0.0
-    species = len(GAS_SPECIES)
-
-    def row(zone, cell, phase, residual, scale):
-        nonlocal peak
-        value = float(np.max(np.abs(residual)))
-        ratio = float(np.max(np.abs(residual) / np.maximum(scale, 1.0e-12)))
+    for item in _gas_rows(report):
+        value = float(np.max(np.abs(item["residual"])))
+        ratio = float(np.max(np.abs(item["residual"]) / item["scale"]))
         peak = max(peak, ratio)
-        rows.append([zone, cell, phase, f(value), f(value / report.n_ref), f(ratio), f(float(np.max(scale)))])
-
-    exchange = result.gas_exchange_mol_s
-    for cell in range(frozen.n_bed):
-        for index, label in ((0, "悬浮相"), (1, "气泡相")):
-            inflow = np.zeros(species)
-            if cell + 1 < frozen.n_bed:
-                inflow = state.bed_gas_mol_s[cell + 1, index]
-            external = np.zeros(species)
-            if cell == frozen.n_bed - 1:
-                external = frozen.primary_feed_mol_s * (frozen.feed_to_suspension if index == 0 else 1.0 - frozen.feed_to_suspension)
-            reaction = result.reaction_bed[cell, index].copy()
-            if index == 0:
-                reaction += frozen.pyro_bed_mol_s[cell]
-            reaction_abs = np.array([report.abs_q.get(("bed", cell, "suspension" if index == 0 else "bubble"), {}).get(name, 0.0) for name in GAS_SPECIES])
-            out = state.bed_gas_mol_s[cell, index]
-            swap = exchange[cell] * (-1.0 if index == 0 else 1.0)
-            residual = result.gas_suspension_mol_s[cell] if index == 0 else result.gas_bubble_mol_s[cell]
-            scale = np.maximum.reduce([np.abs(inflow + external), np.abs(out), reaction_abs, np.abs(swap), np.full(species, 1.0e-12)])
-            row("bed", cell, label, residual, scale)
-    for cell in range(frozen.n_freeboard):
-        inflow = np.zeros(species)
-        if cell + 1 < frozen.n_freeboard:
-            inflow = state.freeboard_gas_mol_s[cell + 1]
-        external = np.zeros(species)
-        if cell == frozen.n_freeboard - 1:
-            external = state.bed_gas_mol_s[0, 0] + state.bed_gas_mol_s[0, 1]
-        if cell == frozen.secondary_balance_index:
-            external = external + frozen.secondary_feed_mol_s
-        reaction_abs = np.array([report.abs_q.get(("freeboard", cell, "free"), {}).get(name, 0.0)
-                                 + report.abs_q.get(("freeboard", cell, "hover"), {}).get(name, 0.0) for name in GAS_SPECIES])
-        out = state.freeboard_gas_mol_s[cell]
-        scale = np.maximum.reduce([np.abs(inflow + external), np.abs(out), reaction_abs, np.full(species, 1.0e-12)])
-        row("freeboard", cell, "自由空间", result.gas_free_mol_s[cell], scale)
+        label = {"suspension": "悬浮相", "bubble": "气泡相", "free": "自由空间"}[item["phase"]]
+        rows.append([item["zone"], item["cell"], label, f(value), f(value / report.n_ref), f(ratio),
+                     f(float(np.max(item["scale"])))])
+    result = report.result
     block = max(float(np.max(np.abs(result.gas_suspension_mol_s))), float(np.max(np.abs(result.gas_bubble_mol_s))),
                 float(np.max(np.abs(result.gas_free_mol_s)))) / report.n_ref
     return {"rows": rows, "block_ratio": block, "gas_ratio": (report.run.get("ratios") or {}).get("gas"), "peak_ratio": peak}
